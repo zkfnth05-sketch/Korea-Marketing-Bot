@@ -55,7 +55,7 @@ function renderGalleryItems() {
     }
 
     if (items.length === 0) {
-        grid.innerHTML = `<div style="color: var(--text-secondary); grid-column: 1/-1; text-align:center; padding: 40px; background:#13172E; border-radius:12px; border:1px solid #22294E;">
+        grid.innerHTML = `<div style="color: var(--text-secondary); grid-column: 1/-1; text-align:center; padding: 40px; background:#FFFFFF; border-radius:12px; border:1px solid #E8E3DA;">
             <span style="font-size:32px; display:block; margin-bottom:8px;">🖼️</span>
             생성된 ${currentGalleryFilter === 'image' ? '카드뉴스 사진' : '미디어'}가 없습니다.
         </div>`;
@@ -65,44 +65,44 @@ function renderGalleryItems() {
     grid.innerHTML = items.map(item => {
         const isKM = item.brand === "kmarket" || item.name.includes("kmarket");
         const brandBadge = isKM
-            ? `<span style="background:rgba(16,185,129,0.2);color:#34d399;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;">🛒 K-Market</span>`
-            : `<span style="background:rgba(245,158,11,0.2);color:#fbbf24;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;">💰 EasyTax</span>`;
+            ? `<span style="background:#ECFDF5;color:#059669;border:1px solid #A7F3D0;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;">🛒 K-Market</span>`
+            : `<span style="background:#FFFBEB;color:#D97706;border:1px solid #FDE68A;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;">💰 EasyTax</span>`;
 
         let thumbHtml = "";
         if (item.type === "image") {
             thumbHtml = `
-                <div class="gallery-thumb-wrapper" style="background:#080A14;height:220px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:10px 10px 0 0;">
+                <div class="gallery-thumb-wrapper" style="background:#FAF8F5;border-bottom:1px solid #E8E3DA;height:220px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:10px 10px 0 0;">
                     <img src="${item.url}" class="gallery-thumb" alt="${item.name}" loading="lazy" onclick="window.open('${item.url}', '_blank')" style="width:100%;height:100%;object-fit:cover;cursor:pointer;" title="클릭하여 원본 사진 크게 보기">
                 </div>
             `;
         } else if (item.type === "audio") {
             thumbHtml = `
-                <div class="gallery-thumb-wrapper" style="background:linear-gradient(135deg,#1E1B4B,#0F172A);height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
+                <div class="gallery-thumb-wrapper" style="background:linear-gradient(135deg,#F5F3FF,#EDE9FE);border-bottom:1px solid #E8E3DA;height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
                     <span style="font-size:36px;margin-bottom:8px;">🎵</span>
                     <audio controls src="${item.url}" style="width:95%;height:32px;"></audio>
                 </div>
             `;
         } else {
             thumbHtml = `
-                <div class="gallery-thumb-wrapper" style="background:#0D1126;height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#94A3B8;">
+                <div class="gallery-thumb-wrapper" style="background:#FAF8F5;border-bottom:1px solid #E8E3DA;height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#64748B;">
                     <span style="font-size:38px;margin-bottom:6px;">📄</span>
-                    <span style="font-size:11px;color:#94A3B8;">텍스트 / PDF 가이드</span>
+                    <span style="font-size:11px;color:#64748B;">텍스트 / PDF 가이드</span>
                 </div>
             `;
         }
 
         return `
-            <div class="gallery-card" style="background:#13172E;border:1px solid #22294E;border-radius:12px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.3);">
+            <div class="gallery-card" style="background:#F6F1EA;border:1px solid #E5DDD1;border-radius:14px;overflow:hidden;box-shadow:var(--shadow-md);transition:transform 0.25s ease, box-shadow 0.25s ease;">
                 ${thumbHtml}
                 <div style="padding:14px;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         ${brandBadge}
-                        <span style="font-size:11px;color:#64748b;">${item.size}</span>
+                        <span style="font-size:11px;color:#6E665E;">${item.size}</span>
                     </div>
-                    <h4 style="margin:4px 0;font-size:13px;font-weight:700;color:#F8FAFC;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${item.name}">${item.name}</h4>
+                    <h4 style="margin:4px 0;font-size:13px;font-weight:700;color:#1E1B18;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${item.name}">${item.name}</h4>
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
-                        <span style="font-size:11px;color:#38BDF8;">${item.category}</span>
-                        <a href="${item.url}" target="_blank" style="font-size:11.5px;color:#34D399;text-decoration:none;font-weight:700;">열기 / 다운로드 →</a>
+                        <span style="font-size:11px;color:#0284C7;font-weight:700;">${item.category}</span>
+                        <a href="${item.url}" target="_blank" style="font-size:11.5px;color:#059669;text-decoration:none;font-weight:700;">열기 / 다운로드 →</a>
                     </div>
                 </div>
             </div>

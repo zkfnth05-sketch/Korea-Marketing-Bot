@@ -1,0 +1,17 @@
+{
+  "brand": "insurance",
+  "name": "InsureBalance",
+  "landing_url": "https://insurebalance.co.kr",
+  "credentials": {
+    "youtube_channel_id": "",
+    "instagram_account_id": "",
+    "tiktok_session": "",
+    "threads_token": "",
+    "telegram_bot_token": "",
+    "tistory_access_token": "",
+    "naver_blog_id": "",
+    "naver_session_cookie": "",
+    "kakao_channel_key": ""
+  },
+  "notes": "보험 비교 InsureBalance 앱 전용 SNS 및 국내 플랫폼 계정/세션 설정 파일. 기존 8대 파이프라인 코드는 건드리지 않고 이 설정만 세팅하면 가동됩니다."
+}

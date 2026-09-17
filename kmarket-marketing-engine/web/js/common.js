@@ -2,7 +2,10 @@
 // [모듈 1] common.js: 공통 상태 관리 및 유틸리티
 // ==========================================
 
-let currentBrand = "kmarket";
+let currentBrand = "aura";
+let isStockRunning = false;
+let isAuraRunning = false;
+let isInsuranceRunning = false;
 let isKMarketRunning = false;
 let isEasyTaxRunning = false;
 let logHistory = [];
@@ -102,61 +105,73 @@ function switchTabDirect(tabName) {
     if (btn) btn.click();
 }
 
-// 브랜드 스위칭 (kmarket ↔ easytax)
+// 브랜드 스위칭 (stock ↔ aura ↔ insurance)
 function switchBrand(brand) {
-    currentBrand = brand;
-    const btnKM = document.getElementById("brand-tab-km");
-    const btnTax = document.getElementById("brand-tab-tax");
+    currentBrand = brand || "aura";
+    const btnStock = document.getElementById("brand-tab-stock");
+    const btnAura = document.getElementById("brand-tab-aura");
+    const btnIns = document.getElementById("brand-tab-insurance");
     const pageTitle = document.getElementById("page-title");
     const pageDesc = document.getElementById("page-desc");
     const seasonName = document.getElementById("season-name");
+    const gCount = document.getElementById("google-index-count");
+    const seoCount = document.getElementById("stat-seo-count");
 
-    if (brand === "kmarket") {
-        if (btnKM) {
-            btnKM.style.background = "#7C3AED";
-            btnKM.style.borderColor = "transparent";
-            btnKM.style.color = "#FFFFFF";
-            btnKM.style.boxShadow = "0 4px 14px rgba(124, 58, 237, 0.45)";
+    // 기본 탭 스타일 리셋 (화이트 테마)
+    [btnStock, btnAura, btnIns].forEach(btn => {
+        if (btn) {
+            btn.style.background = "#F1F5F9";
+            btn.style.border = "1px solid #CBD5E1";
+            btn.style.color = "#475569";
+            btn.style.boxShadow = "none";
         }
-        if (btnTax) {
-            btnTax.style.background = "#13172E";
-            btnTax.style.borderColor = "#22294E";
-            btnTax.style.color = "#94A3B8";
-            btnTax.style.boxShadow = "none";
+    });
+
+    if (currentBrand === "stock") {
+        if (btnStock) {
+            btnStock.style.background = "linear-gradient(135deg, #F59E0B, #D97706)";
+            btnStock.style.border = "none";
+            btnStock.style.color = "#FFFFFF";
+            btnStock.style.boxShadow = "0 4px 14px rgba(245,158,11,0.45)";
         }
-        if (pageTitle) pageTitle.innerHTML = "📊 K-Market 마케팅 통합 제어 센터";
-        if (pageDesc) pageDesc.innerText = "270개 실물 매물 0원 나눔, 무빙세일, 17개국 양방향 번역 채팅을 실시간 제어합니다.";
+        if (pageTitle) pageTitle.innerHTML = "📈 Stock Master 주식 AI 마케팅 통합 제어 센터";
+        if (pageDesc) pageDesc.innerText = "당일 외인/기관 수급 분석, 장전 08:30 시황, 조건검색식, 24개 증시 채널을 24시간 자율 가동합니다.";
         if (seasonName) {
-            seasonName.innerText = "K-MARKET";
-            seasonName.style.color = "#FF6B35";
-        }
-        const gCount = document.getElementById("google-index-count");
-        if (gCount) gCount.innerText = "1,105개 K-Market 대학/공단 URL";
-        const seoCount = document.getElementById("stat-seo-count");
-        if (seoCount) seoCount.innerText = "1,105 개 (K-Market)";
-    } else {
-        if (btnTax) {
-            btnTax.style.background = "linear-gradient(135deg, #FBBF24, #F59E0B, #D97706)";
-            btnTax.style.borderColor = "#FDE68A";
-            btnTax.style.color = "#FFFFFF";
-            btnTax.style.boxShadow = "0 4px 18px rgba(245, 158, 11, 0.5)";
-        }
-        if (btnKM) {
-            btnKM.style.background = "#13172E";
-            btnKM.style.borderColor = "#22294E";
-            btnKM.style.color = "#94A3B8";
-            btnKM.style.boxShadow = "none";
-        }
-        if (pageTitle) pageTitle.innerHTML = "💰 EasyTax (KTRS) 100% 세무 환급 제어 센터";
-        if (pageDesc) pageDesc.innerText = "조특법 90% 소득세 감면, D-2 알바 3.3% 환급, 5개년 경정청구를 실시간 제어합니다.";
-        if (seasonName) {
-            seasonName.innerText = "EASYTAX";
+            seasonName.innerText = "STOCK MASTER AI";
             seasonName.style.color = "#FACC15";
         }
-        const gCount = document.getElementById("google-index-count");
-        if (gCount) gCount.innerText = "5,525개 EasyTax 전국 세무 URL";
-        const seoCount = document.getElementById("stat-seo-count");
-        if (seoCount) seoCount.innerText = "5,525 개 (EasyTax)";
+        if (gCount) gCount.innerText = "24개 채널 연결됨";
+        if (seoCount) seoCount.innerText = "24개 채널 (Stock AI)";
+    } else if (currentBrand === "aura") {
+        if (btnAura) {
+            btnAura.style.background = "linear-gradient(135deg, #EC4899, #BE185D)";
+            btnAura.style.border = "none";
+            btnAura.style.color = "#FFFFFF";
+            btnAura.style.boxShadow = "0 4px 14px rgba(236,72,153,0.45)";
+        }
+        if (pageTitle) pageTitle.innerHTML = "💖 Aura AI 데이팅 마케팅 통합 제어 센터";
+        if (pageDesc) pageDesc.innerText = "2030 소개팅 팁, 연애 심리 칼럼, 릴스/숏폼, 24개 소셜 채널을 24시간 자율 가동합니다.";
+        if (seasonName) {
+            seasonName.innerText = "AURA DATING";
+            seasonName.style.color = "#EC4899";
+        }
+        if (gCount) gCount.innerText = "24개 채널 연결됨";
+        if (seoCount) seoCount.innerText = "24개 채널 (Aura)";
+    } else if (currentBrand === "insurance") {
+        if (btnIns) {
+            btnIns.style.background = "linear-gradient(135deg, #10B981, #059669)";
+            btnIns.style.border = "none";
+            btnIns.style.color = "#FFFFFF";
+            btnIns.style.boxShadow = "0 4px 14px rgba(16,185,129,0.45)";
+        }
+        if (pageTitle) pageTitle.innerHTML = "🛡️ InsureBalance 보험비교 마케팅 통합 제어 센터";
+        if (pageDesc) pageDesc.innerText = "실손보험 비교, 3대 질병 절약 가이드, 호갱 탈출 팁, 24개 채널을 24시간 자율 가동합니다.";
+        if (seasonName) {
+            seasonName.innerText = "INSUREBALANCE";
+            seasonName.style.color = "#10B981";
+        }
+        if (gCount) gCount.innerText = "24개 채널 연결됨";
+        if (seoCount) seoCount.innerText = "24개 채널 (InsureBalance)";
     }
 
     if (typeof fetchStatus === "function") fetchStatus();
@@ -168,6 +183,7 @@ function switchBrand(brand) {
     if (typeof loadGoldenCopies === "function") loadGoldenCopies();
     if (typeof loadIRAnalytics === "function") loadIRAnalytics();
     if (typeof loadHealthStatus === "function") loadHealthStatus();
+    if (typeof loadTelegramCommunityStats === "function") loadTelegramCommunityStats();
 }
 
 window.showToast = showToast;

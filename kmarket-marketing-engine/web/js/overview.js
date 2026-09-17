@@ -2,49 +2,7 @@
 // [모듈 2] overview.js: 대시보드 & 8대 AI 허브 24시간 무인 관제 전담 모듈
 // ==========================================
 
-// 🎯 듀얼 트랙 전략 배지 렌더링 헬퍼 (유료 채널 8대 황금국가 선불 최적화 vs 무료 채널 17개국 전세계 그물망)
-function renderDualTrackBadge(h, brand) {
-    const isMedia = (h.key === "shorts" || h.key === "cardnews");
-    if (isMedia) {
-        return `
-            <!-- 🎯 8대 황금 타깃 모드 (선불 최적화) -->
-            <div style="background:rgba(245, 158, 11, 0.08);border:1px solid rgba(245, 158, 11, 0.28);border-radius:8px;padding:8px 10px;margin-bottom:8px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                    <span style="font-size:11px;font-weight:800;color:#FBBF24;display:flex;align-items:center;gap:4px;">
-                        🎯 8대 황금 타깃 모드 <span style="font-size:9.5px;color:#FDE68A;background:rgba(245,158,11,0.22);padding:1px 5px;border-radius:4px;border:1px solid rgba(245,158,11,0.35);">선불 최적화</span>
-                    </span>
-                    <span style="font-size:9.5px;color:#A3E635;font-weight:700;">환급 타깃 90% 집중</span>
-                </div>
-                <div style="font-size:9.5px;color:#CBD5E1;display:flex;flex-wrap:wrap;gap:3px;margin:5px 0;">
-                    <span style="background:#1E2442;padding:2px 5px;border-radius:3px;">🇻🇳 베트남</span>
-                    <span style="background:#1E2442;padding:2px 5px;border-radius:3px;">🇺🇿 우즈벡</span>
-                    <span style="background:#1E2442;padding:2px 5px;border-radius:3px;">🇰🇭 캄보디아</span>
-                    <span style="background:#1E2442;padding:2px 5px;border-radius:3px;">🇳🇵 네팔</span>
-                    <span style="background:#1E2442;padding:2px 5px;border-radius:3px;">🇹🇭 태국</span>
-                    <span style="background:#1E2442;padding:2px 5px;border-radius:3px;">🇮🇩 인도네시아</span>
-                    <span style="background:#1E2442;padding:2px 5px;border-radius:3px;">🇲🇳 몽골</span>
-                    <span style="background:#1E2442;padding:2px 5px;border-radius:3px;">🇲🇲 미얀마</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#94A3B8;border-top:1px dashed rgba(255,255,255,0.12);padding-top:6px;margin-top:4px;">
-                    <span style="font-weight:700;color:#FDE68A;">⏰ 1일 2슬롯 (11:30 / 18:30)</span>
-                    <span id="golden-counter-${brand}-${h.key}" style="color:#10B981;font-weight:800;font-size:11px;">오늘 실적: 0 / 16${h.key === 'shorts' ? '편' : '세트'}</span>
-                </div>
-            </div>
-        `;
-    } else {
-        return `
-            <!-- 🌐 비용 0원 무료 채널: 17개국 전체 그물망 -->
-            <div style="background:rgba(56, 189, 248, 0.05);border:1px solid rgba(56, 189, 248, 0.2);border-radius:8px;padding:6px 10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
-                <span style="font-size:10.5px;font-weight:700;color:#38BDF8;display:flex;align-items:center;gap:4px;">
-                    🌐 17개국 전 세계 그물망
-                </span>
-                <span style="font-size:9.5px;color:#34D399;font-weight:800;background:rgba(52,211,153,0.12);padding:1px 6px;border-radius:4px;border:1px solid rgba(52,211,153,0.25);">
-                    비용 0원 무료 독점
-                </span>
-            </div>
-        `;
-    }
-}
+
 
 async function fetchGoldenTargets() {
     try {
@@ -71,203 +29,258 @@ function updateGoldenTargetIndicators(goldenTargets) {
     });
 }
 
-// 1. 대시보드 8대 AI 마케팅 허브 그리드 동적 렌더링
+// 0. 각 채널(24개 허브) 고유의 브랜드 다채색(Multicolor) 테마 정의
+function getHubColorTheme(key, index) {
+    const themes = {
+        // 1. 미디어 / 영상 / 숏폼
+        shorts: {
+            primary: "#EF4444",
+            startGradient: "linear-gradient(135deg, #EF4444 0%, #DC2626 100%)",
+            actionBg: "#FEF2F2",
+            actionBorder: "#FECACA",
+            actionColor: "#B91C1C",
+            batchGradient: "linear-gradient(135deg, #F43F5E 0%, #E11D48 100%)"
+        },
+        cardnews: {
+            primary: "#EC4899",
+            startGradient: "linear-gradient(135deg, #EC4899 0%, #DB2777 100%)",
+            actionBg: "#FDF2F8",
+            actionBorder: "#FBCFE8",
+            actionColor: "#BE185D",
+            batchGradient: "linear-gradient(135deg, #D946EF 0%, #C026D3 100%)"
+        },
+        // 2. 글로벌 SNS
+        reddit: {
+            primary: "#FF4500",
+            startGradient: "linear-gradient(135deg, #FF4500 0%, #EA580C 100%)",
+            actionBg: "#FFF7ED",
+            actionBorder: "#FED7AA",
+            actionColor: "#C2410C"
+        },
+        fb_groups: {
+            primary: "#1877F2",
+            startGradient: "linear-gradient(135deg, #1877F2 0%, #0284C7 100%)",
+            actionBg: "#EFF6FF",
+            actionBorder: "#BFDBFE",
+            actionColor: "#1D4ED8"
+        },
+        blog: {
+            primary: "#2563EB",
+            startGradient: "linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)",
+            actionBg: "#F0F9FF",
+            actionBorder: "#BAE6FD",
+            actionColor: "#0369A1"
+        },
+        seo: {
+            primary: "#0EA5E9",
+            startGradient: "linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%)",
+            actionBg: "#F0FDFA",
+            actionBorder: "#99F6E4",
+            actionColor: "#0F766E"
+        },
+        threads: {
+            primary: "#334155",
+            startGradient: "linear-gradient(135deg, #475569 0%, #1E293B 100%)",
+            actionBg: "#F8FAFC",
+            actionBorder: "#CBD5E1",
+            actionColor: "#334155"
+        },
+        // 3. 네이버 계열 (고유 그린 & 틸 계열 분화)
+        naver_clip: {
+            primary: "#059669",
+            startGradient: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+            actionBg: "#ECFDF5",
+            actionBorder: "#A7F3D0",
+            actionColor: "#047857"
+        },
+        naver_blog: {
+            primary: "#03C75A",
+            startGradient: "linear-gradient(135deg, #03C75A 0%, #029F48 100%)",
+            actionBg: "#F0FDF4",
+            actionBorder: "#BBF7D0",
+            actionColor: "#15803D"
+        },
+        naver_post: {
+            primary: "#0D9488",
+            startGradient: "linear-gradient(135deg, #0D9488 0%, #0F766E 100%)",
+            actionBg: "#CCFBF1",
+            actionBorder: "#99F6E4",
+            actionColor: "#115E59"
+        },
+        search_advisor: {
+            primary: "#0284C7",
+            startGradient: "linear-gradient(135deg, #0284C7 0%, #0369A1 100%)",
+            actionBg: "#F0F9FF",
+            actionBorder: "#BAE6FD",
+            actionColor: "#075985"
+        },
+        naver_kin: {
+            primary: "#16A34A",
+            startGradient: "linear-gradient(135deg, #22C55E 0%, #16A34A 100%)",
+            actionBg: "#DCFCE7",
+            actionBorder: "#86EFAC",
+            actionColor: "#166534"
+        },
+        naver_cafe: {
+            primary: "#15803D",
+            startGradient: "linear-gradient(135deg, #16A34A 0%, #15803D 100%)",
+            actionBg: "#F0FDF4",
+            actionBorder: "#BBF7D0",
+            actionColor: "#14532D"
+        },
+        // 4. 카카오 계열 & 티스토리
+        tistory: {
+            primary: "#F97316",
+            startGradient: "linear-gradient(135deg, #FB923C 0%, #EA580C 100%)",
+            actionBg: "#FFF7ED",
+            actionBorder: "#FED7AA",
+            actionColor: "#C2410C"
+        },
+        brunch: {
+            primary: "#78350F",
+            startGradient: "linear-gradient(135deg, #92400E 0%, #78350F 100%)",
+            actionBg: "#FEF3C7",
+            actionBorder: "#FDE68A",
+            actionColor: "#92400E"
+        },
+        daum_cafe: {
+            primary: "#D97706",
+            startGradient: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
+            actionBg: "#FFFBEB",
+            actionBorder: "#FDE68A",
+            actionColor: "#B45309"
+        },
+        kakao_channel: {
+            primary: "#EAB308",
+            startGradient: "linear-gradient(135deg, #FACC15 0%, #EAB308 100%)",
+            actionBg: "#FEFCE8",
+            actionBorder: "#FEF08A",
+            actionColor: "#854D0E"
+        },
+        // 5. 대형 커뮤니티 (차별화된 다채로운 색상)
+        ppomppu: {
+            primary: "#4F46E5",
+            startGradient: "linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)",
+            actionBg: "#EEF2FF",
+            actionBorder: "#C7D2FE",
+            actionColor: "#4338CA"
+        },
+        dcinside: {
+            primary: "#2563EB",
+            startGradient: "linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)",
+            actionBg: "#EFF6FF",
+            actionBorder: "#BFDBFE",
+            actionColor: "#1E40AF"
+        },
+        bobaedream: {
+            primary: "#7C3AED",
+            startGradient: "linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)",
+            actionBg: "#F5F3FF",
+            actionBorder: "#DDD6FE",
+            actionColor: "#6D28D9"
+        },
+        nate_pann: {
+            primary: "#E11D48",
+            startGradient: "linear-gradient(135deg, #F43F5E 0%, #E11D48 100%)",
+            actionBg: "#FFF1F2",
+            actionBorder: "#FECDD3",
+            actionColor: "#BE123C"
+        },
+        fmkorea: {
+            primary: "#0284C7",
+            startGradient: "linear-gradient(135deg, #38BDF8 0%, #0284C7 100%)",
+            actionBg: "#F0F9FF",
+            actionBorder: "#BAE6FD",
+            actionColor: "#0369A1"
+        },
+        twitter_x: {
+            primary: "#0F172A",
+            startGradient: "linear-gradient(135deg, #334155 0%, #0F172A 100%)",
+            actionBg: "#F8FAFC",
+            actionBorder: "#CBD5E1",
+            actionColor: "#0F172A"
+        }
+    };
+
+    if (themes[key]) return themes[key];
+
+    // Fallback: 다채로운 프리미엄 순환 팔레트
+    const palette = [
+        { primary: "#2563EB", startGradient: "linear-gradient(135deg, #3B82F6, #1D4ED8)", actionBg: "#EFF6FF", actionBorder: "#BFDBFE", actionColor: "#1E40AF" },
+        { primary: "#059669", startGradient: "linear-gradient(135deg, #10B981, #059669)", actionBg: "#ECFDF5", actionBorder: "#A7F3D0", actionColor: "#047857" },
+        { primary: "#7C3AED", startGradient: "linear-gradient(135deg, #8B5CF6, #7C3AED)", actionBg: "#F5F3FF", actionBorder: "#DDD6FE", actionColor: "#6D28D9" },
+        { primary: "#D97706", startGradient: "linear-gradient(135deg, #F59E0B, #D97706)", actionBg: "#FFFBEB", actionBorder: "#FDE68A", actionColor: "#B45309" },
+        { primary: "#E11D48", startGradient: "linear-gradient(135deg, #F43F5E, #E11D48)", actionBg: "#FFF1F2", actionBorder: "#FECDD3", actionColor: "#BE123C" },
+        { primary: "#0D9488", startGradient: "linear-gradient(135deg, #14B8A6, #0D9488)", actionBg: "#CCFBF1", actionBorder: "#99F6E4", actionColor: "#115E59" },
+        { primary: "#4F46E5", startGradient: "linear-gradient(135deg, #6366F1, #4F46E5)", actionBg: "#EEF2FF", actionBorder: "#C7D2FE", actionColor: "#4338CA" },
+        { primary: "#EA580C", startGradient: "linear-gradient(135deg, #FB923C, #EA580C)", actionBg: "#FFF7ED", actionBorder: "#FED7AA", actionColor: "#C2410C" }
+    ];
+    return palette[(index || 0) % palette.length];
+}
+
+// 1. 대시보드 22대 AI 마케팅 허브 그리드 동적 렌더링 (APP_PIPELINES 모듈 연동)
 function renderHubGrid() {
     const container = document.getElementById("hub-grid-container");
     const panelTitle = document.getElementById("hub-panel-title");
     const panelDesc = document.getElementById("hub-panel-desc");
     if (!container) return;
 
-    if (currentBrand === "kmarket") {
-        if (panelTitle) panelTitle.innerText = "🎯 KTRS 마켓 7대 AI 마케팅 허브 & 24시간 무인 자율 공장";
-        if (panelDesc) panelDesc.innerText = "270개 실물 매물 0원 나눔 숏폼, 카드뉴스, 레딧 1:1, 50만 페북 그룹, 블로그, 구글 색인 핑, 스레드를 24시간 자율 가동합니다. (텔레그램은 상단 전용 사령부에서 통합 관제)";
+    const brand = currentBrand || "aura";
+    const app = (typeof APP_PIPELINES !== "undefined" && APP_PIPELINES[brand]) ? APP_PIPELINES[brand] : APP_PIPELINES["aura"];
 
-        const hubs = [
-            { id: "shorts", name: "0원 나눔 실물 숏폼 팩토리", icon: "🎬", desc: "4개 플랫폼 숏폼 (하루 3회 정시: 12:00 / 20:30 / 23:30 KST)", key: "shorts" },
-            { id: "cardnews", name: "실물 매물 4장 카드뉴스", icon: "📸", desc: "4장 캐러셀 카드뉴스 (하루 3회 정시: 08:00 / 15:30 / 22:30 KST)", key: "cardnews" },
-            { id: "reddit", name: "Reddit 1:1 리드 헌터", icon: "🤖", desc: "26개 서브레딧 실시간 감지 (1시간 간격 정기 자율 헌팅)", key: "reddit" },
-            { id: "fb_groups", name: "페이스북 50만 그룹 침투기", icon: "👥", desc: "4장 카드뉴스 + 첫댓글 (하루 3회 정시: 09:30 / 13:30 / 19:30 KST)", key: "fb_groups" },
-            { id: "blog", name: "17개국어 SEO 블로그 칼럼", icon: "🌐", desc: "17개국어 칼럼 (하루 3회 정시: 09:00 / 13:00 / 19:00 KST)", key: "blog" },
-            { id: "seo", name: "구글 서치콘솔 & 실시간 색인 핑", icon: "🔍", desc: "Googlebot 색인 핑 & 사이트맵 갱신 (하루 1회 정시: 01:00 KST)", key: "seo", isSeo: true },
-            { id: "threads", name: "Meta Threads 바이럴 스레드", icon: "🧵", desc: "3~4단 타래 바이럴 (하루 3회 정시: 11:00 / 16:30 / 21:30 KST)", key: "threads" }
-        ];
+    if (panelTitle) panelTitle.innerText = `🎯 24대 AI 마케팅 허브 & 24시간 무인 자율 공장`;
+    if (panelDesc) panelDesc.innerText = `숏폼, 카드뉴스, 레딧, 페이스북, 블로그, 구글 색인 핑, 스레드 및 국내 16대 포털/커뮤니티 채널을 24시간 자율 가동합니다. (텔레그램은 상단 전용 사령부에서 통합 관제)`;
 
-        container.innerHTML = hubs.map((h, idx) => {
-            const isMediaHub = (h.key === "shorts" || h.key === "cardnews");
+    container.innerHTML = app.hubs.map((h, idx) => {
+        const theme = getHubColorTheme(h.key, idx);
+        const isShorts = h.key === "shorts";
+        const isCardnews = h.key === "cardnews";
+        const runActionText = isShorts ? "🎬 완성 숏폼 원클릭 제작" : isCardnews ? "📸 카드뉴스 원클릭 제작" : "⚡ 즉시 1회 시험 실행";
+        const runActionOnClick = isShorts 
+            ? `triggerOneClickProduce('${brand}', 'shorts', this)`
+            : isCardnews 
+            ? `triggerOneClickProduce('${brand}', 'cardnews', this)`
+            : (h.isSeo ? 'triggerGoogleIndex()' : `runModule('${brand}_${h.key}')`);
 
-            return `
-            <div class="action-card" id="card-kmarket-${h.key}" style="background:#13172E;border:1px solid #22294E;border-top:3px solid #10B981;border-radius:12px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;gap:10px;box-shadow:0 4px 14px rgba(0,0,0,0.3);">
-                <div>
-                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-                        <span style="font-size:24px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:8px;">${h.icon}</span>
-                        <div>
-                            <div style="font-size:11px;color:#10B981;font-weight:700;">#${idx+1} K-MARKET 허브</div>
-                            <h4 style="margin:0;font-size:14px;font-weight:700;color:#FFFFFF;">${h.name}</h4>
-                        </div>
-                    </div>
-                    <p style="font-size:11.5px;color:#94A3B8;margin:0 0 10px 0;line-height:1.4;">${h.desc}</p>
-                    
-                    ${renderDualTrackBadge(h, 'kmarket')}
-
-                    <!-- 실시간 24시간 가동 상태 바 -->
-                    <div style="display:flex;justify-content:space-between;align-items:center;background:#090C19;padding:6px 10px;border-radius:8px;border:1px solid #1E2442;margin-bottom:10px;">
-                        <span style="font-size:11px;color:#94A3B8;">실시간 상태:</span>
-                        <span id="badge-status-kmarket-${h.key}" class="badge-idle" style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,0.08);color:#94A3B8;">
-                            ⚪ 대기
-                        </span>
+        return `
+        <div class="action-card" id="card-${brand}-${h.key}" style="background:#F6F1EA;border:1px solid #E5DDD1;border-top:3.5px solid ${theme.primary};border-radius:14px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;gap:12px;box-shadow:var(--shadow-md);transition:transform 0.25s ease, box-shadow 0.25s ease;">
+            <div>
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                    <span style="font-size:24px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:#FFFFFF;border:1px solid #E5DDD1;border-radius:8px;">${h.icon}</span>
+                    <div>
+                        <div style="font-size:11px;color:${theme.primary};font-weight:800;">#${idx+1} 마케팅 허브</div>
+                        <h4 style="margin:0;font-size:14px;font-weight:700;color:#1E1B18;">${h.name}</h4>
                     </div>
                 </div>
+                <p style="font-size:11.5px;color:#6E665E;margin:0 0 10px 0;line-height:1.45;">${h.desc}</p>
 
-                <div>
-                    ${isMediaHub ? `
-                    <!-- 🚀 [원클릭 즉시 생성] Wan 2.2 & 서브픽셀 매립 팩토리 -->
-                    <div style="background:#090C19;padding:8px 10px;border-radius:10px;border:1px solid rgba(16,185,129,0.35);margin-bottom:8px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                            <span style="font-size:11px;font-weight:800;color:#10B981;">⚡ 원클릭 즉시 제작:</span>
-                            <select id="select-lang-kmarket-${h.key}" style="background:#13172E;color:#FFFFFF;border:1px solid #22294E;border-radius:6px;font-size:11px;padding:2px 6px;cursor:pointer;">
-                                <option value="vi" selected>🇻🇳 베트남 (vi)</option>
-                                <option value="uz">🇺🇿 우즈베크 (uz)</option>
-                                <option value="ko">🇰🇷 한국 (ko)</option>
-                            </select>
-                        </div>
-                        <button class="btn" id="btn-factory-kmarket-${h.key}" onclick="triggerOneClickProduce('kmarket', '${h.key}', this)" style="width:100%;font-size:12px;padding:8px 0;background:linear-gradient(135deg, #10B981 0%, #059669 100%);border:none;color:#FFFFFF;font-weight:900;border-radius:8px;box-shadow:0 4px 12px rgba(16,185,129,0.4);cursor:pointer;" title="케이마켓 모바일 UI 매립 원클릭 즉시 제작">
-                            ${h.key === 'shorts' ? '🎬 완성 숏폼 원클릭 제작' : '📸 0원 나눔 카드뉴스 원클릭 제작'}
-                        </button>
-                    </div>
-                    <!-- 🌟 8대 황금 타깃 1일 2슬롯 24시간 무인 가동 및 정지 -->
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
-                        <button class="btn btn-primary" id="btn-daemon-gb-kmarket-${h.key}" onclick="startGoldenBatchDaemon()" style="font-size:11.5px;padding:7px 4px;font-weight:800;background:linear-gradient(135deg, #10B981, #059669);color:#FFFFFF;" title="오전 11:30 & 저녁 18:30 8대 국가 자동 대량 생산 무인 가동">
-                            🚀 8개국 무인 가동
-                        </button>
-                        <button class="btn btn-stop" id="btn-stop-gb-kmarket-${h.key}" onclick="stopGoldenBatchDaemon()" style="font-size:11.5px;padding:7px 4px;font-weight:700;" title="8개국 무인 데몬 정지">
-                            ⏹️ 정지
-                        </button>
-                    </div>
-                    <!-- 🔥 8대 국가 즉시 일괄 렌더링 버튼 (원클릭 완성!) -->
-                    <button class="btn" id="btn-run-gb-kmarket-${h.key}" onclick="triggerGoldenBatchRun('${h.key}', this)" style="width:100%;font-size:12.5px;padding:9px 0;background:linear-gradient(135deg, #F59E0B 0%, #D97706 100%);border:none;color:#000000;font-weight:900;border-radius:8px;box-shadow:0 4px 12px rgba(245,158,11,0.35);cursor:pointer;" title="8대 황금 타깃 국가 일괄 렌더링">
-                        ⚡ 8대 국가 즉시 일괄 렌더링 (${h.key === 'shorts' ? '8편' : '8세트'})
-                    </button>
-                    ` : `
-                    <!-- 1:1 무인 가동 및 정지 버튼 그룹 -->
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
-                        <button class="btn btn-primary" id="btn-start-kmarket-${h.key}" onclick="startChannelDaemon('kmarket_${h.key}', this)" style="font-size:11.5px;padding:7px 4px;font-weight:700;" title="24시간 무인 자동 배포 데몬 시작">
-                            🚀 무인 가동
-                        </button>
-                        <button class="btn btn-stop" id="btn-stop-kmarket-${h.key}" onclick="stopChannelDaemon('kmarket_${h.key}', this)" style="font-size:11.5px;padding:7px 4px;font-weight:700;" title="무인 데몬 정지">
-                            ⏹️ 정지
-                        </button>
-                    </div>
-                    <button class="btn btn-action" onclick="${h.isSeo ? 'triggerGoogleIndex()' : `runModule('kmarket_${h.key}')`}" style="width:100%;font-size:11px;padding:6px 0;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:#CBD5E1;">
-                        ⚡ 즉시 1회 시험 실행
-                    </button>
-                    `}
+                <!-- 실시간 24시간 가동 상태 바 -->
+                <div style="display:flex;justify-content:space-between;align-items:center;background:#FFFFFF;padding:6px 10px;border-radius:8px;border:1px solid #E5DDD1;">
+                    <span style="font-size:11px;color:#6E665E;">실시간 상태:</span>
+                    <span id="badge-status-${brand}-${h.key}" class="badge-idle" style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:#F6F1EA;color:#6E665E;border:1px solid #E5DDD1;">
+                        ⚪ 대기
+                    </span>
                 </div>
             </div>
-        `}).join("");
 
-    } else {
-        if (panelTitle) panelTitle.innerText = "🎯 EasyTax 7대 AI 세무 허브 & 24시간 무인 자율 공장";
-        if (panelDesc) panelDesc.innerText = "조특법 90% 소득세 감면, D-2 환급 숏폼, 세무 카드뉴스, 세무 레딧, 50만 페북 그룹, 세무 블로그, 구글 색인 핑, 스레드를 24시간 자율 가동합니다. (텔레그램은 상단 전용 사령부에서 통합 관제)";
-
-        const hubs = [
-            { id: "shorts", name: "E-9 90% 감면 세무 숏폼", icon: "🎬", desc: "4개 플랫폼 세무 숏폼 (하루 3회 정시: 12:00 / 20:30 / 23:30 KST)", key: "shorts" },
-            { id: "cardnews", name: "Anti-Ban 공인 세무 카드뉴스", icon: "📸", desc: "4장 캐러셀 세무 카드뉴스 (하루 3회 정시: 08:00 / 15:30 / 22:30 KST)", key: "cardnews" },
-            { id: "reddit", name: "세금/비자 세무 레딧 헌터", icon: "🤖", desc: "r/korea 세무 질문 감지 (1시간 간격 정기 자율 헌팅)", key: "reddit" },
-            { id: "fb_groups", name: "외국인 세무 페이스북 그룹 침투", icon: "👥", desc: "4장 카드뉴스 + 첫댓글 (하루 3회 정시: 09:30 / 13:30 / 19:30 KST)", key: "fb_groups" },
-            { id: "blog", name: "15개국어 글로벌 세무 블로그", icon: "🌐", desc: "15개국어 세무 칼럼 (하루 3회 정시: 09:00 / 13:00 / 19:00 KST)", key: "blog" },
-            { id: "seo", name: "구글 서치콘솔 & 세무 색인 핑", icon: "🔍", desc: "Googlebot 색인 핑 & 사이트맵 갱신 (하루 1회 정시: 01:00 KST)", key: "seo", isSeo: true },
-            { id: "threads", name: "Meta Threads 세무 스레드", icon: "🧵", desc: "조특법 90% 감면 타래 (하루 3회 정시: 11:00 / 16:30 / 21:30 KST)", key: "threads" }
-        ];
-
-        container.innerHTML = hubs.map((h, idx) => {
-            const isMediaHub = (h.key === "shorts" || h.key === "cardnews");
-
-            return `
-            <div class="action-card" id="card-easytax-${h.key}" style="background:#13172E;border:1px solid #22294E;border-top:3px solid #F59E0B;border-radius:12px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;gap:10px;box-shadow:0 4px 14px rgba(0,0,0,0.3);">
-                <div>
-                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-                        <span style="font-size:24px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:8px;">${h.icon}</span>
-                        <div>
-                            <div style="font-size:11px;color:#F59E0B;font-weight:700;">#${idx+1} EASYTAX 허브</div>
-                            <h4 style="margin:0;font-size:14px;font-weight:700;color:#FFFFFF;">${h.name}</h4>
-                        </div>
-                    </div>
-                    <p style="font-size:11.5px;color:#94A3B8;margin:0 0 10px 0;line-height:1.4;">${h.desc}</p>
-                    
-                    ${renderDualTrackBadge(h, 'easytax')}
-
-                    <!-- 실시간 24시간 가동 상태 바 -->
-                    <div style="display:flex;justify-content:space-between;align-items:center;background:#090C19;padding:6px 10px;border-radius:8px;border:1px solid #1E2442;margin-bottom:10px;">
-                        <span style="font-size:11px;color:#94A3B8;">실시간 상태:</span>
-                        <span id="badge-status-easytax-${h.key}" class="badge-idle" style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,0.08);color:#94A3B8;">
-                            ⚪ 대기
-                        </span>
-                    </div>
-                </div>
-
-                <div>
-                    ${isMediaHub ? `
-                    <!-- 🚀 [원클릭 즉시 생성] Wan 2.2 & 서브픽셀 매립 팩토리 -->
-                    <div style="background:#090C19;padding:8px 10px;border-radius:10px;border:1px solid rgba(212,175,55,0.4);margin-bottom:8px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:6px;">
-                            <select id="select-lang-easytax-${h.key}" style="flex:1.2;background:#13172E;color:#FFFFFF;border:1px solid #22294E;border-radius:6px;font-size:11px;padding:3px 4px;cursor:pointer;" title="타깃 국가/언어">
-                                <option value="auto" selected>🤖 제미나이 추천 (8개국)</option>
-                                <option value="vi">🇻🇳 베트남 (vi)</option>
-                                <option value="uz">🇺🇿 우즈베크 (uz)</option>
-                                <option value="km">🇰🇭 캄보디아 (km)</option>
-                                <option value="id">🇮🇩 인도네시아 (id)</option>
-                                <option value="th">🇹🇭 태국 (th)</option>
-                                <option value="kk">🇰🇿 카자흐/러시아 (kk)</option>
-                                <option value="tl">🇵🇭 필리핀 (tl)</option>
-                                <option value="my">🇲🇲 미얀마 (my)</option>
-                                <option value="ko">🇰🇷 한국어 (ko)</option>
-                            </select>
-                            <select id="select-amount-easytax-${h.key}" style="flex:1.2;background:#13172E;color:#F59E0B;border:1px solid #D4AF37;border-radius:6px;font-size:11px;padding:3px 4px;cursor:pointer;font-weight:700;" title="환급 금액 선택">
-                                <option value="random" selected>🎲 실사 랜덤 (180~430만)</option>
-                                <option value="3100000">₩3,100,000 (평균)</option>
-                                <option value="1850000">₩1,850,000 (1~2년차)</option>
-                                <option value="2600000">₩2,600,000 (3년차)</option>
-                                <option value="4250000">₩4,250,000 (5년 만기)</option>
-                            </select>
-                        </div>
-                        <button class="btn" id="btn-factory-easytax-${h.key}" onclick="triggerOneClickProduce('easytax', '${h.key}', this)" style="width:100%;font-size:12px;padding:8px 0;background:linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);border:none;color:#0B132B;font-weight:900;border-radius:8px;box-shadow:0 4px 12px rgba(212,175,55,0.4);cursor:pointer;" title="국세청 세금 환급 영수증 매립 원클릭 즉시 제작">
-                            ${h.key === 'shorts' ? '🎬 세금 환급 완성 숏폼 원클릭 제작' : '📸 국세청 환급 카드뉴스 원클릭 제작'}
-                        </button>
-                    </div>
-                    <!-- 🌟 8대 황금 타깃 1일 2슬롯 24시간 무인 가동 및 정지 -->
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
-                        <button class="btn btn-gold" id="btn-daemon-gb-easytax-${h.key}" onclick="startGoldenBatchDaemon()" style="font-size:11.5px;padding:7px 4px;font-weight:800;background:linear-gradient(135deg, #10B981, #059669);color:#FFFFFF;" title="오전 11:30 & 저녁 18:30 8대 국가 세무 자동 대량 생산 무인 가동">
-                            🚀 8개국 무인 가동
-                        </button>
-                        <button class="btn btn-stop" id="btn-stop-gb-easytax-${h.key}" onclick="stopGoldenBatchDaemon()" style="font-size:11.5px;padding:7px 4px;font-weight:700;" title="8개국 무인 데몬 정지">
-                            ⏹️ 정지
-                        </button>
-                    </div>
-                    <!-- 🔥 8대 국가 즉시 일괄 렌더링 버튼 (원클릭 완성!) -->
-                    <button class="btn" id="btn-run-gb-easytax-${h.key}" onclick="triggerGoldenBatchRun('${h.key}', this)" style="width:100%;font-size:12.5px;padding:9px 0;background:linear-gradient(135deg, #F59E0B 0%, #D97706 100%);border:none;color:#000000;font-weight:900;border-radius:8px;box-shadow:0 4px 12px rgba(245,158,11,0.35);cursor:pointer;" title="8대 황금 타깃 국가 세무 일괄 렌더링">
-                        ⚡ 8대 국가 즉시 일괄 렌더링 (${h.key === 'shorts' ? '8편' : '8세트'})
+            <div>
+                <!-- 1:1 무인 가동 및 정지 버튼 그룹 -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
+                    <button class="btn" id="btn-start-${brand}-${h.key}" data-original-bg="${theme.startGradient}" onclick="startChannelDaemon('${brand}_${h.key}', this)" style="font-size:11.5px;padding:7px 4px;font-weight:800;background:${theme.startGradient};color:#FFFFFF;border:none;border-radius:8px;box-shadow:0 3px 8px rgba(0,0,0,0.12);cursor:pointer;" title="24시간 무인 자동 배포 데몬 시작">
+                        🚀 무인 가동
                     </button>
-                    ` : `
-                    <!-- 1:1 무인 가동 및 정지 버튼 그룹 -->
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
-                        <button class="btn btn-gold" id="btn-start-easytax-${h.key}" onclick="startChannelDaemon('easytax_${h.key}', this)" style="font-size:11.5px;padding:7px 4px;font-weight:700;" title="24시간 무인 세무 배포 데몬 시작">
-                            🚀 무인 가동
-                        </button>
-                        <button class="btn btn-stop" id="btn-stop-easytax-${h.key}" onclick="stopChannelDaemon('easytax_${h.key}', this)" style="font-size:11.5px;padding:7px 4px;font-weight:700;" title="무인 데몬 정지">
-                            ⏹️ 정지
-                        </button>
-                    </div>
-                    <button class="btn btn-action" onclick="${h.isSeo ? 'triggerGoogleIndex()' : `runModule('easytax_${h.key}')`}" style="width:100%;font-size:11px;padding:6px 0;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:#CBD5E1;">
-                        ⚡ 즉시 1회 시험 실행
+                    <button class="btn btn-stop" id="btn-stop-${brand}-${h.key}" onclick="stopChannelDaemon('${brand}_${h.key}', this)" style="font-size:11.5px;padding:7px 4px;font-weight:700;border-radius:8px;cursor:pointer;" title="무인 데몬 정지">
+                        ⏹️ 정지
                     </button>
-                    `}
                 </div>
+                <button class="btn btn-action" onclick="${runActionOnClick}" style="width:100%;font-size:11.5px;padding:7px 0;background:${theme.actionBg};border:1px solid ${theme.actionBorder};color:${theme.actionColor};font-weight:700;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.04);cursor:pointer;">
+                    ${runActionText}
+                </button>
             </div>
-        `}).join("");
-    }
-    // 스위치 UI 상태 동기화 및 8대 황금 타깃 순환 상태 갱신
+        </div>
+    `}).join("");
+
     setTimeout(loadMediaEngineSettings, 50);
-    setTimeout(fetchGoldenTargets, 100);
 }
 
 // 2. 24시간 무인 자율 채널 데몬 시작
@@ -276,14 +289,14 @@ async function startChannelDaemon(moduleKey, btn) {
         btn.disabled = true;
         btn.innerHTML = `<span class="spin-icon" style="display:inline-block;animation:rotateSpin 0.6s linear infinite;">🔄</span> 가동 중...`;
     }
-    const cleanKey = moduleKey.replace("kmarket_", "").replace("easytax_", "");
-    const brandPrefix = moduleKey.startsWith("easytax_") ? "easytax" : "kmarket";
+    const cleanKey = moduleKey.replace("kmarket_", "").replace("easytax_", "").replace("stock_", "").replace("aura_", "").replace("insurance_", "");
+    const brandPrefix = moduleKey.startsWith("aura_") ? "aura" : moduleKey.startsWith("insurance_") ? "insurance" : moduleKey.startsWith("stock_") ? "stock" : moduleKey.startsWith("easytax_") ? "easytax" : "kmarket";
     const badge = document.getElementById(`badge-status-${brandPrefix}-${cleanKey}`);
     if (badge) {
         badge.className = "badge-running";
-        badge.style.background = "rgba(16,185,129,0.2)";
-        badge.style.color = "#34D399";
-        badge.style.border = "1px solid rgba(16,185,129,0.4)";
+        badge.style.background = "#DCFCE7";
+        badge.style.color = "#15803D";
+        badge.style.border = "1px solid #86EFAC";
         badge.innerHTML = "🟢 실행 중 (24h)";
     }
 
@@ -303,6 +316,7 @@ async function startChannelDaemon(moduleKey, btn) {
         if (btn) {
             btn.disabled = false;
             btn.innerHTML = `🚀 무인 가동`;
+            btn.style.background = btn.getAttribute("data-original-bg") || "";
         }
     }
 }
@@ -313,14 +327,14 @@ async function stopChannelDaemon(moduleKey, btn) {
         btn.disabled = true;
         btn.innerHTML = `⏹️ 정지 중...`;
     }
-    const cleanKey = moduleKey.replace("kmarket_", "").replace("easytax_", "");
-    const brandPrefix = moduleKey.startsWith("easytax_") ? "easytax" : "kmarket";
+    const cleanKey = moduleKey.replace("kmarket_", "").replace("easytax_", "").replace("stock_", "").replace("aura_", "").replace("insurance_", "");
+    const brandPrefix = moduleKey.startsWith("aura_") ? "aura" : moduleKey.startsWith("insurance_") ? "insurance" : moduleKey.startsWith("stock_") ? "stock" : moduleKey.startsWith("easytax_") ? "easytax" : "kmarket";
     const badge = document.getElementById(`badge-status-${brandPrefix}-${cleanKey}`);
     if (badge) {
         badge.className = "badge-idle";
-        badge.style.background = "rgba(255,255,255,0.08)";
-        badge.style.color = "#94A3B8";
-        badge.style.border = "none";
+        badge.style.background = "#F6F1EA";
+        badge.style.color = "#6E665E";
+        badge.style.border = "1px solid #E5DDD1";
         badge.innerHTML = "⚪ 대기";
     }
 
@@ -331,8 +345,8 @@ async function stopChannelDaemon(moduleKey, btn) {
         appendLog(`[Daemon Stop] ${data.message || moduleKey}`, "warning");
         const startBtn = document.getElementById(`btn-start-${brandPrefix}-${cleanKey}`);
         if (startBtn) {
-            startBtn.innerHTML = brandPrefix === "easytax" ? "💰 무인 가동" : "🚀 무인 가동";
-            startBtn.style.background = "";
+            startBtn.innerHTML = "🚀 무인 가동";
+            startBtn.style.background = startBtn.getAttribute("data-original-bg") || "";
         }
         fetchStatus();
     } catch (e) {
@@ -348,8 +362,13 @@ async function stopChannelDaemon(moduleKey, btn) {
 // 4. 채널 뱃지 동기화
 function updateChannelBadges(runningChannels) {
     if (!runningChannels) return;
-    const modules = ["shorts", "cardnews", "reddit", "fb_groups", "blog", "seo", "threads", "briefing"];
-    const brands = ["kmarket", "easytax"];
+    const modules = [
+        "shorts", "cardnews", "reddit", "fb_groups", "blog", "seo", "threads",
+        "naver_clip", "naver_blog", "tistory", "naver_post", "brunch", "search_advisor",
+        "naver_kin", "naver_cafe", "daum_cafe", "ppomppu", "dcinside", "bobaedream",
+        "nate_pann", "fmkorea", "kakao_channel"
+    ];
+    const brands = ["stock", "aura", "insurance", "kmarket", "easytax"];
 
     brands.forEach(b => {
         modules.forEach(m => {
@@ -361,15 +380,15 @@ function updateChannelBadges(runningChannels) {
             if (badge) {
                 if (isRunning) {
                     badge.className = "badge-running";
-                    badge.style.background = "rgba(16,185,129,0.2)";
-                    badge.style.color = "#34D399";
-                    badge.style.border = "1px solid rgba(16,185,129,0.4)";
+                    badge.style.background = "#DCFCE7";
+                    badge.style.color = "#15803D";
+                    badge.style.border = "1px solid #86EFAC";
                     badge.innerHTML = "🟢 실행 중 (24h)";
                 } else {
                     badge.className = "badge-idle";
-                    badge.style.background = "rgba(255,255,255,0.08)";
-                    badge.style.color = "#94A3B8";
-                    badge.style.border = "none";
+                    badge.style.background = "#F6F1EA";
+                    badge.style.color = "#6E665E";
+                    badge.style.border = "1px solid #E5DDD1";
                     badge.innerHTML = "⚪ 대기";
                 }
             }
@@ -379,15 +398,81 @@ function updateChannelBadges(runningChannels) {
                     startBtn.innerHTML = `🔄 무인 가동 중 🟢`;
                     startBtn.style.background = "#059669";
                 } else {
-                    startBtn.innerHTML = b === "easytax" ? "💰 무인 가동" : "🚀 무인 가동";
-                    startBtn.style.background = "";
+                    startBtn.innerHTML = "🚀 무인 가동";
+                    startBtn.style.background = startBtn.getAttribute("data-original-bg") || "";
                 }
             }
         });
     });
 }
 
-// 5. 사이드바 데몬 시작/정지 & 마스터 제어
+// 5. 사이드바 데몬 시작/정지 & 3대 슈퍼앱 마스터 제어
+async function startStockDaemon() {
+    try {
+        const res = await fetch("/api/stock/start", { method: "POST" });
+        const data = await res.json();
+        showToast(data.message || "📈 Stock Master 주식 AI 무인 봇 사이클이 가동되었습니다! 🚀", "success");
+        fetchStatus();
+    } catch (e) {
+        showToast("주식 AI 가동 통신 오류", "error");
+    }
+}
+
+async function stopStockDaemon() {
+    try {
+        const res = await fetch("/api/stock/stop", { method: "POST" });
+        const data = await res.json();
+        showToast(data.message || "📈 Stock Master 주식 AI 봇이 정지되었습니다.", "info");
+        fetchStatus();
+    } catch (e) {
+        showToast("주식 AI 정지 통신 오류", "error");
+    }
+}
+
+async function startAuraDaemon() {
+    try {
+        const res = await fetch("/api/aura/start", { method: "POST" });
+        const data = await res.json();
+        showToast(data.message || "💖 Aura 데이팅 무인 봇 사이클이 가동되었습니다! 🚀", "success");
+        fetchStatus();
+    } catch (e) {
+        showToast("Aura 가동 통신 오류", "error");
+    }
+}
+
+async function stopAuraDaemon() {
+    try {
+        const res = await fetch("/api/aura/stop", { method: "POST" });
+        const data = await res.json();
+        showToast(data.message || "💖 Aura 데이팅 봇이 정지되었습니다.", "info");
+        fetchStatus();
+    } catch (e) {
+        showToast("Aura 정지 통신 오류", "error");
+    }
+}
+
+async function startInsuranceDaemon() {
+    try {
+        const res = await fetch("/api/insurance/start", { method: "POST" });
+        const data = await res.json();
+        showToast(data.message || "🛡️ InsureBalance 보험비교 무인 봇 사이클이 가동되었습니다! 🚀", "success");
+        fetchStatus();
+    } catch (e) {
+        showToast("보험비교 가동 통신 오류", "error");
+    }
+}
+
+async function stopInsuranceDaemon() {
+    try {
+        const res = await fetch("/api/insurance/stop", { method: "POST" });
+        const data = await res.json();
+        showToast(data.message || "🛡️ InsureBalance 보험비교 봇이 정지되었습니다.", "info");
+        fetchStatus();
+    } catch (e) {
+        showToast("보험비교 정지 통신 오류", "error");
+    }
+}
+
 async function startKMarketDaemon() {
     try {
         const res = await fetch("/api/kmarket/start", { method: "POST" });
@@ -405,8 +490,6 @@ async function stopKMarketDaemon() {
         const data = await res.json();
         showToast(data.message || "KTRS 마켓 봇이 정지되었습니다.", "info");
         fetchStatus();
-        if (typeof loadTelegramCommunityStats === "function") loadTelegramCommunityStats();
-        renderHubGrid();
     } catch (e) {
         showToast("KTRS 마켓 정지 통신 오류", "error");
     }
@@ -418,8 +501,6 @@ async function startEasyTaxDaemon() {
         const data = await res.json();
         showToast(data.message || "EasyTax 세금환급 봇 사이클이 가동되었습니다! 💰", "success");
         fetchStatus();
-        if (typeof loadTelegramCommunityStats === "function") loadTelegramCommunityStats();
-        renderHubGrid();
     } catch (e) {
         showToast("EasyTax 가동 통신 오류", "error");
     }
@@ -431,24 +512,24 @@ async function stopEasyTaxDaemon() {
         const data = await res.json();
         showToast(data.message || "EasyTax 봇이 정지되었습니다.", "info");
         fetchStatus();
-        if (typeof loadTelegramCommunityStats === "function") loadTelegramCommunityStats();
-        renderHubGrid();
     } catch (e) {
         showToast("EasyTax 정지 통신 오류", "error");
     }
 }
 
 async function startAllBots() {
-    showToast("⚡ KTRS 마켓 & EasyTax 전체 봇을 동시 가동합니다! 🚀", "success");
-    await startKMarketDaemon();
-    await startEasyTaxDaemon();
+    showToast("⚡ 3대 슈퍼앱 전체 봇을 동시 가동합니다! 🚀", "success");
+    await startStockDaemon();
+    await startAuraDaemon();
+    await startInsuranceDaemon();
     if (typeof loadTelegramCommunityStats === "function") loadTelegramCommunityStats();
 }
 
 async function stopAllBots() {
     showToast("🛑 모든 무인 봇을 정지합니다.", "warning");
-    await stopKMarketDaemon();
-    await stopEasyTaxDaemon();
+    await stopStockDaemon();
+    await stopAuraDaemon();
+    await stopInsuranceDaemon();
     if (typeof loadTelegramCommunityStats === "function") loadTelegramCommunityStats();
 }
 
@@ -461,34 +542,46 @@ async function fetchStatus() {
         if (!res.ok) return;
         const data = await res.json();
 
-        isKMarketRunning = data.kmarket_running;
-        isEasyTaxRunning = data.easytax_running;
+        isStockRunning = data.stock_running || false;
+        isAuraRunning = data.aura_running || false;
+        isInsuranceRunning = data.insurance_running || false;
+        isKMarketRunning = data.kmarket_running || false;
+        isEasyTaxRunning = data.easytax_running || false;
 
-        // KTRS 마켓 사이드바 상태
-        const kmIndicator = document.getElementById("km-daemon-indicator");
-        const kmStatusText = document.getElementById("km-daemon-status-text");
-        const kmSub = document.getElementById("km-daemon-sub");
-        if (kmStatusText) {
-            kmStatusText.innerText = isKMarketRunning ? "🛒 KTRS 마켓 가동 중 🟢" : "🛒 KTRS 마켓 대기 ⚪";
-            kmStatusText.style.color = isKMarketRunning ? "#34D399" : "#94A3B8";
+        // 📈 Stock Master 사이드바 상태
+        const stockStatusText = document.getElementById("stock-daemon-status-text");
+        const stockSub = document.getElementById("stock-daemon-sub");
+        if (stockStatusText) {
+            stockStatusText.innerText = isStockRunning ? "📈 주식 AI 가동 중 🟢" : "📈 주식 AI 대기 중 ⚪";
+            stockStatusText.style.color = isStockRunning ? "#34D399" : "#FACC15";
         }
-        if (kmSub) {
-            kmSub.innerText = isKMarketRunning ? `사이클 #${data.kmarket_stats?.cycle || 1} • 가동 중` : "실물 숏폼/0원나눔/레딧";
-        }
-
-        // EasyTax 사이드바 상태
-        const taxIndicator = document.getElementById("tax-daemon-indicator");
-        const taxStatusText = document.getElementById("tax-daemon-status-text");
-        const taxSub = document.getElementById("tax-daemon-sub");
-        if (taxStatusText) {
-            taxStatusText.innerText = isEasyTaxRunning ? "💰 EasyTax 가동 중 🟢" : "💰 EasyTax 대기 ⚪";
-            taxStatusText.style.color = isEasyTaxRunning ? "#FACC15" : "#94A3B8";
-        }
-        if (taxSub) {
-            taxSub.innerText = isEasyTaxRunning ? `사이클 #${data.easytax_stats?.cycle || 1} • 가동 중` : "E-9 90%감면/환급/Anti-Ban";
+        if (stockSub) {
+            stockSub.innerText = isStockRunning ? "24시간 자동 분석/발행 중" : "실시간수급/장전브리핑/조건검색";
         }
 
-        // 8대 허브 실시간 뱃지 동기화
+        // 💖 Aura 사이드바 상태
+        const auraStatusText = document.getElementById("aura-daemon-status-text");
+        const auraSub = document.getElementById("aura-daemon-sub");
+        if (auraStatusText) {
+            auraStatusText.innerText = isAuraRunning ? "💖 Aura 데이팅 가동 중 🟢" : "💖 Aura 데이팅 대기 중 ⚪";
+            auraStatusText.style.color = isAuraRunning ? "#34D399" : "#EC4899";
+        }
+        if (auraSub) {
+            auraSub.innerText = isAuraRunning ? "24시간 자동 매칭/바이럴 중" : "소개팅첫만남/2030연애/클립";
+        }
+
+        // 🛡️ InsureBalance 사이드바 상태
+        const insStatusText = document.getElementById("insurance-daemon-status-text");
+        const insSub = document.getElementById("insurance-daemon-sub");
+        if (insStatusText) {
+            insStatusText.innerText = isInsuranceRunning ? "🛡️ 보험비교 가동 중 🟢" : "🛡️ 보험비교 대기 중 ⚪";
+            insStatusText.style.color = isInsuranceRunning ? "#34D399" : "#10B981";
+        }
+        if (insSub) {
+            insSub.innerText = isInsuranceRunning ? "24시간 보장 분석/리모델링 중" : "실손/3대질병/호갱탈출";
+        }
+
+        // 22대 허브 실시간 뱃지 동기화
         updateChannelBadges(data.running_channels);
         if (data.golden_targets) {
             updateGoldenTargetIndicators(data.golden_targets);
@@ -498,32 +591,27 @@ async function fetchStatus() {
         }
 
         // 상단 지표 (현재 브랜드 전용 1:1 완벽 분리)
-        if (currentBrand === "kmarket") {
-            if (document.getElementById("stat-total-count")) {
-                document.getElementById("stat-total-count").innerText = `${data.kmarket_history_count || 0} 건`;
-            }
-            if (document.getElementById("stat-top-score")) {
-                document.getElementById("stat-top-score").innerText = `${data.kmarket_top_score || 0} 점`;
-            }
-            if (document.getElementById("stat-seo-count")) {
-                document.getElementById("stat-seo-count").innerText = `1,105 개 (KTRS 마켓)`;
-            }
-            if (document.getElementById("google-index-count")) {
-                document.getElementById("google-index-count").innerText = `1,105개 KTRS 마켓 대학/공단 URL`;
-            }
-        } else {
-            if (document.getElementById("stat-total-count")) {
-                document.getElementById("stat-total-count").innerText = `${data.easytax_history_count || 0} 건`;
-            }
-            if (document.getElementById("stat-top-score")) {
-                document.getElementById("stat-top-score").innerText = `${data.easytax_top_score || 0} 점`;
-            }
-            if (document.getElementById("stat-seo-count")) {
-                document.getElementById("stat-seo-count").innerText = `5,525 개 (EasyTax)`;
-            }
-            if (document.getElementById("google-index-count")) {
-                document.getElementById("google-index-count").innerText = `5,525개 EasyTax 전국 세무 URL`;
-            }
+        const brand = currentBrand || "stock";
+        const totalEl = document.getElementById("stat-total-count");
+        const topScoreEl = document.getElementById("stat-top-score");
+        const seoCountEl = document.getElementById("stat-seo-count");
+        const googleCountEl = document.getElementById("google-index-count");
+
+        if (totalEl) {
+            if (brand === "stock") totalEl.innerText = `${data.stock_history_count || 0} 건`;
+            else if (brand === "aura") totalEl.innerText = `${data.aura_history_count || 0} 건`;
+            else if (brand === "insurance") totalEl.innerText = `${data.insurance_history_count || 0} 건`;
+            else totalEl.innerText = `${data.total_history_count || 0} 건`;
+        }
+        if (topScoreEl) {
+            topScoreEl.innerText = `${data.top_score || 0.0} 점`;
+        }
+        if (seoCountEl) {
+            const bLabel = brand === "stock" ? "Stock AI" : brand === "aura" ? "Aura" : "InsureBalance";
+            seoCountEl.innerText = `22개 채널 (${bLabel})`;
+        }
+        if (googleCountEl) {
+            googleCountEl.innerText = `22개 채널 연결됨`;
         }
 
         // 최신 로그 콘솔 (중복 방지: 새 로그만 딱 1번 출력)
@@ -607,16 +695,21 @@ let lastGoldenBatchSummary = null;
 
 // 🚀 [원클릭 즉시 제작] 대시보드 버튼 하나로 즉시 카드뉴스/숏폼 생산 및 바탕화면 출력
 async function triggerOneClickProduce(brand, mode, btnElement = null) {
+    const brandNames = {
+        stock: "Stock Master (주식 AI)",
+        aura: "Aura (AI 데이팅)",
+        insurance: "InsureBalance (보험비교)",
+        easytax: "EasyTax (세금 환급)",
+        kmarket: "K-Market (생활 커뮤니티)"
+    };
+    const brandName = brandNames[brand] || brand;
+    const modeName = mode === "shorts" ? "완성 숏폼" : "4장 카드뉴스";
     const langSelect = document.getElementById(`select-lang-${brand}-${mode}`);
-    const lang = langSelect ? langSelect.value : "vi";
+    const lang = langSelect ? langSelect.value : "ko";
     const amountSelect = document.getElementById(`select-amount-${brand}-${mode}`);
     const amount = amountSelect ? amountSelect.value : "random";
-
-    const brandName = brand === "easytax" ? "EasyTax (세금 환급)" : "K-Market (생활 커뮤니티)";
-    const modeName = mode === "shorts" ? "22초 완성 숏폼" : "1080x1350 카드뉴스";
-    const amtLabel = brand === "easytax" ? (amount === "random" ? "🎲 실사 랜덤 금액" : `₩${Number(amount).toLocaleString()}원`) : "";
     
-    appendLog(`[Action] 🚀 [${brandName}] ${modeName} (${lang.toUpperCase()}${amtLabel ? ' | ' + amtLabel : ''}) 원클릭 제작 요청...`, "info");
+    appendLog(`[Action] 🚀 [${brandName}] ${modeName} 원클릭 즉시 제작 요청...`, "info");
     showToast(`🚀 [${brandName}] ${modeName} 제작을 시작합니다!`, "info");
 
     const originalText = btnElement ? btnElement.innerHTML : "";
@@ -792,11 +885,11 @@ function updateGoldenBatchPanel(summary) {
             }
         } else {
             if (btnDaemonShorts) {
-                btnDaemonShorts.innerHTML = "🚀 8개국 무인 가동";
+                btnDaemonShorts.innerHTML = "🚀 무인 가동";
                 btnDaemonShorts.style.background = "linear-gradient(135deg, #10B981, #059669)";
             }
             if (btnDaemonCardnews) {
-                btnDaemonCardnews.innerHTML = "🚀 8개국 무인 가동";
+                btnDaemonCardnews.innerHTML = "🚀 무인 가동";
                 btnDaemonCardnews.style.background = "linear-gradient(135deg, #10B981, #059669)";
             }
         }
@@ -807,6 +900,12 @@ window.renderHubGrid = renderHubGrid;
 window.renderActionGrid = renderHubGrid;
 window.startChannelDaemon = startChannelDaemon;
 window.stopChannelDaemon = stopChannelDaemon;
+window.startStockDaemon = startStockDaemon;
+window.stopStockDaemon = stopStockDaemon;
+window.startAuraDaemon = startAuraDaemon;
+window.stopAuraDaemon = stopAuraDaemon;
+window.startInsuranceDaemon = startInsuranceDaemon;
+window.stopInsuranceDaemon = stopInsuranceDaemon;
 window.startKMarketDaemon = startKMarketDaemon;
 window.stopKMarketDaemon = stopKMarketDaemon;
 window.startEasyTaxDaemon = startEasyTaxDaemon;

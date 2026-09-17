@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🛸 Universal Expat Growth Engine | 로컬 컨트롤 센터</title>
+    <title>💖 3대 슈퍼앱 마케팅 사령부 | Aura 데이팅 · 보험 · 주식</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -16,29 +16,29 @@
             <div class="logo-area">
                 <div class="logo-icon">🛸</div>
                 <div>
-                    <h1 class="logo-title">Expat Growth</h1>
-                    <span class="logo-sub">무인 자가학습 공장 v1.0</span>
+                    <h1 class="logo-title">3대 슈퍼앱 사령부</h1>
+                    <span class="logo-sub">데이팅 · 보험 · 주식AI 무인공장</span>
                 </div>
             </div>
 
             <nav class="nav-menu">
                 <button class="nav-item" data-tab="ir-analytics">
-                    <span class="icon">💎</span> 실시간 유입 & IR 관제
+                    <span class="icon">💎</span> 실시간 유입 & 성과 관제
                 </button>
                 <button class="nav-item active" data-tab="overview">
                     <span class="icon">📊</span> 대시보드 & 제어
                 </button>
                 <button class="nav-item" data-tab="platforms">
-                    <span class="icon">🚀</span> 8대 채널 실제 발행 & 실시간 뷰어
+                    <span class="icon">🚀</span> 24대 채널 실제 발행 & 실시간 뷰어
                 </button>
                 <button class="nav-item" data-tab="iframe_viewer">
-                    <span class="icon">📱</span> 9:16 모바일 뷰어
+                    <span class="icon">📱</span> 3대 앱 9:16 모바일 뷰어
                 </button>
                 <button class="nav-item" data-tab="gallery">
                     <span class="icon">🎬</span> 미디어 갤러리
                 </button>
                 <button class="nav-item" data-tab="hashtags">
-                    <span class="icon">📈</span> 17개국 바이럴 해시태그
+                    <span class="icon">📈</span> 실시간 바이럴 키워드
                 </button>
                 <button class="nav-item" data-tab="self-learning">
                     <span class="icon">🧠</span> 자가학습 랭킹
@@ -51,49 +51,68 @@
                 </button>
             </nav>
 
-            <div class="sidebar-status-card" style="border-left: 4px solid #FF6B35; margin-bottom: 10px;">
+            <!-- 💖 Aura 데이팅 무인 데몬 카드 -->
+            <div class="sidebar-status-card" style="border-left: 4px solid #EC4899; margin-bottom: 8px;">
                 <div class="status-header">
-                    <span class="status-dot" id="km-daemon-indicator"></span>
-                    <span class="status-text" id="km-daemon-status-text" style="font-weight:700;font-size:12px;color:#FF6B35;">🛒 KTRS 마켓 대기 중 ⚪</span>
+                    <span class="status-dot" id="aura-daemon-indicator"></span>
+                    <span class="status-text" id="aura-daemon-status-text" style="font-weight:700;font-size:12px;color:#EC4899;">💖 Aura 데이팅 대기 중 ⚪</span>
                 </div>
-                <div style="font-size:11px;color:#94a3b8;margin-bottom:8px;" id="km-daemon-sub">실물 숏폼/0원나눔/레딧</div>
+                <div style="font-size:11px;color:#94a3b8;margin-bottom:8px;" id="aura-daemon-sub">소개팅첫만남/2030연애/클립</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-                    <button class="btn btn-primary" style="font-size:11.5px;padding:8px 4px;margin-top:0;" id="btn-start-km" onclick="startKMarketDaemon()" title="KTRS 마켓 무인 성장봇 사이클 가동">
+                    <button class="btn btn-primary" style="font-size:11px;padding:7px 4px;margin-top:0;background:linear-gradient(135deg, #EC4899, #BE185D);" id="btn-start-aura" onclick="startAuraDaemon()" title="Aura 데이팅 무인 마케팅 가동">
                         🚀 시작
                     </button>
-                    <button class="btn btn-stop" style="font-size:11.5px;padding:8px 4px;margin-top:0;" id="btn-stop-km" onclick="stopKMarketDaemon()" title="KTRS 마켓 봇 정지">
+                    <button class="btn btn-stop" style="font-size:11px;padding:7px 4px;margin-top:0;" id="btn-stop-aura" onclick="stopAuraDaemon()" title="Aura 데이팅 봇 정지">
                         ⏹️ 정지
                     </button>
                 </div>
             </div>
 
-            <div class="sidebar-status-card" style="border-left: 4px solid #F59E0B; margin-bottom: 10px;">
+            <!-- 🛡️ InsureBalance 보험비교 무인 데몬 카드 -->
+            <div class="sidebar-status-card" style="border-left: 4px solid #10B981; margin-bottom: 8px;">
                 <div class="status-header">
-                    <span class="status-dot" id="tax-daemon-indicator"></span>
-                    <span class="status-text" id="tax-daemon-status-text" style="font-weight:700;font-size:12px;color:#FACC15;">💰 EasyTax 대기 중 ⚪</span>
+                    <span class="status-dot" id="insurance-daemon-indicator"></span>
+                    <span class="status-text" id="insurance-daemon-status-text" style="font-weight:700;font-size:12px;color:#10B981;">🛡️ 보험비교 대기 중 ⚪</span>
                 </div>
-                <div style="font-size:11px;color:#94a3b8;margin-bottom:8px;" id="tax-daemon-sub">E-9 90%감면/환급/Anti-Ban</div>
+                <div style="font-size:11px;color:#94a3b8;margin-bottom:8px;" id="insurance-daemon-sub">실손/3대질병/호갱탈출</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-                    <button class="btn btn-gold" style="font-size:11.5px;padding:8px 4px;margin-top:0;" id="btn-start-tax" onclick="startEasyTaxDaemon()" title="EasyTax 세금환급 봇 사이클 가동">
-                        💰 시작
+                    <button class="btn btn-gold" style="font-size:11px;padding:7px 4px;margin-top:0;background:linear-gradient(135deg, #10B981, #059669);color:#fff;" id="btn-start-insurance" onclick="startInsuranceDaemon()" title="InsureBalance 보험비교 봇 가동">
+                        🛡️ 시작
                     </button>
-                    <button class="btn btn-stop" style="font-size:11.5px;padding:8px 4px;margin-top:0;" id="btn-stop-tax" onclick="stopEasyTaxDaemon()" title="EasyTax 봇 정지">
+                    <button class="btn btn-stop" style="font-size:11px;padding:7px 4px;margin-top:0;" id="btn-stop-insurance" onclick="stopInsuranceDaemon()" title="보험비교 봇 정지">
                         ⏹️ 정지
                     </button>
                 </div>
             </div>
 
-            <!-- ⚡ 마스터 전체 시작 & 전체 정지 -->
-            <div class="sidebar-status-card" style="background:#0D1127;border:1px solid #22294E;margin-bottom:8px;padding:10px;">
-                <div style="font-size:11px;font-weight:700;color:#94a3b8;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
-                    <span>⚡ 전체 마스터 제어</span>
-                    <span style="font-size:10px;color:#64748b;">듀얼 동시</span>
+            <!-- 📈 Stock Master 주식 AI 무인 데몬 카드 -->
+            <div class="sidebar-status-card" style="border-left: 4px solid #F59E0B; margin-bottom: 8px;">
+                <div class="status-header">
+                    <span class="status-dot" id="stock-daemon-indicator"></span>
+                    <span class="status-text" id="stock-daemon-status-text" style="font-weight:700;font-size:12px;color:#FACC15;">📈 주식 AI 대기 중 ⚪</span>
+                </div>
+                <div style="font-size:11px;color:#94a3b8;margin-bottom:8px;" id="stock-daemon-sub">실시간수급/장전브리핑/조건검색</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                    <button class="btn btn-gold" style="font-size:11px;padding:7px 4px;margin-top:0;background:linear-gradient(135deg, #F59E0B, #D97706);color:#fff;" id="btn-start-stock" onclick="startStockDaemon()" title="Stock Master 주식 AI 봇 가동">
+                        📈 시작
+                    </button>
+                    <button class="btn btn-stop" style="font-size:11px;padding:7px 4px;margin-top:0;" id="btn-stop-stock" onclick="stopStockDaemon()" title="주식 AI 봇 정지">
+                        ⏹️ 정지
+                    </button>
+                </div>
+            </div>
+
+            <!-- ⚡ 3대 슈퍼앱 통합 마스터 전체 시작 & 전체 정지 -->
+            <div class="sidebar-status-card" style="background:#F6F1EA;border:1px solid #E5DDD1;box-shadow:var(--shadow-sm);margin-bottom:8px;padding:10px;">
+                <div style="font-size:11px;font-weight:700;color:#1E1B18;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
+                    <span>⚡ 3대 앱 마스터 제어</span>
+                    <span style="font-size:10px;color:#64748b;">전체 동시 가동</span>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-                    <button class="btn btn-master-start" style="font-size:11px;padding:7px 2px;margin-top:0;" onclick="startAllBots()" title="KTRS 마켓 및 EasyTax 봇 모두 동시 가동">
+                    <button class="btn btn-master-start" style="font-size:11px;padding:7px 2px;margin-top:0;" onclick="startAllBots()" title="대한민국 3대 슈퍼앱 전체 봇 동시 가동">
                         ⚡ 전체 시작
                     </button>
-                    <button class="btn btn-master-stop" style="font-size:11px;padding:7px 2px;margin-top:0;" onclick="stopAllBots()" title="모든 봇 즉시 정지">
+                    <button class="btn btn-master-stop" style="font-size:11px;padding:7px 2px;margin-top:0;" onclick="stopAllBots()" title="모든 봇 즉시 일괄 정지">
                         🛑 전체 정지
                     </button>
                 </div>
@@ -105,26 +124,29 @@
             <!-- 상단 헤더 & 원클릭 브랜드 스위처 -->
             <header class="top-header">
                 <div class="header-left">
-                    <div class="brand-switcher-group" style="display:flex;gap:8px;margin-bottom:10px;">
-                        <button class="brand-tab-btn active" id="brand-tab-km" onclick="switchBrand('kmarket')" style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:10px;border:none;background:#7C3AED;color:#FFFFFF;font-weight:800;font-size:13.5px;cursor:pointer;box-shadow:0 4px 14px rgba(124,58,237,0.4);">
-                            🛒 KTRS 마켓 라이프 관제
+                    <div class="brand-switcher-group" style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+                        <button class="brand-tab-btn active" id="brand-tab-aura" onclick="switchBrand('aura')" style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:10px;border:none;background:linear-gradient(135deg, #EC4899, #BE185D);color:#FFFFFF;font-weight:800;font-size:13.5px;cursor:pointer;box-shadow:0 4px 14px rgba(236,72,153,0.35);">
+                            💖 Aura (AI 데이팅)
                         </button>
-                        <button class="brand-tab-btn" id="brand-tab-tax" onclick="switchBrand('easytax')" style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:10px;border:1px solid #22294E;background:#13172E;color:#94A3B8;font-weight:700;font-size:13.5px;cursor:pointer;">
-                            💰 EasyTax 국세청 환급 관제
+                        <button class="brand-tab-btn" id="brand-tab-insurance" onclick="switchBrand('insurance')" style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:10px;border:1px solid #CBD5E1;background:#F1F5F9;color:#475569;font-weight:700;font-size:13.5px;cursor:pointer;">
+                            🛡️ InsureBalance (보험비교)
+                        </button>
+                        <button class="brand-tab-btn" id="brand-tab-stock" onclick="switchBrand('stock')" style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:10px;border:1px solid #CBD5E1;background:#F1F5F9;color:#475569;font-weight:700;font-size:13.5px;cursor:pointer;">
+                            📈 Stock Master (주식 AI)
                         </button>
                     </div>
-                    <h2 class="page-title" id="page-title">📊 KTRS 마켓 마케팅 통합 제어 센터</h2>
-                    <p class="page-desc" id="page-desc">270개 실물 매물 0원 나눔, 무빙세일, 17개국 양방향 번역 채팅을 실시간 제어합니다.</p>
+                    <h2 class="page-title" id="page-title">💖 Aura AI 데이팅 마케팅 통합 제어 센터</h2>
+                    <p class="page-desc" id="page-desc">2030 소개팅 팁, 연애 심리 칼럼, 릴스/숏폼, 24개 채널을 24시간 자율 가동합니다.</p>
                 </div>
                 <div class="header-right" style="display:flex;gap:8px;align-items:center;">
-                    <div class="badge" id="header-health-badge" style="background:#13172E;border:1px solid #22294E;color:#34D399;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;" onclick="switchTabDirect('health')" title="클릭 시 실시간 헬스케어 관제 센터로 이동">
+                    <div class="badge" id="header-health-badge" style="background:#ECFDF5;border:1px solid #A7F3D0;color:#059669;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;" onclick="switchTabDirect('health')" title="클릭 시 실시간 헬스케어 관제 센터로 이동">
                         🩺 헬스케어: <strong id="header-health-score">100% 정상 🟢</strong>
                     </div>
-                    <div class="badge badge-google" onclick="triggerGoogleIndex()" style="cursor:pointer;" title="클릭 시 구글 봇에게 즉시 색인 핑 전송">
-                        🌐 구글 색인: <strong id="google-index-count">6,630개 URL</strong>
+                    <div class="badge badge-google" onclick="triggerGoogleIndex()" style="cursor:pointer;" title="클릭 시 포털 색인 핑 전송">
+                        🌐 포털 색인: <strong id="google-index-count">24개 채널 연결됨</strong>
                     </div>
                     <div class="badge badge-season" id="today-season-badge">
-                        🎯 활성 모드: <strong id="season-name" style="color:#FACC15;">K-MARKET</strong>
+                        🎯 활성 모드: <strong id="season-name" style="color:#EC4899;">AURA DATING</strong>
                     </div>
                 </div>
             </header>
@@ -150,8 +172,8 @@
                     <div class="stat-card">
                         <div class="stat-icon blue">🌐</div>
                         <div class="stat-info">
-                            <span class="stat-label">구글 SEO 색인 URL</span>
-                            <h3 class="stat-value" id="stat-seo-count">6,630 개</h3>
+                            <span class="stat-label">포털/검색 색인 채널</span>
+                            <h3 class="stat-value" id="stat-seo-count">24개 채널 (Stock AI)</h3>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -166,11 +188,11 @@
 
 
                 <!-- 🎯 7대 AI 콘텐츠 제작 허브 & 멀티 채널 자동 배포 센터 (브랜드별 독립) -->
-                <div class="section-card" style="border-top: 4px solid #8B5CF6; background: #0E1229; margin-bottom: 24px;">
+                <div class="section-card" style="border-top: 4px solid #8B5CF6; margin-bottom: 24px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
                         <div>
-                            <h3 class="section-title" id="hub-panel-title" style="color:#A78BFA; font-size:16px;">🎯 7대 AI 마케팅 허브 & 멀티 채널 일괄 배포 센터</h3>
-                            <p class="section-subtitle" id="hub-panel-desc">숏폼(4대 영상) · 카드뉴스(3대 비주얼) · 레딧(1:1) · 페이스북(50만 그룹) · 블로그(SEO) · 구글 색인 핑 · 스레드(타래) 24시간 자율 송출</p>
+                            <h3 class="section-title" id="hub-panel-title" style="color:#7C3AED; font-size:16px;">🎯 24대 AI 마케팅 허브 & 24시간 무인 자율 공장</h3>
+                            <p class="section-subtitle" id="hub-panel-desc">숏폼, 카드뉴스, 커뮤니티, 블로그, 구글/네이버 색인 핑, 스레드 및 국내 16대 포털/커뮤니티 채널을 24시간 자율 가동합니다.</p>
                         </div>
                         <button class="btn btn-secondary" onclick="renderHubGrid()" style="font-size:12px; padding:6px 12px;">🔄 허브 새로고침</button>
                     </div>
@@ -180,7 +202,7 @@
                     </div>
                 </div>
 
-                <!-- 📲 텔레그램 24시간 자율 커뮤니티 & 17개국어 AI 매니저 실시간 관제 사령부 -->
+                <!-- 📲 텔레그램 24시간 자율 커뮤니티 & AI 매니저 실시간 관제 사령부 -->
                 <div id="telegram-community-panel-container"></div>
 
                 <!-- 실시간 활동 로그 콘솔 -->
@@ -190,24 +212,24 @@
                         <button class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="refreshOverview(this)">🔄 새로고침</button>
                     </div>
                     <div class="terminal-box" id="terminal-log">
-                        <div class="log-line info">[System] 로컬 마케팅 컨트롤 센터가 준비되었습니다.</div>
-                        <div class="log-line success">[Ready] 17개 언어 및 6대 서비스 플러그인이 로드되었습니다.</div>
+                        <div class="log-line info">[System] 로컬 마케팅 컨트롤 센터가 준비되었습니다. (포트 8080)</div>
+                        <div class="log-line success">[Ready] Aura 데이팅 / InsureBalance 보험비교 / Stock Master 주식 AI 24대 파이프라인이 로드되었습니다.</div>
                     </div>
                 </div>
             </section>
 
-            <!-- 탭 2: 실시간 유입 정밀 분석 & 연도별(YoY) 비교 대시보드 (KTRS IR 관제 센터) -->
+            <!-- 탭 2: 실시간 유입 정밀 분석 & 연도별(YoY) 비교 대시보드 (3대 앱 관제 센터) -->
             <section class="tab-content" id="tab-ir-analytics">
                 <!-- 상단 필터 및 헤더 카드 -->
                 <div class="section-card ir-header-card">
                     <div class="ir-header-top">
                         <div class="ir-header-title-area">
-                            <h3 class="ir-main-title">📈 실시간 유입 정밀 분석 & 연도별(YoY) 비교 대시보드</h3>
+                            <h3 class="ir-main-title">📈 3대 앱 실시간 유입 정밀 분석 & 관제 센터</h3>
                             <div class="ir-title-badges">
                                 <span class="badge-select">기준 연도: <strong>2026년</strong></span>
                                 <span class="badge-live-pulse"><span class="pulse-dot"></span> 오늘 24시간 실시간</span>
                             </div>
-                            <p class="ir-subtitle">2026년~2027년 이후까지 연도별 실적 및 24시간 시간대별 트래픽을 정밀 비교할 수 있습니다.</p>
+                            <p class="ir-subtitle">주식 AI, Aura 데이팅, InsureBalance 보험비교 3대 앱의 실시간 트래픽을 정밀 관제합니다.</p>
                         </div>
 
                         <!-- 기간 선택 탭 버튼 그룹 -->
@@ -356,11 +378,11 @@
 
             <!-- 탭 3: 10대 글로벌 채널 실제 발행 내역 & 실시간 라이브 뷰어 -->
             <section class="tab-content" id="tab-platforms">
-                <div class="section-card" style="border-top: 4px solid #38BDF8; background: #0E1229;">
+                <div class="section-card" style="border-top: 4px solid #0284C7;">
                     <div class="gallery-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom: 16px;">
                         <div>
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <h3 class="section-title" id="platforms-header-title" style="color:#38BDF8; font-size:17px; margin:0;">🚀 10대 글로벌 채널 실제 발행 내역 & 라이브 뷰어</h3>
+                                <h3 class="section-title" id="platforms-header-title" style="color:#0284C7; font-size:17px; margin:0;">🚀 10대 글로벌 채널 실제 발행 내역 & 라이브 뷰어</h3>
                                 <span class="badge-live-pulse" style="font-size:11px;"><span class="pulse-dot"></span> 24시간 실시간 검증 피드</span>
                             </div>
                             <p class="section-subtitle" id="platforms-header-desc" style="margin-top:4px;">
@@ -449,15 +471,15 @@
             <!-- 탭 6: AI 시나리오 랩 & 성과 자가학습 관제 -->
             <section class="tab-content" id="tab-self-learning">
                 <!-- 🧬 1위 대본 기반 자가학습 & 프롬프트 고도화 패널 -->
-                <div class="google-info-card" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%); border-color: rgba(139, 92, 246, 0.4); margin-bottom: 16px;">
+                <div class="google-info-card" style="background: linear-gradient(135deg, #FAF5FF 0%, #F0F9FF 100%); border: 1px solid #DDD6FE; margin-bottom: 16px;">
                     <div class="google-info-left">
                         <span style="font-size:36px;">🧬</span>
                         <div>
                             <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-                                <h3 style="font-size:16px;font-weight:800;color:#FFFFFF;margin:0;">실시간 자가진화(Self-Evolving) 프롬프트 최적화 엔진</h3>
-                                <span class="badge" style="background:rgba(16,185,129,0.2);color:#34D399;font-weight:700;">학습 반영률: 95.8% 🟢</span>
+                                <h3 style="font-size:16px;font-weight:800;color:#0F172A;margin:0;">실시간 자가진화(Self-Evolving) 프롬프트 최적화 엔진</h3>
+                                <span class="badge" style="background:#ECFDF5;border:1px solid #A7F3D0;color:#059669;font-weight:700;">학습 반영률: 95.8% 🟢</span>
                             </div>
-                            <p style="font-size:12.5px;color:#CBD5E1;line-height:1.45;margin:0;" id="evolved-rule-desc">
+                            <p style="font-size:12.5px;color:#475569;line-height:1.45;margin:0;" id="evolved-rule-desc">
                                 실제 UTM 유입 클릭 1위 골든 대본의 후킹 패턴(숫자 강조, 법률 팩트, 공포 회피)을 Gemini AI 프롬프트에 자동 복제 주입합니다.
                             </p>
                         </div>
@@ -633,16 +655,17 @@
     <div id="toast-container"></div>
 
     <!-- 🧩 100% 모듈 분리된 JavaScript 파일 로드 -->
-    <script src="js/common.js?v=3.5"></script>
-    <script src="js/overview.js?v=3.6"></script>
-    <script src="js/platforms.js?v=3.5"></script>
-    <script src="js/ir_analytics.js?v=3.5"></script>
-    <script src="js/health.js?v=3.5"></script>
-    <script src="js/gallery.js?v=3.5"></script>
-    <script src="js/golden_copies.js?v=3.5"></script>
-    <script src="js/hashtags.js?v=3.5"></script>
-    <script src="js/settings.js?v=3.5"></script>
-    <script src="js/telegram_manager.js?v=3.5"></script>
-    <script src="app.js?v=3.5"></script>
+    <script src="js/common.js?v=4.0"></script>
+    <script src="js/app_pipelines.js?v=4.0"></script>
+    <script src="js/overview.js?v=4.0"></script>
+    <script src="js/platforms.js?v=4.0"></script>
+    <script src="js/ir_analytics.js?v=4.0"></script>
+    <script src="js/health.js?v=4.0"></script>
+    <script src="js/gallery.js?v=4.0"></script>
+    <script src="js/golden_copies.js?v=4.0"></script>
+    <script src="js/hashtags.js?v=4.0"></script>
+    <script src="js/settings.js?v=4.0"></script>
+    <script src="js/telegram_manager.js?v=4.0"></script>
+    <script src="app.js?v=4.0"></script>
 </body>
 </html>

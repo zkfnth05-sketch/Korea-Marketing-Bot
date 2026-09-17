@@ -110,28 +110,28 @@ async function loadIRAnalytics(btn) {
             const periodTxt = irPeriod === "weekly" ? "최근 7일간" : (irPeriod === "monthly" ? "최근 30일간" : (irPeriod === "yearly" ? "2026년 연간" : "오늘 24시간 동안"));
             if (visitors.length === 0) {
                 visitorContainer.innerHTML = `
-                    <div style="text-align:center;padding:32px 16px;color:#64748b;background:#090C19;border-radius:10px;border:1px solid #1E2442;">
+                    <div style="text-align:center;padding:32px 16px;color:#64748B;background:#FAF8F5;border-radius:10px;border:1px solid #E8E3DA;">
                         <span style="font-size:28px;display:block;margin-bottom:8px;">📡</span>
-                        <strong style="color:#94A3B8;font-size:13px;display:block;margin-bottom:4px;">${periodTxt} 감지된 실제 외부 접속자가 없습니다. (0명)</strong>
-                        <span style="font-size:11.5px;color:#64748b;">마케팅 봇이 배포한 링크(/track?utm_source=...)를 통해 실제 사람이 접속하면 IP, 출처, 일시가 1:1로 실시간 기록됩니다.</span>
+                        <strong style="color:#0F172A;font-size:13px;display:block;margin-bottom:4px;">${periodTxt} 감지된 실제 외부 접속자가 없습니다. (0명)</strong>
+                        <span style="font-size:11.5px;color:#64748B;">마케팅 봇이 배포한 링크(/track?utm_source=...)를 통해 실제 사람이 접속하면 IP, 출처, 일시가 1:1로 실시간 기록됩니다.</span>
                     </div>
                 `;
             } else {
                 visitorContainer.innerHTML = `
                     <div style="max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;">
                         ${visitors.map((v, idx) => `
-                            <div style="background:#090C19;border:1px solid #1E2442;border-left:3px solid #10B981;border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;font-size:12.5px;">
+                            <div style="background:#FFFFFF;border:1px solid #E8E3DA;border-left:3px solid #059669;border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;font-size:12.5px;box-shadow:var(--shadow-sm);">
                                 <div style="display:flex;align-items:center;gap:10px;">
                                     <span style="font-size:16px;">👤</span>
                                     <div>
-                                        <strong style="color:#F8FAFC;">[출처: ${v.source_name}]</strong>
-                                        <span style="color:#94A3B8;margin-left:6px;font-size:11.5px;">(캠페인: ${v.campaign})</span>
-                                        <div style="font-size:11px;color:#64748b;margin-top:2px;">목적지: <span style="color:#A78BFA;">${v.target_app}</span> · IP: <span style="color:#CBD5E1;">${v.ip}</span></div>
+                                        <strong style="color:#0F172A;">[출처: ${v.source_name}]</strong>
+                                        <span style="color:#64748B;margin-left:6px;font-size:11.5px;">(캠페인: ${v.campaign})</span>
+                                        <div style="font-size:11px;color:#64748B;margin-top:2px;">목적지: <span style="color:#7C3AED;font-weight:700;">${v.target_app}</span> · IP: <span style="color:#475569;">${v.ip}</span></div>
                                     </div>
                                 </div>
                                 <div style="text-align:right;">
-                                    <span class="badge" style="background:rgba(16,185,129,0.15);color:#34D399;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:700;">실제 접속</span>
-                                    <div style="font-size:10.5px;color:#94A3B8;margin-top:3px;">${v.created_at}</div>
+                                    <span class="badge" style="background:#ECFDF5;color:#059669;border:1px solid #A7F3D0;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:700;">실제 접속</span>
+                                    <div style="font-size:10.5px;color:#64748B;margin-top:3px;">${v.created_at}</div>
                                 </div>
                             </div>
                         `).join("")}
@@ -156,17 +156,17 @@ function renderChannelInflows() {
     }
 
     if (items.length === 0) {
-        listContainer.innerHTML = `<div style="text-align:center;padding:30px;color:#64748b;background:#090C19;border-radius:8px;">해당 기간 및 카테고리에 발행된 콘텐츠가 없습니다. (0건)</div>`;
+        listContainer.innerHTML = `<div style="text-align:center;padding:30px;color:#64748B;background:#FAF8F5;border:1px solid #E8E3DA;border-radius:8px;">해당 기간 및 카테고리에 발행된 콘텐츠가 없습니다. (0건)</div>`;
         return;
     }
 
     listContainer.innerHTML = items.map(ch => `
         <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;">
             <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;">
-                <span style="font-weight:700;color:#F8FAFC;">${ch.name}</span>
-                <span style="font-weight:800;color:#38BDF8;">${ch.count} 건 (${ch.share}%)</span>
+                <span style="font-weight:700;color:#0F172A;">${ch.name}</span>
+                <span style="font-weight:800;color:#0284C7;">${ch.count} 건 (${ch.share}%)</span>
             </div>
-            <div style="width:100%;height:8px;background:rgba(255,255,255,0.06);border-radius:6px;overflow:hidden;">
+            <div style="width:100%;height:8px;background:#EDE8DE;border-radius:6px;overflow:hidden;">
                 <div style="width:${Math.max(ch.share, 4)}%;height:100%;background:${ch.color};border-radius:6px;transition:width 0.4s ease;"></div>
             </div>
         </div>

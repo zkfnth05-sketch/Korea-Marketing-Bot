@@ -18,17 +18,17 @@ async function loadHashtags(btn) {
             const badgeColor = isKM ? "#10B981" : "#F59E0B";
 
             return `
-                <div class="hashtag-card" style="background:#13172E;border:1px solid #22294E;border-top:3px solid ${badgeColor};border-radius:12px;padding:16px;box-shadow:0 4px 14px rgba(0,0,0,0.3);">
+                <div class="hashtag-card" style="background:#F6F1EA;border:1px solid #E5DDD1;border-top:3px solid ${badgeColor};border-radius:14px;padding:16px;box-shadow:var(--shadow-md);transition:transform 0.25s ease, box-shadow 0.25s ease;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
                         <div style="display:flex;align-items:center;gap:8px;">
                             <span style="font-size:20px;">${countryData.flag || '🌐'}</span>
-                            <h4 style="margin:0;font-size:14px;font-weight:700;color:#FFFFFF;">${countryData.country_name} (${countryCode})</h4>
+                            <h4 style="margin:0;font-size:14px;font-weight:700;color:#1E1B18;">${countryData.country_name} (${countryCode})</h4>
                         </div>
-                        <span style="font-size:11px;color:#38BDF8;font-weight:700;">실시간 트렌드</span>
+                        <span style="font-size:11px;color:#0284C7;font-weight:700;">실시간 트렌드</span>
                     </div>
                     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
                         ${tags.map(t => `
-                            <span style="background:rgba(255,255,255,0.05);color:#CBD5E1;padding:4px 8px;border-radius:6px;font-size:11.5px;border:1px solid rgba(255,255,255,0.08);">
+                            <span style="background:#FFFFFF;color:#334155;padding:4px 8px;border-radius:6px;font-size:11.5px;border:1px solid #E5DDD1;">
                                 #${t}
                             </span>
                         `).join("")}

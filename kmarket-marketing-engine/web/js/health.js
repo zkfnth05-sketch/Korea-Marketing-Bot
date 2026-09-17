@@ -54,19 +54,19 @@ async function loadHealthStatus(btn) {
 
             brainGrid.innerHTML = brainItems.map(b => {
                 const isOk = b.status === "ok";
-                const badgeColor = isOk ? "background:rgba(16,185,129,0.15);color:#34d399;" : "background:rgba(245,158,11,0.15);color:#fbbf24;";
+                const badgeColor = isOk ? "background:#ECFDF5;color:#059669;border:1px solid #A7F3D0;" : "background:#FFFBEB;color:#D97706;border:1px solid #FDE68A;";
                 const statusText = isOk ? "🟢 정상 맥박" : "⚪ 대기/로컬모드";
                 const topBorder = isKM ? "#10b981" : "#f59e0b";
 
                 return `
-                    <div class="stat-card" style="border-top: 3px solid ${topBorder};">
+                    <div class="stat-card" style="border-top: 3px solid ${topBorder};background:#FFFFFF;border:1px solid #E8E3DA;box-shadow:var(--shadow-sm);">
                         <div class="stat-icon ${isKM ? 'green' : 'gold'}">${b.icon}</div>
                         <div class="stat-info" style="width:100%;">
                             <div style="display:flex;justify-content:space-between;align-items:center;">
                                 <span class="stat-label">${b.name}</span>
                                 <span style="${badgeColor}padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">${statusText}</span>
                             </div>
-                            <h3 class="stat-value" style="font-size:13px;color:#f8fafc;margin:6px 0;">${b.message}</h3>
+                            <h3 class="stat-value" style="font-size:13px;color:#0F172A;margin:6px 0;font-weight:700;">${b.message}</h3>
                             ${b.ping ? `<span style="font-size:11px;color:var(--text-secondary);">⚡ 핑 응답속도: ${b.ping} ms</span>` : ''}
                         </div>
                     </div>
@@ -81,27 +81,27 @@ async function loadHealthStatus(btn) {
         if (channelsGrid && targetChannels) {
             channelsGrid.innerHTML = Object.entries(targetChannels).map(([k, ch]) => {
                 const isOk = ch.status === "ok";
-                const borderCol = isOk ? (isKM ? "#10b981" : "#f59e0b") : "rgba(255,255,255,0.1)";
-                const badgeStyle = isOk ? "background:rgba(16,185,129,0.15);color:#34d399;" : "background:rgba(245,158,11,0.15);color:#fbbf24;";
+                const borderCol = isOk ? (isKM ? "#10b981" : "#f59e0b") : "#E8E3DA";
+                const badgeStyle = isOk ? "background:#ECFDF5;color:#059669;border:1px solid #A7F3D0;" : "background:#FFFBEB;color:#D97706;border:1px solid #FDE68A;";
                 const badgeLabel = isOk ? "🟢 정상 가동" : "🟡 대기 중";
-                const countColor = isKM ? "#34d399" : "#fbbf24";
+                const countColor = isKM ? "#059669" : "#D97706";
 
                 return `
-                    <div class="action-card" style="border-top:3px solid ${borderCol};">
+                    <div class="action-card" style="border:1px solid #E8E3DA;border-top:3px solid ${borderCol};background:#FFFFFF;box-shadow:var(--shadow-sm);">
                         <div class="action-header">
-                            <span class="action-emoji">${ch.icon}</span>
+                            <span class="action-emoji" style="background:#FAF8F5;border:1px solid #E8E3DA;">${ch.icon}</span>
                             <div style="width:100%;">
                                 <div style="display:flex;justify-content:space-between;align-items:center;">
-                                    <h4>${ch.name}</h4>
+                                    <h4 style="color:#0F172A;font-weight:700;">${ch.name}</h4>
                                     <span style="${badgeStyle}padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;">${badgeLabel}</span>
                                 </div>
-                                <p style="margin-top:4px;font-size:11px;color:#94a3b8;">${ch.api_type}</p>
+                                <p style="margin-top:4px;font-size:11px;color:#64748B;">${ch.api_type}</p>
                             </div>
                         </div>
-                        <div style="font-size:11px;color:var(--text-secondary);margin:8px 0;background:rgba(255,255,255,0.02);padding:6px;border-radius:6px;">
+                        <div style="font-size:11px;color:#475569;margin:8px 0;background:#FAF8F5;border:1px solid #E8E3DA;padding:8px 10px;border-radius:6px;line-height:1.4;">
                             💡 <strong>맥박 진단:</strong> ${ch.diagnostic}
                         </div>
-                        <div style="font-size:11px;color:${countColor};">
+                        <div style="font-size:11px;color:${countColor};font-weight:700;">
                             📊 오늘 처리: ${ch.daily_count}건 • ${ch.last_published}
                         </div>
                     </div>

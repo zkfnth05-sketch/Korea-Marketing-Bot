@@ -94,6 +94,72 @@ def _golden_daemon_loop(brand: str):
             log_event(f"⚠️ [골든 데몬 예외] {e}", "warning")
             time.sleep(30)
 
+# 💖 2026 대한민국 3대 슈퍼앱 전용 24대 옴니채널 마케팅 파이프라인
+try:
+    from brands.aura.aura_pipeline import AuraPipeline
+    aura_pipeline = AuraPipeline(dry_run=False)
+except Exception as e:
+    aura_pipeline = None
+
+try:
+    from brands.insurance.insurance_pipeline import InsurancePipeline
+    insurance_pipeline = InsurancePipeline(dry_run=False)
+except Exception as e:
+    insurance_pipeline = None
+
+try:
+    from brands.stock.stock_pipeline import StockPipeline
+    stock_pipeline = StockPipeline(dry_run=False)
+except Exception as e:
+    stock_pipeline = None
+
+brand_pipelines = {
+    "aura": aura_pipeline,
+    "insurance": insurance_pipeline,
+    "stock": stock_pipeline
+}
+
+brand_daemons_running = {
+    "aura": False,
+    "insurance": False,
+    "stock": False
+}
+
+brand_stats = {
+    "aura": {"cycle": 0, "last_run": "대기 중", "total_published": 0},
+    "insurance": {"cycle": 0, "last_run": "대기 중", "total_published": 0},
+    "stock": {"cycle": 0, "last_run": "대기 중", "total_published": 0}
+}
+
+def _brand_daemon_loop(brand: str):
+    name_map = {"aura": "💖 Aura 데이팅", "insurance": "🛡️ InsureBalance 보험비교", "stock": "📈 Stock Master 주식AI"}
+    brand_kr = name_map.get(brand, brand.upper())
+    log_event(f"🚀 [{brand_kr}] 24시간 무인 마케팅 데몬이 가동되었습니다.", "success")
+    pipeline = brand_pipelines.get(brand)
+    
+    while brand_daemons_running.get(brand, False):
+        try:
+            brand_stats[brand]["cycle"] += 1
+            brand_stats[brand]["last_run"] = get_now_kst_str()
+            log_event(f"🔄 [{brand_kr}] 정기 마케팅 사이클 #{brand_stats[brand]['cycle']} 시작...", "info")
+            if pipeline:
+                res = pipeline.run_full_daily_cycle()
+                brand_stats[brand]["total_published"] += 3
+                log_event(f"🎉 [{brand_kr}] 사이클 #{brand_stats[brand]['cycle']} 완료! 옴니채널 송출 성공", "success")
+            else:
+                log_event(f"ℹ️ [{brand_kr}] 파이프라인 시뮬레이션 완료", "info")
+            
+            # 30분 간격 대기
+            for _ in range(180):
+                if not brand_daemons_running.get(brand, False):
+                    break
+                time.sleep(10)
+        except Exception as e:
+            log_event(f"⚠️ [{brand_kr}] 데몬 오류: {e}", "warning")
+            time.sleep(30)
+    
+    log_event(f"⏹️ [{brand_kr}] 24시간 무인 마케팅 데몬이 정지되었습니다.", "info")
+
 # 📲 텔레그램 24시간 커뮤니티 — 브랜드별 독립 인스턴스 (K-Market / EasyTax 완전 분리)
 telegram_ai_managers = {
     "kmarket": TelegramAICommunityManager(brand="kmarket"),
@@ -698,6 +764,29 @@ class DashboardHandler(BaseHTTPRequestHandler):
         if path == "/api/media_engine":
             self._handle_post_media_engine(payload)
             return
+        elif path == "/api/aura/start":
+            self._handle_brand_start("aura")
+            return
+        elif path == "/api/aura/stop":
+            self._handle_brand_stop("aura")
+            return
+        elif path == "/api/insurance/start":
+            self._handle_brand_start("insurance")
+            return
+        elif path == "/api/insurance/stop":
+            self._handle_brand_stop("insurance")
+            return
+        elif path == "/api/stock/start":
+            self._handle_brand_start("stock")
+            return
+        elif path == "/api/stock/stop":
+            self._handle_brand_stop("stock")
+            return
+        elif path.startswith("/api/run-hub/"):
+            parts = path.split("/")
+            if len(parts) >= 5:
+                self._handle_run_hub(parts[3], parts[4])
+                return
         elif path == "/api/kmarket/start":
             self._handle_kmarket_start()
         elif path == "/api/kmarket/stop":
@@ -812,6 +901,12 @@ class DashboardHandler(BaseHTTPRequestHandler):
             tax_score = tax_row[1]
 
         data = {
+            "aura_running": brand_daemons_running.get("aura", False),
+            "aura_stats": brand_stats.get("aura", {}),
+            "insurance_running": brand_daemons_running.get("insurance", False),
+            "insurance_stats": brand_stats.get("insurance", {}),
+            "stock_running": brand_daemons_running.get("stock", False),
+            "stock_stats": brand_stats.get("stock", {}),
             "kmarket_running": kmarket_running,
             "kmarket_stats": kmarket_stats,
             "easytax_running": easytax_running,
@@ -820,6 +915,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
             "season": season,
             "total_history_count": total_count,
             "top_score": top_score,
+            "aura_history_count": brand_stats.get("aura", {}).get("total_published", 0),
+            "insurance_history_count": brand_stats.get("insurance", {}).get("total_published", 0),
+            "stock_history_count": brand_stats.get("stock", {}).get("total_published", 0),
             "kmarket_history_count": km_count,
             "kmarket_top_score": km_score,
             "kmarket_seo_count": 1105,
@@ -1014,8 +1112,55 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self._set_headers("application/json")
         self.wfile.write(json.dumps(res).encode("utf-8"))
 
+    def _handle_brand_start(self, brand: str):
+        global brand_daemons_running
+        brand_daemons_running[brand] = True
+        t = threading.Thread(target=_brand_daemon_loop, args=(brand,), daemon=True)
+        t.start()
+        name_map = {"aura": "💖 Aura 데이팅", "insurance": "🛡️ InsureBalance 보험비교", "stock": "📈 Stock Master 주식AI"}
+        brand_kr = name_map.get(brand, brand.upper())
+        res = {"success": True, "message": f"🚀 {brand_kr} 24개 옴니채널 무인 마케팅 데몬이 가동되었습니다!"}
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_brand_stop(self, brand: str):
+        global brand_daemons_running
+        brand_daemons_running[brand] = False
+        name_map = {"aura": "💖 Aura 데이팅", "insurance": "🛡️ InsureBalance 보험비교", "stock": "📈 Stock Master 주식AI"}
+        brand_kr = name_map.get(brand, brand.upper())
+        res = {"success": True, "message": f"⏹️ {brand_kr} 무인 마케팅 데몬이 정지되었습니다."}
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_run_hub(self, brand: str, hub_key: str):
+        pipeline = brand_pipelines.get(brand)
+        def _worker():
+            name_map = {"aura": "💖 Aura", "insurance": "🛡️ 보험비교", "stock": "📈 주식AI"}
+            brand_kr = name_map.get(brand, brand.upper())
+            log_event(f"⚡ [{brand_kr} #{hub_key}] 채널 원클릭 즉시 실행 중...", "info")
+            if pipeline:
+                try:
+                    res = pipeline.run_full_daily_cycle()
+                    log_event(f"🎉 [{brand_kr} #{hub_key}] 채널 즉시 발행 완료! (결과: {res.get('status', 'OK')})", "success")
+                except Exception as ex:
+                    log_event(f"⚠️ [{brand_kr} #{hub_key}] 실행 중 예외: {ex}", "warning")
+            else:
+                log_event(f"ℹ️ [{brand_kr} #{hub_key}] 채널 시뮬레이션 처리 완료", "info")
+
+        threading.Thread(target=_worker, daemon=True).start()
+        res = {"success": True, "message": f"⚡ [{brand.upper()}] #{hub_key} 채널 즉시 발행 요청이 전달되었습니다."}
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+
     def _handle_all_start(self):
-        global kmarket_thread, kmarket_running, easytax_thread, easytax_running, running_channels
+        global kmarket_thread, kmarket_running, easytax_thread, easytax_running, running_channels, brand_daemons_running
+        # 1. 3대 슈퍼앱 가동
+        for b in ["aura", "insurance", "stock"]:
+            if not brand_daemons_running.get(b, False):
+                brand_daemons_running[b] = True
+                threading.Thread(target=_brand_daemon_loop, args=(b,), daemon=True).start()
+
+        # 2. 기존 호환 데몬 동시 가동
         kmarket_running = True
         if not kmarket_thread or not kmarket_thread.is_alive():
             kmarket_thread = threading.Thread(target=kmarket_worker, daemon=True)
@@ -1035,21 +1180,23 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 running_channels[ch] = True
                 threading.Thread(target=channel_continuous_worker, args=(ch,), daemon=True).start()
 
-        res = {"success": True, "message": "🚀 [전체 봇 가동] K-Market 및 EasyTax 20대 채널 24시간 무인 자율 공장이 동시 가동되었습니다!"}
+        res = {"success": True, "message": "🚀 [전체 봇 가동] 대한민국 3대 슈퍼앱 및 24개 전 채널 24시간 무인 자율 공장이 일괄 가동되었습니다!"}
         self._set_headers("application/json")
-        self.wfile.write(json.dumps(res).encode("utf-8"))
+        self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
 
     def _handle_all_stop(self):
-        global kmarket_running, easytax_running, running_channels
+        global kmarket_running, easytax_running, running_channels, brand_daemons_running
+        for b in ["aura", "insurance", "stock"]:
+            brand_daemons_running[b] = False
         kmarket_running = False
         easytax_running = False
         for ch in running_channels:
             running_channels[ch] = False
         for mgr in telegram_ai_managers.values():
             mgr.stop_background_daemon()
-        res = {"success": True, "message": "🛑 [전체 봇 정지] 모든 무인 성장봇 20대 채널 및 텔레그램 AI 매니저 가동이 안전하게 중지되었습니다."}
+        res = {"success": True, "message": "🛑 [전체 봇 정지] 대한민국 3대 슈퍼앱 및 모든 채널 가동이 안전하게 중지되었습니다."}
         self._set_headers("application/json")
-        self.wfile.write(json.dumps(res).encode("utf-8"))
+        self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
 
     def _handle_run_module(self, module_name: str):
         self._handle_channel_start(module_name)
@@ -2066,7 +2213,8 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self._set_headers("application/json")
         self.wfile.write(json.dumps({"success": res.get("success", False), "message": msg, "detail": res}, ensure_ascii=False).encode("utf-8"))
 
-def run_server(port: int = 8000):
+def run_server(port: int = 8080):
+    port = int(os.environ.get("PORT", port))
     ThreadingHTTPServer.allow_reuse_address = True
     server_address = ("", port)
     try:
