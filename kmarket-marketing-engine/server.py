@@ -178,6 +178,17 @@ telegram_stealth_inviters = {
 telegram_scraper = TelegramMemberScraper()
 telegram_publisher = TelegramCommunityPublisher()
 
+# 🇰🇷 대한민국 3대 슈퍼앱 텔레그램 독립 레고 블록 엔진 (Aura / InsureBalance / StockMaster)
+from brands.aura.aura_telegram_engine import AuraTelegramEngine
+from brands.insurance.insurance_telegram_engine import InsuranceTelegramEngine
+from brands.stock.stock_telegram_engine import StockTelegramEngine
+
+domestic_telegram_engines = {
+    "aura": AuraTelegramEngine(),
+    "insurance": InsuranceTelegramEngine(),
+    "stock": StockTelegramEngine()
+}
+
 # 듀얼 봇 글로벌 상태
 kmarket_thread = None
 kmarket_running = False
@@ -718,6 +729,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
             return
         elif path == "/api/hashtags":
             self._handle_get_hashtags()
+            return
         elif path == "/api/ir-analytics" or path.startswith("/api/ir-analytics"):
             self._handle_get_ir_analytics(parsed)
             return
@@ -789,35 +801,48 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 return
         elif path == "/api/kmarket/start":
             self._handle_kmarket_start()
+            return
         elif path == "/api/kmarket/stop":
             self._handle_kmarket_stop()
+            return
         elif path == "/api/easytax/start":
             self._handle_easytax_start()
+            return
         elif path == "/api/easytax/stop":
             self._handle_easytax_stop()
+            return
         elif path == "/api/all/start":
             self._handle_all_start()
+            return
         elif path == "/api/all/stop":
             self._handle_all_stop()
+            return
         elif path.startswith("/api/channel/start/"):
             module_name = path.split("/")[-1]
             self._handle_channel_start(module_name)
+            return
         elif path.startswith("/api/channel/stop/"):
             module_name = path.split("/")[-1]
             self._handle_channel_stop(module_name)
+            return
         elif path.startswith("/api/run-module/"):
             module_name = path.split("/")[-1]
             self._handle_channel_start(module_name)
+            return
         elif path.startswith("/api/platforms/test-publish/"):
             platform_id = path.split("/")[-1]
             self._handle_test_publish(platform_id)
+            return
         elif path.startswith("/api/pipeline/run/"):
             hub_id = path.split("/")[-1]
             self._handle_run_pipeline_hub(hub_id, payload)
+            return
         elif path == "/api/scenarios/generate":
             self._handle_generate_scenario(payload)
+            return
         elif path == "/api/scenarios/evolve":
             self._handle_evolve_scenario(payload)
+            return
         elif path == "/api/golden-batch/run":
             self._handle_post_golden_batch_run(payload)
             return
@@ -832,32 +857,45 @@ class DashboardHandler(BaseHTTPRequestHandler):
             return
         elif path == "/api/google-index/ping":
             self._handle_google_index_ping(payload)
+            return
         elif path == "/api/health/run-diagnostic":
             self._handle_run_health_diagnostic()
+            return
         elif path == "/api/kmarket/google-index":
             self._handle_kmarket_google_index()
+            return
         elif path == "/api/easytax/google-index":
             self._handle_easytax_google_index()
+            return
         elif path == "/api/google-index":
             self._handle_google_index()
+            return
         elif path == "/api/hashtags/refresh":
             self._handle_refresh_hashtags()
+            return
         elif path == "/api/settings":
             self._handle_save_settings(payload)
+            return
         elif path == "/api/telegram/toggle-manager":
             self._handle_telegram_toggle_manager(payload)
+            return
         elif path == "/api/telegram/broadcast":
             self._handle_telegram_broadcast(payload)
+            return
         elif path == "/api/telegram/run-invite":
             self._handle_telegram_run_invite(payload)
+            return
         # ── [방법 1] 타 그룹 홍보 게시 아웃리치 ──────────────────
         elif path == "/api/telegram/outreach/run":
             self._handle_telegram_outreach_run(payload)
+            return
         elif path == "/api/telegram/outreach/status":
             self._handle_telegram_outreach_status(payload)
+            return
         # ── [초대] 서브폰 스텔스 초대 ─────────────────────────────
         elif path == "/api/telegram/stealth-invite":
             self._handle_telegram_stealth_invite(payload)
+            return
         else:
             self._set_headers("text/plain", 404)
             self.wfile.write(b"Endpoint Not Found")
@@ -1265,6 +1303,21 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps({"platforms": platforms}).encode("utf-8"))
 
     def _handle_get_hashtags(self):
+        parsed = urllib.parse.urlparse(self.path)
+        qs = urllib.parse.parse_qs(parsed.query)
+        brand = qs.get("brand", ["kmarket"])[0].lower()
+
+        if brand == "aura":
+            try:
+                from brands.aura.aura_keyword_matrix import AuraKeywordMatrix
+                matrix = AuraKeywordMatrix()
+                data = matrix.get_dashboard_summary()
+                self._set_headers("application/json")
+                self.wfile.write(json.dumps({"brand": "aura", "hashtags": data}, ensure_ascii=False).encode("utf-8"))
+                return
+            except Exception as e:
+                log_event(f"⚠️ Aura 키워드 로드 실패: {e}", "warning")
+
         from core.trend_scraper import ViralTrendScraper
         scraper = ViralTrendScraper()
         self._set_headers("application/json")
@@ -1337,6 +1390,27 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps({"logs": logs, "total_count": len(logs)}).encode("utf-8"))
 
     def _handle_refresh_hashtags(self):
+        parsed = urllib.parse.urlparse(self.path)
+        qs = urllib.parse.parse_qs(parsed.query)
+        brand = qs.get("brand", ["kmarket"])[0].lower()
+
+        if brand == "aura":
+            try:
+                from brands.aura.aura_keyword_matrix import AuraKeywordMatrix
+                matrix = AuraKeywordMatrix()
+                data = matrix.refresh_all_categories()
+                log_event("💖 [Aura] 2030 네이버 & 구글 실시간 바이럴 키워드 매트릭스가 새로고침되었습니다.", "success")
+                self._set_headers("application/json")
+                self.wfile.write(json.dumps({
+                    "success": True,
+                    "message": "💖 Aura 2030 실시간 네이버/구글 바이럴 키워드가 성공적으로 갱신되었습니다.",
+                    "brand": "aura",
+                    "hashtags": data
+                }, ensure_ascii=False).encode("utf-8"))
+                return
+            except Exception as e:
+                log_event(f"⚠️ Aura 키워드 갱신 오류: {e}", "warning")
+
         from core.trend_scraper import ViralTrendScraper
         scraper = ViralTrendScraper()
         data = scraper.refresh_daily_trends()
@@ -2090,7 +2164,13 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
     def _handle_get_telegram_stats(self, parsed):
         query_params = urllib.parse.parse_qs(parsed.query)
-        brand = query_params.get("brand", ["kmarket"])[0].lower()
+        brand = query_params.get("brand", ["stock"])[0].lower()
+        if brand in domestic_telegram_engines:
+            stats = domestic_telegram_engines[brand].get_status()
+            self._set_headers("application/json")
+            self.wfile.write(json.dumps(stats, ensure_ascii=False).encode("utf-8"))
+            return
+
         manager = telegram_ai_managers.get(brand, telegram_ai_managers["kmarket"])
 
         stats = {
@@ -2110,8 +2190,15 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(stats, ensure_ascii=False).encode("utf-8"))
 
     def _handle_telegram_toggle_manager(self, payload: Dict[str, Any]):
-        brand = payload.get("brand", "kmarket").lower()
+        brand = payload.get("brand", "stock").lower()
         action = payload.get("action", "toggle")
+        if brand in domestic_telegram_engines:
+            res = domestic_telegram_engines[brand].toggle_daemon(action)
+            log_event(res["message"], "success" if res.get("is_running") else "warning")
+            self._set_headers("application/json")
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+            return
+
         manager = telegram_ai_managers.get(brand, telegram_ai_managers["kmarket"])
 
         if action == "start":
@@ -2140,7 +2227,17 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
     def _handle_telegram_broadcast(self, payload: Dict[str, Any]):
         b_type = payload.get("type", "morning_briefing")
-        brand = payload.get("brand", "kmarket").lower()
+        brand = payload.get("brand", "stock").lower()
+
+        if brand in domestic_telegram_engines:
+            if b_type == "poll":
+                res = domestic_telegram_engines[brand].broadcast_poll()
+            else:
+                res = domestic_telegram_engines[brand].broadcast_briefing()
+            log_event(res["message"], "success" if res.get("success") else "warning")
+            self._set_headers("application/json")
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+            return
 
         if b_type == "poll":
             res = telegram_publisher.broadcast_interactive_poll()
@@ -2154,7 +2251,14 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps({"success": res.get("success", False), "message": msg, "detail": res}, ensure_ascii=False).encode("utf-8"))
 
     def _handle_telegram_run_invite(self, payload: Dict[str, Any]):
-        brand = payload.get("brand", "kmarket").lower()
+        brand = payload.get("brand", "stock").lower()
+        if brand in domestic_telegram_engines:
+            res = domestic_telegram_engines[brand].execute_stealth_invite()
+            log_event(res["message"], "success" if res.get("success") else "warning")
+            self._set_headers("application/json")
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+            return
+
         manager = telegram_ai_managers.get(brand, telegram_ai_managers["kmarket"])
         target_chat = payload.get("chat_id") or manager.chat_id or "default_chat"
         res = telegram_scraper.execute_stealth_invite_cycle(target_chat_id=target_chat)
@@ -2165,8 +2269,15 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
     # ── [방법 1] 타 그룹 홍보 게시 아웃리치 핸들러 ──────────────────────
     def _handle_telegram_outreach_run(self, payload):
-        """K-Market / EasyTax 타 그룹 홍보 게시 1회 실행"""
-        brand = payload.get("brand", "kmarket").lower()
+        """3대 국내 앱 & K-Market / EasyTax 타 그룹 홍보 게시 1회 실행"""
+        brand = payload.get("brand", "stock").lower()
+        if brand in domestic_telegram_engines:
+            res = domestic_telegram_engines[brand].execute_outreach()
+            log_event(res["message"], "success" if res.get("success") else "warning")
+            self._set_headers("application/json")
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+            return
+
         poster = telegram_outreach_posters.get(brand, telegram_outreach_posters["kmarket"])
         res = poster.execute_outreach_cycle()
         status = res.get("status", "")
@@ -2183,8 +2294,14 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps({"success": res.get("success", False), "message": msg, "detail": res}, ensure_ascii=False).encode("utf-8"))
 
     def _handle_telegram_outreach_status(self, payload):
-        """K-Market / EasyTax 아웃리치 현황 조회"""
-        brand = payload.get("brand", "kmarket").lower()
+        """3대 국내 앱 & K-Market / EasyTax 아웃리치 현황 조회"""
+        brand = payload.get("brand", "stock").lower()
+        if brand in domestic_telegram_engines:
+            status = domestic_telegram_engines[brand].get_outreach_status()
+            self._set_headers("application/json")
+            self.wfile.write(json.dumps(status, ensure_ascii=False).encode("utf-8"))
+            return
+
         poster = telegram_outreach_posters.get(brand, telegram_outreach_posters["kmarket"])
         status = poster.get_status()
         self._set_headers("application/json")
@@ -2192,8 +2309,15 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
     # ── [초대] 서브폰 스텔스 초대 핸들러 ─────────────────────────────────
     def _handle_telegram_stealth_invite(self, payload):
-        """K-Market / EasyTax 서브폰 스텔스 1회 초대 실행"""
-        brand = payload.get("brand", "kmarket").lower()
+        """3대 국내 앱 & K-Market / EasyTax 서브폰 스텔스 1회 초대 실행"""
+        brand = payload.get("brand", "stock").lower()
+        if brand in domestic_telegram_engines:
+            res = domestic_telegram_engines[brand].execute_stealth_invite()
+            log_event(res["message"], "success" if res.get("success") else "warning")
+            self._set_headers("application/json")
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+            return
+
         source_group = payload.get("source_group", None)  # 없으면 라운드로빈 자동 선택
         inviter = telegram_stealth_inviters.get(brand, telegram_stealth_inviters["kmarket"])
         res = inviter.execute_invite_cycle(source_group_username=source_group)

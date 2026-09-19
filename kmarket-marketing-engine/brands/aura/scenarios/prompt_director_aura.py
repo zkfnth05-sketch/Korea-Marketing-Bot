@@ -8,6 +8,12 @@ Aura Scenario & Prompt Director (데이팅 앱 Aura 전용 프롬프트 디렉�
 import random
 from typing import Dict, Any, List
 
+try:
+    from brands.aura.aura_blog_engine import AuraBlogEngine
+    aura_blog_engine = AuraBlogEngine()
+except Exception:
+    aura_blog_engine = None
+
 
 class AuraPromptDirector:
     BRAND_NAME = "Aura (아우라)"
@@ -21,8 +27,20 @@ class AuraPromptDirector:
     ]
 
     @classmethod
-    def generate_blog_content(cls) -> Dict[str, Any]:
-        """네이버/티스토리용 장문 SEO 칼럼 원고 생성"""
+    def generate_blog_content(cls, topic_id: Any = None) -> Dict[str, Any]:
+        """100대 주제 + 3중 가드레일 실시간 키워드 결합 SEO 칼럼 원고 생성"""
+        if aura_blog_engine:
+            pkg = aura_blog_engine.build_article_package(topic_id=topic_id)
+            return {
+                "title": pkg["title"],
+                "content_html": pkg["content_html"],
+                "tags": pkg["tags"],
+                "category": pkg["category"],
+                "seed_topic": pkg["seed_topic"],
+                "seo_brief": pkg["seo_brief"]
+            }
+
+        # Fallback
         titles = [
             "2026 소개팅 첫 카톡 읽씹 피하는 AI 대화 치트키 3가지",
             "내 얼굴과 성격의 진짜 매력 점수는? AI 매력도 분석 리포트 후기",
@@ -30,7 +48,7 @@ class AuraPromptDirector:
             "이번 주말 어디 갈까? 성향별 맞춤 AI 데이트 코스 추천"
         ]
         title = random.choice(titles)
-        content_html = f"""
+        content_html = """
         <h2>소개팅 첫인상을 결정짓는 3초의 법칙</h2>
         <p>안녕하세요! 2030 연애 트렌드 가이드입니다. 많은 분들이 소개팅에서 '첫 카톡'을 보낼 때 지나치게 긴장하거나 어색한 질문을 던져 대화가 끊기는 경험을 합니다.</p>
         <hr/>
