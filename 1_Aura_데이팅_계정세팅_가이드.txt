@@ -5,7 +5,7 @@
 [앱 기본 정보]
 - 프로젝트 명: Aura Dating (아우라 데이팅)
 - 원본 프로젝트: C:\Users\zkfnt\Desktop\aura-main
-- 랜딩 페이지 URL: https://aura-dating.app
+- 랜딩 페이지 URL: https://aura-ai-dating.vercel.app/
 - 핵심 타겟: 2030 청년, 대학생, 직장인, 싱글 남녀
 - 설정 파일 위치: kmarket-marketing-engine\brands\aura\accounts.json
 

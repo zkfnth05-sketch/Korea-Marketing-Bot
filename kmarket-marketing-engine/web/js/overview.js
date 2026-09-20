@@ -617,7 +617,7 @@ async function fetchStatus() {
         // 최신 로그 콘솔 (중복 방지: 새 로그만 딱 1번 출력)
         if (data.recent_logs && data.recent_logs.length > 0) {
             data.recent_logs.forEach(msg => {
-                const logKey = `${msg.timestamp || ''}_${msg.text}`;
+                const logKey = `${msg.id || msg.timestamp || msg.time || ''}_${msg.text}`;
                 if (!lastSeenLogKeys.has(logKey)) {
                     lastSeenLogKeys.add(logKey);
                     appendLog(msg.text, msg.type);

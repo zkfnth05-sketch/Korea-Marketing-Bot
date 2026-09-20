@@ -42,6 +42,7 @@ outputs/
 *.json.json
 *.session
 *.session-journal
+*_session.json
 
 # 🔐 계정 로그인 정보 및 비밀번호 텍스트 파일 유출 방지
 *로그인*.txt

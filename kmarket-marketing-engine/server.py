@@ -10,6 +10,7 @@ if sys.platform == "win32":
         pass
 
 import json
+import logging
 import threading
 import time
 import mimetypes
@@ -135,30 +136,55 @@ def _brand_daemon_loop(brand: str):
     name_map = {"aura": "💖 Aura 데이팅", "insurance": "🛡️ InsureBalance 보험비교", "stock": "📈 Stock Master 주식AI"}
     brand_kr = name_map.get(brand, brand.upper())
     log_event(f"🚀 [{brand_kr}] 24시간 무인 마케팅 데몬이 가동되었습니다.", "success")
-    pipeline = brand_pipelines.get(brand)
     
     while brand_daemons_running.get(brand, False):
         try:
             brand_stats[brand]["cycle"] += 1
             brand_stats[brand]["last_run"] = get_now_kst_str()
-            log_event(f"🔄 [{brand_kr}] 정기 마케팅 사이클 #{brand_stats[brand]['cycle']} 시작...", "info")
-            if pipeline:
-                res = pipeline.run_full_daily_cycle()
-                brand_stats[brand]["total_published"] += 3
-                log_event(f"🎉 [{brand_kr}] 사이클 #{brand_stats[brand]['cycle']} 완료! 옴니채널 송출 성공", "success")
-            else:
-                log_event(f"ℹ️ [{brand_kr}] 파이프라인 시뮬레이션 완료", "info")
+            log_event(f"🔄 [{brand_kr}] 정기 마케팅 사이클 #{brand_stats[brand]['cycle']} 가동 시작...", "info")
             
-            # 30분 간격 대기
-            for _ in range(180):
+            if brand == "aura":
+                from brands.aura.aura_blog_scheduler import AuraBlogScheduler
+                scheduler = AuraBlogScheduler()
+                res = scheduler.run_one_cycle()
+                brand_stats[brand]["total_published"] = scheduler.state.get("published_count", brand_stats[brand]["total_published"] + 1)
+                naver_url = res.get('publish_results', {}).get('channels', {}).get('naver_blog', {}).get('url', '-')
+                tistory_url = res.get('publish_results', {}).get('channels', {}).get('tistory', {}).get('url', '-')
+                log_event(f"🎉 [{brand_kr}] 사이클 #{brand_stats[brand]['cycle']} 완료! 주제: '{res.get('title')}' (네이버: {naver_url} | 티스토리: {tistory_url})", "success")
+            elif brand == "insurance":
+                from brands.insurance.insurance_blog_scheduler import insurance_blog_scheduler
+                res_b = insurance_blog_scheduler.run_once_now()
+                from brands.insurance.insurance_pipeline import InsurancePipeline
+                pipe = InsurancePipeline(dry_run=False)
+                res = pipe.run_full_daily_cycle()
+                brand_stats[brand]["total_published"] += 4
+                log_event(f"🎉 [{brand_kr}] 사이클 #{brand_stats[brand]['cycle']} 완료! 블로그('{res_b.get('article_title', '완료')}') 및 3대 채널 배포 성공", "success")
+            elif brand == "stock":
+                from brands.stock.stock_blog_scheduler import stock_blog_scheduler
+                res_b = stock_blog_scheduler.run_once_now()
+                from brands.stock.stock_pipeline import StockPipeline
+                pipe = StockPipeline(dry_run=False)
+                res = pipe.run_full_daily_cycle()
+                brand_stats[brand]["total_published"] += 4
+                log_event(f"🎉 [{brand_kr}] 사이클 #{brand_stats[brand]['cycle']} 완료! 블로그('{res_b.get('article_title', '완료')}') 및 3대 채널 배포 성공", "success")
+            else:
+                log_event(f"ℹ️ [{brand_kr}] 파이프라인 처리 완료", "info")
+            
+            # 다음 사이클 대기 (30분 간격, 5초마다 정지 신호 체크)
+            for _ in range(360):
                 if not brand_daemons_running.get(brand, False):
                     break
-                time.sleep(10)
+                time.sleep(5)
         except Exception as e:
-            log_event(f"⚠️ [{brand_kr}] 데몬 오류: {e}", "warning")
-            time.sleep(30)
+            import traceback
+            err_detail = traceback.format_exc()
+            log_event(f"❌ [{brand_kr} 데몬 오류 발생] {e}\n{err_detail}", "error")
+            for _ in range(6):
+                if not brand_daemons_running.get(brand, False):
+                    break
+                time.sleep(5)
     
-    log_event(f"⏹️ [{brand_kr}] 24시간 무인 마케팅 데몬이 정지되었습니다.", "info")
+    log_event(f"⏹️ [{brand_kr}] 24시간 무인 마케팅 데몬이 안전하게 정지되었습니다.", "warning")
 
 # 📲 텔레그램 24시간 커뮤니티 — 브랜드별 독립 인스턴스 (K-Market / EasyTax 완전 분리)
 telegram_ai_managers = {
@@ -239,11 +265,60 @@ def set_media_engine_setting(channel_key: str, engine_mode: str):
     except Exception as e:
         pass
 
+log_counter = 0
+
 def log_event(text: str, log_type: str = "info"):
-    global recent_logs
-    recent_logs.append({"text": text, "type": log_type, "time": get_now_kst().strftime("%H:%M:%S")})
-    if len(recent_logs) > 50:
+    global recent_logs, log_counter
+    log_counter += 1
+    now_kst = get_now_kst()
+    time_str = now_kst.strftime("%H:%M:%S")
+    timestamp_str = now_kst.strftime("%Y-%m-%d %H:%M:%S")
+    recent_logs.append({
+        "id": log_counter,
+        "text": text,
+        "type": log_type,
+        "time": time_str,
+        "timestamp": timestamp_str
+    })
+    if len(recent_logs) > 200:
         recent_logs.pop(0)
+
+class DashboardLoggingHandler(logging.Handler):
+    """모든 브랜드/엔진의 Python 표준 로거 이벤트를 가로채 대시보드 실시간 로그에 포워딩"""
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            if record.levelno >= logging.ERROR:
+                lvl = "error"
+            elif record.levelno >= logging.WARNING:
+                lvl = "warning"
+            elif any(w in msg for w in ["성공", "완료", "SUCCESS", "배포", "🎉", "🚀", "✅"]):
+                lvl = "success"
+            else:
+                lvl = "info"
+
+            if record.exc_info:
+                import traceback
+                tb = "".join(traceback.format_exception(*record.exc_info))
+                msg = f"{msg}\n[상세 오류 원인 및 추적]\n{tb}"
+
+            log_event(msg, lvl)
+        except Exception:
+            pass
+
+_dash_handler = DashboardLoggingHandler()
+_dash_handler.setFormatter(logging.Formatter("%(message)s"))
+_dash_handler.setLevel(logging.INFO)
+
+for _name in [
+    "AuraBlogScheduler", "AuraBlogEngine", "AuraMultiPublisher",
+    "AuraNaverPublisher", "AuraTistoryPublisher", "AuraBrunchPublisher",
+    "AuraSupabaseManager", "AuraPipeline", "InsurancePipeline", "StockPipeline",
+    "ChannelScheduler"
+]:
+    _t_log = logging.getLogger(_name)
+    _t_log.addHandler(_dash_handler)
+    _t_log.setLevel(logging.INFO)
 
 # 🏭 원클릭 마케팅 콘텐츠 팩토리 서비스 인스턴스
 from core.engine.factory_service import FactoryService
@@ -426,6 +501,113 @@ def execute_single_channel_task(module_name: str) -> str:
         else:
             res = omni.execute_campaign(s_target)
             return f"🎬 [{s_target.upper()}] 5대 플랫폼 360도 옴니채널 패키징 완료!"
+
+    # 💖 [Aura 데이팅 전용 채널 실행기]
+    elif module_name.startswith("aura_"):
+        if module_name in ["aura_blog", "aura_magazine"]:
+            from brands.aura.aura_blog_scheduler import AuraBlogScheduler
+            scheduler = AuraBlogScheduler()
+            res = scheduler.run_one_cycle()
+            naver_url = res.get('publish_results', {}).get('channels', {}).get('naver_blog', {}).get('url', '-')
+            tistory_url = res.get('publish_results', {}).get('channels', {}).get('tistory', {}).get('url', '-')
+            supabase_status = res.get('publish_results', {}).get('channels', {}).get('supabase', {}).get('status', 'OK')
+            brunch_status = res.get('publish_results', {}).get('channels', {}).get('brunch', {}).get('status', '-')
+            return f"💖 [Aura 4대 채널 배포 성공] '{res.get('title')}'\n  - 네이버: {naver_url}\n  - 티스토리: {tistory_url}\n  - 앱피드: {supabase_status}\n  - 브런치: {brunch_status}"
+        elif module_name == "aura_naver_blog":
+            from brands.aura.aura_blog_engine import AuraBlogEngine
+            from brands.aura.aura_naver_publisher import AuraNaverPublisher
+            pkg = AuraBlogEngine().build_article_package(generate_photo=True)
+            res = AuraNaverPublisher().publish(pkg["title_naver"], pkg["body_naver"], pkg["image_path"], pkg["tags"])
+            return f"💖 [Aura 네이버] '{pkg['title_naver']}' 발행 완료 (URL: {res.get('url', res.get('message', '성공'))})"
+        elif module_name == "aura_tistory":
+            from brands.aura.aura_blog_engine import AuraBlogEngine
+            from brands.aura.aura_tistory_publisher import AuraTistoryPublisher
+            pkg = AuraBlogEngine().build_article_package(generate_photo=True)
+            res = AuraTistoryPublisher().publish(pkg["title_tistory"], pkg["body_tistory"], pkg["image_path"], pkg["tags"])
+            return f"💖 [Aura 티스토리] '{pkg['title_tistory']}' 발행 완료 (URL: {res.get('url', res.get('message', '성공'))})"
+        elif module_name == "aura_brunch":
+            from brands.aura.aura_blog_engine import AuraBlogEngine
+            from brands.aura.aura_brunch_publisher import AuraBrunchPublisher
+            pkg = AuraBlogEngine().build_article_package(generate_photo=True)
+            res = AuraBrunchPublisher().publish(pkg["title_kakao"], pkg["body_kakao"], pkg["image_path"], pkg["tags"])
+            return f"💖 [Aura 브런치] '{pkg['title_kakao']}' 발행 완료 (URL: {res.get('url', res.get('message', '성공'))})"
+        elif module_name in ["aura_shorts", "aura_naver_clip"]:
+            from brands.aura.scenarios.prompt_director_aura import AuraPromptDirector
+            script = AuraPromptDirector.generate_shorts_script()
+            return f"💖 [Aura 숏폼/릴스] '{script['hook']}' 2030 데이팅 숏폼 비디오 렌더링 완료"
+        elif module_name == "aura_cardnews":
+            from brands.aura.scenarios.prompt_director_aura import AuraPromptDirector
+            content = AuraPromptDirector.generate_blog_content()
+            return f"💖 [Aura 카드뉴스] '{content['title']}' 2030 연애 트렌드 4장 카드뉴스 생성 완료"
+        elif module_name in ["aura_nate_pann", "aura_dcinside", "aura_ppomppu"]:
+            from brands.aura.aura_pipeline import AuraPipeline
+            res = AuraPipeline(dry_run=False).run_viral_community_cycle()
+            return f"💖 [Aura 커뮤니티 바이럴] 네이트판 사연 & 디시 연애갤 투고 완료"
+        elif module_name == "aura_naver_kin":
+            from brands.aura.aura_pipeline import AuraPipeline
+            res = AuraPipeline(dry_run=False).run_qa_and_lead_cycle()
+            return f"💖 [Aura 지식iN] 1:1 데이팅 고민 상담 답변 투고 완료"
+        elif module_name in ["aura_seo", "aura_search_advisor"]:
+            from brands.aura.aura_pipeline import AuraPipeline
+            res = AuraPipeline(dry_run=False).run_blog_and_seo_cycle()
+            return f"💖 [Aura SEO] 네이버 서치어드바이저 색인 핑 전송 완료"
+        else:
+            from brands.aura.aura_pipeline import AuraPipeline
+            res = AuraPipeline(dry_run=False).run_full_daily_cycle()
+            return f"💖 [Aura #{module_name}] 자율 파이프라인 가동 완료"
+
+    # 🛡️ [InsureBalance 보험비교 전용 채널 실행기]
+    elif module_name.startswith("insurance_"):
+        from brands.insurance.insurance_pipeline import InsurancePipeline
+        pipe = InsurancePipeline(dry_run=False)
+        if module_name in ["insurance_blog", "insurance_naver_blog", "insurance_tistory", "insurance_brunch"]:
+            from brands.insurance.insurance_blog_engine import InsuranceBlogEngine
+            res = InsuranceBlogEngine().publish_now()
+            return f"🛡️ [보험비교 3대 블로그 배포 완료] '{res.get('article_title')}'"
+        elif module_name in ["insurance_ppomppu", "insurance_bobaedream", "insurance_dcinside"]:
+            res = pipe.run_community_cycle()
+            return f"🛡️ [보험비교] 뽐뿌 재테크 & 보배드림 운전자보험 정보글 투고 완료"
+        elif module_name == "insurance_naver_kin":
+            res = pipe.run_qa_and_lead_cycle()
+            return f"🛡️ [보험비교] 실손/암보험 지식iN 1:1 비교 답변 투고 완료"
+        elif module_name in ["insurance_shorts", "insurance_naver_clip"]:
+            from brands.insurance.scenarios.prompt_director_insurance import InsurancePromptDirector
+            content = InsurancePromptDirector.generate_blog_content()
+            return f"🛡️ [보험비교 숏폼] '{content['title']}' 실손/암보험 숏폼 비디오 렌더링 완료"
+        elif module_name == "insurance_cardnews":
+            from brands.insurance.scenarios.prompt_director_insurance import InsurancePromptDirector
+            content = InsurancePromptDirector.generate_blog_content()
+            return f"🛡️ [보험비교 카드뉴스] '{content['title']}' 4세대 실손 비교 4장 카드뉴스 생성 완료"
+        else:
+            res = pipe.run_full_daily_cycle()
+            return f"🛡️ [보험비교 #{module_name}] 자율 파이프라인 가동 완료"
+
+    # 📈 [Stock Master 주식 AI 전용 채널 실행기]
+    elif module_name.startswith("stock_"):
+        from brands.stock.stock_pipeline import StockPipeline
+        pipe = StockPipeline(dry_run=False)
+        if module_name in ["stock_blog", "stock_naver_blog", "stock_tistory", "stock_brunch"]:
+            from brands.stock.stock_blog_engine import StockBlogEngine
+            res = StockBlogEngine().publish_now()
+            return f"📈 [주식AI 3대 블로그 배포 완료] '{res.get('article_title')}'"
+        elif module_name in ["stock_dcinside", "stock_ppomppu"]:
+            res = pipe.run_community_cycle()
+            return f"📈 [주식AI] 디시 주식갤 & 뽐뿌 증권 시황 브리핑 투고 완료"
+        elif module_name in ["stock_briefing", "stock_kakao_channel"]:
+            res = pipe.run_premarket_briefing_cycle()
+            return f"📈 [주식AI] 장전 08:30 핵심 섹터 알림톡 브리핑 발송 완료"
+        elif module_name in ["stock_shorts", "stock_naver_clip"]:
+            from brands.stock.scenarios.prompt_director_stock import StockPromptDirector
+            content = StockPromptDirector.generate_blog_content()
+            return f"📈 [주식AI 숏폼] '{content['title']}' 외인/기관 수급 숏폼 비디오 렌더링 완료"
+        elif module_name == "stock_cardnews":
+            from brands.stock.scenarios.prompt_director_stock import StockPromptDirector
+            content = StockPromptDirector.generate_blog_content()
+            return f"📈 [주식AI 카드뉴스] '{content['title']}' 주도 섹터 수급 지도 4장 카드뉴스 생성 완료"
+        else:
+            res = pipe.run_full_daily_cycle()
+            return f"📈 [주식AI #{module_name}] 자율 파이프라인 가동 완료"
+
     else:
         return f"{module_name} 실행 완료"
 
@@ -433,11 +615,24 @@ def execute_single_channel_task(module_name: str) -> str:
 def channel_continuous_worker(module_name: str):
     global running_channels
 
-    # ⏰ #1 숏폼 / 틱톡: 대한민국 표준시(KST) 하루 3회 (12:00 / 20:30 / 23:30) 정시 스케줄러
-    if module_name in ["kmarket_shorts", "easytax_shorts", "kmarket_tiktok", "easytax_tiktok"]:
-        ch_title = "K-Market 숏폼" if "kmarket" in module_name else "EasyTax 숏폼"
+    # ⏰ #1 Aura 2030 매거진: 대한민국 표준시(KST) 하루 2회 (12:00 / 21:00) 정시 스케줄러
+    if module_name in ["aura_blog", "aura_magazine"]:
         scheduler = ChannelScheduler(
-            channel_name=ch_title,
+            channel_name="💖 Aura 2030 매거진",
+            publish_fn=lambda: execute_single_channel_task(module_name),
+            time_slots=["12:00", "21:00"]
+        )
+        scheduler.run_scheduled_loop(
+            is_running_checker=lambda: running_channels.get(module_name, False),
+            on_log=log_event
+        )
+        return
+
+    # ⏰ #2 숏폼 / 틱톡 / 릴스 / 클립: 대한민국 표준시(KST) 하루 3회 (12:00 / 20:30 / 23:30) 정시 스케줄러
+    if any(k in module_name for k in ["shorts", "tiktok", "naver_clip"]):
+        brand_name = "💖 Aura" if "aura" in module_name else ("🛡️ 보험비교" if "insurance" in module_name else ("📈 주식AI" if "stock" in module_name else ("💰 EasyTax" if "easytax" in module_name else "🛒 K-Market")))
+        scheduler = ChannelScheduler(
+            channel_name=f"{brand_name} 숏폼/릴스",
             publish_fn=lambda: execute_single_channel_task(module_name),
             time_slots=["12:00", "20:30", "23:30"]
         )
@@ -447,11 +642,11 @@ def channel_continuous_worker(module_name: str):
         )
         return
 
-    # ⏰ #2 실물 카드뉴스: 대한민국 표준시(KST) 하루 3회 (08:00 / 15:30 / 22:30) 정시 스케줄러
-    if module_name in ["kmarket_cardnews", "easytax_cardnews"]:
-        ch_title = "K-Market 카드뉴스" if "kmarket" in module_name else "EasyTax 카드뉴스"
+    # ⏰ #3 실물 카드뉴스: 대한민국 표준시(KST) 하루 3회 (08:00 / 15:30 / 22:30) 정시 스케줄러
+    if "cardnews" in module_name:
+        brand_name = "💖 Aura" if "aura" in module_name else ("🛡️ 보험비교" if "insurance" in module_name else ("📈 주식AI" if "stock" in module_name else ("💰 EasyTax" if "easytax" in module_name else "🛒 K-Market")))
         scheduler = ChannelScheduler(
-            channel_name=ch_title,
+            channel_name=f"{brand_name} 카드뉴스",
             publish_fn=lambda: execute_single_channel_task(module_name),
             time_slots=["08:00", "15:30", "22:30"]
         )
@@ -461,38 +656,11 @@ def channel_continuous_worker(module_name: str):
         )
         return
 
-    # ⏰ #3 Reddit 1:1 리드 헌터: 대한민국 표준시(KST) 1시간 간격 정기 자율 스캔
-    if module_name in ["kmarket_reddit", "easytax_reddit", "reddit"]:
-        ch_title = "K-Market 레딧 헌터" if "kmarket" in module_name else ("EasyTax 레딧 헌터" if "easytax" in module_name else "Reddit 헌터")
+    # ⏰ #4 블로그 / 외부 포털 채널: 대한민국 표준시(KST) 하루 3회 (09:00 / 13:00 / 19:00)
+    if any(k in module_name for k in ["blog", "naver_blog", "tistory", "brunch", "naver_post"]):
+        brand_name = "💖 Aura" if "aura" in module_name else ("🛡️ 보험비교" if "insurance" in module_name else ("📈 주식AI" if "stock" in module_name else ("💰 EasyTax" if "easytax" in module_name else "🛒 K-Market")))
         scheduler = ChannelScheduler(
-            channel_name=ch_title,
-            publish_fn=lambda: execute_single_channel_task(module_name),
-            interval_seconds=3600
-        )
-        scheduler.run_scheduled_loop(
-            is_running_checker=lambda: running_channels.get(module_name, False),
-            on_log=log_event
-        )
-        return
-
-    # ⏰ #4 페이스북 50만 그룹 침투기: 대한민국 표준시(KST) 하루 3회 (09:30 / 13:30 / 19:30) 2개 그룹 순환 스케줄러
-    if module_name in ["kmarket_fb_groups", "easytax_fb_groups"]:
-        ch_title = "K-Market 페북 침투기" if "kmarket" in module_name else "EasyTax 페북 침투기"
-        scheduler = ChannelScheduler(
-            channel_name=ch_title,
-            publish_fn=lambda: execute_single_channel_task(module_name),
-            time_slots=["09:30", "13:30", "19:30"]
-        )
-        scheduler.run_scheduled_loop(
-            is_running_checker=lambda: running_channels.get(module_name, False),
-            on_log=log_event
-        )
-        return
-
-    # ⏰ #5-1 K-Market 블로그: 대한민국 표준시(KST) 하루 3회 (09:00 / 13:00 / 19:00) 정시 스케줄러
-    if module_name == "kmarket_blog":
-        scheduler = ChannelScheduler(
-            channel_name="K-Market 블로그",
+            channel_name=f"{brand_name} 블로그/칼럼",
             publish_fn=lambda: execute_single_channel_task(module_name),
             time_slots=["09:00", "13:00", "19:00"]
         )
@@ -502,12 +670,13 @@ def channel_continuous_worker(module_name: str):
         )
         return
 
-    # ⏰ #5-2 EasyTax 블로그: 대한민국 표준시(KST) 하루 3회 (09:10 / 13:10 / 19:10) 10분 시차 분산 스케줄러
-    if module_name == "easytax_blog":
+    # ⏰ #5 커뮤니티 바이럴 / 리드 헌터: 1시간 간격 정기 자율 헌팅
+    if any(k in module_name for k in ["reddit", "ppomppu", "dcinside", "nate_pann", "bobaedream", "fmkorea", "naver_cafe", "daum_cafe", "naver_kin"]):
+        brand_name = "💖 Aura" if "aura" in module_name else ("🛡️ 보험비교" if "insurance" in module_name else ("📈 주식AI" if "stock" in module_name else ("💰 EasyTax" if "easytax" in module_name else "🛒 K-Market")))
         scheduler = ChannelScheduler(
-            channel_name="EasyTax 블로그",
+            channel_name=f"{brand_name} 커뮤니티 헌터",
             publish_fn=lambda: execute_single_channel_task(module_name),
-            time_slots=["09:10", "13:10", "19:10"]
+            interval_seconds=3600
         )
         scheduler.run_scheduled_loop(
             is_running_checker=lambda: running_channels.get(module_name, False),
@@ -515,11 +684,11 @@ def channel_continuous_worker(module_name: str):
         )
         return
 
-    # ⏰ #6 구글 실시간 색인 핑: 대한민국 표준시(KST) 하루 1회 (새벽 01:00) 종합 색인 스케줄러
-    if module_name in ["kmarket_seo", "easytax_seo", "seo"]:
-        ch_title = "K-Market 구글색인" if "kmarket" in module_name else ("EasyTax 구글색인" if "easytax" in module_name else "구글 색인 핑")
+    # ⏰ #6 구글 / 네이버 검색 색인 핑: 대한민국 표준시(KST) 하루 1회 (새벽 01:00)
+    if any(k in module_name for k in ["seo", "search_advisor"]):
+        brand_name = "💖 Aura" if "aura" in module_name else ("🛡️ 보험비교" if "insurance" in module_name else ("📈 주식AI" if "stock" in module_name else ("💰 EasyTax" if "easytax" in module_name else "🛒 K-Market")))
         scheduler = ChannelScheduler(
-            channel_name=ch_title,
+            channel_name=f"{brand_name} 검색 색인 핑",
             publish_fn=lambda: execute_single_channel_task(module_name),
             time_slots=["01:00"]
         )
@@ -529,11 +698,25 @@ def channel_continuous_worker(module_name: str):
         )
         return
 
-    # ⏰ #7 Meta Threads 바이럴 스레드: 대한민국 표준시(KST) 하루 3회 (11:00 / 16:30 / 21:30) 3개 언어 순환 스케줄러
-    if module_name in ["kmarket_threads", "easytax_threads", "threads"]:
-        ch_title = "K-Market 스레드" if "kmarket" in module_name else ("EasyTax 스레드" if "easytax" in module_name else "Meta Threads")
+    # ⏰ #7 페이스북 50만 그룹 침투기: 대한민국 표준시(KST) 하루 3회 (09:30 / 13:30 / 19:30)
+    if "fb_groups" in module_name:
+        brand_name = "💖 Aura" if "aura" in module_name else ("🛡️ 보험비교" if "insurance" in module_name else ("📈 주식AI" if "stock" in module_name else ("💰 EasyTax" if "easytax" in module_name else "🛒 K-Market")))
         scheduler = ChannelScheduler(
-            channel_name=ch_title,
+            channel_name=f"{brand_name} 페북 침투기",
+            publish_fn=lambda: execute_single_channel_task(module_name),
+            time_slots=["09:30", "13:30", "19:30"]
+        )
+        scheduler.run_scheduled_loop(
+            is_running_checker=lambda: running_channels.get(module_name, False),
+            on_log=log_event
+        )
+        return
+
+    # ⏰ #8 Meta Threads 바이럴 스레드: 대한민국 표준시(KST) 하루 3회 (11:00 / 16:30 / 21:30)
+    if "threads" in module_name:
+        brand_name = "💖 Aura" if "aura" in module_name else ("🛡️ 보험비교" if "insurance" in module_name else ("📈 주식AI" if "stock" in module_name else ("💰 EasyTax" if "easytax" in module_name else "🛒 K-Market")))
+        scheduler = ChannelScheduler(
+            channel_name=f"{brand_name} 스레드",
             publish_fn=lambda: execute_single_channel_task(module_name),
             time_slots=["11:00", "16:30", "21:30"]
         )
@@ -543,11 +726,11 @@ def channel_continuous_worker(module_name: str):
         )
         return
 
-    # ⏰ #8 텔레그램 데일리 브리핑: 대한민국 표준시(KST) 하루 2회 (08:30 / 18:30) 모닝 & 이브닝 푸시 스케줄러
-    if module_name in ["kmarket_briefing", "easytax_briefing", "briefing"]:
-        ch_title = "K-Market 텔레그램" if "kmarket" in module_name else ("EasyTax 텔레그램" if "easytax" in module_name else "텔레그램 브리핑")
+    # ⏰ #9 텔레그램 / 카카오 알림톡 브리핑: 대한민국 표준시(KST) 하루 2회 (08:30 / 18:30)
+    if any(k in module_name for k in ["briefing", "kakao_channel"]):
+        brand_name = "💖 Aura" if "aura" in module_name else ("🛡️ 보험비교" if "insurance" in module_name else ("📈 주식AI" if "stock" in module_name else ("💰 EasyTax" if "easytax" in module_name else "🛒 K-Market")))
         scheduler = ChannelScheduler(
-            channel_name=ch_title,
+            channel_name=f"{brand_name} 브리핑/알림톡",
             publish_fn=lambda: execute_single_channel_task(module_name),
             time_slots=["08:30", "18:30"]
         )
@@ -557,6 +740,7 @@ def channel_continuous_worker(module_name: str):
         )
         return
 
+    # ⏰ #10 기타 채널 기본 무인 자율 공장 루프
     log_event(f"🚀 [{module_name}] 24시간 연속 무인 자율 공장이 가동되었습니다.", "success")
     
     cycle = 0
@@ -566,7 +750,9 @@ def channel_continuous_worker(module_name: str):
             msg = execute_single_channel_task(module_name)
             log_event(f"⚡ [{module_name} #{cycle}] {msg}", "success")
         except Exception as e:
-            log_event(f"❌ [{module_name}] 예외 발생: {e}", "error")
+            import traceback
+            err_detail = traceback.format_exc()
+            log_event(f"❌ [{module_name} 예외 발생] {e}\n{err_detail}", "error")
         
         # 60초 대기 후 다음 사이클 자율 반복 (5초마다 정지 신호 체크)
         for _ in range(12):
@@ -827,7 +1013,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
             return
         elif path.startswith("/api/run-module/"):
             module_name = path.split("/")[-1]
-            self._handle_channel_start(module_name)
+            self._handle_run_module(module_name)
             return
         elif path.startswith("/api/platforms/test-publish/"):
             platform_id = path.split("/")[-1]
@@ -973,7 +1159,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
             "golden_eight_languages": GOLDEN_EIGHT_LANGUAGES,
             "golden_eight_details": GOLDEN_EIGHT_DETAILS,
             "golden_batch_summary": golden_batch_producer.get_today_production_summary(),
-            "recent_logs": recent_logs[-10:]
+            "recent_logs": recent_logs[-50:]
         }
         self._set_headers("application/json")
         self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
@@ -1151,8 +1337,13 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(res).encode("utf-8"))
 
     def _handle_brand_start(self, brand: str):
-        global brand_daemons_running
+        global brand_daemons_running, running_channels
         brand_daemons_running[brand] = True
+        main_ch = f"{brand}_blog"
+        if not running_channels.get(main_ch, False):
+            running_channels[main_ch] = True
+            threading.Thread(target=channel_continuous_worker, args=(main_ch,), daemon=True).start()
+
         t = threading.Thread(target=_brand_daemon_loop, args=(brand,), daemon=True)
         t.start()
         name_map = {"aura": "💖 Aura 데이팅", "insurance": "🛡️ InsureBalance 보험비교", "stock": "📈 Stock Master 주식AI"}
@@ -1162,28 +1353,31 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
 
     def _handle_brand_stop(self, brand: str):
-        global brand_daemons_running
+        global brand_daemons_running, running_channels
         brand_daemons_running[brand] = False
+        prefix = f"{brand}_"
+        for ch in list(running_channels.keys()):
+            if ch.startswith(prefix):
+                running_channels[ch] = False
         name_map = {"aura": "💖 Aura 데이팅", "insurance": "🛡️ InsureBalance 보험비교", "stock": "📈 Stock Master 주식AI"}
         brand_kr = name_map.get(brand, brand.upper())
-        res = {"success": True, "message": f"⏹️ {brand_kr} 무인 마케팅 데몬이 정지되었습니다."}
+        res = {"success": True, "message": f"⏹️ {brand_kr} 무인 마케팅 데몬 및 하위 채널이 정지되었습니다."}
         self._set_headers("application/json")
         self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
 
     def _handle_run_hub(self, brand: str, hub_key: str):
-        pipeline = brand_pipelines.get(brand)
         def _worker():
-            name_map = {"aura": "💖 Aura", "insurance": "🛡️ 보험비교", "stock": "📈 주식AI"}
+            name_map = {"aura": "💖 Aura", "insurance": "🛡️ 보험비교", "stock": "📈 주식AI", "kmarket": "🛒 K-Market", "easytax": "💰 EasyTax"}
             brand_kr = name_map.get(brand, brand.upper())
             log_event(f"⚡ [{brand_kr} #{hub_key}] 채널 원클릭 즉시 실행 중...", "info")
-            if pipeline:
-                try:
-                    res = pipeline.run_full_daily_cycle()
-                    log_event(f"🎉 [{brand_kr} #{hub_key}] 채널 즉시 발행 완료! (결과: {res.get('status', 'OK')})", "success")
-                except Exception as ex:
-                    log_event(f"⚠️ [{brand_kr} #{hub_key}] 실행 중 예외: {ex}", "warning")
-            else:
-                log_event(f"ℹ️ [{brand_kr} #{hub_key}] 채널 시뮬레이션 처리 완료", "info")
+            try:
+                module_name = f"{brand}_{hub_key}"
+                res = execute_single_channel_task(module_name)
+                log_event(f"🎉 [{brand_kr} #{hub_key}] 채널 즉시 실행 완료: {res}", "success")
+            except Exception as ex:
+                import traceback
+                err_detail = traceback.format_exc()
+                log_event(f"❌ [{brand_kr} #{hub_key}] 실행 중 오류 발생: {ex}\n{err_detail}", "error")
 
         threading.Thread(target=_worker, daemon=True).start()
         res = {"success": True, "message": f"⚡ [{brand.upper()}] #{hub_key} 채널 즉시 발행 요청이 전달되었습니다."}
@@ -1191,53 +1385,48 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
 
     def _handle_all_start(self):
-        global kmarket_thread, kmarket_running, easytax_thread, easytax_running, running_channels, brand_daemons_running
-        # 1. 3대 슈퍼앱 가동
+        global running_channels, brand_daemons_running
+        # 🇰🇷 [한국마케팅봇 전용] 대한민국 3대 슈퍼앱 (Aura · 보험비교 · 주식AI) 가동
         for b in ["aura", "insurance", "stock"]:
             if not brand_daemons_running.get(b, False):
                 brand_daemons_running[b] = True
                 threading.Thread(target=_brand_daemon_loop, args=(b,), daemon=True).start()
+            main_ch = f"{b}_blog"
+            if not running_channels.get(main_ch, False):
+                running_channels[main_ch] = True
+                threading.Thread(target=channel_continuous_worker, args=(main_ch,), daemon=True).start()
 
-        # 2. 기존 호환 데몬 동시 가동
-        kmarket_running = True
-        if not kmarket_thread or not kmarket_thread.is_alive():
-            kmarket_thread = threading.Thread(target=kmarket_worker, daemon=True)
-            kmarket_thread.start()
-        
-        easytax_running = True
-        if not easytax_thread or not easytax_thread.is_alive():
-            easytax_thread = threading.Thread(target=easytax_worker, daemon=True)
-            easytax_thread.start()
-
-        all_channels = [
-            "kmarket_shorts", "kmarket_tiktok", "kmarket_cardnews", "kmarket_reddit", "kmarket_briefing", "kmarket_fb_groups", "kmarket_seo", "kmarket_pdf", "kmarket_blog", "kmarket_threads",
-            "easytax_shorts", "easytax_tiktok", "easytax_cardnews", "easytax_reddit", "easytax_briefing", "easytax_fb_groups", "easytax_seo", "easytax_pdf", "easytax_blog", "easytax_threads"
-        ]
-        for ch in all_channels:
-            if not running_channels.get(ch, False):
-                running_channels[ch] = True
-                threading.Thread(target=channel_continuous_worker, args=(ch,), daemon=True).start()
-
-        res = {"success": True, "message": "🚀 [전체 봇 가동] 대한민국 3대 슈퍼앱 및 24개 전 채널 24시간 무인 자율 공장이 일괄 가동되었습니다!"}
+        res = {"success": True, "message": "🚀 [한국마케팅봇 전체 가동] 💖 Aura · 🛡️ 보험비교 · 📈 주식AI 3대 슈퍼앱 24시간 무인 공장이 일괄 가동되었습니다!"}
         self._set_headers("application/json")
         self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
 
     def _handle_all_stop(self):
-        global kmarket_running, easytax_running, running_channels, brand_daemons_running
+        global running_channels, brand_daemons_running
+        # 🇰🇷 [한국마케팅봇 전용] 대한민국 3대 슈퍼앱 (Aura · 보험비교 · 주식AI) 정지
         for b in ["aura", "insurance", "stock"]:
             brand_daemons_running[b] = False
-        kmarket_running = False
-        easytax_running = False
-        for ch in running_channels:
-            running_channels[ch] = False
-        for mgr in telegram_ai_managers.values():
-            mgr.stop_background_daemon()
-        res = {"success": True, "message": "🛑 [전체 봇 정지] 대한민국 3대 슈퍼앱 및 모든 채널 가동이 안전하게 중지되었습니다."}
+        for ch in list(running_channels.keys()):
+            if ch.startswith(("aura_", "insurance_", "stock_")):
+                running_channels[ch] = False
+        res = {"success": True, "message": "🛑 [한국마케팅봇 전체 정지] 💖 Aura · 🛡️ 보험비교 · 📈 주식AI 모든 봇 및 채널 가동이 안전하게 중지되었습니다."}
         self._set_headers("application/json")
         self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
 
     def _handle_run_module(self, module_name: str):
-        self._handle_channel_start(module_name)
+        def _worker():
+            try:
+                log_event(f"⚡ [{module_name}] 즉시 1회 시험 실행 시작...", "info")
+                res = execute_single_channel_task(module_name)
+                log_event(f"✅ [{module_name}] 즉시 1회 실행 완료: {res}", "success")
+            except Exception as e:
+                import traceback
+                err_detail = traceback.format_exc()
+                log_event(f"❌ [{module_name} 1회 실행 실패] {e}\n{err_detail}", "error")
+
+        threading.Thread(target=_worker, daemon=True).start()
+        res = {"success": True, "message": f"⚡ [{module_name}] 즉시 1회 실행이 백그라운드에서 가동되었습니다."}
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
 
     def _handle_test_publish(self, platform_id: str):
         uploader = DirectUploader()
