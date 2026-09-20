@@ -29,23 +29,23 @@ const APP_PIPELINES = {
         },
 
         hubs: [
-            // #1 숏폼
+            // #1 5대 옴니 숏폼 통합 팩토리
             {
                 id: "shorts",
                 key: "shorts",
                 hubNumber: 1,
-                name: "당일 급등주 & 외인 수급 숏폼 팩토리",
+                name: "🎬 5대 옴니 숏폼 통합 팩토리",
                 icon: "🎬",
-                desc: "유튜브 쇼츠 · 인스타 릴스 · 틱톡 · 네이버 클립 4대 플랫폼 동시 송출 (12:00 / 20:30 / 23:30 KST)"
+                desc: "<b>🎬 [영상 AI 1회 렌더링]</b> (9:16 세로 영상 + 감성 배경음악 + AI 음성 TTS + 자막)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 유튜브 쇼츠 (YouTube Shorts)<br>➔ ② 틱톡 (TikTok)<br>➔ ③ 인스타그램 릴스 (Instagram Reels)<br>➔ ④ 페이스북 릴스 (Facebook Reels)<br>➔ ⑤ 네이버 클립 (Naver Clip)</div>"
             },
-            // #2 카드뉴스
+            // #2 [통합] 4대 옴니 카드뉴스 매거진
             {
                 id: "cardnews",
                 key: "cardnews",
                 hubNumber: 2,
-                name: "주도 섹터 심층 분석 4장 카드뉴스",
+                name: "📸 4대 옴니 카드뉴스 매거진",
                 icon: "📸",
-                desc: "당일 테마주 수급 지도 & 차트 분석 4장 카드뉴스 (08:00 / 15:30 / 22:30 KST)"
+                desc: "<b>📸 [카드뉴스 AI 1회 생성]</b> (1080x1350 카드뉴스 세트 + 플랫폼별 최적화 카피)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 인스타그램 피드 (Instagram Feed 캐러셀)<br>➔ ② 페이스북 (Facebook Groups & Feed)<br>➔ ③ 네이버 포스트 (Naver Post 매거진)<br>➔ ④ 스레드 카드뉴스형 (Threads Carousel)</div>"
             },
             // #3 Reddit
             {
@@ -56,96 +56,33 @@ const APP_PIPELINES = {
                 icon: "🤖",
                 desc: "26개 서브레딧 실시간 감지 (1시간 간격 정기 자율 헌팅)"
             },
-            // #4 페이스북
+            // #5 [통합] 4대 채널 옴니 블로그 통합 허브
             {
-                id: "fb_groups",
-                key: "fb_groups",
-                hubNumber: 4,
-                name: "페이스북 50만 그룹 침투기",
-                icon: "👥",
-                desc: "4장 카드뉴스 + 첫댓글 (하루 3회 정시: 09:30 / 13:30 / 19:30 KST)"
-            },
-            // #5 SEO 블로그
-            {
-                id: "blog",
-                key: "blog",
+                id: "omni_blog",
+                key: "omni_blog",
                 hubNumber: 5,
-                name: "17개국어 SEO 블로그 칼럼",
+                name: "🌐 4대 채널 옴니 블로그 통합 허브",
                 icon: "🌐",
-                desc: "17개국어 칼럼 (하루 3회 정시: 09:00 / 13:00 / 19:00 KST)"
+                desc: "<b>🌐 [옴니블로그 AI 1회 작성]</b> (제미나이 2,000자 칼럼 + 16:9 이미지 1장 생성)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① Stock Master 본진 피드 (수급/시황 DB)<br>➔ ② 네이버 블로그 (스마트블록 + 16:9 이미지 최우선)<br>➔ ③ 티스토리 (Google SEO 최적화 HTML)<br>➔ ④ 카카오 브런치 (증시 리포트 에세이)</div>"
             },
-            // #6 구글 서치콘솔
+            // #6 [통합] 2대 포털 검색엔진 동시 색인 핑 (구글 + 네이버)
             {
                 id: "seo",
                 key: "seo",
                 hubNumber: 6,
-                name: "구글 서치콘솔 & 실시간 색인 핑",
-                icon: "🔍",
-                desc: "Googlebot 색인 핑 & 사이트맵 갱신 (하루 1회 정시: 01:00 KST)",
+                name: "🌐 2대 검색엔진 동시 색인 핑 허브",
+                icon: "🌐",
+                desc: "<b>🌐 [검색엔진 동시 색인 핑]</b> (신규 콘텐츠 즉시 수집 요청 & 색인 가속)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 구글 서치콘솔 (Google Search Console & Googlebot 실시간 색인 핑)<br>➔ ② 네이버 서치어드바이저 (Naver Search Advisor & Yeti 봇 즉시 수집 요청)</div>",
                 isSeo: true
             },
-            // #7 Meta Threads
+            // #7 [통합] 2대 텍스트 스토리 타래 허브 (Threads + X)
             {
                 id: "threads",
                 key: "threads",
                 hubNumber: 7,
-                name: "Meta Threads 바이럴 스레드",
-                icon: "🧵",
-                desc: "3~4단 타래 바이럴 (하루 3회 정시: 11:00 / 16:30 / 21:30 KST)"
-            },
-            // #8 네이버 클립
-            {
-                id: "naver_clip",
-                key: "naver_clip",
-                hubNumber: 8,
-                name: "네이버 클립 (메인 노출 숏폼)",
-                icon: "📎",
-                desc: "당일 급등주 및 외인 매수 테마 숏폼 네이버 메인 노출"
-            },
-            // #9 네이버 블로그
-            {
-                id: "naver_blog",
-                key: "naver_blog",
-                hubNumber: 9,
-                name: "네이버 블로그 (스마트블록 1위)",
-                icon: "📗",
-                desc: "스마트블록 상위 종목별 AI 기술적 지표 & 목표가 리포트"
-            },
-            // #10 티스토리
-            {
-                id: "tistory",
-                key: "tistory",
-                hubNumber: 10,
-                name: "티스토리 (구글 SEO 1위)",
-                icon: "🍊",
-                desc: "구글 SEO 1위 '급등주 조건검색식' 및 퀀트 매매 전략 칼럼"
-            },
-            // #11 네이버 포스트
-            {
-                id: "naver_post",
-                key: "naver_post",
-                hubNumber: 11,
-                name: "네이버 포스트 (카드 매거진)",
-                icon: "📮",
-                desc: "당일 주도 테마주/수급 지도 및 주도 섹터 정밀 분석 매거진"
-            },
-            // #12 카카오 브런치
-            {
-                id: "brunch",
-                key: "brunch",
-                hubNumber: 12,
-                name: "카카오 브런치 (프리미엄 칼럼)",
-                icon: "☕",
-                desc: "거시경제 인사이트 · AI 퀀트 투자 심층 칼럼"
-            },
-            // #13 네이버 서치어드바이저
-            {
-                id: "search_advisor",
-                key: "search_advisor",
-                hubNumber: 13,
-                name: "네이버 서치어드바이저",
-                icon: "🧭",
-                desc: "신규 칼럼 URL 네이버 웹마스터도구 5분 내 즉각 색인 핑"
+                name: "📜 2대 텍스트 스토리 타래 허브",
+                icon: "📜",
+                desc: "<b>📜 [텍스트 스토리 AI 1회 생성]</b> (광고 티 0% 증시 실전 수급 인사이트 타래)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① Meta 스레드 (Threads 1/n 줄줄이 타래 썰 + 첫댓글 링크)<br>➔ ② X / 트위터 (Twitter/X API v2 1/n 바이럴 타래 스레드)</div>"
             },
             // #14 네이버 지식iN
             {
@@ -256,23 +193,23 @@ const APP_PIPELINES = {
         },
 
         hubs: [
-            // #1 숏폼
+            // #1 5대 옴니 숏폼 통합 팩토리
             {
                 id: "shorts",
                 key: "shorts",
                 hubNumber: 1,
-                name: "소개팅 첫만남 호감 숏폼 팩토리",
+                name: "🎬 5대 옴니 숏폼 통합 팩토리",
                 icon: "🎬",
-                desc: "유튜브 쇼츠 · 인스타 릴스 · 틱톡 · 네이버 클립 4대 플랫폼 동시 송출 (12:00 / 20:30 / 23:30 KST)"
+                desc: "<b>🎬 [영상 AI 1회 렌더링]</b> (9:16 세로 영상 + 감성 배경음악 + AI 음성 TTS + 자막)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 유튜브 쇼츠 (YouTube Shorts)<br>➔ ② 틱톡 (TikTok)<br>➔ ③ 인스타그램 릴스 (Instagram Reels)<br>➔ ④ 페이스북 릴스 (Facebook Reels)<br>➔ ⑤ 네이버 클립 (Naver Clip)</div>"
             },
-            // #2 카드뉴스
+            // #2 [통합] 4대 옴니 카드뉴스 매거진
             {
                 id: "cardnews",
                 key: "cardnews",
                 hubNumber: 2,
-                name: "연애 센스 & 데이트 코스 4장 카드뉴스",
+                name: "📸 4대 옴니 카드뉴스 매거진",
                 icon: "📸",
-                desc: "2030 감성 연애 에세이 & 주말 데이트 명소 4장 카드뉴스 (08:00 / 15:30 / 22:30 KST)"
+                desc: "<b>📸 [카드뉴스 AI 1회 생성]</b> (1080x1350 카드뉴스 세트 + 플랫폼별 최적화 카피)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 인스타그램 피드 (Instagram Feed 캐러셀)<br>➔ ② 페이스북 (Facebook Groups & Feed)<br>➔ ③ 네이버 포스트 (Naver Post 매거진)<br>➔ ④ 스레드 카드뉴스형 (Threads Carousel)</div>"
             },
             // #3 Reddit
             {
@@ -283,96 +220,33 @@ const APP_PIPELINES = {
                 icon: "🤖",
                 desc: "26개 서브레딧 실시간 감지 (1시간 간격 정기 자율 헌팅)"
             },
-            // #4 페이스북
+            // #5 [통합] 4대 채널 옴니 블로그 통합 허브
             {
-                id: "fb_groups",
-                key: "fb_groups",
-                hubNumber: 4,
-                name: "페이스북 50만 그룹 침투기",
-                icon: "👥",
-                desc: "4장 카드뉴스 + 첫댓글 (하루 3회 정시: 09:30 / 13:30 / 19:30 KST)"
-            },
-            // #5 SEO 블로그
-            {
-                id: "blog",
-                key: "blog",
+                id: "omni_blog",
+                key: "omni_blog",
                 hubNumber: 5,
-                name: "17개국어 SEO 블로그 칼럼",
-                icon: "🌐",
-                desc: "17개국어 칼럼 (하루 3회 정시: 09:00 / 13:00 / 19:00 KST)"
+                name: "💖 4대 채널 옴니 블로그 통합 허브",
+                icon: "💖",
+                desc: "<b>💖 [옴니블로그 AI 1회 작성]</b> (제미나이 2,000자 칼럼 + 16:9 감성 사진 1장 생성)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① Aura 앱 라운지 피드 (4개국어 자동 배포)<br>➔ ② 네이버 블로그 (스마트블록 + 16:9 사진 최우선)<br>➔ ③ 티스토리 (Google SEO 최적화 HTML)<br>➔ ④ 카카오 브런치 (감성 에세이 작가 채널)</div>"
             },
-            // #6 구글 서치콘솔
+            // #6 [통합] 2대 포털 검색엔진 동시 색인 핑 (구글 + 네이버)
             {
                 id: "seo",
                 key: "seo",
                 hubNumber: 6,
-                name: "구글 서치콘솔 & 실시간 색인 핑",
-                icon: "🔍",
-                desc: "Googlebot 색인 핑 & 사이트맵 갱신 (하루 1회 정시: 01:00 KST)",
+                name: "🌐 2대 검색엔진 동시 색인 핑 허브",
+                icon: "🌐",
+                desc: "<b>🌐 [검색엔진 동시 색인 핑]</b> (신규 콘텐츠 즉시 수집 요청 & 색인 가속)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 구글 서치콘솔 (Google Search Console & Googlebot 실시간 색인 핑)<br>➔ ② 네이버 서치어드바이저 (Naver Search Advisor & Yeti 봇 즉시 수집 요청)</div>",
                 isSeo: true
             },
-            // #7 Meta Threads
+            // #7 [통합] 2대 텍스트 스토리 타래 허브 (Threads + X)
             {
                 id: "threads",
                 key: "threads",
                 hubNumber: 7,
-                name: "Meta Threads 바이럴 스레드",
-                icon: "🧵",
-                desc: "3~4단 타래 바이럴 (하루 3회 정시: 11:00 / 16:30 / 21:30 KST)"
-            },
-            // #8 네이버 클립
-            {
-                id: "naver_clip",
-                key: "naver_clip",
-                hubNumber: 8,
-                name: "네이버 클립 (메인 노출 숏폼)",
-                icon: "📎",
-                desc: "Aura 데이팅 첫만남 호감 비결 & 대화법 숏폼 네이버 메인 노출"
-            },
-            // #9 네이버 블로그
-            {
-                id: "naver_blog",
-                key: "naver_blog",
-                hubNumber: 9,
-                name: "네이버 블로그 (스마트블록 1위)",
-                icon: "📗",
-                desc: "스마트블록 상위 '소개팅 팁' · 데이트 코스 공략 리포트"
-            },
-            // #10 티스토리
-            {
-                id: "tistory",
-                key: "tistory",
-                hubNumber: 10,
-                name: "티스토리 (구글 SEO 1위)",
-                icon: "🍊",
-                desc: "구글 SEO '소개팅 어플 순위/추천' · 2030 연애 심리 칼럼"
-            },
-            // #11 네이버 포스트
-            {
-                id: "naver_post",
-                key: "naver_post",
-                hubNumber: 11,
-                name: "네이버 포스트 (카드 매거진)",
-                icon: "📮",
-                desc: "2030 감성 연애 카드뉴스 & 심리 테스트 매거진"
-            },
-            // #12 카카오 브런치
-            {
-                id: "brunch",
-                key: "brunch",
-                hubNumber: 12,
-                name: "카카오 브런치 (프리미엄 칼럼)",
-                icon: "☕",
-                desc: "남녀 관계론 · 연애 심리 프리미엄 에세이 칼럼"
-            },
-            // #13 네이버 서치어드바이저
-            {
-                id: "search_advisor",
-                key: "search_advisor",
-                hubNumber: 13,
-                name: "네이버 서치어드바이저",
-                icon: "🧭",
-                desc: "신규 칼럼 URL 네이버 웹마스터도구 5분 내 즉각 색인 핑"
+                name: "📜 2대 텍스트 스토리 타래 허브",
+                icon: "📜",
+                desc: "<b>📜 [텍스트 스토리 AI 1회 생성]</b> (광고 티 0% 2030 연애 공감 1/n 줄줄이 실화 썰)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① Meta 스레드 (Threads 1/n 줄줄이 타래 썰 + 첫댓글 링크)<br>➔ ② X / 트위터 (Twitter/X API v2 1/n 바이럴 타래 스레드)</div>"
             },
             // #14 네이버 지식iN
             {
@@ -483,23 +357,23 @@ const APP_PIPELINES = {
         },
 
         hubs: [
-            // #1 숏폼
+            // #1 5대 옴니 숏폼 통합 팩토리
             {
                 id: "shorts",
                 key: "shorts",
                 hubNumber: 1,
-                name: "보험료 15만원 다이어트 숏폼 팩토리",
+                name: "🎬 5대 옴니 숏폼 통합 팩토리",
                 icon: "🎬",
-                desc: "유튜브 쇼츠 · 인스타 릴스 · 틱톡 · 네이버 클립 4대 플랫폼 동시 송출 (12:00 / 20:30 / 23:30 KST)"
+                desc: "<b>🎬 [영상 AI 1회 렌더링]</b> (9:16 세로 영상 + 감성 배경음악 + AI 음성 TTS + 자막)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 유튜브 쇼츠 (YouTube Shorts)<br>➔ ② 틱톡 (TikTok)<br>➔ ③ 인스타그램 릴스 (Instagram Reels)<br>➔ ④ 페이스북 릴스 (Facebook Reels)<br>➔ ⑤ 네이버 클립 (Naver Clip)</div>"
             },
-            // #2 카드뉴스
+            // #2 [통합] 4대 옴니 카드뉴스 매거진
             {
                 id: "cardnews",
                 key: "cardnews",
                 hubNumber: 2,
-                name: "호갱 탈출 & 필수 특약 4장 카드뉴스",
+                name: "📸 4대 옴니 카드뉴스 매거진",
                 icon: "📸",
-                desc: "실손보험 비교 & 불필요 특약 삭제 4장 카드뉴스 (08:00 / 15:30 / 22:30 KST)"
+                desc: "<b>📸 [카드뉴스 AI 1회 생성]</b> (1080x1350 카드뉴스 세트 + 플랫폼별 최적화 카피)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 인스타그램 피드 (Instagram Feed 캐러셀)<br>➔ ② 페이스북 (Facebook Groups & Feed)<br>➔ ③ 네이버 포스트 (Naver Post 매거진)<br>➔ ④ 스레드 카드뉴스형 (Threads Carousel)</div>"
             },
             // #3 Reddit
             {
@@ -510,96 +384,33 @@ const APP_PIPELINES = {
                 icon: "🤖",
                 desc: "26개 서브레딧 실시간 감지 (1시간 간격 정기 자율 헌팅)"
             },
-            // #4 페이스북
+            // #5 [통합] 4대 채널 옴니 블로그 통합 허브
             {
-                id: "fb_groups",
-                key: "fb_groups",
-                hubNumber: 4,
-                name: "페이스북 50만 그룹 침투기",
-                icon: "👥",
-                desc: "4장 카드뉴스 + 첫댓글 (하루 3회 정시: 09:30 / 13:30 / 19:30 KST)"
-            },
-            // #5 SEO 블로그
-            {
-                id: "blog",
-                key: "blog",
+                id: "omni_blog",
+                key: "omni_blog",
                 hubNumber: 5,
-                name: "17개국어 SEO 블로그 칼럼",
-                icon: "🌐",
-                desc: "17개국어 칼럼 (하루 3회 정시: 09:00 / 13:00 / 19:00 KST)"
+                name: "🛡️ 4대 채널 옴니 블로그 통합 허브",
+                icon: "🛡️",
+                desc: "<b>🛡️ [옴니블로그 AI 1회 작성]</b> (제미나이 2,000자 칼럼 + 16:9 감성 사진 1장 생성)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① InsureBalance 본진 피드 (보험 비교 DB)<br>➔ ② 네이버 블로그 (스마트블록 + 16:9 사진 최우선)<br>➔ ③ 티스토리 (Google SEO 최적화 HTML)<br>➔ ④ 카카오 브런치 (보험 절약 전문 에세이)</div>"
             },
-            // #6 구글 서치콘솔
+            // #6 [통합] 2대 포털 검색엔진 동시 색인 핑 (구글 + 네이버)
             {
                 id: "seo",
                 key: "seo",
                 hubNumber: 6,
-                name: "구글 서치콘솔 & 실시간 색인 핑",
-                icon: "🔍",
-                desc: "Googlebot 색인 핑 & 사이트맵 갱신 (하루 1회 정시: 01:00 KST)",
+                name: "🌐 2대 검색엔진 동시 색인 핑 허브",
+                icon: "🌐",
+                desc: "<b>🌐 [검색엔진 동시 색인 핑]</b> (신규 콘텐츠 즉시 수집 요청 & 색인 가속)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 구글 서치콘솔 (Google Search Console & Googlebot 실시간 색인 핑)<br>➔ ② 네이버 서치어드바이저 (Naver Search Advisor & Yeti 봇 즉시 수집 요청)</div>",
                 isSeo: true
             },
-            // #7 Meta Threads
+            // #7 [통합] 2대 텍스트 스토리 타래 허브 (Threads + X)
             {
                 id: "threads",
                 key: "threads",
                 hubNumber: 7,
-                name: "Meta Threads 바이럴 스레드",
-                icon: "🧵",
-                desc: "3~4단 타래 바이럴 (하루 3회 정시: 11:00 / 16:30 / 21:30 KST)"
-            },
-            // #8 네이버 클립
-            {
-                id: "naver_clip",
-                key: "naver_clip",
-                hubNumber: 8,
-                name: "네이버 클립 (메인 노출 숏폼)",
-                icon: "📎",
-                desc: "보험 절약 꿀팁 · 숨은 보험금 찾기 숏폼 네이버 메인 노출"
-            },
-            // #9 네이버 블로그
-            {
-                id: "naver_blog",
-                key: "naver_blog",
-                hubNumber: 9,
-                name: "네이버 블로그 (스마트블록 1위)",
-                icon: "📗",
-                desc: "VIEW 1위 '실손보험 비교' · 3대 질병 가성비 분석 리포트"
-            },
-            // #10 티스토리
-            {
-                id: "tistory",
-                key: "tistory",
-                hubNumber: 10,
-                name: "티스토리 (구글 SEO 1위)",
-                icon: "🍊",
-                desc: "구글 SEO '보험료 계산기' · 운전자보험 비교 칼럼"
-            },
-            // #11 네이버 포스트
-            {
-                id: "naver_post",
-                key: "naver_post",
-                hubNumber: 11,
-                name: "네이버 포스트 (카드 매거진)",
-                icon: "📮",
-                desc: "연령별 필수 보장 차트 및 보험 다이어트 매거진"
-            },
-            // #12 카카오 브런치
-            {
-                id: "brunch",
-                key: "brunch",
-                hubNumber: 12,
-                name: "카카오 브런치 (프리미엄 칼럼)",
-                icon: "☕",
-                desc: "가계 금융 다이어트 · 합리적 보험 재테크 에세이"
-            },
-            // #13 네이버 서치어드바이저
-            {
-                id: "search_advisor",
-                key: "search_advisor",
-                hubNumber: 13,
-                name: "네이버 서치어드바이저",
-                icon: "🧭",
-                desc: "신규 칼럼 URL 네이버 웹마스터도구 5분 내 즉각 색인 핑"
+                name: "📜 2대 텍스트 스토리 타래 허브",
+                icon: "📜",
+                desc: "<b>📜 [텍스트 스토리 AI 1회 생성]</b> (광고 티 0% 보험 호갱 탈출 & 실손 청구 실화 썰)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① Meta 스레드 (Threads 1/n 줄줄이 타래 썰 + 첫댓글 링크)<br>➔ ② X / 트위터 (Twitter/X API v2 1/n 바이럴 타래 스레드)</div>"
             },
             // #14 네이버 지식iN
             {

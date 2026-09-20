@@ -4,9 +4,10 @@
 ======================================================================
 - 역할: 본문 주제와 100% 매칭되는 금융/보험/가족/라이프스타일 16:9 감성 사진 1장 생성
 - 가드레일:
-  1. 유료키 우선 시도 (Imagen 3 고품질 실사)
-  2. 무료키 2단 롤오버
-  3. AI 생성 실패 시 고품질 금융/보험 Unsplash 실사 사진 즉시 폴백 (절대 중단 없음)
+  1. ⚡ Cache-First: 이미 생성된 사진이 존재하면 Imagen 3 API 호출 없이 즉시 재사용 (비용 0원)
+  2. 유료키 우선 시도 (Imagen 3 고품질 실사)
+  3. 무료 Pollinations AI 롤오버
+  4. AI 생성 실패 시 고품질 금융/보험 Unsplash 실사 사진 즉시 폴백 (절대 중단 없음)
 """
 
 import os
@@ -20,23 +21,27 @@ from typing import Dict, Any, Optional
 logger = logging.getLogger("InsuranceImageGenerator")
 
 CURRENT_DIR = Path(__file__).resolve().parent
-IMAGES_DIR = CURRENT_DIR / "generated_images"
+PROJECT_ROOT = CURRENT_DIR.parent.parent
+IMAGES_DIR = PROJECT_ROOT / "outputs" / "insurance" / "blog_images"
 IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+
+from dotenv import load_dotenv
+load_dotenv(PROJECT_ROOT / ".env")
 
 # KeyManager import
 try:
     from utils.key_manager import get_paid_gemini_key, get_gemini_key, report_gemini_key_failure
 except ImportError:
     def get_paid_gemini_key():
-        return os.environ.get("GEMINI_API_KEY", "")
+        return os.environ.get("GEMINI_PAID_API_KEY_AURA_1") or os.environ.get("GEMINI_API_KEY") or ""
     def get_gemini_key():
-        return os.environ.get("GEMINI_API_KEY", "")
+        return os.environ.get("GEMINI_API_KEY") or os.environ.get("GEMINI_FREE_API_KEY_AURA_1") or os.environ.get("GEMINI_FREE_API_KEY_KMARKET") or ""
     def report_gemini_key_failure(k):
         pass
 
 
 class InsuranceImageGenerator:
-    """InsureBalance 보험 전용 16:9 실사 이미지 생성기"""
+    """InsureBalance 보험 전용 16:9 실사 이미지 생성기 (Cache-First)"""
 
     FALLBACK_IMAGES = [
         "https://images.unsplash.com/photo-1450133064473-71024230f91b?w=1200&auto=format&fit=crop&q=80",  # 서류와 만년필
@@ -62,17 +67,38 @@ class InsuranceImageGenerator:
         topic_title: str,
         custom_visual_prompt: Optional[str] = None
     ) -> Dict[str, Any]:
-        """주제에 맞는 16:9 실사 사진 1장 생성 (실패 시 Unsplash 자동 폴백)"""
+        """주제에 맞는 16:9 실사 사진 1장 생성 (Cache-First: 기존 파일 우선 재사용)"""
+        # 고정된 캐시 파일명 규칙
+        local_filename = f"insurance_topic_{topic_id:03d}.webp"
+        local_path = IMAGES_DIR / local_filename
+
+        # ⚡ 1. Cache-First: 이미 생성된 사진이 존재하면 API 호출 없이 즉시 재사용
+        if local_path.exists() and local_path.stat().st_size > 1000:
+            logger.info(f"⚡ [InsuranceImageGen] 로컬 이미지 캐시 즉시 재사용: {local_filename} (비용 0원)")
+            return {
+                "image_path": str(local_path),
+                "web_url": str(local_path),
+                "is_fallback": False,
+                "prompt_used": "cached"
+            }
+
+        # jpg 확장자 캐시 확인 (기존 생성분 호환)
+        alt_jpg = IMAGES_DIR / f"insurance_topic_{topic_id:03d}.jpg"
+        if alt_jpg.exists() and alt_jpg.stat().st_size > 1000:
+            logger.info(f"⚡ [InsuranceImageGen] 로컬 이미지(JPG) 캐시 즉시 재사용: {alt_jpg.name} (비용 0원)")
+            return {
+                "image_path": str(alt_jpg),
+                "web_url": str(alt_jpg),
+                "is_fallback": False,
+                "prompt_used": "cached"
+            }
+
         prompt = custom_visual_prompt or self.CATEGORY_DEFAULT_PROMPTS.get(
             category,
             "A professional financial planner desk with neat insurance documents and tablet, warm light, 16:9"
         )
 
-        timestamp = int(time.time())
-        local_filename = f"insurance_{category}_{topic_id}_{timestamp}.jpg"
-        local_path = IMAGES_DIR / local_filename
-
-        # 1. Imagen 3 또는 Google GenAI 이미지 생성 시도
+        # 2. Imagen 3 생성 시도 (1회만)
         generated = self._try_gemini_image(prompt, local_path)
         if generated:
             return {
@@ -82,7 +108,7 @@ class InsuranceImageGenerator:
                 "prompt_used": prompt
             }
 
-        # 2. 무료 Pollinations AI 실사 생성 시도
+        # 3. 무료 Pollinations AI 실사 생성 시도
         generated_poll = self._try_pollinations_image(prompt, local_path)
         if generated_poll:
             return {
@@ -92,7 +118,7 @@ class InsuranceImageGenerator:
                 "prompt_used": prompt
             }
 
-        # 3. 비상용 Unsplash 고화질 실사 폴백
+        # 4. 비상용 Unsplash 고화질 실사 폴백
         import random
         fallback_url = random.choice(self.FALLBACK_IMAGES)
         logger.info(f"📸 [InsuranceImageGen] 비상용 Unsplash 폴백 사용: {fallback_url}")

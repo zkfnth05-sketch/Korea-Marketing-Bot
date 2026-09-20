@@ -1,10 +1,70 @@
 {
-  "current_topic_index": 8,
-  "last_topic_id": 8,
-  "last_run_time": "2026-09-20 16:14:17",
-  "last_title": "소개팅 카톡 이모티콘 적게 쓰면 비호감? 카톡 말투로 알아보는 상대방 속마음 5가지",
-  "published_count": 8,
+  "current_topic_index": 9,
+  "last_topic_id": 9,
+  "last_run_time": "2026-09-20 22:15:58",
+  "last_title": "소개팅 전날 카톡, 할까 말까? 분위기 망치지 않는 대화의 온도 조절법",
+  "published_count": 9,
   "history": [
+    {
+      "topic_id": 9,
+      "title": "소개팅 전날 카톡, 할까 말까? 분위기 망치지 않는 대화의 온도 조절법",
+      "title_naver": "소개팅 전날 카톡, 할까 말까? 분위기 망치지 않는 대화의 온도 조절법",
+      "title_tistory": "소개팅 전날 카톡 대화 가이드: 첫 인사부터 대화 텀, 주제 선정까지 실전 전략",
+      "title_kakao": "우리 내일 만날까? 설레는 소개팅 전날, 카톡으로 다 망치고 있다면 필독",
+      "category": "kakaotalk_signals",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_009_kakaotalk_signals_20260920_221450.webp",
+      "published_at": "2026-09-20 22:15:58",
+      "publish_results": {
+        "topic_id": 9,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-009",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/lounge"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "소개팅 전날 카톡, 할까 말까? 분위기 망치지 않는 대화의 온도 조절법",
+            "url": "https://blog.naver.com/PostView.naver?blogId=zkfnth01&Redirect=View&logNo=224418044472&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=12155",
+            "tags": [
+              "소개팅카톡첫대화",
+              "소개팅카톡",
+              "소개팅카톡대화",
+              "소개팅카톡텀",
+              "소개팅카톡주제",
+              "소개팅카톡답장",
+              "소개팅카톡첫인사",
+              "소개팅카톡노잼"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "aura-magazine",
+            "title": "소개팅 전날 카톡 대화 가이드: 첫 인사부터 대화 텀, 주제 선정까지 실전 전략",
+            "url": "https://aura-magazine.tistory.com/manage/posts/",
+            "tags": [
+              "소개팅카톡첫대화",
+              "소개팅카톡",
+              "소개팅카톡대화",
+              "소개팅카톡텀",
+              "소개팅카톡주제",
+              "소개팅카톡답장",
+              "소개팅카톡첫인사",
+              "소개팅카톡노잼"
+            ]
+          },
+          "brunch": {
+            "status": "success",
+            "platform": "brunch",
+            "title": "우리 내일 만날까? 설레는 소개팅 전날, 카톡으로 다 망치고 있다면 필독",
+            "post_url": "https://brunch.co.kr",
+            "archive_file": "brunch_draft_topic_009.json"
+          }
+        }
+      }
+    },
     {
       "topic_id": 8,
       "title": "소개팅 카톡 이모티콘 적게 쓰면 비호감? 카톡 말투로 알아보는 상대방 속마음 5가지",

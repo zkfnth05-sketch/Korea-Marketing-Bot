@@ -185,11 +185,36 @@ class AuraImageGenerator:
         preset = AURA_CATEGORY_PRESETS.get(category, AURA_CATEGORY_PRESETS["kakaotalk_signals"])
         fallback_url = preset["fallback_url"]
 
+        # ⚡ [비용 0원 원칙] 해당 주제에 대해 이미 생성된 이미지가 존재하면 재사용 (API 중복 호출 원천 차단)
+        existing_images = sorted(list(OUTPUTS_DIR.glob(f"aura_topic_{topic_id:03d}_*.webp")), reverse=True)
+        if existing_images and existing_images[0].stat().st_size > 1024:
+            cached_file = existing_images[0]
+            logger.info(f"⚡ [AuraImage] 주제 #{topic_id} 기존 고화질 이미지 캐시 즉시 재사용 (비용 0원!): {cached_file.name}")
+            
+            # Supabase Storage 영구 URL 획득 (필요 시 1회 업로드)
+            final_web_url = fallback_url
+            try:
+                from brands.aura.aura_supabase_manager import AuraSupabaseManager
+                sb_mgr = AuraSupabaseManager()
+                uploaded_url = sb_mgr.upload_image_to_storage(str(cached_file), bucket_subpath="magazines")
+                if uploaded_url:
+                    final_web_url = uploaded_url
+            except Exception as e:
+                logger.debug(f"캐시 이미지 Storage 연동 확인: {e}")
+
+            return {
+                "success": True,
+                "image_path": str(cached_file),
+                "web_url": final_web_url,
+                "is_fallback": (final_web_url == fallback_url),
+                "prompt_used": "CACHED_REUSE"
+            }
+
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"aura_topic_{topic_id:03d}_{category}_{timestamp}.webp"
         output_file = OUTPUTS_DIR / filename
 
-        logger.info(f"🎨 [AuraImage] 주제 #{topic_id} 사진 생성 착수 (카테고리: {category})")
+        logger.info(f"🎨 [AuraImage] 주제 #{topic_id} 신규 사진 1회 생성 착수 (카테고리: {category})")
         logger.info(f"🎨 [AuraImage] 프롬프트: {prompt[:90]}...")
 
         # 유료키 2개 순차 롤오버 시도
@@ -229,7 +254,7 @@ class AuraImageGenerator:
                 # 다음 유료키로 롤오버
                 self._current_key_idx = (self._current_key_idx + 1) % len(self.paid_keys)
 
-        # 성공 시 로컬 WebP 저장
+        # 성공 시 로컬 WebP 저장 및 Supabase Storage 자동 업로드
         if raw_bytes:
             try:
                 webp_bytes = self._compress_to_webp(raw_bytes)
@@ -237,11 +262,23 @@ class AuraImageGenerator:
                     f.write(webp_bytes)
                 logger.info(f"💾 [AuraImage] WebP 압축 저장 완료: {output_file} ({len(webp_bytes):,} bytes)")
 
+                # 🚀 Supabase Storage(aura-media/magazines)에 즉시 자동 업로드하여 공식 영구 URL 확보
+                final_web_url = fallback_url
+                try:
+                    from brands.aura.aura_supabase_manager import AuraSupabaseManager
+                    sb_mgr = AuraSupabaseManager()
+                    uploaded_url = sb_mgr.upload_image_to_storage(str(output_file), bucket_subpath="magazines")
+                    if uploaded_url:
+                        final_web_url = uploaded_url
+                        logger.info(f"🌐 [AuraImage] Supabase Storage 영구 퍼블릭 URL 바인딩 완료: {final_web_url}")
+                except Exception as up_err:
+                    logger.warning(f"⚠️ [AuraImage] Storage 업로드 예외 (폴백 URL 사용): {up_err}")
+
                 return {
                     "success": True,
                     "image_path": str(output_file),
-                    "web_url": fallback_url,
-                    "is_fallback": False,
+                    "web_url": final_web_url,
+                    "is_fallback": (final_web_url == fallback_url),
                     "prompt_used": prompt
                 }
             except Exception as e:

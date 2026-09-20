@@ -63,6 +63,38 @@ class AuraSupabaseManager:
     def is_connected(self) -> bool:
         return self.client is not None
 
+    def upload_image_to_storage(self, local_image_path: str, bucket_subpath: str = "magazines") -> Optional[str]:
+        """
+        🖼️ 제미나이가 생성한 로컬 16:9 WebP 이미지를 Aura Supabase Storage(aura-media)에 업로드하고 영구 퍼블릭 URL 반환
+        """
+        if not self.is_connected() or not local_image_path:
+            return None
+
+        p = Path(local_image_path)
+        if not p.exists() or p.stat().st_size == 0:
+            logger.warning(f"⚠️ [AuraSupabase] 업로드할 이미지 파일이 존재하지 않음: {local_image_path}")
+            return None
+
+        file_name = p.name
+        storage_path = f"{bucket_subpath}/{file_name}"
+
+        try:
+            with open(p, "rb") as f:
+                img_bytes = f.read()
+
+            content_type = "image/webp" if p.suffix.lower() == ".webp" else "image/jpeg"
+            self.client.storage.from_("aura-media").upload(
+                path=storage_path,
+                file=img_bytes,
+                file_options={"content-type": content_type, "upsert": "true"}
+            )
+            public_url = self.client.storage.from_("aura-media").get_public_url(storage_path)
+            logger.info(f"✅ [AuraSupabase] Storage 업로드 성공! 영구 URL: {public_url}")
+            return public_url
+        except Exception as e:
+            logger.error(f"❌ [AuraSupabase] Storage 업로드 실패: {e}")
+            return None
+
     def map_category_to_lounge(self, cat_key: str) -> str:
         """Aura 6대 카테고리를 라운지 피드 카테고리로 매핑"""
         mapping = {
@@ -78,14 +110,28 @@ class AuraSupabaseManager:
     def publish_to_lounge_feed(self, article_pkg: Dict[str, Any]) -> Dict[str, Any]:
         """
         📱 아우라 앱 라운지 실시간 피드(lounge_posts)에 공식 VIP 매거진 카드로 즉시 등록
-        - 앱 접속 유저 전원의 라운지 피드에 최신 칼럼 실시간 노출
+        - 중복 원천 차단: 동일 주제(topic_id)에 대해 단 1개의 공식 매거진 글만 유지 (기존 중복 자동 갱신)
+        - 제미나이 생성 맞춤 실사 사진 Supabase Storage 영구 연동
         """
+        topic_id = article_pkg.get("topic_id", 1)
+        # 아우라 본진 매거진 전용 타이틀 1개 선정 (소셜 감성 훅 우선)
         title = article_pkg.get("title_kakao") or article_pkg.get("title_naver") or article_pkg.get("title", "")
         excerpt = article_pkg.get("excerpt", "")
         cat_key = article_pkg.get("category", "kakaotalk_signals")
         lounge_cat = self.map_category_to_lounge(cat_key)
         landing_url = article_pkg.get("landing_url", "https://aura-ai-dating.vercel.app/")
-        img_url = article_pkg.get("image_url", "")
+
+        # 🖼️ 제미나이 생성 이미지 Supabase Storage 업로드 및 영구 URL 획득
+        local_img_path = article_pkg.get("image_path", "")
+        img_url = ""
+        if local_img_path and Path(local_img_path).exists():
+            uploaded_url = self.upload_image_to_storage(local_img_path, bucket_subpath="magazines")
+            if uploaded_url:
+                img_url = uploaded_url
+                article_pkg["image_url"] = uploaded_url  # 패키지 내 URL도 영구 퍼블릭 URL로 갱신
+
+        if not img_url:
+            img_url = article_pkg.get("image_url", "")
 
         # 라운지 피드용 본문 구성: 제미나이가 작성한 2,000자 칼럼 전문 온전히 탑재 (내부 피드이므로 외부 링크 제거)
         full_content = article_pkg.get("content_md") or excerpt
@@ -117,7 +163,8 @@ class AuraSupabaseManager:
         lounge_trans["discussion_prompt"] = discussion_prompt
 
         now_iso = datetime.now(timezone.utc).isoformat()
-        post_id = f"mag-{article_pkg.get('topic_id', 1)}-{int(datetime.now().timestamp())}"
+        # 🔑 고유 ID 규칙: 주제 번호 기반 고정 ID로 중복 등록 원천 방지
+        post_id = f"mag-topic-{topic_id:03d}"
 
         row = {
             "id": post_id,
@@ -143,6 +190,14 @@ class AuraSupabaseManager:
             return {"status": "success", "mode": "dry_run", "post_id": post_id, "category": lounge_cat}
 
         try:
+            # 🛡️ [중복 원천 제거] 기존에 동일 주제나 공식 에디터로 작성된 구형 글이 있으면 먼저 삭제
+            try:
+                self.client.table("lounge_posts").delete().eq("id", post_id).execute()
+                # 과거 타임스탬프 형식의 중복 글(예: mag-1-..., mag-8-...)도 정리
+                self.client.table("lounge_posts").delete().like("id", f"mag-{topic_id}-%").execute()
+            except Exception as del_err:
+                logger.debug(f"기존 구형 매거진 글 삭제 확인: {del_err}")
+
             res = self.client.table("lounge_posts").insert(row).execute()
             if res.data:
                 logger.info(f"✅ [AuraSupabase] 라운지 피드 4개국어 등록 완료 (ID: {post_id}, 카테고리: {lounge_cat})")
@@ -152,6 +207,26 @@ class AuraSupabaseManager:
                 return {"status": "warning", "post_id": post_id}
         except Exception as e:
             logger.error(f"❌ [AuraSupabase] 라운지 피드 등록 실패: {e}")
+            return {"status": "error", "message": str(e)}
+
+    def clean_legacy_duplicate_posts(self) -> Dict[str, Any]:
+        """
+        🧹 과거 테스트로 인해 lounge_posts에 쌓인 중복 매거진 글 일괄 정리
+        """
+        if not self.is_connected():
+            return {"status": "not_connected"}
+
+        try:
+            # 공식 에디터 글 중 타임스탬프 형식(mag-...)으로 중복 등록된 글 조회 및 삭제
+            res = self.client.table("lounge_posts").select("id").eq("user_id", "aura-official-editor").execute()
+            legacy_ids = [r["id"] for r in (res.data or []) if not r["id"].startswith("mag-topic-")]
+            if legacy_ids:
+                del_res = self.client.table("lounge_posts").delete().in_("id", legacy_ids).execute()
+                logger.info(f"🧹 [AuraSupabase] 과거 중복 매거진 글 {len(legacy_ids)}건 삭제 완료: {legacy_ids}")
+                return {"status": "success", "deleted_count": len(legacy_ids), "deleted_ids": legacy_ids}
+            return {"status": "success", "deleted_count": 0}
+        except Exception as e:
+            logger.error(f"❌ [AuraSupabase] 과거 중복 글 정리 실패: {e}")
             return {"status": "error", "message": str(e)}
 
     def archive_article_to_aura_blogs(self, article_pkg: Dict[str, Any]) -> Dict[str, Any]:

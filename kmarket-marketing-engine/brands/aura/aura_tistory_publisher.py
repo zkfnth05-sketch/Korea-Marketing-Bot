@@ -2,7 +2,7 @@
 """
 Aura Tistory Publisher (💖 Aura 전용 티스토리 무인 자동 발행 레고 블록)
 ====================================================================
-- 저장된 Playwright 세션(tistory_session.json)을 활용한 100% 무인 자동 발행
+- 크롬 영구 프로필 디렉터리(tistory_chrome_profile)를 활용한 100% 무인 자동 발행 (로그인 영구 보존)
 - Google / Daum SEO 최적화 제목(title_tistory), 고품질 HTML 본문, 태그 자동 등록
 - 완료 시 실제 발행된 티스토리 포스트 URL 반환
 """
@@ -17,6 +17,7 @@ from playwright.async_api import async_playwright
 
 CURRENT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = CURRENT_DIR.parent.parent
+PROFILE_DIR = CURRENT_DIR / "tistory_chrome_profile"
 SESSION_FILE = CURRENT_DIR / "tistory_session.json"
 ACCOUNTS_FILE = CURRENT_DIR / "accounts.json"
 
@@ -24,14 +25,17 @@ logger = logging.getLogger("AuraTistoryPublisher")
 
 
 class AuraTistoryPublisher:
-    """Aura 데이팅 전용 티스토리 블로그 자동 발행 엔진"""
+    """Aura 데이팅 전용 티스토리 블로그 자동 발행 엔진 (영구 크롬 프로필 지원)"""
 
     def __init__(self, blog_name: str = "aura-magazine"):
         self.blog_name = blog_name
+        self.profile_dir = PROFILE_DIR
         self.session_file = SESSION_FILE
 
     def is_available(self) -> bool:
-        return self.session_file.exists() and self.session_file.stat().st_size > 100
+        has_profile = self.profile_dir.exists() and any(self.profile_dir.iterdir())
+        has_session = self.session_file.exists() and self.session_file.stat().st_size > 100
+        return has_profile or has_session
 
     def publish_post(
         self,
@@ -54,9 +58,9 @@ class AuraTistoryPublisher:
         tag_list: Optional[List[str]] = None,
         timeout_sec: int = 40
     ) -> Dict[str, Any]:
-        """Playwright를 통한 실제 포스팅 실행"""
+        """Playwright를 통한 실제 포스팅 실행 (영구 프로필 우선)"""
         if not self.is_available():
-            logger.warning("⚠️ [Tistory] tistory_session.json 세션 파일이 없습니다.")
+            logger.warning("⚠️ [Tistory] 티스토리 세션 또는 프로필이 없습니다.")
             return {"status": "error", "message": "세션 파일 부재", "blog_name": self.blog_name}
 
         write_url = f"https://{self.blog_name}.tistory.com/manage/newpost/?type=post&returnURL=%2Fmanage%2Fposts%2F"
@@ -65,24 +69,57 @@ class AuraTistoryPublisher:
         logger.info(f"🚀 [Tistory] 무인 자동 발행 시작: '{title}'")
 
         async with async_playwright() as p:
-            browser = await p.chromium.launch(
-                headless=True,
-                args=["--disable-blink-features=AutomationControlled"]
-            )
-            context = await browser.new_context(
-                storage_state=str(self.session_file),
-                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
-                viewport={"width": 1280, "height": 900}
-            )
-            page = await context.new_page()
+            is_persistent = self.profile_dir.exists() and any(self.profile_dir.iterdir())
+            has_session_file = self.session_file.exists() and self.session_file.stat().st_size > 100
+            browser = None
+
+            if has_session_file:
+                # 🌟 저장된 영구 세션 파일로 100% 무인 로그인 보장 실행
+                browser = await p.chromium.launch(
+                    headless=True,
+                    args=["--disable-blink-features=AutomationControlled"]
+                )
+                context = await browser.new_context(
+                    storage_state=str(self.session_file),
+                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+                    viewport={"width": 1280, "height": 900}
+                )
+                page = await context.new_page()
+            elif is_persistent:
+                # 크롬 영구 프로필 디렉터리 실행
+                context = await p.chromium.launch_persistent_context(
+                    user_data_dir=str(self.profile_dir),
+                    headless=True,
+                    args=["--disable-blink-features=AutomationControlled"],
+                    viewport={"width": 1280, "height": 900},
+                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+                )
+                page = context.pages[0] if context.pages else await context.new_page()
+            else:
+                return {"status": "error", "message": "티스토리 세션 부재 (1회 로그인 필요)", "blog_name": self.blog_name}
 
             try:
                 # 1. 글쓰기 페이지 진입
                 await page.goto(write_url, wait_until="domcontentloaded", timeout=timeout_sec * 1000)
-                await page.wait_for_selector("#post-title-inp", timeout=15000)
+                await asyncio.sleep(1)
+
+                # 🛡️ 세션 만료 즉각 감지 (로그인 페이지 리다이렉트 확인)
+                cur_url = page.url
+                if "auth" in cur_url or "login" in cur_url or "accounts.kakao.com" in cur_url:
+                    logger.warning("⚠️ [Tistory] 티스토리 세션이 만료되었습니다. (aura_tistory_login.py 1회 실행 필요)")
+                    return {
+                        "status": "session_expired",
+                        "message": "티스토리 카카오 세션 만료. python brands/aura/aura_tistory_login.py 1회 실행 필요",
+                        "blog_name": self.blog_name
+                    }
+
+                # 2. 제목 입력기 대기 (유연한 선택자 지원)
+                title_el = await page.wait_for_selector("#post-title-inp, textarea[id*='title'], input[name='title']", timeout=15000)
+                if not title_el:
+                    raise RuntimeError("티스토리 제목 입력 필드를 찾을 수 없습니다.")
 
                 # 2. 제목 입력
-                await page.fill("#post-title-inp", title)
+                await title_el.fill(title)
 
                 # 3. 본문 HTML 주입 (TinyMCE 공식 엔진 버퍼 및 폼 텍스트에어리어 동기화)
                 injected = await page.evaluate("""(html) => {
@@ -173,7 +210,12 @@ class AuraTistoryPublisher:
                     "message": str(e)
                 }
             finally:
-                await browser.close()
+                if is_persistent:
+                    await context.close()
+                else:
+                    await context.close()
+                    if browser:
+                        await browser.close()
 
 
 if __name__ == "__main__":

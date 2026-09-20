@@ -130,16 +130,47 @@ class AuraGeminiWriter:
     def write_magazine_article(
         self,
         topic: Dict[str, Any],
-        seo_brief: Dict[str, Any]
+        seo_brief: Dict[str, Any],
+        use_cache: bool = True
     ) -> Dict[str, Any]:
         """
         100대 주제 1개와 실시간 키워드를 조합하여 2,000자 칼럼과 맞춤 사진 프롬프트 생성
+        (use_cache=True인 경우 기존 작성된 원고가 있으면 즉시 재사용하여 API 호출 비용 0원 유지)
         """
+        topic_id = topic.get("id", 1)
         topic_title = topic["title"]
         category_key = topic["category"]
         category_name = seo_brief.get("category_name", "2030 라이프")
         aura_feature = topic.get("aura_feature", "Aura AI 매력 리포트")
         intent = topic.get("intent", "2030 연애 꿀팁")
+
+        # ⚡ [비용 0원 원칙] 기존 로컬에 작성된 고품질 원고가 있으면 즉시 재사용 (Gemini 호출 차단)
+        if use_cache:
+            blog_dir = PROJECT_ROOT / "outputs" / "aura" / "blogs"
+            if blog_dir.exists():
+                existing = sorted(list(blog_dir.glob(f"aura_blog_topic_{topic_id:03d}_*.json")), reverse=True)
+                if existing:
+                    try:
+                        with open(existing[0], "r", encoding="utf-8") as fp:
+                            cached_data = json.load(fp)
+                        if cached_data.get("title") and cached_data.get("content_md"):
+                            logger.info(f"⚡ [AuraGeminiWriter] 주제 #{topic_id} 기존 칼럼 원고 캐시 즉시 재사용 (비용 0원!): {existing[0].name}")
+                            return {
+                                "topic_id": topic_id,
+                                "category": category_key,
+                                "category_name": category_name,
+                                "title": cached_data.get("title", ""),
+                                "title_naver": cached_data.get("title_naver", cached_data.get("title", "")),
+                                "title_tistory": cached_data.get("title_tistory", cached_data.get("title", "")),
+                                "title_kakao": cached_data.get("title_kakao", cached_data.get("title", "")),
+                                "excerpt": cached_data.get("excerpt", ""),
+                                "visual_prompt": cached_data.get("visual_prompt", ""),
+                                "discussion_prompt": cached_data.get("discussion_prompt", "Aura 싱글 여러분의 생각은 어떠신가요? 아래 댓글로 여러분만의 솔직한 생각과 꿀팁을 남겨주세요!"),
+                                "content_md": cached_data.get("content_md", ""),
+                                "is_cached": True
+                            }
+                    except Exception as ce:
+                        logger.debug(f"캐시 원고 로드 예외: {ce}")
 
         naver_keywords = seo_brief.get("seo_title_keywords", [])
         google_keywords = seo_brief.get("h2_h3_subheading_keywords", [])

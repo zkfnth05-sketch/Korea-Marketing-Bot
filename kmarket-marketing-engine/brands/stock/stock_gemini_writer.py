@@ -4,50 +4,70 @@
 ==================================================================
 - 브랜드: StockMaster AI (주식 AI 분석 & 퀀트 & 뇌동매매 방지)
 - 페르소나: "StockMaster 수석 퀀트 & AI 투자 전략가"
-- 글쓰기 원칙:
-  1. 감정이 배제된 객관적인 데이터와 팩트 기반 시장 분석
-  2. 초보자도 이해할 수 있는 명쾌한 차트/재무제표/수급 해석
-  3. 무분별한 뇌동매매(FOMO)를 경계하고 리스크 관리(손절·분할) 강조
-  4. H2, H3 소제목 구조화 및 본문 2,000자 내외의 깊이 있는 투자 칼럼
-  5. StockMaster AI 주식 분석 앱으로 자연스러운 전환 유도 (CTA)
-  6. 3대 플랫폼별 최적화 제목 3종 + 16:9 실사 맞춤 사진 생성 프롬프트 동시 반환
+- 원칙:
+  1. Cache-First (로컬 캐시 우선 재사용으로 중복 API 호출 0원 보장)
+  2. 3대 플랫폼별 최적화 제목 3종 + 16:9 실사 맞춤 사진 프롬프트 동시 생성
+  3. 실패 시 자동 키 롤오버 및 비상용 폴백 템플릿
 """
 
 import os
 import sys
 import json
 import logging
+from pathlib import Path
 from typing import Dict, Any, Optional
 
 logger = logging.getLogger("StockGeminiWriter")
+
+CURRENT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = CURRENT_DIR.parent.parent
+CACHE_DIR = PROJECT_ROOT / "outputs" / "stock" / "blogs"
+CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+from dotenv import load_dotenv
+load_dotenv(PROJECT_ROOT / ".env")
 
 # KeyManager import
 try:
     from utils.key_manager import get_gemini_key, report_gemini_key_failure, get_paid_gemini_key
 except ImportError:
     def get_gemini_key():
-        return os.environ.get("GEMINI_API_KEY", "")
+        return os.environ.get("GEMINI_API_KEY") or os.environ.get("GEMINI_FREE_API_KEY_AURA_1") or os.environ.get("GEMINI_FREE_API_KEY_KMARKET") or ""
     def report_gemini_key_failure(k):
         pass
     def get_paid_gemini_key():
-        return os.environ.get("GEMINI_API_KEY", "")
+        return os.environ.get("GEMINI_PAID_API_KEY_AURA_1") or os.environ.get("GEMINI_API_KEY") or ""
 
 
 class StockGeminiWriter:
-    """StockMaster 주식 AI & 투자 전문 Gemini 원고 생성 엔진"""
+    """StockMaster 주식 AI & 투자 전문 Gemini 원고 생성 엔진 (Cache-First)"""
 
     def __init__(self):
-        self.model_name = "gemini-2.5-flash"
+        self.model_name = "gemini-2.0-flash"
 
     def write_magazine_article(self, topic: Dict[str, Any], seo_brief: Dict[str, Any]) -> Dict[str, Any]:
-        """주제와 SEO 키워드 패키지를 바탕으로 2,000자 전문 투자 칼럼 생성"""
-        import google.generativeai as genai
-
+        """주제와 SEO 키워드 패키지를 바탕으로 2,000자 전문 투자 칼럼 생성 (Cache-First)"""
+        topic_id = topic.get("id", 1)
         topic_title = topic["title"]
         category = topic.get("category", "korea_market")
         intent = topic.get("intent", "주식 투자 및 리스크 관리 전략")
         app_feature = topic.get("app_feature", "StockMaster AI 수급 레이더")
         tags = topic.get("tags", ["주식투자", "주식AI", "StockMaster"])
+
+        # ⚡ 1. Cache-First: 이미 작성된 원고가 있으면 즉시 재사용 (Gemini 호출 0회, 비용 0원)
+        cache_file = CACHE_DIR / f"stock_blog_topic_{topic_id:03d}.json"
+        if cache_file.exists():
+            try:
+                with open(cache_file, "r", encoding="utf-8") as fp:
+                    cached_data = json.load(fp)
+                if cached_data.get("body_markdown") and len(cached_data.get("body_markdown", "")) > 100:
+                    logger.info(f"⚡ [StockGeminiWriter] 로컬 원고 캐시 즉시 재사용: {cache_file.name} (비용 0원)")
+                    cached_data["topic_id"] = topic_id
+                    return cached_data
+            except Exception as e:
+                logger.warning(f"⚠️ [StockGeminiWriter] 캐시 로드 실패 ({e}), 신규 작성 진행")
+
+        import google.generativeai as genai
 
         seo_titles = seo_brief.get("seo_title_keywords", [])
         subheadings = seo_brief.get("h2_h3_subheading_keywords", [])
@@ -93,18 +113,27 @@ class StockGeminiWriter:
 위 주제로 투자자들에게 실질적인 도움이 되는 2,000자 투자 칼럼을 작성해주세요.
 """
 
+        from google import genai
+        from google.genai import types as genai_types
+
         api_key = get_gemini_key()
         for attempt in range(3):
             try:
-                genai.configure(api_key=api_key)
-                model = genai.GenerativeModel(
-                    model_name=self.model_name,
-                    system_instruction=system_instruction
-                )
-                response = model.generate_content(
-                    user_prompt,
-                    generation_config={"temperature": 0.7, "max_output_tokens": 4096}
-                )
+                client = genai.Client(api_key=api_key)
+                for m_name in ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]:
+                    try:
+                        response = client.models.generate_content(
+                            model=m_name,
+                            contents=user_prompt,
+                            config=genai_types.GenerateContentConfig(
+                                system_instruction=system_instruction,
+                                temperature=0.7,
+                                max_output_tokens=4096
+                            )
+                        )
+                        break
+                    except Exception:
+                        continue
 
                 raw_text = response.text.strip()
                 if "```json" in raw_text:
@@ -113,7 +142,7 @@ class StockGeminiWriter:
                     raw_text = raw_text.split("```")[1].split("```")[0].strip()
 
                 data = json.loads(raw_text)
-                return {
+                res = {
                     "title": data.get("title_naver", topic_title),
                     "title_naver": data.get("title_naver", topic_title),
                     "title_tistory": data.get("title_tistory", topic_title),
@@ -122,8 +151,18 @@ class StockGeminiWriter:
                     "summary": data.get("summary", ""),
                     "tags": data.get("tags", tags),
                     "visual_prompt": data.get("visual_prompt", ""),
-                    "topic_id": topic["id"]
+                    "topic_id": topic_id
                 }
+
+                # ⚡ 캐시 파일로 영구 저장
+                try:
+                    with open(cache_file, "w", encoding="utf-8") as fp:
+                        json.dump(res, fp, ensure_ascii=False, indent=2)
+                    logger.info(f"💾 [StockGeminiWriter] 신규 칼럼 캐시 저장 완료: {cache_file.name}")
+                except Exception as save_err:
+                    logger.warning(f"캐시 저장 실패: {save_err}")
+
+                return res
             except Exception as e:
                 logger.warning(f"⚠️ [StockGeminiWriter] 시도 {attempt+1} 실패 ({e}), 키 롤오버 시도")
                 report_gemini_key_failure(api_key)

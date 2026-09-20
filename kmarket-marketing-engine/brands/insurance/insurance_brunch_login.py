@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Aura Brunch Login Helper (카카오 브런치스토리 무인 자동 연동 1회 세션 영구 저장기)
-=============================================================================
-- 역할:
-  1. 실제 크롬 영구 프로필 디렉터리(brunch_chrome_profile)를 화면에 띄움 (headless=False)
-  2. 대표님께서 카카오계정으로 브런치스토리 로그인 수행
-  3. 로그인 완료를 정밀 검증 (로그인 페이지 이탈 + 브런치 실제 회원 로그인 상태 확인)
-  4. 로그인이 확실히 완료되면 영구 저장 후 안전 종료
+InsureBalance Brunch Login Helper (보험 카카오 브런치 무인 자동 연동 1회 세션 영구 저장기)
+========================================================================================
 """
 
 import sys
@@ -32,11 +27,10 @@ ACCOUNTS_FILE = CURRENT_DIR / "accounts.json"
 
 async def run_login_flow():
     print("=" * 65)
-    print("🚀 [Aura 카카오 브런치스토리 1회 영구 연동기]")
+    print("🚀 [InsureBalance 보험 브런치스토리 1회 영구 연동기]")
     print("화면에 실제 크롬 브라우저 창이 열립니다.")
     print("1. [카카오계정으로 시작하기] 클릭 후 로그인해 주세요.")
     print("2. '로그인 상태 유지' 체크박스를 꼭 체크해 주세요.")
-    print("3. 로그인이 완료되어 브런치 화면으로 넘어가면 봇이 자동 감지합니다.")
     print("=" * 65)
 
     async with async_playwright() as p:
@@ -52,34 +46,25 @@ async def run_login_flow():
         )
         page = context.pages[0] if context.pages else await context.new_page()
 
-        # 브런치 로그인 페이지 접속
         await page.goto("https://brunch.co.kr/signin")
         print("\n⏳ 브런치 브라우저 창이 열렸습니다. 로그인을 진행해 주세요...")
 
         logged_in = False
         b_cookie_str = ""
 
-        # 최대 5분(150회 * 2초) 대기
         for sec in range(150):
             await asyncio.sleep(2)
             cur_url = page.url
             cookies = await context.cookies()
             cookie_dict = {c["name"]: c["value"] for c in cookies}
 
-            # 🚨 엄격한 로그인 완료 판별:
-            # 1. 로그인 전용 URL(signin, accounts.kakao.com, kauth.kakao.com)을 완전히 벗어남
             is_login_page = any(x in cur_url for x in ["signin", "accounts.kakao.com", "kauth.kakao.com"])
-            
-            # 2. 브런치 회원 인증 쿠키 또는 카카오 로그인 완료 쿠키 검증
             has_kakao_auth = "_kawlt" in cookie_dict or "_kadu" in cookie_dict or "KA" in cookie_dict
             
-            # 3. 브런치 페이지 내에서 '시작하기' 버튼이 사라지거나 '글쓰기'/'프로필'이 노출되는지 확인
             if not is_login_page and has_kakao_auth:
                 try:
-                    # 화면 요소로 2차 검증
                     write_btn = await page.locator("a:has-text('글쓰기'), button:has-text('글쓰기'), .link_profile, .btn_write").count()
                     signin_btn = await page.locator("a:has-text('시작하기'), button:has-text('시작하기')").count()
-                    
                     if write_btn > 0 or signin_btn == 0:
                         b_cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies if "brunch.co.kr" in c.get("domain", "")])
                         logged_in = True
@@ -92,13 +77,10 @@ async def run_login_flow():
             cookies = await context.cookies()
             b_cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies if "brunch.co.kr" in c.get("domain", "")])
 
-        print("\n🎉 [대성공!] 카카오 브런치스토리 로그인이 정상 감지되었습니다!")
-
-        # 1. 브라우저 세션 상태 영구 저장
+        print("\n🎉 [대성공!] InsureBalance 브런치 로그인이 정상 감지되었습니다!")
         await context.storage_state(path=str(SESSION_FILE))
         print(f"💾 1. 브런치 크롬 영구 프로필 및 세션 저장 완료: {PROFILE_DIR.name}")
 
-        # 2. accounts.json 업데이트
         accounts_data = {}
         if ACCOUNTS_FILE.exists():
             try:
@@ -115,10 +97,8 @@ async def run_login_flow():
         with open(ACCOUNTS_FILE, "w", encoding="utf-8") as fp:
             json.dump(accounts_data, fp, ensure_ascii=False, indent=2)
 
-        print(f"💾 2. accounts.json 브런치스토리 세션 쿠키 자동 등록 완료!")
-        print("\n✨ 이제부터 마케팅봇이 브런치스토리에 완전 무인으로 글을 자동 발행합니다!")
+        print("💾 2. accounts.json 브런치스토리 세션 쿠키 자동 등록 완료!")
         print("창은 3초 후 자동으로 닫힙니다...")
-
         await asyncio.sleep(3)
         await context.close()
         return True

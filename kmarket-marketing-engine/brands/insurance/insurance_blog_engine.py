@@ -74,9 +74,29 @@ class InsuranceBlogEngine:
         return self._publisher
 
     def get_next_topic(self) -> Dict[str, Any]:
-        """100대 주제 순차 순환"""
-        topic = self.topics[self.rotation_index % len(self.topics)]
-        self.rotation_index = (self.rotation_index + 1) % len(self.topics)
+        """100대 주제를 파일 기반으로 1개씩 순환 반환 (중복 발행 100% 원천 차단)"""
+        state_file = PROJECT_ROOT / "data" / "insurance_blog_rotation_state.json"
+        state = {}
+        if state_file.exists():
+            try:
+                with open(state_file, "r", encoding="utf-8") as f:
+                    state = json.load(f)
+            except Exception:
+                state = {}
+
+        idx = state.get("current_topic_index", 0)
+        topic = self.topics[idx % len(self.topics)]
+
+        state["current_topic_index"] = (idx + 1) % len(self.topics)
+        state["last_topic_id"] = topic["id"]
+        state["last_title"] = topic["title"]
+        try:
+            state_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(state_file, "w", encoding="utf-8") as f:
+                json.dump(state, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            logger.warning(f"상태 저장 실패: {e}")
+
         return topic
 
     def get_random_topic(self, category: Optional[str] = None) -> Dict[str, Any]:
@@ -180,8 +200,8 @@ class InsuranceBlogEngine:
         }
 
     def publish_now(self, topic_id: Optional[int] = None) -> Dict[str, Any]:
-        """원클릭 생성 및 3대 블로그 즉시 발행"""
-        logger.info("🎬 [InsuranceBlog] 원고 생성 및 3대 블로그 발행 프로세스 시작")
+        """제미나이 1회 호출 + 이미지 1회 생성 ➔ 4대 채널(본진, 네이버, 티스토리, 브런치) 동시 배포"""
+        logger.info("🎬 [InsuranceBlog] 1회 원고/이미지 생성 ➔ 4대 채널 동시 옴니 배포 시작")
         pkg = self.build_article_package(topic_id=topic_id)
         publisher = self._get_publisher()
         pub_results = publisher.publish_all(pkg, landing_url=self.LANDING_URL)
@@ -192,3 +212,7 @@ class InsuranceBlogEngine:
             "topic_id": pkg["topic_id"],
             "publishing_results": pub_results
         }
+
+    def publish_omni(self, topic_id: Optional[int] = None) -> Dict[str, Any]:
+        """4대 채널 옴니 배포 별칭"""
+        return self.publish_now(topic_id=topic_id)

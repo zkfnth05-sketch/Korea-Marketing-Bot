@@ -235,12 +235,23 @@ function renderHubGrid() {
         const theme = getHubColorTheme(h.key, idx);
         const isShorts = h.key === "shorts";
         const isCardnews = h.key === "cardnews";
-        const runActionText = isShorts ? "🎬 완성 숏폼 원클릭 제작" : isCardnews ? "📸 카드뉴스 원클릭 제작" : "⚡ 즉시 1회 시험 실행";
-        const runActionOnClick = isShorts 
-            ? `triggerOneClickProduce('${brand}', 'shorts', this)`
+        const isOmniBlog = h.key === "omni_blog";
+        const isThreads = h.key === "threads";
+        const isSeo = h.key === "seo";
+        const runActionText = isShorts 
+            ? "🎬 완성 숏폼 원클릭 제작" 
             : isCardnews 
-            ? `triggerOneClickProduce('${brand}', 'cardnews', this)`
-            : (h.isSeo ? 'triggerGoogleIndex()' : `runModule('${brand}_${h.key}')`);
+            ? "📸 카드뉴스 원클릭 제작" 
+            : isOmniBlog 
+            ? "🚀 옴니블로그 즉시 1회 발행" 
+            : isThreads
+            ? "📜 스토리 타래 1회 발행"
+            : isSeo
+            ? "🌐 검색엔진 동시 색인 핑"
+            : "⚡ 즉시 1회 시험 실행";
+        const runActionOnClick = isOmniBlog 
+            ? `publishOmniBlog('${brand}')`
+            : `runModule('${brand}_${h.key}')`;
 
         return `
         <div class="action-card" id="card-${brand}-${h.key}" style="background:#F6F1EA;border:1px solid #E5DDD1;border-top:3.5px solid ${theme.primary};border-radius:14px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;gap:12px;box-shadow:var(--shadow-md);transition:transform 0.25s ease, box-shadow 0.25s ease;">
@@ -273,7 +284,7 @@ function renderHubGrid() {
                         ⏹️ 정지
                     </button>
                 </div>
-                <button class="btn btn-action" onclick="${runActionOnClick}" style="width:100%;font-size:11.5px;padding:7px 0;background:${theme.actionBg};border:1px solid ${theme.actionBorder};color:${theme.actionColor};font-weight:700;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.04);cursor:pointer;">
+                <button class="btn btn-action" id="${isOmniBlog ? `btn-omni-${brand}` : `btn-run-${brand}-${h.key}`}" onclick="${runActionOnClick}" style="width:100%;font-size:11.5px;padding:7px 0;background:${theme.actionBg};border:1px solid ${theme.actionBorder};color:${theme.actionColor};font-weight:700;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.04);cursor:pointer;">
                     ${runActionText}
                 </button>
             </div>
@@ -897,6 +908,65 @@ function updateGoldenBatchPanel(summary) {
 }
 
 window.renderHubGrid = renderHubGrid;
+// 🚀 4대 옴니블로그 원클릭 즉시 발행 함수 (BAT 파일 대체)
+async function publishOmniBlog(brand) {
+    const btnId = `btn-omni-${brand}`;
+    const btn = document.getElementById(btnId);
+    const originalHtml = btn ? btn.innerHTML : "";
+
+    const nameMap = {
+        aura: "💖 Aura 데이팅",
+        insurance: "🛡️ InsureBalance 보험비교",
+        stock: "📈 Stock Master 주식AI",
+        all: "⚡ 3대 슈퍼앱 전체"
+    };
+    const brandName = nameMap[brand] || brand;
+
+    if (btn) {
+        btn.disabled = true;
+        btn.style.opacity = "0.7";
+        btn.innerHTML = `<span>⏳ ${brandName} 발행 중...</span>`;
+    }
+
+    appendLog(`[Action] ${brandName} 4대 옴니블로그 1회 즉시 발행 시작... (Gemini 2,000자 + 16:9 사진 생성)`, "info");
+    showToast(`🚀 ${brandName} 옴니블로그 1회 즉시 발행이 시작되었습니다!`, "info");
+
+    try {
+        if (brand === "all") {
+            // 3대 브랜드 순차 백그라운드 트리거
+            const resA = await fetch("/api/omni-blog/publish/aura", { method: "POST" });
+            const resI = await fetch("/api/omni-blog/publish/insurance", { method: "POST" });
+            const resS = await fetch("/api/omni-blog/publish/stock", { method: "POST" });
+            const data = await resA.json();
+            appendLog(`[Success] 3대 슈퍼앱 전체 옴니블로그 1회 발행 작업이 가동되었습니다.`, "success");
+            showToast("🎉 3대 앱 옴니블로그 발행이 백그라운드에서 진행 중입니다!", "success");
+        } else {
+            const res = await fetch(`/api/omni-blog/publish/${brand}`, { method: "POST" });
+            const data = await res.json();
+            if (data.success) {
+                appendLog(`[Success] ${data.message}`, "success");
+                showToast(data.message, "success");
+            } else {
+                appendLog(`[Error] 발행 실패: ${data.message}`, "error");
+                showToast(`발행 실패: ${data.message}`, "error");
+            }
+        }
+        if (typeof fetchStatus === "function") fetchStatus();
+    } catch (e) {
+        appendLog(`[Error] 옴니블로그 통신 실패: ${e}`, "error");
+        showToast("서버 통신 실패", "error");
+    } finally {
+        setTimeout(() => {
+            if (btn) {
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                btn.innerHTML = originalHtml;
+            }
+        }, 3000);
+    }
+}
+
+window.publishOmniBlog = publishOmniBlog;
 window.renderActionGrid = renderHubGrid;
 window.startChannelDaemon = startChannelDaemon;
 window.stopChannelDaemon = stopChannelDaemon;
@@ -930,4 +1000,5 @@ document.addEventListener("DOMContentLoaded", () => {
         if (typeof updateGoldenBatchPanel === "function") updateGoldenBatchPanel();
     }, 250);
 });
+
 

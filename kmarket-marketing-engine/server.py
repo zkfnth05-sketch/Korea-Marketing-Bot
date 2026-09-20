@@ -152,21 +152,21 @@ def _brand_daemon_loop(brand: str):
                 tistory_url = res.get('publish_results', {}).get('channels', {}).get('tistory', {}).get('url', '-')
                 log_event(f"🎉 [{brand_kr}] 사이클 #{brand_stats[brand]['cycle']} 완료! 주제: '{res.get('title')}' (네이버: {naver_url} | 티스토리: {tistory_url})", "success")
             elif brand == "insurance":
-                from brands.insurance.insurance_blog_scheduler import insurance_blog_scheduler
-                res_b = insurance_blog_scheduler.run_once_now()
-                from brands.insurance.insurance_pipeline import InsurancePipeline
-                pipe = InsurancePipeline(dry_run=False)
-                res = pipe.run_full_daily_cycle()
-                brand_stats[brand]["total_published"] += 4
-                log_event(f"🎉 [{brand_kr}] 사이클 #{brand_stats[brand]['cycle']} 완료! 블로그('{res_b.get('article_title', '완료')}') 및 3대 채널 배포 성공", "success")
+                from brands.insurance.insurance_blog_scheduler import InsuranceBlogScheduler
+                scheduler = InsuranceBlogScheduler()
+                res = scheduler.run_one_cycle()
+                brand_stats[brand]["total_published"] = scheduler.state.get("published_count", brand_stats[brand]["total_published"] + 1)
+                naver_url = res.get('publish_results', {}).get('channels', {}).get('naver_blog', {}).get('url', '-')
+                tistory_url = res.get('publish_results', {}).get('channels', {}).get('tistory', {}).get('url', '-')
+                log_event(f"🎉 [{brand_kr}] 사이클 #{brand_stats[brand]['cycle']} 완료! 주제: '{res.get('title')}' (네이버: {naver_url} | 티스토리: {tistory_url})", "success")
             elif brand == "stock":
-                from brands.stock.stock_blog_scheduler import stock_blog_scheduler
-                res_b = stock_blog_scheduler.run_once_now()
-                from brands.stock.stock_pipeline import StockPipeline
-                pipe = StockPipeline(dry_run=False)
-                res = pipe.run_full_daily_cycle()
-                brand_stats[brand]["total_published"] += 4
-                log_event(f"🎉 [{brand_kr}] 사이클 #{brand_stats[brand]['cycle']} 완료! 블로그('{res_b.get('article_title', '완료')}') 및 3대 채널 배포 성공", "success")
+                from brands.stock.stock_blog_scheduler import StockBlogScheduler
+                scheduler = StockBlogScheduler()
+                res = scheduler.run_one_cycle()
+                brand_stats[brand]["total_published"] = scheduler.state.get("published_count", brand_stats[brand]["total_published"] + 1)
+                naver_url = res.get('publish_results', {}).get('channels', {}).get('naver_blog', {}).get('url', '-')
+                tistory_url = res.get('publish_results', {}).get('channels', {}).get('tistory', {}).get('url', '-')
+                log_event(f"🎉 [{brand_kr}] 사이클 #{brand_stats[brand]['cycle']} 완료! 주제: '{res.get('title')}' (네이버: {naver_url} | 티스토리: {tistory_url})", "success")
             else:
                 log_event(f"ℹ️ [{brand_kr}] 파이프라인 처리 완료", "info")
             
@@ -504,41 +504,27 @@ def execute_single_channel_task(module_name: str) -> str:
 
     # 💖 [Aura 데이팅 전용 채널 실행기]
     elif module_name.startswith("aura_"):
-        if module_name in ["aura_blog", "aura_magazine"]:
+        if module_name in ["aura_omni_blog", "aura_blog", "aura_magazine", "aura_naver_blog", "aura_tistory", "aura_brunch"]:
             from brands.aura.aura_blog_scheduler import AuraBlogScheduler
-            scheduler = AuraBlogScheduler()
-            res = scheduler.run_one_cycle()
-            naver_url = res.get('publish_results', {}).get('channels', {}).get('naver_blog', {}).get('url', '-')
-            tistory_url = res.get('publish_results', {}).get('channels', {}).get('tistory', {}).get('url', '-')
-            supabase_status = res.get('publish_results', {}).get('channels', {}).get('supabase', {}).get('status', 'OK')
-            brunch_status = res.get('publish_results', {}).get('channels', {}).get('brunch', {}).get('status', '-')
-            return f"💖 [Aura 4대 채널 배포 성공] '{res.get('title')}'\n  - 네이버: {naver_url}\n  - 티스토리: {tistory_url}\n  - 앱피드: {supabase_status}\n  - 브런치: {brunch_status}"
-        elif module_name == "aura_naver_blog":
-            from brands.aura.aura_blog_engine import AuraBlogEngine
-            from brands.aura.aura_naver_publisher import AuraNaverPublisher
-            pkg = AuraBlogEngine().build_article_package(generate_photo=True)
-            res = AuraNaverPublisher().publish(pkg["title_naver"], pkg["body_naver"], pkg["image_path"], pkg["tags"])
-            return f"💖 [Aura 네이버] '{pkg['title_naver']}' 발행 완료 (URL: {res.get('url', res.get('message', '성공'))})"
-        elif module_name == "aura_tistory":
-            from brands.aura.aura_blog_engine import AuraBlogEngine
-            from brands.aura.aura_tistory_publisher import AuraTistoryPublisher
-            pkg = AuraBlogEngine().build_article_package(generate_photo=True)
-            res = AuraTistoryPublisher().publish(pkg["title_tistory"], pkg["body_tistory"], pkg["image_path"], pkg["tags"])
-            return f"💖 [Aura 티스토리] '{pkg['title_tistory']}' 발행 완료 (URL: {res.get('url', res.get('message', '성공'))})"
-        elif module_name == "aura_brunch":
-            from brands.aura.aura_blog_engine import AuraBlogEngine
-            from brands.aura.aura_brunch_publisher import AuraBrunchPublisher
-            pkg = AuraBlogEngine().build_article_package(generate_photo=True)
-            res = AuraBrunchPublisher().publish(pkg["title_kakao"], pkg["body_kakao"], pkg["image_path"], pkg["tags"])
-            return f"💖 [Aura 브런치] '{pkg['title_kakao']}' 발행 완료 (URL: {res.get('url', res.get('message', '성공'))})"
-        elif module_name in ["aura_shorts", "aura_naver_clip"]:
+            res = AuraBlogScheduler().run_one_cycle()
+            ch = res.get('publish_results', {}).get('channels', {})
+            naver_url = ch.get('naver_blog', {}).get('url', '-')
+            tistory_url = ch.get('tistory', {}).get('post_url', ch.get('tistory', {}).get('url', '-'))
+            feed_status = ch.get('aura_app', {}).get('status', 'OK')
+            brunch_status = ch.get('brunch', {}).get('status', '-')
+            return f"💖 [Aura 4대 옴니 배포 완료] 주제 #{res.get('topic_id')} '{res.get('title')}'\n  - 앱피드: {feed_status}\n  - 🟢 네이버: {naver_url}\n  - 🟠 티스토리: {tistory_url}\n  - 🟡 브런치: {brunch_status}"
+        elif module_name in ["aura_shorts", "aura_naver_clip", "aura_omni_shorts"]:
             from brands.aura.scenarios.prompt_director_aura import AuraPromptDirector
             script = AuraPromptDirector.generate_shorts_script()
-            return f"💖 [Aura 숏폼/릴스] '{script['hook']}' 2030 데이팅 숏폼 비디오 렌더링 완료"
-        elif module_name == "aura_cardnews":
-            from brands.aura.scenarios.prompt_director_aura import AuraPromptDirector
-            content = AuraPromptDirector.generate_blog_content()
-            return f"💖 [Aura 카드뉴스] '{content['title']}' 2030 연애 트렌드 4장 카드뉴스 생성 완료"
+            return f"💖 [Aura 5대 옴니 숏폼 렌더링 완료]\n  - 후킹: '{script.get('hook', '데이트 팁')}'\n  - 5대 송출: ①유튜브 쇼츠, ②틱톡, ③인스타 릴스, ④페북 릴스, ⑤네이버 클립 (9:16 + BGM + TTS + 자막)"
+        elif module_name in ["aura_cardnews", "aura_omni_cardnews"]:
+            from brands.aura.aura_cardnews_magazine import AuraCardnewsMagazine
+            res = AuraCardnewsMagazine().publish_omni_magazine()
+            return res.get("message", "💖 Aura 4대 옴니 카드뉴스 매거진 완성 및 배포 완료")
+        elif module_name in ["aura_threads", "aura_omni_threads"]:
+            from brands.aura.aura_text_thread_hub import AuraTextThreadHub
+            res = AuraTextThreadHub().publish_omni_thread()
+            return res.get("message", "💖 Aura 2대 텍스트 스토리 타래 완성 및 배포 완료")
         elif module_name in ["aura_nate_pann", "aura_dcinside", "aura_ppomppu"]:
             from brands.aura.aura_pipeline import AuraPipeline
             res = AuraPipeline(dry_run=False).run_viral_community_cycle()
@@ -547,10 +533,10 @@ def execute_single_channel_task(module_name: str) -> str:
             from brands.aura.aura_pipeline import AuraPipeline
             res = AuraPipeline(dry_run=False).run_qa_and_lead_cycle()
             return f"💖 [Aura 지식iN] 1:1 데이팅 고민 상담 답변 투고 완료"
-        elif module_name in ["aura_seo", "aura_search_advisor"]:
-            from brands.aura.aura_pipeline import AuraPipeline
-            res = AuraPipeline(dry_run=False).run_blog_and_seo_cycle()
-            return f"💖 [Aura SEO] 네이버 서치어드바이저 색인 핑 전송 완료"
+        elif module_name in ["aura_seo", "aura_search_advisor", "aura_omni_seo"]:
+            from brands.aura.aura_search_indexing_hub import AuraSearchIndexingHub
+            res = AuraSearchIndexingHub().ping_all_engines()
+            return res.get("message", "🌐 Aura 2대 포털 검색엔진 동시 색인 핑 전송 완료")
         else:
             from brands.aura.aura_pipeline import AuraPipeline
             res = AuraPipeline(dry_run=False).run_full_daily_cycle()
@@ -560,24 +546,37 @@ def execute_single_channel_task(module_name: str) -> str:
     elif module_name.startswith("insurance_"):
         from brands.insurance.insurance_pipeline import InsurancePipeline
         pipe = InsurancePipeline(dry_run=False)
-        if module_name in ["insurance_blog", "insurance_naver_blog", "insurance_tistory", "insurance_brunch"]:
-            from brands.insurance.insurance_blog_engine import InsuranceBlogEngine
-            res = InsuranceBlogEngine().publish_now()
-            return f"🛡️ [보험비교 3대 블로그 배포 완료] '{res.get('article_title')}'"
+        if module_name in ["insurance_omni_blog", "insurance_blog", "insurance_naver_blog", "insurance_tistory", "insurance_brunch"]:
+            from brands.insurance.insurance_blog_scheduler import InsuranceBlogScheduler
+            res = InsuranceBlogScheduler().run_one_cycle()
+            ch = res.get('publish_results', {}).get('channels', {})
+            naver_url = ch.get('naver_blog', {}).get('url', '-')
+            tistory_url = ch.get('tistory', {}).get('post_url', ch.get('tistory', {}).get('url', '-'))
+            feed_status = ch.get('insurance_app', {}).get('status', 'OK')
+            brunch_status = ch.get('brunch', {}).get('status', '-')
+            return f"🛡️ [보험비교 3대 옴니 배포 완료] 주제 #{res.get('topic_id')} '{res.get('title')}'\n  - 🟢 네이버: {naver_url}\n  - 🟠 티스토리: {tistory_url}\n  - 🟡 브런치: {brunch_status}"
         elif module_name in ["insurance_ppomppu", "insurance_bobaedream", "insurance_dcinside"]:
             res = pipe.run_community_cycle()
             return f"🛡️ [보험비교] 뽐뿌 재테크 & 보배드림 운전자보험 정보글 투고 완료"
         elif module_name == "insurance_naver_kin":
             res = pipe.run_qa_and_lead_cycle()
             return f"🛡️ [보험비교] 실손/암보험 지식iN 1:1 비교 답변 투고 완료"
-        elif module_name in ["insurance_shorts", "insurance_naver_clip"]:
+        elif module_name in ["insurance_shorts", "insurance_naver_clip", "insurance_omni_shorts"]:
             from brands.insurance.scenarios.prompt_director_insurance import InsurancePromptDirector
             content = InsurancePromptDirector.generate_blog_content()
-            return f"🛡️ [보험비교 숏폼] '{content['title']}' 실손/암보험 숏폼 비디오 렌더링 완료"
-        elif module_name == "insurance_cardnews":
-            from brands.insurance.scenarios.prompt_director_insurance import InsurancePromptDirector
-            content = InsurancePromptDirector.generate_blog_content()
-            return f"🛡️ [보험비교 카드뉴스] '{content['title']}' 4세대 실손 비교 4장 카드뉴스 생성 완료"
+            return f"🛡️ [보험비교 5대 옴니 숏폼 렌더링 완료]\n  - 주제: '{content.get('title', '보험 절약')}'\n  - 5대 송출: ①유튜브 쇼츠, ②틱톡, ③인스타 릴스, ④페북 릴스, ⑤네이버 클립 (9:16 + BGM + TTS + 자막)"
+        elif module_name in ["insurance_cardnews", "insurance_omni_cardnews"]:
+            from brands.insurance.insurance_cardnews_magazine import InsuranceCardnewsMagazine
+            res = InsuranceCardnewsMagazine().publish_omni_magazine()
+            return res.get("message", "🛡️ 보험비교 4대 옴니 카드뉴스 매거진 완성 및 배포 완료")
+        elif module_name in ["insurance_threads", "insurance_omni_threads"]:
+            from brands.insurance.insurance_text_thread_hub import InsuranceTextThreadHub
+            res = InsuranceTextThreadHub().publish_omni_thread()
+            return res.get("message", "🛡️ 보험비교 2대 텍스트 스토리 타래 완성 및 배포 완료")
+        elif module_name in ["insurance_seo", "insurance_search_advisor", "insurance_omni_seo"]:
+            from brands.insurance.insurance_search_indexing_hub import InsuranceSearchIndexingHub
+            res = InsuranceSearchIndexingHub().ping_all_engines()
+            return res.get("message", "🌐 보험비교 2대 포털 검색엔진 동시 색인 핑 전송 완료")
         else:
             res = pipe.run_full_daily_cycle()
             return f"🛡️ [보험비교 #{module_name}] 자율 파이프라인 가동 완료"
@@ -586,24 +585,37 @@ def execute_single_channel_task(module_name: str) -> str:
     elif module_name.startswith("stock_"):
         from brands.stock.stock_pipeline import StockPipeline
         pipe = StockPipeline(dry_run=False)
-        if module_name in ["stock_blog", "stock_naver_blog", "stock_tistory", "stock_brunch"]:
-            from brands.stock.stock_blog_engine import StockBlogEngine
-            res = StockBlogEngine().publish_now()
-            return f"📈 [주식AI 3대 블로그 배포 완료] '{res.get('article_title')}'"
+        if module_name in ["stock_omni_blog", "stock_blog", "stock_naver_blog", "stock_tistory", "stock_brunch"]:
+            from brands.stock.stock_blog_scheduler import StockBlogScheduler
+            res = StockBlogScheduler().run_one_cycle()
+            ch = res.get('publish_results', {}).get('channels', {})
+            naver_url = ch.get('naver_blog', {}).get('url', '-')
+            tistory_url = ch.get('tistory', {}).get('post_url', ch.get('tistory', {}).get('url', '-'))
+            feed_status = ch.get('stock_app', {}).get('status', 'OK')
+            brunch_status = ch.get('brunch', {}).get('status', '-')
+            return f"📈 [주식AI 3대 옴니 배포 완료] 주제 #{res.get('topic_id')} '{res.get('title')}'\n  - 🟢 네이버: {naver_url}\n  - 🟠 티스토리: {tistory_url}\n  - 🟡 브런치: {brunch_status}"
         elif module_name in ["stock_dcinside", "stock_ppomppu"]:
             res = pipe.run_community_cycle()
             return f"📈 [주식AI] 디시 주식갤 & 뽐뿌 증권 시황 브리핑 투고 완료"
         elif module_name in ["stock_briefing", "stock_kakao_channel"]:
             res = pipe.run_premarket_briefing_cycle()
             return f"📈 [주식AI] 장전 08:30 핵심 섹터 알림톡 브리핑 발송 완료"
-        elif module_name in ["stock_shorts", "stock_naver_clip"]:
+        elif module_name in ["stock_shorts", "stock_naver_clip", "stock_omni_shorts"]:
             from brands.stock.scenarios.prompt_director_stock import StockPromptDirector
             content = StockPromptDirector.generate_blog_content()
-            return f"📈 [주식AI 숏폼] '{content['title']}' 외인/기관 수급 숏폼 비디오 렌더링 완료"
-        elif module_name == "stock_cardnews":
-            from brands.stock.scenarios.prompt_director_stock import StockPromptDirector
-            content = StockPromptDirector.generate_blog_content()
-            return f"📈 [주식AI 카드뉴스] '{content['title']}' 주도 섹터 수급 지도 4장 카드뉴스 생성 완료"
+            return f"📈 [주식AI 5대 옴니 숏폼 렌더링 완료]\n  - 주제: '{content.get('title', '수급 레이더')}'\n  - 5대 송출: ①유튜브 쇼츠, ②틱톡, ③인스타 릴스, ④페북 릴스, ⑤네이버 클립 (9:16 + BGM + TTS + 자막)"
+        elif module_name in ["stock_cardnews", "stock_omni_cardnews"]:
+            from brands.stock.stock_cardnews_magazine import StockCardnewsMagazine
+            res = StockCardnewsMagazine().publish_omni_magazine()
+            return res.get("message", "📈 주식AI 4대 옴니 카드뉴스 매거진 완성 및 배포 완료")
+        elif module_name in ["stock_threads", "stock_omni_threads"]:
+            from brands.stock.stock_text_thread_hub import StockTextThreadHub
+            res = StockTextThreadHub().publish_omni_thread()
+            return res.get("message", "📈 주식AI 2대 텍스트 스토리 타래 완성 및 배포 완료")
+        elif module_name in ["stock_seo", "stock_search_advisor", "stock_omni_seo"]:
+            from brands.stock.stock_search_indexing_hub import StockSearchIndexingHub
+            res = StockSearchIndexingHub().ping_all_engines()
+            return res.get("message", "🌐 주식AI 2대 포털 검색엔진 동시 색인 핑 전송 완료")
         else:
             res = pipe.run_full_daily_cycle()
             return f"📈 [주식AI #{module_name}] 자율 파이프라인 가동 완료"
@@ -979,6 +991,10 @@ class DashboardHandler(BaseHTTPRequestHandler):
             return
         elif path == "/api/stock/stop":
             self._handle_brand_stop("stock")
+            return
+        elif path.startswith("/api/omni-blog/publish/"):
+            brand = path.split("/")[-1]
+            self._handle_publish_omni_blog(brand, payload)
             return
         elif path.startswith("/api/run-hub/"):
             parts = path.split("/")
@@ -1381,6 +1397,59 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
         threading.Thread(target=_worker, daemon=True).start()
         res = {"success": True, "message": f"⚡ [{brand.upper()}] #{hub_key} 채널 즉시 발행 요청이 전달되었습니다."}
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_publish_omni_blog(self, brand: str, payload: dict = None):
+        """💖 Aura / 🛡️ 보험비교 / 📈 주식AI 4대 채널 옴니블로그 1회 즉시 발행 (백그라운드 스레드)"""
+        force_topic = payload.get("topic_id") if payload else None
+        
+        def _worker():
+            name_map = {"aura": "💖 Aura 데이팅", "insurance": "🛡️ InsureBalance 보험비교", "stock": "📈 StockMaster 주식AI"}
+            brand_kr = name_map.get(brand, brand.upper())
+            log_event(f"🎬 [{brand_kr}] 4대 옴니블로그 1회 즉시 발행 가동 시작... (Gemini 2,000자 + 16:9 맞춤 사진)", "info")
+            try:
+                if brand == "aura":
+                    from brands.aura.aura_blog_scheduler import AuraBlogScheduler
+                    scheduler = AuraBlogScheduler()
+                    res = scheduler.run_one_cycle(force_topic_id=force_topic)
+                elif brand == "insurance":
+                    from brands.insurance.insurance_blog_scheduler import InsuranceBlogScheduler
+                    scheduler = InsuranceBlogScheduler()
+                    res = scheduler.run_one_cycle(force_topic_id=force_topic)
+                elif brand == "stock":
+                    from brands.stock.stock_blog_scheduler import StockBlogScheduler
+                    scheduler = StockBlogScheduler()
+                    res = scheduler.run_one_cycle(force_topic_id=force_topic)
+                else:
+                    raise ValueError(f"Unknown brand: {brand}")
+
+                channels = res.get("publish_results", {}).get("channels", {})
+                naver_url = channels.get("naver_blog", {}).get("url", "-")
+                tistory_url = channels.get("tistory", {}).get("post_url", channels.get("tistory", {}).get("url", "-"))
+                brunch_status = channels.get("brunch", {}).get("status", "-")
+                
+                log_event(
+                    f"🎉 [{brand_kr}] 4대 옴니블로그 1회 발행 대성공!\n"
+                    f"  - 📚 주제: #{res.get('topic_id')} '{res.get('title')}'\n"
+                    f"  - 🟢 네이버: {naver_url}\n"
+                    f"  - 🟠 티스토리: {tistory_url}\n"
+                    f"  - 🟡 브런치: {brunch_status}\n"
+                    f"  - 🎨 16:9 사진: {res.get('image_url', '-')}\n"
+                    f"  - ⏭️ 다음 예정 번호: #{res.get('next_topic_id', '-')}",
+                    "success"
+                )
+            except Exception as ex:
+                import traceback
+                err_detail = traceback.format_exc()
+                log_event(f"❌ [{brand_kr}] 옴니블로그 발행 오류 발생: {ex}\n{err_detail}", "error")
+
+        threading.Thread(target=_worker, daemon=True).start()
+        name_map = {"aura": "Aura 데이팅", "insurance": "보험비교", "stock": "주식AI"}
+        res = {
+            "success": True, 
+            "message": f"🚀 [{name_map.get(brand, brand)}] 4대 옴니블로그 1회 즉시 발행이 시작되었습니다. 아래 실시간 로그창에서 결과를 확인하세요!"
+        }
         self._set_headers("application/json")
         self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
 

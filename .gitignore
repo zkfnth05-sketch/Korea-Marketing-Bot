@@ -57,3 +57,7 @@ gfpgan/
 *.safetensors
 *.bin
 *.pth
+
+# 🌐 크롬 브라우저 세션 프로필 및 캐시
+*_chrome_profile/
+**/*_chrome_profile/
