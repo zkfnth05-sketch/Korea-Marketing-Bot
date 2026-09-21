@@ -69,12 +69,14 @@ class AuraTistoryPublisher:
         logger.info(f"🚀 [Tistory] 무인 자동 발행 시작: '{title}'")
 
         async with async_playwright() as p:
-            is_persistent = self.profile_dir.exists() and any(self.profile_dir.iterdir())
             has_session_file = self.session_file.exists() and self.session_file.stat().st_size > 100
+            is_persistent = self.profile_dir.exists() and any(self.profile_dir.iterdir())
             browser = None
+            context = None
 
             if has_session_file:
-                # 🌟 저장된 영구 세션 파일로 100% 무인 로그인 보장 실행
+                # 🌟 [1순위: 검증된 저장 세션 파일 모드]
+                logger.info("📄 [Tistory-Aura] 저장된 세션 파일(storage_state)로 접속")
                 browser = await p.chromium.launch(
                     headless=True,
                     args=["--disable-blink-features=AutomationControlled"]
@@ -86,7 +88,8 @@ class AuraTistoryPublisher:
                 )
                 page = await context.new_page()
             elif is_persistent:
-                # 크롬 영구 프로필 디렉터리 실행
+                # 🌟 [2순위: 영구 프로필 모드]
+                logger.info(f"📂 [Tistory-Aura] 크롬 영구 프로필 모드로 실행: {self.profile_dir.name}")
                 context = await p.chromium.launch_persistent_context(
                     user_data_dir=str(self.profile_dir),
                     headless=True,
@@ -96,7 +99,7 @@ class AuraTistoryPublisher:
                 )
                 page = context.pages[0] if context.pages else await context.new_page()
             else:
-                return {"status": "error", "message": "티스토리 세션 부재 (1회 로그인 필요)", "blog_name": self.blog_name}
+                return {"status": "error", "message": "티스토리 세션 부재 (1회연동 bat 실행 필요)", "blog_name": self.blog_name}
 
             try:
                 # 1. 글쓰기 페이지 진입
@@ -192,6 +195,13 @@ class AuraTistoryPublisher:
                                 post_url = href
                             else:
                                 post_url = f"https://{self.blog_name}.tistory.com{href}"
+
+                # 🌟 [세션 자동 수명 연장] 살아있는 최신 세션 상태를 디스크에 즉시 자동 저장
+                try:
+                    await context.storage_state(path=str(self.session_file))
+                    logger.info("🔄 [Tistory-Aura] 세션 쿠키 수명 자동 연장 완료 (Auto-Renewed)")
+                except Exception as save_err:
+                    logger.debug(f"세션 연장 통과: {save_err}")
 
                 logger.info(f"🎉 [Tistory] 최종 공개 발행 성공! {post_url}")
                 return {

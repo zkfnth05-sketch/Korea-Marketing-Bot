@@ -35,8 +35,8 @@ class StockSearchIndexingHub:
     """📈 Stock Master 2대 포털 검색엔진 (구글 + 네이버) 동시 색인 핑 통합 허브"""
 
     BRAND_NAME = "Stock Master (주식 AI)"
-    LANDING_URL = "https://stock-master-ai.vercel.app/"
-    SITEMAP_URL = "https://stock-master-ai.vercel.app/sitemap.xml"
+    LANDING_URL = "https://stockmaster-ai.vercel.app/"
+    SITEMAP_URL = "https://stockmaster-ai.vercel.app/sitemap.xml"
 
     def __init__(self):
         pass

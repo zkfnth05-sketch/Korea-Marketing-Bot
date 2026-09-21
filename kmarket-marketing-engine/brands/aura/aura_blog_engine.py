@@ -48,7 +48,7 @@ class AuraBlogEngine:
     """
     BRAND = "aura"
     NAME = "Aura 2030 Magazine Blog Engine"
-    LANDING_URL = "https://aura-ai-dating.vercel.app/"
+    LANDING_URL = "https://aura-ai-dating.vercel.app/lounge"
 
     def __init__(self):
         self.keyword_matrix = AuraKeywordMatrix()
@@ -213,20 +213,32 @@ class AuraBlogEngine:
                 {body_html}
             </div>
 
-            <!-- 🎁 Aura 앱 공식 전환 CTA 배너 (Call to Action) -->
+            <!-- 🎁 Aura 앱 공식 전환 CTA 배너 (50:50 남녀 성비 매칭 보장) -->
             <div style="background:linear-gradient(135deg, #FFF1F2 0%, #FDF2F8 100%); border:1px solid #FECDD3; border-radius:16px; padding:22px; margin:32px 0; text-align:center; box-shadow:0 6px 20px rgba(236,72,153,0.08);">
-                <span style="font-size:26px;">💖</span>
+                <span style="font-size:26px;">💑</span>
                 <h4 style="margin:8px 0 6px 0; font-size:16px; font-weight:800; color:#BE123C;">
-                    내 연애 매력도와 카톡 스타일, 객관적으로 몇 점일까?
+                    유령회원 ZERO! 남녀 50:50 황금 성비로 진짜 만나는 AI 소개팅
                 </h4>
                 <p style="font-size:13.5px; color:#4C0519; margin:0 0 16px 0; line-height:1.5;">
-                    지금 <strong>[{aura_feature}]</strong>에서 AI가 정밀 분석해 주는 
-                    나만의 첫인상 매력 리포트와 실시간 대화 코칭을 확인해 보세요!
+                    남초 어플의 끝없는 읽씹과 유령회원에 지치셨나요?<br/>
+                    <strong>Aura는 철저한 1:1 남녀 50:50 성비 보장</strong>과 AI 매력 분석([{aura_feature}])으로 진짜 이어지는 설레는 만남을 선물합니다.
                 </p>
                 <a href="{self.LANDING_URL}" target="_blank" style="display:inline-block; background:linear-gradient(135deg, #EC4899 0%, #DB2777 100%); color:#FFFFFF; font-weight:700; font-size:13.5px; padding:11px 26px; border-radius:30px; text-decoration:none; box-shadow:0 4px 14px rgba(236,72,153,0.35);">
-                    👉 Aura 공식 앱에서 내 매력 진단받기
+                    👉 AURA 프라이빗 라운지 둘러보기
                 </a>
             </div>
+
+            <!-- 🌟 티스토리/웹 공식 규격 50:50 성비 오픈그래프 카드 -->
+            <figure data-ke-type="opengraph" data-ke-align="alignCenter" data-og-type="website" data-og-title="Aura - 50:50 남녀 성비 &amp; 프리미엄 AI 소개팅" data-og-description="국내 최초 50:50 남녀 성비 보장, AI 매력 리포트와 스마트 매칭으로 데이트 성공률을 높여보세요." data-og-host="aura-ai-dating.vercel.app" data-og-source-url="https://aura-ai-dating.vercel.app/lounge" data-og-url="https://aura-ai-dating.vercel.app/lounge" data-og-image="https://aura-ai-dating.vercel.app/og-image.png" style="margin: 20px 0; border: 1px solid #FECDD3; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 14px rgba(236,72,153,0.08); text-align: left;">
+              <a href="{self.LANDING_URL}" target="_blank" rel="noopener" style="text-decoration: none; display: flex; align-items: center; background: #ffffff; color: inherit;">
+                <div class="og-image" style="width: 140px; height: 100px; flex-shrink: 0; background: url('https://aura-ai-dating.vercel.app/og-image.png') no-repeat center center / cover; border-right: 1px solid #FFF1F2;"></div>
+                <div class="og-text" style="padding: 14px 18px; flex-grow: 1;">
+                  <p class="og-title" style="margin: 0 0 6px 0; font-size: 15px; font-weight: bold; color: #0F172A; line-height: 1.4;">Aura - 50:50 남녀 성비 &amp; 프리미엄 AI 소개팅</p>
+                  <p class="og-desc" style="margin: 0 0 6px 0; font-size: 12.5px; color: #64748B; line-height: 1.5;">유령회원 없는 1:1 남녀 50:50 성비 보장! 실시간 연애 밸런스 게임과 AURA 라운지를 둘러보세요.</p>
+                  <p class="og-host" style="margin: 0; font-size: 11.5px; color: #DB2777; font-weight: 600;">aura-ai-dating.vercel.app/lounge</p>
+                </div>
+              </a>
+            </figure>
 
             <!-- Footer Tags -->
             <footer style="margin-top:20px; padding-top:16px; border-top:1px dashed #E2E8F0;">
@@ -332,18 +344,30 @@ class AuraBlogEngine:
                 </div>
 
                 <div style="background:linear-gradient(135deg, #FFF1F2 0%, #FDF2F8 100%); border:1px solid #FECDD3; border-radius:16px; padding:22px; margin:32px 0; text-align:center; box-shadow:0 6px 20px rgba(236,72,153,0.08);">
-                    <span style="font-size:26px;">💖</span>
+                    <span style="font-size:26px;">💑</span>
                     <h4 style="margin:8px 0 6px 0; font-size:16px; font-weight:800; color:#BE123C;">
-                        내 연애 매력도와 카톡 스타일, 객관적으로 몇 점일까?
+                        유령회원 ZERO! 남녀 50:50 황금 성비로 진짜 만나는 AI 소개팅
                     </h4>
                     <p style="font-size:13.5px; color:#4C0519; margin:0 0 16px 0; line-height:1.5;">
-                        지금 <strong>[{aura_feature}]</strong>에서 AI가 정밀 분석해 주는 
-                        나만의 첫인상 매력 리포트와 실시간 대화 코칭을 확인해 보세요!
+                        남초 어플의 읽씹과 허위 프로필에 지치셨나요?<br/>
+                        <strong>Aura는 1:1 남녀 50:50 성비 균형</strong>과 AI 맞춤 매칭으로 성사율 높은 진짜 만남을 이어드립니다.
                     </p>
                     <a href="{self.LANDING_URL}" target="_blank" style="display:inline-block; background:linear-gradient(135deg, #EC4899 0%, #DB2777 100%); color:#FFFFFF; font-weight:700; font-size:13.5px; padding:11px 26px; border-radius:30px; text-decoration:none; box-shadow:0 4px 14px rgba(236,72,153,0.35);">
-                        👉 Aura 공식 앱에서 내 매력 진단받기
+                        👉 AURA 프라이빗 라운지 둘러보기
                     </a>
                 </div>
+
+                <!-- 🌟 티스토리/웹 공식 규격 50:50 성비 오픈그래프 카드 -->
+                <figure data-ke-type="opengraph" data-ke-align="alignCenter" data-og-type="website" data-og-title="Aura - 50:50 남녀 성비 &amp; 프리미엄 AI 소개팅" data-og-description="국내 최초 50:50 남녀 성비 보장, AI 매력 리포트와 스마트 매칭으로 데이트 성공률을 높여보세요." data-og-host="aura-ai-dating.vercel.app" data-og-source-url="https://aura-ai-dating.vercel.app/lounge" data-og-url="https://aura-ai-dating.vercel.app/lounge" data-og-image="https://aura-ai-dating.vercel.app/og-image.png" style="margin: 20px 0; border: 1px solid #FECDD3; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 14px rgba(236,72,153,0.08); text-align: left;">
+                  <a href="{self.LANDING_URL}" target="_blank" rel="noopener" style="text-decoration: none; display: flex; align-items: center; background: #ffffff; color: inherit;">
+                    <div class="og-image" style="width: 140px; height: 100px; flex-shrink: 0; background: url('https://aura-ai-dating.vercel.app/og-image.png') no-repeat center center / cover; border-right: 1px solid #FFF1F2;"></div>
+                    <div class="og-text" style="padding: 14px 18px; flex-grow: 1;">
+                      <p class="og-title" style="margin: 0 0 6px 0; font-size: 15px; font-weight: bold; color: #0F172A; line-height: 1.4;">Aura - 50:50 남녀 성비 &amp; 프리미엄 AI 소개팅</p>
+                      <p class="og-desc" style="margin: 0 0 6px 0; font-size: 12.5px; color: #64748B; line-height: 1.5;">유령회원 없는 1:1 남녀 50:50 성비 보장! 실시간 연애 밸런스 게임과 AURA 라운지를 둘러보세요.</p>
+                      <p class="og-host" style="margin: 0; font-size: 11.5px; color: #DB2777; font-weight: 600;">aura-ai-dating.vercel.app/lounge</p>
+                    </div>
+                  </a>
+                </figure>
 
                 <footer style="margin-top:20px; padding-top:16px; border-top:1px dashed #E2E8F0;">
                     <div style="display:flex; flex-wrap:wrap; gap:6px;">

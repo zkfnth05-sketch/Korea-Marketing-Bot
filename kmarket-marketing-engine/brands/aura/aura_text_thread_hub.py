@@ -38,7 +38,7 @@ OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
 class AuraTextThreadHub:
     """💖 Aura 2030 연애 2대 텍스트 스토리 타래 통합 허브"""
 
-    LANDING_URL = "https://aura-ai-dating.vercel.app/"
+    LANDING_URL = "https://aura-ai-dating.vercel.app/lounge"
     BRAND_NAME = "Aura (아우라)"
 
     # 1/n 줄줄이 실화 썰 타래 템플릿

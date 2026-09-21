@@ -21,36 +21,38 @@ from brands.stock.stock_blog_scheduler import StockBlogScheduler
 
 
 def main():
-    if "--blog-now" in sys.argv or "-bn" in sys.argv:
+    # ── [실시간 캡처 기반 2대 블로그 발행 옵션] ──
+    is_semi = "--semiconductor" in sys.argv or "-semi" in sys.argv
+    is_rank1 = "--rank1" in sys.argv or "-r1" in sys.argv
+    is_blog_now = "--blog-now" in sys.argv or "-bn" in sys.argv
+
+    if is_semi or is_rank1 or is_blog_now:
+        article_type = "semiconductor" if is_semi else "rank1"
+        type_title = "👑 [반도체 주도주 편 (삼성전자 vs SK하이닉스)]" if is_semi else "🥇 [오늘 계량 전광판 1위 주도주 편]"
+
         print("\n==============================================")
-        print("📈 [StockMaster] 2,000자 전문 칼럼 + 16:9 맞춤 사진 1장 즉시 생성 & 3대 채널 배포")
+        print(f"📈 [StockMaster] 실시간 1600x1600 캡처 ✕ 성공 바이블 칼럼 3대 채널 배포")
+        print(f"   타입: {type_title}")
         print("==============================================\n")
 
-        force_topic = None
-        for i, arg in enumerate(sys.argv):
-            if arg in ["--topic", "--topic-id", "-t"] and i + 1 < len(sys.argv):
-                try:
-                    force_topic = int(sys.argv[i + 1])
-                except ValueError:
-                    pass
-
         scheduler = StockBlogScheduler()
-        res = scheduler.run_one_cycle(force_topic_id=force_topic)
-        print("\n[발행 결과 요약]:")
-        print(f"  - 📚 주제 ID: #{res['topic_id']}")
-        print(f"  - 🟢 네이버 블로그 제목: {res.get('title_naver', res['title'])}")
-        print(f"  - 🟠 티스토리 제목: {res.get('title_tistory', res['title'])}")
-        print(f"  - 🟡 카카오/브런치 제목: {res.get('title_brunch', res['title'])}")
-        print(f"  - 🎨 16:9 사진 URL: {res.get('image_url', '-')}")
-        print(f"  - 🔗 랜딩 URL: https://stockmaster.co.kr")
-        print(f"  - ⏰ 발행 시각: {res['published_at']}")
-        print(f"  - ⏭️ 다음 예정 주제 번호: #{res['next_topic_id']}")
+        res = scheduler.run_captured_cycle(article_type=article_type)
+
+        print("\n[🎯 실시간 캡처 블로그 발행 결과 요약]:")
+        print(f"  - 🏷️ 발행 타입: {res.get('article_type')}")
+        print(f"  - 🟢 네이버 블로그 제목: {res.get('title_naver')}")
+        print(f"  - 🟠 티스토리 제목: {res.get('title_tistory')}")
+        print(f"  - 🟡 카카오/브런치 제목: {res.get('title_brunch')}")
+        print(f"  - 📸 1600x1600 캡처 사진: {res.get('image_path')}")
+        print(f"  - 🔗 랜딩 URL: https://stockmaster-ai.vercel.app/")
+        print(f"  - ⏰ 발행 시각: {res.get('published_at')}")
 
         channels = res.get("publish_results", {}).get("channels", {})
-        print("\n[🚀 3대 옴니채널 자동 배포 현황]:")
+        print("\n[🚀 4대 옴니채널 자동 배포 현황]:")
         print(f"  1. 🟢 네이버 블로그: {channels.get('naver_blog', {}).get('status')} -> URL: {channels.get('naver_blog', {}).get('url', '-')}")
         print(f"  2. 🟠 티스토리: {channels.get('tistory', {}).get('status')} -> URL: {channels.get('tistory', {}).get('post_url', channels.get('tistory', {}).get('url', '-'))}")
         print(f"  3. 🟡 카카오/브런치: {channels.get('brunch', {}).get('status')} -> URL: {channels.get('brunch', {}).get('post_url', '-')}")
+        print(f"  4. 📊 본진 웹앱 Supabase: {channels.get('supabase_research', {}).get('status')} -> Post ID: {channels.get('supabase_research', {}).get('post_id', '-')}")
         return
 
     is_live = "--live" in sys.argv

@@ -86,7 +86,7 @@ async def run_login_flow():
         if "credentials" not in accounts_data:
             accounts_data["credentials"] = {}
 
-        accounts_data["credentials"]["tistory_blog_name"] = "stock-master"
+        accounts_data["credentials"]["tistory_blog_name"] = "stockmaster-ai"
         accounts_data["credentials"]["tistory_session_cookie"] = t_cookie_str
 
         with open(ACCOUNTS_FILE, "w", encoding="utf-8") as fp:

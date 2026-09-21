@@ -58,7 +58,7 @@ class StockBrunchPublisher:
         content_text: str,
         tag_list: Optional[List[str]] = None,
         topic_id: int = 1,
-        landing_url: str = "https://stockmaster.co.kr",
+        landing_url: str = "https://stockmaster-ai.vercel.app/",
         timeout_sec: int = 40
     ) -> Dict[str, Any]:
         """동기 호출 인터페이스"""
@@ -76,7 +76,7 @@ class StockBrunchPublisher:
         subtitle: str = "",
         body_text: str = "",
         topic_id: int = 1,
-        landing_url: str = "https://stockmaster.co.kr",
+        landing_url: str = "https://stockmaster-ai.vercel.app/",
         tag_list: Optional[List[str]] = None,
         timeout_sec: int = 40
     ) -> Dict[str, Any]:
@@ -96,7 +96,7 @@ class StockBrunchPublisher:
         content_text: str,
         tag_list: Optional[List[str]] = None,
         topic_id: int = 1,
-        landing_url: str = "https://stockmaster.co.kr",
+        landing_url: str = "https://stockmaster-ai.vercel.app/",
         timeout_sec: int = 40
     ) -> Dict[str, Any]:
         """Playwright 브런치 에디터 자동 발행 / 저장 (영구 크롬 프로필/세션 탑재)"""
@@ -158,8 +158,16 @@ class StockBrunchPublisher:
 
                 cur_url = page.url
                 if "signin" in cur_url or "accounts.kakao.com" in cur_url:
-                    logger.warning("⚠️ [Brunch-Stock] 브런치 세션 만료 감지 (1회 연동 필요)")
-                    return {"status": "error", "message": "로그인 만료 ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"}
+                    logger.info("🔄 [Brunch-Stock] 브런치 세션 재인증 시도 (/auth/kakao SSO 자동 연동)...")
+                    await page.goto("https://brunch.co.kr/auth/kakao?url=%2Fwrite", wait_until="networkidle", timeout=15000)
+                    await asyncio.sleep(2)
+                    cur_url = page.url
+                    if "signin" in cur_url or "accounts.kakao.com" in cur_url:
+                        logger.warning("⚠️ [Brunch-Stock] 브런치 세션 만료 감지 (1회 연동 필요)")
+                        return {"status": "error", "message": "로그인 만료 ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"}
+                    else:
+                        await context.storage_state(path=str(self.session_file))
+                        logger.info("🎉 [Brunch-Stock] 카카오 SSO 자동 재인증 및 영구 세션 갱신 완료!")
 
                 # 제목 입력
                 title_el = page.locator(".wrap_cover textarea, #cover-title-inp, [placeholder*='제목을 입력']").first

@@ -8,7 +8,7 @@ Aura Gemini Writer (💖 Aura 2030 매거진 전문 AI 원고 & 비주얼 프롬
   2. 4대 키 체인 중 무료키 2개(GEMINI_FREE_API_KEY_KMARKET, GEMINI_FREE_API_KEY_EASYTAX) 100% 우선 활용 (비용 0원)
   3. 무료키 429 한도 초과 시 ➔ 유료키 2개로 0.1초 만에 자동 무중단 롤오버
   4. 글 본문 스토리 맥락에 100% 부합하는 맞춤형 16:9 영문 visual_prompt 동시 기획
-  5. 랜딩 URL: https://aura-ai-dating.vercel.app/ 고정 연동
+  5. 랜딩 URL: https://aura-ai-dating.vercel.app/lounge 고정 연동
 """
 
 import os
@@ -40,7 +40,7 @@ class AuraGeminiWriter:
     - 유료키 2개 안전 롤오버
     """
 
-    LANDING_URL = "https://aura-ai-dating.vercel.app/"
+    LANDING_URL = "https://aura-ai-dating.vercel.app/lounge"
 
     def __init__(self):
         from config import (
@@ -218,7 +218,7 @@ class AuraGeminiWriter:
    - 주제에 부합하는 실전 핵심 공략법/멘트/팁 3~5개 항목 (각 항목마다 세련된 소제목 부여, 1,000자 이상)
    - Aura의 '{aura_feature}'를 자연스럽게 소개하는 스마트 솔루션 제안 (300자)
    - 💡 Aura 에디터 실전 치트키 (Tip Box, 150자)
-   - 공식 앱 바로가기 링크 ({self.LANDING_URL}) 및 해시태그
+   - 공식 앱 라운지 바로가기 링크 ({self.LANDING_URL}) 및 남녀 50:50 황금 성비 혜택, 해시태그
 4. 절대 `[본론 1]`, `도입부` 같은 메타 지침 문구를 쓰지 마십시오! 독자가 읽는 매거진 잡지처럼 세련되게 작성하십시오.
 5. 로컬 이미지 마크다운 태그(`![...](...)`)는 본문에 포함하지 마십시오.
 6. 독자 소통용 댓글 유도 질문(discussion_prompt)을 반드시 매력적으로 작성하십시오.

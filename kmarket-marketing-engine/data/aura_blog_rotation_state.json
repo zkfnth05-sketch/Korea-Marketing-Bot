@@ -1,10 +1,157 @@
 {
-  "current_topic_index": 9,
-  "last_topic_id": 9,
-  "last_run_time": "2026-09-20 22:15:58",
-  "last_title": "소개팅 전날 카톡, 할까 말까? 분위기 망치지 않는 대화의 온도 조절법",
-  "published_count": 9,
+  "current_topic_index": 12,
+  "last_topic_id": 12,
+  "last_run_time": "2026-09-21 12:24:00",
+  "last_title": "소개팅 카톡 약속 잡기, 거절 없는 자연스러운 빌드업 4단계",
+  "published_count": 12,
   "history": [
+    {
+      "topic_id": 12,
+      "title": "소개팅 카톡 약속 잡기, 거절 없는 자연스러운 빌드업 4단계",
+      "title_naver": "소개팅 카톡 약속 잡기, 거절 없는 자연스러운 빌드업 4단계",
+      "title_tistory": "소개팅 카톡 첫 대화부터 주말 약속 성공까지, 실전 대화 빌드업 가이드",
+      "title_kakao": "주말에 뭐 하세요? 라는 질문 대신, 상대의 마음을 여는 카톡 한 끗 차이",
+      "category": "kakaotalk_signals",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_012_kakaotalk_signals_20260921_122302.webp",
+      "published_at": "2026-09-21 12:24:00",
+      "publish_results": {
+        "topic_id": 12,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-012",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/lounge"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "소개팅 카톡 약속 잡기, 거절 없는 자연스러운 빌드업 4단계",
+            "url": "https://nid.naver.com/nidlogin.login?mode=form&url=https%3A%2F%2Fblog.naver.com%2Fzkfnth01%3FRedirect=%26categoryNo=",
+            "tags": [
+              "소개팅카톡첫대화",
+              "소개팅카톡",
+              "소개팅카톡대화",
+              "소개팅카톡텀",
+              "소개팅카톡주제",
+              "소개팅카톡답장",
+              "소개팅카톡첫인사",
+              "소개팅카톡노잼"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "aura-magazine",
+            "title": "소개팅 카톡 첫 대화부터 주말 약속 성공까지, 실전 대화 빌드업 가이드",
+            "url": "https://aura-magazine.tistory.com/manage/posts/",
+            "tags": [
+              "소개팅카톡첫대화",
+              "소개팅카톡",
+              "소개팅카톡대화",
+              "소개팅카톡텀",
+              "소개팅카톡주제",
+              "소개팅카톡답장",
+              "소개팅카톡첫인사",
+              "소개팅카톡노잼"
+            ]
+          },
+          "brunch": {
+            "status": "success",
+            "platform": "brunch",
+            "title": "주말에 뭐 하세요? 라는 질문 대신, 상대의 마음을 여는 카톡 한 끗 차이",
+            "post_url": "https://brunch.co.kr",
+            "archive_file": "brunch_draft_topic_012.json"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 11,
+      "title": "소개팅 카톡 첫 대화, 상대방 프사와 상메만 봐도 성공률 200% 올리는 법",
+      "title_naver": "소개팅 카톡 첫 대화, 상대방 프사와 상메만 봐도 성공률 200% 올리는 법",
+      "title_tistory": "소개팅 카톡 대화 및 첫 인사 가이드: 프로필로 상대방 성향 완벽 분석하기",
+      "title_kakao": "프사 하나로 다 안다고? 썸남썸녀의 속마음을 읽는 카톡 심리학",
+      "category": "kakaotalk_signals",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_011_kakaotalk_signals_20260921_122030.webp",
+      "published_at": "2026-09-21 12:21:28",
+      "publish_results": {
+        "topic_id": 11,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-011",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/lounge"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "소개팅 카톡 첫 대화, 상대방 프사와 상메만 봐도 성공률 200% 올리는 법",
+            "url": "https://nid.naver.com/nidlogin.login?mode=form&url=https%3A%2F%2Fblog.naver.com%2Fzkfnth01%3FRedirect=%26categoryNo=",
+            "tags": [
+              "소개팅카톡첫대화",
+              "소개팅카톡",
+              "소개팅카톡대화",
+              "소개팅카톡텀",
+              "소개팅카톡주제",
+              "소개팅카톡답장",
+              "소개팅카톡첫인사",
+              "소개팅카톡노잼"
+            ]
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. python brands/aura/aura_tistory_login.py 1회 실행 필요",
+            "blog_name": "aura-magazine"
+          },
+          "brunch": {
+            "status": "success",
+            "platform": "brunch",
+            "title": "프사 하나로 다 안다고? 썸남썸녀의 속마음을 읽는 카톡 심리학",
+            "post_url": "https://brunch.co.kr",
+            "archive_file": "brunch_draft_topic_011.json"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 10,
+      "title": "소개팅 카톡, 이것만 안 해도 성공? 정 떨어지는 최악의 말투 BEST 3",
+      "title_naver": "소개팅 카톡, 이것만 안 해도 성공? 정 떨어지는 최악의 말투 BEST 3",
+      "title_tistory": "소개팅 카톡 첫 인사부터 대화까지, 상대방의 마음을 식게 만드는 비호감 대화법 총정리",
+      "title_kakao": "그 사람이 답장을 안 하는 이유, 혹시 당신의 '카톡 말투'가 문제였을까?",
+      "category": "kakaotalk_signals",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_010_kakaotalk_signals_20260921_115742.webp",
+      "published_at": "2026-09-21 11:58:34",
+      "publish_results": {
+        "topic_id": 10,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-010",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/lounge"
+          },
+          "naver_blog": {
+            "status": "error",
+            "blog_id": "zkfnth01",
+            "message": "Page.click: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"button:has-text('발행')\")\n"
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. python brands/aura/aura_tistory_login.py 1회 실행 필요",
+            "blog_name": "aura-magazine"
+          },
+          "brunch": {
+            "status": "success",
+            "platform": "brunch",
+            "title": "그 사람이 답장을 안 하는 이유, 혹시 당신의 '카톡 말투'가 문제였을까?",
+            "post_url": "https://brunch.co.kr",
+            "archive_file": "brunch_draft_topic_010.json"
+          }
+        }
+      }
+    },
     {
       "topic_id": 9,
       "title": "소개팅 전날 카톡, 할까 말까? 분위기 망치지 않는 대화의 온도 조절법",

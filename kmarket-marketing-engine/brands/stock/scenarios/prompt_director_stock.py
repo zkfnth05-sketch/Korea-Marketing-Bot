@@ -11,7 +11,7 @@ from typing import Dict, Any, List
 
 class StockPromptDirector:
     BRAND_NAME = "Stock Master AI (주식마스터 AI)"
-    LANDING_URL = "https://stockmaster.ai"
+    LANDING_URL = "https://stockmaster-ai.vercel.app/"
 
     THEMES = [
         "premarket_themes",     # 장전 08:30 AI 급등 유망 테마 TOP 3
@@ -38,13 +38,19 @@ class StockPromptDirector:
         <p>단순 호재성 뉴스에 현혹되지 마시고, 메이저 수급 주체(외국인, 사모펀드, 연기금)가 조용히 바닥권에서 3영업일 이상 연속 매집 중인 종목을 추적해야 승률이 올라갑니다.</p>
         <h3>2. 보조지표와 거래량 회전율을 통한 변곡점 진단</h3>
         <p>RSI 과매도 탈출 구간과 일봉상 20일 이동평균선 안착 여부를 AI가 실시간 스캔하여 리스크 대비 기대 수익률이 높은 손익비 구간을 도출합니다.</p>
-        <h3>3. Stock Master AI의 실시간 KIS 연동 브리핑 활용</h3>
-        <p>한국투자증권(KIS) Open API와 Gemini 분석 엔진을 결합하여 장 시작 10분 전 핵심 테마와 실시간 수급 이상 감지 종목을 1초 만에 무료로 브리핑해 드립니다.</p>
+        <h3>3. 10분마다 350개 주도주를 스캔하는 Stock Master AI 계량 전광판</h3>
+        <p>코스피·코스닥 350개 핵심 종목의 체결강도, 블록오더, 외국계 수급을 10분마다 전수 조사하여 실시간 주도주와 -5% 실시간 문자 손절 알림을 100% 무료로 제공합니다.</p>
+        <hr/>
+        <div style="margin-top:20px; padding:15px; background:#09090b; border-left:4px solid #10b981; border-radius:8px; color:#fff;">
+          <strong>📈 [StockMaster AI] 10분마다 실시간 350개 국내 주도주 정밀 분석!</strong><br/>
+          뇌동매매는 이제 그만! AI 리스크 방어 신호와 손익비 전략을 지금 확인하세요.<br/>
+          <a href="{cls.LANDING_URL}" target="_blank" style="color:#10b981; font-weight:bold;">👉 실시간 전광판 바로가기: {cls.LANDING_URL}</a>
+        </div>
         """
         return {
             "title": title,
             "content_html": content_html,
-            "tags": ["주식추천", "급등주", "주식시황", "주식마스터AI", "조건검색"]
+            "tags": ["주식추천", "급등주", "주식시황", "주식마스터AI", "10분전광판", "체결강도"]
         }
 
     @classmethod

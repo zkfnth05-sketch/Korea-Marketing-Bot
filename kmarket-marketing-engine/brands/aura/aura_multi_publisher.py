@@ -75,7 +75,7 @@ class AuraMultiPublisher:
         excerpt = article_pkg.get("excerpt", "")
         tags = article_pkg.get("tags", [])
         img_path = article_pkg.get("image_path", "")
-        landing_url = article_pkg.get("landing_url", "https://aura-ai-dating.vercel.app/")
+        landing_url = article_pkg.get("landing_url", "https://aura-ai-dating.vercel.app/lounge")
 
         logger.info(f"\n" + "=" * 60)
         logger.info(f"🚀 [Aura 4대 채널 무인 배포 가동] 주제 #{topic_id}")

@@ -35,7 +35,8 @@ class AuraSearchIndexingHub:
     """💖 Aura 2대 포털 검색엔진 (구글 + 네이버) 동시 색인 핑 통합 허브"""
 
     BRAND_NAME = "Aura (아우라)"
-    LANDING_URL = "https://aura-ai-dating.vercel.app/"
+    LANDING_URL = "https://aura-ai-dating.vercel.app/lounge"
+    BASE_URL = "https://aura-ai-dating.vercel.app/"
     SITEMAP_URL = "https://aura-ai-dating.vercel.app/sitemap.xml"
 
     def __init__(self):
@@ -45,8 +46,8 @@ class AuraSearchIndexingHub:
         """Aura 주요 URL 및 최신 콘텐츠 URL 목록 반환"""
         return [
             self.LANDING_URL,
-            f"{self.LANDING_URL}lounge",
-            f"{self.LANDING_URL}dating-tips",
+            self.BASE_URL,
+            f"{self.BASE_URL}dating-tips",
             self.SITEMAP_URL
         ]
 

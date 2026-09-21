@@ -170,6 +170,195 @@ class StockGeminiWriter:
 
         return self._generate_fallback(topic, seo_brief)
 
+    def write_captured_article(self, capture_result: Dict[str, Any], article_type: str = "rank1") -> Dict[str, Any]:
+        """
+        주식 웹앱에서 실시간 캡처한 실제 수치를 주입하여, 대표님의 '성공 블로그 원문(바이블)' 포맷으로 2,000자 칼럼 생성
+        article_type: 'rank1' (계량 전광판 1위 주도주 편) 또는 'semiconductor' (반도체 주도주 편)
+        """
+        metrics = capture_result.get("metrics", {})
+        image_path = capture_result.get("image_path", "")
+
+        from google import genai
+        from google.genai import types as genai_types
+
+        api_key = get_gemini_key()
+
+        if article_type == "semiconductor":
+            # ── [모드 B: 반도체 주도주 편 (삼성전자 vs SK하이닉스)] ──
+            samsung = metrics.get("samsung", {})
+            hynix = metrics.get("hynix", {})
+            s_rank = samsung.get("rank", 3)
+            h_rank = hynix.get("rank", 12)
+            s_status = samsung.get("status", "🔴 VETO: 현재가")
+            h_status = hynix.get("status", "🔴 이격과열 경고 (조기 청산 권고)")
+            s_for = samsung.get("foreign_net_buy", "+468.0억원")
+            h_for = hynix.get("foreign_net_buy", "-4769.0억원")
+            s_blk = samsung.get("block_order_ratio", "71%")
+            h_blk = hynix.get("block_order_ratio", "85%")
+
+            system_instruction = f"""
+당신은 대한민국 최고의 데이터 기반 퀀트 투자자이자 'StockMaster AI'의 수석 투자 전략가입니다.
+시장의 소음과 뇌동매매를 배제하고, 철저히 데이터와 펀더멘털, 수급과 팩터에 기반한 냉철하고 명쾌한 투자 인사이트를 제공합니다.
+
+[대표님 성공 블로그 원문 바이블 스타일 - 필수 준수 원칙]
+1. 인사말: "안녕하세요! 스마트한 주식 투자를 위한 AI 퀀트 파트너입니다. 📈✨"로 시작.
+2. 뼈 때리는 현실 공감 Hook:
+   - "매일 아침 9시 장이 열리면 여러분은 어떤 방식으로 종목을 찾으시나요?"
+   - HTS 번쩍이는 급등주 뇌동매매와 찌라시 추격매수 언급.
+   - 장 시작 직후 9시~9시 10분은 세력이 개미에게 물량 넘기기 가장 좋은 시간대라 윗꼬리에 물려 고통받는 현실 지적.
+   - 감(Feel)과 조급함을 끝내고 실시간 퀀트 데이터와 AI 리스크 검증으로 살아남는 법 제시.
+3. 💡 1. 세력의 '가짜 수급'에 속지 않는 법 : 체결강도 & 블록오더(대형체결)
+   - 체결강도 100% 이상의 진정성 (비유: 차를 앞으로 밀어붙이는 액셀 페달의 압력)
+   - 5천만 원 이상 블록오더 비중 (비유: 차에 실린 거대한 슈퍼 엔진)
+4. 🛑 2. 아무리 좋아 보여도 거르는 'VETO (AI 리스크 배제)' 4대 원칙
+   - ❌ 이격도 과열 (105% 이상)
+   - ❌ 체결 가속도 급락 & 이탈
+   - ❌ 외국계 창구의 기습 이탈
+   - ❌ 연속 적자 및 신용잔고 과다
+5. 📊 3. 10분마다 350개 주도주를 스캔하는 [계량 전광판] 루틴 & 오늘자 반도체 실시간 성적표
+   - 09:00 ~ 09:10 : 장 개장 직후 거친 호가 변동성이 가라앉고 진짜 수급 데이터가 쌓이는 시간
+   - 09:10 이후 (10분 주기) : 국내 350개 핵심 종목의 실시간 수급·이격도·외국계 순매수 집계 상위 후보군 갱신
+   - 09:30 이후 (30분 주기) : Gemini AI가 리스크를 통과한 종목들의 차트 추세와 재무 건전성을 2차 심층 분석하여 최종 리포트 발행
+   - [실제 데이터 상세 대입]:
+     * 오늘 350개 종목 중 삼성전자는 {s_rank}위({s_status}, 외인 순매수 {s_for}, 블록오더 {s_blk})
+     * SK하이닉스는 {h_rank}위({h_status}, 외인 순매수 {h_for}, 블록오더 {h_blk})
+     * 두 종목의 순위 격차와 외국계 창구 수급, 블록오더 비중이 왜 이렇게 갈렸는지 명쾌한 이유 설명!
+6. 🎯 마무리: "투자는 예측이 아니라 대응과 철저한 리스크 관리입니다"
+7. 랜딩 링크 및 무료 체험 CTA 고정 삽입:
+   - https://stockmaster-ai.vercel.app/
+   - "Stock Master AI - 10분 퀀트 스캔 & 실시간 -5% 손절 알림 (100% 무료 경험)"
+
+[반환 형식: JSON 포맷 필수]
+```json
+{{
+  "title_naver": "삼성전자 vs SK하이닉스, 오늘 350개 종목 중 몇 위일까? 실시간 수급 격차와 AI 리스크 진단",
+  "title_tistory": "삼성전자 SK하이닉스 주가 전망: 오늘 10분 계량 전광판 순위와 외인 수급·블록오더 정밀 비교",
+  "title_brunch": "거인의 전쟁: 350개 주도주 전광판에서 본 삼성전자와 SK하이닉스의 현주소",
+  "body_markdown": "2,000자 내외의 완성형 마크다운 본문",
+  "summary": "오늘 350개 종목 중 삼성전자와 SK하이닉스의 10분 계량 전광판 순위 및 외국계 수급 분석",
+  "tags": ["삼성전자", "SK하이닉스", "반도체주도주", "AI주식", "퀀트투자", "체결강도", "블록오더", "스톡마스터AI"]
+}}
+```
+"""
+            user_prompt = f"위 지침에 따라 오늘자 삼성전자({s_rank}위)와 SK하이닉스({h_rank}위)의 실시간 수급 격차와 퀀트 리스크 진단 칼럼을 작성하세요."
+
+        else:
+            # ── [모드 A: 당일 10분 계량 전광판 1위 주도주 편] ──
+            s_name = metrics.get("stock_name", "삼성E&A")
+            s_code = metrics.get("stock_code", "028050")
+            s_sector = metrics.get("sector", "일반서비스")
+            s_score = metrics.get("total_score", 140)
+            s_strength = metrics.get("chegyul_strength", "120.93%")
+            s_accel = metrics.get("chegyul_accel", "+13.4%p")
+            s_block = metrics.get("block_order_ratio", "73.1%")
+            s_for = metrics.get("foreign_net_buy", "+27억원")
+            s_cur = metrics.get("current_price", "45,600원")
+            s_tp = metrics.get("swing_tp", "57,160원")
+            s_sl = metrics.get("exit_sl", "39,820원")
+            s_short = metrics.get("short_ratio", "4.92%")
+            s_badge = metrics.get("special_badge", "⚡ 수급 가속 특례")
+
+            system_instruction = f"""
+당신은 대한민국 최고의 데이터 기반 퀀트 투자자이자 'StockMaster AI'의 수석 투자 전략가입니다.
+시장의 소음과 뇌동매매를 배제하고, 철저히 데이터와 펀더멘털, 수급과 팩터에 기반한 냉철하고 명쾌한 투자 인사이트를 제공합니다.
+
+[대표님 성공 블로그 원문 바이블 스타일 - 필수 준수 원칙]
+1. 제목: "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: {s_name})" 스타일.
+2. 인사말: "안녕하세요! 스마트한 주식 투자를 위한 AI 퀀트 파트너입니다. 📈✨"로 시작.
+3. 뼈 때리는 현실 공감 Hook:
+   - "매일 아침 9시 장이 열리면 여러분은 어떤 방식으로 종목을 찾으시나요?"
+   - HTS 번쩍이는 급등주 뇌동매매와 찌라시 추격매수 언급.
+   - 장 시작 직후 9시~9시 10분은 세력이 개미에게 물량 넘기기 가장 좋은 시간대라 윗꼬리에 물려 고통받는 현실 지적.
+   - 감(Feel)과 조급함을 끝내고 실시간 퀀트 데이터와 AI 리스크 검증으로 살아남는 법 제시.
+4. 💡 1. 세력의 '가짜 수급'에 속지 않는 법 : 체결강도 & 블록오더(대형체결)
+   - 체결강도 100% 이상의 진정성 (비유: 차를 앞으로 밀어붙이는 액셀 페달의 압력)
+   - 5천만 원 이상 블록오더 비중 (비유: 차에 실린 거대한 슈퍼 엔진)
+   - [실제 1위 수치 인용]: 오늘 1위 종목 {s_name}({s_code})의 체결강도는 {s_strength}, 블록오더 비중은 {s_block}, 체결 가속도는 {s_accel}에 달함!
+5. 🛑 2. 아무리 좋아 보여도 거르는 'VETO (AI 리스크 배제)' 4대 원칙
+   - ❌ 이격도 과열 (105% 이상)
+   - ❌ 체결 가속도 급락 & 이탈
+   - ❌ 외국계 창구의 기습 이탈
+   - ❌ 연속 적자 및 신용잔고 과다
+   - {s_name}는 {s_badge}로 위험을 유예받고 진입 유효 판정을 받은 이유 설명.
+6. 📊 3. 10분마다 350개 주도주를 스캔하는 [계량 전광판] 루틴 & ATR 진입/청산 가이드
+   - 09:00 ~ 09:10 : 장 개장 직후 거친 호가 변동성이 가라앉고 진짜 수급 데이터가 쌓이는 시간
+   - 09:10 이후 (10분 주기) : 국내 350개 핵심 종목 실시간 수급 집계
+   - 🎯 ATR 변동성 기준: 현재가 {s_cur} 기준 📉 청산 손절선(Exit SL) {s_sl} vs 📈 스윙 목표선(Swing TP) {s_tp} 명시!
+7. 🎯 마무리: "투자는 예측이 아니라 대응과 철저한 리스크 관리입니다"
+8. 랜딩 링크 및 무료 체험 CTA 고정 삽입:
+   - https://stockmaster-ai.vercel.app/
+   - "Stock Master AI - 10분 퀀트 스캔 & 실시간 -5% 손절 알림 (100% 무료 경험)"
+
+[반환 형식: JSON 포맷 필수]
+```json
+{{
+  "title_naver": "장 시작 10분 만에 털리는 개미 vs 세력 수급 발라내는 AI 퀀트 (오늘 전광판 1위: {s_name})",
+  "title_tistory": "오늘 350개 주도주 중 1위 찍은 {s_name}: 체결강도 {s_strength}와 블록오더 {s_block}의 비밀",
+  "title_brunch": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 {s_name} 심층 해부",
+  "body_markdown": "2,000자 내외의 완성형 마크다운 본문",
+  "summary": "오늘 10분 계량 전광판 1위 {s_name}의 체결강도 {s_strength}, 블록오더 {s_block}, ATR 목표가 분석",
+  "tags": ["{s_name}", "주식투자", "AI종목분석", "체결강도", "블록오더", "스톡마스터AI", "수급분석", "단타매매"]
+}}
+```
+"""
+            user_prompt = f"위 지침에 따라 오늘 10분 계량 전광판 1위 종목인 {s_name}({s_code})의 실제 퀀트 수치 기반 전문 칼럼을 작성하세요."
+
+        for attempt in range(3):
+            try:
+                client = genai.Client(api_key=api_key)
+                for m_name in ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]:
+                    try:
+                        response = client.models.generate_content(
+                            model=m_name,
+                            contents=user_prompt,
+                            config=genai_types.GenerateContentConfig(
+                                system_instruction=system_instruction,
+                                temperature=0.7,
+                                max_output_tokens=4096
+                            )
+                        )
+                        break
+                    except Exception:
+                        continue
+
+                raw_text = response.text.strip()
+                if "```json" in raw_text:
+                    raw_text = raw_text.split("```json")[1].split("```")[0].strip()
+                elif "```" in raw_text:
+                    raw_text = raw_text.split("```")[1].split("```")[0].strip()
+
+                data = json.loads(raw_text)
+                return {
+                    "title": data.get("title_naver", f"[StockMaster] {article_type}"),
+                    "title_naver": data.get("title_naver", ""),
+                    "title_tistory": data.get("title_tistory", ""),
+                    "title_brunch": data.get("title_brunch", ""),
+                    "body_markdown": data.get("body_markdown", ""),
+                    "summary": data.get("summary", ""),
+                    "tags": data.get("tags", ["주식투자", "StockMaster"]),
+                    "image_path": image_path,
+                    "metrics": metrics,
+                    "article_type": article_type
+                }
+            except Exception as e:
+                logger.warning(f"⚠️ [StockGeminiWriter] 캡처 칼럼 작성 시도 {attempt+1} 실패 ({e})")
+                report_gemini_key_failure(api_key)
+                api_key = get_paid_gemini_key()
+
+        # 비상용 기본 리턴
+        return {
+            "title": f"장 시작 10분 만에 털리는 개미 vs 세력 수급 AI 퀀트",
+            "title_naver": f"장 시작 10분 만에 털리는 개미 vs 세력 수급 AI 퀀트 (스톡마스터 AI)",
+            "title_tistory": f"오늘 350개 주도주 10분 퀀트 전광판 분석 및 실전 매매 전략",
+            "title_brunch": f"투자는 감이 아닌 데이터: 실시간 퀀트와 AI 리스크 검증",
+            "body_markdown": "## 실시간 퀀트 데이터 분석\n\nStockMaster AI 전광판 데이터를 기반으로 작성된 분석 리포트입니다.",
+            "summary": "실시간 퀀트 계량 지표 기반 투자 분석 칼럼",
+            "tags": ["주식투자", "스톡마스터AI"],
+            "image_path": image_path,
+            "metrics": metrics,
+            "article_type": article_type
+        }
+
     def _generate_fallback(self, topic: Dict[str, Any], seo_brief: Dict[str, Any]) -> Dict[str, Any]:
         """비상용 완성형 템플릿"""
         title = topic["title"]

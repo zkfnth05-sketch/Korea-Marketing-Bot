@@ -40,7 +40,7 @@ OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
 class AuraCardnewsMagazine:
     """💖 Aura 2030 연애 4대 옴니 카드뉴스 매거진 통합 엔진"""
 
-    LANDING_URL = "https://aura-ai-dating.vercel.app/"
+    LANDING_URL = "https://aura-ai-dating.vercel.app/lounge"
     BRAND_NAME = "Aura (아우라)"
 
     # 4장 카드뉴스 주제 템플릿

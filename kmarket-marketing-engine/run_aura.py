@@ -40,7 +40,7 @@ def main():
         print(f"  - 🟠 티스토리 제목: {res.get('title_tistory', res['title'])}")
         print(f"  - 🟡 카카오/브런치 제목: {res.get('title_kakao', res['title'])}")
         print(f"  - 🎨 16:9 사진 URL: {res['image_url']}")
-        print(f"  - 🔗 랜딩 URL: https://aura-ai-dating.vercel.app/")
+        print(f"  - 🔗 랜딩 URL: https://aura-ai-dating.vercel.app/lounge")
         print(f"  - ⏰ 발행 시각: {res['published_at']}")
         print(f"  - ⏭️ 다음 예정 주제 번호: #{res['next_topic_id']}")
 

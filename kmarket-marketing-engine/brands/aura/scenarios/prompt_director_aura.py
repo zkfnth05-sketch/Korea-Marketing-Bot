@@ -17,7 +17,7 @@ except Exception:
 
 class AuraPromptDirector:
     BRAND_NAME = "Aura (아우라)"
-    LANDING_URL = "https://aura-ai-dating.vercel.app/"
+    LANDING_URL = "https://aura-ai-dating.vercel.app/lounge"
 
     THEMES = [
         "ai_charm_report",      # AI 얼굴/성격 매력도 분석
@@ -56,14 +56,19 @@ class AuraPromptDirector:
         <hr/>
         <h3>1. 질문만 던지지 말고 '공감 + 질문'의 핑퐁 구조를 만들어라</h3>
         <p>상대방이 "주말에 카페 갔어요"라고 답했을 때, "어디 카페요?"라고 단답 질문을 던지기보다는 "오 주말에 카페 여유 너무 좋죠! 평소에 디저트 좋아하세요?"처럼 공감 한 스푼을 얹는 것이 핵심입니다.</p>
-        <h3>2. AI가 진단해 주는 나의 객관적인 매력 포인트 파악</h3>
-        <p>Aura(아우라)의 AI 매력도 분석 리포트는 본인의 대화 스타일과 프로필 사진의 매력 포인트를 정밀 분석하여 어떤 무기로 어필해야 하는지 알려줍니다.</p>
-        <p>자세한 연애 팁과 본인의 매력 진단은 공식 앱을 통해 실시간으로 확인하실 수 있습니다.</p>
+        <h3>2. 유령회원 제로! 남녀 50:50 황금 성비 AI 소개팅 Aura</h3>
+        <p>남초 어플의 읽씹과 허위 프로필에 지치셨나요? Aura(아우라)는 1:1 남녀 50:50 성비 보장과 AI 매력 분석을 통해 진짜 인연을 안전하게 연결해 드립니다.</p>
+        <hr/>
+        <div style="margin-top:20px; padding:15px; background:linear-gradient(135deg, #FFF1F2 0%, #FDF2F8 100%); border:1px solid #FECDD3; border-radius:10px; color:#4C0519;">
+          <strong>💑 [Aura Dating] 유령회원 ZERO! 남녀 50:50 황금 성비 보장 매칭</strong><br/>
+          성비 불균형 없는 진짜 1:1 AI 소개팅을 지금 무료로 경험해보세요.<br/>
+          <a href="{cls.LANDING_URL}" target="_blank" style="color:#DB2777; font-weight:bold;">👉 Aura 50:50 성비 매칭 바로가기: {cls.LANDING_URL}</a>
+        </div>
         """
         return {
             "title": title,
             "content_html": content_html,
-            "tags": ["소개팅어플", "연애팁", "소개팅대화법", "Aura", "AI매력리포트"]
+            "tags": ["소개팅어플", "50:50성비", "연애팁", "소개팅대화법", "Aura", "AI소개팅"]
         }
 
     @classmethod

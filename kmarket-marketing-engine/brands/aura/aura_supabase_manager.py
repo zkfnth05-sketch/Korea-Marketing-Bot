@@ -119,7 +119,7 @@ class AuraSupabaseManager:
         excerpt = article_pkg.get("excerpt", "")
         cat_key = article_pkg.get("category", "kakaotalk_signals")
         lounge_cat = self.map_category_to_lounge(cat_key)
-        landing_url = article_pkg.get("landing_url", "https://aura-ai-dating.vercel.app/")
+        landing_url = article_pkg.get("landing_url", "https://aura-ai-dating.vercel.app/lounge")
 
         # 🖼️ 제미나이 생성 이미지 Supabase Storage 업로드 및 영구 URL 획득
         local_img_path = article_pkg.get("image_path", "")
@@ -248,7 +248,7 @@ class AuraSupabaseManager:
             "thumbnail_url": article_pkg.get("image_url", ""),
             "visual_prompt": article_pkg.get("visual_prompt", ""),
             "tags": article_pkg.get("tags", []),
-            "landing_url": article_pkg.get("landing_url", "https://aura-ai-dating.vercel.app/"),
+            "landing_url": article_pkg.get("landing_url", "https://aura-ai-dating.vercel.app/lounge"),
             "translations": translations_data,
             "published_at": datetime.now(timezone.utc).isoformat(),
             "created_at": datetime.now(timezone.utc).isoformat()

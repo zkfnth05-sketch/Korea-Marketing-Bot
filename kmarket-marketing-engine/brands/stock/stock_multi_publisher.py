@@ -24,20 +24,22 @@ if str(PROJECT_ROOT) not in sys.path:
 from brands.stock.stock_naver_publisher import StockNaverPublisher
 from brands.stock.stock_tistory_publisher import StockTistoryPublisher
 from brands.stock.stock_brunch_publisher import StockBrunchPublisher
+from brands.stock.stock_supabase_publisher import StockSupabasePublisher
 
 
 class StockMultiPublisher:
-    """StockMaster 3대 채널 옴니 블로그 동시 배포 컨트롤러 (완전 독립 레고 블록)"""
+    """StockMaster 4대 채널 옴니 블로그 & 본진 웹앱 동시 배포 컨트롤러 (완전 독립 레고 블록)"""
 
     def __init__(self):
         self.naver = StockNaverPublisher()
         self.tistory = StockTistoryPublisher()
         self.brunch = StockBrunchPublisher()
+        self.supabase = StockSupabasePublisher()
 
     def publish_all(
         self,
         article_pkg: Dict[str, Any],
-        landing_url: str = "https://stockmaster.co.kr"
+        landing_url: str = "https://stockmaster-ai.vercel.app/"
     ) -> Dict[str, Any]:
         """
         3대 블로그 채널 동시 무인 배포 실행:
@@ -89,7 +91,8 @@ class StockMultiPublisher:
             res_t = self.tistory.publish_post(
                 title=title_tistory,
                 content_html=body_html,
-                tag_list=tags
+                tag_list=tags,
+                image_paths=image_paths
             )
             results["channels"]["tistory"] = res_t
             logger.info(f"✅ [2/3] 🟠 티스토리 발행 완료: {res_t.get('post_url', res_t.get('url', ''))}")
@@ -99,16 +102,38 @@ class StockMultiPublisher:
 
         # 3. 🟡 브런치스토리
         try:
-            logger.info("🚀 [3/3] 🟡 브런치스토리 발행 시작...")
+            logger.info("🚀 [3/4] 🟡 브런치스토리 발행 시작...")
             res_b = self.brunch.publish_story(
                 title=title_brunch,
                 content_text=body_text,
-                tag_list=tags
+                tag_list=tags,
+                landing_url=landing_url
             )
             results["channels"]["brunch"] = res_b
-            logger.info(f"✅ [3/3] 🟡 브런치 발행 완료: {res_b.get('post_url', res_b.get('url', ''))}")
+            logger.info(f"✅ [3/4] 🟡 브런치 발행 완료: {res_b.get('post_url', res_b.get('url', ''))}")
         except Exception as e:
-            logger.error(f"❌ [3/3] 🟡 브런치 실패: {e}")
+            logger.error(f"❌ [3/4] 🟡 브런치 실패: {e}")
             results["channels"]["brunch"] = {"status": "error", "message": str(e)}
+
+        # 4. 📊 본진 웹앱 Supabase [퀀트 리서치] 자동 연동
+        try:
+            logger.info("🚀 [4/4] 📊 본진 웹앱 Supabase 퀀트 리서치 자동 등록 시작...")
+            article_type = article_pkg.get("article_type", "rank1")
+            category_code = "SEMICONDUCTOR" if article_type == "semiconductor" else "RANK1"
+            res_s = self.supabase.publish_research(
+                category=category_code,
+                title=title_naver,
+                summary=article_pkg.get("summary", ""),
+                target_stock=article_pkg.get("target_stock", "028050 삼성E&A" if article_type == "rank1" else "삼성전자, SK하이닉스"),
+                quant_data=article_pkg.get("metrics", {}),
+                content_markdown=body_text,
+                image_path=article_pkg.get("image_path", ""),
+                tags=tags
+            )
+            results["channels"]["supabase_research"] = res_s
+            logger.info(f"✅ [4/4] 📊 본진 Supabase 퀀트 리서치 등록 완료! ID: {res_s.get('post_id')}")
+        except Exception as e:
+            logger.error(f"❌ [4/4] 📊 본진 Supabase 등록 실패: {e}")
+            results["channels"]["supabase_research"] = {"status": "error", "message": str(e)}
 
         return results

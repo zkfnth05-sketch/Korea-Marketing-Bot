@@ -117,7 +117,7 @@ class AuraTranslator:
             "Rules:\n"
             "1. Maintain a youthful, warm, romantic, and trendy 2030 dating magazine tone for each language.\n"
             "2. Keep all emojis, bullet points, and structure intact.\n"
-            "3. The official landing URL 'https://aura-ai-dating.vercel.app/' must remain unchanged.\n"
+            "3. The official landing URL 'https://aura-ai-dating.vercel.app/lounge' must remain unchanged.\n"
             "4. Output MUST be valid JSON with keys 'en', 'ja', and 'es'."
         )
 

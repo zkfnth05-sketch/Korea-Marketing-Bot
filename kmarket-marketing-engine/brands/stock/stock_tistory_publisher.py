@@ -30,8 +30,16 @@ logger = logging.getLogger("StockTistoryPublisher")
 class StockTistoryPublisher:
     """StockMaster 주식 전용 티스토리 블로그 자동 발행 엔진 (영구 크롬 프로필/세션 지원)"""
 
-    def __init__(self, blog_name: str = "stock-master"):
-        self.blog_name = blog_name
+    def __init__(self, blog_name: Optional[str] = None):
+        loaded_name = "stockmaster-ai"
+        if ACCOUNTS_FILE.exists():
+            try:
+                with open(ACCOUNTS_FILE, "r", encoding="utf-8") as fp:
+                    data = json.load(fp)
+                    loaded_name = data.get("credentials", {}).get("tistory_blog_name") or "stockmaster-ai"
+            except Exception:
+                pass
+        self.blog_name = blog_name or loaded_name
         # 프로필 디렉터리 결정 (자체 우선, 없으면 fallback)
         if PROFILE_DIR.exists() and any(PROFILE_DIR.iterdir()):
             self.profile_dir = PROFILE_DIR
@@ -56,11 +64,12 @@ class StockTistoryPublisher:
         title: str,
         content_html: str,
         tag_list: Optional[List[str]] = None,
+        image_paths: Optional[List[str]] = None,
         timeout_sec: int = 40
     ) -> Dict[str, Any]:
         """동기 호출 인터페이스"""
         try:
-            return asyncio.run(self.publish_post_async(title, content_html, tag_list, timeout_sec))
+            return asyncio.run(self.publish_post_async(title, content_html, tag_list, image_paths, timeout_sec))
         except Exception as e:
             logger.error(f"❌ [Tistory-Stock] 발행 예외: {e}")
             return {"status": "error", "message": str(e), "blog_name": self.blog_name}
@@ -70,6 +79,7 @@ class StockTistoryPublisher:
         title: str,
         content_html: str,
         tag_list: Optional[List[str]] = None,
+        image_paths: Optional[List[str]] = None,
         timeout_sec: int = 40
     ) -> Dict[str, Any]:
         """Playwright를 통한 실제 포스팅 실행 (영구 프로필 / 세션 우선)"""
@@ -83,12 +93,14 @@ class StockTistoryPublisher:
         logger.info(f"🚀 [Tistory-Stock] 무인 자동 발행 시작: '{title}'")
 
         async with async_playwright() as p:
-            is_persistent = self.profile_dir.exists() and any(self.profile_dir.iterdir())
             has_session_file = self.session_file.exists() and self.session_file.stat().st_size > 100
+            is_persistent = self.profile_dir.exists() and any(self.profile_dir.iterdir())
             browser = None
+            context = None
 
             if has_session_file:
-                # 🌟 저장된 영구 세션 파일로 100% 무인 로그인 보장 실행
+                # 🌟 [1순위: 검증된 저장 세션 파일 모드]
+                logger.info("📄 [Tistory-Stock] 저장된 세션 파일(storage_state)로 접속")
                 browser = await p.chromium.launch(
                     headless=True,
                     args=["--disable-blink-features=AutomationControlled"]
@@ -100,6 +112,8 @@ class StockTistoryPublisher:
                 )
                 page = await context.new_page()
             elif is_persistent:
+                # 🌟 [2순위: 영구 프로필 모드]
+                logger.info(f"📂 [Tistory-Stock] 크롬 영구 프로필 모드로 실행: {self.profile_dir.name}")
                 context = await p.chromium.launch_persistent_context(
                     user_data_dir=str(self.profile_dir),
                     headless=True,
@@ -109,7 +123,7 @@ class StockTistoryPublisher:
                 )
                 page = context.pages[0] if context.pages else await context.new_page()
             else:
-                return {"status": "error", "message": "티스토리 세션 부재 (1회 로그인 필요)", "blog_name": self.blog_name}
+                return {"status": "error", "message": "티스토리 세션 부재 (1회연동 bat 실행 필요)", "blog_name": self.blog_name}
 
             try:
                 # 1. 글쓰기 페이지 진입
@@ -134,10 +148,30 @@ class StockTistoryPublisher:
                 # 2. 제목 입력
                 await title_el.fill(title)
 
-                # 3. 본문 HTML 주입 (TinyMCE 공식 엔진 버퍼 및 폼 텍스트에어리어 동기화)
+                # 3. 🌟 16:9 / 와이드 고화질 대표 캡처 사진 먼저 업로드
+                if image_paths and len(image_paths) > 0 and Path(image_paths[0]).exists():
+                    img_file = Path(image_paths[0]).resolve()
+                    try:
+                        attach_btn = await page.query_selector("#mceu_0-open, [id*='mceu_0']")
+                        if attach_btn:
+                            await attach_btn.click()
+                            await asyncio.sleep(0.8)
+                            photo_item = await page.wait_for_selector("#attach-image, .mce-tistory-attach-item:has-text('사진')", timeout=5000)
+                            if photo_item:
+                                async with page.expect_file_chooser(timeout=8000) as fc_info:
+                                    await photo_item.click()
+                                fc = await fc_info.value
+                                await fc.set_files(str(img_file))
+                                logger.info(f"📸 [Tistory-Stock] 대표 이미지 업로드 완료: {img_file.name}")
+                                await asyncio.sleep(4.0)
+                    except Exception as e:
+                        logger.warning(f"⚠️ [Tistory-Stock] 사진 업로드 통과: {e}")
+
+                # 4. 본문 HTML 주입 (사진 뒤에 이어서 본문 동기화)
                 injected = await page.evaluate("""(html) => {
                     if (window.tinymce && window.tinymce.activeEditor) {
-                        window.tinymce.activeEditor.setContent(html);
+                        const cur = window.tinymce.activeEditor.getContent();
+                        window.tinymce.activeEditor.setContent(cur ? cur + "<br/><br/>" + html : html);
                         if (window.tinymce.triggerSave) window.tinymce.triggerSave();
                         if (window.tinymce.activeEditor.save) window.tinymce.activeEditor.save();
                         window.tinymce.activeEditor.fire('change');
@@ -173,9 +207,9 @@ class StockTistoryPublisher:
 
                 # 6. '공개' 라디오 버튼 강제 체크
                 await page.evaluate("""() => {
-                    const labels = Array.from(document.querySelectorAll('label'));
-                    const openLabel = labels.find(l => l.textContent.trim() === '공개');
-                    if (openLabel) openLabel.click();
+                    const targets = Array.from(document.querySelectorAll('span.checkbox-text, label, .form-field'));
+                    const openTarget = targets.find(l => l.innerText && l.innerText.trim() === '공개');
+                    if (openTarget) openTarget.click();
                     const openInput = document.querySelector('input[id*="open"]');
                     if (openInput) openInput.checked = true;
                 }""")
@@ -205,6 +239,13 @@ class StockTistoryPublisher:
                                 post_url = href
                             else:
                                 post_url = f"https://{self.blog_name}.tistory.com{href}"
+
+                # 🌟 [세션 자동 수명 연장] 살아있는 최신 세션 상태를 디스크에 즉시 자동 저장
+                try:
+                    await context.storage_state(path=str(self.session_file))
+                    logger.info("🔄 [Tistory-Stock] 세션 쿠키 수명 자동 연장 완료 (Auto-Renewed)")
+                except Exception as save_err:
+                    logger.debug(f"세션 연장 통과: {save_err}")
 
                 logger.info(f"🎉 [Tistory-Stock] 최종 공개 발행 성공! {post_url}")
                 return {

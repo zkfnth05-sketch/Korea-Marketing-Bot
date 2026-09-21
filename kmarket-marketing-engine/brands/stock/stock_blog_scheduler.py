@@ -137,8 +137,66 @@ class StockBlogScheduler:
             "title_tistory": package.get("title_tistory"),
             "title_brunch": package.get("title_brunch"),
             "image_url": package.get("image_url", ""),
+            "image_path": package.get("image_path", ""),
             "published_at": now_str,
-            "next_topic_id": (next_idx % total_topics) + 1,
+            "publish_results": publish_results,
+            "next_topic_id": (next_idx % total_topics) + 1
+        }
+
+    def run_captured_cycle(self, article_type: str = "rank1") -> Dict[str, Any]:
+        """
+        주식 웹앱 실시간 화면 캡처(1600x1600) + 대표님 성공 바이블 칼럼 + 3대 블로그 동시 배포
+        article_type: 'rank1' (전광판 1위 주도주) 또는 'semiconductor' (반도체 주도주)
+        """
+        from brands.stock.stock_blog_engine import StockBlogEngine
+        from brands.stock.stock_multi_publisher import StockMultiPublisher
+
+        engine = StockBlogEngine()
+        logger.info(f"🚀 [StockScheduler] 실시간 캡처 기반 ({article_type}) 발행 사이클 시작...")
+
+        # 실시간 캡처 및 황금 바이블 기반 원고 패키지 생성
+        package = engine.build_captured_article_package(article_type=article_type)
+
+        # 3대 채널(네이버, 티스토리, 브런치) 동시 무인 배포
+        publisher = StockMultiPublisher()
+        publish_results = publisher.publish_all(package, landing_url=engine.LANDING_URL)
+
+        now_str = dt.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        history_entry = {
+            "topic_id": package["topic_id"],
+            "article_type": article_type,
+            "title": package["title"],
+            "title_naver": package.get("title_naver"),
+            "title_tistory": package.get("title_tistory"),
+            "title_brunch": package.get("title_brunch"),
+            "category": package["category"],
+            "image_path": package.get("image_path", ""),
+            "metrics": package.get("metrics", {}),
+            "published_at": now_str,
+            "publish_results": publish_results
+        }
+
+        self.state["last_run_time"] = now_str
+        self.state["last_title"] = package["title"]
+        self.state["published_count"] = self.state.get("published_count", 0) + 1
+
+        hist = self.state.get("history", [])
+        hist.insert(0, history_entry)
+        self.state["history"] = hist[:100]
+
+        self._save_state(self.state)
+
+        return {
+            "topic_id": package["topic_id"],
+            "article_type": article_type,
+            "title": package["title"],
+            "title_naver": package.get("title_naver"),
+            "title_tistory": package.get("title_tistory"),
+            "title_brunch": package.get("title_brunch"),
+            "image_path": package.get("image_path", ""),
+            "metrics": package.get("metrics", {}),
+            "published_at": now_str,
             "publish_results": publish_results
         }
 
@@ -172,11 +230,20 @@ class StockBlogScheduler:
                 current_hour = now_kst.hour
                 current_min = now_kst.minute
 
-                if current_hour in self.SCHEDULE_HOURS and current_min == self.SCHEDULE_MINUTE:
+                if current_min == self.SCHEDULE_MINUTE:
                     if self._last_published_hour != current_hour:
-                        logger.info(f"⏰ [StockScheduler] 정기 발행 시각 도달: {current_hour:02d}:{current_min:02d} KST")
-                        self._last_published_hour = current_hour
-                        self.run_one_cycle()
+                        if current_hour == 8:
+                            logger.info(f"⏰ [StockScheduler] 08:30 장전 반도체 주도주 편 캡처 & 발행 시작!")
+                            self._last_published_hour = current_hour
+                            self.run_captured_cycle(article_type="semiconductor")
+                        elif current_hour == 12:
+                            logger.info(f"⏰ [StockScheduler] 12:30 장중 오늘 계량 전광판 1위 주도주 편 캡처 & 발행 시작!")
+                            self._last_published_hour = current_hour
+                            self.run_captured_cycle(article_type="rank1")
+                        elif current_hour in self.SCHEDULE_HOURS:
+                            logger.info(f"⏰ [StockScheduler] {current_hour:02d}:30 정기 발행 사이클 시작...")
+                            self._last_published_hour = current_hour
+                            self.run_captured_cycle(article_type="rank1")
 
                 if current_min != self.SCHEDULE_MINUTE:
                     self._last_published_hour = None

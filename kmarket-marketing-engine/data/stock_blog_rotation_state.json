@@ -1,8 +1,659 @@
 {
   "current_topic_index": 0,
   "last_topic_id": 0,
-  "last_run_time": null,
-  "last_title": null,
-  "published_count": 0,
-  "history": []
+  "last_run_time": "2026-09-21 12:02:34",
+  "last_title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: SFA반도체)",
+  "published_count": 9,
+  "history": [
+    {
+      "topic_id": 999,
+      "article_type": "rank1",
+      "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: SFA반도체)",
+      "title_naver": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: SFA반도체)",
+      "title_tistory": "오늘 350개 주도주 중 1위 찍은 SFA반도체: 체결강도 134.29%와 블록오더 0.0%의 비밀",
+      "title_brunch": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 SFA반도체 심층 해부",
+      "category": "live_quant",
+      "image_path": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_rank1_20260921_120041.png",
+      "metrics": {
+        "rank": 1,
+        "stock_name": "SFA반도체",
+        "stock_code": "036540",
+        "sector": "일반서비스",
+        "total_score": 140,
+        "status_badge": "🟢 진입 가능",
+        "special_badge": "⚡ 수급 가속 특례",
+        "chegyul_strength": "134.29%",
+        "chegyul_accel": "-0.26%p",
+        "block_order_ratio": "0.0%",
+        "foreign_net_buy": "+4억원",
+        "short_ratio": "5.08%",
+        "credit_ratio": "1.54%",
+        "trade_amount": "246억원",
+        "current_price": "10,840원",
+        "swing_tp": "15,048원",
+        "exit_sl": "8,736원",
+        "roe": "13.69%",
+        "pbr": "1.89배",
+        "debt_ratio": "126.53%",
+        "moving_avg_align": "정배열 (강력한 추세 상승)"
+      },
+      "published_at": "2026-09-21 12:02:34",
+      "publish_results": {
+        "topic_id": 999,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: SFA반도체)",
+            "url": "https://blog.naver.com/PostView.naver?blogId=stockmaster_ai&Redirect=View&logNo=224418539483&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=27474",
+            "post_url": "https://blog.naver.com/PostView.naver?blogId=stockmaster_ai&Redirect=View&logNo=224418539483&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=27474",
+            "tags": [
+              "SFA반도체",
+              "주식투자",
+              "AI종목분석",
+              "체결강도",
+              "블록오더",
+              "스톡마스터AI",
+              "수급분석",
+              "단타매매"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "stockmaster-ai",
+            "title": "오늘 350개 주도주 중 1위 찍은 SFA반도체: 체결강도 134.29%와 블록오더 0.0%의 비밀",
+            "url": "https://stockmaster-ai.tistory.com/manage/posts/",
+            "post_url": "https://stockmaster-ai.tistory.com/manage/posts/",
+            "tags": [
+              "SFA반도체",
+              "주식투자",
+              "AI종목분석",
+              "체결강도",
+              "블록오더",
+              "스톡마스터AI",
+              "수급분석",
+              "단타매매"
+            ]
+          },
+          "brunch": {
+            "status": "success",
+            "platform": "brunch",
+            "title": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 SFA반도체 심층 해부",
+            "post_url": "https://brunch.co.kr",
+            "archive_file": "brunch_draft_topic_001.json"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 7,
+            "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: SFA반도체)",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 999,
+      "article_type": "rank1",
+      "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 원익IPS)",
+      "title_naver": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 원익IPS)",
+      "title_tistory": "오늘 350개 주도주 중 1위 찍은 원익IPS: 체결강도 135.25%와 블록오더 0.0%의 비밀",
+      "title_brunch": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 원익IPS 심층 해부",
+      "category": "live_quant",
+      "image_path": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_rank1_20260921_112823.png",
+      "metrics": {
+        "rank": 1,
+        "stock_name": "원익IPS",
+        "stock_code": "240810",
+        "sector": "일반서비스",
+        "total_score": 140,
+        "status_badge": "🟢 진입 가능",
+        "special_badge": "⚡ 수급 가속 특례",
+        "chegyul_strength": "135.25%",
+        "chegyul_accel": "+56.81%p",
+        "block_order_ratio": "0.0%",
+        "foreign_net_buy": "+47억원",
+        "short_ratio": "11.78%",
+        "credit_ratio": "1.54%",
+        "trade_amount": "246억원",
+        "current_price": "130,000원",
+        "swing_tp": "174,928원",
+        "exit_sl": "107,536원",
+        "roe": "13.69%",
+        "pbr": "1.89배",
+        "debt_ratio": "126.53%",
+        "moving_avg_align": "정배열 (강력한 추세 상승)"
+      },
+      "published_at": "2026-09-21 11:29:59",
+      "publish_results": {
+        "topic_id": 999,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 원익IPS)",
+            "url": "https://blog.naver.com/PostView.naver?blogId=stockmaster_ai&Redirect=View&logNo=224418503553&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=26835",
+            "post_url": "https://blog.naver.com/PostView.naver?blogId=stockmaster_ai&Redirect=View&logNo=224418503553&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=26835",
+            "tags": [
+              "원익IPS",
+              "주식투자",
+              "AI종목분석",
+              "체결강도",
+              "블록오더",
+              "스톡마스터AI",
+              "수급분석",
+              "단타매매"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "stockmaster-ai",
+            "title": "오늘 350개 주도주 중 1위 찍은 원익IPS: 체결강도 135.25%와 블록오더 0.0%의 비밀",
+            "url": "https://stockmaster-ai.tistory.com/manage/posts/",
+            "post_url": "https://stockmaster-ai.tistory.com/manage/posts/",
+            "tags": [
+              "원익IPS",
+              "주식투자",
+              "AI종목분석",
+              "체결강도",
+              "블록오더",
+              "스톡마스터AI",
+              "수급분석",
+              "단타매매"
+            ]
+          },
+          "brunch": {
+            "status": "success",
+            "platform": "brunch",
+            "title": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 원익IPS 심층 해부",
+            "post_url": "https://brunch.co.kr",
+            "archive_file": "brunch_draft_topic_001.json"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 6,
+            "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 원익IPS)",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 999,
+      "article_type": "rank1",
+      "title": "장 시작 10분 만에 털리는 개미 vs 세력 수급 발라내는 AI 퀀트 (오늘 전광판 1위: 원익IPS)",
+      "title_naver": "장 시작 10분 만에 털리는 개미 vs 세력 수급 발라내는 AI 퀀트 (오늘 전광판 1위: 원익IPS)",
+      "title_tistory": "오늘 350개 주도주 중 1위 찍은 원익IPS: 체결강도 133.98%와 가속도의 비밀",
+      "title_brunch": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 원익IPS 심층 해부",
+      "category": "live_quant",
+      "image_path": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_rank1_20260921_111809.png",
+      "metrics": {
+        "rank": 1,
+        "stock_name": "원익IPS",
+        "stock_code": "240810",
+        "sector": "일반서비스",
+        "total_score": 140,
+        "status_badge": "🟢 진입 가능",
+        "special_badge": "⚡ 수급 가속 특례",
+        "chegyul_strength": "133.98%",
+        "chegyul_accel": "+58.1%p",
+        "block_order_ratio": "0.0%",
+        "foreign_net_buy": "+47억원",
+        "short_ratio": "11.78%",
+        "credit_ratio": "1.54%",
+        "trade_amount": "246억원",
+        "current_price": "129,100원",
+        "swing_tp": "173,717원",
+        "exit_sl": "106,792원",
+        "roe": "13.69%",
+        "pbr": "1.89배",
+        "debt_ratio": "126.53%",
+        "moving_avg_align": "정배열 (강력한 추세 상승)"
+      },
+      "published_at": "2026-09-21 11:19:44",
+      "publish_results": {
+        "topic_id": 999,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "장 시작 10분 만에 털리는 개미 vs 세력 수급 발라내는 AI 퀀트 (오늘 전광판 1위: 원익IPS)",
+            "url": "https://blog.naver.com/PostView.naver?blogId=stockmaster_ai&Redirect=View&logNo=224418491461&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=25857",
+            "post_url": "https://blog.naver.com/PostView.naver?blogId=stockmaster_ai&Redirect=View&logNo=224418491461&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=25857",
+            "tags": [
+              "원익IPS",
+              "주식투자",
+              "AI종목분석",
+              "체결강도",
+              "블록오더",
+              "스톡마스터AI",
+              "수급분석",
+              "단타매매",
+              "퀀트투자"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "stockmaster-ai",
+            "title": "오늘 350개 주도주 중 1위 찍은 원익IPS: 체결강도 133.98%와 가속도의 비밀",
+            "url": "https://stockmaster-ai.tistory.com/manage/posts/",
+            "post_url": "https://stockmaster-ai.tistory.com/manage/posts/",
+            "tags": [
+              "원익IPS",
+              "주식투자",
+              "AI종목분석",
+              "체결강도",
+              "블록오더",
+              "스톡마스터AI",
+              "수급분석",
+              "단타매매",
+              "퀀트투자"
+            ]
+          },
+          "brunch": {
+            "status": "success",
+            "platform": "brunch",
+            "title": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 원익IPS 심층 해부",
+            "post_url": "https://brunch.co.kr",
+            "archive_file": "brunch_draft_topic_001.json"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 5,
+            "title": "장 시작 10분 만에 털리는 개미 vs 세력 수급 발라내는 AI 퀀트 (오늘 전광판 1위: 원익IPS)",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 999,
+      "article_type": "rank1",
+      "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: SFA반도체)",
+      "title_naver": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: SFA반도체)",
+      "title_tistory": "오늘 350개 주도주 중 1위 찍은 SFA반도체: 체결강도 150.42%와 블록오더 0.0%의 비밀",
+      "title_brunch": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 SFA반도체 심층 해부",
+      "category": "live_quant",
+      "image_path": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_rank1_20260921_110648.png",
+      "metrics": {
+        "rank": 1,
+        "stock_name": "SFA반도체",
+        "stock_code": "036540",
+        "sector": "일반서비스",
+        "total_score": 140,
+        "status_badge": "🟢 진입 가능",
+        "special_badge": "⚡ 수급 가속 특례",
+        "chegyul_strength": "150.42%",
+        "chegyul_accel": "+2.48%p",
+        "block_order_ratio": "0.0%",
+        "foreign_net_buy": "0억원",
+        "short_ratio": "5.08%",
+        "credit_ratio": "1.54%",
+        "trade_amount": "246억원",
+        "current_price": "11,040원",
+        "swing_tp": "15,326원",
+        "exit_sl": "8,897원",
+        "roe": "13.69%",
+        "pbr": "1.89배",
+        "debt_ratio": "126.53%",
+        "moving_avg_align": "정배열 (강력한 추세 상승)"
+      },
+      "published_at": "2026-09-21 11:08:18",
+      "publish_results": {
+        "topic_id": 999,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: SFA반도체)",
+            "url": "https://blog.naver.com/PostView.naver?blogId=stockmaster_ai&Redirect=View&logNo=224418477517&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=25005",
+            "post_url": "https://blog.naver.com/PostView.naver?blogId=stockmaster_ai&Redirect=View&logNo=224418477517&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=25005",
+            "tags": [
+              "SFA반도체",
+              "주식투자",
+              "AI종목분석",
+              "체결강도",
+              "블록오더",
+              "스톡마스터AI",
+              "수급분석",
+              "단타매매"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "stockmaster-ai",
+            "title": "오늘 350개 주도주 중 1위 찍은 SFA반도체: 체결강도 150.42%와 블록오더 0.0%의 비밀",
+            "url": "https://stockmaster-ai.tistory.com/manage/posts/",
+            "post_url": "https://stockmaster-ai.tistory.com/manage/posts/",
+            "tags": [
+              "SFA반도체",
+              "주식투자",
+              "AI종목분석",
+              "체결강도",
+              "블록오더",
+              "스톡마스터AI",
+              "수급분석",
+              "단타매매"
+            ]
+          },
+          "brunch": {
+            "status": "success",
+            "platform": "brunch",
+            "title": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 SFA반도체 심층 해부",
+            "post_url": "https://brunch.co.kr",
+            "archive_file": "brunch_draft_topic_001.json"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 4,
+            "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: SFA반도체)",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 999,
+      "article_type": "rank1",
+      "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 피에스케이)",
+      "title_naver": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 피에스케이)",
+      "title_tistory": "오늘 350개 주도주 중 1위 찍은 피에스케이: 체결강도 113.01%와 체결 가속도 +11.01%p의 비밀",
+      "title_brunch": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 피에스케이 심층 해부",
+      "category": "live_quant",
+      "image_path": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_rank1_20260921_103702.png",
+      "metrics": {
+        "rank": 1,
+        "stock_name": "피에스케이",
+        "stock_code": "319660",
+        "sector": "일반서비스",
+        "total_score": 140,
+        "status_badge": "🟢 진입 가능",
+        "special_badge": "⚡ 수급 가속 특례",
+        "chegyul_strength": "113.01%",
+        "chegyul_accel": "+11.01%p",
+        "block_order_ratio": "0.0%",
+        "foreign_net_buy": "+90억원",
+        "short_ratio": "18.53%",
+        "credit_ratio": "1.54%",
+        "trade_amount": "246억원",
+        "current_price": "137,000원",
+        "swing_tp": "179,662원",
+        "exit_sl": "115,669원",
+        "roe": "13.69%",
+        "pbr": "1.89배",
+        "debt_ratio": "126.53%",
+        "moving_avg_align": "정배열 (강력한 추세 상승)"
+      },
+      "published_at": "2026-09-21 10:38:18",
+      "publish_results": {
+        "topic_id": 999,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth02",
+            "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 피에스케이)",
+            "url": "https://blog.naver.com/stockmaster_ai",
+            "post_url": "https://blog.naver.com/stockmaster_ai",
+            "tags": [
+              "피에스케이",
+              "주식투자",
+              "AI종목분석",
+              "체결강도",
+              "블록오더",
+              "스톡마스터AI",
+              "수급분석",
+              "단타매매"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "stock-master",
+            "message": "Page.wait_for_selector: Timeout 15000ms exceeded.\nCall log:\n  - waiting for locator(\"#post-title-inp, textarea[id*='title'], input[name='title']\") to be visible\n"
+          },
+          "brunch": {
+            "status": "success",
+            "platform": "brunch",
+            "title": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 피에스케이 심층 해부",
+            "post_url": "https://brunch.co.kr",
+            "archive_file": "brunch_draft_topic_001.json"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 3,
+            "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 피에스케이)",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 999,
+      "article_type": "rank1",
+      "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 피에스케이)",
+      "title_naver": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 피에스케이)",
+      "title_tistory": "오늘 350개 주도주 중 1위 찍은 피에스케이(319660): 체결강도 113.01%와 가속도의 비밀",
+      "title_brunch": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 피에스케이 심층 해부",
+      "category": "live_quant",
+      "image_path": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_rank1_20260921_103301.png",
+      "metrics": {
+        "rank": 1,
+        "stock_name": "피에스케이",
+        "stock_code": "319660",
+        "sector": "일반서비스",
+        "total_score": 140,
+        "status_badge": "🟢 진입 가능",
+        "special_badge": "⚡ 수급 가속 특례",
+        "chegyul_strength": "113.01%",
+        "chegyul_accel": "+11.01%p",
+        "block_order_ratio": "0.0%",
+        "foreign_net_buy": "+90억원",
+        "short_ratio": "18.53%",
+        "credit_ratio": "1.54%",
+        "trade_amount": "246억원",
+        "current_price": "138,300원",
+        "swing_tp": "181,367원",
+        "exit_sl": "116,767원",
+        "roe": "13.69%",
+        "pbr": "1.89배",
+        "debt_ratio": "126.53%",
+        "moving_avg_align": "정배열 (강력한 추세 상승)"
+      },
+      "published_at": "2026-09-21 10:33:57",
+      "publish_results": {
+        "topic_id": 999,
+        "channels": {
+          "naver_blog": {
+            "status": "error",
+            "message": "Page.click: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"button:has-text('발행')\")\n",
+            "blog_id": "zkfnth01"
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "stock-master",
+            "message": "Page.wait_for_selector: Timeout 15000ms exceeded.\nCall log:\n  - waiting for locator(\"#post-title-inp, textarea[id*='title'], input[name='title']\") to be visible\n"
+          },
+          "brunch": {
+            "status": "success",
+            "platform": "brunch",
+            "title": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 피에스케이 심층 해부",
+            "post_url": "https://brunch.co.kr",
+            "archive_file": "brunch_draft_topic_001.json"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 2,
+            "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 피에스케이)",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 999,
+      "article_type": "rank1",
+      "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 삼성E&A)",
+      "title_naver": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 삼성E&A)",
+      "title_tistory": "오늘 350개 주도주 중 1위 찍은 삼성E&A: 체결강도 120.93%와 블록오더 73.1%의 비밀",
+      "title_brunch": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 삼성E&A 심층 해부",
+      "category": "live_quant",
+      "image_path": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_rank1_20260921_094312.png",
+      "metrics": {
+        "rank": 1,
+        "stock_name": "삼성E&A",
+        "stock_code": "028050",
+        "sector": "일반서비스",
+        "total_score": 140,
+        "status_badge": "🟢 진입 가능",
+        "special_badge": "⚡ 수급 가속 특례",
+        "chegyul_strength": "120.93%",
+        "chegyul_accel": "+13.4%p",
+        "block_order_ratio": "73.1%",
+        "foreign_net_buy": "+27억원",
+        "short_ratio": "4.92%",
+        "credit_ratio": "1.54%",
+        "trade_amount": "246억원",
+        "current_price": "45,600원",
+        "swing_tp": "57,160원",
+        "exit_sl": "39,820원",
+        "roe": "13.69%",
+        "pbr": "1.89배",
+        "debt_ratio": "126.53%",
+        "moving_avg_align": "정배열 (강력한 추세 상승)"
+      },
+      "published_at": "2026-09-21 09:43:51",
+      "publish_results": {
+        "topic_id": 999,
+        "channels": {
+          "naver_blog": {
+            "status": "error",
+            "message": "Page.click: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"button:has-text('발행')\")\n",
+            "blog_id": "zkfnth01"
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [1회연동]_주식AI_티스토리_영구로그인.bat 실행 필요",
+            "blog_name": "stock-master"
+          },
+          "brunch": {
+            "status": "success",
+            "platform": "brunch",
+            "title": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 삼성E&A 심층 해부",
+            "post_url": "https://brunch.co.kr",
+            "archive_file": "brunch_draft_topic_001.json"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 999,
+      "article_type": "rank1",
+      "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 삼성E&A)",
+      "title_naver": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 삼성E&A)",
+      "title_tistory": "오늘 350개 주도주 중 1위 찍은 삼성E&A: 체결강도 120.93%와 블록오더 73.1%의 비밀",
+      "title_brunch": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 삼성E&A 심층 해부",
+      "category": "live_quant",
+      "image_path": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_rank1_20260921_094142.png",
+      "metrics": {
+        "rank": 1,
+        "stock_name": "삼성E&A",
+        "stock_code": "028050",
+        "sector": "일반서비스",
+        "total_score": 140,
+        "status_badge": "🟢 진입 가능",
+        "special_badge": "⚡ 수급 가속 특례",
+        "chegyul_strength": "120.93%",
+        "chegyul_accel": "+13.4%p",
+        "block_order_ratio": "73.1%",
+        "foreign_net_buy": "+27억원",
+        "short_ratio": "4.92%",
+        "credit_ratio": "1.54%",
+        "trade_amount": "246억원",
+        "current_price": "45,600원",
+        "swing_tp": "57,160원",
+        "exit_sl": "39,820원",
+        "roe": "13.69%",
+        "pbr": "1.89배",
+        "debt_ratio": "126.53%",
+        "moving_avg_align": "정배열 (강력한 추세 상승)"
+      },
+      "published_at": "2026-09-21 09:42:36",
+      "publish_results": {
+        "topic_id": 999,
+        "channels": {
+          "naver_blog": {
+            "status": "error",
+            "message": "Page.click: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"button:has-text('발행')\")\n",
+            "blog_id": "zkfnth01"
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [1회연동]_주식AI_티스토리_영구로그인.bat 실행 필요",
+            "blog_name": "stock-master"
+          },
+          "brunch": {
+            "status": "success",
+            "platform": "brunch",
+            "title": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 삼성E&A 심층 해부",
+            "post_url": "https://brunch.co.kr",
+            "archive_file": "brunch_draft_topic_001.json"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 999,
+      "article_type": "rank1",
+      "title": "장 시작 10분 만에 털리는 개미 vs 세력 수급 발라내는 AI 퀀트 (오늘 전광판 1위: 삼성E&A)",
+      "title_naver": "장 시작 10분 만에 털리는 개미 vs 세력 수급 발라내는 AI 퀀트 (오늘 전광판 1위: 삼성E&A)",
+      "title_tistory": "오늘 350개 주도주 중 1위 찍은 삼성E&A: 체결강도 120.93%와 블록오더 73.1%의 비밀",
+      "title_brunch": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 삼성E&A 심층 해부",
+      "category": "live_quant",
+      "image_path": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_rank1_20260921_093947.png",
+      "metrics": {
+        "rank": 1,
+        "stock_name": "삼성E&A",
+        "stock_code": "028050",
+        "sector": "일반서비스",
+        "total_score": 140,
+        "status_badge": "🟢 진입 가능",
+        "special_badge": "⚡ 수급 가속 특례",
+        "chegyul_strength": "120.93%",
+        "chegyul_accel": "+13.4%p",
+        "block_order_ratio": "73.1%",
+        "foreign_net_buy": "+27억원",
+        "short_ratio": "4.92%",
+        "credit_ratio": "1.54%",
+        "trade_amount": "246억원",
+        "current_price": "45,600원",
+        "swing_tp": "57,160원",
+        "exit_sl": "39,820원",
+        "roe": "13.69%",
+        "pbr": "1.89배",
+        "debt_ratio": "126.53%",
+        "moving_avg_align": "정배열 (강력한 추세 상승)"
+      },
+      "published_at": "2026-09-21 09:40:20",
+      "publish_results": {
+        "topic_id": 999,
+        "channels": {
+          "naver_blog": {
+            "status": "error",
+            "message": "Page.evaluate: NotAllowedError: Failed to execute 'writeText' on 'Clipboard': Write permission denied.",
+            "blog_id": "zkfnth01"
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [1회연동]_주식AI_티스토리_영구로그인.bat 실행 필요",
+            "blog_name": "stock-master"
+          },
+          "brunch": {
+            "status": "success",
+            "platform": "brunch",
+            "title": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 삼성E&A 심층 해부",
+            "post_url": "https://brunch.co.kr",
+            "archive_file": "brunch_draft_topic_001.json"
+          }
+        }
+      }
+    }
+  ]
 }

@@ -1,7 +1,7 @@
 {
   "brand": "stock",
   "name": "Stock Master AI",
-  "landing_url": "https://stockmaster.ai",
+  "landing_url": "https://stockmaster-ai.vercel.app/",
   "credentials": {
     "youtube_channel_id": "",
     "instagram_account_id": "",
@@ -9,9 +9,13 @@
     "threads_token": "",
     "telegram_bot_token": "",
     "tistory_access_token": "",
-    "naver_blog_id": "",
-    "naver_session_cookie": "",
-    "kakao_channel_key": ""
+    "naver_blog_id": "zkfnth01",
+    "naver_login_id": "zkfnth02",
+    "naver_session_cookie": "NID_AUT=TmkD6sFHxjyUQX8bHoyqtdnyt/JRWlqqjcBt9DH3XN3QoOxLR8BGJJ3adOuOuiHe; NID_SES=AAABqbBaG3VBdX3qe/fe7yUlRTKDkbU7gRC7Qm8a0HCOPmplhvX7rRd1CcY29qyMHCwbuZNAuILNM6FxPFaSsMTq0YYrFPL8FOccyT7we+EDlBPaxhWk6BDllwI8AgwQY0i7sKyhrI6hgUXWL/siT8uGT9U035mezyWm8e5vBvLdUrrQ8gD1aI+Z/JFL6bCd4O/5WgNpohGnDhXBb4MMxY415L/s8zIe2hNa5eMK5VUxhdy0es4aPMboGB1HhcWoc3/n6A3OKbwhKQf849fRKsgZzXI101Wj4ZHgCCGGnVAjsOHpwI+Nl6aRVDlwkDcFrtzaafWJ0bLqk2Oylh+ZZqrS/Uwt09n3BB1WPIf3NKxMfKLNz1ursy1TOHq1HUnWmefNbeydf7ESd1B+z52pE4E+q9OduFTwAwAhN684rguMRZJ/mn9u6yejZEidYAj7qMUFYWy2oNj2kk5Ze8nMPFYjhbEz0bQhPrOW09PimLXZOmAweox6MxbSqClY5Xeo9YBVgcqEC/IZCQ65PqfYVF/sydnkHPC0fFYozLKCphF1xSlcOWErPDgg/9OtjhQpcXe4nQ==;",
+    "kakao_channel_key": "",
+    "tistory_blog_name": "stockmaster-ai",
+    "tistory_session_cookie": "REACTION_GUEST=f721532129ec629f6a112b2c1b01862989dcde4c; __T_=1; __T_SECURE=1; TUID=w-6aVWqVmj5fdi_260921102354892; UUID=CeIC-Myti1mPT4JNSELLbkxMxVVenwidX9l9yGPthmN7e8dOCuY2jA00; TSID=w-VDParadAHFi0_260921121157676; _SUID=w-Gi77iD50MTcx_260921213423528; _ISUID=w-5TK0s9wFH91W_260921813678623; TOP-XSRF-TOKEN=df18a311-9a00-4005-a2e4-846e7732bdd3; TSSESSION=727a29e654b63a8f8a158bc099d8fefca049ce24; from_login=true; __T_=1; __T_SECURE=1; IS_TC=0; _T_ANO=UaK456AuGVjmCh4mXKHW/G6l+6TkbKUyNmMnfc7ALZJqyflUF2lkPZsbQ8/4w5VyJFfE6AV55aYZuMC9udQ6p5dWvObLYHtdTJh6DgGbrjhPT4U8ljm/i1Re9mnbXgrBkSe2IFp6nx1RFMR1PwqTn3x4mvFjV6ooaUoW7SsK4UaQe3XRCdtadaFCrJkZ//z33INWTM6ceaoqVkPasDiWj7hjllPNsP+igPHkRi4++AeiqheQYH9qf07GEoj41ntewWuG0BJXvsRLbQ3NInmvbXciCU4YBTiK4V1J9kE7kcc4BgzeVSM558BKI9YHDMyhP2VUSwKt+Lv1G1IpFman6A==",
+    "brunch_session_cookie": "b_s_a_l=1; TUID=w-zGI4gnUST17Z_260921102439681; UUID=gOfKi7ZcwJr2fVfrtRXTyBMaN8gBf9upDuRTrYOjfD3U61DmIjG3vA00; __T_=1; __T_SECURE=1; TSID=w-5jbAN5a5rwGv_260921121940367; _SUID=w-0IdQ2a2YhHh8_260921795250863; _ISUID=w-7nSr6uKDqBxO_260921194217813; bid=\"1NK9jiZZOZLSZviOQvfiwgLy3aX9Cqryhc02KCDsTDhg3e0eW2BWlRBsLEJ7FfSlFbQrZOLzrpB+MvqDVnnyT7GArqmHLDR+/70ddEVT/Qw=\"; _T_ANO=basVONb1gqXmJ64HB6KqDcIMMlOq1nqFg1Kv5UKtfLAGFHzcdcOf/WXHQfoGCuAoogS2xyTWCCnRwwogqSmvSlaZLhAvy+MLoXsmzszB1xbbDeEYk0OLpB5etnnPQ/AHGlaZoq3AICut6aerxhYV7POzSpAiNUnZRCtEJARJSWNpAbFmM3vrXIn/I/FjWA4QgV9iLG7XcNvhhJUWmZUIHE2Cp8GI5VAUTnPMLBlxkl1sSr/LxbKIB7AzTWurBDctkhrJTNwQF3hBRNQkpI6OtwCfCeQq+WegoMQirzReskIyWLLx739e/5MwcPJm99flgNQvAtZou0ybkmdtJEob2w=="
   },
   "notes": "주식 AI Stock Master 앱 전용 SNS 및 국내 플랫폼 계정/세션 설정 파일. 기존 8대 파이프라인 코드는 건드리지 않고 이 설정만 세팅하면 가동됩니다."
 }

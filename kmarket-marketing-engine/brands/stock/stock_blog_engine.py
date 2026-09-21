@@ -45,7 +45,7 @@ class StockBlogEngine:
     """
     BRAND = "stock"
     NAME = "StockMaster Blog Engine"
-    LANDING_URL = "https://stockmaster.ai"
+    LANDING_URL = "https://stockmaster-ai.vercel.app/"
 
     def __init__(self):
         self.keyword_matrix = StockKeywordMatrix()
@@ -54,6 +54,13 @@ class StockBlogEngine:
         self._writer = None
         self._image_gen = None
         self._publisher = None
+        self._capturer = None
+
+    def _get_capturer(self):
+        if self._capturer is None:
+            from brands.stock.stock_dashboard_capturer import StockDashboardCapturer
+            self._capturer = StockDashboardCapturer()
+        return self._capturer
 
     def _get_writer(self):
         if self._writer is None:
@@ -175,10 +182,22 @@ class StockBlogEngine:
         # CTA 추가
         cta_html = f"""
 <div style="margin-top: 30px; padding: 20px; background-color: #09090b; border-left: 4px solid #10b981; border-radius: 8px; color: #ffffff;">
-  <p style="font-weight: bold; font-size: 16px; margin-bottom: 8px; color: #10b981;">📈 뇌동매매 끝! AI 데이터로 검증된 투자 신호</p>
-  <p style="font-size: 14px; color: #a1a1aa; margin-bottom: 12px;">외국인·기관 수급, 재무 건전성, AI 퀀트 모멘텀을 실시간으로 확인하세요.</p>
-  <a href="{self.LANDING_URL}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #10b981; color: #000000; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px;">StockMaster AI 무료 시그널 확인하기 👉</a>
+  <p style="font-weight: bold; font-size: 16px; margin-bottom: 8px; color: #10b981;">📈 뇌동매매 끝! 10분마다 350개 주도주를 스캔하는 AI 퀀트 시스템</p>
+  <p style="font-size: 14px; color: #a1a1aa; margin-bottom: 12px;">외국인·기관 수급, 체결강도, 블록오더, 그리고 -5% 실시간 문자 손절 알림을 100% 무료로 확인하세요.</p>
+  <a href="{self.LANDING_URL}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #10b981; color: #000000; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px;">StockMaster AI 10분 전광판 바로가기 👉</a>
 </div>
+
+<!-- 🌟 티스토리/웹 공식 규격 10분 350개 주도주 오픈그래프 카드 -->
+<figure data-ke-type="opengraph" data-ke-align="alignCenter" data-og-type="website" data-og-title="Stock Master AI - 10분 퀀트 스캔 &amp; 실시간 -5% 손절 알림" data-og-description="10분마다 국내 350개 주도주를 스캔하는 AI 퀀트 시스템. 체결강도, 블록오더, 수급 분석을 무료로 경험하세요." data-og-host="stockmaster-ai.vercel.app" data-og-source-url="https://stockmaster-ai.vercel.app/" data-og-url="https://stockmaster-ai.vercel.app/" data-og-image="https://stockmaster-ai.vercel.app/og-image.png" style="margin: 20px 0; border: 1px solid #27272a; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.25); text-align: left;">
+  <a href="{self.LANDING_URL}" target="_blank" rel="noopener" style="text-decoration: none; display: flex; align-items: center; background: #18181b; color: inherit;">
+    <div class="og-image" style="width: 140px; height: 100px; flex-shrink: 0; background: url('https://stockmaster-ai.vercel.app/og-image.png') no-repeat center center / cover; border-right: 1px solid #27272a;"></div>
+    <div class="og-text" style="padding: 14px 18px; flex-grow: 1;">
+      <p class="og-title" style="margin: 0 0 6px 0; font-size: 15px; font-weight: bold; color: #ffffff; line-height: 1.4;">Stock Master AI - 10분 퀀트 스캔 &amp; 실시간 -5% 손절 알림</p>
+      <p class="og-desc" style="margin: 0 0 6px 0; font-size: 12.5px; color: #a1a1aa; line-height: 1.5;">10분마다 350개 국내 주도주를 스캔하는 실시간 AI 퀀트 전광판</p>
+      <p class="og-host" style="margin: 0; font-size: 11.5px; color: #10b981; font-weight: 600;">stockmaster-ai.vercel.app</p>
+    </div>
+  </a>
+</figure>
 """
         full_html = body_html + cta_html
 
@@ -196,6 +215,70 @@ class StockBlogEngine:
             "tags": gemini_result.get("tags", topic.get("tags", ["주식투자", "StockMaster"])) if gemini_result else topic.get("tags", []),
             "image_path": photo_info.get("image_path", ""),
             "image_url": photo_info.get("web_url", ""),
+            "landing_url": self.LANDING_URL
+        }
+
+    def build_captured_article_package(self, article_type: str = "rank1") -> Dict[str, Any]:
+        """
+        주식 웹앱 실시간 화면(1600x1600 고화질) 캡처 + 대표님 성공 바이블 기반 2,000자 칼럼 패키지 생성
+        article_type: 'rank1' (전광판 1위 주도주 편) 또는 'semiconductor' (반도체 주도주 편)
+        """
+        logger.info(f"🚀 [StockBlog] 실시간 캡처 기반 패키지 생성 시작 (유형: {article_type})")
+
+        # 1. 실시간 주식 앱 캡처 및 메트릭스 추출
+        capturer = self._get_capturer()
+        capture_res = capturer.capture_dashboard(mode=article_type)
+        image_path = capture_res.get("image_path", "")
+        metrics = capture_res.get("metrics", {})
+
+        # 2. Gemini 황금 바이블 칼럼 생성
+        writer = self._get_writer()
+        article = writer.write_captured_article(capture_res, article_type=article_type)
+
+        title_naver = article.get("title_naver", article.get("title", ""))
+        title_tistory = article.get("title_tistory", title_naver)
+        title_brunch = article.get("title_brunch", title_naver)
+        body_md = article.get("body_markdown", "")
+        body_html = markdown.markdown(body_md)
+
+        # 3. 고품격 CTA 카드 바인딩
+        cta_html = f"""
+<div style="margin-top: 30px; padding: 20px; background-color: #09090b; border-left: 4px solid #10b981; border-radius: 8px; color: #ffffff;">
+  <p style="font-weight: bold; font-size: 16px; margin-bottom: 8px; color: #10b981;">📈 뇌동매매 끝! 10분마다 350개 주도주를 스캔하는 AI 퀀트 시스템</p>
+  <p style="font-size: 14px; color: #a1a1aa; margin-bottom: 12px;">실시간 계량 전광판, 체결강도, 블록오더, 그리고 -5% 실시간 문자 손절 알림을 100% 무료로 경험해보세요.</p>
+  <a href="{self.LANDING_URL}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #10b981; color: #000000; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px;">StockMaster AI 실시간 전광판 바로가기 👉</a>
+</div>
+
+<!-- 🌟 티스토리/웹 공식 규격 10분 350개 주도주 오픈그래프 카드 -->
+<figure data-ke-type="opengraph" data-ke-align="alignCenter" data-og-type="website" data-og-title="Stock Master AI - 10분 퀀트 스캔 &amp; 실시간 -5% 손절 알림" data-og-description="10분마다 국내 350개 주도주를 스캔하는 AI 퀀트 시스템. 체결강도, 블록오더, 수급 분석을 무료로 경험하세요." data-og-host="stockmaster-ai.vercel.app" data-og-source-url="https://stockmaster-ai.vercel.app/" data-og-url="https://stockmaster-ai.vercel.app/" data-og-image="https://stockmaster-ai.vercel.app/og-image.png" style="margin: 20px 0; border: 1px solid #27272a; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.25); text-align: left;">
+  <a href="{self.LANDING_URL}" target="_blank" rel="noopener" style="text-decoration: none; display: flex; align-items: center; background: #18181b; color: inherit;">
+    <div class="og-image" style="width: 140px; height: 100px; flex-shrink: 0; background: url('https://stockmaster-ai.vercel.app/og-image.png') no-repeat center center / cover; border-right: 1px solid #27272a;"></div>
+    <div class="og-text" style="padding: 14px 18px; flex-grow: 1;">
+      <p class="og-title" style="margin: 0 0 6px 0; font-size: 15px; font-weight: bold; color: #ffffff; line-height: 1.4;">Stock Master AI - 10분 퀀트 스캔 &amp; 실시간 -5% 손절 알림</p>
+      <p class="og-desc" style="margin: 0 0 6px 0; font-size: 12.5px; color: #a1a1aa; line-height: 1.5;">10분마다 350개 국내 주도주를 스캔하는 실시간 AI 퀀트 전광판</p>
+      <p class="og-host" style="margin: 0; font-size: 11.5px; color: #10b981; font-weight: 600;">stockmaster-ai.vercel.app</p>
+    </div>
+  </a>
+</figure>
+"""
+        full_html = body_html + cta_html
+
+        return {
+            "topic_id": 999 if article_type == "rank1" else 998,
+            "title": title_naver,
+            "title_naver": title_naver,
+            "title_tistory": title_tistory,
+            "title_brunch": title_brunch,
+            "category": "live_quant" if article_type == "rank1" else "semiconductor",
+            "body_markdown": body_md,
+            "content_text": body_md,
+            "content_html": full_html,
+            "summary": article.get("summary", ""),
+            "tags": article.get("tags", ["주식투자", "체결강도", "블록오더", "스톡마스터AI"]),
+            "image_path": image_path,
+            "image_url": "",
+            "metrics": metrics,
+            "article_type": article_type,
             "landing_url": self.LANDING_URL
         }
 

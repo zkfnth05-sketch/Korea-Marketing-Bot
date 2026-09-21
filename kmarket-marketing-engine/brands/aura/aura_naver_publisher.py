@@ -40,7 +40,7 @@ class AuraNaverPublisher:
         tag_list: Optional[List[str]] = None,
         image_paths: Optional[List[str]] = None,
         category_name: Optional[str] = None,
-        landing_url: str = "https://aura-ai-dating.vercel.app/",
+        landing_url: str = "https://aura-ai-dating.vercel.app/lounge",
         timeout_sec: int = 50
     ) -> Dict[str, Any]:
         """동기 호출 인터페이스"""
@@ -62,8 +62,18 @@ class AuraNaverPublisher:
     def format_clean_naver_text(raw_text: str, landing_url: str) -> str:
         """마크다운 기호(#, ###, ![], **)를 완전 제거하고 가독성 높은 네이버 블로그 전용 본문으로 변환"""
         import re
-        # 마크다운 이미지 태그 완전 제거
+        # 1. 마크다운 이미지 태그 완전 제거
         text = re.sub(r'!\[.*?\]\(.*?\)', '', raw_text)
+
+        # 2. 마크다운 링크 [라벨](URL) 정제: URL 끝에 ')'가 붙는 %29 404 오류 원천 차단
+        def _clean_md_link(match):
+            label = match.group(1).strip()
+            url = match.group(2).strip()
+            return f"{label}\n👉 {url}"
+
+        text = re.sub(r'\[([^\]]+)\]\((https?://[^\s\)]+)\)', _clean_md_link, text)
+        text = re.sub(r'\((https?://[^\s\)]+)\)', r' \1 ', text)
+
         lines = text.split("\n")
         cleaned_lines = []
         for line in lines:
@@ -87,7 +97,11 @@ class AuraNaverPublisher:
         result = re.sub(r'\n{3,}', '\n\n', result).strip()
 
         if landing_url not in result:
-            result += f"\n\n💖 Aura 2030 공식 데이팅 앱 바로가기\n👉 {landing_url}\n"
+            result += (
+                f"\n\n💑 [Aura Dating] 유령회원 ZERO! 남녀 50:50 황금 성비 보장 매칭\n"
+                f"남초 어플의 끝없는 읽씹과 유령회원에 지치셨나요? 1:1 남녀 50:50 성비 보장과 AI 매력 분석을 무료로 경험해보세요.\n"
+                f"👉 Aura 라운지 바로가기: {landing_url}\n"
+            )
         return result
 
     async def publish_article_async(
@@ -97,7 +111,7 @@ class AuraNaverPublisher:
         tag_list: Optional[List[str]] = None,
         image_paths: Optional[List[str]] = None,
         category_name: Optional[str] = None,
-        landing_url: str = "https://aura-ai-dating.vercel.app/",
+        landing_url: str = "https://aura-ai-dating.vercel.app/lounge",
         timeout_sec: int = 50
     ) -> Dict[str, Any]:
         """Playwright를 통한 실제 SmartEditor ONE 포스팅 실행 (맨 처음 사진 ➔ 그 밑 본문)"""
@@ -129,40 +143,39 @@ class AuraNaverPublisher:
                 await page.goto(write_url, wait_until="domcontentloaded", timeout=timeout_sec * 1000)
                 await asyncio.sleep(2.5)
 
-                # 2. 임시저장 복구 팝업(작성 중인 글이 있습니다) 닫기
-                try:
-                    draft_cancel = await page.query_selector(".se-popup-button-cancel, button:has-text('취소')")
-                    if draft_cancel:
-                        await draft_cancel.click()
-                        await asyncio.sleep(1)
-                except Exception:
-                    pass
+                # 1. 팝업 및 도움말 패널 완전 닫기 (DOM JS 직접 제거)
+                await page.evaluate("""() => {
+                    const cancel = document.querySelector('.se-popup-button-cancel');
+                    if (cancel) cancel.click();
+                    document.querySelectorAll('.se-popup, .se-popup-dim, aside, [class*="help_panel"]').forEach(el => el.remove());
+                }""")
+                await asyncio.sleep(1.0)
 
-                # 3. 도움말 패널 닫기
-                try:
-                    help_close = await page.query_selector(".se-help-panel-close-button, button[class*='help_panel_close']")
-                    if help_close:
-                        await help_close.click()
-                        await asyncio.sleep(0.5)
-                except Exception:
-                    pass
-
-                # 4. 제목 입력
-                title_ph = await page.query_selector(".se-documentTitle .se-placeholder, .se-documentTitle [contenteditable='true']")
+                # 2. 제목 입력
+                title_ph = await page.query_selector(".se-documentTitle .se-placeholder, .se-documentTitle [contenteditable='true'], [class*='documentTitle'] [contenteditable='true'], .se-title-text, .se-documentTitle")
                 if title_ph:
                     await title_ph.click()
-                    await page.keyboard.type(title)
+                    await asyncio.sleep(0.3)
+                    await page.keyboard.type(title, delay=10)
                     await asyncio.sleep(0.5)
+                    logger.info(f"📝 [Naver-Aura] 제목 입력 성공: '{title}'")
                 else:
-                    logger.warning("⚠️ [Naver] 제목 입력란을 찾지 못했습니다.")
+                    await page.evaluate("""(t) => {
+                        const el = document.querySelector('.se-documentTitle [contenteditable="true"]') || document.querySelector('.se-documentTitle');
+                        if (el) {
+                            el.innerText = t;
+                            el.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                    }""", title)
+                    logger.info(f"📝 [Naver-Aura] 제목 JS 직접 주입 완료: '{title}'")
 
-                # 5. 본문 입력란 활성화
+                # 3. 본문 입력란 활성화
                 body_ph = await page.query_selector(".se-component-content .se-fs16.se-placeholder, .se-main-container .se-placeholder, .se-component-content [contenteditable='true']")
                 if body_ph:
                     await body_ph.click()
                     await asyncio.sleep(0.5)
 
-                # 6. 🌟 [맨 처음이 사진!] 16:9 고화질 대표 사진 먼저 업로드
+                # 4. 🌟 [맨 처음이 사진!] 16:9 고화질 대표 사진 먼저 업로드
                 if image_paths and len(image_paths) > 0 and Path(image_paths[0]).exists():
                     img_file = Path(image_paths[0]).resolve()
                     try:
@@ -177,7 +190,7 @@ class AuraNaverPublisher:
                     except Exception as e:
                         logger.warning(f"⚠️ [Naver] 사진 업로드 실패 (계속 진행): {e}")
 
-                # 7. 📝 [그 밑이 글!] 사진 아래로 커서 이동 후 깔끔한 텍스트 붙여넣기
+                # 5. 📝 [그 밑이 글!] 사진 아래로 커서 이동 후 깔끔한 텍스트 붙여넣기
                 await page.keyboard.press("ArrowDown")
                 await page.keyboard.press("Enter")
                 await asyncio.sleep(0.5)
@@ -188,15 +201,51 @@ class AuraNaverPublisher:
                 await asyncio.sleep(1.5)
                 logger.info("📝 [Naver] [그 밑 본문] 마크다운 정제 깔끔 본문 붙여넣기 완료")
 
-                # 8. 상단 [발행] 버튼 클릭 (레이어 오픈)
-                opened = await page.evaluate("""() => {
-                    const btn = document.querySelector('.publish_btn_area__VpJsC button') || document.querySelector('button.publish_btn__v_kS9');
-                    if (btn) { btn.click(); return true; }
-                    return false;
-                }""")
-                if not opened:
-                    # 대체 셀렉터 시도
-                    await page.click("button:has-text('발행')", timeout=5000)
+                # 6. 🌟 네이버 공식 OpenGraph(OG) 링크 카드 자동 삽입
+                try:
+                    logger.info(f"🔗 [Naver-Aura] 네이버 공식 OG 링크 카드 삽입 시작: {landing_url}")
+                    await page.keyboard.press("Enter")
+                    await asyncio.sleep(0.5)
+
+                    og_btn = await page.query_selector("button.se-oglink-toolbar-button")
+                    if og_btn:
+                        await og_btn.click()
+                        await asyncio.sleep(1.0)
+
+                        og_inp = await page.wait_for_selector("input.se-popup-oglink-input", timeout=5000)
+                        if og_inp:
+                            await og_inp.fill(landing_url)
+                            await asyncio.sleep(0.5)
+
+                            search_btn = await page.query_selector("button.se-popup-oglink-button")
+                            if search_btn:
+                                await search_btn.click()
+                                await asyncio.sleep(2.5)
+
+                            confirm_btn = await page.wait_for_selector("button.se-popup-button-confirm", timeout=5000)
+                            if confirm_btn:
+                                await confirm_btn.click()
+                                await asyncio.sleep(1.5)
+                                logger.info("🎉 [Naver-Aura] 네이버 공식 OG 링크 카드 삽입 완료!")
+                except Exception as og_err:
+                    logger.warning(f"⚠️ [Naver-Aura] OG 링크 카드 삽입 통과: {og_err}")
+
+                # 7. 상단 우측 [발행] 버튼 클릭 (발행 설정 레이어 열기)
+                publish_opened = False
+                for _ in range(3):
+                    publish_opened = await page.evaluate("""() => {
+                        window.scrollTo(0, 0);
+                        const pubBtn = document.querySelector('.se-publish-button, button.se-publish-button, .publish_btn_area__VpJsC button, button[class*="publish_btn"]');
+                        if (pubBtn) {
+                            pubBtn.click();
+                            return true;
+                        }
+                        return false;
+                    }""")
+                    if publish_opened:
+                        logger.info("📝 [Naver-Aura] 발행 레이어 오픈 성공!")
+                        break
+                    await asyncio.sleep(1.0)
 
                 await asyncio.sleep(1.5)
 
@@ -234,18 +283,21 @@ class AuraNaverPublisher:
                     logger.debug(f"태그 입력 통과: {e}")
 
                 # 10. 레이어 하단 [발행] 최종 확인 버튼 클릭
-                confirmed = await page.evaluate("""() => {
-                    const confirmBtn = document.querySelector('.layer_publish__Jv1Pu button.confirm_btn__byZZW') || document.querySelector('button[class*="confirm_btn"]');
-                    if (confirmBtn) {
-                        confirmBtn.click();
-                        return true;
-                    }
-                    return false;
-                }""")
-
-                if not confirmed:
-                    pub_confirm = await page.wait_for_selector("button.confirm_btn__byZZW, button[class*='confirm_btn']", timeout=5000)
-                    await pub_confirm.click()
+                logger.info("🚀 [Naver-Aura] 최종 확인 [발행] 버튼 클릭 시도...")
+                confirmed = False
+                for _ in range(5):
+                    confirmed = await page.evaluate("""() => {
+                        const confirmBtn = document.querySelector('button[class*="confirm_btn"], button.confirm_btn__WEaBq, button.confirm_btn__byZZW');
+                        if (confirmBtn) {
+                            confirmBtn.click();
+                            return true;
+                        }
+                        return false;
+                    }""")
+                    if confirmed:
+                        logger.info("🎉 [Naver-Aura] 최종 발행 확인 버튼 클릭 성공!")
+                        break
+                    await asyncio.sleep(1.0)
 
                 # 11. 발행 완료 및 리다이렉트 대기
                 logger.info("⏳ [Naver] 발행 완료 후 블로그 글 페이지 이동 대기...")

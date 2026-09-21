@@ -47,7 +47,7 @@ class AuraBrunchPublisher:
         content_text: str,
         tag_list: Optional[List[str]] = None,
         topic_id: int = 1,
-        landing_url: str = "https://aura-ai-dating.vercel.app/",
+        landing_url: str = "https://aura-ai-dating.vercel.app/lounge",
         timeout_sec: int = 40
     ) -> Dict[str, Any]:
         """동기 호출 인터페이스"""
@@ -65,7 +65,7 @@ class AuraBrunchPublisher:
         subtitle: str = "",
         body_text: str = "",
         topic_id: int = 1,
-        landing_url: str = "https://aura-ai-dating.vercel.app/",
+        landing_url: str = "https://aura-ai-dating.vercel.app/lounge",
         tag_list: Optional[List[str]] = None,
         timeout_sec: int = 40
     ) -> Dict[str, Any]:
@@ -85,7 +85,7 @@ class AuraBrunchPublisher:
         content_text: str,
         tag_list: Optional[List[str]] = None,
         topic_id: int = 1,
-        landing_url: str = "https://aura-ai-dating.vercel.app/",
+        landing_url: str = "https://aura-ai-dating.vercel.app/lounge",
         timeout_sec: int = 40
     ) -> Dict[str, Any]:
         """Playwright 브런치 에디터 자동 발행 / 저장 (영구 크롬 프로필 탑재)"""
