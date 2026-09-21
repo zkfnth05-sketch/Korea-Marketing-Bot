@@ -89,7 +89,8 @@ class InsuranceMultiPublisher:
             res_t = self.tistory.publish_post(
                 title=title_tistory,
                 content_html=body_html,
-                tag_list=tags
+                tag_list=tags,
+                image_paths=image_paths
             )
             results["channels"]["tistory"] = res_t
             logger.info(f"✅ [2/3] 🟠 티스토리 발행 완료: {res_t.get('post_url', res_t.get('url', ''))}")

@@ -30,8 +30,17 @@ logger = logging.getLogger("InsuranceTistoryPublisher")
 class InsuranceTistoryPublisher:
     """InsureBalance 보험 전용 티스토리 블로그 자동 발행 엔진 (영구 크롬 프로필/세션 지원)"""
 
-    def __init__(self, blog_name: str = "insure-balance"):
-        self.blog_name = blog_name
+    def __init__(self, blog_name: Optional[str] = None):
+        loaded_name = "insure-balance"
+        if ACCOUNTS_FILE.exists():
+            try:
+                with open(ACCOUNTS_FILE, "r", encoding="utf-8") as fp:
+                    data = json.load(fp)
+                    loaded_name = data.get("credentials", {}).get("tistory_blog_name") or "insure-balance"
+            except Exception:
+                pass
+        self.blog_name = blog_name or loaded_name
+
         # 프로필 디렉터리 결정 (자체 우선, 없으면 fallback)
         if PROFILE_DIR.exists() and any(PROFILE_DIR.iterdir()):
             self.profile_dir = PROFILE_DIR
@@ -56,11 +65,12 @@ class InsuranceTistoryPublisher:
         title: str,
         content_html: str,
         tag_list: Optional[List[str]] = None,
+        image_paths: Optional[List[str]] = None,
         timeout_sec: int = 40
     ) -> Dict[str, Any]:
         """동기 호출 인터페이스"""
         try:
-            return asyncio.run(self.publish_post_async(title, content_html, tag_list, timeout_sec))
+            return asyncio.run(self.publish_post_async(title, content_html, tag_list, image_paths, timeout_sec))
         except Exception as e:
             logger.error(f"❌ [Tistory-Insurance] 발행 예외: {e}")
             return {"status": "error", "message": str(e), "blog_name": self.blog_name}
@@ -70,6 +80,7 @@ class InsuranceTistoryPublisher:
         title: str,
         content_html: str,
         tag_list: Optional[List[str]] = None,
+        image_paths: Optional[List[str]] = None,
         timeout_sec: int = 40
     ) -> Dict[str, Any]:
         """Playwright를 통한 실제 포스팅 실행 (영구 프로필 / 세션 우선)"""
@@ -78,17 +89,18 @@ class InsuranceTistoryPublisher:
             return {"status": "error", "message": "세션 파일 부재", "blog_name": self.blog_name}
 
         write_url = f"https://{self.blog_name}.tistory.com/manage/newpost/?type=post&returnURL=%2Fmanage%2Fposts%2F"
-        tags = tag_list or ["보험비교", "보험리모델링", "InsureBalance", "실손보험", "보장분석"]
+        tags = tag_list or ["보험비교", "보험리밸런스", "실손보험", "가계부절약", "보험다이어트"]
 
         logger.info(f"🚀 [Tistory-Insurance] 무인 자동 발행 시작: '{title}'")
 
         async with async_playwright() as p:
-            is_persistent = self.profile_dir.exists() and any(self.profile_dir.iterdir())
             has_session_file = self.session_file.exists() and self.session_file.stat().st_size > 100
+            is_persistent = self.profile_dir.exists() and any(self.profile_dir.iterdir())
             browser = None
+            context = None
 
             if has_session_file:
-                # 🌟 저장된 영구 세션 파일로 100% 무인 로그인 보장 실행
+                logger.info("📄 [Tistory-Insurance] 저장된 세션 파일(storage_state)로 접속")
                 browser = await p.chromium.launch(
                     headless=True,
                     args=["--disable-blink-features=AutomationControlled"]
@@ -100,6 +112,7 @@ class InsuranceTistoryPublisher:
                 )
                 page = await context.new_page()
             elif is_persistent:
+                logger.info(f"📂 [Tistory-Insurance] 크롬 영구 프로필 모드로 실행: {self.profile_dir.name}")
                 context = await p.chromium.launch_persistent_context(
                     user_data_dir=str(self.profile_dir),
                     headless=True,
@@ -109,14 +122,14 @@ class InsuranceTistoryPublisher:
                 )
                 page = context.pages[0] if context.pages else await context.new_page()
             else:
-                return {"status": "error", "message": "티스토리 세션 부재 (1회 로그인 필요)", "blog_name": self.blog_name}
+                return {"status": "error", "message": "티스토리 세션 부재 ([1회연동] bat 실행 필요)", "blog_name": self.blog_name}
 
             try:
                 # 1. 글쓰기 페이지 진입
                 await page.goto(write_url, wait_until="domcontentloaded", timeout=timeout_sec * 1000)
                 await asyncio.sleep(1)
 
-                # 🛡️ 세션 만료 즉각 감지 (로그인 페이지 리다이렉트 확인)
+                # 🛡️ 세션 만료 즉각 감지
                 cur_url = page.url
                 if "auth" in cur_url or "login" in cur_url or "accounts.kakao.com" in cur_url:
                     logger.warning("⚠️ [Tistory-Insurance] 티스토리 세션 만료 감지 (1회 연동 로그인 필요)")
@@ -126,18 +139,37 @@ class InsuranceTistoryPublisher:
                         "blog_name": self.blog_name
                     }
 
-                # 2. 제목 입력기 대기 (유연한 선택자 지원)
+                # 2. 제목 입력기 대기
                 title_el = await page.wait_for_selector("#post-title-inp, textarea[id*='title'], input[name='title']", timeout=15000)
                 if not title_el:
                     raise RuntimeError("티스토리 제목 입력 필드를 찾을 수 없습니다.")
 
-                # 2. 제목 입력
                 await title_el.fill(title)
 
-                # 3. 본문 HTML 주입 (TinyMCE 공식 엔진 버퍼 및 폼 텍스트에어리어 동기화)
+                # 3. 🌟 16:9 감성 대표 실사 사진 먼저 업로드
+                if image_paths and len(image_paths) > 0 and Path(image_paths[0]).exists():
+                    img_file = Path(image_paths[0]).resolve()
+                    try:
+                        attach_btn = await page.query_selector("#mceu_0-open, [id*='mceu_0']")
+                        if attach_btn:
+                            await attach_btn.click()
+                            await asyncio.sleep(0.8)
+                            photo_item = await page.wait_for_selector("#attach-image, .mce-tistory-attach-item:has-text('사진')", timeout=5000)
+                            if photo_item:
+                                async with page.expect_file_chooser(timeout=8000) as fc_info:
+                                    await photo_item.click()
+                                fc = await fc_info.value
+                                await fc.set_files(str(img_file))
+                                logger.info(f"📸 [Tistory-Insurance] 대표 이미지 업로드 완료: {img_file.name}")
+                                await asyncio.sleep(4.0)
+                    except Exception as e:
+                        logger.warning(f"⚠️ [Tistory-Insurance] 사진 업로드 통과: {e}")
+
+                # 4. 본문 HTML 주입 (사진 뒤에 이어서 본문 동기화)
                 injected = await page.evaluate("""(html) => {
                     if (window.tinymce && window.tinymce.activeEditor) {
-                        window.tinymce.activeEditor.setContent(html);
+                        const cur = window.tinymce.activeEditor.getContent();
+                        window.tinymce.activeEditor.setContent(cur ? cur + "<br/><br/>" + html : html);
                         if (window.tinymce.triggerSave) window.tinymce.triggerSave();
                         if (window.tinymce.activeEditor.save) window.tinymce.activeEditor.save();
                         window.tinymce.activeEditor.fire('change');
@@ -156,7 +188,7 @@ class InsuranceTistoryPublisher:
 
                 await asyncio.sleep(1.5)
 
-                # 4. 태그 등록
+                # 5. 태그 등록
                 tag_inp = await page.query_selector("#tagText")
                 if tag_inp:
                     for t in tags[:10]:
@@ -166,70 +198,63 @@ class InsuranceTistoryPublisher:
                             await page.keyboard.press("Enter")
                             await asyncio.sleep(0.2)
 
-                # 5. [완료] 레이어 버튼 클릭
+                # 6. [완료] 레이어 버튼 클릭
                 layer_btn = await page.wait_for_selector("#publish-layer-btn", timeout=10000)
                 await layer_btn.click()
                 await asyncio.sleep(1)
 
-                # 6. '공개' 라디오 버튼 강제 체크
+                # 7. '공개' 라디오 버튼 강제 체크
                 await page.evaluate("""() => {
-                    const labels = Array.from(document.querySelectorAll('label'));
-                    const openLabel = labels.find(l => l.textContent.trim() === '공개');
-                    if (openLabel) openLabel.click();
+                    const targets = Array.from(document.querySelectorAll('span.checkbox-text, label, .form-field'));
+                    const openTarget = targets.find(l => l.innerText && l.innerText.trim() === '공개');
+                    if (openTarget) openTarget.click();
                     const openInput = document.querySelector('input[id*="open"]');
                     if (openInput) openInput.checked = true;
                 }""")
                 await asyncio.sleep(1)
 
-                # 7. [공개발행 / 발행] 버튼 클릭
+                # 8. [공개발행 / 발행] 버튼 클릭
                 pub_btn = await page.wait_for_selector("#publish-btn", timeout=10000)
                 await pub_btn.click()
+                logger.info("⏳ [Tistory-Insurance] 최종 공개발행 클릭 완료, 리다이렉트 대기...")
 
-                # 8. 발행 완료 대기 (URL 변경 또는 리스트 이동 감지)
                 try:
-                    await page.wait_for_url(lambda u: "newpost" not in u, timeout=20000)
+                    await page.wait_for_url(lambda u: "/manage/newpost" not in u and "/manage/posts" in u or f"{self.blog_name}.tistory.com/" in u, timeout=20000)
                 except Exception:
                     await asyncio.sleep(4)
 
                 final_url = page.url
-                logger.info(f"✅ [Tistory-Insurance] 발행 후 리다이렉트 URL: {final_url}")
+                logger.info(f"✅ [Tistory-Insurance] 티스토리 최종 URL: {final_url}")
 
-                # 최신 포스트 URL 파싱 (리스트 페이지에 있을 경우 최상단 글 링크 획득)
+                # 포스트 번호 파싱
                 post_url = final_url
-                if "manage/posts" in final_url or "manage" in final_url:
-                    first_link = await page.query_selector(".table_post tbody tr:first-child a.link_title, a[class*='link_title'], a.link_post")
-                    if first_link:
-                        href = await first_link.get_attribute("href")
-                        if href:
-                            if href.startswith("http"):
-                                post_url = href
-                            else:
-                                post_url = f"https://{self.blog_name}.tistory.com{href}"
+                if "/manage/posts" in final_url:
+                    try:
+                        first_post = await page.wait_for_selector(".link_post, .tit_post a, .item_post a", timeout=5000)
+                        if first_post:
+                            href = await first_post.get_attribute("href")
+                            if href:
+                                post_url = href if href.startswith("http") else f"https://{self.blog_name}.tistory.com{href}"
+                    except Exception:
+                        post_url = f"https://{self.blog_name}.tistory.com"
 
-                logger.info(f"🎉 [Tistory-Insurance] 최종 공개 발행 성공! {post_url}")
+                logger.info(f"🎉 [Tistory-Insurance] 티스토리 포스팅 성공: {post_url}")
                 return {
                     "status": "success",
                     "blog_name": self.blog_name,
                     "title": title,
-                    "url": post_url,
                     "post_url": post_url,
-                    "tags": tags
+                    "url": post_url
                 }
 
             except Exception as e:
-                logger.error(f"❌ [Tistory-Insurance] 포스팅 실패: {e}")
-                return {
-                    "status": "error",
-                    "blog_name": self.blog_name,
-                    "message": str(e)
-                }
+                logger.error(f"❌ [Tistory-Insurance] 발행 중 오류: {e}")
+                return {"status": "error", "message": str(e), "blog_name": self.blog_name}
             finally:
-                if is_persistent:
+                if browser:
+                    await browser.close()
+                elif context:
                     await context.close()
-                else:
-                    await context.close()
-                    if browser:
-                        await browser.close()
 
 
 if __name__ == "__main__":

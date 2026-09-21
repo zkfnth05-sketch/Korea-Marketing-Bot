@@ -63,42 +63,64 @@ class InsuranceGeminiWriter:
                 if cached_data.get("body_markdown") and len(cached_data.get("body_markdown", "")) > 100:
                     logger.info(f"⚡ [InsuranceGeminiWriter] 로컬 원고 캐시 즉시 재사용: {cache_file.name} (비용 0원)")
                     cached_data["topic_id"] = topic_id
-                    return cached_data
             except Exception as e:
                 logger.warning(f"⚠️ [InsuranceGeminiWriter] 캐시 로드 실패 ({e}), 신규 작성 진행")
-
-        import google.generativeai as genai
 
         seo_titles = seo_brief.get("seo_title_keywords", [])
         subheadings = seo_brief.get("h2_h3_subheading_keywords", [])
         seeds = seo_brief.get("scoped_seeds", [])
 
-        system_instruction = f"""
-당신은 대한민국 최고의 금융/보험 전문 분석가이자 'InsureBalance'의 수석 에디터입니다.
-소비자의 편에서 복잡하고 불리한 보험 약관을 낱낱이 파헤치고, 불필요한 지출을 막아주는 신뢰감 있고 명쾌한 칼럼을 작성합니다.
+        # 🎬 InsuranceBlogScenarioDirector 연동: 5대 페르소나 및 비주얼 훅 박스 자동 구성
+        try:
+            from brands.insurance.scenarios.insurance_blog_scenario_director import InsuranceBlogScenarioDirector
+            scenario = InsuranceBlogScenarioDirector.pick_daily_scenario(topic_id)
+            system_instruction = InsuranceBlogScenarioDirector.build_system_instruction(scenario)
+        except Exception as e:
+            logger.warning(f"⚠️ [InsuranceGeminiWriter] 시나리오 디렉터 로드 실패 ({e}), 기본 프롬프트 적용")
+            system_instruction = f"""
+당신은 네이버 블로그와 티스토리에서 큰 인기를 얻고 있는 '2030 똑순이 실사용자 금융/생활정보 리뷰어'입니다.
+모바일 사용자의 80%가 글을 정독하지 않고 5~10초 만에 '스크롤 훑어보기(Skimming)'만 한다는 점을 완벽히 간파하여,
+광고/설계사 냄새를 0%로 없애고, 글을 1줄도 안 읽고 스크롤만 내리는 사람도 시선이 턱 걸려서 무조건 [보험리밸런스]를 검색하게 만드는 '비주얼 훅 & 2단 침투형 찐후기 원고'를 작성합니다.
 
-[글쓰기 원칙]
-1. 분량: 한글 공백 포함 2,000자 내외의 깊이 있는 전문 장문 칼럼.
-2. 톤앤매너: 객관적, 전문적, 신뢰감, 친절함. 소비자 권리를 지켜주는 든든한 조언자 어조.
-3. 구성:
-   - 도입부 (Hook): 매달 통장에서 빠져나가는 보험료에 대한 문제 제기 및 현실적인 고민 공감.
-   - H2 소제목 1: {subheadings[0] if len(subheadings) > 0 else '핵심 약관과 보장 내용 팩트체크'}
-   - H2 소제목 2: {subheadings[1] if len(subheadings) > 1 else '소비자가 가장 많이 겪는 손해 및 부지급 사례'}
-   - H2 소제목 3: {subheadings[2] if len(subheadings) > 2 else '전문가가 추천하는 맞춤형 가입 및 리모델링 전략'}
-   - 결론 및 전환 (CTA): 내 보험의 과부족 상태를 3분 만에 진단할 수 있는 '{app_feature}' 솔루션 추천.
-4. 검색어 자연 삽입: {', '.join(seeds)} 키워드를 본문에 문맥상 자연스럽게 녹여낼 것.
-5. 절대 주의: 뻔하고 피상적인 내용 금지. 실제 약관 조항, 질병 코드(C코드, I코드 등), 수술 종류, 구체적 비용 시뮬레이션을 제시할 것.
+[글쓰기 & 비주얼 구조화 절대 원칙]
+1. 분량 및 모바일 최적화 호흡:
+   - 1,300자 내외 (1,300~1,500자), 1~2줄 단위로 시원하게 줄바꿈.
+   - 눈에 확 들어오는 이모지(🚨, 💸, 💡, 🔖, 👉, 🚗, 🧠, 🏥) 적극 활용.
+   - "~합니다" 일변도의 딱딱한 문어체 금지 ❌, "~하더라고요", "~했더니 소름 돋았음", "~정리해드릴게요 🔖" 같은 친근한 구어체 사용 ⭕
+2. 🚨 [절대 엄수: 현실적 보험료 & 과장 뻥튀기 0% 원칙 (REALISTIC ACCURACY)]:
+   - ❌ 실손보험 단독을 10~15만 원 낸다거나, 실손 하나로 7~8만 원 아꼈다는 비현실적 허위 수치 절대 작성 금지!
+   - ⭕ 실손보험은 월 1~3만 원대(절감액 1~2만 원), 운전자보험은 1만 원대(절감액 1~2만 원), 3대 진단비는 7~12만 원대(절감액 2~4만 원), 4인 가족 합산은 40~60만 원대(절감액 5~8만 원) 등 실제 영수증에 기반한 현실적 수치만 작성할 것.
+3. 스키머(훑어보는 사람) 시선 장악용 [2단 비주얼 훅 박스] (필수 삽입):
+   - **1단 박스 (본문 1/3 지점 - 첫 번째 충격 약관 직후)**:
+     > 💡 **[3초 팩트체크] 내 보험도 구멍 뚫려 있을까?**
+     > 🔍 **네이버 검색창에 [보험리밸런스] 검색**
+     > 
+     > 📌 **비용 0원**
+     > 📌 **전화 권유 0통**
+     > 📌 **34개 보험사 실시간 모든 보험 비교**
+   - **2단 박스 (본문 마무리 직전 - 절약 쾌감 직후)**:
+     > 🚗 **[아반떼 값 아끼기] 낭비되는 고정비 1분 만에 잡는 법**
+     > 🔍 **네이버나 구글에 [보험리밸런스] 검색**
+     > 
+     > 📌 **비용 0원**
+     > 📌 **전화 권유 0통**
+     > 📌 **34개 보험사 실시간 모든 보험 비교**
+4. 이미지 앵커 포인트 명시:
+   - 본문 중간에 독자의 시선을 멈추게 할 그래픽 위치를 `[이미지: 3초 진단 결과표]` 및 `[이미지: 네이버 검색창 그래픽 - "보험리밸런스"]` 형태로 명시할 것.
+5. 광고 심의(금소법) 100% 면제:
+   - 특정 상품 판매나 상담 신청 폼/연락처 일절 금지.
+   - 100% 순수 정보 공유 썰 + 포털 검색 유도(Search CTA: [보험리밸런스])로 심의 완전 면제.
 
 [반환 형식: JSON 포맷 필수]
-반드시 마크다운 코드블록(```json ... ```) 안에 유효한 JSON 형식으로만 응답하십시오:
+반드시 유효한 JSON 형식으로만 응답하십시오:
 {{
-  "title_naver": "네이버 스마트블록 검색 1위용 클릭 유도 제목 (핵심 키워드 포함)",
-  "title_tistory": "티스토리 SEO 최적화 전문 정보형 제목",
-  "title_brunch": "브런치스토리 감성적·통찰력 있는 칼럼형 제목",
-  "body_markdown": "H2, H3 소제목과 볼드체, 인용구를 적절히 활용한 2,000자 내외의 완성형 마크다운 본문",
-  "summary": "1줄 요약 (메타 디스크립션용)",
+  "title_naver": "네이버 블로그용 5초 클릭 유도 제목 (충격 썰/이모지/질문형)",
+  "title_tistory": "티스토리 SEO 최적화 정보형 꿀팁 제목",
+  "title_brunch": "브런치스토리용 감성적 가계부 절약 에세이 제목",
+  "body_markdown": "2단 비주얼 박스와 이미지 앵커, 모바일 1~2줄 호흡이 완벽히 구현된 1,200~1,500자 완성형 본문",
+  "summary": "1줄 요약 메타 디스크립션",
   "tags": ["태그1", "태그2", "태그3", "태그4", "태그5"],
-  "visual_prompt": "A professional 16:9 photography prompt in English depicting modern financial planning, insurance documents on a neat wooden desk, a tablet showing graphs, warm natural daylight, highly detailed, realistic 8k editorial look"
+  "visual_prompt": "A stylish 16:9 editorial photograph of a smartphone showing a colorful financial rating chart, placed on a modern clean wooden table next to a cup of iced coffee, sunny daylight, aesthetic 8k"
 }}
 """
 
@@ -107,10 +129,10 @@ class InsuranceGeminiWriter:
 - 주제명: {topic_title}
 - 세부 기획의도: {intent}
 - 카테고리: {category}
-- 연계 InsureBalance 기능: {app_feature}
+- 연계 솔루션: {app_feature} (포털 검색어: [보험리밸런스])
 - SEO 권장 키워드: {', '.join(seeds)}
 
-위 주제로 소비자가 무릎을 탁 칠 만한 실전 보험 가이드 2,000자 칼럼을 작성해주세요.
+위 주제로 모바일 스크롤을 훑어보는 사람도 100% 사로잡아 네이버에 [보험리밸런스]를 검색하게 만드는 비주얼 침투형 블로그 원고를 작성해주세요.
 """
 
         from google import genai
@@ -120,7 +142,8 @@ class InsuranceGeminiWriter:
         for attempt in range(3):
             try:
                 client = genai.Client(api_key=api_key)
-                for m_name in ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]:
+                response = None
+                for m_name in ["gemini-3.6-flash", "gemini-2.5-flash", "gemini-1.5-flash", "gemini-flash-latest"]:
                     try:
                         response = client.models.generate_content(
                             model=m_name,
@@ -128,12 +151,15 @@ class InsuranceGeminiWriter:
                             config=genai_types.GenerateContentConfig(
                                 system_instruction=system_instruction,
                                 temperature=0.7,
-                                max_output_tokens=4096
+                                response_mime_type="application/json"
                             )
                         )
                         break
                     except Exception:
                         continue
+
+                if not response:
+                    raise RuntimeError("모든 Gemini 모델 호출 실패")
 
                 raw_text = response.text.strip()
                 if "```json" in raw_text:
@@ -141,7 +167,19 @@ class InsuranceGeminiWriter:
                 elif "```" in raw_text:
                     raw_text = raw_text.split("```")[1].split("```")[0].strip()
 
-                data = json.loads(raw_text)
+                try:
+                    data = json.loads(raw_text, strict=False)
+                except Exception:
+                    # 제어문자나 특수문자 정제 후 재시도
+                    cleaned_json = re.sub(r'[\x00-\x1f\x7f-\x9f]', lambda m: '\n' if m.group(0) in '\r\n\t' else ' ', raw_text)
+                    data = json.loads(cleaned_json, strict=False)
+                live_tags = seo_brief.get("viral_hashtags", []) if seo_brief else []
+                raw_tags = data.get("tags", []) or tags
+                # 해시태그 '#' 제거 및 실시간 트렌드 보험 해시태그 결합
+                clean_tags = [t.replace("#", "").strip() for t in raw_tags if t.strip()]
+                clean_live = [t.replace("#", "").strip() for t in live_tags if t.strip()]
+                merged_tags = list(dict.fromkeys(clean_tags + clean_live))[:10]
+
                 res = {
                     "title": data.get("title_naver", topic_title),
                     "title_naver": data.get("title_naver", topic_title),
@@ -149,7 +187,7 @@ class InsuranceGeminiWriter:
                     "title_brunch": data.get("title_brunch", topic_title),
                     "body_markdown": data.get("body_markdown", ""),
                     "summary": data.get("summary", ""),
-                    "tags": data.get("tags", tags),
+                    "tags": merged_tags,
                     "visual_prompt": data.get("visual_prompt", ""),
                     "topic_id": topic_id
                 }

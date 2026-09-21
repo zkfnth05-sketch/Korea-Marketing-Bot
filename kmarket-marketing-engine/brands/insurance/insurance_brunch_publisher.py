@@ -119,7 +119,7 @@ class InsuranceBrunchPublisher:
             logger.warning("⚠️ [Brunch-Insurance] 브런치 영구 프로필 또는 세션 파일이 없습니다. 로컬 보관 모드로 유지됩니다.")
             return {
                 "status": "archived_locally",
-                "message": "브런치 세션 부재 - 로컬 원고 보관 완료 (1회 로그인 필요)",
+                "message": "브런치 세션 부재 - 로컬 원고 보관 완료 ([1회연동] bat 실행 필요)",
                 "archive_file": str(save_path.name)
             }
 
@@ -127,9 +127,9 @@ class InsuranceBrunchPublisher:
             is_persistent = self.profile_dir.exists() and any(self.profile_dir.iterdir())
             has_session_file = self.session_file.exists() and self.session_file.stat().st_size > 100
             browser = None
+            context = None
 
             if has_session_file:
-                # 🌟 저장된 영구 세션 파일로 100% 무인 로그인 보장 실행
                 browser = await p.chromium.launch(
                     headless=True,
                     args=["--disable-blink-features=AutomationControlled"]
@@ -158,8 +158,16 @@ class InsuranceBrunchPublisher:
 
                 cur_url = page.url
                 if "signin" in cur_url or "accounts.kakao.com" in cur_url:
-                    logger.warning("⚠️ [Brunch-Insurance] 브런치 세션 만료 감지 (1회 연동 필요)")
-                    return {"status": "error", "message": "로그인 만료 ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"}
+                    logger.info("🔄 [Brunch-Insurance] 브런치 세션 재인증 시도 (/auth/kakao SSO 자동 연동)...")
+                    await page.goto("https://brunch.co.kr/auth/kakao?url=%2Fwrite", wait_until="networkidle", timeout=15000)
+                    await asyncio.sleep(2)
+                    cur_url = page.url
+                    if "signin" in cur_url or "accounts.kakao.com" in cur_url:
+                        logger.warning("⚠️ [Brunch-Insurance] 브런치 세션 만료 감지 (1회 연동 필요)")
+                        return {"status": "error", "message": "로그인 만료 ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"}
+                    else:
+                        await context.storage_state(path=str(self.session_file))
+                        logger.info("🎉 [Brunch-Insurance] 카카오 SSO 자동 재인증 및 영구 세션 갱신 완료!")
 
                 # 제목 입력
                 title_el = page.locator(".wrap_cover textarea, #cover-title-inp, [placeholder*='제목을 입력']").first
