@@ -200,26 +200,30 @@ class InsuranceTistoryPublisher:
 
                 # 6. [완료] 레이어 버튼 클릭
                 layer_btn = await page.wait_for_selector("#publish-layer-btn", timeout=10000)
+                await layer_btn.scroll_into_view_if_needed()
                 await layer_btn.click()
-                await asyncio.sleep(1)
+                await asyncio.sleep(1.5)
 
-                # 7. '공개' 라디오 버튼 강제 체크
-                await page.evaluate("""() => {
-                    const targets = Array.from(document.querySelectorAll('span.checkbox-text, label, .form-field'));
-                    const openTarget = targets.find(l => l.innerText && l.innerText.trim() === '공개');
-                    if (openTarget) openTarget.click();
-                    const openInput = document.querySelector('input[id*="open"]');
-                    if (openInput) openInput.checked = true;
-                }""")
-                await asyncio.sleep(1)
+                # 7. '공개' 라디오 버튼 확실한 클릭 (DOM evaluate 기반)
+                try:
+                    await page.evaluate("""() => {
+                        const label = document.querySelector('label[for="open20"]');
+                        if (label) label.click();
+                        const input = document.querySelector('#open20');
+                        if (input) input.click();
+                    }""")
+                    logger.info("🔓 [Tistory-Insurance] '공개' 라디오 버튼 클릭 성공")
+                except Exception as e:
+                    logger.warning(f"⚠️ [Tistory-Insurance] 공개 라디오 클릭 예외: {e}")
+                await asyncio.sleep(1.0)
 
                 # 8. [공개발행 / 발행] 버튼 클릭
-                pub_btn = await page.wait_for_selector("#publish-btn", timeout=10000)
+                pub_btn = await page.wait_for_selector("#publish-btn, button:has-text('발행'), button:has-text('공개')", timeout=10000)
                 await pub_btn.click()
                 logger.info("⏳ [Tistory-Insurance] 최종 공개발행 클릭 완료, 리다이렉트 대기...")
 
                 try:
-                    await page.wait_for_url(lambda u: "/manage/newpost" not in u and "/manage/posts" in u or f"{self.blog_name}.tistory.com/" in u, timeout=20000)
+                    await page.wait_for_url(lambda u: "/manage/newpost" not in u and ("/manage/posts" in u or f"{self.blog_name}.tistory.com" in u), timeout=20000)
                 except Exception:
                     await asyncio.sleep(4)
 
@@ -227,10 +231,10 @@ class InsuranceTistoryPublisher:
                 logger.info(f"✅ [Tistory-Insurance] 티스토리 최종 URL: {final_url}")
 
                 # 포스트 번호 파싱
-                post_url = final_url
+                post_url = f"https://{self.blog_name}.tistory.com"
                 if "/manage/posts" in final_url:
                     try:
-                        first_post = await page.wait_for_selector(".link_post, .tit_post a, .item_post a", timeout=5000)
+                        first_post = await page.wait_for_selector(".link_post, .tit_post a, .item_post a, td.tit a", timeout=5000)
                         if first_post:
                             href = await first_post.get_attribute("href")
                             if href:

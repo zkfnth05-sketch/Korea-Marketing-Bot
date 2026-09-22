@@ -1,7 +1,7 @@
 {
   "brand": "insurance",
   "name": "InsureBalance",
-  "landing_url": "https://insurebalance.co.kr",
+  "landing_url": "https://insure-rebalance.vercel.app/",
   "credentials": {
     "youtube_channel_id": "",
     "instagram_account_id": "",
@@ -9,9 +9,12 @@
     "threads_token": "",
     "telegram_bot_token": "",
     "tistory_access_token": "",
-    "naver_blog_id": "",
-    "naver_session_cookie": "",
-    "kakao_channel_key": ""
+    "naver_blog_id": "thefirst-life",
+    "naver_session_cookie": "NID_AUT=0WNRFVtowzTvOtGjOwvzW7mPLB5Gm3kMlgaTOFZkC74xflsPqpnnMQa1IgYFLx7E; NID_SES=AAABmUnFJZCfExJIqHpgR/zDCCFmV6eZSitztSHAtz2Y8b0ARHYgGNhbOPg8pXf+dhuHndv7KZa3mPD7ZQSmYbfXaZOOqXZBoa+EG61XgyRO1AtZIk/lvZVcq3zq/z7r/hj5z14//PETMXKfWp3hP9bPOqJsIR74U7Tgnp7efhr2OTpeFvDD9XU1OEyf2O2pTi6erK8pqr/F9V/duY5uKs/mEDdWLFZaDlMNmVw1GotkI6Qnsc+oyZevlomZelXjDmauog+yKpOnNjNyEe9WKZU2AWNAjfoE5Cd/gn00Kqzl0KZTUcTI4Ud7LOCX6Mpn53obLwQa6dqIZUKbdPd1UZ9G1V5ybMfu8VQ6UFSP1vTQXlF9eKcRh5NlSzyaGnbxzZ7DP/4aB8yHjnBPNsur3obrRq7/LlQnxKrHehW2Kr8CdKXAauUQfQtM+WqF1uaxhq913eeCwcABrxhsduCbZ2rDfUZSzoPQgjEtMEW9kB6VCaskCJ6D8LWQElqzYwF8RccMzbjt3NumGzcNQx1wDoWUCPv+MRaqIMW3rgpsROtguJwW;",
+    "kakao_channel_key": "",
+    "tistory_blog_name": "think83157",
+    "tistory_session_cookie": "REACTION_GUEST=96bfbf66d592c2e528ab4ce2b520ed5cdd0e322b; __T_=1; __T_SECURE=1; TOP-XSRF-TOKEN=47352f89-4361-46ab-b4af-da39c049fadf; TUID=w-pi4Bb4JzLHjL_260922135556222; TSID=w-pi4Bb4JzLHjL_260922135556222; UUID=wNHrC_NyJriPRYCJzkb2NuwpeBDqQdZ1BBd6wDQoPaPef7YzH4adng00; _SUID=w-6HpKC9GL5OdI_260922889224514; _ISUID=w-YXfu5zn7Mpk3_260922320963793; TSSESSION=0f36b87f091f1c1ec4ec9e64fcff2faf9d738fce; __T_=1; __T_SECURE=1; IS_TC=0; _T_ANO=I1DhaB/5H0nw9Vplvw8BKp6g5foCBWEbQPYjAiq3MJaPuVKM575gSWYzKCl7G1NXDhN4nYM66k07cL1oyfxSzuoc2Wf8gmoBwPfV9mRZYuD+1dSpbwWjPfzGSGvRqmr2F7rNeObJFo1iCakIby8Uzv3gq/sTfUpJU2MCuTxSvqIsfffDehKeCnn0NMJybHrvvPux9XRjRCPA+iq9UoQX6vUH3fZOxr8au+YpgzH16wy6YyljJroZPtBcBBC7MqOfNR1QVynPdJJY9ig3jDM9hsuQzOQetRbtWsxHP3JAuJdERJx+Cr+G7bVQsFb2dBzllA4ymREGB/1vgGzzw/CZSQ==",
+    "brunch_session_cookie": "b_s_a_l=1; __T_=1; __T_SECURE=1; TUID=w-LelzKZfgVrJ8_260922140030901; TSID=w-LelzKZfgVrJ8_260922140030901; UUID=.BBY.KkWFOHvHNlnzqae2KVOGiBkdI2OSW3foEyZd4q7suMVXKkCEw00; _SUID=w-ABSHppDDDXdG_260922194525871; _ISUID=w-DELA1uzl6qih_260922143065375; bid=\"1NK9jiZZOZLSZviOQvfiwljWGYGN03yDkVW5biADgjNFjoZ6Zc482du0SJ4qDkZOnMkeMfm+pmVwSn8SeZN6tvswD1dU1xyAuyrvtObUNsA=\"; _T_ANO=S/KABXTVB9S32stsyaa0ie/161T33U7kwXxc46tth5fspcGysrnmv4W+82UYkk6zlSysJJBIFeTWUcSENShygoYmwEO2fqf90A8OwUHMgfGhu/vPm9hGaZaMOjHQJVmVtuCBvuYtjlwJZivzVP/3d//L1u94rkEKzIsAEo4dn7V10GwtuDSBnHe5sivZEUrjffnCwP/0fi1aeg5A8IrVG0B2LumK124lOcM46wo9GOgpyuBSMnshvCEZxsapA3FUixWkWKkmBR/scPmIKphekhc5mWpH2VnAZ5AVsGa8kzUr/KBwWmSmW0BHEdxa3TKJzDP763JOineTPUKqPqUMHw=="
   },
   "notes": "보험 비교 InsureBalance 앱 전용 SNS 및 국내 플랫폼 계정/세션 설정 파일. 기존 8대 파이프라인 코드는 건드리지 않고 이 설정만 세팅하면 가동됩니다."
 }

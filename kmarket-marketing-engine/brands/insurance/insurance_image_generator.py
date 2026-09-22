@@ -118,19 +118,33 @@ class InsuranceImageGenerator:
                 "prompt_used": prompt
             }
 
-        # 4. 비상용 Unsplash 고화질 실사 폴백
+        # 4. 비상용 Unsplash 고화질 실사 폴백 및 로컬 디스크 다운로드 보장
         import random
         fallback_url = random.choice(self.FALLBACK_IMAGES)
-        logger.info(f"📸 [InsuranceImageGen] 비상용 Unsplash 폴백 사용: {fallback_url}")
+        logger.info(f"📸 [InsuranceImageGen] 고화질 실사 사진 다운로드 저장: {fallback_url}")
+        try:
+            resp = requests.get(fallback_url, timeout=15)
+            if resp.status_code == 200 and len(resp.content) > 1000:
+                with open(local_path, "wb") as f:
+                    f.write(resp.content)
+                return {
+                    "image_path": str(local_path),
+                    "web_url": str(local_path),
+                    "is_fallback": True,
+                    "prompt_used": prompt
+                }
+        except Exception as e:
+            logger.warning(f"폴백 이미지 다운로드 실패: {e}")
+
         return {
-            "image_path": "",
+            "image_path": str(local_path) if local_path.exists() else "",
             "web_url": fallback_url,
             "is_fallback": True,
             "prompt_used": prompt
         }
 
     def _try_gemini_image(self, prompt: str, save_path: Path) -> bool:
-        """Google Imagen 3 API를 통한 고품질 실사 이미지 생성"""
+        """Google Gemini 공식 이미지 모델(gemini-2.5-flash-image)을 통한 고품질 실사 이미지 직접 생성"""
         try:
             from google import genai
             from google.genai import types
@@ -139,23 +153,27 @@ class InsuranceImageGenerator:
                 return False
 
             client = genai.Client(api_key=api_key)
-            result = client.models.generate_images(
-                model='imagen-3.0-generate-002',
-                prompt=prompt,
-                config=types.GenerateImagesConfig(
-                    number_of_images=1,
-                    aspect_ratio="16:9",
-                    person_generation="ALLOW_ADULT",
-                    safety_filter_level="BLOCK_MEDIUM_AND_ABOVE"
-                )
-            )
-            for generated_image in result.generated_images:
-                with open(save_path, "wb") as f:
-                    f.write(generated_image.image.image_bytes)
-                logger.info(f"✅ [InsuranceImageGen] Imagen 3 생성 성공: {save_path.name}")
-                return True
+            # 16:9 비율 실사 프롬프트
+            full_prompt = f"{prompt}, realistic 16:9 photography, clean natural sunlight, 8k professional editorial shot"
+
+            for m_name in ["gemini-2.5-flash-image", "gemini-3.1-flash-image", "gemini-3-pro-image"]:
+                try:
+                    response = client.models.generate_content(
+                        model=m_name,
+                        contents=full_prompt
+                    )
+                    if response and response.candidates:
+                        for part in response.candidates[0].content.parts:
+                            if hasattr(part, 'inline_data') and part.inline_data:
+                                with open(save_path, "wb") as f:
+                                    f.write(part.inline_data.data)
+                                logger.info(f"✅ [InsuranceImageGen] Gemini AI 이미지 직접 생성 성공 ({m_name}): {save_path.name}")
+                                return True
+                except Exception as inner_e:
+                    logger.debug(f"모델 {m_name} 시도 통과: {inner_e}")
+                    continue
         except Exception as e:
-            logger.debug(f"Imagen 3 시도 실패 ({e})")
+            logger.warning(f"⚠️ [InsuranceImageGen] Gemini 이미지 생성 실패: {e}")
         return False
 
     def _try_pollinations_image(self, prompt: str, save_path: Path) -> bool:

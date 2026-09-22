@@ -78,15 +78,22 @@ class InsuranceNaverPublisher:
 
     @staticmethod
     def format_clean_naver_text(raw_text: str, landing_url: str = "") -> str:
-        """마크다운 기호(#, ###, ![], **)를 완전 제거하고 가독성 높은 네이버 블로그 전용 본문으로 변환"""
-        # 1. 마크다운 이미지 태그 제거
+        """마크다운 기호(#, ###, ![], **, >, [이미지:...])를 완전 제거하고 가독성 높은 네이버 블로그 전용 본문으로 변환"""
+        # 1. 마크다운 이미지 태그 및 [16:9...], [이미지:...], [사진:...] 안내 찌꺼기 완벽 제거
         text = re.sub(r'!\[.*?\]\(.*?\)', '', raw_text)
+        text = re.sub(r'\[.*?16:9.*?\]', '', text, flags=re.IGNORECASE)
+        text = re.sub(r'\[.*?이미지.*?\]', '', text)
+        text = re.sub(r'\[.*?사진.*?\]', '', text)
+        text = re.sub(r'🖼️\s*\[.*?\]', '', text)
+        text = re.sub(r'━{3,}', '', text)
+        text = re.sub(r'-{4,}', '', text)
+        text = re.sub(r'={4,}', '', text)
 
         # 2. 마크다운 링크 [라벨](URL) 정제:
         def _clean_md_link(match):
             label = match.group(1).strip()
             url = match.group(2).strip()
-            return f"{label}\n👉 {url}"
+            return f"{label} ( 👉 {url} )"
 
         text = re.sub(r'\[([^\]]+)\]\((https?://[^\s\)]+)\)', _clean_md_link, text)
 
@@ -100,6 +107,15 @@ class InsuranceNaverPublisher:
             if not l:
                 cleaned_lines.append("")
                 continue
+
+            # 마크다운 인용구 > 기호 완벽 정제
+            while l.startswith(">"):
+                l = l[1:].strip()
+
+            if not l:
+                cleaned_lines.append("")
+                continue
+
             if l.startswith("# "):
                 continue  # 대제목은 이미 제목란에 입력됨
             elif l.startswith("## ") or l.startswith("### "):
@@ -159,21 +175,30 @@ class InsuranceNaverPublisher:
                 await page.goto(write_url, wait_until="domcontentloaded", timeout=timeout_sec * 1000)
                 await asyncio.sleep(2.5)
 
-                # 1. 팝업 및 도움말 패널 완전 닫기 (DOM JS 직접 제거)
-                await page.evaluate("""() => {
-                    const cancel = document.querySelector('.se-popup-button-cancel');
-                    if (cancel) cancel.click();
-                    document.querySelectorAll('.se-popup, .se-popup-dim, aside, [class*="help_panel"]').forEach(el => el.remove());
-                }""")
-                await asyncio.sleep(1.0)
+                # 1. 팝업 및 도움말 패널, 딤 레이어 완전 닫기
+                try:
+                    cancel_btn = await page.wait_for_selector('.se-popup-button-cancel', timeout=3000)
+                    if cancel_btn:
+                        await cancel_btn.click(force=True)
+                except Exception:
+                    pass
+
+                for _ in range(3):
+                    await page.evaluate("""() => {
+                        const cancel = document.querySelector('.se-popup-button-cancel');
+                        if (cancel) cancel.click();
+                        document.querySelectorAll('.se-popup, .se-popup-dim, aside, [class*="help_panel"], [class*="help_layer"]').forEach(el => el.remove());
+                    }""")
+                    await asyncio.sleep(0.5)
 
                 # 2. 제목 입력
                 title_ph = await page.query_selector(".se-documentTitle .se-placeholder, .se-documentTitle [contenteditable='true'], [class*='documentTitle'] [contenteditable='true'], .se-title-text, .se-documentTitle")
                 if title_ph:
-                    await title_ph.click()
+                    await title_ph.click(force=True)
                     await asyncio.sleep(0.3)
                     await page.keyboard.type(title, delay=10)
                     await asyncio.sleep(0.5)
+                    await page.keyboard.press("Enter")
                     logger.info(f"📝 [Naver-Insurance] 제목 입력 성공: '{title}'")
                 else:
                     await page.evaluate("""(t) => {
@@ -183,39 +208,69 @@ class InsuranceNaverPublisher:
                             el.dispatchEvent(new Event('input', { bubbles: true }));
                         }
                     }""", title)
-                    logger.info(f"📝 [Naver-Insurance] 제목 JS 직접 주입 완료: '{title}'")
 
-                # 3. 본문 입력란 활성화
-                body_ph = await page.query_selector(".se-component-content .se-fs16.se-placeholder, .se-main-container .se-placeholder, .se-component-content [contenteditable='true']")
-                if body_ph:
-                    await body_ph.click()
-                    await asyncio.sleep(0.5)
-
-                # 4. 🌟 16:9 감성 대표 실사 사진 먼저 업로드
+                # 3. 🌟 제미나이 16:9 실사 사진 본문 맨 위 업로드
                 if image_paths and len(image_paths) > 0 and Path(image_paths[0]).exists():
                     img_file = Path(image_paths[0]).resolve()
                     try:
+                        # 팝업 및 딤 레이어 강제 즉시 제거
+                        await page.evaluate("""() => {
+                            const cancel = document.querySelector('.se-popup-button-cancel');
+                            if (cancel) cancel.click();
+                            document.querySelectorAll('.se-popup, .se-popup-dim, aside, [class*="help_panel"], [class*="help_layer"]').forEach(el => el.remove());
+                        }""")
+                        await asyncio.sleep(0.5)
+
                         photo_btn = await page.query_selector("button:has-text('사진'), .se-image-toolbar-button")
                         if photo_btn:
-                            async with page.expect_file_chooser(timeout=5000) as fc_info:
-                                await photo_btn.click()
+                            async with page.expect_file_chooser(timeout=7000) as fc_info:
+                                await photo_btn.click(force=True)
                             file_chooser = await fc_info.value
                             await file_chooser.set_files(str(img_file))
-                            logger.info(f"📸 [Naver-Insurance] 대표 이미지 업로드 완료: {img_file.name}")
-                            await asyncio.sleep(3.5)
+                            logger.info(f"📸 [Naver-Insurance] 제미나이 대표 이미지 업로드 완료: {img_file.name}")
+                            await asyncio.sleep(4.0)
                     except Exception as e:
                         logger.warning(f"⚠️ [Naver-Insurance] 사진 업로드 통과: {e}")
 
-                # 5. 정제 본문 클립보드 붙여넣기
+                # 4. 사진 아래 본문 영역으로 이동
+                await page.keyboard.press("PageDown")
                 await page.keyboard.press("ArrowDown")
                 await page.keyboard.press("Enter")
                 await asyncio.sleep(0.5)
 
+                # 5. 정제 본문 + 클릭 가능한 파란색 CTA 카드 HTML 클립보드 주입
                 clean_body = self.format_clean_naver_text(content_text, landing_url)
-                await page.evaluate("text => navigator.clipboard.writeText(text)", clean_body)
+                
+                # HTML 형태의 단락 및 CTA 카드 블록 생성
+                paragraphs = clean_body.split("\n\n")
+                body_html_parts = []
+                for p_text in paragraphs:
+                    p_clean = p_text.strip().replace("\n", "<br/>")
+                    if p_clean:
+                        body_html_parts.append(f"<p>{p_clean}</p>")
+                
+                # 파란색 좌측 바 + 클릭 가능한 파란 버튼 CTA 카드
+                cta_card_html = f"""
+<br/>
+<blockquote style="margin: 30px 0; padding: 20px; background-color: #f8fafc; border-left: 5px solid #0284c7; border-radius: 6px;">
+  <p style="font-weight: bold; font-size: 16px; margin: 0 0 8px 0; color: #0f172a;">🛡️ 내 보험 보장 점수, 3분 만에 확인해보세요</p>
+  <p style="font-size: 14px; color: #475569; margin: 0 0 14px 0;">복잡한 보험 약관과 부족한 보장, 보험리밸런스가 객관적으로 진단해 드립니다.</p>
+  <p style="margin: 0;"><a href="{landing_url}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #0284c7; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px;">보험리밸런스 무료 진단 시작하기 👉</a></p>
+</blockquote>
+<br/>
+"""
+                full_paste_html = "".join(body_html_parts) + cta_card_html
+
+                await page.evaluate("""({html, text}) => {
+                    const blobHtml = new Blob([html], { type: 'text/html' });
+                    const blobText = new Blob([text], { type: 'text/plain' });
+                    const item = new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText });
+                    return navigator.clipboard.write([item]);
+                }""", {"html": full_paste_html, "text": clean_body})
+
                 await page.keyboard.press("Control+V")
-                await asyncio.sleep(2.0)
-                logger.info("📝 [Naver-Insurance] 정제 본문 클립보드 붙여넣기 완료")
+                await asyncio.sleep(2.5)
+                logger.info("📝 [Naver-Insurance] 본문 및 클릭 가능한 파란색 CTA 카드 붙여넣기 완료")
 
                 # 6. 상단 우측 [발행] 버튼 클릭 (발행 설정 레이어 열기)
                 publish_opened = False
