@@ -35,31 +35,53 @@ class InsuranceSearchIndexingHub:
     """🛡️ InsureBalance 2대 포털 검색엔진 (구글 + 네이버) 동시 색인 핑 통합 허브"""
 
     BRAND_NAME = "InsureBalance (보험비교)"
-    LANDING_URL = "https://insure-balance.vercel.app/"
-    SITEMAP_URL = "https://insure-balance.vercel.app/sitemap.xml"
+    LANDING_URL = "https://insure-rebalance.vercel.app/"
+    SITEMAP_URL = "https://insure-rebalance.vercel.app/sitemap_insurance.xml"
 
     def __init__(self):
         pass
 
     def get_target_urls(self) -> List[str]:
         """InsureBalance 주요 URL 및 최신 콘텐츠 URL 목록 반환"""
-        return [
+        urls = [
             self.LANDING_URL,
-            f"{self.LANDING_URL}compare",
-            f"{self.LANDING_URL}guides",
-            self.SITEMAP_URL
+            f"{self.LANDING_URL}rebalance-center",
+            f"{self.LANDING_URL}compare-hub",
+            f"{self.LANDING_URL}calculator-hub",
+            f"{self.LANDING_URL}claims-hub",
+            self.SITEMAP_URL,
+            "https://insure-rebalance.vercel.app/sitemap.xml"
         ]
 
+        # sitemap_insurance.xml이 생성되어 있으면 대표 URL 30개 추가 로드
+        sitemap_path = PROJECT_ROOT / "outputs" / "sitemaps" / "sitemap_insurance.xml"
+        if sitemap_path.exists():
+            try:
+                import xml.etree.ElementTree as ET
+                tree = ET.parse(sitemap_path)
+                root = tree.getroot()
+                count = 0
+                for elem in root.findall("{http://www.sitemaps.org/schemas/sitemap/0.9}url/{http://www.sitemaps.org/schemas/sitemap/0.9}loc"):
+                    if elem.text and elem.text not in urls:
+                        urls.append(elem.text)
+                        count += 1
+                        if count >= 30: # 1회 핑 대상 30개
+                            break
+            except Exception as e:
+                logger.debug(f"사이트맵 파싱 예외: {e}")
+
+        return urls
+
     def ping_google_search_console(self, urls: List[str]) -> Dict[str, Any]:
-        """① 구글 서치콘솔: Googlebot 실시간 색인 핑 전송"""
+        """① 구글 서치콘솔: Googlebot 실시간 색인 핑 전송 (Google Indexing API v3)"""
         try:
             from core.google_indexing_client import GoogleIndexingClient
-            client = GoogleIndexingClient(brand="easytax") # 공용 서비스 계정 풀 활용
+            client = GoogleIndexingClient(brand="kmarket") # 공용 서비스 계정 풀 활용
             if client.is_configured():
-                res = client.publish_url(urls[0])
+                res = client.batch_publish_urls(urls, max_limit=15)
                 return {"status": "success", "platform": "google_search_console", "count": len(urls), "detail": res}
             else:
-                logger.info(f"[DRY-RUN] 구글 서치콘솔 색인 핑 시뮬레이션: {urls[0]}")
+                logger.info(f"[DRY-RUN] 구글 서치콘솔 색인 핑 시뮬레이션 ({len(urls)}개 URL): {urls[0] if urls else ''}")
                 return {"status": "simulated", "platform": "google_search_console", "count": len(urls), "message": "Googlebot 색인 핑 전송 시뮬레이션 완료"}
         except Exception as ex:
             logger.info(f"[DRY-RUN] 구글 서치콘솔 색인 핑 시뮬레이션: {ex}")

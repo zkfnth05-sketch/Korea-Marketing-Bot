@@ -118,10 +118,11 @@ class StockBlogEngine:
         self,
         topic_id: Optional[int] = None,
         use_gemini: bool = True,
-        generate_photo: bool = True
+        generate_photo: bool = True,
+        use_live_trend: bool = True
     ) -> Dict[str, Any]:
         """
-        100대 주제 중 1개를 선택하여 실시간 키워드 결합 ➔ Gemini 2,000자 칼럼 ➔ 맞춤 사진 1장 생성
+        🔥 [3박자 퀀트 결합] 당일 실시간 핫 우량주 트렌드 + 100대 주제 ➔ Gemini 2,000자 칼럼 ➔ 맞춤 사진 1장 생성
         """
         # 1. 주제 선택
         if topic_id is not None:
@@ -131,13 +132,17 @@ class StockBlogEngine:
 
         cat_key = topic["category"]
         seed_topic = topic["title"]
-        app_feature = topic.get("app_feature", "StockMaster AI 수급 레이더")
+        app_feature = topic.get("app_feature", "StockMaster AI 10분 계량 전광판")
 
-        # 2. 실시간 키워드 추출
-        seo_brief = self.keyword_matrix.build_seo_article_brief(
-            seed_topic=seed_topic,
-            category=cat_key
-        )
+        # 2. 실시간 증시 수급 트렌드 또는 고검색량 키워드 추출
+        if use_live_trend:
+            seo_brief = self.keyword_matrix.build_live_trend_brief()
+            logger.info(f"🔥 [StockBlog] 실시간 핫 종목 매트릭스 결합: {seo_brief.get('live_stock', {}).get('name', '우량주')}")
+        else:
+            seo_brief = self.keyword_matrix.build_seo_article_brief(
+                seed_topic=seed_topic,
+                category=cat_key
+            )
 
         # 3. Gemini 실시간 본문 작성
         gemini_result = None
@@ -145,7 +150,7 @@ class StockBlogEngine:
             try:
                 writer = self._get_writer()
                 gemini_result = writer.write_magazine_article(topic, seo_brief)
-                logger.info(f"✅ [StockBlog] Gemini 2,000자 칼럼 작성 완료: '{gemini_result['title']}'")
+                logger.info(f"✅ [StockBlog] Gemini 2,000자 칼럼 작성 완료: '{gemini_result.get('title_naver', gemini_result.get('title'))}'")
             except Exception as e:
                 logger.warning(f"⚠️ [StockBlog] Gemini 작성 실패: {e}")
 

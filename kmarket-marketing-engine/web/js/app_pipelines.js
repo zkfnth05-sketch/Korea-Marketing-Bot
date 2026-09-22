@@ -73,7 +73,11 @@ const APP_PIPELINES = {
                 name: "🌐 2대 검색엔진 동시 색인 핑 허브",
                 icon: "🌐",
                 desc: "<b>🌐 [검색엔진 동시 색인 핑]</b> (신규 콘텐츠 즉시 수집 요청 & 색인 가속)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 구글 서치콘솔 (Google Search Console & Googlebot 실시간 색인 핑)<br>➔ ② 네이버 서치어드바이저 (Naver Search Advisor & Yeti 봇 즉시 수집 요청)</div>",
-                isSeo: true
+                isSeo: true,
+                googleConsoleUrl: "https://search.google.com/search-console",
+                naverAdvisorUrl: "https://searchadvisor.naver.com/console/board",
+                sitemapUrl: "https://stockmaster-ai.vercel.app/sitemap.xml",
+                domainUrl: "https://stockmaster-ai.vercel.app/"
             },
             // #7 [통합] 2대 텍스트 스토리 타래 허브 (Threads + X)
             {
@@ -236,8 +240,12 @@ const APP_PIPELINES = {
                 hubNumber: 6,
                 name: "🌐 2대 검색엔진 동시 색인 핑 허브",
                 icon: "🌐",
-                desc: "<b>🌐 [검색엔진 동시 색인 핑]</b> (신규 콘텐츠 즉시 수집 요청 & 색인 가속)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 구글 서치콘솔 (Google Search Console & Googlebot 실시간 색인 핑)<br>➔ ② 네이버 서치어드바이저 (Naver Search Advisor & Yeti 봇 즉시 수집 요청)</div>",
-                isSeo: true
+                desc: "<b>🌐 [검색엔진 동시 색인 핑]</b> (7,005개 URL 즉시 수집 요청 & 색인 가속)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 구글 서치콘솔 (7,005개 색인 팡 제출 완료 & Googlebot 실시간 색인 핑)<br>➔ ② 네이버 서치어드바이저 (소유권 인증 완료 & Yeti 봇 즉시 수집 요청)</div>",
+                isSeo: true,
+                googleConsoleUrl: "https://search.google.com/search-console",
+                naverAdvisorUrl: "https://searchadvisor.naver.com/console/board",
+                sitemapUrl: "https://aura-ai-dating.vercel.app/sitemap_aura.xml",
+                domainUrl: "https://aura-ai-dating.vercel.app/lounge"
             },
             // #7 [통합] 2대 텍스트 스토리 타래 허브 (Threads + X)
             {
@@ -253,9 +261,11 @@ const APP_PIPELINES = {
                 id: "naver_kin",
                 key: "naver_kin",
                 hubNumber: 14,
-                name: "네이버 지식iN 실시간 낚아채기",
+                name: "💡 네이버 지식iN 100대 황금키워드 낚아채기",
                 icon: "💡",
-                desc: "\"소개팅 첫 카톡\", \"호감 신호\" 실시간 질문 답변"
+                desc: "<b>💡 [100대 황금키워드 실시간 레이더]</b> (연애/소개팅/핫플 100개 키워드 실시간 스캔 + 85점 심사 + 3박자 킬러 답변)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 100대 황금 키워드 실시간 질문 낚아채기 (하루 딱 10개 엄선)<br>➔ ② Gemini 2.5 Flash 적합도 85점 이상 선별 (쓰레기글 100% 차단)<br>➔ ③ 2030 동네 언니/형 3박자 킬러 답변 (고민해결 70% + 타사비교 20% + Aura링크 10%)</div>",
+                isKin: true,
+                kinUrl: "https://kin.naver.com"
             },
             // #15 네이버 카페
             {
@@ -401,7 +411,11 @@ const APP_PIPELINES = {
                 name: "🌐 2대 검색엔진 동시 색인 핑 허브",
                 icon: "🌐",
                 desc: "<b>🌐 [검색엔진 동시 색인 핑]</b> (신규 콘텐츠 즉시 수집 요청 & 색인 가속)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 구글 서치콘솔 (Google Search Console & Googlebot 실시간 색인 핑)<br>➔ ② 네이버 서치어드바이저 (Naver Search Advisor & Yeti 봇 즉시 수집 요청)</div>",
-                isSeo: true
+                isSeo: true,
+                googleConsoleUrl: "https://search.google.com/search-console",
+                naverAdvisorUrl: "https://searchadvisor.naver.com/console/board",
+                sitemapUrl: "https://insure-balance.vercel.app/sitemap.xml",
+                domainUrl: "https://insure-balance.vercel.app/"
             },
             // #7 [통합] 2대 텍스트 스토리 타래 허브 (Threads + X)
             {

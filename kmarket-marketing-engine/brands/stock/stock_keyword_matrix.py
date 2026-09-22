@@ -84,3 +84,53 @@ class StockKeywordMatrix:
             "viral_hashtags": tags,
             "scoped_seeds": chosen_seeds
         }
+
+    def build_live_trend_brief(self) -> Dict[str, Any]:
+        """
+        🔥 [실시간 3박자 퀀트 결합] 당일 네이버 실시간 검색 상위 우량주 기반 핫이슈 패키지 생성
+        """
+        try:
+            from brands.stock.stock_live_trend_scanner import StockLiveTrendScanner
+            scanner = StockLiveTrendScanner()
+            live_stock = scanner.get_curated_live_stock_trend()
+        except Exception as e:
+            live_stock = {
+                "name": "삼성전자",
+                "code": "005930",
+                "sector": "반도체/HBM",
+                "price": "실시간 수급 집중",
+                "change_rate": "+2.5%",
+                "keywords": ["HBM3E", "외국인순매수", "목표주가", "20일선지지선"],
+                "is_live_hit": False
+            }
+
+        name = live_stock["name"]
+        sector = live_stock["sector"]
+        keywords = live_stock.get("keywords", [])
+        seeds = [f"{name} {kw}" for kw in keywords[:3]]
+
+        title_keywords = [
+            f"오늘 실검 1위 [{name}] 급등, 10분 계량 전광판의 진단은?",
+            f"외국인·기관 연속 순매수 [{name}] {keywords[0] if keywords else '수급'} 긴급 분석",
+            f"[{name}] 목표주가와 20일선 지지선 손익비 팩트체크"
+        ]
+
+        subheading_keywords = [
+            f"1. 오늘 실시간 수급 핫이슈: {name} ({sector}) 자금 쏠림 배경",
+            f"2. 펀더멘털과 20일 이동평균선 차트 지지/저항 데이터 정밀 진단",
+            f"3. 뇌동매매 방지: StockMaster 10분 계량 전광판 & -5% 리스크 관리 대응"
+        ]
+
+        tags = [f"#{name}", f"#{name}주가", f"#{sector}", "#외국인순매수", "#StockMaster", "#주식AI", "#10분계량전광판"]
+
+        return {
+            "is_live_trend": True,
+            "live_stock": live_stock,
+            "category": "korea_market",
+            "seed_topic": f"오늘 실시간 검색어 1위 [{name}] ({sector}) 퀀트 수급 분석",
+            "seo_title_keywords": title_keywords,
+            "h2_h3_subheading_keywords": subheading_keywords,
+            "viral_hashtags": tags,
+            "scoped_seeds": seeds
+        }
+

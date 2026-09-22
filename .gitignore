@@ -61,3 +61,9 @@ gfpgan/
 # 🌐 크롬 브라우저 세션 프로필 및 캐시
 *_chrome_profile/
 **/*_chrome_profile/
+*browser_profile/
+**/*browser_profile/
+naver_browser_profile/
+**/naver_browser_profile/
+scratch_*.py
+debug_*.py

@@ -38,7 +38,8 @@ OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
 class InsuranceTextThreadHub:
     """🛡️ InsureBalance 보험비교 2대 텍스트 스토리 타래 통합 허브"""
 
-    LANDING_URL = "https://insure-balance.vercel.app/"
+    BRAND = "insurance"
+    LANDING_URL = "https://insure-rebalance.vercel.app/"
     BRAND_NAME = "InsureBalance (보험비교)"
 
     # 1/n 줄줄이 실화 썰 타래 템플릿

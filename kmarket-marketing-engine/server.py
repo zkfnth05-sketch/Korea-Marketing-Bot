@@ -169,6 +169,23 @@ def _brand_daemon_loop(brand: str):
                 log_event(f"🎉 [{brand_kr}] 사이클 #{brand_stats[brand]['cycle']} 완료! 주제: '{res.get('title')}' (네이버: {naver_url} | 티스토리: {tistory_url})", "success")
             else:
                 log_event(f"ℹ️ [{brand_kr}] 파이프라인 처리 완료", "info")
+
+            # 🌐 [2대 포털 검색엔진 동시 색인 핑 자동 전송]
+            try:
+                if brand == "aura":
+                    from brands.aura.aura_search_indexing_hub import AuraSearchIndexingHub
+                    ping_res = AuraSearchIndexingHub().ping_all_engines()
+                    log_event(f"🌐 [{brand_kr}] 구글·네이버 실시간 색인 핑 자동 완료 ({ping_res.get('results', {}).get('google', {}).get('status', 'OK')})", "info")
+                elif brand == "insurance":
+                    from brands.insurance.insurance_search_indexing_hub import InsuranceSearchIndexingHub
+                    ping_res = InsuranceSearchIndexingHub().ping_all_engines()
+                    log_event(f"🌐 [{brand_kr}] 구글·네이버 실시간 색인 핑 자동 완료 ({ping_res.get('results', {}).get('google', {}).get('status', 'OK')})", "info")
+                elif brand == "stock":
+                    from brands.stock.stock_search_indexing_hub import StockSearchIndexingHub
+                    ping_res = StockSearchIndexingHub().ping_all_engines()
+                    log_event(f"🌐 [{brand_kr}] 구글·네이버 실시간 색인 핑 자동 완료 ({ping_res.get('results', {}).get('google', {}).get('status', 'OK')})", "info")
+            except Exception as pe:
+                log_event(f"⚠️ [{brand_kr}] 색인 핑 자동 전송 예외: {pe}", "warning")
             
             # 다음 사이클 대기 (30분 간격, 5초마다 정지 신호 체크)
             for _ in range(360):
@@ -530,10 +547,14 @@ def execute_single_channel_task(module_name: str) -> str:
             res = AuraPipeline(dry_run=False).run_viral_community_cycle()
             return f"💖 [Aura 커뮤니티 바이럴] 네이트판 사연 & 디시 연애갤 투고 완료"
         elif module_name == "aura_naver_kin":
-            from brands.aura.aura_pipeline import AuraPipeline
-            res = AuraPipeline(dry_run=False).run_qa_and_lead_cycle()
-            return f"💖 [Aura 지식iN] 1:1 데이팅 고민 상담 답변 투고 완료"
-        elif module_name in ["aura_seo", "aura_search_advisor", "aura_omni_seo"]:
+            from brands.aura.aura_kin_pipeline import AuraKinPipeline
+            res = AuraKinPipeline().run_catch_cycle(max_catch=1)
+            if res.get("success"):
+                rec = res.get("record", {})
+                return f"💖 [Aura 지식iN 낚아채기 완료] '{rec.get('title', '')}' (적합도 {rec.get('score')}점)"
+            else:
+                return f"💖 [Aura 지식iN] {res.get('message', '대기 중')}"
+        elif module_name in ["aura_seo", "aura_search_advisor", "aura_omni_seo", "aura_google_ping"]:
             from brands.aura.aura_search_indexing_hub import AuraSearchIndexingHub
             res = AuraSearchIndexingHub().ping_all_engines()
             return res.get("message", "🌐 Aura 2대 포털 검색엔진 동시 색인 핑 전송 완료")
@@ -573,7 +594,7 @@ def execute_single_channel_task(module_name: str) -> str:
             from brands.insurance.insurance_text_thread_hub import InsuranceTextThreadHub
             res = InsuranceTextThreadHub().publish_omni_thread()
             return res.get("message", "🛡️ 보험비교 2대 텍스트 스토리 타래 완성 및 배포 완료")
-        elif module_name in ["insurance_seo", "insurance_search_advisor", "insurance_omni_seo"]:
+        elif module_name in ["insurance_seo", "insurance_search_advisor", "insurance_omni_seo", "insurance_google_ping"]:
             from brands.insurance.insurance_search_indexing_hub import InsuranceSearchIndexingHub
             res = InsuranceSearchIndexingHub().ping_all_engines()
             return res.get("message", "🌐 보험비교 2대 포털 검색엔진 동시 색인 핑 전송 완료")
@@ -612,7 +633,7 @@ def execute_single_channel_task(module_name: str) -> str:
             from brands.stock.stock_text_thread_hub import StockTextThreadHub
             res = StockTextThreadHub().publish_omni_thread()
             return res.get("message", "📈 주식AI 2대 텍스트 스토리 타래 완성 및 배포 완료")
-        elif module_name in ["stock_seo", "stock_search_advisor", "stock_omni_seo"]:
+        elif module_name in ["stock_seo", "stock_search_advisor", "stock_omni_seo", "stock_google_ping"]:
             from brands.stock.stock_search_indexing_hub import StockSearchIndexingHub
             res = StockSearchIndexingHub().ping_all_engines()
             return res.get("message", "🌐 주식AI 2대 포털 검색엔진 동시 색인 핑 전송 완료")
@@ -675,6 +696,19 @@ def channel_continuous_worker(module_name: str):
             channel_name=f"{brand_name} 블로그/칼럼",
             publish_fn=lambda: execute_single_channel_task(module_name),
             time_slots=["09:00", "13:00", "19:00"]
+        )
+        scheduler.run_scheduled_loop(
+            is_running_checker=lambda: running_channels.get(module_name, False),
+            on_log=log_event
+        )
+        return
+
+    # ⏰ #5-1 [💖 Aura 네이버 지식iN 100대 황금키워드 4대 슬롯 30분 정밀 레이더]
+    if module_name == "aura_naver_kin":
+        scheduler = ChannelScheduler(
+            channel_name="💖 Aura 지식iN 100대 키워드 레이더",
+            publish_fn=lambda: execute_single_channel_task("aura_naver_kin"),
+            interval_seconds=1800
         )
         scheduler.run_scheduled_loop(
             is_running_checker=lambda: running_channels.get(module_name, False),
@@ -955,6 +989,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
         elif path == "/api/golden-batch/status":
             self._handle_get_golden_batch_status()
             return
+        elif path == "/api/kin/aura/history" or path.startswith("/api/kin/"):
+            self._handle_get_kin_history("aura")
+            return
 
         self._set_headers("text/plain", 404)
         self.wfile.write(b"Not Found")
@@ -1056,6 +1093,13 @@ class DashboardHandler(BaseHTTPRequestHandler):
             return
         elif path == "/api/golden-batch/daemon/stop":
             self._handle_post_golden_batch_daemon_stop(payload)
+            return
+        elif path.startswith("/api/seo/ping/"):
+            brand = path.split("/")[-1]
+            self._handle_seo_ping(brand)
+            return
+        elif path == "/api/kin/aura/run" or path.startswith("/api/kin/"):
+            self._handle_post_kin_run("aura")
             return
         elif path == "/api/google-index/ping":
             self._handle_google_index_ping(payload)
@@ -1439,6 +1483,25 @@ class DashboardHandler(BaseHTTPRequestHandler):
                     f"  - ⏭️ 다음 예정 번호: #{res.get('next_topic_id', '-')}",
                     "success"
                 )
+
+                # 🌐 [신규 블로그 발행 완료 직후 2대 포털 검색엔진 동시 색인 핑 자동 전송]
+                try:
+                    log_event(f"🌐 [{brand_kr}] 신규 칼럼 구글·네이버 검색 로봇 색인 핑 자동 전송 중...", "info")
+                    if brand == "aura":
+                        from brands.aura.aura_search_indexing_hub import AuraSearchIndexingHub
+                        ping_res = AuraSearchIndexingHub().ping_all_engines()
+                    elif brand == "insurance":
+                        from brands.insurance.insurance_search_indexing_hub import InsuranceSearchIndexingHub
+                        ping_res = InsuranceSearchIndexingHub().ping_all_engines()
+                    elif brand == "stock":
+                        from brands.stock.stock_search_indexing_hub import StockSearchIndexingHub
+                        ping_res = StockSearchIndexingHub().ping_all_engines()
+                    else:
+                        ping_res = {"success": True}
+                    log_event(f"🌐 [{brand_kr}] 2대 검색엔진 동시 색인 핑 전송 완료: {ping_res.get('message', '성공')}", "success")
+                except Exception as pe:
+                    log_event(f"⚠️ [{brand_kr}] 블로그 발행 후 색인 핑 자동 전송 예외: {pe}", "warning")
+
             except Exception as ex:
                 import traceback
                 err_detail = traceback.format_exc()
@@ -1448,7 +1511,119 @@ class DashboardHandler(BaseHTTPRequestHandler):
         name_map = {"aura": "Aura 데이팅", "insurance": "보험비교", "stock": "주식AI"}
         res = {
             "success": True, 
-            "message": f"🚀 [{name_map.get(brand, brand)}] 4대 옴니블로그 1회 즉시 발행이 시작되었습니다. 아래 실시간 로그창에서 결과를 확인하세요!"
+            "message": f"🚀 [{name_map.get(brand, brand)}] 4대 옴니블로그 1회 즉시 발행이 시작되었습니다. 발행 완료 즉시 구글 & 네이버 색인 핑이 자동 전송됩니다!"
+        }
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_seo_ping(self, brand: str):
+        """🌐 3대 슈퍼앱 (Aura · 보험비교 · 주식AI) 구글 + 네이버 2대 검색엔진 동시 색인 핑 전용 API"""
+        def _worker():
+            name_map = {
+                "aura": "💖 Aura 데이팅", 
+                "insurance": "🛡️ InsureBalance 보험비교", 
+                "stock": "📈 StockMaster 주식AI",
+                "kmarket": "🛒 K-Market",
+                "easytax": "💰 EasyTax"
+            }
+            brand_kr = name_map.get(brand, brand.upper())
+            log_event(f"🌐 [{brand_kr}] 2대 포털 검색엔진 (구글 + 네이버) 실시간 색인 핑 가속 가동...", "info")
+            try:
+                if brand == "aura":
+                    from brands.aura.aura_search_indexing_hub import AuraSearchIndexingHub
+                    res = AuraSearchIndexingHub().ping_all_engines()
+                elif brand == "insurance":
+                    from brands.insurance.insurance_search_indexing_hub import InsuranceSearchIndexingHub
+                    res = InsuranceSearchIndexingHub().ping_all_engines()
+                elif brand == "stock":
+                    from brands.stock.stock_search_indexing_hub import StockSearchIndexingHub
+                    res = StockSearchIndexingHub().ping_all_engines()
+                elif brand == "kmarket":
+                    from modules.seo_kmarket import KMarketSEOPusher
+                    res = KMarketSEOPusher(DBManager()).build_and_push_index()
+                elif brand == "easytax":
+                    from modules.seo_easytax import EasyTaxSEOPusher
+                    res = EasyTaxSEOPusher(DBManager()).build_and_push_index()
+                else:
+                    res = {"success": False, "message": f"알 수 없는 브랜드: {brand}"}
+
+                log_event(f"🎉 [{brand_kr}] {res.get('message', '2대 검색엔진 동시 색인 핑 전송 완료')}", "success")
+            except Exception as ex:
+                import traceback
+                err_detail = traceback.format_exc()
+                log_event(f"❌ [{brand_kr}] 색인 핑 전송 중 오류 발생: {ex}\n{err_detail}", "error")
+
+        threading.Thread(target=_worker, daemon=True).start()
+        name_map = {"aura": "Aura 데이팅", "insurance": "보험비교", "stock": "주식AI", "kmarket": "K-Market", "easytax": "EasyTax"}
+        res = {
+            "success": True,
+            "brand": brand,
+            "message": f"🌐 [{name_map.get(brand, brand)}] 구글 서치콘솔 & 네이버 서치어드바이저 2대 검색엔진 동시 색인 핑이 백그라운드에서 발송되었습니다!"
+        }
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_get_kin_history(self, brand: str = "aura"):
+        """💖 Aura 등 브랜드 지식iN 실시간 낚아채기 현황 및 히스토리 조회"""
+        try:
+            from brands.aura.aura_kin_scheduler import AuraKinScheduler
+            scheduler = AuraKinScheduler()
+            state = scheduler._load_state()
+            slot = scheduler.get_current_slot()
+            history = scheduler.pipeline._load_history()
+            data = {
+                "success": True,
+                "brand": brand,
+                "daily_total": state.get("daily_total", 0),
+                "daily_target": scheduler.DAILY_TARGET,
+                "current_slot": slot,
+                "slots_breakdown": state.get("slots", {}),
+                "last_run_at": state.get("last_run_at", ""),
+                "history": history
+            }
+        except Exception as e:
+            data = {
+                "success": False,
+                "brand": brand,
+                "daily_total": 0,
+                "daily_target": 10,
+                "current_slot": {"name": "오류", "target": 0},
+                "history": [],
+                "error": str(e)
+            }
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_post_kin_run(self, brand: str = "aura"):
+        """💖 Aura 등 브랜드 지식iN 1회 낚아채기 즉시 실행 API"""
+        def _worker():
+            log_event(f"💖 [Aura 지식iN] 100대 황금 키워드 실시간 질문 낚아채기 즉시 1회 실행 시작...", "info")
+            try:
+                from brands.aura.aura_kin_scheduler import AuraKinScheduler
+                scheduler = AuraKinScheduler()
+                res = scheduler.trigger_scheduled_catch()
+                if res.get("success"):
+                    rec = res.get("record", {})
+                    log_event(
+                        f"🎉 [Aura 지식iN 낚아채기 성공]\n"
+                        f"  - 🏷️ 키워드: {rec.get('keyword')}\n"
+                        f"  - ❓ 질문: {rec.get('title')}\n"
+                        f"  - 📊 적합도: {rec.get('score')}점 ({rec.get('reason')})\n"
+                        f"  - 🔗 바로가기: {rec.get('url')}",
+                        "success"
+                    )
+                else:
+                    log_event(f"ℹ️ [Aura 지식iN] {res.get('message', '질문 대기 중')}", "info")
+            except Exception as ex:
+                import traceback
+                err_detail = traceback.format_exc()
+                log_event(f"❌ [Aura 지식iN 실행 실패] {ex}\n{err_detail}", "error")
+
+        threading.Thread(target=_worker, daemon=True).start()
+        res = {
+            "success": True,
+            "brand": brand,
+            "message": "💖 [Aura 지식iN] 100대 황금 키워드 실시간 질문 낚아채기가 백그라운드에서 가동되었습니다!"
         }
         self._set_headers("application/json")
         self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
@@ -2594,6 +2769,59 @@ class DashboardHandler(BaseHTTPRequestHandler):
             log_event(msg, "warning")
         self._set_headers("application/json")
         self.wfile.write(json.dumps({"success": res.get("success", False), "message": msg, "detail": res}, ensure_ascii=False).encode("utf-8"))
+
+    # ── [지식iN] 네이버 지식iN 실시간 낚아채기 핸들러 ─────────────────
+    def _handle_get_kin_history(self, brand="aura"):
+        """지식iN 최근 낚아챈 질문 히스토리 및 일일 쿼터 통계 반환"""
+        from brands.aura.aura_kin_scheduler import AuraKinScheduler
+        scheduler = AuraKinScheduler()
+        state = scheduler._load_state()
+        slot = scheduler.get_current_slot()
+        history = scheduler.pipeline._load_history()
+
+        res_data = {
+            "success": True,
+            "brand": brand,
+            "daily_total": state.get("daily_total", 0),
+            "daily_target": scheduler.DAILY_TARGET,
+            "current_slot": slot,
+            "slots_detail": state.get("slots", {}),
+            "last_run_at": state.get("last_run_at", "대기 중"),
+            "history": history[:15]
+        }
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps(res_data, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_post_kin_run(self, brand="aura"):
+        """지식iN 실시간 1회 즉시 낚아채기 트리거"""
+        from brands.aura.aura_kin_pipeline import AuraKinPipeline
+        pipeline = AuraKinPipeline()
+        res = pipeline.run_catch_cycle(max_catch=1)
+        if res.get("success"):
+            rec = res.get("record", {})
+            log_event(f"🎯 [Aura 지식iN] '{rec.get('title','')}' 낚아채기 완료! (적합도 {rec.get('score',90)}점)", "success")
+        else:
+            log_event(f"ℹ️ [Aura 지식iN] {res.get('message', '새 질문 탐색 완료')}", "info")
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_seo_ping(self, brand="aura"):
+        """구글/네이버 검색엔진 동시 색인 핑 전송"""
+        if brand == "aura":
+            from brands.aura.aura_search_indexing_hub import AuraSearchIndexingHub
+            res = AuraSearchIndexingHub().ping_all_engines()
+        elif brand == "stock":
+            from brands.stock.stock_search_indexing_hub import StockSearchIndexingHub
+            res = StockSearchIndexingHub().ping_all_engines()
+        elif brand == "insurance":
+            from brands.insurance.insurance_search_indexing_hub import InsuranceSearchIndexingHub
+            res = InsuranceSearchIndexingHub().ping_all_engines()
+        else:
+            res = {"success": False, "message": f"알 수 없는 브랜드: {brand}"}
+
+        log_event(res.get("message", f"🌐 [{brand.upper()}] 색인 핑 전송 완료"), "success" if res.get("success") else "warning")
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
 
 def run_server(port: int = 8080):
     port = int(os.environ.get("PORT", port))

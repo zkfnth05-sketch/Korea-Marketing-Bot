@@ -238,6 +238,7 @@ function renderHubGrid() {
         const isOmniBlog = h.key === "omni_blog";
         const isThreads = h.key === "threads";
         const isSeo = h.key === "seo";
+        const isKin = h.key === "naver_kin" || h.isKin;
         const runActionText = isShorts 
             ? "🎬 완성 숏폼 원클릭 제작" 
             : isCardnews 
@@ -247,11 +248,56 @@ function renderHubGrid() {
             : isThreads
             ? "📜 스토리 타래 1회 발행"
             : isSeo
-            ? "🌐 검색엔진 동시 색인 핑"
+            ? "🌐 구글·네이버 동시 색인 핑"
+            : isKin
+            ? "💡 지식iN 실시간 1회 낚아채기"
             : "⚡ 즉시 1회 시험 실행";
         const runActionOnClick = isOmniBlog 
             ? `publishOmniBlog('${brand}')`
+            : isSeo
+            ? `triggerSeoPing('${brand}', this)`
+            : isKin
+            ? `triggerKinCatch('${brand}', this)`
             : `runModule('${brand}_${h.key}')`;
+
+        // 🌐 SEO 전용 서치콘솔 바로가기 링크 그룹
+        const seoConsoleLinks = isSeo ? `
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;padding-top:8px;border-top:1px dashed #E5DDD1;">
+                <a href="${h.googleConsoleUrl || 'https://search.google.com/search-console'}" target="_blank" rel="noopener noreferrer" style="font-size:10.5px;font-weight:700;color:#2563EB;background:#EFF6FF;border:1px solid #BFDBFE;padding:3px 6px;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;gap:3px;" title="구글 서치콘솔 관리자 페이지 열기">
+                    <span>🔍 구글 콘솔 ↗</span>
+                </a>
+                <a href="${h.naverAdvisorUrl || 'https://searchadvisor.naver.com/console/board'}" target="_blank" rel="noopener noreferrer" style="font-size:10.5px;font-weight:700;color:#059669;background:#ECFDF5;border:1px solid #A7F3D0;padding:3px 6px;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;gap:3px;" title="네이버 서치어드바이저 관리자 페이지 열기">
+                    <span>🧭 네이버 콘솔 ↗</span>
+                </a>
+                <a href="${h.sitemapUrl || '#'}" target="_blank" rel="noopener noreferrer" style="font-size:10.5px;font-weight:700;color:#7C3AED;background:#F5F3FF;border:1px solid #DDD6FE;padding:3px 6px;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;gap:3px;" title="등록된 XML 사이트맵 보기">
+                    <span>📄 사이트맵 ↗</span>
+                </a>
+            </div>
+        ` : '';
+
+        // 💡 지식iN 전용 실시간 쿼터 & 바로가기 위젯
+        const kinWidget = isKin ? `
+            <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #E5DDD1;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <span style="font-size:11px;font-weight:700;color:#059669;">🎯 일일 선발 쿼터:</span>
+                    <span id="kin-quota-${brand}" style="font-size:11px;font-weight:800;color:#1E1B18;background:#ECFDF5;border:1px solid #A7F3D0;padding:2px 8px;border-radius:10px;">
+                        <span id="kin-count-${brand}">0</span> / 10개 (엄선 26:1)
+                    </span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <span style="font-size:11px;color:#6E665E;">현재 활성 슬롯:</span>
+                    <span id="kin-slot-${brand}" style="font-size:10.5px;font-weight:700;color:#2563EB;">🌙 실시간 감지 중</span>
+                </div>
+                <div id="kin-recent-${brand}" style="font-size:11px;color:#4A443D;background:#FFFFFF;padding:6px 8px;border-radius:6px;border:1px solid #E5DDD1;margin-bottom:6px;max-height:45px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                    최근 낚아챈 질문: 대기 중
+                </div>
+                <div style="display:flex;gap:4px;">
+                    <a href="https://kin.naver.com" target="_blank" rel="noopener noreferrer" style="font-size:10.5px;font-weight:700;color:#059669;background:#ECFDF5;border:1px solid #A7F3D0;padding:3px 6px;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;gap:3px;" title="네이버 지식iN 바로가기">
+                        <span>💡 네이버 지식iN ↗</span>
+                    </a>
+                </div>
+            </div>
+        ` : '';
 
         return `
         <div class="action-card" id="card-${brand}-${h.key}" style="background:#F6F1EA;border:1px solid #E5DDD1;border-top:3.5px solid ${theme.primary};border-radius:14px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;gap:12px;box-shadow:var(--shadow-md);transition:transform 0.25s ease, box-shadow 0.25s ease;">
@@ -264,9 +310,11 @@ function renderHubGrid() {
                     </div>
                 </div>
                 <p style="font-size:11.5px;color:#6E665E;margin:0 0 10px 0;line-height:1.45;">${h.desc}</p>
+                ${seoConsoleLinks}
+                ${kinWidget}
 
                 <!-- 실시간 24시간 가동 상태 바 -->
-                <div style="display:flex;justify-content:space-between;align-items:center;background:#FFFFFF;padding:6px 10px;border-radius:8px;border:1px solid #E5DDD1;">
+                <div style="display:flex;justify-content:space-between;align-items:center;background:#FFFFFF;padding:6px 10px;border-radius:8px;border:1px solid #E5DDD1;margin-top:8px;">
                     <span style="font-size:11px;color:#6E665E;">실시간 상태:</span>
                     <span id="badge-status-${brand}-${h.key}" class="badge-idle" style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:#F6F1EA;color:#6E665E;border:1px solid #E5DDD1;">
                         ⚪ 대기
@@ -284,14 +332,96 @@ function renderHubGrid() {
                         ⏹️ 정지
                     </button>
                 </div>
-                <button class="btn btn-action" id="${isOmniBlog ? `btn-omni-${brand}` : `btn-run-${brand}-${h.key}`}" onclick="${runActionOnClick}" style="width:100%;font-size:11.5px;padding:7px 0;background:${theme.actionBg};border:1px solid ${theme.actionBorder};color:${theme.actionColor};font-weight:700;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.04);cursor:pointer;">
+                <button class="btn btn-action" id="${isOmniBlog ? `btn-omni-${brand}` : isSeo ? `btn-seo-${brand}` : isKin ? `btn-kin-${brand}` : `btn-run-${brand}-${h.key}`}" onclick="${runActionOnClick}" style="width:100%;font-size:11.5px;padding:7px 0;background:${theme.actionBg};border:1px solid ${theme.actionBorder};color:${theme.actionColor};font-weight:700;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.04);cursor:pointer;">
                     ${runActionText}
                 </button>
             </div>
         </div>
     `}).join("");
 
-    setTimeout(loadMediaEngineSettings, 50);
+    setTimeout(() => {
+        loadMediaEngineSettings();
+        loadKinStats(brand);
+    }, 50);
+}
+
+// 🌐 3대 슈퍼앱 전용 구글 & 네이버 실시간 색인 핑 전송 트리거
+async function triggerSeoPing(brand, btn) {
+    const nameMap = { "aura": "💖 Aura", "insurance": "🛡️ 보험비교", "stock": "📈 주식AI", "kmarket": "🛒 K-Market", "easytax": "💰 EasyTax" };
+    const brandName = nameMap[brand] || brand.toUpperCase();
+    
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spin-icon" style="display:inline-block;animation:rotateSpin 0.6s linear infinite;">🔄</span> 2대 포털 핑 전송 중...`;
+    }
+    appendLog(`[SEO Ping] 🌐 ${brandName} 구글 서치콘솔 + 네이버 서치어드바이저 동시 색인 핑 전송 시작...`, "info");
+    showToast(`🌐 ${brandName} 구글·네이버 검색엔진 동시 색인 핑을 전송합니다!`, "info");
+
+    try {
+        const res = await fetch(`/api/seo/ping/${brand}`, { method: "POST" });
+        const data = await res.json();
+        showToast(data.message || `🌐 ${brandName} 2대 검색엔진 색인 핑 완료!`, "success");
+        appendLog(`[SEO Ping Success] 🎉 ${data.message || '색인 핑 전송 완료'}`, "success");
+        if (typeof fetchStatus === "function") fetchStatus();
+    } catch (e) {
+        showToast(`❌ 색인 핑 요청 실패: ${e}`, "error");
+        appendLog(`[SEO Ping Error] ❌ ${e}`, "error");
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = `🌐 구글·네이버 동시 색인 핑`;
+        }
+    }
+}
+
+// 💡 Aura 및 브랜드 전용 네이버 지식iN 100대 키워드 실시간 낚아채기 트리거
+async function triggerKinCatch(brand, btn) {
+    const nameMap = { "aura": "💖 Aura 데이팅", "insurance": "🛡️ 보험비교", "stock": "📈 주식AI" };
+    const brandName = nameMap[brand] || brand.toUpperCase();
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spin-icon" style="display:inline-block;animation:rotateSpin 0.6s linear infinite;">🔄</span> 100대 키워드 낚아채는 중...`;
+    }
+    appendLog(`[지식iN 레이더] 💡 ${brandName} 100대 황금 키워드 실시간 질문 스캔 & 85점 심사 시작...`, "info");
+    showToast(`💡 ${brandName} 네이버 지식iN 실시간 낚아채기를 실행합니다!`, "info");
+
+    try {
+        const res = await fetch(`/api/kin/${brand}/run`, { method: "POST" });
+        const data = await res.json();
+        showToast(data.message || `💡 ${brandName} 지식iN 낚아채기 가동 완료!`, "success");
+        appendLog(`[지식iN 가동] 🎉 ${data.message || '완료'}`, "success");
+        setTimeout(() => loadKinStats(brand), 3000);
+    } catch (e) {
+        showToast(`❌ 지식iN 실행 실패: ${e}`, "error");
+        appendLog(`[지식iN Error] ❌ ${e}`, "error");
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = `💡 지식iN 실시간 1회 낚아채기`;
+        }
+    }
+}
+
+// 💡 네이버 지식iN 실시간 일일 쿼터 및 최근 등록 내역 조회
+async function loadKinStats(brand = "aura") {
+    try {
+        const res = await fetch(`/api/kin/${brand}/history`);
+        const data = await res.json();
+        if (data.success) {
+            const countEl = document.getElementById(`kin-count-${brand}`);
+            if (countEl) countEl.innerText = data.daily_total || 0;
+            const slotEl = document.getElementById(`kin-slot-${brand}`);
+            if (slotEl && data.current_slot) slotEl.innerText = data.current_slot.name || "실시간 감지 중";
+            const recentEl = document.getElementById(`kin-recent-${brand}`);
+            if (recentEl && data.history && data.history.length > 0) {
+                const latest = data.history[0];
+                recentEl.innerHTML = `<a href="${latest.url}" target="_blank" style="color:#2563EB;text-decoration:underline;font-weight:600;" title="${latest.title}">[${latest.score}점] ${latest.title}</a>`;
+            }
+        }
+    } catch (e) {
+        console.debug("지식iN 통계 로드 예외:", e);
+    }
 }
 
 // 2. 24시간 무인 자율 채널 데몬 시작

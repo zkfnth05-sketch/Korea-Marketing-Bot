@@ -54,9 +54,12 @@ class StockGeminiWriter:
         app_feature = topic.get("app_feature", "StockMaster AI 수급 레이더")
         tags = topic.get("tags", ["주식투자", "주식AI", "StockMaster"])
 
-        # ⚡ 1. Cache-First: 이미 작성된 원고가 있으면 즉시 재사용 (Gemini 호출 0회, 비용 0원)
+        is_live_trend = seo_brief.get("is_live_trend", False)
+        live_stock = seo_brief.get("live_stock", {})
+
+        # ⚡ 1. Cache-First: 일반 주제는 캐시 사용, 실시간 핫 트렌드는 실시간 생성
         cache_file = CACHE_DIR / f"stock_blog_topic_{topic_id:03d}.json"
-        if cache_file.exists():
+        if not is_live_trend and cache_file.exists():
             try:
                 with open(cache_file, "r", encoding="utf-8") as fp:
                     cached_data = json.load(fp)
@@ -77,24 +80,24 @@ class StockGeminiWriter:
 당신은 대한민국 최고의 데이터 기반 퀀트 투자자이자 'StockMaster AI'의 수석 투자 전략가입니다.
 시장의 소음과 뇌동매매를 배제하고, 철저히 데이터와 펀더멘털, 수급과 팩터에 기반한 냉철하고 명쾌한 투자 인사이트를 제공합니다.
 
-[글쓰기 원칙]
+[3박자 퀀트 글쓰기 절대 원칙]
 1. 분량: 한글 공백 포함 2,000자 내외의 완성도 높은 장문 분석 칼럼.
 2. 톤앤매너: 전문적, 논리적, 명쾌함, 객관적. 뜬구름 잡는 루머 배제, 팩트와 수치 제시.
-3. 구성:
-   - 도입부 (Hook): 오늘 시장의 핵심 화두 제시 및 투자자들의 공통된 고민(FOMO, 물림) 포착.
-   - H2 소제목 1: {subheadings[0] if len(subheadings) > 0 else '시장 환경 및 기업 펀더멘털 정밀 분석'}
-   - H2 소제목 2: {subheadings[1] if len(subheadings) > 1 else '차트와 외국인·기관 수급 데이터 체크포인트'}
-   - H2 소제목 3: {subheadings[2] if len(subheadings) > 2 else '리스크 요인과 스마트 포트폴리오 대응 전략'}
-   - 결론 및 전환 (CTA): 뇌동매매 없이 AI 데이터로 승률을 높이는 '{app_feature}' 솔루션 추천.
+3. 3박자 스토리텔링 구성:
+   - ① 도입부 (Hook): 오늘 실시간 검색어/외인 수급 집중 팩트 제시 & 뉴스만 보고 추격 매수하는 뇌동매매 위험 경고.
+   - ② H2 소제목 1: {subheadings[0] if len(subheadings) > 0 else '실시간 수급 이동과 기업 펀더멘털 팩트체크'}
+   - ③ H2 소제목 2: {subheadings[1] if len(subheadings) > 1 else '20일선 지지선·저항선 차트와 적정 밸류에이션 진단'}
+   - ④ H2 소제목 3: {subheadings[2] if len(subheadings) > 2 else '리스크 방어: StockMaster 10분 계량 전광판 & -5% 실시간 문자 손절 알림'}
+   - ⑤ 결론 (CTA): 10분마다 350개 주도주 체결강도를 스캔하는 'StockMaster AI 전광판'에서 실시간 데이터를 확인하고 안전하게 매매할 것을 권장.
 4. 검색어 자연 삽입: {', '.join(seeds)} 키워드를 본문에 자연스럽게 녹여낼 것.
 5. 리스크 경고: 모든 투자의 책임은 본인에게 있으며, 분할 매수와 손절 원칙을 항상 환기할 것.
 
 [반환 형식: JSON 포맷 필수]
 반드시 마크다운 코드블록(```json ... ```) 안에 유효한 JSON 형식으로만 응답하십시오:
 {{
-  "title_naver": "네이버 스마트블록 검색 1위용 클릭 유도 제목 (핵심 키워드 포함)",
-  "title_tistory": "티스토리 SEO 최적화 전문 정보형 제목",
-  "title_brunch": "브런치스토리 감성적·통찰력 있는 투자 에세이형 제목",
+  "title_naver": "{seo_titles[0] if seo_titles else '네이버 스마트블록 검색 1위용 클릭 유도 제목'}",
+  "title_tistory": "{seo_titles[1] if len(seo_titles) > 1 else '티스토리 SEO 최적화 전문 정보형 제목'}",
+  "title_brunch": "{seo_titles[2] if len(seo_titles) > 2 else '브런치스토리 감성적·통찰력 있는 투자 에세이형 제목'}",
   "body_markdown": "H2, H3 소제목과 볼드체, 인용구를 적절히 활용한 2,000자 내외의 완성형 마크다운 본문",
   "summary": "1줄 요약 (메타 디스크립션용)",
   "tags": ["태그1", "태그2", "태그3", "태그4", "태그5"],
@@ -107,10 +110,11 @@ class StockGeminiWriter:
 - 주제명: {topic_title}
 - 세부 기획의도: {intent}
 - 카테고리: {category}
-- 연계 StockMaster 기능: {app_feature}
+- 연계 StockMaster 기능: 10분 계량 전광판 (350개 주도주 실시간 스캔 & -5% 손절 알림)
+- 실시간 핫 종목: {live_stock.get('name', '우량주')} ({live_stock.get('sector', '핵심 섹터')})
 - SEO 권장 키워드: {', '.join(seeds)}
 
-위 주제로 투자자들에게 실질적인 도움이 되는 2,000자 투자 칼럼을 작성해주세요.
+위 실시간 수급 핫이슈와 퀀트 데이터를 결합하여 투자자들의 뇌동매매를 방지하는 완성도 높은 2,000자 투자 칼럼을 작성해주세요.
 """
 
         from google import genai
