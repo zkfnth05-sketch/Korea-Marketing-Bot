@@ -40,7 +40,7 @@ KST = timezone(timedelta(hours=9))
 class InsuranceBlogScheduler:
     """InsureBalance 정기 자동 발행 스케줄러 레고 블록 (영구 순환 상태 지원)"""
 
-    SCHEDULE_HOURS = [9, 13, 19]  # 09:00, 13:00, 19:00 KST
+    SCHEDULE_HOURS = [12, 21]  # 하루 딱 2회 (12:00, 21:00 KST)
     SCHEDULE_MINUTE = 0
 
     def __init__(self):
@@ -77,10 +77,37 @@ class InsuranceBlogScheduler:
         except Exception as e:
             logger.error(f"❌ 상태 파일 저장 실패: {e}")
 
+    def can_publish_today(self, max_daily_posts: int = 2) -> tuple[bool, str]:
+        """하루 최대 2건 제한 및 최소 4시간 발행 간격 엄격 검증"""
+        today_str = dt.now().strftime("%Y-%m-%d")
+        history = self.state.get("history", [])
+        
+        today_posts = [h for h in history if (h.get("published_at") or "").startswith(today_str)]
+        if len(today_posts) >= max_daily_posts:
+            return False, f"🛑 [안전 차단] 오늘 이미 일일 최대 발행 한도({len(today_posts)}/{max_daily_posts}회)를 모두 완료했습니다. 저품질 방지를 위해 추가 발행을 차단합니다."
+            
+        if today_posts:
+            last_pub_str = today_posts[0].get("published_at", "")
+            try:
+                last_dt = dt.strptime(last_pub_str, "%Y-%m-%d %H:%M:%S")
+                diff_hours = (dt.now() - last_dt).total_seconds() / 3600.0
+                if diff_hours < 4.0:
+                    return False, f"⚠️ [안전 쿨타임] 직전 발행 후 최소 4시간이 지나지 않았습니다 (경과: {diff_hours:.1f}시간). 블로그 도배 방지를 위해 대기합니다."
+            except Exception:
+                pass
+                
+        return True, "발행 가능"
+
     def run_one_cycle(self, force_topic_id: Optional[int] = None) -> Dict[str, Any]:
         """
-        주제 1개에 대해 Gemini 칼럼 작성 + 맞춤 사진 1장 생성 + 3대 블로그 무인 배포 + 상태 갱신
+        주제 1개에 대해 안전 검증 후 수동 1회 발행
+        (하루 최대 2건 엄격 제한 & 도배 원천 차단)
         """
+        can_pub, reason = self.can_publish_today(max_daily_posts=2)
+        if not can_pub and force_topic_id is None:
+            logger.warning(reason)
+            return {"status": "BLOCKED_DAILY_CAP", "message": reason}
+
         from brands.insurance.insurance_blog_engine import InsuranceBlogEngine
         from brands.insurance.insurance_100_topics import INSURANCE_100_TOPICS
         from brands.insurance.insurance_multi_publisher import InsuranceMultiPublisher

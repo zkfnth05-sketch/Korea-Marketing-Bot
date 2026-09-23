@@ -53,12 +53,12 @@ class AuraKinPublisher:
         async with async_playwright() as p:
             context = await p.chromium.launch_persistent_context(
                 user_data_dir=str(self.PROFILE_DIR),
-                headless=False,  # 클립보드(pyperclip) 정상 동작을 위해 반드시 False
+                headless=True,  # 🌟 100% 완전 무인 백그라운드 스텔스 모드 (화면 간섭 제로)
+                permissions=["clipboard-read", "clipboard-write"],
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
                 viewport={"width": 1280, "height": 800},
                 args=[
                     "--disable-blink-features=AutomationControlled",
-                    "--start-maximized",
                     "--no-first-run",
                     "--no-default-browser-check"
                 ]
@@ -133,14 +133,21 @@ class AuraKinPublisher:
                     # 스마트에디터 ONE 무손실 클립보드 주입 (URL, 이모지, 특수서식 100% 보존)
                     pasted = False
                     try:
-                        import pyperclip
-                        pyperclip.copy(answer_text)
+                        await page.evaluate("text => navigator.clipboard.writeText(text)", answer_text)
                         await page.keyboard.press("Control+v")
                         await page.wait_for_timeout(1500)
                         pasted = True
-                        logger.info("📋 [클립보드 무손실 붙여넣기 성공] URL 및 카드 서식 100% 보존 주입")
+                        logger.info("📋 [무인 스텔스 클립보드 무손실 주입 성공] URL 및 연애 카드 서식 100% 보존")
                     except Exception as clip_err:
-                        logger.warning(f"⚠️ 클립보드 주입 예외: {clip_err} ➔ 키보드 타이핑 폴백")
+                        try:
+                            import pyperclip
+                            pyperclip.copy(answer_text)
+                            await page.keyboard.press("Control+v")
+                            await page.wait_for_timeout(1500)
+                            pasted = True
+                            logger.info("📋 [클립보드 무손실 붙여넣기 성공] URL 및 연애 카드 서식 100% 보존 주입")
+                        except Exception as clip_err2:
+                            logger.warning(f"⚠️ 클립보드 주입 예외: {clip_err2} ➔ 키보드 타이핑 폴백")
 
                     if not pasted:
                         paragraphs = answer_text.split("\n")

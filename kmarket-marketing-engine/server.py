@@ -57,7 +57,7 @@ from core.golden_batch_producer import GoldenBatchProducer
 # 🌟 8대 황금 타깃 듀얼 브랜드 대량 생산 배치 프로듀서
 golden_batch_producer = GoldenBatchProducer()
 
-# 🌟 8대 황금 타깃 1일 2슬롯 24시간 무인 데몬 상태 관리
+# 🌟 8대 황금 타깃 무단 자동 실행 전면 차단 (수동 클릭 전용)
 golden_batch_daemon_running = {
     "kmarket": False,
     "easytax": False,
@@ -65,35 +65,8 @@ golden_batch_daemon_running = {
 }
 
 def _golden_daemon_loop(brand: str):
-    log_event(f"⏰ [골든 데몬] {brand.upper()} 24시간 무인 예약 데몬이 시작되었습니다 (11:30 & 18:30 감시 중)", "success")
-    executed_today_slots = set()
-    while golden_batch_daemon_running.get(brand, False):
-        try:
-            now = get_now_kst()
-            today_str = now.strftime("%Y-%m-%d")
-            hour = now.hour
-            minute = now.minute
-
-            is_morning_slot = (hour == 11 and minute >= 30) or (hour == 12 and minute < 30)
-            is_evening_slot = (hour == 18 and minute >= 30) or (hour == 19 and minute < 30)
-
-            slot_to_run = None
-            if is_morning_slot and f"{today_str}_morning" not in executed_today_slots:
-                slot_to_run = "morning"
-            elif is_evening_slot and f"{today_str}_evening" not in executed_today_slots:
-                slot_to_run = "evening"
-
-            if slot_to_run:
-                slot_name_kr = "오전 11:30 피크" if slot_to_run == "morning" else "저녁 18:30 피크"
-                log_event(f"⏰ [골든 데몬] {brand.upper()} {slot_name_kr} 정시 도달! 8개국 대량 생산 자동 시작...", "info")
-                golden_batch_producer.execute_slot(slot_name=slot_to_run, brand=brand)
-                executed_today_slots.add(f"{today_str}_{slot_to_run}")
-                log_event(f"🎉 [골든 데몬] {brand.upper()} {slot_name_kr} 8개국 생산 완료! 바탕화면 저장 완료", "success")
-
-            time.sleep(30)
-        except Exception as e:
-            log_event(f"⚠️ [골든 데몬 예외] {e}", "warning")
-            time.sleep(30)
+    log_event(f"ℹ️ [골든 배치] {brand.upper()} 수동 1회 실행 대기 모드 (무단 자동 발행 차단됨)", "info")
+    # 무단 자동 무한 루프 차단: 오직 대시보드 버튼 클릭 시 1회성 실행만 지원
 
 # 💖 2026 대한민국 3대 슈퍼앱 전용 24대 옴니채널 마케팅 파이프라인
 try:
@@ -154,121 +127,118 @@ def _brand_kin_worker(brand: str):
 
     log_event(f"🎯 [{brand_kr}] 네이버 지식iN 24시간 실시간 레이더 가동 시작 (300초 주기 / 1일 10건 목표)", "success")
 
-    while brand_daemons_running.get(brand, False):
-        try:
-            res = pipe.run_catch_cycle(max_catch=1, dry_run=False)
-            status = res.get("status", "")
-            
-            if res.get("success"):
-                rec = res.get("record", {})
-                pub_url = res.get("published_url", "")
-                today_total = res.get("today_total", 1)
-                log_event(f"🎉 [{brand_kr} 지식iN 등록 성공!] '{rec.get('title', '')}' ➔ {pub_url} (오늘 누적 {today_total}/10건)", "success")
-            elif status == "daily_limit_reached":
-                today_total = res.get("today_total", 10)
-                log_event(f"🛑 [{brand_kr} 지식iN] 오늘 등록 한도 {today_total}/10건 달성 완료! (내일 00시까지 대기 중)", "info")
-            elif status == "login_required":
-                log_event(f"⚠️ [{brand_kr} 지식iN] 네이버 1회 로그인 세션 저장이 필요합니다.", "warning")
-            elif status == "no_unanswered_found":
-                pass
-            elif status == "filtered_out":
-                pass
-            else:
-                msg = res.get("message")
-                if msg:
-                    log_event(f"ℹ️ [{brand_kr} 지식iN 레이더] {msg}", "info")
-        except Exception as e:
-            log_event(f"⚠️ [{brand_kr} 지식iN 감시 일시 오류] {e}", "warning")
+    # [수동 1회 낚아채기] 무한 루프 차단: 1회 실행 후 즉시 종료
+    try:
+        res = pipe.run_catch_cycle(max_catch=1, dry_run=False)
+        status = res.get("status", "")
+        
+        if res.get("success"):
+            rec = res.get("record", {})
+            pub_url = res.get("published_url", "")
+            today_total = res.get("today_total", 1)
+            log_event(f"🎉 [{brand_kr} 지식iN 등록 성공!] '{rec.get('title', '')}' ➔ {pub_url} (오늘 누적 {today_total}/10건)", "success")
+        elif status == "daily_limit_reached":
+            today_total = res.get("today_total", 10)
+            log_event(f"🛑 [{brand_kr} 지식iN] 오늘 등록 한도 {today_total}/10건 달성 완료!", "info")
+        elif status == "login_required":
+            log_event(f"⚠️ [{brand_kr} 지식iN] 네이버 1회 로그인 세션 저장이 필요합니다.", "warning")
+        else:
+            msg = res.get("message")
+            if msg:
+                log_event(f"ℹ️ [{brand_kr} 지식iN] {msg}", "info")
+    except Exception as e:
+        log_event(f"⚠️ [{brand_kr} 지식iN 1회 실행 예외] {e}", "warning")
 
-        # 300초(5분) 대기 (5초마다 정지 신호 확인)
-        for _ in range(60):
-            if not brand_daemons_running.get(brand, False):
-                break
-            time.sleep(5)
-
-    log_event(f"⏹️ [{brand_kr}] 지식iN 24시간 실시간 레이더가 정지되었습니다.", "info")
+    log_event(f"⏹️ [{brand_kr}] 지식iN 1회 낚아채기가 완료되었습니다.", "info")
 
 
 def _brand_blog_worker(brand: str):
+    """
+    ⏰ [정시 무인 스케줄러] 대한민국 표준시(KST) 기준 하루 딱 2회 (12:00 / 21:00) 정시에만 무인 자동 발행
+    - 30분 무한 반복 도배 원천 제거
+    - 12:00 정시 1회, 21:00 정시 1회만 정확히 실행 후 다음 슬롯까지 무음 대기
+    """
     name_map = {"aura": "💖 Aura 데이팅", "insurance": "🛡️ InsureBalance 보험비교", "stock": "📈 Stock Master 주식AI"}
     brand_kr = name_map.get(brand, brand.upper())
 
-    log_event(f"📚 [{brand_kr}] 4대 채널 옴니 블로그 24시간 정기 발행 데몬 가동 시작", "success")
+    log_event(f"⏰ [{brand_kr}] 4대 채널 옴니 블로그 하루 2회(12:00 / 21:00 KST) 무인 정시 스케줄러 가동", "success")
+    executed_slots = set()
 
     while brand_daemons_running.get(brand, False):
         try:
-            brand_stats[brand]["cycle"] += 1
-            brand_stats[brand]["last_run"] = get_now_kst_str()
-            log_event(f"🔄 [{brand_kr}] 정기 블로그 사이클 #{brand_stats[brand]['cycle']} 가동 시작...", "info")
+            now = get_now_kst()
+            today_str = now.strftime("%Y-%m-%d")
+            hour = now.hour
+            minute = now.minute
 
-            if brand == "aura":
-                from brands.aura.aura_blog_scheduler import AuraBlogScheduler
-                scheduler = AuraBlogScheduler()
-                res = scheduler.run_one_cycle()
-                brand_stats[brand]["total_published"] = scheduler.state.get("published_count", brand_stats[brand]["total_published"] + 1)
-                naver_url = res.get('publish_results', {}).get('channels', {}).get('naver_blog', {}).get('url', '-')
-                tistory_url = res.get('publish_results', {}).get('channels', {}).get('tistory', {}).get('url', '-')
-                log_event(f"🎉 [{brand_kr}] 블로그 발행 완료! 주제: '{res.get('title')}' (네이버: {naver_url} | 티스토리: {tistory_url})", "success")
-            elif brand == "insurance":
-                from brands.insurance.insurance_blog_scheduler import InsuranceBlogScheduler
-                scheduler = InsuranceBlogScheduler()
-                res = scheduler.run_one_cycle()
-                brand_stats[brand]["total_published"] = scheduler.state.get("published_count", brand_stats[brand]["total_published"] + 1)
-                naver_url = res.get('publish_results', {}).get('channels', {}).get('naver_blog', {}).get('url', '-')
-                tistory_url = res.get('publish_results', {}).get('channels', {}).get('tistory', {}).get('url', '-')
-                log_event(f"🎉 [{brand_kr}] 블로그 발행 완료! 주제: '{res.get('title')}' (네이버: {naver_url} | 티스토리: {tistory_url})", "success")
-            elif brand == "stock":
-                from brands.stock.stock_blog_scheduler import StockBlogScheduler
-                scheduler = StockBlogScheduler()
-                res = scheduler.run_one_cycle()
-                brand_stats[brand]["total_published"] = scheduler.state.get("published_count", brand_stats[brand]["total_published"] + 1)
-                naver_url = res.get('publish_results', {}).get('channels', {}).get('naver_blog', {}).get('url', '-')
-                tistory_url = res.get('publish_results', {}).get('channels', {}).get('tistory', {}).get('url', '-')
-                log_event(f"🎉 [{brand_kr}] 블로그 발행 완료! 주제: '{res.get('title')}' (네이버: {naver_url} | 티스토리: {tistory_url})", "success")
+            # 정시 골든타임 2슬롯 (12:00, 21:00)
+            is_noon_slot = (hour == 12 and minute == 0)
+            is_night_slot = (hour == 21 and minute == 0)
 
-            # 🌐 [2대 포털 검색엔진 동시 색인 핑 자동 전송]
-            try:
+            slot_key = None
+            if is_noon_slot and f"{today_str}_12" not in executed_slots:
+                slot_key = f"{today_str}_12"
+            elif is_night_slot and f"{today_str}_21" not in executed_slots:
+                slot_key = f"{today_str}_21"
+
+            if slot_key:
+                slot_name = "낮 12:00" if "12" in slot_key else "밤 21:00"
+                log_event(f"⏰ [{brand_kr}] {slot_name} 정시 도달! 1회 정기 블로그 무인 발행 시작...", "info")
+
+                brand_stats[brand]["cycle"] += 1
+                brand_stats[brand]["last_run"] = get_now_kst_str()
+
                 if brand == "aura":
-                    from brands.aura.aura_search_indexing_hub import AuraSearchIndexingHub
-                    ping_res = AuraSearchIndexingHub().ping_all_engines()
-                    log_event(f"🌐 [{brand_kr}] 구글·네이버 실시간 색인 핑 자동 완료 ({ping_res.get('results', {}).get('google', {}).get('status', 'OK')})", "info")
+                    from brands.aura.aura_blog_scheduler import AuraBlogScheduler
+                    scheduler = AuraBlogScheduler()
+                    res = scheduler.run_one_cycle()
+                    brand_stats[brand]["total_published"] = scheduler.state.get("published_count", brand_stats[brand]["total_published"] + 1)
+                    naver_url = res.get('publish_results', {}).get('channels', {}).get('naver_blog', {}).get('url', '-')
+                    tistory_url = res.get('publish_results', {}).get('channels', {}).get('tistory', {}).get('url', '-')
+                    log_event(f"🎉 [{brand_kr}] {slot_name} 정시 발행 완료! 주제: '{res.get('title')}' (네이버: {naver_url} | 티스토리: {tistory_url})", "success")
                 elif brand == "insurance":
-                    from brands.insurance.insurance_search_indexing_hub import InsuranceSearchIndexingHub
-                    ping_res = InsuranceSearchIndexingHub().ping_all_engines()
-                    log_event(f"🌐 [{brand_kr}] 구글·네이버 실시간 색인 핑 자동 완료 ({ping_res.get('results', {}).get('google', {}).get('status', 'OK')})", "info")
+                    from brands.insurance.insurance_blog_scheduler import InsuranceBlogScheduler
+                    scheduler = InsuranceBlogScheduler()
+                    res = scheduler.run_one_cycle()
+                    brand_stats[brand]["total_published"] = scheduler.state.get("published_count", brand_stats[brand]["total_published"] + 1)
+                    naver_url = res.get('publish_results', {}).get('channels', {}).get('naver_blog', {}).get('url', '-')
+                    tistory_url = res.get('publish_results', {}).get('channels', {}).get('tistory', {}).get('url', '-')
+                    log_event(f"🎉 [{brand_kr}] {slot_name} 정시 발행 완료! 주제: '{res.get('title')}' (네이버: {naver_url} | 티스토리: {tistory_url})", "success")
                 elif brand == "stock":
-                    from brands.stock.stock_search_indexing_hub import StockSearchIndexingHub
-                    ping_res = StockSearchIndexingHub().ping_all_engines()
-                    log_event(f"🌐 [{brand_kr}] 구글·네이버 실시간 색인 핑 자동 완료 ({ping_res.get('results', {}).get('google', {}).get('status', 'OK')})", "info")
-            except Exception as pe:
-                log_event(f"⚠️ [{brand_kr}] 색인 핑 자동 전송 예외: {pe}", "warning")
+                    from brands.stock.stock_blog_scheduler import StockBlogScheduler
+                    scheduler = StockBlogScheduler()
+                    res = scheduler.run_one_cycle()
+                    brand_stats[brand]["total_published"] = scheduler.state.get("published_count", brand_stats[brand]["total_published"] + 1)
+                    naver_url = res.get('publish_results', {}).get('channels', {}).get('naver_blog', {}).get('url', '-')
+                    tistory_url = res.get('publish_results', {}).get('channels', {}).get('tistory', {}).get('url', '-')
+                    log_event(f"🎉 [{brand_kr}] {slot_name} 정시 발행 완료! 주제: '{res.get('title')}' (네이버: {naver_url} | 티스토리: {tistory_url})", "success")
 
-            # 다음 블로그 사이클 대기 (30분 간격, 5초마다 정지 신호 확인)
-            for _ in range(360):
-                if not brand_daemons_running.get(brand, False):
-                    break
-                time.sleep(5)
-        except Exception as e:
-            import traceback
-            err_detail = traceback.format_exc()
-            log_event(f"❌ [{brand_kr} 블로그 데몬 오류] {e}\n{err_detail}", "error")
+                executed_slots.add(slot_key)
+
+            # 5초마다 시계 감시 및 정지 신호 즉시 감지
             for _ in range(6):
                 if not brand_daemons_running.get(brand, False):
                     break
                 time.sleep(5)
 
-    log_event(f"⏹️ [{brand_kr}] 4대 채널 옴니 블로그 데몬이 정지되었습니다.", "info")
+        except Exception as e:
+            import traceback
+            err_detail = traceback.format_exc()
+            log_event(f"❌ [{brand_kr} 블로그 스케줄러 오류] {e}\n{err_detail}", "error")
+            time.sleep(10)
+
+    log_event(f"⏹️ [{brand_kr}] 4대 채널 옴니 블로그 무인 스케줄러가 정지되었습니다.", "info")
 
 
 def _brand_daemon_loop(brand: str):
     name_map = {"aura": "💖 Aura 데이팅", "insurance": "🛡️ InsureBalance 보험비교", "stock": "📈 Stock Master 주식AI"}
     brand_kr = name_map.get(brand, brand.upper())
-    log_event(f"🚀 [{brand_kr}] 24시간 무인 마케팅 데몬 가동! (블로그 + 지식iN 24시간 레이더 동시 점화)", "success")
+    log_event(f"🚀 [{brand_kr}] 무인 자율 마케팅 데몬 가동! (지식iN 레이더 + 하루 2회 정시 블로그 스케줄러 탑재)", "success")
 
-    # 1. 24시간 지식iN 자율 레이더 스레드 가동
+    # 1. 지식iN 자율 레이더 스레드 가동 (정해진 5분 주기 감시, 일일 한도 달성 시 취침)
     threading.Thread(target=_brand_kin_worker, args=(brand,), daemon=True).start()
 
-    # 2. 4대 채널 옴니 블로그 및 포털 색인 스레드 가동
+    # 2. 4대 채널 옴니 블로그 무인 정시 스케줄러 가동 (하루 딱 2회: 12:00, 21:00 KST)
     threading.Thread(target=_brand_blog_worker, args=(brand,), daemon=True).start()
 
 # 📲 텔레그램 24시간 커뮤니티 — 브랜드별 독립 인스턴스 (K-Market / EasyTax 완전 분리)
@@ -2993,16 +2963,8 @@ def run_server(port: int = 8080):
     print(f"🌐 Browser URL: http://localhost:{port}")
     print("========================================================\n")
 
-    # 🇰🇷 [한국마케팅봇 24시간 무인 자율 오토파일럿 자동 점화]
-    def _auto_start_autopilot():
-        time.sleep(2)
-        log_event("🛸 [무인 오토파일럿] 3대 슈퍼앱(Aura·보험비교·주식AI) 24시간 자율 마케팅 공장 자동 점화 완료!", "success")
-        for b in ["aura", "insurance", "stock"]:
-            if not brand_daemons_running.get(b, False):
-                brand_daemons_running[b] = True
-                threading.Thread(target=_brand_daemon_loop, args=(b,), daemon=True).start()
-
-    threading.Thread(target=_auto_start_autopilot, daemon=True).start()
+    # 🛑 [수동 제어 모드] 서버 기동 시 무단 자동 실행 전면 차단 (오직 대시보드 버튼 클릭 시에만 수동 동작)
+    print("🔒 [안전 제어] 모든 백그라운드 자동 루프가 비활성화되었습니다. (수동 대시보드 조작 대기 중)\n")
 
     try:
         httpd.serve_forever()
