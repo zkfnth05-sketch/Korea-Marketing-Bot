@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Aura Kin 24/7 Scheduler (⏰ Aura 전용 24시간 상시 실시간 10개 쿼터 자율 낚아채기 스케줄러)
-========================================================================================
-- 브랜드: Aura (2030 AI 데이팅 & 서울 핫플 매칭)
+Insurance Kin 24/7 Scheduler (⏰ InsureBalance 전용 24시간 상시 실시간 10개 쿼터 자율 낚아채기 스케줄러)
+====================================================================================================
+- 브랜드: InsureBalance (2030 AI 보험비교 & 리모델링)
 - 핵심 원칙:
-  1. 🌐 24시간 시간대 제한 없이 상시 실시간 질문 레이더 감시
-  2. ⚡ 새 질문 발견 즉시 85점 심사 ➔ 1~3분 내 최우선 1,500자 킬러 답변 등록 (채택률 99%)
+  1. 🌐 24시간 시간대 제한 없이 상시 실시간 보험 질문 레이더 감시
+  2. ⚡ 새 질문 발견 즉시 85점 심사 ➔ 1~3분 내 최우선 1,500자 공인 컨설턴트 킬러 답변 등록 (채택률 99%)
   3. 🛡️ 일일 10개 안전 상한선(Daily Quota Guard) 엄수 (10개 달성 시 당일 대기 모드)
   4. 🔄 매일 자정(00:00) 쿼터 자동 리셋 & 365일 무인 자율 순환
 """
@@ -28,7 +28,7 @@ if sys.platform == "win32":
         pass
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-logger = logging.getLogger("AuraKinScheduler")
+logger = logging.getLogger("InsuranceKinScheduler")
 
 CURRENT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = CURRENT_DIR.parent.parent
@@ -36,23 +36,23 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 DATA_DIR = PROJECT_ROOT / "data"
-STATE_FILE = DATA_DIR / "aura_kin_daily_state.json"
+STATE_FILE = DATA_DIR / "insurance_kin_daily_state.json"
 
 try:
-    from brands.aura.aura_kin_pipeline import AuraKinPipeline
+    from brands.insurance.insurance_kin_pipeline import InsuranceKinPipeline
 except ImportError:
-    from aura_kin_pipeline import AuraKinPipeline
+    from insurance_kin_pipeline import InsuranceKinPipeline
 
 
-class AuraKinScheduler:
-    """💖 Aura 지식iN 24시간 상시 10개 쿼터 자율 스케줄러"""
+class InsuranceKinScheduler:
+    """🛡️ InsureBalance 지식iN 24시간 상시 10개 쿼터 자율 스케줄러"""
 
-    BRAND = "aura"
-    NAME = "Aura (AI 데이팅)"
+    BRAND = "insurance"
+    NAME = "InsureBalance (보험비교)"
     DAILY_TARGET = 10
 
     def __init__(self):
-        self.pipeline = AuraKinPipeline()
+        self.pipeline = InsuranceKinPipeline()
 
     def _load_state(self) -> Dict[str, Any]:
         """일일 등록 상태 로드 (날짜 바뀌면 자동 리셋)"""
@@ -82,13 +82,13 @@ class AuraKinScheduler:
     def trigger_scheduled_catch(self) -> Dict[str, Any]:
         """
         24시간 상시 호출 트리거:
-        - 오늘 10개 미만이면 실시간으로 질문을 낚아채어 등록
+        - 오늘 10개 미만이면 실시간으로 보험 질문을 낚아채어 등록
         - 10개 완료 시 안전 대기
         """
         state = self._load_state()
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        logger.info(f"⏰ [Aura 지식iN 24시간 레이더] 현재 일일 쿼터: {state['daily_total']}/{self.DAILY_TARGET}개 (시각: {now_str})")
+        logger.info(f"⏰ [Insurance 지식iN 24시간 레이더] 현재 일일 쿼터: {state['daily_total']}/{self.DAILY_TARGET}개 (시각: {now_str})")
 
         # 일일 상한선 10개 체크
         if state["daily_total"] >= self.DAILY_TARGET:
@@ -108,7 +108,7 @@ class AuraKinScheduler:
             state["last_run_at"] = now_str
             state["last_doc_id"] = res.get("record", {}).get("doc_id", "")
             self._save_state(state)
-            logger.info(f"🎉 [Aura 등록 성공] 오늘 누적 쿼터: {state['daily_total']} / {self.DAILY_TARGET}개 달성!")
+            logger.info(f"🎉 [Insurance 등록 성공] 오늘 누적 쿼터: {state['daily_total']} / {self.DAILY_TARGET}개 달성!")
             res["daily_total"] = state["daily_total"]
             res["target"] = self.DAILY_TARGET
 
@@ -120,16 +120,16 @@ class AuraKinScheduler:
         - 5분(300초) 간격으로 실시간 지식iN 감시
         - 새 질문 발견 즉시 등록 ➔ 10개 차면 자정까지 대기
         """
-        logger.info(f"🚀 [Aura 24시간 무인 데몬 시작] 주기: {check_interval_seconds}초 간격 감시 가동...")
+        logger.info(f"🚀 [Insurance 24시간 무인 데몬 시작] 주기: {check_interval_seconds}초 간격 감시 가동...")
         while True:
             try:
                 self.trigger_scheduled_catch()
             except Exception as e:
-                logger.error(f"⚠️ Aura 데몬 실행 중 예외: {e}")
+                logger.error(f"⚠️ Insurance 데몬 실행 중 예외: {e}")
             time.sleep(check_interval_seconds)
 
 
 if __name__ == "__main__":
-    scheduler = AuraKinScheduler()
+    scheduler = InsuranceKinScheduler()
     res = scheduler.trigger_scheduled_catch()
-    print("Aura Scheduler Run Result:", res)
+    print("Insurance Scheduler Run Result:", res)

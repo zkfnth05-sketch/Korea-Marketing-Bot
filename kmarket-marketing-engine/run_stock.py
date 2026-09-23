@@ -55,6 +55,28 @@ def main():
         print(f"  4. 📊 본진 웹앱 Supabase: {channels.get('supabase_research', {}).get('status')} -> Post ID: {channels.get('supabase_research', {}).get('post_id', '-')}")
         return
 
+    # ── [지식iN 단독 실행 옵션] ──
+    if "--kin-now" in sys.argv or "-kn" in sys.argv:
+        is_live = "--live" in sys.argv
+        from brands.stock.stock_kin_pipeline import StockKinPipeline
+        print("\n==============================================")
+        print(f"📈 [StockMaster] 네이버 지식iN 실시간 낚아채기 1회 즉시 실행 (Mode: {'LIVE' if is_live else 'DRY-RUN'})")
+        print("==============================================\n")
+        pipe = StockKinPipeline()
+        res = pipe.run_catch_cycle(max_catch=1, dry_run=not is_live)
+        print("\n[지식iN 낚아채기 결과 요약]:")
+        print(json.dumps(res, ensure_ascii=False, indent=2))
+        return
+
+    if "--kin-daemon" in sys.argv or "-kd" in sys.argv:
+        from brands.stock.stock_kin_scheduler import StockKinScheduler
+        print("\n==============================================")
+        print("📈 [StockMaster] 네이버 지식iN 24시간 실시간 낚아채기 자율 스케줄러 가동 (300초 간격)")
+        print("==============================================\n")
+        scheduler = StockKinScheduler()
+        scheduler.run_continuous_daemon(check_interval_seconds=300)
+        return
+
     is_live = "--live" in sys.argv
     dry_run = not is_live
 

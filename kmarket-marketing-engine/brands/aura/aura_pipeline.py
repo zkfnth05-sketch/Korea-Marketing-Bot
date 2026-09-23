@@ -17,9 +17,9 @@ if engine_root not in sys.path:
     sys.path.insert(0, engine_root)
 
 from brands.aura.scenarios.prompt_director_aura import AuraPromptDirector
+from brands.aura.aura_kin_pipeline import AuraKinPipeline
 from modules.domestic.tistory_engine import TistoryEngine
 from modules.domestic.naver_advisor_engine import NaverAdvisorEngine
-from modules.domestic.naver_kin_engine import NaverKinEngine
 from modules.domestic.dcinside_engine import DCInsideEngine
 from modules.domestic.ppomppu_engine import PpomppuEngine
 from modules.domestic.natepann_engine import NatePannEngine
@@ -38,7 +38,7 @@ class AuraPipeline:
         self.director = AuraPromptDirector()
         self.tistory = TistoryEngine()
         self.advisor = NaverAdvisorEngine()
-        self.kin = NaverKinEngine()
+        self.kin = AuraKinPipeline()
         self.dcinside = DCInsideEngine()
         self.ppomppu = PpomppuEngine()
         self.natepann = NatePannEngine()
@@ -92,14 +92,9 @@ class AuraPipeline:
         }
 
     def run_qa_and_lead_cycle(self) -> Dict[str, Any]:
-        """지식iN 질문 실시간 감지 & 답변 투고"""
+        """지식iN 질문 실시간 감지 & 답변 투고 (Aura 전용 독립 레고 블록)"""
         logger.info("💖 [Aura] 지식iN 실시간 헌팅 파이프라인 가동")
-        answer = self.director.generate_blog_content()
-        kin_res = self.kin.submit_answer(
-            question_url="https://kin.naver.com/qna/detail.naver?d1id=8&dirId=80101&docId=99999",
-            answer_text="소개팅 카톡 대화 시 공감 한 줄과 자연스러운 핑퐁 질문이 핵심입니다. (Aura 데이팅 가이드 참고)",
-            dry_run=self.dry_run
-        )
+        kin_res = self.kin.run_catch_cycle(max_catch=1, dry_run=self.dry_run)
         return {
             "channel": "kin_qa",
             "kin": kin_res

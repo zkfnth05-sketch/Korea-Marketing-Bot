@@ -17,9 +17,9 @@ if engine_root not in sys.path:
     sys.path.insert(0, engine_root)
 
 from brands.stock.scenarios.prompt_director_stock import StockPromptDirector
+from brands.stock.stock_kin_pipeline import StockKinPipeline
 from modules.domestic.tistory_engine import TistoryEngine
 from modules.domestic.naver_advisor_engine import NaverAdvisorEngine
-from modules.domestic.naver_kin_engine import NaverKinEngine
 from modules.domestic.dcinside_engine import DCInsideEngine
 from modules.domestic.ppomppu_engine import PpomppuEngine
 from modules.domestic.kakao_channel_engine import KakaoChannelEngine
@@ -37,7 +37,7 @@ class StockPipeline:
         self.director = StockPromptDirector()
         self.tistory = TistoryEngine()
         self.advisor = NaverAdvisorEngine()
-        self.kin = NaverKinEngine()
+        self.kin = StockKinPipeline()
         self.dcinside = DCInsideEngine()
         self.ppomppu = PpomppuEngine()
         self.kakao = KakaoChannelEngine()
@@ -105,6 +105,15 @@ class StockPipeline:
             "kakao": kakao_res
         }
 
+    def run_qa_and_lead_cycle(self) -> Dict[str, Any]:
+        """지식iN 주식 질문 실시간 낚아채기 (Stock Master 전용 독립 레고 블록)"""
+        logger.info("📈 [주식AI] 지식iN 실시간 헌팅 파이프라인 가동")
+        kin_res = self.kin.run_catch_cycle(max_catch=1, dry_run=self.dry_run)
+        return {
+            "channel": "kin_qa",
+            "kin": kin_res
+        }
+
     def run_full_daily_cycle(self) -> Dict[str, Any]:
         """주식 AI 전 채널 일일 무인 종합 가동"""
         logger.info("🚀 ========================================")
@@ -114,12 +123,13 @@ class StockPipeline:
         r1 = self.run_blog_and_seo_cycle()
         r2 = self.run_community_cycle()
         r3 = self.run_premarket_briefing_cycle()
+        r4 = self.run_qa_and_lead_cycle()
 
         return {
             "brand": self.BRAND,
             "status": "success",
             "mode": "dry_run" if self.dry_run else "live",
-            "results": [r1, r2, r3]
+            "results": [r1, r2, r3, r4]
         }
 
 

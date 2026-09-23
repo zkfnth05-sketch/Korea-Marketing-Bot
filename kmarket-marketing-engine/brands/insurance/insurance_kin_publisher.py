@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Aura Kin Publisher (🤖 Aura 전용 네이버 지식iN Playwright 자동 답변 등록기)
+Insurance Kin Publisher (🤖 InsureBalance 전용 네이버 지식iN Playwright 자동 답변 등록기)
 ========================================================================================
-- 브랜드: Aura (2030 AI 데이팅 & 서울 핫플 매칭)
+- 브랜드: InsureBalance (보험비교 & AI 리모델링)
 - 역할:
-  1. brands/aura/naver_session.json 쿠키를 이용한 지식iN 자동 세션 마운트
-  2. 질문 상세 페이지(https://kin.naver.com/qna/detail.naver?...) 진입
-  3. [답변하기] 버튼 클릭 및 스마트에디터에 3박자 킬러 답변 + 출처 입력
-  4. 인간형 타이핑 딜레이 및 답변 등록 완료 후 최종 결과 반환
+  1. brands/insurance/naver_browser_profile 및 naver_session.json 쿠키 자동 마운트
+  2. 네이버 도메인 SSO 세션 워밍업 (myInfoV2 ➔ kin.naver.com)
+  3. 질문 상세 페이지 진입 및 스마트에디터 ONE에 1,500자 이상 킬러 답변 주입
+  4. 지식iN 답변 등록 완료 및 영구 프로필 실시간 동기화
 """
 
 import os
@@ -29,18 +29,17 @@ if sys.platform == "win32":
     except Exception:
         pass
 
-logger = logging.getLogger("AuraKinPublisher")
+logger = logging.getLogger("InsuranceKinPublisher")
 
 CURRENT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = CURRENT_DIR.parent.parent
-SESSION_PATH = CURRENT_DIR / "naver_session.json"
 
 
-class AuraKinPublisher:
-    """💖 Aura 전용 네이버 지식iN 자동 답변 등록기 (영구 브라우저 프로필 기반)"""
+class InsuranceKinPublisher:
+    """🛡️ InsureBalance 전용 네이버 지식iN 자동 답변 등록기"""
 
-    BRAND = "aura"
-    NAME = "Aura (AI 데이팅)"
+    BRAND = "insurance"
+    NAME = "InsureBalance (보험비교)"
     PROFILE_DIR = CURRENT_DIR / "naver_browser_profile"
 
     def __init__(self):
@@ -64,7 +63,6 @@ class AuraKinPublisher:
                 ]
             )
 
-            # 백업용 naver_session.json 쿠키가 있다면 주입
             session_json = CURRENT_DIR / "naver_session.json"
             if session_json.exists():
                 try:
@@ -81,14 +79,14 @@ class AuraKinPublisher:
             page.on("dialog", lambda dialog: asyncio.create_task(dialog.accept()))
 
             try:
-                # 1. 네이버 도메인 간 SSO 세션 워밍업 (지식iN 도메인 쿠키 동기화)
+                # 1. 네이버 도메인 간 SSO 세션 워밍업
                 await page.goto("https://nid.naver.com/user2/help/myInfoV2?lang=ko_KR", wait_until="domcontentloaded", timeout=20000)
                 await page.wait_for_timeout(1000)
                 await page.goto("https://kin.naver.com", wait_until="domcontentloaded", timeout=20000)
                 await page.wait_for_timeout(1000)
 
                 # 2. 질문 상세 페이지 접속
-                logger.info(f"🌐 [영구 프로필 지식iN 접속] {question_url}")
+                logger.info(f"🌐 [Insurance 영구 프로필 지식iN 접속] {question_url}")
                 await page.goto(question_url, wait_until="domcontentloaded", timeout=25000)
                 await page.wait_for_timeout(2000)
 
@@ -109,14 +107,14 @@ class AuraKinPublisher:
                 await answer_btn.click()
                 await page.wait_for_timeout(2500)
 
-                # 로그인 리다이렉트 여부 정밀 검사
+                # 로그인 리다이렉트 여부 검사
                 if "nidlogin.login" in page.url:
-                    logger.warning("🚨 네이버 로그인 세션이 필요합니다.")
+                    logger.warning("🚨 InsureBalance 네이버 로그인 세션이 필요합니다.")
                     await context.close()
                     return {
                         "success": False,
                         "status": "login_required",
-                        "message": "네이버 1회 로그인 세션 저장이 필요합니다",
+                        "message": "InsureBalance 네이버 1회 로그인 세션 저장이 필요합니다",
                         "question_url": question_url
                     }
 
@@ -129,7 +127,7 @@ class AuraKinPublisher:
                     await editor_area.scroll_into_view_if_needed()
                     await editor_area.click()
                     await page.wait_for_timeout(500)
-                    
+
                     # 스마트에디터 ONE 무손실 클립보드 주입 (URL, 이모지, 특수서식 100% 보존)
                     pasted = False
                     try:
@@ -138,7 +136,7 @@ class AuraKinPublisher:
                         await page.keyboard.press("Control+v")
                         await page.wait_for_timeout(1500)
                         pasted = True
-                        logger.info("📋 [클립보드 무손실 붙여넣기 성공] URL 및 카드 서식 100% 보존 주입")
+                        logger.info("📋 [클립보드 무손실 붙여넣기 성공] URL 및 보험 센터 카드 서식 100% 보존 주입")
                     except Exception as clip_err:
                         logger.warning(f"⚠️ 클립보드 주입 예외: {clip_err} ➔ 키보드 타이핑 폴백")
 
@@ -180,10 +178,10 @@ class AuraKinPublisher:
                     logger.info("🚀 [답변 등록하기] 버튼 클릭 실행...")
                     await register_btn.scroll_into_view_if_needed()
                     await register_btn.click(force=True)
-                    await page.wait_for_timeout(6000)  # 등록 후 페이지 안정화 대기
+                    await page.wait_for_timeout(6000)
 
                     # ✅ 등록 성공 검증: URL에 answerNo= 포함 여부 확인
-                    # (빈 답변 제출 시네이버가 alert 표시 후 페이지 유지 → answerNo= 미포함)
+                    # (빈 답변 제출 시 네이버가 alert 표시 후 페이지 유지 → answerNo= 미포함)
                     final_url = page.url
                     published_ok = "answerNo=" in final_url
 
@@ -198,7 +196,7 @@ class AuraKinPublisher:
                             "question_url": question_url
                         }
 
-                    logger.info(f"🎉 지식iN 실제 답변 등록 완료! (현재 URL: {final_url})")
+                    logger.info(f"🎉 InsureBalance 지식iN 답변 등록 완료! (현재 URL: {final_url})")
 
                     # 영구 프로필 및 session.json 완전 동기화 (쿠키 + 로컬스토리지 영구 보존)
                     try:
@@ -226,7 +224,7 @@ class AuraKinPublisher:
                     }
 
             except Exception as e:
-                logger.warning(f"지식iN 답변 등록 중 예외: {e}")
+                logger.warning(f"Insurance 지식iN 답변 등록 중 예외: {e}")
                 await context.close()
                 return {
                     "success": False,
@@ -241,8 +239,8 @@ class AuraKinPublisher:
 
 
 if __name__ == "__main__":
-    publisher = AuraKinPublisher()
-    sample_url = "https://kin.naver.com/qna/detail.naver?docId=494781951"
-    sample_answer = "안녕하세요! 소개팅 첫만남 대화 관련해서 꿀팁 공유해 드립니다..."
-    res = publisher.publish_answer(sample_url, sample_answer, "https://aura-ai-dating.vercel.app")
+    publisher = InsuranceKinPublisher()
+    sample_url = "https://kin.naver.com/qna/detail.naver?dirId=40103&docId=494614491"
+    sample_answer = "4세대 실손보험 전환 및 3대 진단비 비교 분석 내용..."
+    res = publisher.publish_answer(sample_url, sample_answer, "https://insure-rebalance.vercel.app/")
     print("Publish Result:", res)

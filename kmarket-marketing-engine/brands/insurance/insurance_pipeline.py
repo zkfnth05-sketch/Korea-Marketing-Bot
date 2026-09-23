@@ -17,9 +17,9 @@ if engine_root not in sys.path:
     sys.path.insert(0, engine_root)
 
 from brands.insurance.scenarios.prompt_director_insurance import InsurancePromptDirector
+from brands.insurance.insurance_kin_pipeline import InsuranceKinPipeline
 from modules.domestic.tistory_engine import TistoryEngine
 from modules.domestic.naver_advisor_engine import NaverAdvisorEngine
-from modules.domestic.naver_kin_engine import NaverKinEngine
 from modules.domestic.ppomppu_engine import PpomppuEngine
 from modules.domestic.bobaedream_engine import BobaedreamEngine
 from modules.domestic.dcinside_engine import DCInsideEngine
@@ -38,7 +38,7 @@ class InsurancePipeline:
         self.director = InsurancePromptDirector()
         self.tistory = TistoryEngine()
         self.advisor = NaverAdvisorEngine()
-        self.kin = NaverKinEngine()
+        self.kin = InsuranceKinPipeline()
         self.ppomppu = PpomppuEngine()
         self.bobaedream = BobaedreamEngine()
         self.dcinside = DCInsideEngine()
@@ -93,13 +93,9 @@ class InsurancePipeline:
         }
 
     def run_qa_and_lead_cycle(self) -> Dict[str, Any]:
-        """지식iN 실손/암보험 질문 실시간 낚아채기"""
+        """지식iN 실손/암보험 질문 실시간 낚아채기 (InsureBalance 전용 독립 레고 블록)"""
         logger.info("🛡️ [보험비교] 지식iN 실시간 헌팅 파이프라인 가동")
-        kin_res = self.kin.submit_answer(
-            question_url="https://kin.naver.com/qna/detail.naver?d1id=4&dirId=40103&docId=88888",
-            answer_text="실손보험 갱신 시 중복 특약 분리 및 비갱신 전환이 필수적입니다. (인슈어밸런스 비교표 참고)",
-            dry_run=self.dry_run
-        )
+        kin_res = self.kin.run_catch_cycle(max_catch=1, dry_run=self.dry_run)
         return {
             "channel": "kin_qa",
             "kin": kin_res

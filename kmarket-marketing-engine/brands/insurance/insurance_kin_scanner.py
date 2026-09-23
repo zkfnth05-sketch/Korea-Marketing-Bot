@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-Aura Kin Scanner (🔍 Aura 전용 네이버 지식iN 100개 키워드 실시간 질문 레이더)
+Insurance Kin Scanner (🔍 InsureBalance 전용 네이버 지식iN 실시간 보험 질문 레이더)
 ========================================================================================
-- 브랜드: Aura (2030 AI 데이팅 & 서울 핫플 매칭)
+- 브랜드: InsureBalance (2030 AI 보험비교 & 리모델링)
 - 역할:
-  1. 100대 황금 키워드 기반 지식iN 최신순 실시간 질문 탐색
-  2. 질문 ID(docId), 제목, 질문 본문 요약, URL, 등록시간 메타데이터 정밀 수집
-  3. Playwright & 영구 세션 기반 100% 안정적 질문 낚아채기
+  1. 100대 황금 보험 키워드 기반 실시간 질문 탐색
+  2. 3대 초신선 골든 필터 적용:
+     - 📅 작성일: 최근 24~48시간 (오늘~어제, max_days=2)
+     - 💬 답변수: 기존 답변 0개 ~ 최대 4개 이하
+     - 🚫 내 계정(thefirst-life 등) 중복 답변 제외
+  3. Playwright & 네이버 세션 기반 안정적 질문 크롤링
 """
 
 import os
@@ -17,6 +20,7 @@ import json
 import random
 import logging
 import asyncio
+import urllib.parse
 from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Any, Optional
@@ -30,7 +34,8 @@ if sys.platform == "win32":
     except Exception:
         pass
 
-logger = logging.getLogger("AuraKinScanner")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger("InsuranceKinScanner")
 
 CURRENT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = CURRENT_DIR.parent.parent
@@ -40,23 +45,24 @@ if str(CURRENT_DIR) not in sys.path:
     sys.path.insert(0, str(CURRENT_DIR))
 
 try:
-    from brands.aura.aura_kin_keywords_100 import get_all_100_keywords
+    from brands.insurance.insurance_kin_keywords_100 import get_all_insurance_keywords
 except ImportError:
-    from aura_kin_keywords_100 import get_all_100_keywords
+    from insurance_kin_keywords_100 import get_all_insurance_keywords
 
 
-class AuraKinScanner:
-    """💖 Aura 전용 네이버 지식iN 100개 키워드 실시간 질문 스캐너"""
+class InsuranceKinScanner:
+    """🛡️ InsureBalance 전용 지식iN 실시간 질문 스캐너"""
 
-    BRAND = "aura"
+    BRAND = "insurance"
+    NAME = "InsureBalance (보험비교)"
     SESSION_PATH = CURRENT_DIR / "naver_session.json"
 
     def __init__(self):
-        self.all_keywords = get_all_100_keywords()
+        self.all_keywords = get_all_insurance_keywords()
 
     @staticmethod
-    def is_within_days(date_str: str, max_days: int = 3) -> bool:
-        """최근 max_days일 이내 질문인지 엄격 검사"""
+    def is_within_days(date_str: str, max_days: int = 2) -> bool:
+        """최근 max_days일(기본: 최근 24~48시간 오늘~어제) 이내 질문인지 엄격 검사"""
         if not date_str:
             return False
         date_str = date_str.strip()
@@ -88,7 +94,7 @@ class AuraKinScanner:
         custom_keywords: Optional[List[str]] = None
     ) -> List[Dict[str, Any]]:
         """
-        초신선 골든 필터 기반 실시간 질문 스캔:
+        초신선 골든 필터 기반 실시간 보험 질문 스캔:
         1. 작성일: 최근 24~48시간 (오늘~어제, max_days=2)만 허용
         2. 답변수: 0개 ~ 최대 4개 이하만 선별
         3. 내 답변 제외: 본인 계정 답변 완료글 배제
@@ -97,7 +103,7 @@ class AuraKinScanner:
             selected_keywords = custom_keywords
         else:
             selected_keywords = random.sample(self.all_keywords, min(sample_keywords_count, len(self.all_keywords)))
-            
+
         collected = []
         seen_doc_ids = set()
 
@@ -107,7 +113,6 @@ class AuraKinScanner:
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
             )
 
-            # 네이버 세션 쿠키 탑재
             if self.SESSION_PATH.exists():
                 try:
                     with open(self.SESSION_PATH, "r", encoding="utf-8") as f:
@@ -122,7 +127,6 @@ class AuraKinScanner:
 
             for kw in selected_keywords:
                 try:
-                    import urllib.parse
                     url = f"https://kin.naver.com/search/list.naver?query={urllib.parse.quote(kw)}&sort=date"
                     await page.goto(url, wait_until="domcontentloaded", timeout=12000)
 
@@ -143,11 +147,11 @@ class AuraKinScanner:
                         if not doc_id or doc_id in seen_doc_ids:
                             continue
 
-                        # 날짜 추출 (dd.txt_inline or .txt_date)
+                        # 날짜 추출
                         date_el = await li.query_selector("dd.txt_inline") or await li.query_selector(".txt_date")
                         date_str = (await date_el.inner_text()).strip() if date_el else ""
 
-                        # 1. 초신선 작성일 필터 (최근 3일 이내)
+                        # 1. 작성일 필터 (최근 2일 이내: 오늘~어제)
                         if not self.is_within_days(date_str, max_days=max_days):
                             continue
 
@@ -155,23 +159,23 @@ class AuraKinScanner:
                         txt_block_el = await li.query_selector("dd.txt_block")
                         txt_block = (await txt_block_el.inner_text()).strip() if txt_block_el else ""
 
-                        # 2. 내 계정 답변 중복 배제 (zkfn 등)
-                        if "zkfn" in txt_block.lower():
+                        # 2. 내 계정 답변 중복 배제 (thefirst-life 등)
+                        if "thefirst" in txt_block.lower():
                             continue
 
-                        # 3. 답변수 상한 필터 (최대 2개 이하)
+                        # 3. 답변수 상한 필터 (최대 4개 이하)
                         ans_count = self.extract_answer_count(txt_block)
                         if ans_count > max_answers:
                             continue
 
                         seen_doc_ids.add(doc_id)
 
-                        # 요약 및 본문
+                        # 요약 본문
                         desc_el = await li.query_selector("dd:not(.txt_block):not(.txt_inline):not(.tag_area)")
                         desc = (await desc_el.inner_text()).strip() if desc_el else ""
 
                         item = {
-                            "brand": "aura",
+                            "brand": "insurance",
                             "doc_id": doc_id,
                             "keyword": kw,
                             "title": title,
@@ -188,14 +192,14 @@ class AuraKinScanner:
 
                     await page.wait_for_timeout(200)
                 except Exception as ex:
-                    logger.warning(f"키워드 [{kw}] 지식iN 스캔 예외: {ex}")
+                    logger.warning(f"Insurance 키워드 [{kw}] 지식iN 스캔 예외: {ex}")
 
                 if len(collected) >= max_questions:
                     break
 
             await browser.close()
 
-        logger.info(f"🔍 [Aura 지식iN 레이더] {len(collected)}개 질문 포착 완료 (샘플: {', '.join(selected_keywords[:3])})")
+        logger.info(f"🔍 [Insurance 지식iN 레이더] {len(collected)}개 질문 포착 완료 (샘플: {', '.join(selected_keywords[:3])})")
         return collected
 
     def scan_recent_questions(
@@ -240,14 +244,13 @@ class AuraKinScanner:
                 if len(t) > 20:
                     return t
         except Exception as e:
-            logger.warning(f"Aura 질문 상세 본문 추출 예외 ({url}): {e}")
+            logger.warning(f"Insurance 질문 상세 본문 추출 예외 ({url}): {e}")
         return ""
 
 
 if __name__ == "__main__":
-    scanner = AuraKinScanner()
-    items = scanner.scan_recent_questions(sample_keywords_count=2, max_questions=3)
+    scanner = InsuranceKinScanner()
+    items = scanner.scan_recent_questions(sample_keywords_count=3, max_questions=5)
     for q in items:
         print(f"[{q['keyword']}] {q['title']}")
-        print(f"  URL: {q['url']}")
-        print(f"  내용: {q['content'][:70]}...\n")
+        print(f"  작성일: {q['date_text']} | 답변수: {q['answer_count']}개 | URL: {q['url']}\n")

@@ -1,8 +1,10 @@
 """
-Naver Kin Engine (네이버 지식iN 실시간 질문 감지 및 AI 전문가 답변 헌터)
-- 지식iN 최신 질문 실시간 크롤링 (보험/주식/소개팅 관련 타겟 키워드)
-- Gemini AI 기반 전문가 페르소나 맞춤형 답변 100% 자동 생성
-- Playwright 스텔스 세션을 통한 무인 답변 투고 및 1일 15건 캡/안전 딜레이 준수
+[DEPRECATED - 레거시 공용 지식iN 모놀리식 엔진]
+- 주의: 이 파일은 과거 통합 테스트용 구형 모듈입니다.
+- 2026 완전 독립 모듈화 원칙에 따라, 각 브랜드는 아래의 전용 독립 파이프라인을 사용합니다:
+  * Aura 데이팅: brands.aura.aura_kin_pipeline.AuraKinPipeline
+  * Stock 주식 AI: brands.stock.stock_kin_pipeline.StockKinPipeline
+  * Insurance 보험비교: brands.insurance.insurance_kin_pipeline.InsuranceKinPipeline
 """
 
 import os

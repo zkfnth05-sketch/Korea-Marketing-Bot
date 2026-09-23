@@ -62,6 +62,29 @@ async def run_login_flow():
 
         # 네이버 로그인 페이지 접속 (완료 후 지식iN으로 이동)
         await page.goto("https://nid.naver.com/nidlogin.login?url=https%3A%2F%2Fkin.naver.com")
+        
+        # 🔒 [영구 로그인 보존 설정] 로그인 상태 유지 자동 체크 및 IP보안 자동 해제
+        try:
+            stay_cb = await page.wait_for_selector("#loginStay", timeout=5000)
+            if stay_cb and not await stay_cb.is_checked():
+                label_stay = await page.query_selector("label[for='loginStay']")
+                if label_stay:
+                    await label_stay.click()
+                else:
+                    await stay_cb.check()
+                print("🔒 [영구 설정] '로그인 상태 유지'(nvlong) 자동 체크 완료 (영구 토큰 발급)")
+
+            ip_cb = await page.query_selector("#switchIP")
+            if ip_cb and await ip_cb.is_checked():
+                label_ip = await page.query_selector("label[for='switchIP']")
+                if label_ip:
+                    await label_ip.click()
+                else:
+                    await ip_cb.uncheck()
+                print("🌐 [영구 설정] 'IP보안' 자동 해제 완료 (유동 IP 환경 세션 파기 원천 차단)")
+        except Exception as e:
+            print(f"⚠️ 영구 옵션 자동 세팅 안내: {e}")
+
         print("\n⏳ 네이버 로그인 대기 중... (로그인을 완료하시면 봇이 자동으로 감지합니다)")
 
         # 로그인 완료 감지 루프 (최대 3분 대기)

@@ -254,7 +254,7 @@ const APP_PIPELINES = {
                 hubNumber: 7,
                 name: "📜 2대 텍스트 스토리 타래 허브",
                 icon: "📜",
-                desc: "<b>📜 [텍스트 스토리 AI 1회 생성]</b> (광고 티 0% 2030 연애 공감 1/n 줄줄이 실화 썰)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① Meta 스레드 (Threads 1/n 줄줄이 타래 썰 + 첫댓글 링크)<br>➔ ② X / 트위터 (Twitter/X API v2 1/n 바이럴 타래 스레드)</div>"
+                desc: "<b>📜 [텍스트 스토리 AI 1회 생성]</b> (광고 티 0% 주식 투자 성공/실패 & 퀀트 매매 실화 썰)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① Meta 스레드 (Threads 1/n 줄줄이 타래 썰 + 첫댓글 링크)<br>➔ ② X / 트위터 (Twitter/X API v2 1/n 바이럴 타래 스레드)</div>"
             },
             // #14 네이버 지식iN
             {
@@ -263,7 +263,7 @@ const APP_PIPELINES = {
                 hubNumber: 14,
                 name: "💡 네이버 지식iN 100대 황금키워드 낚아채기",
                 icon: "💡",
-                desc: "<b>💡 [100대 황금키워드 실시간 레이더]</b> (연애/소개팅/핫플 100개 키워드 실시간 스캔 + 85점 심사 + 3박자 킬러 답변)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 100대 황금 키워드 실시간 질문 낚아채기 (하루 딱 10개 엄선)<br>➔ ② Gemini 2.5 Flash 적합도 85점 이상 선별 (쓰레기글 100% 차단)<br>➔ ③ 2030 동네 언니/형 3박자 킬러 답변 (고민해결 70% + 타사비교 20% + Aura링크 10%)</div>",
+                desc: "<b>💡 [100대 황금키워드 실시간 레이더]</b> (국내/미국 주식/ETF/AI 퀀트 100개 키워드 실시간 스캔 + 85점 심사 + 10년 차 수석 애널리스트 3박자 킬러 답변)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 100대 황금 키워드 실시간 질문 낚아채기 (하루 딱 10개 엄선)<br>➔ ② Gemini 2.5 Flash 적합도 85점 이상 선별 (불법 리딩방 100% 차단)<br>➔ ③ 10년 차 애널리스트 3박자 답변 (종목분석 70% + 리딩방피해 15% + StockMaster 15%)</div>",
                 isKin: true,
                 kinUrl: "https://kin.naver.com"
             },
@@ -431,9 +431,11 @@ const APP_PIPELINES = {
                 id: "naver_kin",
                 key: "naver_kin",
                 hubNumber: 14,
-                name: "네이버 지식iN 실시간 낚아채기",
+                name: "💡 네이버 지식iN 100대 황금키워드 낚아채기",
                 icon: "💡",
-                desc: "\"이 보험 해지해야 하나요?\", \"실손 청구\" 맞춤 답변"
+                desc: "<b>💡 [100대 황금키워드 실시간 레이더]</b> (실손/암/뇌심/운전자/리모델링 100개 키워드 실시간 스캔 + 85점 심사 + 12년 차 컨설턴트 3박자 킬러 답변)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 100대 황금 키워드 실시간 질문 낚아채기 (하루 딱 10개 엄선)<br>➔ ② Gemini 2.5 Flash 적합도 85점 이상 선별 (보험사기 100% 차단)<br>➔ ③ 12년 차 공인 컨설턴트 3박자 답변 (증권분석 70% + 눈탱이피해 15% + InsureBalance 15%)</div>",
+                isKin: true,
+                kinUrl: "https://kin.naver.com"
             },
             // #15 네이버 카페
             {

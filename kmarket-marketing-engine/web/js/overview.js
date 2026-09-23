@@ -722,6 +722,39 @@ async function fetchStatus() {
             insSub.innerText = isInsuranceRunning ? "24시간 보장 분석/리모델링 중" : "실손/3대질병/호갱탈출";
         }
 
+        // 🛸 3대 슈퍼앱 24시간 무인 오토파일럿 마스터 관제 바 업데이트
+        const auraKinCount = data.kin_quotas?.aura?.today_total || 0;
+        const insKinCount = data.kin_quotas?.insurance?.today_total || 0;
+        const stockKinCount = data.kin_quotas?.stock?.today_total || 0;
+
+        const barAura = document.getElementById("bar-aura-status");
+        if (barAura) {
+            barAura.innerHTML = isAuraRunning 
+                ? `<span style="color:#34D399;font-weight:700;">🟢 가동 중 (지식iN ${auraKinCount}/10건)</span>`
+                : `<span style="color:#CBD5E1;">⚪ 대기 중 (지식iN ${auraKinCount}/10건)</span>`;
+        }
+
+        const barIns = document.getElementById("bar-insurance-status");
+        if (barIns) {
+            barIns.innerHTML = isInsuranceRunning 
+                ? `<span style="color:#34D399;font-weight:700;">🟢 가동 중 (지식iN ${insKinCount}/10건)</span>`
+                : `<span style="color:#CBD5E1;">⚪ 대기 중 (지식iN ${insKinCount}/10건)</span>`;
+        }
+
+        const barStock = document.getElementById("bar-stock-status");
+        if (barStock) {
+            barStock.innerHTML = isStockRunning 
+                ? `<span style="color:#34D399;font-weight:700;">🟢 가동 중 (지식iN ${stockKinCount}/10건)</span>`
+                : `<span style="color:#CBD5E1;">⚪ 대기 중 (지식iN ${stockKinCount}/10건)</span>`;
+        }
+
+        const masterBadge = document.getElementById("master-autopilot-badge");
+        if (masterBadge) {
+            const anyRunning = isAuraRunning || isInsuranceRunning || isStockRunning;
+            masterBadge.innerHTML = anyRunning ? "🟢 24시간 자율 가동 중" : "⚪ 대기 중";
+            masterBadge.style.background = anyRunning ? "#10B981" : "#64748B";
+        }
+
         // 22대 허브 실시간 뱃지 동기화
         updateChannelBadges(data.running_channels);
         if (data.golden_targets) {
