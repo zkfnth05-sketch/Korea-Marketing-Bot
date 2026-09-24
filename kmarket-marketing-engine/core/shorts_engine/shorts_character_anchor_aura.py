@@ -19,9 +19,10 @@ AURA_8_TOPIC_SPECS = {
         "title": "소개팅 탈출 전화",
         "gender": "female",
         "framing": (
-            "photographed from 1.3 meters distance across a dining table on iPhone 15 Pro, "
-            "over-the-shoulder view with the back of a man's dark suit jacket shoulder and back of head in the bottom foreground facing completely away from camera, "
-            "the woman sits directly across the dining table facing 100% frontal towards the camera looking directly into the camera lens with warm engaging eye contact, "
+            "photographed from 1.2 meters directly across a dining table from the date's first-person eye-level perspective on iPhone 15 Pro, "
+            "solo 1person female, perfectly centered in the middle of frame, perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and shoulders, "
+            "gently closed mouth, natural lips closed together, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
             "candid medium shot showing chest, shoulders, and dark wooden dining table clearly, "
             "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible real pores and hair strands"
         ),
@@ -43,6 +44,7 @@ AURA_8_TOPIC_SPECS = {
         "framing": (
             "photographed from 1.2 meters directly across a dining table from the date's first-person eye-level perspective on iPhone 15 Pro, "
             "perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and shoulders, "
             "candid medium shot showing chest, shoulders, and table surface clearly, "
             "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible real pores and hair strands"
         ),
@@ -64,6 +66,7 @@ AURA_8_TOPIC_SPECS = {
         "framing": (
             "photographed from 1.2 meters directly across a dining table from the date's first-person eye-level perspective on iPhone 15 Pro, "
             "perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and shoulders, "
             "candid medium shot showing chest, shoulders, and luxurious marble table clearly, "
             "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible real pores and hair strands"
         ),
@@ -85,6 +88,7 @@ AURA_8_TOPIC_SPECS = {
         "framing": (
             "photographed from 1.2 meters directly across a dining table from the date's first-person eye-level perspective on iPhone 15 Pro, "
             "perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and shoulders, "
             "candid medium shot showing chest, shoulders, and cafe table clearly, "
             "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible real pores and hair strands"
         ),
@@ -106,6 +110,7 @@ AURA_8_TOPIC_SPECS = {
         "framing": (
             "photographed from 1.2 meters directly across a dining table from the date's first-person eye-level perspective on iPhone 15 Pro, "
             "perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and shoulders, "
             "candid medium shot showing chest, shoulders, and brunch table clearly, "
             "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible real pores and hair strands"
         ),
@@ -127,6 +132,7 @@ AURA_8_TOPIC_SPECS = {
         "framing": (
             "photographed from 1.2 meters directly across a dining table from the date's first-person eye-level perspective on iPhone 15 Pro, "
             "perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and shoulders, "
             "candid medium shot showing chest, shoulders, and study table clearly, "
             "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible real pores and hair strands"
         ),
@@ -148,6 +154,7 @@ AURA_8_TOPIC_SPECS = {
         "framing": (
             "photographed from 1.2 meters directly across a dining table from the date's first-person eye-level perspective on iPhone 15 Pro, "
             "perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and shoulders, "
             "candid medium shot showing chest, shoulders, and cafe table clearly, "
             "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible real pores and hair strands"
         ),
@@ -169,6 +176,7 @@ AURA_8_TOPIC_SPECS = {
         "framing": (
             "photographed from 1.2 meters directly across a dining table from the date's first-person eye-level perspective on iPhone 15 Pro, "
             "perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and shoulders, "
             "candid medium shot showing chest, shoulders, and terrace table clearly, "
             "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible real pores and hair strands"
         ),
@@ -197,7 +205,8 @@ def build_aura_shorts_t2i_character_prompt(
     2. 머리 위 여백(Generous Headroom) 및 주변 환경 심도(Environmental Depth) 확보
     3. 스마트폰 파지 배제, 자연스러운 일상 제스처
     4. 🤐 [S2V 립싱크 헌법]: 치아 없는 입 다문 부드러운 미소 (lips completely closed together, zero teeth)
-    5. 얼빡샷(extreme close-up) 강력 차단 네거티브 탑재
+    5. 📐 [완벽한 정면 직립 헌법]: 고개 기울임(Head tilt) 제로, 수직 직립 정면 응시
+    6. 얼빡샷(extreme close-up) 강력 차단 네거티브 탑재
     """
     norm_id = ((topic_id - 1) % len(AURA_8_TOPIC_SPECS)) + 1
     spec = AURA_8_TOPIC_SPECS.get(norm_id, AURA_8_TOPIC_SPECS[1])
@@ -206,47 +215,49 @@ def build_aura_shorts_t2i_character_prompt(
     bg = custom_bg_desc or spec["bg_desc"]
     framing = spec["framing"]
 
-    # 🤐 S2V 립싱크 전용 입 다문 미소 헌법
-    closed_mouth_mandate = (
-        "lips naturally closed together, mouth gently shut, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
+    # 🤐 S2V 립싱크 전용 정면 직립 + 입 다문 미소 헌법 (Wan 2.2 S2V 립싱크 궤적 극대화 & 고개 틀어짐 원천 차단)
+    head_and_mouth_mandate = (
+        "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, symmetrical upright head angle, looking straight and directly into the camera lens with level eye line, "
+        "gently closed mouth, natural lips closed, looking at camera, mouth gently shut, lips naturally closed together, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
         "charming gentle confident resting smile, looking directly into the camera lens with warm authentic eye contact ready to speak. "
     )
 
-    # 🖐️ 포즈: 스마트폰 파지 배제, 편안하고 자연스러운 제스처
+    # 🖐️ 포즈: 스마트폰 파지 배제, 편안하고 자연스러운 제스처 (고개는 틀지 않고 똑바로)
     if norm_id == 8:
         natural_pose = (
-            "standing or walking naturally along the park trail in a relaxed athletic pose, "
+            "standing or walking naturally along the park trail in an upright athletic posture, head held straight, "
             "hands resting naturally at sides or in jacket pockets, NO smartphone held in hands, athletic natural posture. "
         )
     else:
         natural_pose = (
-            "seated comfortably, leaning forward slightly in a relaxed conversational posture with arms resting naturally on table or chair, "
+            "seated comfortably in an upright conversational posture with arms resting naturally on table or chair, "
             "hands resting naturally, NO smartphone held in hands, natural effortless human posture. "
         )
 
-    # 긍정 프롬프트 최종 조립 (100% 정면 POV + f/8 딥 팬포커스 무필터 실사 규격)
+    # 긍정 프롬프트 최종 조립 (100% 정면 직립 POV + f/8 딥 팬포커스 무필터 실사 규격)
     positive = (
         f"masterpiece, best quality, ultra-photorealistic portrait, authentic candid snapshot shot on iPhone 15 Pro, casual everyday mobile phone photo taken across a table by a friend, "
         f"{framing} of {char}. "
         f"sitting in {bg}. "
         f"{natural_pose}"
-        f"{closed_mouth_mandate}"
+        f"{head_and_mouth_mandate}"
         f"Raw unedited natural human skin texture with visible real pores and authentic delicate skin finish, "
         f"Apple iPhone 15 Pro Smart HDR photo, authentic mobile camera sensor capture, pristine optical sharpness, rich deep blacks, high micro-contrast, crisp clean highlights, punchy vivid clarity, NO beauty filter, "
         f"f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus."
     )
 
-    # 1번 소개팅 탈출 전화: 상대 남성의 정면 얼굴 및 노출/화류계 의상 원천 차단 (오직 뒷모습/어깨만 허용)
+    # 1번 소개팅 탈출 전화: 상대 남성(등짝/어깨/뒤통수 포함) 및 2인 구도 전면 차단 (오직 1인 단독 정면만 허용)
     topic_specific_neg = ""
     if norm_id == 1:
         topic_specific_neg = (
-            "man's face, male face, two faces facing camera, second face facing camera, multiple visible faces, frontal male face, man looking at camera, "
+            "man, male, man's back, back of head, back of shoulder, man's shoulder, suit jacket in foreground, over-the-shoulder, 2 people, two people, second person, obstructed foreground, "
             "cleavage, deep neckline, exposed chest, bustier, low cut, exposed collarbone, bare shoulders, revealing clothes, nightlife, hostess, "
         )
 
-    # 부정 프롬프트 (스마트폰 파지, 열린 입, 치아 노출, 3D CGI, 렌즈 블러 원천 차단)
+    # 부정 프롬프트 (고개 기울임, 갸웃거림, 스마트폰 파지, 열린 입, 치아 노출, 3D CGI, 렌즈 블러 원천 차단)
     negative = (
         f"{topic_specific_neg}"
+        "tilted head, head tilt, cocked head, head tilted to the side, crooked head, tilted neck, asymmetric head angle, off-axis head posture, slanted head, "
         "holding phone, phone in hand, smartphone facing camera, electronic device in hand, "
         "open mouth, parted lips, slightly open mouth, half-open mouth, open lips, visible teeth, showing teeth, teeth, smiling with teeth, grinning, laughing, "
         "distant shot, far away, full body shot, cowboy shot, tiny face, subject far in distance, "

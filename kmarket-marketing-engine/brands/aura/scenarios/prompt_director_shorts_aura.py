@@ -172,8 +172,9 @@ class PromptDirectorShortsAura:
         )
 
         closed_mouth_mandate = (
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and shoulders, "
             "lips completely closed together, mouth gently shut, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
-            "calm confident pleasant gentle resting smile, looking directly into the camera lens with authentic trustworthy eye contact ready to speak. "
+            "calm confident pleasant gentle resting smile, looking directly and straight into the camera lens with authentic trustworthy eye contact ready to speak. "
         )
 
         pos = (
@@ -186,6 +187,7 @@ class PromptDirectorShortsAura:
         )
 
         neg = (
+            "tilted head, head tilt, cocked head, head tilted to the side, crooked head, tilted neck, asymmetric head angle, off-axis head posture, slanted head, "
             "open mouth, showing teeth, smiling wide with mouth open, parted lips, talking mouth, grinning with teeth, "
             "deformed fingers, extra digits, missing fingers, bad hands, blurry screen, tilted phone, "
             "overexposed, cartoon, 3d render, anime, plastic skin, dull, dark, lowres, text, watermark, "

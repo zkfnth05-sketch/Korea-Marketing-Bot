@@ -571,14 +571,14 @@ def execute_single_channel_task(module_name: str) -> str:
         elif module_name in ["aura_shorts", "aura_naver_clip", "aura_omni_shorts"]:
             from brands.aura.aura_shorts_pipeline import AuraShortsPipeline
             pipeline = AuraShortsPipeline()
-            log_event("🚀 [Aura 대시보드] 24초 AI 숏폼 풀 프로덕션 가동 시작...", "info")
-            out_mp4 = pipeline.produce(topic_id=1, gender="female", seed=20260924)
-            return f"🎉 [Aura 24초 완제품 숏폼 렌더링 완료]\n  • 주제: 01 소개팅 긴급 탈출 전화 (23.8초 풀HD)\n  • 파일 저장: {out_mp4}"
+            log_event("🚀 [Aura 대시보드] AI 숏폼 자율 순환 생산 가동 시작 (새로운 인물 & 주제 자동 순환)...", "info")
+            out_mp4 = pipeline.produce()
+            return f"🎉 [Aura 완제품 숏폼 렌더링 완료]\n  • 파일 저장: {out_mp4}"
         elif module_name == "aura_master_photo":
             from brands.aura.aura_shorts_pipeline import AuraShortsPipeline
             pipeline = AuraShortsPipeline()
             log_event("🎨 [Aura 대시보드] Wan 2.1 T2I 실사 인물 사진 단독 생성 시작...", "info")
-            res_photo = pipeline.produce_master_photo(topic_id=1, gender="female", seed=20260924)
+            res_photo = pipeline.produce_master_photo()
             return f"📸 [Aura 실사 인물 마스터 사진 생성 완료]\n  • 파일 저장: {res_photo.get('photo_path')}"
         elif module_name in ["aura_cardnews", "aura_omni_cardnews"]:
             from brands.aura.aura_cardnews_magazine import AuraCardnewsMagazine
@@ -967,6 +967,15 @@ class DashboardHandler(BaseHTTPRequestHandler):
             return
         elif path == "/kmarket_frame.html" or path == "/kmarket_frame":
             self._serve_file(BASE_DIR / "web" / "kmarket_frame.html", "text/html; charset=utf-8")
+            return
+        elif path == "/aura_frame.html" or path == "/aura_frame":
+            self._serve_file(BASE_DIR / "web" / "aura_frame.html", "text/html; charset=utf-8")
+            return
+        elif path == "/aura_video_chat.html" or path == "/aura_video_chat":
+            self._serve_file(BASE_DIR / "web" / "aura_video_chat.html", "text/html; charset=utf-8")
+            return
+        elif path in ["/nanami_portrait.jpg", "/sample_avatar_male.jpg"]:
+            self._serve_file(BASE_DIR / "web" / path.lstrip("/"), "image/jpeg")
             return
         elif path.startswith("/style.css"):
             self._serve_file(BASE_DIR / "web" / "style.css", "text/css; charset=utf-8")

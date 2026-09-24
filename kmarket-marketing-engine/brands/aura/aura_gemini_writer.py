@@ -193,7 +193,7 @@ class AuraGeminiWriter:
   "title_tistory": "구글 검색(SEO) 및 Daum 검색 최적화용 가이드/총정리형 고신뢰도 제목",
   "title_kakao": "카카오/브런치스토리 및 소셜 피드용 감성 에세이 및 강력한 훅(Hook) 제목",
   "excerpt": "독자의 호기심을 자극하고 본문 핵심을 꿰뚫는 1~2줄 요약문 (120자 내외)",
-  "visual_prompt": "이 글의 장면과 분위기에 100% 부합하는 Imagen 3 전용 영문 사진 프롬프트 1문장 (반드시 realistic Korean young adult, cozy Seoul aesthetic, cinematic natural lighting, photorealistic, 16:9 포함)",
+  "visual_prompt": "이 글의 장면과 분위기에 100% 부합하는 Imagen 3 전용 영문 사진 프롬프트 1문장 (반드시 realistic Korean young adult, upright straight head posture looking directly forward with zero head tilt, cozy Seoul aesthetic, cinematic natural lighting, photorealistic, 16:9 포함)",
   "discussion_prompt": "아우라 싱글 유저들이 글을 다 읽고 아래 댓글창에서 활발하게 의견을 나누고 티키타카 소통할 수 있도록 유도하는 매력적인 1~2문장의 질문 (예: 'Aura 여러분은 소개팅 첫 카톡에서 상대방 프로필 사진 칭찬 vs 솔직한 인사 중 어떤 멘트를 가장 선호하시나요? 아래 댓글로 여러분만의 꿀팁을 들려주세요!')",
   "content_md": "마크다운 전문 (공백 포함 약 1,800~2,200자, 공백 제외 1,400자 이상의 꽉 찬 전문)"
 }}

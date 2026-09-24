@@ -360,14 +360,21 @@ class WanPipelineClient:
         width: int = 384,
         height: int = 672,
         frames: int = 49,
+        cfg: float = 4.5,
+        shift: float = 3.0,
         prefix: str = "s2v_run"
     ) -> str:
-        """Wan 2.2 S2V 립싱크 렌더링 후 MP4 완성 파일 생성 (384x672 @ 16fps, 49프레임 = 3.06초, 14B 16GB GPU 100% VRAM 단독 탑재 규격)"""
-        neg = negative_text or "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景"
+        """Wan 2.2 S2V 립싱크 렌더링 후 MP4 완성 파일 생성 (공식 논문 권장 cfg=4.5, shift=3.0, 384x672 @ 16fps)"""
+        neg = negative_text or (
+            "static mouth, closed mouth while speaking, desynchronized lips, bad lip sync, unnatural mouth movement, "
+            "frozen lips, frozen face, distorted mouth, mumbling, silent face, "
+            "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，"
+            "JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景"
+        )
 
         workflow = {
             "61": {"class_type": "UnetLoaderGGUF", "inputs": {"unet_name": "Wan2.2-S2V-14B-Q4_0.gguf"}},
-            "54": {"class_type": "ModelSamplingSD3", "inputs": {"model": ["61", 0], "shift": 8.0}},
+            "54": {"class_type": "ModelSamplingSD3", "inputs": {"model": ["61", 0], "shift": shift}},
             "57": {"class_type": "AudioEncoderLoader", "inputs": {"audio_encoder_name": "wav2vec2_large_english_fp16.safetensors"}},
             "58": {"class_type": "LoadAudio", "inputs": {"audio": audio_name}},
             "56": {"class_type": "AudioEncoderEncode", "inputs": {"audio_encoder": ["57", 0], "audio": ["58", 0]}},
@@ -388,13 +395,14 @@ class WanPipelineClient:
                 "class_type": "KSampler",
                 "inputs": {
                     "model": ["54", 0], "positive": ["55", 0], "negative": ["55", 1],
-                    "latent_image": ["55", 2], "seed": seed, "steps": 20, "cfg": 6.0,
+                    "latent_image": ["55", 2], "seed": seed, "steps": 20, "cfg": cfg,
                     "sampler_name": "uni_pc", "scheduler": "simple", "denoise": 1.0
                 }
             },
             "8": {"class_type": "VAEDecode", "inputs": {"samples": ["3", 0], "vae": ["63", 0]}},
             "9": {"class_type": "SaveImage", "inputs": {"images": ["8", 0], "filename_prefix": prefix}}
         }
+
 
         generated_frames = self.submit_and_wait(workflow, prefix=prefix, check_vram_safety=True)
         if not generated_frames:

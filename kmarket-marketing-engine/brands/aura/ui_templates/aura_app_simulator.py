@@ -54,9 +54,13 @@ class AuraAppSimulator:
         out_p = Path(output_mp4_path).resolve()
         out_p.parent.mkdir(parents=True, exist_ok=True)
 
-        preset_file = Path(__file__).parent / "presets" / "aura_escape_call_sim.mp4"
-        if preset_file.exists():
-            logger.info(f"✨ [AuraAppSimulator] 100% 실기기 브라우저 영구 녹화 프리셋 활용: {preset_file.name} -> {out_p.name}")
+        if topic_id == 2:
+            preset_file = Path(__file__).parent / "presets" / "aura_subtitles_call_sim.mp4"
+        else:
+            preset_file = Path(__file__).parent / "presets" / "aura_escape_call_sim.mp4"
+
+        if preset_file.exists() and preset_file.stat().st_size > 0:
+            logger.info(f"✨ [AuraAppSimulator] 주제 {topic_id} 100% 실기기 브라우저 영구 녹화 프리셋 활용: {preset_file.name} -> {out_p.name}")
             shutil.copyfile(preset_file, out_p)
             return str(out_p)
 

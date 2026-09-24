@@ -21,12 +21,12 @@ class AuraShortsPipeline:
 
     def produce(
         self,
-        topic_id: int = 1,
-        gender: str = "female",
+        topic_id: Optional[int] = None,
+        gender: Optional[str] = None,
         custom_master_image: Optional[Image.Image] = None,
-        seed: int = 42
+        seed: Optional[int] = None
     ) -> str:
-        """Aura 1080p 숏폼 엔진 호출 및 완성본 MP4 경로 반환"""
+        """Aura 1080p 숏폼 엔진 호출 및 완성본 MP4 경로 반환 (매번 새로운 인물/주제 순환)"""
         res = self._producer.produce(
             topic_id=topic_id,
             gender=gender,
@@ -37,11 +37,11 @@ class AuraShortsPipeline:
 
     def produce_master_photo(
         self,
-        topic_id: int = 1,
+        topic_id: Optional[int] = None,
         gender: Optional[str] = None,
-        seed: int = 20260924
+        seed: Optional[int] = None
     ) -> Dict[str, Any]:
-        """Aura 8대 주제별 순정 아이폰 실사 마스터 사진 단독 생산 파이프라인 호출"""
+        """Aura 8대 주제별 순정 아이폰 실사 마스터 사진 단독 생산 (매번 새로운 인물/주제 순환)"""
         return self._producer.produce_master_photo(
             topic_id=topic_id,
             gender=gender,

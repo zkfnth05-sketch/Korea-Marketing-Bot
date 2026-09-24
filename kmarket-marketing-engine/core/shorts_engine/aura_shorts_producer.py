@@ -72,11 +72,39 @@ class AuraShortsProducer(BaseShortsProducer):
         scenario = self.script_director.get_full_scenario(topic_id=topic_id)
         return scenario["full_speech"]
 
+    # 🔒 [대표님 지시: 2번 주제(실시간 자막 통화) 고정 생산 모드]
+    # (검증 완료 후 None으로 변경하면 1~8번 자율 순환 복구)
+    FIXED_TOPIC_ID: Optional[int] = 2
+
+    def _get_next_topic_id(self) -> int:
+        """1번부터 8번까지 주제를 자율 순환(Rotation)하며 상태 파일에 영구 기록"""
+        # 🔒 임시 고정 모드 작동 시 항상 고정된 주제 반환
+        if self.FIXED_TOPIC_ID is not None:
+            logger.info(f"🔒 [Aura 숏폼] 대표님 지시로 주제 #{self.FIXED_TOPIC_ID} 임시 고정 생산 모드 가동 중")
+            return self.FIXED_TOPIC_ID
+
+        state_file = self.output_base / "aura_shorts_state.json"
+        last_id = 0
+        if state_file.exists():
+            try:
+                import json
+                data = json.loads(state_file.read_text(encoding="utf-8"))
+                last_id = data.get("last_topic_id", 0)
+            except Exception:
+                pass
+        next_id = (last_id % 8) + 1
+        try:
+            import json
+            state_file.write_text(json.dumps({"last_topic_id": next_id}, indent=2), encoding="utf-8")
+        except Exception:
+            pass
+        return next_id
+
     def produce_master_photo(
         self,
-        topic_id: int = 1,
+        topic_id: Optional[int] = None,
         gender: Optional[str] = None,
-        seed: int = 20260924,
+        seed: Optional[int] = None,
         **kwargs
     ) -> Dict[str, Any]:
         r"""
@@ -87,6 +115,12 @@ class AuraShortsProducer(BaseShortsProducer):
         - C:\Users\zkfnt\Desktop\한국 숏폼_산출물\Aura\Topic_XX 폴더에 저장
         - GPU VRAM 자동 정리 (100% 무인 최적화)
         """
+        import random
+        if topic_id is None:
+            topic_id = self._get_next_topic_id()
+        if seed is None or seed <= 0:
+            seed = random.randint(100000, 999999999)
+
         wan_ready = self.ensure_engine_ready()
         if not wan_ready:
             raise RuntimeError("ComfyUI 엔진 기동에 실패했습니다. D:\\ComfyUI_Wan_Engine 설정을 확인해주세요.")
@@ -136,21 +170,23 @@ class AuraShortsProducer(BaseShortsProducer):
     def produce(
         self,
         lang: Optional[str] = "ko",
-        topic_id: int = 1,
-        gender: str = "female",
+        topic_id: Optional[int] = None,
+        gender: Optional[str] = None,
         custom_hero_image: Optional[Image.Image] = None,
-        seed: int = 42,
+        seed: Optional[int] = None,
         **kwargs
     ) -> Dict[str, Any]:
         """
-        Aura 숏폼 풀 프로덕션 (EasyTax의 4단계 공식 100% 동일 실행):
-        1. 엔진 준비 확인 (ComfyUI)
-        2. 시나리오 & 대본 로드
-        3. Edge-TTS 음성 합성
-        4. Wan 2.1 T2I 인물 마스터컷 생성 & 스마트폰 화면 액정 매립
-        5. Wan 2.2 S2V 립싱크 모션 비디오 생성
-        6. 1080x1920 풀HD 컴포징 및 바탕화면 저장
+        Aura 숏폼 풀 프로덕션:
+        - topic_id 미지정 시 1~8번 자율 순환
+        - seed 미지정 시 완전 무작위 난수 시드 자동 발급 (매번 새로운 인물/외모)
         """
+        import random
+        if topic_id is None:
+            topic_id = self._get_next_topic_id()
+        if seed is None or seed <= 0:
+            seed = random.randint(100000, 999999999)
+
         # 1. ComfyUI 엔진 상태 확인
         wan_ready = self.ensure_engine_ready()
 
@@ -158,6 +194,7 @@ class AuraShortsProducer(BaseShortsProducer):
         scenario = self.script_director.get_full_scenario(topic_id=topic_id, gender=gender)
         theme_name = scenario["theme_name"]
         theme_code = scenario["theme_code"]
+        effective_gender = scenario.get("gender", gender or "female")
         speech_hook = scenario["speech_hook"]
         speech_app = scenario["speech_app"]
         speech_cta = scenario["speech_cta"]
@@ -168,7 +205,7 @@ class AuraShortsProducer(BaseShortsProducer):
         out_folder = self.output_base / f"Aura_{topic_id:02d}_{scenario.get('theme_code', 'topic')}_{dt_str}"
         out_folder.mkdir(parents=True, exist_ok=True)
 
-        logger.info(f"🚀 [Aura 숏폼] 생산 시작: 주제 {topic_id} [{theme_name}] | 성별: {gender}")
+        logger.info(f"🚀 [Aura 숏폼] 생산 시작: 주제 {topic_id} [{theme_name}] | 성별: {effective_gender} | seed: {seed}")
 
         # 3. [음성 합성] 처음부터 끝까지 단 하나의 동일한 목소리 (선희 rate=+3%, pitch=+6Hz 100% 통일)
         voice_lang = "ko"
@@ -208,9 +245,9 @@ class AuraShortsProducer(BaseShortsProducer):
             filename_prefix=f"aura_full_{topic_id}_{dt_str}"
         )
 
-        # 4. [Step 2] 숏폼 인물 사진 로드 또는 Wan 2.1 T2I 생성
+        # 4. [Step 2] 숏폼 인물 사진 로드 또는 Wan 2.1 T2I 생성 (순수 100% 인물 마스터컷, 인위적 액정 매립 전면 영구 박멸!)
         if custom_hero_image is not None:
-            embedded_img = custom_hero_image
+            master_img = custom_hero_image
             logger.info("🌟 [Step 2] 전달받은 마스터 인물 사진 사용")
         elif wan_ready:
             t2i_prompt = self.get_character_prompt(
@@ -233,32 +270,18 @@ class AuraShortsProducer(BaseShortsProducer):
             master_img = Image.open(gen_path)
             master_save_path = out_folder / f"01_master_t2i_{topic_id}.png"
             master_img.save(str(master_save_path))
-
-            logger.info("📱 [Step 2] 스마트폰 정면 액정 화면 검출 및 Aura UI 정밀 매립...")
-            ui_img = self.render_ui_image(topic_id=topic_id)
-            ui_save_path = out_folder / f"02_aura_ui_{topic_id}.png"
-            ui_img.save(str(ui_save_path))
-
-            try:
-                embedded_img = self.embedder.embed_screen(base_image=master_img, ui_image=ui_img)
-                logger.info("✅ [Step 2] 스마트폰 액정 정밀 매립 100% 성공!")
-            except Exception as e:
-                logger.warning(f"⚠️ [Step 2 안내] 액정 매립 대체 ({e}) -> 마스터 인물 사진 채택")
-                embedded_img = master_img
-
             self.wan_client.free_vram()
         else:
-            # ComfyUI 오프라인 시 마스터 UI 및 비주얼 프레임 생성
-            ui_img = self.render_ui_image(topic_id=topic_id)
-            embedded_img = Image.new("RGB", (832, 1216), (24, 24, 27))
-            embedded_img.paste(ui_img.resize((416, 910)), (208, 150))
+            raise RuntimeError("Wan 2.1 엔진이 준비되지 않았습니다.")
 
-        embedded_save_path = out_folder / f"03_embedded_start_frame_{topic_id}.png"
-        embedded_img.save(str(embedded_save_path))
-
-        # 5. [Step 3] Wan 2.2 S2V 5초+5초 10초 원테이크 렌더링 (81프레임 x 2, 0.15s xfade)
-        framed_img = self.prepare_framed_input_image(embedded_img, target_w=384, target_h=672)
-        s2v_motion_prompt = scenario.get("s2v_motion_prompt") or "a beautiful 28-year-old Korean office woman sitting across a dinner table, looking directly into camera with expressive authentic eye contact, leaning forward slightly in a relaxed conversational posture, speaking sincerely with smooth realistic lip sync, subtle natural head tilts, no phone in hand, natural lifelike motion"
+        # 5. [Step 3] Wan 2.2 S2V 립싱크 모션 렌더링 직결 (인위적인 스마트폰 액정 매립/합성 0% 완전 배제!)
+        framed_img = self.prepare_framed_input_image(master_img, target_w=384, target_h=672)
+        s2v_motion_prompt = scenario.get("s2v_motion_prompt") or (
+            "The woman is clearly pronouncing words, articulate speech with natural lip movements while talking to the audience, "
+            "highly synchronized lip sync matching the spoken audio, expressive mouth articulation, "
+            "a beautiful 28-year-old Korean office woman sitting across a dinner table, looking directly into camera with expressive authentic eye contact, "
+            "leaning forward slightly in a relaxed conversational posture, subtle natural head tilts, no phone in hand, natural lifelike motion"
+        )
 
         if wan_ready:
             logger.info("🎬 [Step 3] Wan 2.2 S2V 384x672 5초+5초 10초 원테이크 렌더링 시작 (81프레임 x 2, 0.15s xfade)...")
@@ -278,7 +301,7 @@ class AuraShortsProducer(BaseShortsProducer):
             person_clip_path = str(out_folder / f"temp_person_clip_{dt_str}.mp4")
             cmd = [
                 self.composer.ffmpeg_exe, "-y",
-                "-loop", "1", "-i", str(embedded_save_path),
+                "-loop", "1", "-i", str(master_save_path),
                 "-t", "10.12",
                 "-vf", "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2,fps=30",
                 "-c:v", "libx264", "-tune", "stillimage", "-pix_fmt", "yuv420p",
@@ -333,14 +356,31 @@ class AuraShortsProducer(BaseShortsProducer):
             clip_cta_path=cta_clip_path
         )
 
+        # 9. [순수 100% 인물 클로즈업 원테이크 1080x1920 세로 풀HD 단독 완제품 생성] (자료화면/앱시뮬 0% 완전 배제)
+        pure_one_take_name = f"Aura_10초_순수인물_원테이크_주제{topic_id:02d}_{scenario.get('theme_code', 'topic')}_{dt_str}.mp4"
+        pure_one_take_path = str(out_folder / pure_one_take_name)
+        cmd_pure = [
+            self.composer.ffmpeg_exe, "-y",
+            "-i", person_clip_path,
+            "-vf", "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fps=30",
+            "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", "-preset", "fast",
+            "-c:a", "aac", "-b:a", "192k",
+            pure_one_take_path
+        ]
+        import subprocess
+        subprocess.run(cmd_pure, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+        logger.info(f"✨ [순수 인물 1080p 원테이크 완료] 저장: {pure_one_take_path}")
+
         logger.info(f"🎉 [Aura 숏폼 생산 완료] 완제품 저장: {final_mp4_path}")
         return {
             "topic_id": topic_id,
             "theme_name": theme_name,
             "output_mp4": final_mp4_path,
+            "pure_person_mp4": pure_one_take_path,
             "output_folder": str(out_folder),
             "audio_hook": hook_wav_path,
             "audio_app": app_wav_path,
             "audio_cta": cta_wav_path,
             "audio_full": full_wav_path
         }
+

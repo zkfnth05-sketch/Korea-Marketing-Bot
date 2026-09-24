@@ -36,8 +36,10 @@ class AuraShortsScenarioDirector:
             "bottom_step2_sub": "",
             "cta_button_text": "네이버에 [아우라AI데이팅] 검색 >",
             "s2v_motion_prompt": (
+                "The woman is clearly pronouncing words, articulate speech with natural lip movements while talking to the audience, "
+                "highly synchronized lip sync matching the spoken audio, expressive mouth articulation, "
                 "a beautiful 28-year-old Korean office woman sitting across a dinner table, looking directly into camera with expressive authentic eye contact, "
-                "leaning forward slightly in a relaxed conversational posture, speaking sincerely with smooth realistic lip sync, subtle natural head tilts, "
+                "leaning forward slightly in a relaxed conversational posture, subtle natural head tilts, "
                 "no phone in hand, natural lifelike motion"
             ),
             "char_desc": (

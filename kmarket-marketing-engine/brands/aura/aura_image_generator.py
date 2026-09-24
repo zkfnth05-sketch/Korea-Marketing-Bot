@@ -145,6 +145,8 @@ class AuraImageGenerator:
                 user_p += ", photorealistic, cinematic natural lighting, authentic mood, 16:9, 8k"
             if "seoul" not in user_p.lower() and "korean" not in user_p.lower():
                 user_p += ", contemporary Seoul aesthetic"
+            if "head" not in user_p.lower() and "upright" not in user_p.lower():
+                user_p += ", upright head posture looking straight ahead with zero tilt"
             return user_p
 
         return base_prompt

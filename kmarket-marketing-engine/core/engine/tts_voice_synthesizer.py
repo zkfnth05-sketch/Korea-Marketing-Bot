@@ -100,4 +100,37 @@ class TTSVoiceSynthesizer:
         cmd.append(wav_path)
 
         subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+        # 🎯 [무음 정밀 제거: Silence Stripping] 선두/후두 무음을 0ms 단위로 정밀 제거하여 0프레임 음성 개시 보장
+        try:
+            self._strip_silence(wav_path, threshold_ratio=0.02, pad_ms=10)
+        except Exception:
+            pass
+
         return wav_path
+
+    @staticmethod
+    def _strip_silence(wav_path: str, threshold_ratio: float = 0.02, pad_ms: int = 10):
+        """WAV 파일의 선두/후두 무음을 감지하여 첫 음절이 0초에 즉시 시작되도록 정밀 트리밍"""
+        import numpy as np
+        from scipy.io import wavfile
+
+        sr, data = wavfile.read(wav_path)
+        if len(data) == 0:
+            return
+
+        mono_data = np.mean(data, axis=1) if len(data.shape) > 1 else data
+        peak = np.max(np.abs(mono_data))
+        if peak < 100:
+            return
+
+        thresh = max(100, int(peak * threshold_ratio))
+        non_silent = np.where(np.abs(mono_data) > thresh)[0]
+
+        if len(non_silent) > 0:
+            pad_samples = int(sr * (pad_ms / 1000.0))
+            start_idx = max(0, non_silent[0] - pad_samples)
+            end_idx = min(len(data), non_silent[-1] + pad_samples)
+            trimmed_data = data[start_idx:end_idx]
+            wavfile.write(wav_path, sr, trimmed_data)
+

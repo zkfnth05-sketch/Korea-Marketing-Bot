@@ -186,6 +186,25 @@ class S2VClipStitcher:
         logger.info(f"🎙️ [균일 음성 확정] '{text[:18]}...' ➔ {final_dur:.2f}s (rate={rate}, pitch={pitch})")
         return wav
 
+    def _pad_wav_to_duration(self, wav_path: str, target_sec: float = 5.0625) -> str:
+        """WAV 파일 끝에 무음을 추가하여 Wan 2.2 S2V 81프레임(5.0625초)과 100% 마이크로초 일치 보장"""
+        try:
+            import wave
+            with wave.open(wav_path, 'rb') as r:
+                params = r.getparams()
+                frames = r.readframes(r.getnframes())
+            curr_sec = len(frames) / (params.nchannels * params.sampwidth * params.framerate)
+            if curr_sec < target_sec:
+                needed_frames = int((target_sec - curr_sec) * params.framerate)
+                silence = b'\x00' * (needed_frames * params.nchannels * params.sampwidth)
+                with wave.open(wav_path, 'wb') as w:
+                    w.setparams(params)
+                    w.writeframes(frames + silence)
+                logger.info(f"🎵 [오디오 무음 패딩] {curr_sec:.2f}s ➔ {target_sec:.2f}s (81프레임 비디오와 완벽 동기화)")
+        except Exception as e:
+            logger.warning(f"오디오 패딩 처리 예외: {e}")
+        return wav_path
+
     def render_seamless_dual_clip(
         self,
         base_framed_img: Image.Image,
@@ -242,6 +261,10 @@ class S2VClipStitcher:
             base_rate="+3%"
         )
 
+        # 81프레임(5.0625초) 비디오 클립과 1:1 완벽 동기화를 위해 후미 무음 정밀 패딩
+        wav_part1 = self._pad_wav_to_duration(wav_part1, target_sec=5.0625)
+        wav_part2 = self._pad_wav_to_duration(wav_part2, target_sec=5.0625)
+
         audio_name_p1 = os.path.basename(wav_part1)
         audio_name_p2 = os.path.basename(wav_part2)
 
@@ -269,7 +292,7 @@ class S2VClipStitcher:
         logger.info("🧹 [VRAM 클린업] 1차 샷 완료 후 GPU VRAM 완전 초기화...")
         self.wan_client.free_vram()
 
-        # 5. [Dual-Guard: 눈 또렷함 + 입술 닫힘 동시 선별 (게슴츠레한 눈 및 벌어진 입 원천 차단)]
+        # 5. [Quad-Guard: 눈 또렷함 + 입술 닫힘 + 목 직립 + 정면 응시 4대 쿼드 가드 선별 (400점 만점)]
         best_transition_frame = None
         p1_frames = sorted(glob.glob(os.path.join(self.wan_client.comfy_output_dir, f"{prefix_p1}_*.png")))
         if p1_frames:
@@ -281,12 +304,12 @@ class S2VClipStitcher:
                     target_h=672
                 )
             except Exception as e:
-                logger.warning(f"듀얼 가드 선별 실패, 라스트 프레임 백업 전환: {e}")
+                logger.warning(f"쿼드 가드 선별 실패, 라스트 프레임 백업 전환: {e}")
 
         last_frame_path = str(out_folder / f"best_eye_frame_p1_{lang}.png")
         if best_transition_frame and os.path.exists(best_transition_frame):
             shutil.copyfile(best_transition_frame, last_frame_path)
-            logger.info(f"👁️👄 [Dual-Guard 성공] 눈 또렷 + 입술 다문 무결점 프레임 채택: {os.path.basename(best_transition_frame)}")
+            logger.info(f"👁️👄📐👀 [Quad-Guard 성공] 눈 또렷 + 입 다묾 + 목 직립 + 정면 응시 1등 프레임 채택: {os.path.basename(best_transition_frame)}")
         else:
             self.extract_last_frame(clip_p1_path, last_frame_path)
 
