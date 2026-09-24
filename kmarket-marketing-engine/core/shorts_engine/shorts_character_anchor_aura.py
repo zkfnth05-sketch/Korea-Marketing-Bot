@@ -27,8 +27,8 @@ AURA_8_TOPIC_SPECS = {
             "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible real pores and hair strands"
         ),
         "char_desc": (
-            "a beautiful 28-year-old Korean office woman, calm low ponytail hairstyle, clear fair skin, "
-            "refined subtle makeup, wearing a sophisticated beige silk office blouse and tailored slacks, "
+            "a beautiful 28-year-old Korean woman, calm low ponytail hairstyle, clear fair skin, "
+            "refined subtle makeup, wearing stylish sophisticated civilian dating clothes, a chic modern evening dinner outfit, "
             "elegant and poised appearance with genuine expressive eyes looking directly into the camera lens"
         ),
         "bg_desc": (
@@ -42,22 +42,25 @@ AURA_8_TOPIC_SPECS = {
         "title": "실시간 자막 통화",
         "gender": "female",
         "framing": (
-            "photographed from 1.2 meters directly across a dining table from the date's first-person eye-level perspective on iPhone 15 Pro, "
-            "perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
+            "photographed from 2.0 meters away from the date's first-person eye-level perspective on Apple iPhone 15 Pro 24mm main camera, "
+            "solo 1person female, perfectly centered in the middle of frame, perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
             "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and shoulders, "
-            "candid medium shot showing chest, shoulders, and table surface clearly, "
-            "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible real pores and hair strands"
+            "gently closed mouth, natural lips closed together, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
+            "candid cowboy medium shot showing chest, waist, and warm wooden furniture clearly, generous headroom above, "
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, completely clear background bookshelves and plants in sharp crisp focus, visible real pores and individual hair strands"
         ),
         "char_desc": (
-            "an exceptionally gorgeous 24-year-old Japanese model visual, idol group visual center aesthetic, ethereal soft doll-like beauty, "
-            "luminous clear dewy skin, charming expressive doe-like eyes, delicate see-through bangs, "
-            "wearing an oversized pastel cream-colored fluffy knit sweater with a minimalist silver necklace, looking directly into the camera lens"
+            "an exceptionally gorgeous 24-year-old Japanese young woman (Nanami), authentic real human model visual, "
+            "authentic natural human skin with visible fine pores and realistic delicate skin texture, strictly no airbrushing, "
+            "charming expressive doe-like hazel-brown eyes, delicate see-through bangs, neat dark brown shoulder-length hair, "
+            "wearing clean stylish civilian casual clothes, a neat comfortable daily outfit, looking directly into the camera lens"
         ),
         "bg_desc": (
-            "bright airy minimalist Tokyo apartment living room, large sunny window with soft morning daylight, "
-            "clean white walls, minimalist natural oak wood furniture, small green houseplant"
+            "warm cozy living room with authentic dark oak wooden bookshelves filled with books, "
+            "vibrant lush green indoor potted plants, warm directional room ambient lighting creating natural depth and rich realistic shadows, "
+            "warm inviting atmosphere with over 75% background rich interior details in tack sharp f/11 focus"
         ),
-        "vibe": "일본 걸그룹 비주얼 센터급, 투명하고 요정 같은 도쿄 잇걸 미모"
+        "vibe": "도쿄 잇걸 미모의 나나미, 따뜻한 원목 책장과 초록 식물 배경에서 세련된 일상 사복으로 쨍하고 선명한 아이폰 15 Pro 실사 비주얼"
     },
     3: {
         "topic_id": 3,
@@ -241,17 +244,22 @@ def build_aura_shorts_t2i_character_prompt(
         f"sitting in {bg}. "
         f"{natural_pose}"
         f"{head_and_mouth_mandate}"
-        f"Raw unedited natural human skin texture with visible real pores and authentic delicate skin finish, "
-        f"Apple iPhone 15 Pro Smart HDR photo, authentic mobile camera sensor capture, pristine optical sharpness, rich deep blacks, high micro-contrast, crisp clean highlights, punchy vivid clarity, NO beauty filter, "
-        f"f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus."
+        f"Raw unedited authentic iPhone 15 Pro 48MP mobile camera capture, realistic human skin texture with visible real pores and authentic fine details, "
+        f"Apple iPhone 15 Pro Smart HDR photo, authentic mobile camera sensor capture, pristine optical sharpness, rich deep blacks, high micro-contrast, crisp clean highlights, punchy vivid clarity, NO beauty filter, zero skin smoothing, "
+        f"f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, clear background in focus."
     )
 
-    # 1번 소개팅 탈출 전화: 상대 남성(등짝/어깨/뒤통수 포함) 및 2인 구도 전면 차단 (오직 1인 단독 정면만 허용)
+    # 주제별 특화 네거티브 차단
     topic_specific_neg = ""
     if norm_id == 1:
         topic_specific_neg = (
             "man, male, man's back, back of head, back of shoulder, man's shoulder, suit jacket in foreground, over-the-shoulder, 2 people, two people, second person, obstructed foreground, "
             "cleavage, deep neckline, exposed chest, bustier, low cut, exposed collarbone, bare shoulders, revealing clothes, nightlife, hostess, "
+        )
+    elif norm_id == 2:
+        topic_specific_neg = (
+            "doll, doll face, porcelain skin, plastic skin, airbrushed skin, beauty filter, skin smoothing, soft skin, glowing skin, dreamy glow, "
+            "blurry background, bokeh, bokeh blur, shallow depth of field, out of focus background, hazy, smeared texture, low contrast, "
         )
 
     # 부정 프롬프트 (고개 기울임, 갸웃거림, 스마트폰 파지, 열린 입, 치아 노출, 3D CGI, 렌즈 블러 원천 차단)
@@ -263,7 +271,7 @@ def build_aura_shorts_t2i_character_prompt(
         "distant shot, far away, full body shot, cowboy shot, tiny face, subject far in distance, "
         "deformed fingers, extra digits, missing fingers, bad hands, mutated hands, "
         "cartoon, 3d render, anime, plastic skin, doll, dull, dark, lowres, text, watermark, "
-        "blurry, lens blur, out of focus, soft focus, bokeh blur, depth of field blur, hazy, dreamy glow, overexposed"
+        "blurry, lens blur, out of focus, soft focus, bokeh blur, depth of field blur, hazy, dreamy glow, overexposed, airbrushed, beauty filter, skin smoothing"
     )
 
     return {"positive": positive, "negative": negative}

@@ -331,7 +331,7 @@ class AuraShortsProducer(BaseShortsProducer):
             output_path=cta_clip_path,
             duration_sec=cta_target_dur,
             topic_title=theme_name,
-            debate_question="이 탈출법, 센스다 vs 너무하다?",
+            debate_question=scenario.get("debate_question", "여러분의 생각은 어떠신가요?"),
             search_keyword="아우라AI데이팅"
         )
 

@@ -43,8 +43,8 @@ class AuraShortsScenarioDirector:
                 "no phone in hand, natural lifelike motion"
             ),
             "char_desc": (
-                "a beautiful 28-year-old Korean office woman, calm low ponytail hairstyle, clear fair skin, "
-                "refined subtle makeup, wearing a sophisticated beige silk office blouse and tailored slacks, "
+                "a beautiful 28-year-old Korean woman, calm low ponytail hairstyle, clear fair skin, "
+                "refined subtle makeup, wearing stylish sophisticated civilian dating clothes, a chic modern evening dinner outfit, "
                 "elegant and poised appearance with genuine expressive eyes looking directly into the camera lens"
             ),
             "bg_desc": (
@@ -57,29 +57,32 @@ class AuraShortsScenarioDirector:
             "theme_name": "실시간 자막 통화",
             "theme_code": "live_subtitles",
             "gender": "female",
-            "hook_p1_5s": "일본어 1도 못하는데 도쿄 사는 일본인 친구랑 40분 동안 통화한 비결!",
-            "hook_p2_5s": "아우라 앱으로 영상통화 켜면 화면 밑에 넷플릭스처럼 실시간 자막이 떠요!",
-            "hook_0_10s": "일본어 1도 못하는데 도쿄 사는 일본인 친구랑 40분 동안 통화한 비결! 아우라 앱으로 영상통화 켜면 화면 밑에 넷플릭스처럼 실시간 자막이 떠요!",
-            "app_10_18s": "상대방이 일본어로 말하면 한국어 자막이 즉시 번역되고, 내가 한국어로 말하면 일본어 자막으로 넘어가서 외국어 울렁증 있어도 소통 끝!",
-            "cta_18_22s": "외국인 친구 생기면 어디 가고 싶으신가요? 언어 장벽 없는 글로벌 만남, 네이버에 아우라AI데이팅 검색해보세요!",
-            "top_header": "실시간 4개국어 자막 통화 • AURA",
-            "bottom_step1_title": "도쿄 존예녀와 실시간 자막 통화",
-            "bottom_step1_sub": "영상통화 중 화면 밑에 영화 자막처럼 실시간 표출",
-            "bottom_step2_title": "한·일 실시간 동시 통역 100%",
-            "bottom_step2_sub": "외국어 울렁증 제로 • 자연스러운 글로벌 데이트",
+            "hook_p1_5s": "곤니치와! 저 한국어 1도 모르는데 친구 사귄 비결!",
+            "hook_p2_5s": "아우라 앱으로 영상통화 걸면 화면 밑에 넷플릭스처럼 실시간 자막이 다 떠요!",
+            "hook_0_10s": "곤니치와! 저 한국어 1도 모르는데 친구 사귄 비결! 아우라 앱으로 영상통화 걸면 화면 밑에 넷플릭스처럼 실시간 자막이 다 떠요!",
+            "app_10_18s": "제가 일본어로 말하면 한국어 자막이 실시간으로 뜨고, 한국어로 말씀하셔도 일본어로 번역돼서 소통 끝!",
+            "cta_18_22s": "일본인 친구 생기면 도쿄에서 어디 가고 싶으신가요? 네이버에 아우라AI데이팅 검색해보세요!",
+            "debate_question": "자막 통화로 외국인 친구 사귀기, 가능하다 vs 어렵다?",
+            "top_header": "",
+            "bottom_step1_title": "",
+            "bottom_step1_sub": "",
+            "bottom_step2_title": "",
+            "bottom_step2_sub": "",
             "cta_button_text": "네이버에 [아우라AI데이팅] 검색 >",
             "s2v_motion_prompt": (
-                "a lovely 24-year-old Japanese young woman in Tokyo, sitting in a bright room looking directly into camera with charming sweet eye contact, "
-                "smiling warmly and speaking naturally with smooth clear lip sync, gentle head nodding, relaxed posture, no phone in hand, lifelike video call motion"
+                "a lovely 24-year-old Japanese young woman (Nanami) in Tokyo, sitting in an authentic living room with wooden bookshelves and green plants, looking directly into camera with charming sweet eye contact, "
+                "smiling warmly and speaking naturally with smooth clear lip sync, gentle head nodding, relaxed conversational posture, no phone in hand, lifelike video call motion"
             ),
             "char_desc": (
-                "an exceptionally gorgeous 24-year-old Japanese model visual, idol group visual center aesthetic, ethereal soft doll-like beauty, "
-                "luminous clear dewy skin, charming expressive doe-like eyes, delicate see-through bangs, "
-                "wearing an oversized pastel cream-colored fluffy knit sweater with a minimalist silver necklace, irresistible sweet Tokyo it-girl aura"
+                "an exceptionally gorgeous 24-year-old Japanese young woman (Nanami), authentic real human model visual, "
+                "authentic natural human skin with visible fine pores and realistic delicate skin texture, strictly no airbrushing, "
+                "charming expressive doe-like hazel-brown eyes, delicate see-through bangs, neat dark brown shoulder-length hair, "
+                "wearing clean stylish civilian casual clothes, a neat comfortable daily outfit, looking directly into the camera lens"
             ),
             "bg_desc": (
-                "bright airy minimalist Tokyo apartment living room, large sunny window with soft morning daylight, "
-                "clean white walls, minimalist natural oak wood furniture, small green houseplant"
+                "warm cozy living room with authentic dark oak wooden bookshelves filled with books, "
+                "vibrant lush green indoor potted plants, warm directional room ambient lighting creating natural depth and rich realistic shadows, "
+                "warm inviting atmosphere with over 75% background rich interior details in tack sharp f/11 focus"
             )
         },
         3: {
@@ -296,6 +299,7 @@ class AuraShortsScenarioDirector:
             "speech_hook_part2": s.get("hook_p2_5s", ""),
             "speech_app": s["app_10_18s"],
             "speech_cta": s["cta_18_22s"],
+            "debate_question": s.get("debate_question", "여러분의 생각은 어떠신가요?"),
             "full_speech": full_speech,
             "visual_direction": visual_dir,
             "s2v_motion_prompt": s["s2v_motion_prompt"],
