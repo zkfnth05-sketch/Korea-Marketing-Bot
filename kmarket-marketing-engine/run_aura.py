@@ -63,6 +63,59 @@ def main():
         scheduler.start_daemon()
         return
 
+    # ── [숏폼 마스터 사진 단독 생성 옵션] ──
+    if "--shorts-photo" in sys.argv or "-sp" in sys.argv:
+        force_topic = 1
+        force_seed = 20260924
+        for i, arg in enumerate(sys.argv):
+            if arg in ["--topic", "--topic-id", "-t"] and i + 1 < len(sys.argv):
+                try:
+                    force_topic = int(sys.argv[i + 1])
+                except ValueError:
+                    pass
+            if arg in ["--seed", "-s"] and i + 1 < len(sys.argv):
+                try:
+                    force_seed = int(sys.argv[i + 1])
+                except ValueError:
+                    pass
+
+        print("\n==============================================")
+        print(f"💖 [Aura] 8대 주제 순정 아이폰 실사 마스터 사진 단독 생산 파이프라인")
+        print(f"📌 대상 주제: #{force_topic} | Seed: {force_seed}")
+        print("==============================================\n")
+
+        from brands.aura.aura_shorts_pipeline import AuraShortsPipeline
+        pipeline = AuraShortsPipeline()
+        res = pipeline.produce_master_photo(topic_id=force_topic, seed=force_seed)
+
+        print("\n[🎉 마스터 사진 생성 결과 요약]:")
+        print(f"  - 📚 주제 번호: #{res['topic_id']} [{res['theme_name']}]")
+        print(f"  - 🖼️ 이미지 규격: {res['image_size']}")
+        print(f"  - 💾 저장 경로: {res['photo_path']}")
+        print(f"  - 📂 폴더 경로: {res['folder_path']}")
+        return
+
+    # ── [숏폼 22초 풀 비디오 생성 옵션] ──
+    if "--shorts" in sys.argv or "-sh" in sys.argv:
+        force_topic = 1
+        for i, arg in enumerate(sys.argv):
+            if arg in ["--topic", "--topic-id", "-t"] and i + 1 < len(sys.argv):
+                try:
+                    force_topic = int(sys.argv[i + 1])
+                except ValueError:
+                    pass
+
+        print("\n==============================================")
+        print(f"💖 [Aura] 22초 하이브리드 숏폼 비디오 풀 프로덕션 가동")
+        print(f"📌 대상 주제: #{force_topic}")
+        print("==============================================\n")
+
+        from brands.aura.aura_shorts_pipeline import AuraShortsPipeline
+        pipeline = AuraShortsPipeline()
+        mp4_path = pipeline.produce(topic_id=force_topic)
+        print(f"\n[🎉 숏폼 완성본 비디오]: {mp4_path}")
+        return
+
     # ── [지식iN 단독 실행 옵션] ──
     if "--kin-now" in sys.argv or "-kn" in sys.argv:
         is_live = "--live" in sys.argv

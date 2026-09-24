@@ -195,7 +195,7 @@ class WanPipelineClient:
                 "class_type": "KSampler",
                 "inputs": {
                     "model": ["2", 0], "positive": ["7", 0], "negative": ["7", 1],
-                    "latent_image": ["7", 2], "seed": seed, "steps": 25, "cfg": 3.2,
+                    "latent_image": ["7", 2], "seed": seed, "steps": 25, "cfg": 4.8,
                     "sampler_name": "uni_pc", "scheduler": "simple", "denoise": 1.0
                 }
             },

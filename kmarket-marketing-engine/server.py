@@ -569,9 +569,17 @@ def execute_single_channel_task(module_name: str) -> str:
             brunch_status = ch.get('brunch', {}).get('status', '-')
             return f"💖 [Aura 4대 옴니 배포 완료] 주제 #{res.get('topic_id')} '{res.get('title')}'\n  - 앱피드: {feed_status}\n  - 🟢 네이버: {naver_url}\n  - 🟠 티스토리: {tistory_url}\n  - 🟡 브런치: {brunch_status}"
         elif module_name in ["aura_shorts", "aura_naver_clip", "aura_omni_shorts"]:
-            from brands.aura.scenarios.prompt_director_aura import AuraPromptDirector
-            script = AuraPromptDirector.generate_shorts_script()
-            return f"💖 [Aura 5대 옴니 숏폼 렌더링 완료]\n  - 후킹: '{script.get('hook', '데이트 팁')}'\n  - 5대 송출: ①유튜브 쇼츠, ②틱톡, ③인스타 릴스, ④페북 릴스, ⑤네이버 클립 (9:16 + BGM + TTS + 자막)"
+            from brands.aura.aura_shorts_pipeline import AuraShortsPipeline
+            pipeline = AuraShortsPipeline()
+            log_event("🚀 [Aura 대시보드] 24초 AI 숏폼 풀 프로덕션 가동 시작...", "info")
+            out_mp4 = pipeline.produce(topic_id=1, gender="female", seed=20260924)
+            return f"🎉 [Aura 24초 완제품 숏폼 렌더링 완료]\n  • 주제: 01 소개팅 긴급 탈출 전화 (23.8초 풀HD)\n  • 파일 저장: {out_mp4}"
+        elif module_name == "aura_master_photo":
+            from brands.aura.aura_shorts_pipeline import AuraShortsPipeline
+            pipeline = AuraShortsPipeline()
+            log_event("🎨 [Aura 대시보드] Wan 2.1 T2I 실사 인물 사진 단독 생성 시작...", "info")
+            res_photo = pipeline.produce_master_photo(topic_id=1, gender="female", seed=20260924)
+            return f"📸 [Aura 실사 인물 마스터 사진 생성 완료]\n  • 파일 저장: {res_photo.get('photo_path')}"
         elif module_name in ["aura_cardnews", "aura_omni_cardnews"]:
             from brands.aura.aura_cardnews_magazine import AuraCardnewsMagazine
             res = AuraCardnewsMagazine().publish_omni_magazine()

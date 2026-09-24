@@ -50,6 +50,7 @@ class TTSVoiceSynthesizer:
         lang: str = "ko",
         gender: str = "female",
         rate: str = "+0%",
+        pitch: Optional[str] = None,
         target_duration: Optional[float] = None,
         filename_prefix: str = "speech"
     ) -> str:
@@ -73,7 +74,10 @@ class TTSVoiceSynthesizer:
         async def _run_tts():
             for attempt in range(3):
                 try:
-                    comm = edge_tts.Communicate(text, voice, rate=rate)
+                    kwargs = {"rate": rate}
+                    if pitch:
+                        kwargs["pitch"] = pitch
+                    comm = edge_tts.Communicate(text, voice, **kwargs)
                     await comm.save(mp3_path)
                     if os.path.exists(mp3_path) and os.path.getsize(mp3_path) > 0:
                         return

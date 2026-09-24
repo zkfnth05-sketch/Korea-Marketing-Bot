@@ -1,5 +1,11 @@
+# -*- coding: utf-8 -*-
 """
-Aura Brand Package - AI 데이팅 앱 마케팅 파이프라인
+Aura Brand Package
+- 💖 Aura AI 데이팅 (아우라AI데이팅) 전용 패키지
+- Scenarios: 8대 킬러 숏폼 시나리오 & 프롬프트 디렉터
+- Pipelines: 8대 킬러 숏폼 파이프라인 (AuraShortsPipeline) 및 카드뉴스 파이프라인
 """
-__brand__ = "aura"
-__title__ = "Aura Dating"
+
+from .aura_shorts_pipeline import AuraShortsPipeline
+
+__all__ = ["AuraShortsPipeline"]

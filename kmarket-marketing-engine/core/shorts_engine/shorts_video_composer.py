@@ -496,14 +496,15 @@ class ShortsVideoComposer:
         lang: str = "vi",
         target_w: int = 1080,
         target_h: int = 1920,
-        scene_audios: Optional[Dict[str, str]] = None
+        scene_audios: Optional[Dict[str, str]] = None,
+        clip_cta_path: Optional[str] = None
     ) -> str:
         """
         🎬 22초 완결형 하이브리드 숏폼 비디오 최종 결합 엔진
         - Clip 1: 인물 립싱크 (Wan S2V) -> 중앙 시야 100% 개방
-        - Clip 2: 라이브 앱 시뮬레이션 (EasyTaxAppRecorder) -> 중앙 앱 시뮬레이터 100% 개방
-        - Clip 3: 18~22초 안심 신뢰 보증 & CTA 카드
-        - Overlays: 상단 타이틀 박스 + 하단 자막 박스 (제미나이 실시간 테마 컬러 & 글자 이탈 0% 원천 차단)
+        - Clip 2: 라이브 앱 시뮬레이션 (EasyTaxAppRecorder / AuraAppSimulator) -> 중앙 앱 시뮬레이터 100% 개방
+        - Clip 3: 18~22초 안심 신뢰 보증 & CTA 카드 (또는 브랜드 전용 CTA 클립)
+        - Overlays: 상단 타이틀 박스 + 하단 자막 박스 (실시간 테마 컬러 & 글자 이탈 0% 원천 차단)
         - Audio: 3단 독립 씬 오디오(scene_audios)가 주어질 경우 씬 전환점과 발화 시점을 마이크로초 1:1 동기화
         """
         temp_dir = os.path.dirname(output_mp4_path)
@@ -516,18 +517,25 @@ class ShortsVideoComposer:
         dur_app = self._get_video_duration(clip_app_path)
         logger.info(f"⏱️ [ShortsVideoComposer] 클립 길이 측정: 인물={dur_person:.2f}s, 앱={dur_app:.2f}s")
 
-        # 2. 엔딩 CTA 세그먼트 비디오 생성 (말이 끝남과 동시에 정지되도록 오디오 길이에 정밀 동기화)
-        cta_audio_path = scene_audios.get("cta") if scene_audios else None
-        dur_cta_audio = self._get_video_duration(cta_audio_path) if (cta_audio_path and os.path.exists(cta_audio_path)) else 0.0
-        cta_duration_sec = max(1.5, dur_cta_audio + 0.3) if dur_cta_audio > 0 else 2.5
-        cta_clip_path = os.path.join(temp_dir, f"temp_cta_segment_{lang}.mp4")
-        self.create_ending_cta_segment_mp4(
-            output_path=cta_clip_path,
-            lang=lang,
-            duration_sec=cta_duration_sec,
-            domain_text=visual_direction.get("domain_text", "ktrs-service.vercel.app"),
-            cta_button_text=visual_direction.get("cta_button_text", "CHECK NOW >")
-        )
+        # 2. 엔딩 CTA 세그먼트 비디오 (외부에서 브랜드별 CTA 클립이 전달된 경우 그대로 사용, 미전달 시 자동 생성)
+        if clip_cta_path and os.path.exists(clip_cta_path):
+            cta_clip_path = clip_cta_path
+            logger.info(f"🎬 [ShortsVideoComposer] 제공된 브랜드 전용 CTA 클립 채택: {cta_clip_path}")
+        else:
+            cta_audio_path = scene_audios.get("cta") if scene_audios else None
+            dur_cta_audio = self._get_video_duration(cta_audio_path) if (cta_audio_path and os.path.exists(cta_audio_path)) else 0.0
+            cta_duration_sec = max(1.5, dur_cta_audio + 0.3) if dur_cta_audio > 0 else 2.5
+            cta_clip_path = os.path.join(temp_dir, f"temp_cta_segment_{lang}.mp4")
+            self.create_ending_cta_segment_mp4(
+                output_path=cta_clip_path,
+                lang=lang,
+                duration_sec=cta_duration_sec,
+                domain_text=visual_direction.get("domain_text", "ktrs-service.vercel.app"),
+                cta_button_text=visual_direction.get("cta_button_text", "CHECK NOW >")
+            )
+
+        dur_cta = self._get_video_duration(cta_clip_path)
+        logger.info(f"⏱️ [ShortsVideoComposer] 3단 클립 길이 확정: 인물={dur_person:.2f}s, 앱={dur_app:.2f}s, CTA={dur_cta:.2f}s")
 
         # 3. 제미나이 동적 팔레트 및 오버레이 이미지 준비
         palette = visual_direction.get("palette", {})
@@ -558,26 +566,29 @@ class ShortsVideoComposer:
             lang=lang
         )
 
-        # 3-1. 숏폼 전용 경쾌한 BGM 및 0.5초 '띵동~ 카칭' 입금 효과음 준비
+        # 3-1. 숏폼 전용 경쾌한 BGM (도입부 인위적 SFX 배제, 순수 주인공 음성 집중)
         from core.bgm_manager import BGMManager
-        from core.sfx_manager import SFXManager
         bgm_mgr = BGMManager()
-        sfx_mgr = SFXManager()
         bgm_path = bgm_mgr.get_random_upbeat_bgm(service_id="easytax")
-        sfx_path = sfx_mgr.get_kakaobank_chaching_sfx()
         has_bgm = bool(bgm_path and os.path.exists(bgm_path))
-        has_sfx = bool(sfx_path and os.path.exists(sfx_path))
         if has_bgm:
-            logger.info(f"🎵 [BGM 탑재] 경쾌한 숏폼 배경음악 결합: {os.path.basename(bgm_path)} (volume=0.18)")
-        if has_sfx:
-            logger.info(f"🔔 [SFX 탑재] 0.5초 타이밍 카카오뱅크 '띵동~ 카칭' 입금 효과음 결합: {os.path.basename(sfx_path)} (volume=1.3)")
+            logger.info(f"🎵 [BGM 탑재] 경쾌한 숏폼 배경음악 결합: {os.path.basename(bgm_path)} (volume=0.12)")
 
-        # 4. FFmpeg 복합 필터 구성 (동적 타임스탬프 동기화)
-        total_content_dur = dur_person + dur_app
+        # 4. FFmpeg 복합 필터 구성 (음성이 끝날 때 비디오 자동 칼종료 동기화)
         use_multi_audio = bool(scene_audios and scene_audios.get("hook") and scene_audios.get("app") and scene_audios.get("cta"))
 
         if use_multi_audio:
-            # 3단 개별 오디오 파일 입력 (인사말, 앱 조작, CTA) + BGM + SFX 동적 인덱싱
+            # 씬별 실제 음성 길이 측정
+            dur_hook_audio = self._get_video_duration(scene_audios["hook"])
+            dur_app_audio = self._get_video_duration(scene_audios["app"])
+            dur_cta_audio = self._get_video_duration(scene_audios["cta"])
+
+            # 비디오를 음성 길이에 1:1 완벽 동기화 (음성이 끝남과 동시에 다음 씬 전환 / 숏폼 종료)
+            # 비디오 클립이 오디오보다 길면 오디오 길이에 맞춰 칼트림
+            dur_v0 = min(dur_person, dur_hook_audio) if dur_hook_audio > 0 else dur_person
+            dur_v1 = min(dur_app, dur_app_audio) if dur_app_audio > 0 else dur_app
+            dur_v2 = min(dur_cta, dur_cta_audio) if dur_cta_audio > 0 else dur_cta
+
             cmd_inputs = [
                 "-i", clip_person_path,  # 0
                 "-i", clip_app_path,     # 1
@@ -587,7 +598,6 @@ class ShortsVideoComposer:
                 "-i", scene_audios["cta"],  # 5
             ]
             audio_idx_bgm = None
-            audio_idx_sfx = None
             next_input_idx = 6
 
             if has_bgm:
@@ -595,55 +605,30 @@ class ShortsVideoComposer:
                 audio_idx_bgm = next_input_idx
                 next_input_idx += 1
 
-            if has_sfx:
-                cmd_inputs.extend(["-i", str(sfx_path)])
-                audio_idx_sfx = next_input_idx
-                next_input_idx += 1
-
-            top_box_idx = next_input_idx
-            cmd_inputs.extend(["-i", top_box_png])
-            next_input_idx += 1
-
-            bottom_s1_idx = next_input_idx
-            cmd_inputs.extend(["-i", bottom_s1_png])
-            next_input_idx += 1
-
-            bottom_s2_idx = next_input_idx
-            cmd_inputs.extend(["-i", bottom_s2_png])
-            next_input_idx += 1
-
             filter_complex = [
-                # 비디오 3단 Concat
-                f"[0:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v0]",
-                f"[1:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v1]",
-                f"[2:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v2]",
-                "[v0][v1][v2]concat=n=3:v=1:a=0[v_base]",
+                # 비디오 3단 스케일 + 음성 길이에 칼같이 맞춰 trim (잉여 정지 비디오 0%)
+                f"[0:v]trim=0:{dur_v0:.2f},setpts=PTS-STARTPTS,scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v0]",
+                f"[1:v]trim=0:{dur_v1:.2f},setpts=PTS-STARTPTS,scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v1]",
+                f"[2:v]trim=0:{dur_v2:.2f},setpts=PTS-STARTPTS,scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v2]",
+                # 순수 고화질 1080x1920 세로 풀화면 (싸구려 하드코딩 배너 박스 전면 제거)
+                "[v0][v1][v2]concat=n=3:v=1:a=0[v_final]",
 
                 # 오디오 3단 무결점 씬 동기화 (Voice 100%)
-                f"[3:a]atrim=0:{dur_person:.2f},apad=whole_dur={dur_person:.2f}[a0_pad]",
-                f"[4:a]atrim=0:{dur_app:.2f},apad=whole_dur={dur_app:.2f}[a1_pad]",
-                "[a0_pad][a1_pad][5:a]concat=n=3:v=0:a=1,volume=1.0,aresample=44100[voice_main]",
+                f"[3:a]atrim=0:{dur_v0:.2f},asetpts=PTS-STARTPTS[a0]",
+                f"[4:a]atrim=0:{dur_v1:.2f},asetpts=PTS-STARTPTS[a1]",
+                f"[5:a]atrim=0:{dur_v2:.2f},asetpts=PTS-STARTPTS[a2]",
+                "[a0][a1][a2]concat=n=3:v=0:a=1,volume=1.0,aresample=44100[voice_main]",
             ]
 
-            # 3채널 오디오 믹싱 (Voice 100% + BGM 18% + 0.5초 띵동 SFX 130%)
+            # 오디오 믹싱 (Voice 100% + BGM 은은한 12%)
             mix_inputs = ["[voice_main]"]
             if has_bgm:
-                filter_complex.append(f"[{audio_idx_bgm}:a]volume=0.18,aresample=44100[bgm_sub]")
+                filter_complex.append(f"[{audio_idx_bgm}:a]volume=0.12,aresample=44100[bgm_sub]")
                 mix_inputs.append("[bgm_sub]")
-            if has_sfx:
-                filter_complex.append(f"[{audio_idx_sfx}:a]adelay=500|500,volume=1.3,aresample=44100[sfx_ding]")
-                mix_inputs.append("[sfx_ding]")
 
             filter_complex.append(
                 f"{''.join(mix_inputs)}amix=inputs={len(mix_inputs)}:duration=first:dropout_transition=0:normalize=0[a_final]"
             )
-
-            # 상단 헤더 박스: 인물 + 앱 씬 동안 표시
-            filter_complex.extend([
-                f"[v_base][{top_box_idx}:v]overlay=0:0:enable='between(t,0,{total_content_dur:.2f})'[v_h]",
-                f"[v_h][{bottom_s1_idx}:v]overlay=0:0:enable='between(t,0.5,{dur_person:.2f})'[v_s1]",
-                f"[v_s1][{bottom_s2_idx}:v]overlay=0:0:enable='between(t,{dur_person:.2f},{total_content_dur:.2f})'[v_final]"
-            ])
             map_audio = "[a_final]"
         else:
             cmd_inputs = [
@@ -653,7 +638,6 @@ class ShortsVideoComposer:
                 "-i", full_audio_path,
             ]
             audio_idx_bgm = None
-            audio_idx_sfx = None
             next_input_idx = 4
 
             if has_bgm:
@@ -661,45 +645,20 @@ class ShortsVideoComposer:
                 audio_idx_bgm = next_input_idx
                 next_input_idx += 1
 
-            if has_sfx:
-                cmd_inputs.extend(["-i", str(sfx_path)])
-                audio_idx_sfx = next_input_idx
-                next_input_idx += 1
-
-            top_box_idx = next_input_idx
-            cmd_inputs.extend(["-i", top_box_png])
-            next_input_idx += 1
-
-            bottom_s1_idx = next_input_idx
-            cmd_inputs.extend(["-i", bottom_s1_png])
-            next_input_idx += 1
-
-            bottom_s2_idx = next_input_idx
-            cmd_inputs.extend(["-i", bottom_s2_png])
-            next_input_idx += 1
-
             mix_inputs = ["[3:a]"]
             filter_complex = [
                 f"[0:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v0]",
                 f"[1:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v1]",
                 f"[2:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v2]",
-                "[v0][v1][v2]concat=n=3:v=1:a=0[v_base]",
+                "[v0][v1][v2]concat=n=3:v=1:a=0[v_final]",
             ]
             if has_bgm:
-                filter_complex.append(f"[{audio_idx_bgm}:a]volume=0.18,aresample=44100[bgm_sub]")
+                filter_complex.append(f"[{audio_idx_bgm}:a]volume=0.12,aresample=44100[bgm_sub]")
                 mix_inputs.append("[bgm_sub]")
-            if has_sfx:
-                filter_complex.append(f"[{audio_idx_sfx}:a]adelay=500|500,volume=1.3,aresample=44100[sfx_ding]")
-                mix_inputs.append("[sfx_ding]")
 
             filter_complex.append(
                 f"{''.join(mix_inputs)}amix=inputs={len(mix_inputs)}:duration=first:dropout_transition=0:normalize=0[a_final]"
             )
-            filter_complex.extend([
-                f"[v_base][{top_box_idx}:v]overlay=0:0:enable='between(t,0,{total_content_dur:.2f})'[v_h]",
-                f"[v_h][{bottom_s1_idx}:v]overlay=0:0:enable='between(t,0.5,{dur_person:.2f})'[v_s1]",
-                f"[v_s1][{bottom_s2_idx}:v]overlay=0:0:enable='between(t,{dur_person:.2f},{total_content_dur:.2f})'[v_final]"
-            ])
             map_audio = "[a_final]"
 
         filter_str = ";".join(filter_complex)
