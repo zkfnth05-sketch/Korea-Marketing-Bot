@@ -29,6 +29,8 @@ class AuraShortsScenarioDirector:
             "hook_0_10s": "소개팅 나갔는데 상대가 완전 빌런일 때 어떻게 하시나요? 화장실로 튀어서 일 분 뒤 긴급 탈출 예약을 딱 누르세요!",
             "app_10_18s": "일 분 뒤에 진짜 구원 전화가 걸려오고 화면에 탈출 대본까지 다 떠요!",
             "cta_18_22s": "합법적으로 칼탈출 성공! 네이버에 아우라AI데이팅 한번 검색해보세요!",
+            "debate_question": "이 탈출법, 센스다 vs 너무하다?",
+            "hero_copy": "합법적으로 칼탈출 성공!",
             "top_header": "",
             "bottom_step1_title": "",
             "bottom_step1_sub": "",
@@ -43,14 +45,16 @@ class AuraShortsScenarioDirector:
                 "no phone in hand, natural lifelike motion"
             ),
             "char_desc": (
-                "a beautiful 28-year-old Korean woman, calm low ponytail hairstyle, clear fair skin, "
+                "a beautiful 28-year-old Korean woman, perfect 8-head-high golden ratio model proportions, delicate small petite head and face, slender elegant long neck, calm low ponytail hairstyle, clear fair skin, "
                 "refined subtle makeup, wearing stylish sophisticated civilian dating clothes, a chic modern evening dinner outfit, "
                 "elegant and poised appearance with genuine expressive eyes looking directly into the camera lens"
             ),
             "bg_desc": (
                 "moody upscale evening bistro and wine restaurant in Cheongdam, soft warm pin-spot table lighting, "
                 "antique dark wooden dining table, blurred delicate wine glasses and neat linen napkin in the background"
-            )
+            ),
+            "voice_pitch": "+3Hz",
+            "voice_rate": "+4%"
         },
         2: {
             "topic_id": 2,
@@ -74,7 +78,7 @@ class AuraShortsScenarioDirector:
                 "smiling warmly and speaking naturally with smooth clear lip sync, gentle head nodding, relaxed conversational posture, no phone in hand, lifelike video call motion"
             ),
             "char_desc": (
-                "an exceptionally gorgeous 24-year-old Japanese young woman (Nanami), authentic real human model visual, "
+                "an exceptionally gorgeous 24-year-old Japanese young woman (Nanami), perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck, authentic real human model visual, "
                 "authentic natural human skin with visible fine pores and realistic delicate skin texture, strictly no airbrushing, "
                 "charming expressive doe-like hazel-brown eyes, delicate see-through bangs, neat dark brown shoulder-length hair, "
                 "wearing clean stylish civilian casual clothes, a neat comfortable daily outfit, looking directly into the camera lens"
@@ -83,7 +87,9 @@ class AuraShortsScenarioDirector:
                 "warm cozy living room with authentic dark oak wooden bookshelves filled with books, "
                 "vibrant lush green indoor potted plants, warm directional room ambient lighting creating natural depth and rich realistic shadows, "
                 "warm inviting atmosphere with over 75% background rich interior details in tack sharp f/11 focus"
-            )
+            ),
+            "voice_pitch": "+5Hz",
+            "voice_rate": "+6%"
         },
         3: {
             "topic_id": 3,
@@ -99,21 +105,28 @@ class AuraShortsScenarioDirector:
             "bottom_step1_title": "남탕 불쾌감 제로! 50:50 정원제",
             "bottom_step1_sub": "남성 대기열 관리 • 여성 VIP 프리패스 즉시 입장",
             "bottom_step2_title": "수질 100% 보장 • 청정 매너 라운지",
-            "bottom_step2_sub": "유령회원 영구 차단 • 격이 다른 소개팅",
+            "bottom_step2_sub": "엄격한 성비 관리 • 고품격 매너 라운지",
+            "debate_question": "남녀 50:50 정원제, 찬성 vs 반대?",
+            "hero_copy": "남초 제로, 50:50 완벽 성비!",
             "cta_button_text": "네이버에 [아우라AI데이팅] 검색 >",
             "s2v_motion_prompt": (
-                "a stylish sophisticated 28-year-old Korean career woman, sitting in a luxury lounge looking directly into camera with confident friendly eye contact, "
-                "speaking smoothly with clear realistic lip sync, poised and composed posture, no phone in hand, natural movement"
+                "an exceptionally gorgeous glamorous 26-year-old Korean woman, standing gracefully by the glass railing of an upscale rooftop terrace looking directly into camera with deeply captivating alluring eye contact, "
+                "speaking smoothly with clear realistic lip sync and gentle confident feminine charisma, holding a crystal wine glass comfortably at waist level, poised elegant posture, natural lifelike movement"
             ),
             "char_desc": (
-                "a stunning sophisticated 28-year-old Korean career woman, high-fashion cool-tone beauty, sleek chic shoulder-length bob haircut, "
-                "flawless glass skin, sharp elegant cheekbones, wearing a luxurious tailored navy blue silk collared shirt, "
-                "confident aristocratic posture, exclusive VIP lounge queen aura"
+                "an exceptionally gorgeous glamorous 26-year-old Korean woman standing with effortless confidence and poise, perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck, breathtakingly stunning high-society VIP beauty, "
+                "voluminous natural dark silky wavy hair falling gracefully over her bare shoulders, seductive feline cat-like hazel eyes with subtle smoky eyeliner, "
+                "flawless luminous glass skin with soft natural cheek blush, sharp high cheekbones and sculpted jawline, "
+                "wearing an ultra-luxurious glamorous evening party dress, a chic upscale rooftop lounge cocktail outfit, sophisticated high-society date-night style, "
+                "captivating sultry romantic charisma, unforgettable date-night VIP goddess aesthetic"
             ),
             "bg_desc": (
-                "luxurious high-end hotel lounge and rooftop cafe in Seoul, elegant marble table, floor-to-ceiling panoramic glass windows "
-                "with distant city view, refined ambient warm glow lighting"
-            )
+                "romantic midnight night view in Seoul, ultra-luxury high-end hotel rooftop sky lounge and open-air champagne bar in Gangnam, "
+                "standing beside modern glass balustrade overlooking breathtaking panoramic sparkling glittering Seoul city night skyline and skyscraper lights against dark midnight blue sky, "
+                "soft warm ambient architectural uplighting, glowing warm golden patio mood lamps creating dramatic rich depth, bokeh, and cinematic evening intimacy"
+            ),
+            "voice_pitch": "-7Hz",
+            "voice_rate": "+12%"
         },
         4: {
             "topic_id": 4,
@@ -125,6 +138,8 @@ class AuraShortsScenarioDirector:
             "hook_0_10s": "소개팅 앱에 인조인간 필터 올렸다가 실물 보고 도망가지 마시고, 아우라 앱에 셀카 한 장 넣으면 청담동 화보로 바로 바꿔줍니다!",
             "app_10_18s": "내 본래 이목구비는 그대로 살리면서 피부톤과 조명을 청담동 스튜디오 감성으로 세련되고 사랑스럽게 업그레이드해 줘요.",
             "cta_18_22s": "이 정도 보정이면 사기다 vs 자기관리다? 내 얼굴 그대로 인생 화보 만들기, 네이버에 아우라AI데이팅 검색해보세요!",
+            "debate_question": "이 정도 보정, 사기다 vs 자기관리다?",
+            "hero_copy": "내 본판 그대로 인생 화보 완성!",
             "top_header": "청담동 스냅 화보급 AI 보정 • AURA",
             "bottom_step1_title": "가짜 필터 NO! 본판 100% 보존",
             "bottom_step1_sub": "인위적인 틱톡 필터 탈피 • 자연스러운 실사 화보",
@@ -132,18 +147,20 @@ class AuraShortsScenarioDirector:
             "bottom_step2_sub": "매칭률 5배 상승 • 세련되고 사랑스러운 무드",
             "cta_button_text": "네이버에 [아우라AI데이팅] 검색 >",
             "s2v_motion_prompt": (
-                "a gorgeous 23-year-old Korean young woman, sitting in a bright studio cafe looking directly into camera with radiant gentle eye contact, "
-                "smiling naturally and speaking smoothly with authentic lip sync, soft delicate head movements, no phone in hand, beautiful candid motion"
+                "a gorgeous 23-year-old Korean young woman, sitting gracefully in a designer white armchair inside a modern Cheongdam photography studio, looking directly into camera with radiant gentle eye contact, "
+                "smiling naturally and speaking smoothly with authentic lip sync, soft delicate head movements, no phone in hand, beautiful editorial photoshoot motion"
             ),
             "char_desc": (
-                "a breathtakingly stunning 23-year-old Korean young woman, pure legendary first-love visual aesthetic, "
+                "a breathtakingly stunning 23-year-old Korean young woman, perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck and collarbone, pure legendary first-love visual aesthetic, "
                 "flowing natural dark silky wavy hair, immaculate luminous glass skin, captivating innocent eyes, delicate facial symmetry, "
-                "wearing a soft pastel pink cashmere cardigan over a white silk camisole, timeless editorial beauty photoshoot perfection"
+                "wearing an elegant soft knit cardigan layered over a clean camisole, stylish feminine studio photoshoot attire, refined modern aesthetic fashion, looking directly into the camera lens"
             ),
             "bg_desc": (
-                "sunlit aesthetic studio cafe in Seongsu-dong, soft white linen sheer curtains with gentle sunlight streaming through, "
-                "vintage wooden designer chair, warm cinematic editorial photoshoot atmosphere"
-            )
+                "high-end luxury photography studio in Cheongdam, modern curved architectural round arch alcove wall with soft warm peach-beige ambient indirect glow, "
+                "elegant designer single white lounge armchair in the center, clean polished studio floor, tack sharp f/8 focus"
+            ),
+            "voice_pitch": "+4Hz",
+            "voice_rate": "+3%"
         },
         5: {
             "topic_id": 5,
@@ -166,14 +183,16 @@ class AuraShortsScenarioDirector:
                 "gesturing naturally while talking, smooth realistic lip sync, friendly and expressive, no phone in hand, lifelike motion"
             ),
             "char_desc": (
-                "an adorably gorgeous 21-year-old Korean college campus goddess, idol visual with bubbly charismatic charm, "
+                "an adorably gorgeous 21-year-old Korean college campus goddess, perfect 8-head-high golden ratio model proportions, delicate small petite head and face, slender elegant neck and collarbone, idol visual with bubbly charismatic charm, "
                 "fresh glowing dewy skin, youthful bright expressive eyes, neat loose half-updo hairstyle, "
-                "wearing a stylish oversized blue-striped boyfriend button-down shirt, heart-melting natural girlfriend aesthetic"
+                "wearing a stylish relaxed button-down shirt, trendy casual boyfriend-fit cafe attire, lovely college campus fashion, looking directly into the camera lens"
             ),
             "bg_desc": (
                 "cozy outdoor brunch cafe patio in Yeonnam-dong, rustic wooden table with cute brunch plates and iced latte, "
                 "pleasant tree shade with dappled natural sunlight"
-            )
+            ),
+            "voice_pitch": "+6Hz",
+            "voice_rate": "+6%"
         },
         6: {
             "topic_id": 6,
@@ -196,14 +215,16 @@ class AuraShortsScenarioDirector:
                 "speaking smoothly with clear realistic lip sync, calm confident posture, no phone in hand, natural handsome motion"
             ),
             "char_desc": (
-                "a breathtakingly handsome 27-year-old Korean male lead actor visual, top-tier romantic K-drama male lead aesthetic, "
-                "clean stylish dandy haircut, immaculate smooth skin, sharp defined jawline, kind yet deeply charismatic romantic eyes, "
-                "wearing a tailored dark navy crewneck wool sweater over a crisp white collared shirt, the ultimate dream boyfriend look"
+                "a breathtakingly handsome 27-year-old Korean male lead actor visual, perfect 8-head-high golden ratio male model proportions, small masculine refined head and face size, defined jawline and slender athletic neck, top-tier romantic K-drama male lead aesthetic, "
+                "clean stylish dandy haircut, immaculate smooth skin, kind yet deeply charismatic romantic eyes, "
+                "wearing a tailored neat crewneck knit sweater layered over a crisp collared shirt, modern dandy boyfriend look, smart intellectual fashion, looking directly into the camera lens"
             ),
             "bg_desc": (
                 "modern cozy library book cafe and quiet study lounge, warm amber pendant light hanging above, "
                 "rich wooden bookshelves with books in the soft background, calm and trustworthy intellectual atmosphere"
-            )
+            ),
+            "voice_pitch": "-3Hz",
+            "voice_rate": "+4%"
         },
         7: {
             "topic_id": 7,
@@ -226,14 +247,16 @@ class AuraShortsScenarioDirector:
                 "smiling delightfully and speaking smoothly with authentic lip sync, natural subtle head movements, no phone in hand, chic motion"
             ),
             "char_desc": (
-                "a mesmerizingly attractive 25-year-old Korean it-girl, top 0.1% captivating feline fox-like eyes with subtle cat-eye eyeliner, "
+                "a mesmerizingly attractive 25-year-old Korean it-girl, perfect 8-head-high golden ratio model proportions, delicate small petite head and sculpted face, slender elegant neck, top 0.1% captivating feline fox-like eyes with subtle cat-eye eyeliner, "
                 "trendy textured dark hair with subtle soft ash highlights, flawless glowing porcelain skin, "
-                "wearing a chic form-fitting black ribbed knit top and delicate ear studs, irresistible trendy influencer aura"
+                "wearing a chic form-fitting ribbed knit top, trendy hip Seongsu cafe fashion, alluring stylish influencer aesthetic, looking directly into the camera lens"
             ),
             "bg_desc": (
                 "trendy hip espresso bar and modern art gallery cafe in Seongsu-dong, mid-century modern aesthetic interior, "
                 "framed contemporary art posters, warm designer lamp glow"
-            )
+            ),
+            "voice_pitch": "+1Hz",
+            "voice_rate": "+7%"
         },
         8: {
             "topic_id": 8,
@@ -256,14 +279,16 @@ class AuraShortsScenarioDirector:
                 "speaking refreshingly and naturally with clean lip sync, relaxed confident posture, no phone in hand, active pleasant motion"
             ),
             "char_desc": (
-                "an exceptionally stunning 25-year-old Korean fitness goddess visual, glowing radiant sun-kissed fair skin, "
+                "an exceptionally stunning 25-year-old Korean fitness goddess visual, perfect 8-head-high golden ratio athletic model proportions, delicate small petite head and face, slender toned neck and shoulders, glowing radiant sun-kissed fair skin, "
                 "bright vibrant eyes with a dazzling gentle smile, sleek high ponytail hairstyle, "
-                "wearing a chic pastel lilac sporty athletic windbreaker, breathtaking natural athletic beauty turning heads in the park"
+                "wearing a chic sporty athletic windbreaker, stylish outdoor activewear, refreshing fitness runner fashion, looking directly into the camera lens"
             ),
             "bg_desc": (
                 "sunny outdoor terrace cafe near Seoul Forest park, lush green trees and park walking trail visible in background, "
                 "bright refreshing afternoon natural daylight, pleasant outdoor atmosphere"
-            )
+            ),
+            "voice_pitch": "+4Hz",
+            "voice_rate": "+8%"
         }
     }
 
@@ -281,12 +306,12 @@ class AuraShortsScenarioDirector:
         full_speech = f"{s['hook_0_10s']} {s['app_10_18s']} {s['cta_18_22s']}"
 
         visual_dir = {
-            "top_header": s["top_header"],
-            "bottom_step1_title": s["bottom_step1_title"],
-            "bottom_step1_sub": s["bottom_step1_sub"],
-            "bottom_step2_title": s["bottom_step2_title"],
-            "bottom_step2_sub": s["bottom_step2_sub"],
-            "cta_button_text": s["cta_button_text"]
+            "top_header": s.get("top_header", ""),
+            "bottom_step1_title": s.get("bottom_step1_title", ""),
+            "bottom_step1_sub": s.get("bottom_step1_sub", ""),
+            "bottom_step2_title": s.get("bottom_step2_title", ""),
+            "bottom_step2_sub": s.get("bottom_step2_sub", ""),
+            "cta_button_text": s.get("cta_button_text", "네이버에 [아우라AI데이팅] 검색 >")
         }
 
         return {
@@ -300,9 +325,12 @@ class AuraShortsScenarioDirector:
             "speech_app": s["app_10_18s"],
             "speech_cta": s["cta_18_22s"],
             "debate_question": s.get("debate_question", "여러분의 생각은 어떠신가요?"),
+            "hero_copy": s.get("hero_copy", ""),
             "full_speech": full_speech,
             "visual_direction": visual_dir,
             "s2v_motion_prompt": s["s2v_motion_prompt"],
             "character_desc": s["char_desc"],
-            "background_desc": s["bg_desc"]
+            "background_desc": s["bg_desc"],
+            "voice_pitch": s.get("voice_pitch", "+6Hz"),
+            "voice_rate": s.get("voice_rate", "+3%")
         }

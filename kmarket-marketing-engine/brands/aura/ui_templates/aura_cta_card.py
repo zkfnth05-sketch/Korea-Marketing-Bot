@@ -110,11 +110,12 @@ class AuraCTACard:
     # ── 메인 렌더 ───────────────────────────────────────────────────────────────
     def render_cta_image(
         self,
-        topic_title: str = "소개팅 탈출 전화",
-        debate_question: str = "이 탈출법, 센스다 vs 너무하다?",
+        topic_title: str = "50:50 VIP 게이트",
+        debate_question: str = "남녀 50:50 정원제, 찬성 vs 반대?",
         search_keyword: str = "아우라AI데이팅",
         pulse: bool = False,
-        frame_idx: int = 0
+        frame_idx: int = 0,
+        hero_copy: str = ""
     ) -> Image.Image:
         """1080x1920 럭셔리 에디토리얼 엔딩 CTA 카드"""
 
@@ -131,23 +132,36 @@ class AuraCTACard:
         # 폰트 세트
         f_label   = self._get_font(30, bold=False)
         f_sub     = self._get_font(40, bold=False)
-        f_hero    = self._get_font(88, bold=True)
+        f_hero    = self._get_font(84, bold=True)
         f_cta     = self._get_font(42, bold=False)
         f_search  = self._get_font(48, bold=True)
         f_naver_n = self._get_font(50, bold=True)
 
-        # 3. 브랜드 라벨 (금색 고급 레터링)
-        draw.text((self.w // 2, 310), "✦  A U R A  D A T I N G  ✦",
+        # 3. 브랜드 라벨 (금색 고급 레터링 - 특수문자 깨짐 없는 깨끗한 불릿)
+        draw.text((self.w // 2, 310), "—   A U R A   D A T I N G   —",
                   font=f_label, fill=self.GOLD_BRIGHT, anchor="mm")
 
         # 4. 서브 카피 (회색)
         draw.text((self.w // 2, 780), topic_title,
                   font=f_sub, fill=self.GRAY_MID, anchor="mm")
 
-        # 5. 영웅 카피 (금색 볼드 + 금빛 글로우 — 진짜 골드)
+        # 5. 영웅 카피 (금색 볼드 + 금빛 글로우 — 주제별 동적 렌더링 및 자동 폰트 크기 조절)
+        actual_hero = hero_copy.strip() if hero_copy else "남초 제로, 50:50 완벽 성비!"
+        
+        # 텍스트 길이에 맞춰 폰트 크기 자동 조절 (양옆 잘림 원천 방지)
+        target_size = 80
+        if len(actual_hero) > 18:
+            target_size = 60
+        elif len(actual_hero) > 14:
+            target_size = 68
+        elif len(actual_hero) > 10:
+            target_size = 76
+        
+        f_hero = self._get_font(target_size, bold=True)
+
         self._draw_text_with_glow(
             img, (self.w // 2, 900),
-            "합법적으로 칼탈출 성공!",
+            actual_hero,
             font=f_hero,
             fill_color=self.GOLD_BRIGHT,
             glow_color=(255, 220, 80, 70),
@@ -212,9 +226,10 @@ class AuraCTACard:
         self,
         output_path: str,
         duration_sec: float = 4.0,
-        topic_title: str = "소개팅 탈출 전화",
-        debate_question: str = "이 탈출법, 센스다 vs 너무하다?",
-        search_keyword: str = "아우라AI데이팅"
+        topic_title: str = "50:50 VIP 게이트",
+        debate_question: str = "남녀 50:50 정원제, 찬성 vs 반대?",
+        search_keyword: str = "아우라AI데이팅",
+        hero_copy: str = ""
     ) -> str:
         """1080x1920 4초 엔딩 CTA 비디오 생성"""
         out_p = Path(output_path).resolve()
@@ -233,7 +248,8 @@ class AuraCTACard:
                     debate_question=debate_question,
                     search_keyword=search_keyword,
                     pulse=pulse,
-                    frame_idx=i
+                    frame_idx=i,
+                    hero_copy=hero_copy
                 )
                 frame_path = temp_dir / f"frame_{i:04d}.png"
                 frame_img.save(str(frame_path), "PNG")

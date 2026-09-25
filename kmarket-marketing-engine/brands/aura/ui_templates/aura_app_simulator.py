@@ -56,6 +56,10 @@ class AuraAppSimulator:
 
         if topic_id == 2:
             preset_file = Path(__file__).parent / "presets" / "aura_subtitles_call_sim.mp4"
+        elif topic_id == 3:
+            preset_file = Path(__file__).parent / "presets" / "aura_vip_5050_card_sim.mp4"
+        elif topic_id == 4:
+            preset_file = Path(__file__).parent / "presets" / "aura_cheongdam_before_after_sim.mp4"
         else:
             preset_file = Path(__file__).parent / "presets" / "aura_escape_call_sim.mp4"
 

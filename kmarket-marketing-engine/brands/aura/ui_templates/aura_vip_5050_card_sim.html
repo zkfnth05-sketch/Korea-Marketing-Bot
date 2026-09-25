@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, height=1920, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Aura 50:50 VIP Gate & Explore Real UI</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Pretendard Font -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      background-color: #000000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .aura-logo {
+      background: linear-gradient(135deg, #FFF3D1 0%, #E5A934 50%, #C98718 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 20px rgba(229, 169, 52, 0.45));
+    }
+    .gold-border-glow {
+      box-shadow: 0 0 35px rgba(229, 169, 52, 0.25), inset 0 0 20px rgba(229, 169, 52, 0.08);
+    }
+    .cyan-glow {
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+    }
+    .pink-glow {
+      box-shadow: 0 0 25px rgba(244, 114, 182, 0.4);
+    }
+    @keyframes touch-click {
+      0% { transform: scale(0.8); opacity: 0.9; }
+      50% { transform: scale(1.4); opacity: 0.4; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+    .touch-indicator {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.6);
+      border: 3px solid #fff;
+      pointer-events: none;
+      animation: touch-click 0.5s ease-out forwards;
+      z-index: 100;
+    }
+    .card-swipe-exit {
+      transform: translateX(450px) rotate(16deg) scale(0.92) !important;
+      opacity: 0 !important;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+  </style>
+</head>
+<body class="bg-black text-white select-none">
+
+  <!-- Mobile Frame Container (1080x1920 Fullscreen Pure Web UI) -->
+  <div class="relative w-[1080px] h-[1920px] bg-black overflow-hidden flex flex-col justify-between">
+
+    <!-- ================= STAGE 1: 50:50 GENDER EQUILIBRIUM SIGNUP GATE (0.0s ~ 1.6s) ================= -->
+    <div id="stage1" class="absolute inset-0 flex flex-col items-center justify-between px-8 py-14 z-30 transition-all duration-300">
+      
+      <!-- Top Language selector pill -->
+      <div class="text-zinc-400 text-lg mt-2 mb-1">
+        Hello, welcome to Aura Ai Dating. Please select your preferred language below.
+      </div>
+      <div class="flex items-center gap-4 mb-4">
+        <div class="px-5 py-2 rounded-full bg-amber-500 text-zinc-950 font-bold text-lg flex items-center gap-2 shadow-lg">
+          <span>🇰🇷</span><span>한국어</span>
+        </div>
+        <div class="px-4 py-2 rounded-full bg-zinc-900 text-zinc-400 text-lg flex items-center gap-2">
+          <span>🇬🇧</span><span>English</span>
+        </div>
+        <div class="px-4 py-2 rounded-full bg-zinc-900 text-zinc-400 text-lg flex items-center gap-2">
+          <span>🇯🇵</span><span>日本語</span>
+        </div>
+        <div class="px-4 py-2 rounded-full bg-zinc-900 text-zinc-400 text-lg flex items-center gap-2">
+          <span>🇪🇸</span><span>Español</span>
+        </div>
+      </div>
+
+      <!-- Aura Logo & Title -->
+      <div class="text-center my-3">
+        <h1 class="aura-logo text-7xl font-black tracking-tight">Aura</h1>
+        <p class="text-zinc-300 text-2xl font-medium mt-2">운명적인 인연을 발견하세요</p>
+      </div>
+
+      <!-- Main Equilibrium Container -->
+      <div class="w-full max-w-[940px] bg-zinc-950/95 border-2 border-amber-500/50 rounded-3xl p-8 gold-border-glow flex flex-col gap-6">
+        
+        <!-- Header Badges -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-400 text-xl font-bold">
+            <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <span>국내 최초 50:50 성비 보장 라운지</span>
+          </div>
+          <div class="flex items-center gap-1.5 text-amber-400/90 text-xl font-semibold">
+            <span>✨</span><span>AURA Equilibrium</span>
+          </div>
+        </div>
+
+        <!-- Headline & Description -->
+        <div>
+          <h2 class="text-3xl font-extrabold text-white tracking-tight">남초 현상 제로, 남녀 50:50 완벽 균형 매칭</h2>
+          <p class="text-zinc-400 text-xl mt-1.5">남녀 성비를 50:50으로 엄격히 유지하는 최고급 프라이빗 라운지입니다.</p>
+        </div>
+
+        <!-- 50:50 Gauge Container -->
+        <div class="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-6 flex flex-col gap-4">
+          <div class="flex items-center justify-between text-lg font-bold">
+            <div class="flex items-center gap-2 text-emerald-400">
+              <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></span>
+              <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              <span>50:50 GENDER EQUILIBRIUM</span>
+            </div>
+            <div class="text-zinc-400 text-base font-normal flex items-center gap-1">
+              <span>✨</span><span>실시간 품질 관리</span>
+            </div>
+          </div>
+
+          <!-- The Split Bar -->
+          <div class="relative w-full h-7 rounded-full bg-zinc-800 flex items-center overflow-hidden">
+            <!-- Male Side 50% -->
+            <div class="w-1/2 h-full bg-gradient-to-r from-sky-500 to-cyan-400 cyan-glow"></div>
+            <!-- Female Side 50% -->
+            <div class="w-1/2 h-full bg-gradient-to-r from-rose-400 to-pink-500 pink-glow"></div>
+            <!-- Center Equilibrium Badge -->
+            <div class="absolute left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-zinc-950 border border-amber-500/80 text-amber-400 text-sm font-extrabold tracking-wider shadow-lg">
+              완벽 균형
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-xl font-bold px-2 pt-1">
+            <span class="text-cyan-400 flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-cyan-400"></span>남성 회원 50%</span>
+            <span class="text-pink-400 flex items-center gap-2">50% 여성 회원<span class="w-3.5 h-3.5 rounded-full bg-pink-400"></span></span>
+          </div>
+        </div>
+
+        <!-- Female Pass Card -->
+        <div class="bg-rose-950/20 border border-rose-500/30 rounded-2xl p-5 flex items-start gap-4">
+          <div class="w-8 h-8 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400 text-xl font-bold mt-0.5">✓</div>
+          <div>
+            <div class="text-rose-400 text-xl font-extrabold">여성 회원: 100% 프리패스</div>
+            <div class="text-zinc-300 text-lg mt-0.5">성비 평형 유지를 위해 여성 가입자는 대기 없이 즉시 무료 프리패스로 입장합니다.</div>
+          </div>
+        </div>
+
+        <!-- Male Pass Card -->
+        <div class="bg-sky-950/20 border border-sky-500/30 rounded-2xl p-5 flex items-start gap-4">
+          <div class="w-8 h-8 rounded-full bg-sky-500/20 flex items-center justify-center text-sky-400 text-xl font-bold mt-0.5">👥</div>
+          <div>
+            <div class="text-sky-400 text-xl font-extrabold">남성 회원: VIP 대기열 & 여사친 초대 패스</div>
+            <div class="text-zinc-300 text-lg mt-0.5">수질 및 성비 엄수 • 여사친 1명 초대 시 즉시 0순위 프리패스로 입장합니다.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Continue Button -->
+      <div id="btnContinue" class="w-full max-w-[940px] h-20 rounded-2xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-zinc-950 text-2xl font-black flex items-center justify-center gap-3 shadow-2xl cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all">
+        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+        <span>전화번호로 계속하기</span>
+      </div>
+
+      <div class="text-zinc-500 text-sm text-center">
+        계속 진행하면 Aura의 <span class="underline">이용약관</span> 및 <span class="underline">개인정보처리방침</span>에 동의하는 것으로 간주됩니다.
+      </div>
+
+    </div>
+
+    <!-- ================= STAGE 2: REAL AURA EXPLORE SCREEN (1.6s ~ 8.0s) ================= -->
+    <!-- Matches media_1790291352017.png and aura-main source code exactly -->
+    <div id="stage2" class="absolute inset-0 flex flex-col justify-between opacity-0 pointer-events-none transition-opacity duration-300 z-30 bg-black">
+      
+      <!-- Top Official Web App Header (Matches header.tsx) -->
+      <header class="w-full h-24 px-10 border-b border-zinc-800/60 bg-black flex items-center justify-between z-40">
+        <!-- Left: AI 추천 -->
+        <div class="flex items-center gap-2 text-amber-500 text-2xl font-bold cursor-pointer">
+          <span class="text-2xl">✨</span>
+          <span>AI 추천</span>
+        </div>
+
+        <!-- Center: Aura Logo Strictly Centered -->
+        <div class="absolute left-1/2 -translate-x-1/2 flex items-center justify-center">
+          <span class="aura-logo text-5xl font-black tracking-wider">Aura</span>
+        </div>
+
+        <!-- Right: App Install & Filter Slider -->
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 border border-zinc-700/80 text-amber-500 text-lg font-bold">
+            <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>앱 설치</span>
+          </div>
+          <!-- Filter Icon -->
+          <svg class="w-8 h-8 text-zinc-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+        </div>
+      </header>
+
+      <!-- Center Card Swiper Area (25% Enlarged: 850px x 1275px for maximum visual impact) -->
+      <main class="relative flex-1 w-full px-4 flex items-center justify-center overflow-hidden">
+        <div id="cardDeck" class="relative w-[850px] h-[1275px] rounded-3xl overflow-hidden shadow-2xl">
+          <!-- Dynamically Injected Profile Cards -->
+        </div>
+      </main>
+
+      <!-- Action Buttons Row (Matches action-buttons.tsx: 3 identical rounded-full buttons) -->
+      <footer class="w-full h-32 flex items-center justify-center gap-12 z-40">
+        <!-- ✕ Dislike Button -->
+        <button id="btnPass" class="w-24 h-24 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 shadow-xl hover:bg-zinc-800 transition-all">
+          <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+
+        <!-- 💬 Message Button -->
+        <button class="w-24 h-24 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-sky-400 shadow-xl hover:bg-zinc-800 transition-all">
+          <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+        </button>
+
+        <!-- 💖 Like Button -->
+        <button id="btnLike" class="w-24 h-24 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-rose-500 shadow-xl hover:bg-zinc-800 transition-all">
+          <svg class="w-10 h-10 fill-current" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </button>
+      </footer>
+
+      <!-- Bottom Navigation Bar (Matches bottom-nav.tsx: 6 items) -->
+      <nav class="w-full h-24 bg-zinc-950/95 border-t border-zinc-800/80 flex items-center justify-around px-4 z-40">
+        <!-- 🔍 탐색 (Active Gold) -->
+        <div class="flex flex-col items-center gap-1.5 text-amber-500 font-bold cursor-pointer">
+          <svg class="w-7 h-7 text-amber-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <span class="text-xs">탐색</span>
+        </div>
+        <!-- 🗺️ 지도 -->
+        <div class="flex flex-col items-center gap-1.5 text-zinc-500">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+          <span class="text-xs font-semibold">지도</span>
+        </div>
+        <!-- 🔥 HOT 회원 -->
+        <div class="flex flex-col items-center gap-1.5 text-zinc-500">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a5.5 5.5 0 0 0-5.5 5.5c0 3.038 2.462 5.5 5.5 5.5s5.5-2.462 5.5-5.5A5.5 5.5 0 0 0 12 2z"/><path d="M12 13s-4-1-4-4"/><path d="M12 13s4-1 4-4"/><path d="M12 13v9"/><path d="M12 22a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
+          <span class="text-xs font-semibold">HOT 회원</span>
+        </div>
+        <!-- 💬 연결 -->
+        <div class="flex flex-col items-center gap-1.5 text-zinc-500">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          <span class="text-xs font-semibold">연결</span>
+        </div>
+        <!-- ✨ 라운지 -->
+        <div class="flex flex-col items-center gap-1.5 text-zinc-500">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+          <span class="text-xs font-semibold">라운지</span>
+        </div>
+        <!-- 👤 내프로필 -->
+        <div class="flex flex-col items-center gap-1.5 text-zinc-500">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          <span class="text-xs font-semibold">내프로필</span>
+        </div>
+      </nav>
+
+    </div>
+
+  </div>
+
+  <!-- Timeline & Swiper Script -->
+  <script>
+    const profiles = [
+      {
+        img: 'assets/topic3_profiles/card_01_female_seoyeon.jpg',
+        name: '서연',
+        age: 23,
+        location: '한남동',
+        match: 98,
+        common: 3,
+        quote: '새로운 만남을 기다립니다! ✨',
+        tags: ['전시회', '브런치', '카페 투어', '여행']
+      },
+      {
+        img: 'assets/topic3_profiles/card_02_male_minjun.jpg',
+        name: '민준',
+        age: 24,
+        location: '연남동',
+        match: 95,
+        common: 4,
+        quote: '편하게 동네에서 커피 한잔해요 🌿',
+        tags: ['카페 탐방', '산책', '음악 감상', '여행']
+      },
+      {
+        img: 'assets/topic3_profiles/card_03_female_jiwoo.jpg',
+        name: '지우',
+        age: 23,
+        location: '성수동',
+        match: 97,
+        common: 3,
+        quote: '새로운 디저트 맛집 같이 가요! 🍰',
+        tags: ['베이커리', '맛집 탐방', '드라이브', '전시']
+      },
+      {
+        img: 'assets/topic3_profiles/card_04_male_dohyun.jpg',
+        name: '도현',
+        age: 23,
+        location: '북촌',
+        match: 94,
+        common: 4,
+        quote: '고즈넉한 카페랑 독서 좋아합니다 ☕',
+        tags: ['감성 카페', '독서', '사진', '건축']
+      },
+      {
+        img: 'assets/topic3_profiles/card_05_female_yujin.jpg',
+        name: '유진',
+        age: 22,
+        location: '홍대',
+        match: 99,
+        common: 5,
+        quote: '말차 라떼랑 독립서점 투어 좋아해요 📖',
+        tags: ['북카페', '전시회', '러닝', '음악']
+      },
+      {
+        img: 'assets/topic3_profiles/card_06_male_junwoo.jpg',
+        name: '준우',
+        age: 24,
+        location: '여의도',
+        match: 96,
+        common: 3,
+        quote: '날씨 좋은 날 한강에서 자전거 타요 🚴',
+        tags: ['한강', '운동', '카페', '테니스']
+      },
+      {
+        img: 'assets/topic3_profiles/card_07_female_suah.jpg',
+        name: '수아',
+        age: 24,
+        location: '해방촌',
+        match: 98,
+        common: 4,
+        quote: '노을 보면서 루프탑 이야기 시간 🌇',
+        tags: ['루프탑', '야경', '와인', '맛집']
+      },
+      {
+        img: 'assets/topic3_profiles/card_08_male_hyunwoo.jpg',
+        name: '현우',
+        age: 24,
+        location: '한남동',
+        match: 97,
+        common: 4,
+        quote: '편집숍 투어랑 라이프스타일 디자인 ✨',
+        tags: ['디자인', '쇼핑', '미술관', '패션']
+      }
+    ];
+
+    const stage1 = document.getElementById('stage1');
+    const stage2 = document.getElementById('stage2');
+    const btnContinue = document.getElementById('btnContinue');
+    const cardDeck = document.getElementById('cardDeck');
+    const btnLike = document.getElementById('btnLike');
+
+    function createCardElement(prof, index) {
+      const card = document.createElement('div');
+      card.className = `card-item absolute inset-0 w-full h-full rounded-3xl overflow-hidden shadow-2xl bg-zinc-900 border border-zinc-800 transition-all duration-300`;
+      card.style.zIndex = 20 - index;
+      
+      const tagsHtml = prof.tags.map(t => `<span class="px-4 py-2 rounded-full bg-zinc-900/90 backdrop-blur-md border border-zinc-700/60 text-zinc-200 text-base font-semibold">${t}</span>`).join('');
+
+      card.innerHTML = `
+        <img src="${prof.img}" class="w-full h-full object-cover object-center pointer-events-none" alt="${prof.name}" />
+        
+        <!-- Top Badges Overlay (Matches profile-card.tsx) -->
+        <div class="absolute top-6 left-6 right-6 flex items-start justify-between z-10">
+          <div class="px-5 py-2 rounded-full bg-amber-500/95 text-zinc-950 font-bold text-lg shadow-lg flex items-center gap-1.5">
+            <span>🔥</span><span>${prof.match}% 일치</span>
+          </div>
+          <div class="px-5 py-2 rounded-full bg-zinc-950/85 backdrop-blur-md border border-amber-500/50 text-amber-400 font-bold text-lg">
+            공통점 ${prof.common}개
+          </div>
+        </div>
+
+        <!-- LIKE STAMP (Hidden by default) -->
+        <div class="like-stamp absolute top-32 right-10 px-8 py-3 border-4 border-rose-500 rounded-2xl text-rose-500 font-black text-5xl tracking-widest uppercase transform rotate-12 opacity-0 transition-opacity pointer-events-none z-20">
+          LIKE ❤️
+        </div>
+
+        <!-- Bottom Gradient Profile Info (Matches profile-card.tsx) -->
+        <div class="absolute inset-x-0 bottom-0 pt-40 pb-8 px-8 bg-gradient-to-t from-black via-black/85 to-transparent flex flex-col gap-3 z-10">
+          <div class="flex items-center gap-3">
+            <span class="text-white text-5xl font-black tracking-tight">${prof.name}, ${prof.age}</span>
+            <span class="text-emerald-400 text-lg font-bold flex items-center gap-1">✓ ${prof.location}</span>
+          </div>
+          <p class="text-zinc-200 text-2xl font-medium tracking-tight">${prof.quote}</p>
+          <div class="flex flex-wrap items-center gap-2.5 pt-1">
+            ${tagsHtml}
+          </div>
+        </div>
+      `;
+      return card;
+    }
+
+    // Initialize cards
+    profiles.forEach((p, idx) => {
+      cardDeck.appendChild(createCardElement(p, idx));
+    });
+
+    // Timeline Director:
+    // 0.0s: Stage 1 (50:50 Gate) is active
+    // 1.2s: Touch click on "전화번호로 계속하기"
+    setTimeout(() => {
+      const rect = btnContinue.getBoundingClientRect();
+      const dot = document.createElement('div');
+      dot.className = 'touch-indicator';
+      dot.style.left = (rect.left + rect.width / 2 - 40) + 'px';
+      dot.style.top = (rect.top + rect.height / 2 - 40) + 'px';
+      document.body.appendChild(dot);
+      setTimeout(() => dot.remove(), 400);
+      btnContinue.style.transform = 'scale(0.97)';
+      setTimeout(() => btnContinue.style.transform = 'scale(1)', 150);
+    }, 1200);
+
+    // 1.5s: Transition from Stage 1 to Stage 2 (Explore Cards)
+    setTimeout(() => {
+      stage1.style.opacity = '0';
+      stage1.style.pointerEvents = 'none';
+
+      stage2.style.opacity = '1';
+      stage2.style.pointerEvents = 'auto';
+      setTimeout(() => {
+        stage1.style.display = 'none';
+      }, 200);
+    }, 1500);
+
+    // 2.2s ~ 8.0s: Rapid Swipe through 8 profiles (each 0.72s)
+    let currentCardIndex = 0;
+    const cardElements = document.querySelectorAll('.card-item');
+
+    function swipeNextCard() {
+      if (currentCardIndex >= cardElements.length - 1) return;
+      const topCard = cardElements[currentCardIndex];
+      const stamp = topCard.querySelector('.like-stamp');
+      
+      // Flash LIKE stamp
+      if (stamp) stamp.style.opacity = '1';
+      
+      // Pulse like button
+      btnLike.classList.add('scale-125', 'text-rose-400');
+      setTimeout(() => {
+        btnLike.classList.remove('scale-125', 'text-rose-400');
+      }, 200);
+
+      // Card fly out
+      setTimeout(() => {
+        topCard.classList.add('card-swipe-exit');
+        currentCardIndex++;
+      }, 150);
+    }
+
+    // Schedule swipes at 2.4s, 3.15s, 3.9s, 4.65s, 5.4s, 6.15s, 6.9s
+    const swipeTimings = [2400, 3150, 3900, 4650, 5400, 6150, 6900];
+    swipeTimings.forEach(t => {
+      setTimeout(swipeNextCard, t);
+    });
+  </script>
+</body>
+</html>

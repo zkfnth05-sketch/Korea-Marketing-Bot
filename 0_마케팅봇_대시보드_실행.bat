@@ -13,8 +13,6 @@ echo.
 
 cd /d "%~dp0kmarket-marketing-engine"
 
-start "" http://localhost:8080
-
 python server.py
 
 pause

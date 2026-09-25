@@ -153,34 +153,7 @@
 
             <!-- 탭 1: 대시보드 & 제어 -->
             <section class="tab-content active" id="tab-overview">
-                <!-- ⚡ 3대 슈퍼앱 24시간 무인 마케팅 오토파일럿 마스터 관제 배너 -->
-                <div class="master-autopilot-container" style="background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #312E81 100%); border: 1px solid rgba(129, 140, 248, 0.35); border-radius: 16px; padding: 18px 24px; color: #ffffff; margin-bottom: 24px; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.6); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-                    <div style="flex: 1; min-width: 300px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 24px;">🛸</span>
-                            <h3 style="margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.5px; color: #FFFFFF;">대한민국 3대 슈퍼앱 24시간 무인 오토파일럿</h3>
-                            <span id="master-autopilot-badge" class="badge" style="background: #10B981; color: #ffffff; font-weight: 700; padding: 5px 12px; border-radius: 20px; font-size: 11.5px; letter-spacing: 0.3px;">🟢 자율 가동 중</span>
-                        </div>
-                        <p style="margin: 6px 0 0 0; font-size: 12.5px; color: #CBD5E1; line-height: 1.5;">
-                            버튼을 일일이 누를 필요 없이, 대시보드에서 <strong>블로그 자동 포스팅 + 네이버 지식iN 24시간 실시간 낚아채기(앱당 하루 10건) + 포털 색인</strong>이 24시간 완전 무인으로 자율 작동합니다.
-                        </p>
-                        <div style="display: flex; gap: 18px; margin-top: 10px; font-size: 12.5px; flex-wrap: wrap;">
-                            <span>💖 Aura 데이팅: <strong id="bar-aura-status" style="color: #F472B6;">⚪ 대기 중 (지식iN 0/10)</strong></span>
-                            <span>🛡️ 보험비교: <strong id="bar-insurance-status" style="color: #34D399;">⚪ 대기 중 (지식iN 0/10)</strong></span>
-                            <span>📈 주식 AI: <strong id="bar-stock-status" style="color: #FACC15;">⚪ 대기 중 (지식iN 0/10)</strong></span>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 10px; align-items: center; flex-shrink: 0;">
-                        <button id="btn-master-start" class="btn" style="background: linear-gradient(135deg, #10B981, #059669); color: #ffffff; font-weight: 800; font-size: 13.5px; padding: 11px 22px; border-radius: 12px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);" onclick="startAllBots()" title="3대 앱 24시간 무인 마케팅 일괄 가동">
-                            ⚡ 3대 앱 전체 가동
-                        </button>
-                        <button id="btn-master-stop" class="btn" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #FCA5A5; font-weight: 700; font-size: 13px; padding: 10px 18px; border-radius: 12px; cursor: pointer;" onclick="stopAllBots()" title="모든 봇 즉시 일괄 정지">
-                            🛑 전체 정지
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 📜 시스템 로그 탭 -->
+                <!-- 📜 시스템 핵심 지표 카드 -->
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon purple">🤖</div>
@@ -213,14 +186,18 @@
                 </div>
 
 
-                <!-- 🎯 7대 AI 콘텐츠 제작 허브 & 멀티 채널 자동 배포 센터 (브랜드별 독립) -->
+                <!-- 🎯 24대 AI 마케팅 허브 & 24시간 무인 자율 공장 (브랜드별 독립) -->
                 <div class="section-card" style="border-top: 4px solid #8B5CF6; margin-bottom: 24px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; flex-wrap:wrap; gap:8px;">
                         <div>
                             <h3 class="section-title" id="hub-panel-title" style="color:#7C3AED; font-size:16px;">🎯 24대 AI 마케팅 허브 & 24시간 무인 자율 공장</h3>
                             <p class="section-subtitle" id="hub-panel-desc">숏폼, 카드뉴스, 커뮤니티, 블로그, 구글/네이버 색인 핑, 스레드 및 국내 16대 포털/커뮤니티 채널을 24시간 자율 가동합니다.</p>
                         </div>
-                        <button class="btn btn-secondary" onclick="renderHubGrid()" style="font-size:12px; padding:6px 12px;">🔄 허브 새로고침</button>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <button class="btn btn-secondary" onclick="renderHubGrid()" style="font-size:12px; padding:6px 12px;">🔄 허브 새로고침</button>
+                            <button class="btn" onclick="startAllBots()" style="background:linear-gradient(135deg, #10B981, #059669); color:#FFFFFF; font-weight:800; font-size:12px; padding:6px 14px; border-radius:8px; border:none; cursor:pointer;" title="현재 브랜드 포함 3대 앱 마케팅 전체 가동">⚡ 전체 가동</button>
+                            <button class="btn" onclick="stopAllBots()" style="background:rgba(239, 68, 68, 0.15); border:1px solid #EF4444; color:#DC2626; font-weight:700; font-size:12px; padding:6px 12px; border-radius:8px; cursor:pointer;" title="모든 봇 즉시 일괄 정지">🛑 전체 정지</button>
+                        </div>
                     </div>
                     
                     <div class="action-grid" id="hub-grid-container" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">

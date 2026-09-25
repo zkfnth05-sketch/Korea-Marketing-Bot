@@ -172,18 +172,20 @@ class S2VClipStitcher:
     ) -> str:
         """
         [동일 목소리 영구 불변 헌법]
-        처음부터 끝까지 단 0.1%의 배속/톤 흔들림 없이 동일한 자연스러운 목소리(rate=+3%, pitch=+6Hz)로 음성 합성
+        지정된 배속/톤(rate, pitch)으로 안정적인 고음질 음성 합성
         """
+        eff_pitch = kwargs.get("base_pitch", pitch)
+        eff_rate = kwargs.get("base_rate", rate)
         wav = self.tts.generate_speech_wav(
             text=text,
             lang=lang,
             gender=gender,
-            rate=rate,
-            pitch=pitch,
+            rate=eff_rate,
+            pitch=eff_pitch,
             filename_prefix=prefix
         )
         final_dur = self._get_video_duration(wav)
-        logger.info(f"🎙️ [균일 음성 확정] '{text[:18]}...' ➔ {final_dur:.2f}s (rate={rate}, pitch={pitch})")
+        logger.info(f"🎙️ [균일 음성 확정] '{text[:18]}...' ➔ {final_dur:.2f}s (rate={eff_rate}, pitch={eff_pitch})")
         return wav
 
     def _pad_wav_to_duration(self, wav_path: str, target_sec: float = 5.0625) -> str:
@@ -216,7 +218,9 @@ class S2VClipStitcher:
         motion_prompt: str,
         seed: int = 2026,
         speech_hook_part1: Optional[str] = None,
-        speech_hook_part2: Optional[str] = None
+        speech_hook_part2: Optional[str] = None,
+        voice_pitch: Optional[str] = "+6Hz",
+        voice_rate: Optional[str] = "+3%"
     ) -> Tuple[str, str]:
         """
         [완(Wan 2.2 S2V) 공식 권장 5초+5초 순수 GPU 독립 렌더링 파이프라인]
@@ -239,7 +243,7 @@ class S2VClipStitcher:
             part1_text, part2_text = self.split_speech_into_two_parts(speech_hook_full)
             logger.info(f"🎙️ [대본 2단 지능형 분할]\n  - 파트 1 (0~5초): {part1_text}\n  - 파트 2 (5~10초): {part2_text}")
 
-        # 2. 파트별 고음질 독립 음성 합성 (81프레임 꽉 채우는 상큼 발랄 20대 여배우 톤 +6Hz, +3% 발화, 4.70초 윈도우 안착)
+        # 2. 파트별 고음질 독립 음성 합성 (주제별 맞춤 음색/배속 적용)
         wav_part1 = self._generate_bounded_wav(
             text=part1_text,
             lang=lang,
@@ -247,8 +251,8 @@ class S2VClipStitcher:
             prefix=f"aura_hook_p1_{lang}_{dt_str}",
             target_window_sec=4.70,
             max_dur=4.70,
-            pitch="+6Hz",
-            base_rate="+3%"
+            pitch=voice_pitch,
+            rate=voice_rate
         )
         wav_part2 = self._generate_bounded_wav(
             text=part2_text,
@@ -257,8 +261,8 @@ class S2VClipStitcher:
             prefix=f"aura_hook_p2_{lang}_{dt_str}",
             target_window_sec=4.70,
             max_dur=4.70,
-            pitch="+6Hz",
-            base_rate="+3%"
+            pitch=voice_pitch,
+            rate=voice_rate
         )
 
         # 81프레임(5.0625초) 비디오 클립과 1:1 완벽 동기화를 위해 후미 무음 정밀 패딩

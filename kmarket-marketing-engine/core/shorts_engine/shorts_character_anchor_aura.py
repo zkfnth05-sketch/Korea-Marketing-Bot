@@ -19,15 +19,15 @@ AURA_8_TOPIC_SPECS = {
         "title": "소개팅 탈출 전화",
         "gender": "female",
         "framing": (
-            "photographed from 1.2 meters directly across a dining table from the date's first-person eye-level perspective on iPhone 15 Pro, "
+            "photographed from 1.6 meters directly across a dining table from the date's first-person eye-level perspective on iPhone 15 Pro, "
             "solo 1person female, perfectly centered in the middle of frame, perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
-            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and shoulders, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and graceful shoulders, "
             "gently closed mouth, natural lips closed together, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
-            "candid medium shot showing chest, shoulders, and dark wooden dining table clearly, "
+            "candid medium cowboy shot showing chest, waist, and dark wooden dining table clearly, generous headroom above, "
             "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible real pores and hair strands"
         ),
         "char_desc": (
-            "a beautiful 28-year-old Korean woman, calm low ponytail hairstyle, clear fair skin, "
+            "a beautiful 28-year-old Korean woman, perfect 8-head-high golden ratio model proportions, delicate small petite head and face, slender elegant long neck, calm low ponytail hairstyle, clear fair skin, "
             "refined subtle makeup, wearing stylish sophisticated civilian dating clothes, a chic modern evening dinner outfit, "
             "elegant and poised appearance with genuine expressive eyes looking directly into the camera lens"
         ),
@@ -44,13 +44,13 @@ AURA_8_TOPIC_SPECS = {
         "framing": (
             "photographed from 2.0 meters away from the date's first-person eye-level perspective on Apple iPhone 15 Pro 24mm main camera, "
             "solo 1person female, perfectly centered in the middle of frame, perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
-            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and shoulders, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and graceful shoulders, "
             "gently closed mouth, natural lips closed together, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
             "candid cowboy medium shot showing chest, waist, and warm wooden furniture clearly, generous headroom above, "
             "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, completely clear background bookshelves and plants in sharp crisp focus, visible real pores and individual hair strands"
         ),
         "char_desc": (
-            "an exceptionally gorgeous 24-year-old Japanese young woman (Nanami), authentic real human model visual, "
+            "an exceptionally gorgeous 24-year-old Japanese young woman (Nanami), perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck, authentic real human model visual, "
             "authentic natural human skin with visible fine pores and realistic delicate skin texture, strictly no airbrushing, "
             "charming expressive doe-like hazel-brown eyes, delicate see-through bangs, neat dark brown shoulder-length hair, "
             "wearing clean stylish civilian casual clothes, a neat comfortable daily outfit, looking directly into the camera lens"
@@ -67,60 +67,72 @@ AURA_8_TOPIC_SPECS = {
         "title": "50:50 VIP 게이트",
         "gender": "female",
         "framing": (
-            "photographed from 1.2 meters directly across a dining table from the date's first-person eye-level perspective on iPhone 15 Pro, "
-            "perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
-            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and shoulders, "
-            "candid medium shot showing chest, shoulders, and luxurious marble table clearly, "
-            "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible real pores and hair strands"
+            "photographed from 1.8 meters away from the date's first-person eye-level perspective on Apple iPhone 15 Pro, "
+            "solo 1person female, standing gracefully by the glass railing of an upscale rooftop terrace, perfectly centered in the middle of frame, "
+            "perfectly frontal portrait view looking directly into the camera lens with deeply captivating magnetic eye contact, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and graceful collarbones, "
+            "gently closed mouth, natural full lips closed together with subtle alluring smile, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
+            "elegantly holding a delicate crystal wine glass filled with deep red wine comfortably at waist height in one hand, wine glass held strictly at lower waist level far below the chest and mouth, "
+            "candid medium cowboy standing shot showing waist, chest, shoulders, and elegant posture clearly, generous headroom above, "
+            "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, visible real skin texture, fine pores and silky hair strands"
         ),
         "char_desc": (
-            "a stunning sophisticated 28-year-old Korean career woman, high-fashion cool-tone beauty, sleek chic shoulder-length bob haircut, "
-            "flawless glass skin, sharp elegant cheekbones, wearing a luxurious tailored navy blue silk collared shirt, "
-            "confident aristocratic posture, looking directly into the camera lens"
+            "an exceptionally gorgeous glamorous 26-year-old Korean woman standing with effortless confidence and poise, perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck, breathtakingly stunning high-society VIP beauty, "
+            "voluminous natural dark silky wavy hair falling gracefully over her bare shoulders, seductive feline cat-like hazel eyes with subtle smoky eyeliner, "
+            "flawless luminous glass skin with soft natural cheek blush, sharp high cheekbones and sculpted jawline, "
+            "wearing an ultra-luxurious glamorous evening party dress, a chic upscale rooftop lounge cocktail outfit, sophisticated high-society date-night style, "
+            "captivating sultry romantic charisma, unforgettable date-night VIP goddess aesthetic"
         ),
         "bg_desc": (
-            "luxurious high-end hotel lounge and rooftop cafe in Seoul, elegant marble table, floor-to-ceiling panoramic glass windows "
-            "with distant city view, refined ambient warm glow lighting"
+            "romantic midnight night view in Seoul, ultra-luxury high-end hotel rooftop sky lounge and open-air champagne bar in Gangnam, "
+            "standing beside modern glass balustrade overlooking breathtaking panoramic sparkling glittering Seoul city night skyline and skyscraper lights against dark midnight blue sky, "
+            "soft warm ambient architectural uplighting, glowing warm golden patio mood lamps creating dramatic rich depth, bokeh, and cinematic evening intimacy"
         ),
-        "vibe": "럭셔리 호텔 라운지에 어울리는 독보적인 세련미와 도회적인 쿨뷰티 여신"
+        "vibe": "밤의 특급호텔 루프탑 테라스에서 서울 야경을 배경으로 와인잔을 들고 서서 상대를 유혹하듯 마주하는 치명적인 섹시 고혹미 VIP 여신"
     },
     4: {
         "topic_id": 4,
         "title": "청담동 화보 보정",
         "gender": "female",
         "framing": (
-            "photographed from 1.2 meters directly across a dining table from the date's first-person eye-level perspective on iPhone 15 Pro, "
-            "perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
-            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and shoulders, "
-            "candid medium shot showing chest, shoulders, and cafe table clearly, "
-            "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible real pores and hair strands"
+            "photographed from 2.5 meters away from the photographer's direct eye-level perspective inside a luxury Cheongdam studio on iPhone 15 Pro, "
+            "solo 1person female, perfectly centered in frame, medium chest-up seated photoshoot portrait, "
+            "seated gracefully in the single designer white lounge armchair with the chair's curved backrest and armrests framing her naturally, "
+            "eye-level strictly anchored at the upper 35% golden ratio line of the frame, "
+            "tight balanced 15% headroom margin above head, "
+            "perfectly frontal portrait view looking directly into the camera lens with captivating gentle eye contact, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, slender elegant long neck, collarbone and graceful shoulders visible, "
+            "gently closed mouth, natural lips closed together, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
+            "chest and shoulders filling 65% of the frame with high aesthetic elegance, "
+            "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, crisp high micro-contrast, visible real pores and individual hair strands"
         ),
         "char_desc": (
-            "a breathtakingly stunning 23-year-old Korean young woman, pure legendary first-love visual aesthetic, "
+            "a breathtakingly stunning 23-year-old Korean young woman, perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck and collarbone, pure legendary first-love visual aesthetic, "
             "flowing natural dark silky wavy hair, immaculate luminous glass skin, captivating innocent eyes, delicate facial symmetry, "
-            "wearing a soft pastel pink cashmere cardigan over a white silk camisole, looking directly into the camera lens"
+            "wearing an elegant soft knit cardigan layered over a clean camisole, stylish feminine studio photoshoot attire, refined modern aesthetic fashion, looking directly into the camera lens"
         ),
         "bg_desc": (
-            "sunlit aesthetic studio cafe in Seongsu-dong, soft white linen sheer curtains with gentle sunlight streaming through, "
-            "vintage wooden designer chair, warm ambient atmosphere"
+            "high-end luxury photography studio in Cheongdam, modern curved architectural round arch alcove wall in warm peach-beige tone clearly visible behind her, "
+            "modern curved studio architecture, tack sharp f/8 focus"
         ),
-        "vibe": "화보 찍으려고 태어난 듯한 백옥 피부의 압도적 청순 여신 비주얼"
+        "vibe": "청담동 최고급 스튜디오의 아치형 백월과 화이트 라운지 체어에 앉아 상단 35% 시선으로 압도적 청순 첫사랑 미모를 뽐내는 정석 화보"
     },
     5: {
         "topic_id": 5,
         "title": "가치관 밸런스 매칭",
         "gender": "female",
         "framing": (
-            "photographed from 1.2 meters directly across a dining table from the date's first-person eye-level perspective on iPhone 15 Pro, "
-            "perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
-            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and shoulders, "
-            "candid medium shot showing chest, shoulders, and brunch table clearly, "
+            "photographed from 1.6 meters directly across a brunch table from the date's first-person eye-level perspective on iPhone 15 Pro, "
+            "solo 1person female, perfectly centered in the middle of frame, perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and graceful shoulders, "
+            "gently closed mouth, natural lips closed together, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
+            "candid medium cowboy shot showing chest, waist, and brunch table clearly, generous headroom above, "
             "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible real pores and hair strands"
         ),
         "char_desc": (
-            "an adorably gorgeous 21-year-old Korean college campus goddess, idol visual with bubbly charismatic charm, "
+            "an adorably gorgeous 21-year-old Korean college campus goddess, perfect 8-head-high golden ratio model proportions, delicate small petite head and face, slender elegant neck and collarbone, idol visual with bubbly charismatic charm, "
             "fresh glowing dewy skin, youthful bright expressive eyes, neat loose half-updo hairstyle, "
-            "wearing a stylish oversized blue-striped boyfriend button-down shirt, looking directly into the camera lens"
+            "wearing a stylish relaxed button-down shirt, trendy casual boyfriend-fit cafe attire, lovely college campus fashion, looking directly into the camera lens"
         ),
         "bg_desc": (
             "cozy outdoor brunch cafe patio in Yeonnam-dong, rustic wooden table with cute brunch plates and iced latte, "
@@ -133,16 +145,17 @@ AURA_8_TOPIC_SPECS = {
         "title": "AI 카톡 비서",
         "gender": "male",
         "framing": (
-            "photographed from 1.2 meters directly across a dining table from the date's first-person eye-level perspective on iPhone 15 Pro, "
-            "perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
-            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and shoulders, "
-            "candid medium shot showing chest, shoulders, and study table clearly, "
+            "photographed from 1.8 meters directly across a study table from the date's first-person eye-level perspective on iPhone 15 Pro, "
+            "solo 1person male, perfectly centered in the middle of frame, perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and broad athletic shoulders, "
+            "gently closed mouth, natural lips closed together, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
+            "candid medium cowboy shot showing chest, waist, and study table clearly, generous headroom above, "
             "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible real pores and hair strands"
         ),
         "char_desc": (
-            "a breathtakingly handsome 27-year-old Korean male lead actor visual, top-tier romantic K-drama male lead aesthetic, "
-            "clean stylish dandy haircut, immaculate smooth skin, sharp defined jawline, kind yet deeply charismatic romantic eyes, "
-            "wearing a tailored dark navy crewneck wool sweater over a crisp white collared shirt, looking directly into the camera lens"
+            "a breathtakingly handsome 27-year-old Korean male lead actor visual, perfect 8-head-high golden ratio male model proportions, small masculine refined head and face size, defined jawline and slender athletic neck, top-tier romantic K-drama male lead aesthetic, "
+            "clean stylish dandy haircut, immaculate smooth skin, kind yet deeply charismatic romantic eyes, "
+            "wearing a tailored neat crewneck knit sweater layered over a crisp collared shirt, modern dandy boyfriend look, smart intellectual fashion, looking directly into the camera lens"
         ),
         "bg_desc": (
             "modern cozy library book cafe and quiet study lounge, warm amber pendant light hanging above, "
@@ -155,16 +168,17 @@ AURA_8_TOPIC_SPECS = {
         "title": "AI 아우라 진단",
         "gender": "female",
         "framing": (
-            "photographed from 1.2 meters directly across a dining table from the date's first-person eye-level perspective on iPhone 15 Pro, "
-            "perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
-            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and shoulders, "
-            "candid medium shot showing chest, shoulders, and cafe table clearly, "
+            "photographed from 1.6 meters directly across a cafe table from the date's first-person eye-level perspective on iPhone 15 Pro, "
+            "solo 1person female, perfectly centered in the middle of frame, perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and graceful collarbone, "
+            "gently closed mouth, natural lips closed together, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
+            "candid medium cowboy shot showing chest, waist, and cafe table clearly, generous headroom above, "
             "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible real pores and hair strands"
         ),
         "char_desc": (
-            "a mesmerizingly attractive 25-year-old Korean it-girl, top 0.1% captivating feline fox-like eyes with subtle cat-eye eyeliner, "
+            "a mesmerizingly attractive 25-year-old Korean it-girl, perfect 8-head-high golden ratio model proportions, delicate small petite head and sculpted face, slender elegant neck, top 0.1% captivating feline fox-like eyes with subtle cat-eye eyeliner, "
             "trendy textured dark hair with subtle soft ash highlights, flawless glowing porcelain skin, "
-            "wearing a chic form-fitting black ribbed knit top and delicate ear studs, looking directly into the camera lens"
+            "wearing a chic form-fitting ribbed knit top, trendy hip Seongsu cafe fashion, alluring stylish influencer aesthetic, looking directly into the camera lens"
         ),
         "bg_desc": (
             "trendy hip espresso bar and modern art gallery cafe in Seongsu-dong, mid-century modern aesthetic interior, "
@@ -177,16 +191,17 @@ AURA_8_TOPIC_SPECS = {
         "title": "500m 안심 레이더",
         "gender": "female",
         "framing": (
-            "photographed from 1.2 meters directly across a dining table from the date's first-person eye-level perspective on iPhone 15 Pro, "
-            "perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
-            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and shoulders, "
-            "candid medium shot showing chest, shoulders, and terrace table clearly, "
+            "photographed from 2.0 meters directly across a terrace table from the date's first-person eye-level perspective on iPhone 15 Pro, "
+            "solo 1person female, perfectly centered in the middle of frame, perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and athletic posture, "
+            "gently closed mouth, natural lips closed together, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
+            "candid medium cowboy shot showing waist, chest, and terrace table clearly, generous headroom above, "
             "f/8 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible real pores and hair strands"
         ),
         "char_desc": (
-            "an exceptionally stunning 25-year-old Korean fitness goddess visual, glowing radiant sun-kissed fair skin, "
+            "an exceptionally stunning 25-year-old Korean fitness goddess visual, perfect 8-head-high golden ratio athletic model proportions, delicate small petite head and face, slender toned neck and shoulders, glowing radiant sun-kissed fair skin, "
             "bright vibrant eyes with a dazzling gentle smile, sleek high ponytail hairstyle, "
-            "wearing a chic pastel lilac sporty athletic windbreaker, looking directly into the camera lens"
+            "wearing a chic sporty athletic windbreaker, stylish outdoor activewear, refreshing fitness runner fashion, looking directly into the camera lens"
         ),
         "bg_desc": (
             "sunny outdoor terrace cafe near Seoul Forest park, lush green trees and park walking trail visible in background, "
@@ -225,24 +240,49 @@ def build_aura_shorts_t2i_character_prompt(
         "charming gentle confident resting smile, looking directly into the camera lens with warm authentic eye contact ready to speak. "
     )
 
-    # 🖐️ 포즈: 스마트폰 파지 배제, 편안하고 자연스러운 제스처 (고개는 틀지 않고 똑바로)
-    if norm_id == 8:
+    # 📏 [대표님 특명: 8등신 황금비율 & 소두 모델 비율 헌법] (얼빡샷/대두 현상 원천 영구 박멸)
+    body_proportion_mandate = (
+        "perfect 8-head-high body proportions, golden ratio 1:8 head-to-body proportion, "
+        "delicate small petite head and face size, slender elegant long neck, graceful slender collarbone, "
+        "well-proportioned slender model physique, graceful shoulders, slender waist, "
+        "tall slender high-fashion model silhouette, balanced 20% headroom margin above head, "
+        "well-balanced human anatomy with refined small head proportion. "
+    )
+
+    # 🖐️ 포즈: 주제별 맞춤 스탠딩/착석 구분 (스마트폰 파지 배제, 자연스러운 제스처)
+    if norm_id == 3:
+        natural_pose = (
+            "standing gracefully with an elegant tall posture by the rooftop glass railing, perfectly upright model silhouette, "
+            "holding a delicate crystal wine glass comfortably at lower waist level in one hand, other arm resting naturally, "
+            "NO smartphone held in hands, poised confident high-society VIP posture. "
+        )
+        environment_action = f"standing on {bg}. "
+    elif norm_id == 4:
+        natural_pose = (
+            "seated comfortably and gracefully inside the single designer white lounge armchair with an elegant upright posture, "
+            "arms resting naturally on the armchair, cardigan layered softly, NO smartphone held in hands, professional editorial model photoshoot posture. "
+        )
+        environment_action = f"seated inside the designer armchair with {bg}. "
+    elif norm_id == 8:
         natural_pose = (
             "standing or walking naturally along the park trail in an upright athletic posture, head held straight, "
             "hands resting naturally at sides or in jacket pockets, NO smartphone held in hands, athletic natural posture. "
         )
+        environment_action = f"walking along {bg}. "
     else:
         natural_pose = (
             "seated comfortably in an upright conversational posture with arms resting naturally on table or chair, "
             "hands resting naturally, NO smartphone held in hands, natural effortless human posture. "
         )
+        environment_action = f"sitting in {bg}. "
 
-    # 긍정 프롬프트 최종 조립 (100% 정면 직립 POV + f/8 딥 팬포커스 무필터 실사 규격)
+    # 긍정 프롬프트 최종 조립 (100% 정면 직립 POV + 8등신 소두 모델 비율 + f/8 딥 팬포커스 무필터 실사 규격)
     positive = (
-        f"masterpiece, best quality, ultra-photorealistic portrait, authentic candid snapshot shot on iPhone 15 Pro, casual everyday mobile phone photo taken across a table by a friend, "
+        f"masterpiece, best quality, ultra-photorealistic portrait, authentic candid snapshot shot on iPhone 15 Pro, "
         f"{framing} of {char}. "
-        f"sitting in {bg}. "
+        f"{environment_action}"
         f"{natural_pose}"
+        f"{body_proportion_mandate}"
         f"{head_and_mouth_mandate}"
         f"Raw unedited authentic iPhone 15 Pro 48MP mobile camera capture, realistic human skin texture with visible real pores and authentic fine details, "
         f"Apple iPhone 15 Pro Smart HDR photo, authentic mobile camera sensor capture, pristine optical sharpness, rich deep blacks, high micro-contrast, crisp clean highlights, punchy vivid clarity, NO beauty filter, zero skin smoothing, "
@@ -261,14 +301,23 @@ def build_aura_shorts_t2i_character_prompt(
             "doll, doll face, porcelain skin, plastic skin, airbrushed skin, beauty filter, skin smoothing, soft skin, glowing skin, dreamy glow, "
             "blurry background, bokeh, bokeh blur, shallow depth of field, out of focus background, hazy, smeared texture, low contrast, "
         )
+    elif norm_id == 4:
+        topic_specific_neg = (
+            "strobe, softbox, studio lighting, beauty filter, airbrushed skin, plastic skin, porcelain skin, skin smoothing, glamour glow, soft glow, creamy skin, "
+            "curtain, sheer curtain, window, sunlight streaming through, outdoor, cafe, dining table, brunch table, "
+            "backlight, backlighting, optical halation, lens flare, hazy glow, dreamy glow, blown out background, washed out, "
+        )
 
-    # 부정 프롬프트 (고개 기울임, 갸웃거림, 스마트폰 파지, 열린 입, 치아 노출, 3D CGI, 렌즈 블러 원천 차단)
+    # 부정 프롬프트 (대두, 얼빡샷, 하단 쏠림, 카우보이샷, 과도한 헤드룸, 고개 기울임, 갸웃거림, 스마트폰 파지, 열린 입, 치아 노출, 3D CGI, 렌즈 블러 원천 차단)
     negative = (
         f"{topic_specific_neg}"
+        "cowboy shot, thighs, knees, full body, standing, excessive headroom, empty top half, giant empty ceiling, subject placed too low, character sinking to bottom, bottom heavy framing, tiny face at bottom, "
+        "big head, large head, oversized head, bobblehead, broad face, wide jaw, chubby cheeks, fat face, "
+        "short thick neck, swollen neck, disproportionate body ratio, giant head, macro face shot, tight bust shot, passport photo crop, "
         "tilted head, head tilt, cocked head, head tilted to the side, crooked head, tilted neck, asymmetric head angle, off-axis head posture, slanted head, "
         "holding phone, phone in hand, smartphone facing camera, electronic device in hand, "
         "open mouth, parted lips, slightly open mouth, half-open mouth, open lips, visible teeth, showing teeth, teeth, smiling with teeth, grinning, laughing, "
-        "distant shot, far away, full body shot, cowboy shot, tiny face, subject far in distance, "
+        "distant shot, far away, microscopic figure, tiny face, subject far in distance, head cut off, cropped top of head, "
         "deformed fingers, extra digits, missing fingers, bad hands, mutated hands, "
         "cartoon, 3d render, anime, plastic skin, doll, dull, dark, lowres, text, watermark, "
         "blurry, lens blur, out of focus, soft focus, bokeh blur, depth of field blur, hazy, dreamy glow, overexposed, airbrushed, beauty filter, skin smoothing"

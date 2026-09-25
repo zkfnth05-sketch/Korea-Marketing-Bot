@@ -28,8 +28,20 @@ def main():
     print("=" * 70)
 
     producer = AuraShortsProducer()
-    # 1~8번 주제 자율 순환 & 매 실행 시 완전 무작위 고유 시드로 새로운 인물/착장 생성
-    result = producer.produce()
+
+    # 주제 #03 (50:50 VIP 게이트) 승인된 실사 인물 사진 (seed 998877) 자동 로드
+    master_path = Path(r"C:\Users\zkfnt\Desktop\한국 숏폼_산출물\Aura\Topic_03_50-50VIP게이트\master_t2i_03_seed998877.png")
+    custom_img = None
+    if master_path.exists():
+        from PIL import Image
+        custom_img = Image.open(str(master_path))
+        print(f"🌟 [마스터 인물 사진] 승인된 마스터 컷 자동 적용: {master_path.name}")
+
+    result = producer.produce(
+        topic_id=3,
+        custom_hero_image=custom_img,
+        seed=998877
+    )
 
     print("\n" + "=" * 70)
     print("🎉 [Aura 숏폼 생산 100% 완료!]")

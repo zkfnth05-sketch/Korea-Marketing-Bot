@@ -25,12 +25,13 @@ from brands.aura.ui_templates.aura_escape_audio_builder import AuraEscapeAudioBu
 from .aura_shorts_scenario_director import AuraShortsScenarioDirector
 from .shorts_character_anchor_aura import build_aura_shorts_t2i_character_prompt
 from .s2v_clip_stitcher import S2VClipStitcher
+from .gemini_tts_synthesizer import GeminiTTSSynthesizer
 
 logger = logging.getLogger("AuraShortsProducer")
 
 
 class AuraShortsProducer(BaseShortsProducer):
-    """Aura 데이팅 숏폼 자동 생산 엔진 (EasyTax 아키텍처 100% 계승)"""
+    """Aura 데이팅 숏폼 자동 생산 엔진 (EasyTax 아키텍처 100% 계승 + Gemini 2.5 Flash TTS)"""
 
     def __init__(self):
         super().__init__("Aura")
@@ -43,9 +44,10 @@ class AuraShortsProducer(BaseShortsProducer):
         self.escape_audio_builder = AuraEscapeAudioBuilder()
         self.cta_card = AuraCTACard()
         self.script_director = AuraShortsScenarioDirector()
+        self.gemini_tts = GeminiTTSSynthesizer(default_voice="Aoede")
         self.stitcher = S2VClipStitcher(
             wan_client=self.wan_client,
-            tts_synthesizer=self.tts,
+            tts_synthesizer=self.gemini_tts,
             ffmpeg_exe=self.composer.ffmpeg_exe
         )
 
@@ -72,15 +74,15 @@ class AuraShortsProducer(BaseShortsProducer):
         scenario = self.script_director.get_full_scenario(topic_id=topic_id)
         return scenario["full_speech"]
 
-    # 🔒 [대표님 지시: 2번 주제(실시간 자막 통화) 고정 생산 모드]
+    # 🔒 [대표님 지시: 4번 주제(청담동 화보 보정) 고정 생산 모드]
     # (검증 완료 후 None으로 변경하면 1~8번 자율 순환 복구)
-    FIXED_TOPIC_ID: Optional[int] = 2
+    FIXED_TOPIC_ID: Optional[int] = 4
 
     def _get_next_topic_id(self) -> int:
         """1번부터 8번까지 주제를 자율 순환(Rotation)하며 상태 파일에 영구 기록"""
         # 🔒 임시 고정 모드 작동 시 항상 고정된 주제 반환
         if self.FIXED_TOPIC_ID is not None:
-            logger.info(f"🔒 [Aura 숏폼] 대표님 지시로 주제 #{self.FIXED_TOPIC_ID} 임시 고정 생산 모드 가동 중")
+            logger.info(f"🔒 [Aura 숏폼] 대표님 지시로 주제 #{self.FIXED_TOPIC_ID} (50:50 VIP 게이트) 고정 생산 모드 가동 중")
             return self.FIXED_TOPIC_ID
 
         state_file = self.output_base / "aura_shorts_state.json"
@@ -137,7 +139,8 @@ class AuraShortsProducer(BaseShortsProducer):
         pos_prompt = t2i_prompt["positive"]
         neg_prompt = t2i_prompt["negative"]
 
-        out_folder = self.output_base / f"Topic_{topic_id:02d}_{theme_name.replace(' ', '')}"
+        safe_name = theme_name.replace(":", "-").replace(" ", "").replace("/", "-")
+        out_folder = self.output_base / f"Topic_{topic_id:02d}_{safe_name}"
         out_folder.mkdir(parents=True, exist_ok=True)
 
         logger.info(f"🎨 [Aura 마스터 사진] 주제 {topic_id} [{theme_name}] Wan 2.1 T2I 렌더링 시작 (seed={seed})")
@@ -207,39 +210,39 @@ class AuraShortsProducer(BaseShortsProducer):
 
         logger.info(f"🚀 [Aura 숏폼] 생산 시작: 주제 {topic_id} [{theme_name}] | 성별: {effective_gender} | seed: {seed}")
 
-        # 3. [음성 합성] 처음부터 끝까지 단 하나의 동일한 목소리 (선희 rate=+3%, pitch=+6Hz 100% 통일)
+        # 3. [음성 합성] 주제별 맞춤 음색/배속 적용 (3번 주제: -7Hz, +12% 매혹적인 VIP 톤)
         voice_lang = "ko"
-        voice_rate = "+3%"
-        voice_pitch = "+6Hz"
-        logger.info(f"🎙️ [Step 1] Edge-TTS 단일 여배우 동일 목소리 합성 ({gender}, rate={voice_rate}, pitch={voice_pitch})...")
-        hook_wav_path = self.tts.generate_speech_wav(
+        voice_rate = scenario.get("voice_rate", "+3%")
+        voice_pitch = scenario.get("voice_pitch", "+6Hz")
+        logger.info(f"🎙️ [Step 1] Google Gemini 2.5 Flash TTS 초실사 음성 합성 (Aoede, {effective_gender})...")
+        hook_wav_path = self.gemini_tts.generate_speech_wav(
             text=speech_hook,
             lang=voice_lang,
-            gender=gender,
+            gender=effective_gender,
             rate=voice_rate,
             pitch=voice_pitch,
             filename_prefix=f"aura_hook_{topic_id}_{dt_str}"
         )
-        app_wav_path = self.tts.generate_speech_wav(
+        app_wav_path = self.gemini_tts.generate_speech_wav(
             text=speech_app,
             lang=voice_lang,
-            gender=gender,
+            gender=effective_gender,
             rate=voice_rate,
             pitch=voice_pitch,
             filename_prefix=f"aura_app_{topic_id}_{dt_str}"
         )
-        cta_wav_path = self.tts.generate_speech_wav(
+        cta_wav_path = self.gemini_tts.generate_speech_wav(
             text=speech_cta,
             lang=voice_lang,
-            gender=gender,
+            gender=effective_gender,
             rate=voice_rate,
             pitch=voice_pitch,
             filename_prefix=f"aura_cta_{topic_id}_{dt_str}"
         )
-        full_wav_path = self.tts.generate_speech_wav(
+        full_wav_path = self.gemini_tts.generate_speech_wav(
             text=full_speech,
             lang=voice_lang,
-            gender=gender,
+            gender=effective_gender,
             rate=voice_rate,
             pitch=voice_pitch,
             filename_prefix=f"aura_full_{topic_id}_{dt_str}"
@@ -248,7 +251,9 @@ class AuraShortsProducer(BaseShortsProducer):
         # 4. [Step 2] 숏폼 인물 사진 로드 또는 Wan 2.1 T2I 생성 (순수 100% 인물 마스터컷, 인위적 액정 매립 전면 영구 박멸!)
         if custom_hero_image is not None:
             master_img = custom_hero_image
-            logger.info("🌟 [Step 2] 전달받은 마스터 인물 사진 사용")
+            master_save_path = out_folder / f"01_master_t2i_{topic_id}.png"
+            master_img.save(str(master_save_path))
+            logger.info(f"🌟 [Step 2] 전달받은 마스터 인물 사진 사용: {master_save_path}")
         elif wan_ready:
             t2i_prompt = self.get_character_prompt(
                 topic_id=topic_id,
@@ -289,13 +294,15 @@ class AuraShortsProducer(BaseShortsProducer):
                 base_framed_img=framed_img,
                 speech_hook_full=speech_hook,
                 lang=voice_lang,
-                gender=gender,
+                gender=effective_gender,
                 out_folder=out_folder,
                 dt_str=dt_str,
                 motion_prompt=s2v_motion_prompt,
                 seed=seed,
                 speech_hook_part1=scenario.get("speech_hook_part1"),
-                speech_hook_part2=scenario.get("speech_hook_part2")
+                speech_hook_part2=scenario.get("speech_hook_part2"),
+                voice_pitch=voice_pitch,
+                voice_rate=voice_rate
             )
         else:
             person_clip_path = str(out_folder / f"temp_person_clip_{dt_str}.mp4")
@@ -331,8 +338,9 @@ class AuraShortsProducer(BaseShortsProducer):
             output_path=cta_clip_path,
             duration_sec=cta_target_dur,
             topic_title=theme_name,
-            debate_question=scenario.get("debate_question", "여러분의 생각은 어떠신가요?"),
-            search_keyword="아우라AI데이팅"
+            debate_question=scenario.get("debate_question", "남녀 50:50 정원제, 찬성 vs 반대?"),
+            search_keyword="아우라AI데이팅",
+            hero_copy=scenario.get("hero_copy", "남초 제로, 50:50 완벽 성비!")
         )
 
         # 8. [Step 6] 22초 하이브리드 완제품 컴포징 (3단 비디오 + 3단 무결점 씬 오디오 싱크)

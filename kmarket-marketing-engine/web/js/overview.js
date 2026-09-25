@@ -275,6 +275,16 @@ function renderHubGrid() {
             </div>
         ` : '';
 
+        // 🌐 옴니블로그 전용 24시간 무인 정시 스케줄러 배지 위젯
+        const blogWidget = isOmniBlog ? `
+            <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #E5DDD1;">
+                <div style="display:flex;justify-content:space-between;align-items:center;background:#EFF6FF;border:1px solid #BFDBFE;padding:5px 8px;border-radius:6px;font-size:11px;font-weight:700;color:#1D4ED8;">
+                    <span>⏰ 24시간 무인 정시 스케줄:</span>
+                    <span style="color:#2563EB;">하루 2회 (12:00 / 21:00)</span>
+                </div>
+            </div>
+        ` : '';
+
         // 💡 지식iN 전용 실시간 쿼터 & 바로가기 위젯
         const kinWidget = isKin ? `
             <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #E5DDD1;">
@@ -285,8 +295,8 @@ function renderHubGrid() {
                     </span>
                 </div>
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                    <span style="font-size:11px;color:#6E665E;">현재 활성 슬롯:</span>
-                    <span id="kin-slot-${brand}" style="font-size:10.5px;font-weight:700;color:#2563EB;">🌙 실시간 감지 중</span>
+                    <span style="font-size:11px;color:#6E665E;">무인 레이더 감시:</span>
+                    <span id="kin-slot-${brand}" style="font-size:10.5px;font-weight:700;color:#2563EB;">🌙 24시간 실시간 감지</span>
                 </div>
                 <div id="kin-recent-${brand}" style="font-size:11px;color:#4A443D;background:#FFFFFF;padding:6px 8px;border-radius:6px;border:1px solid #E5DDD1;margin-bottom:6px;max-height:45px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
                     최근 낚아챈 질문: 대기 중
@@ -311,6 +321,7 @@ function renderHubGrid() {
                 </div>
                 <p style="font-size:11.5px;color:#6E665E;margin:0 0 10px 0;line-height:1.45;">${h.desc}</p>
                 ${seoConsoleLinks}
+                ${blogWidget}
                 ${kinWidget}
 
                 <!-- 실시간 24시간 가동 상태 바 -->

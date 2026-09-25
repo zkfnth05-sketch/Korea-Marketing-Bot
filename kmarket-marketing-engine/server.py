@@ -14,6 +14,7 @@ import logging
 import threading
 import time
 import mimetypes
+import webbrowser
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Union
 from http.server import HTTPServer, ThreadingHTTPServer, BaseHTTPRequestHandler
@@ -2982,6 +2983,15 @@ def run_server(port: int = 8080):
 
     # 🛑 [수동 제어 모드] 서버 기동 시 무단 자동 실행 전면 차단 (오직 대시보드 버튼 클릭 시에만 수동 동작)
     print("🔒 [안전 제어] 모든 백그라운드 자동 루프가 비활성화되었습니다. (수동 대시보드 조작 대기 중)\n")
+
+    # 🌐 서버 준비 완료 직후 브라우저 자동 오픈 (에러 없는 1초 컷 즉시 실행)
+    def _open_browser():
+        time.sleep(0.3)
+        try:
+            webbrowser.open(f"http://localhost:{port}")
+        except Exception:
+            pass
+    threading.Thread(target=_open_browser, daemon=True).start()
 
     try:
         httpd.serve_forever()
