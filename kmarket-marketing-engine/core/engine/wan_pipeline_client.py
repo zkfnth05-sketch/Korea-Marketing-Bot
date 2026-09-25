@@ -30,8 +30,10 @@ class WanPipelineClient:
         self.ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
         self.comfy_input_dir = r"D:\ComfyUI_Wan_Engine\ComfyUI\input"
         self.comfy_output_dir = r"D:\ComfyUI_Wan_Engine\ComfyUI\output"
+        self.cond_cache_dir = r"D:\ComfyUI_Wan_Engine\ComfyUI\cache\conditioning"
         os.makedirs(self.comfy_input_dir, exist_ok=True)
         os.makedirs(self.comfy_output_dir, exist_ok=True)
+        os.makedirs(self.cond_cache_dir, exist_ok=True)
 
     def check_health(self, auto_start: bool = False) -> bool:
         try:
@@ -349,6 +351,44 @@ class WanPipelineClient:
             raise RuntimeError("WAN 얼굴 보존 인페인팅 생성 실패")
         return frames[0]
 
+    def get_or_bake_conditioning(self, prompt_text: str, neg_text: str) -> Tuple[str, str]:
+        """
+        [1번 방법: 텍스트 모델 100% 영구 분리 & 캐시 사전 베이킹]
+        1. 모션 프롬프트 및 네거티브 프롬프트 해시 기반 캐시 파일 경로 확인
+        2. 캐시 파일이 없으면 CLIPLoader + CLIPTextEncode만 1회 단독 실행(약 1~2초) 후 .pt 저장
+        3. 저장 완료 즉시 self.free_vram() 호출로 6.4GB 텍스트 모델을 RAM/VRAM에서 100% 완전 파기
+        4. 캐시 파일 경로 (pos_path, neg_path) 반환 -> S2V 비디오 워크플로우에는 텍스트 모델 0% 미탑재!
+        """
+        import hashlib
+        pos_hash = hashlib.md5(prompt_text.strip().encode('utf-8')).hexdigest()[:16]
+        neg_hash = hashlib.md5(neg_text.strip().encode('utf-8')).hexdigest()[:16]
+
+        pos_path = os.path.join(self.cond_cache_dir, f"cond_pos_{pos_hash}.pt")
+        neg_path = os.path.join(self.cond_cache_dir, f"cond_neg_{neg_hash}.pt")
+
+        if os.path.exists(pos_path) and os.path.exists(neg_path):
+            logger.info(f"⚡ [WanConditioningCache] 사전 베이킹된 프롬프트 텐서 캐시 즉시 재사용 (텍스트 모델 0MB): {pos_hash}")
+            return pos_path, neg_path
+
+        logger.info(f"🧁 [WanConditioningCache] 텍스트 임베딩 사전 베이킹 1회 실행 (약 1~2초 소요)...")
+        workflow_bake = {
+            "62": {"class_type": "CLIPLoader", "inputs": {"clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors", "type": "wan"}},
+            "6":  {"class_type": "CLIPTextEncode", "inputs": {"clip": ["62", 0], "text": prompt_text}},
+            "7":  {"class_type": "CLIPTextEncode", "inputs": {"clip": ["62", 0], "text": neg_text}},
+            "101": {"class_type": "SaveConditioningToFile", "inputs": {"conditioning": ["6", 0], "file_path": pos_path}},
+            "102": {"class_type": "SaveConditioningToFile", "inputs": {"conditioning": ["7", 0], "file_path": neg_path}}
+        }
+        self.submit_and_wait(workflow_bake, prefix="cond_bake", check_vram_safety=False)
+
+        # 🧹 베이킹 완료 즉시 텍스트 모델을 RAM과 VRAM에서 영구 퇴출!
+        logger.info("🧹 [WanConditioningCache] 베이킹 완료! 6.4GB 텍스트 모델을 RAM/VRAM에서 즉각 완전 파기...")
+        self.free_vram()
+
+        if not os.path.exists(pos_path) or not os.path.exists(neg_path):
+            raise RuntimeError(f"텍스트 임베딩 사전 베이킹 실패: {pos_path} 또는 {neg_path} 미생성")
+
+        return pos_path, neg_path
+
     def generate_s2v_video(
         self,
         image_name: str,
@@ -364,7 +404,7 @@ class WanPipelineClient:
         shift: float = 3.0,
         prefix: str = "s2v_run"
     ) -> str:
-        """Wan 2.2 S2V 립싱크 렌더링 후 MP4 완성 파일 생성 (공식 논문 권장 cfg=4.5, shift=3.0, 384x672 @ 16fps)"""
+        """Wan 2.2 S2V 립싱크 렌더링 후 MP4 완성 파일 생성 (텍스트 모델 100% 영구 배제 순수 비디오 모드)"""
         neg = negative_text or (
             "static mouth, closed mouth while speaking, desynchronized lips, bad lip sync, unnatural mouth movement, "
             "frozen lips, frozen face, distorted mouth, mumbling, silent face, "
@@ -372,21 +412,25 @@ class WanPipelineClient:
             "JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景"
         )
 
+        # 1. 텍스트 임베딩 사전 베이킹 또는 캐시 로드 (텍스트 모델은 여기서 완전히 퇴출됨)
+        pos_cond_file, neg_cond_file = self.get_or_bake_conditioning(prompt_text, neg)
+
+        # 2. 순수 S2V 비디오 렌더링 워크플로우 (텍스트 모델 0% 완전 배제!)
         workflow = {
             "61": {"class_type": "UnetLoaderGGUF", "inputs": {"unet_name": "Wan2.2-S2V-14B-Q4_0.gguf"}},
             "54": {"class_type": "ModelSamplingSD3", "inputs": {"model": ["61", 0], "shift": shift}},
             "57": {"class_type": "AudioEncoderLoader", "inputs": {"audio_encoder_name": "wav2vec2_large_english_fp16.safetensors"}},
             "58": {"class_type": "LoadAudio", "inputs": {"audio": audio_name}},
             "56": {"class_type": "AudioEncoderEncode", "inputs": {"audio_encoder": ["57", 0], "audio": ["58", 0]}},
-            "62": {"class_type": "CLIPLoader", "inputs": {"clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors", "type": "wan"}},
-            "6": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["62", 0], "text": prompt_text}},
-            "7": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["62", 0], "text": neg}},
+            # 🔥 텍스트 모델(CLIPLoader/CLIPTextEncode) 전면 영구 박멸! 사전 베이킹 텐서 로드!
+            "201": {"class_type": "LoadConditioningFromFile", "inputs": {"file_path": pos_cond_file}},
+            "202": {"class_type": "LoadConditioningFromFile", "inputs": {"file_path": neg_cond_file}},
             "63": {"class_type": "VAELoader", "inputs": {"vae_name": "wan_2.1_vae.safetensors"}},
             "52": {"class_type": "LoadImage", "inputs": {"image": image_name}},
             "55": {
                 "class_type": "WanSoundImageToVideo",
                 "inputs": {
-                    "positive": ["6", 0], "negative": ["7", 0], "vae": ["63", 0],
+                    "positive": ["201", 0], "negative": ["202", 0], "vae": ["63", 0],
                     "width": width, "height": height, "length": frames, "batch_size": 1,
                     "audio_encoder_output": ["56", 0], "ref_image": ["52", 0]
                 }
