@@ -132,11 +132,10 @@ AURA_8_TOPIC_SPECS = {
         "char_desc": (
             "an adorably gorgeous 21-year-old Korean college campus goddess, perfect 8-head-high golden ratio model proportions, delicate small petite head and face, slender elegant neck and collarbone, idol visual with bubbly charismatic charm, "
             "fresh glowing dewy skin, youthful bright expressive eyes, neat loose half-updo hairstyle, "
-            "wearing a stylish relaxed button-down shirt, trendy casual boyfriend-fit cafe attire, lovely college campus fashion, looking directly into the camera lens"
+            "wearing stylish relaxed trendy casual cafe attire, lovely college campus fashion, looking directly into the camera lens"
         ),
         "bg_desc": (
-            "cozy outdoor brunch cafe patio in Yeonnam-dong, rustic wooden table with cute brunch plates and iced latte, "
-            "pleasant tree shade with dappled natural sunlight"
+            "cozy outdoor brunch cafe patio in Yeonnam-dong surrounded by abundant lush vibrant green leaves, rich lush tree canopy with deep green foliage filling the background, fresh refreshing garden terrace atmosphere, rustic wooden table with cute brunch plates and iced latte, pleasant natural daylight filtering through green leaves"
         ),
         "vibe": "성수/연남동에서 번호 따일 확률 100%인 사랑스럽고 발랄한 대학생 캠퍼스 여신"
     },

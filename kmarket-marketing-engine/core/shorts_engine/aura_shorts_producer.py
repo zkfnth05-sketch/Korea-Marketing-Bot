@@ -74,15 +74,13 @@ class AuraShortsProducer(BaseShortsProducer):
         scenario = self.script_director.get_full_scenario(topic_id=topic_id)
         return scenario["full_speech"]
 
-    # 🔒 [대표님 지시: 4번 주제(청담동 화보 보정) 고정 생산 모드]
-    # (검증 완료 후 None으로 변경하면 1~8번 자율 순환 복구)
-    FIXED_TOPIC_ID: Optional[int] = 4
+    # 🔒 [주제 순환 모드 (None: 1~8번 자율 순환 / 숫자 지정 시 특정 주제 고정)]
+    FIXED_TOPIC_ID: Optional[int] = None
 
     def _get_next_topic_id(self) -> int:
         """1번부터 8번까지 주제를 자율 순환(Rotation)하며 상태 파일에 영구 기록"""
-        # 🔒 임시 고정 모드 작동 시 항상 고정된 주제 반환
         if self.FIXED_TOPIC_ID is not None:
-            logger.info(f"🔒 [Aura 숏폼] 대표님 지시로 주제 #{self.FIXED_TOPIC_ID} (50:50 VIP 게이트) 고정 생산 모드 가동 중")
+            logger.info(f"🔒 [Aura 숏폼] 대표님 지시로 주제 #{self.FIXED_TOPIC_ID} 고정 생산 모드 가동 중")
             return self.FIXED_TOPIC_ID
 
         state_file = self.output_base / "aura_shorts_state.json"
@@ -320,7 +318,7 @@ class AuraShortsProducer(BaseShortsProducer):
 
         # 6. [Step 4] Aura 웹앱 시뮬레이션 고화질 직결 (동일 여배우 목소리 연속 발화)
         dur_app_audio = self.composer._get_video_duration(app_wav_path)
-        app_target_dur = max(4.0, dur_app_audio + 0.1)
+        app_target_dur = max(4.0, dur_app_audio + 0.40)
         app_clip_path = str(out_folder / f"04_app_sim_aura_{topic_id}.mp4")
         logger.info(f"📱 [Step 4] Aura 앱 시연 비디오 준비 (오디오 {dur_app_audio:.2f}s ➡️ 할당 {app_target_dur:.2f}s)...")
         self.app_simulator.record_simulation_clip(
@@ -331,7 +329,7 @@ class AuraShortsProducer(BaseShortsProducer):
 
         # 7. [Step 5] Aura 엔딩 댓글 논쟁 & 네이버 검색 공식 CTA 비디오 준비
         dur_cta_audio = self.composer._get_video_duration(cta_wav_path)
-        cta_target_dur = max(2.5, dur_cta_audio + 0.3)
+        cta_target_dur = max(2.5, dur_cta_audio + 0.60)
         cta_clip_path = str(out_folder / f"05_cta_debate_aura_{topic_id}.mp4")
         logger.info(f"🏷️ [Step 5] Aura 댓글 논쟁 & 공식 검색어 CTA 비디오 준비 ({cta_target_dur:.2f}s)...")
         self.cta_card.create_cta_segment_mp4(

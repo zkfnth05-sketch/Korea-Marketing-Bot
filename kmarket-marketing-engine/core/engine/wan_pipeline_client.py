@@ -15,7 +15,7 @@ import urllib.request
 import urllib.parse
 import subprocess
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 from PIL import Image
 import imageio_ffmpeg
 

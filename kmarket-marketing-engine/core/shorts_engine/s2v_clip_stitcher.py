@@ -205,7 +205,35 @@ class S2VClipStitcher:
                 logger.info(f"🎵 [오디오 무음 패딩] {curr_sec:.2f}s ➔ {target_sec:.2f}s (81프레임 비디오와 완벽 동기화)")
         except Exception as e:
             logger.warning(f"오디오 패딩 처리 예외: {e}")
-        return wav_path
+    def _slice_wav_file(self, src_wav_path: str, start_sec: float, dur_sec: float, out_wav_path: str, pad_to_dur: bool = True) -> str:
+        """
+        단일 통음성 WAV 파일에서 지정된 시작점(start_sec)부터 특정 길이(dur_sec)만큼을 정확히 슬라이스하여 새 WAV로 추출
+        (Wan 2.2 S2V 81프레임 규격인 5.0625초에 맞추어 끝부분 무음 자동 보정)
+        """
+        import wave
+        with wave.open(src_wav_path, 'rb') as r:
+            params = r.getparams()
+            sr = params.framerate
+            nchannels = params.nchannels
+            sampwidth = params.sampwidth
+            total_frames = r.getnframes()
+
+            start_frame = int(start_sec * sr)
+            needed_frames = int(dur_sec * sr)
+
+            r.setpos(min(start_frame, total_frames))
+            frames = r.readframes(needed_frames)
+
+            read_frames_cnt = len(frames) // (nchannels * sampwidth)
+            if pad_to_dur and read_frames_cnt < needed_frames:
+                silence = b'\x00' * ((needed_frames - read_frames_cnt) * nchannels * sampwidth)
+                frames += silence
+
+        os.makedirs(os.path.dirname(os.path.abspath(out_wav_path)), exist_ok=True)
+        with wave.open(out_wav_path, 'wb') as w:
+            w.setparams(params)
+            w.writeframes(frames)
+        return out_wav_path
 
     def render_seamless_dual_clip(
         self,
@@ -224,53 +252,38 @@ class S2VClipStitcher:
     ) -> Tuple[str, str]:
         """
         [완(Wan 2.2 S2V) 공식 권장 5초+5초 순수 GPU 독립 렌더링 파이프라인]
-        1. 제미나이 5초 샷 1, 샷 2 대본 직결 (또는 지능형 2등분 분할)
-        2. 각각 약 5초 분량의 고음질 독립 WAV 음성 합성 (최대 4.75초 이내 발화 완결 보장)
-        3. [1차 샷 5초]: 순수 81프레임 GPU 단독 렌더링 (약 36초 소요, CPU 오프로드 0MB)
-        4. [VRAM 리셋]: 1차 완료 후 VRAM 완전 클린업 (14.7GB 가용 확보)
+        1. 10초 전체 킬러 훅 대본을 단 1회의 Gemini TTS로 통째 생성 (단일 테이크 동일 톤/호흡 100% 보장)
+        2. 통음성을 5.0625초 단위로 정밀 슬라이스하여 1차 샷과 2차 샷에 공급
+        3. [1차 샷 5초]: 순수 81프레임 GPU 단독 렌더링
+        4. [VRAM 리셋]: 1차 완료 후 VRAM 완전 클린업
         5. [스마트 눈 선별]: 1차 영상 후반부에서 눈을 가장 크고 또렷하게 뜬 프레임 PNG 캡처
-        6. [2차 샷 5초]: 또렷한 눈매 기준 이미지를 주입하여 순수 81프레임 GPU 단독 렌더링 (약 36초 소요)
+        6. [2차 샷 5초]: 또렷한 눈매 기준 이미지를 주입하여 순수 81프레임 GPU 단독 렌더링
         7. [VRAM 리셋]: 2차 완료 후 VRAM 완전 클린업
-        8. [완 공식 xfade 결합]: 0.15초 서브프레임 crossfade로 흔적 0% 원테이크 10초 영상 완성!
-        9. [1:1 오디오 무손실 추출]: 비디오와 마이크로초 단위로 완벽히 일치하는 10초 스티치 오디오 반환
+        8. [완 공식 xfade 결합]: 0.15초 서브프레임 crossfade로 원테이크 10초 영상 완성!
+        9. [단일 테이크 원본 결합]: 처음에 통째로 녹음된 10초 원본 음성을 그대로 입혀 목소리 톤 변화 0% 달성
         """
-        # 1. 제미나이 직결 대본 채택 또는 지능형 2등분 분할
-        if speech_hook_part1 and speech_hook_part2:
-            part1_text = speech_hook_part1.strip()
-            part2_text = speech_hook_part2.strip()
-            logger.info(f"🎙️ [제미나이 5초+5초 독립 대본 직접 채택]\n  - 1차 샷 (0~5초): {part1_text}\n  - 2차 샷 (5~10초): {part2_text}")
-        else:
-            part1_text, part2_text = self.split_speech_into_two_parts(speech_hook_full)
-            logger.info(f"🎙️ [대본 2단 지능형 분할]\n  - 파트 1 (0~5초): {part1_text}\n  - 파트 2 (5~10초): {part2_text}")
-
-        # 2. 파트별 고음질 독립 음성 합성 (주제별 맞춤 음색/배속 적용)
-        wav_part1 = self._generate_bounded_wav(
-            text=part1_text,
+        # 1. 10초 전체 대본 단일 테이크 고음질 마스터 음성 합성 (동일 톤 영구 불변)
+        logger.info(f"🎙️ [단일 테이크 마스터 음성 합성] 10초 전체 문장 통째 생성 (동일 호흡/톤 100% 일치): \"{speech_hook_full[:30]}...\"")
+        master_hook_wav = self.tts.generate_speech_wav(
+            text=speech_hook_full,
             lang=lang,
             gender=gender,
-            prefix=f"aura_hook_p1_{lang}_{dt_str}",
-            target_window_sec=4.70,
-            max_dur=4.70,
+            rate=voice_rate,
             pitch=voice_pitch,
-            rate=voice_rate
-        )
-        wav_part2 = self._generate_bounded_wav(
-            text=part2_text,
-            lang=lang,
-            gender=gender,
-            prefix=f"aura_hook_p2_{lang}_{dt_str}",
-            target_window_sec=4.70,
-            max_dur=4.70,
-            pitch=voice_pitch,
-            rate=voice_rate
+            filename_prefix=f"aura_hook_master_{lang}_{dt_str}"
         )
 
-        # 81프레임(5.0625초) 비디오 클립과 1:1 완벽 동기화를 위해 후미 무음 정밀 패딩
-        wav_part1 = self._pad_wav_to_duration(wav_part1, target_sec=5.0625)
-        wav_part2 = self._pad_wav_to_duration(wav_part2, target_sec=5.0625)
+        # 2. 통음성을 81프레임(5.0625초) 규격에 맞춰 1차/2차 입력용으로 마이크로초 정밀 슬라이스
+        clip_dur = 5.0625
+        wav_part1_path = os.path.join(self.wan_client.comfy_input_dir, f"aura_hook_p1_{lang}_{dt_str}.wav")
+        wav_part2_path = os.path.join(self.wan_client.comfy_input_dir, f"aura_hook_p2_{lang}_{dt_str}.wav")
 
-        audio_name_p1 = os.path.basename(wav_part1)
-        audio_name_p2 = os.path.basename(wav_part2)
+        self._slice_wav_file(master_hook_wav, start_sec=0.0, dur_sec=clip_dur, out_wav_path=wav_part1_path, pad_to_dur=True)
+        self._slice_wav_file(master_hook_wav, start_sec=clip_dur, dur_sec=clip_dur, out_wav_path=wav_part2_path, pad_to_dur=True)
+
+        audio_name_p1 = os.path.basename(wav_part1_path)
+        audio_name_p2 = os.path.basename(wav_part2_path)
+        logger.info(f"✂️ [마스터 음성 슬라이스 완료] 1차(0~5.06s) -> {audio_name_p1}, 2차(5.06s~끝) -> {audio_name_p2}")
 
         # 3. [1차 샷 5초 렌더링 (순수 81프레임 워크플로우)]
         input_name_p1 = f"easytax_s2v_p1_{lang}_{dt_str}.png"
@@ -296,7 +309,7 @@ class S2VClipStitcher:
         logger.info("🧹 [VRAM 클린업] 1차 샷 완료 후 GPU VRAM 완전 초기화...")
         self.wan_client.free_vram()
 
-        # 5. [Quad-Guard: 눈 또렷함 + 입술 닫힘 + 목 직립 + 정면 응시 4대 쿼드 가드 선별 (400점 만점)]
+        # 5. [Quad-Guard: 눈 또렷함 + 입술 닫힘 + 좌우 수평 대칭(비뚤어짐 0%) + 목 직립 + 정면 응시]
         best_transition_frame = None
         p1_frames = sorted(glob.glob(os.path.join(self.wan_client.comfy_output_dir, f"{prefix_p1}_*.png")))
         if p1_frames:
@@ -305,17 +318,19 @@ class S2VClipStitcher:
                     frame_paths=p1_frames,
                     candidate_count=10,  # 81프레임 직전 마지막 10프레임(약 4.4~5.06초) 정밀 평가
                     target_w=384,
-                    target_h=672
+                    target_h=672,
+                    fallback_base_img_path=input_path_p1  # 모든 후보 탈락 시 완벽한 원본 마스터 사진 채택
                 )
             except Exception as e:
-                logger.warning(f"쿼드 가드 선별 실패, 라스트 프레임 백업 전환: {e}")
+                logger.warning(f"쿼드 가드 선별 실패, 원본 마스터 사진 백업 전환: {e}")
 
         last_frame_path = str(out_folder / f"best_eye_frame_p1_{lang}.png")
         if best_transition_frame and os.path.exists(best_transition_frame):
             shutil.copyfile(best_transition_frame, last_frame_path)
-            logger.info(f"👁️👄📐👀 [Quad-Guard 성공] 눈 또렷 + 입 다묾 + 목 직립 + 정면 응시 1등 프레임 채택: {os.path.basename(best_transition_frame)}")
+            logger.info(f"👁️👄📐👀 [Quad-Guard 성공] 입술 수평 대칭 + 눈 또렷 1등 프레임 채택: {os.path.basename(best_transition_frame)}")
         else:
-            self.extract_last_frame(clip_p1_path, last_frame_path)
+            shutil.copyfile(input_path_p1, last_frame_path)
+            logger.info(f"🛡️ [안전 폴백 가동] 단정하고 완벽한 원본 마스터 사진 채택: {os.path.basename(input_path_p1)}")
 
         # ComfyUI input 디렉토리로 복사 (2차 샷 기준 이미지 주입)
         input_name_p2 = f"easytax_s2v_p2_{lang}_{dt_str}.png"
@@ -352,15 +367,25 @@ class S2VClipStitcher:
             crossfade_sec=0.15
         )
 
-        # 9. [스티치된 인물 비디오에서 100% 립싱크 일치 오디오 무손실 추출]
+        # 9. [단일 테이크 마스터 원본 음성 결합 (목소리 톤 변화 0% 절대 불변)]
+        vid_dur = self._get_video_duration(final_person_path)
         stitched_wav_path = str(out_folder / f"temp_person_stitched_audio_{lang}.wav")
-        cmd_extract = [
+        shutil.copy2(master_hook_wav, stitched_wav_path)
+        self._pad_wav_to_duration(stitched_wav_path, target_sec=vid_dur)
+
+        # 비디오 파일에도 단일 테이크 마스터 원본 음성을 온전하게 입힘
+        final_muxed_path = str(out_folder / f"temp_person_s2v_muxed_{lang}.mp4")
+        cmd_mux = [
             self.ffmpeg_exe, "-y",
             "-i", final_person_path,
-            "-vn", "-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1",
-            stitched_wav_path
+            "-i", stitched_wav_path,
+            "-c:v", "copy",
+            "-c:a", "aac", "-b:a", "192k",
+            final_muxed_path
         ]
-        subprocess.run(cmd_extract, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(cmd_mux, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if os.path.exists(final_muxed_path):
+            shutil.move(final_muxed_path, final_person_path)
 
         # 임시 단일 클립들 정리
         for p in [clip_p1_path, clip_p2_path]:

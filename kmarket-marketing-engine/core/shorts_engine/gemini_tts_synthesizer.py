@@ -200,8 +200,8 @@ class GeminiTTSSynthesizer:
         return out_wav_path
 
     @staticmethod
-    def _strip_silence(wav_path: str, threshold_ratio: float = 0.02, pad_ms: int = 10):
-        """WAV 파일의 선두/후두 무음을 감지하여 첫 음절이 0초에 즉시 시작되도록 정밀 트리밍"""
+    def _strip_silence(wav_path: str, threshold_ratio: float = 0.015, pad_start_ms: int = 50, pad_end_ms: int = 350):
+        """WAV 파일의 선두는 50ms로 즉각 시작하고, 후두는 350ms 여유를 주어 말끝 음절('요', '드') 100% 무손실 보존"""
         import numpy as np
         from scipy.io import wavfile
 
@@ -218,9 +218,10 @@ class GeminiTTSSynthesizer:
         non_silent = np.where(np.abs(mono_data) > thresh)[0]
 
         if len(non_silent) > 0:
-            pad_samples = int(sr * (pad_ms / 1000.0))
-            start_idx = max(0, non_silent[0] - pad_samples)
-            end_idx = min(len(data), non_silent[-1] + pad_samples)
+            pad_start = int(sr * (pad_start_ms / 1000.0))
+            pad_end = int(sr * (pad_end_ms / 1000.0))
+            start_idx = max(0, non_silent[0] - pad_start)
+            end_idx = min(len(data), non_silent[-1] + pad_end)
             trimmed_data = data[start_idx:end_idx]
             wavfile.write(wav_path, sr, trimmed_data)
 

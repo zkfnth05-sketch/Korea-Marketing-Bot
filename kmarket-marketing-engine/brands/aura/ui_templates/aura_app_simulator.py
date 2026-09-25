@@ -44,13 +44,26 @@ class AuraAppSimulator:
                     continue
         return ImageFont.load_default()
 
+    def _get_video_duration(self, video_path: str) -> float:
+        try:
+            cmd = [self.ffmpeg_exe, "-i", str(video_path)]
+            res = subprocess.run(cmd, stderr=subprocess.PIPE, stdout=subprocess.DEVNULL)
+            out = res.stderr.decode("utf-8", errors="ignore")
+            for line in out.split("\n"):
+                if "Duration:" in line:
+                    parts = line.split("Duration:")[1].split(",")[0].strip().split(":")
+                    return float(parts[0]) * 3600 + float(parts[1]) * 60 + float(parts[2])
+        except Exception:
+            pass
+        return 8.0
+
     def record_simulation_clip(
         self,
         topic_id: int = 1,
         duration_sec: float = 8.0,
         output_mp4_path: str = "aura_app_sim.mp4"
     ) -> str:
-        """Aura 앱 8초 시뮬레이션 클립을 1080x1920 MP4로 렌더링"""
+        """Aura 앱 시뮬레이션 클립을 오디오 길이에 맞춰 1080x1920 MP4로 렌더링"""
         out_p = Path(output_mp4_path).resolve()
         out_p.parent.mkdir(parents=True, exist_ok=True)
 
@@ -60,12 +73,34 @@ class AuraAppSimulator:
             preset_file = Path(__file__).parent / "presets" / "aura_vip_5050_card_sim.mp4"
         elif topic_id == 4:
             preset_file = Path(__file__).parent / "presets" / "aura_cheongdam_before_after_sim.mp4"
+        elif topic_id == 5:
+            preset_file = Path(__file__).parent / "presets" / "aura_balance_match_card_sim.mp4"
         else:
             preset_file = Path(__file__).parent / "presets" / "aura_escape_call_sim.mp4"
 
         if preset_file.exists() and preset_file.stat().st_size > 0:
-            logger.info(f"✨ [AuraAppSimulator] 주제 {topic_id} 100% 실기기 브라우저 영구 녹화 프리셋 활용: {preset_file.name} -> {out_p.name}")
-            shutil.copyfile(preset_file, out_p)
+            logger.info(f"✨ [AuraAppSimulator] 주제 {topic_id} 실기기 프리셋 로드 및 오디오 길이({duration_sec:.2f}s) 1:1 자동 패딩: {preset_file.name}")
+            preset_dur = self._get_video_duration(str(preset_file))
+            if duration_sec > preset_dur:
+                pad_sec = duration_sec - preset_dur
+                cmd = [
+                    self.ffmpeg_exe, "-y",
+                    "-i", str(preset_file),
+                    "-vf", f"tpad=stop_mode=clone:stop_duration={pad_sec:.3f},fps=30",
+                    "-an",
+                    "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", "-preset", "fast",
+                    str(out_p)
+                ]
+            else:
+                cmd = [
+                    self.ffmpeg_exe, "-y",
+                    "-i", str(preset_file),
+                    "-t", f"{duration_sec:.3f}",
+                    "-an",
+                    "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", "-preset", "fast",
+                    str(out_p)
+                ]
+            subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
             return str(out_p)
 
         logger.info(f"📱 [AuraAppSimulator] 8초 앱 시뮬레이션 렌더링 시작 (주제={topic_id}, {duration_sec:.2f}s) -> {out_p.name}")

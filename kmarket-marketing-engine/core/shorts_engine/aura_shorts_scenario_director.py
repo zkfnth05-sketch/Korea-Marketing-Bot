@@ -177,6 +177,8 @@ class AuraShortsScenarioDirector:
             "bottom_step1_sub": "더치페이 vs 번갈아 내기 가치관 실시간 확인",
             "bottom_step2_title": "생각 100% 통하는 사람 즉시 연결",
             "bottom_step2_sub": "소비관/연애관 갈등 제로 • 편안한 연애 시작",
+            "debate_question": "첫 만남 더치페이, 반띵 vs 번갈아 내기?",
+            "hero_copy": "생각 통하는 사람만 100% 매칭!",
             "cta_button_text": "네이버에 [아우라AI데이팅] 검색 >",
             "s2v_motion_prompt": (
                 "a bright friendly 21-year-old Korean college girl, seated comfortably at a brunch table, looking into camera with lively authentic eye contact, "
@@ -185,11 +187,11 @@ class AuraShortsScenarioDirector:
             "char_desc": (
                 "an adorably gorgeous 21-year-old Korean college campus goddess, perfect 8-head-high golden ratio model proportions, delicate small petite head and face, slender elegant neck and collarbone, idol visual with bubbly charismatic charm, "
                 "fresh glowing dewy skin, youthful bright expressive eyes, neat loose half-updo hairstyle, "
-                "wearing a stylish relaxed button-down shirt, trendy casual boyfriend-fit cafe attire, lovely college campus fashion, looking directly into the camera lens"
+                "wearing a stylish clean sleeveless top, trendy casual cafe attire, lovely college campus fashion, looking directly into the camera lens"
             ),
             "bg_desc": (
-                "cozy outdoor brunch cafe patio in Yeonnam-dong, rustic wooden table with cute brunch plates and iced latte, "
-                "pleasant tree shade with dappled natural sunlight"
+                "cozy outdoor brunch cafe patio with lush green leaves canopy, rustic wooden table with iced latte, "
+                "pleasant tree shade with dappled natural sunlight, tack sharp f/8 focus"
             ),
             "voice_pitch": "+6Hz",
             "voice_rate": "+6%"
@@ -209,6 +211,8 @@ class AuraShortsScenarioDirector:
             "bottom_step1_sub": "숨 막히는 단답 대화 원천 차단 • 티키타카 폭발",
             "bottom_step2_title": "AI 대화 코칭 • 애프터 성공률 98%",
             "bottom_step2_sub": "답장 고민 끝 • 센스 넘치는 자연스러운 핑퐁",
+            "debate_question": "소개팅 첫 카톡, 센스 멘트 vs 솔직 담백?",
+            "hero_copy": "읽씹 없는 대화 치트키 가동!",
             "cta_button_text": "네이버에 [아우라AI데이팅] 검색 >",
             "s2v_motion_prompt": (
                 "a handsome attractive 27-year-old Korean young man, sitting in a cozy library cafe looking directly into camera with warm trustworthy eye contact, "
@@ -241,6 +245,8 @@ class AuraShortsScenarioDirector:
             "bottom_step1_sub": "Gemini Vision AI 얼굴 분위기 & 매력 분석",
             "bottom_step2_title": "인스타 스토리 자랑용 고화질 카드",
             "bottom_step2_sub": "내 매력 타이틀 확인 • 바이럴 폭발 테스트",
+            "debate_question": "내 얼굴 아우라 매력, 상위 몇 %일까?",
+            "hero_copy": "AI 매력 분석, 상위 3.8% 진단!",
             "cta_button_text": "네이버에 [아우라AI데이팅] 검색 >",
             "s2v_motion_prompt": (
                 "a fashionable 25-year-old Korean woman, sitting in a trendy cafe looking directly into camera with charming playful eye contact, "
@@ -273,6 +279,8 @@ class AuraShortsScenarioDirector:
             "bottom_step1_sub": "실제 주소 노출 0% • 동네 번개 카페 메이트",
             "bottom_step2_title": "안전한 24시간 지도 퀘스트",
             "bottom_step2_sub": "성수/연남 러닝·카페 메이트 안심 매칭",
+            "debate_question": "동네 산책 메이트, 동성만 vs 이성도 가능?",
+            "hero_copy": "스토킹 걱정 제로, 500m 안심 매칭!",
             "cta_button_text": "네이버에 [아우라AI데이팅] 검색 >",
             "s2v_motion_prompt": (
                 "an energetic 25-year-old Korean young woman, sitting at a sunny outdoor terrace looking into camera with bright vibrant eye contact, "

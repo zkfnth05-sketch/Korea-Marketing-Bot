@@ -194,10 +194,16 @@ class DualGuardFrameSelector:
             if lmk is None:
                 return None
 
-            # 1. 👄 [입술 & 치아 노출 하드 컷오프]
+            # 1. 👄 [입술 밀착 & 치아 노출 & 좌우 수평 대칭성(Lip Symmetry) 하드 컷오프]
             gap = float(np.linalg.norm(lmk[62, :2] - lmk[66, :2]))
             mw = float(np.linalg.norm(lmk[48, :2] - lmk[54, :2]))
             open_ratio = gap / mw if mw > 0 else 0.0
+
+            # 📐 [입술 좌우 수평 대칭성(Lip Symmetry) 정밀 측정]
+            lip_dy = abs(float(lmk[54, 1] - lmk[48, 1]))  # 좌우 입꼬리 수직 높낮이 편차
+            nose_x = float(lmk[30, 0])
+            lip_cx = float((lmk[48, 0] + lmk[54, 0]) / 2.0)
+            lip_center_offset = abs(lip_cx - nose_x)  # 코 중심축 대비 입술 중심 이탈
 
             # 구강 내부 치아(고명도 저채도 픽셀) 검출
             cx = int(lmk[62, 0])
@@ -211,13 +217,18 @@ class DualGuardFrameSelector:
                 is_teeth = (r > 100) & (g > 90) & (b > 80) & (abs(r - g) < 25) & (abs(r - b) < 25)
                 teeth_pct = float(np.mean(is_teeth) * 100)
 
-            # 🚨 [치아/구강 개방 하드 컷오프]
-            # 입술 벌림 비율 > 0.11 or 간격 > 3.5px or 치아 15% 이상 감지 시 즉시 탈락 (-9999점)
-            is_rejected = (open_ratio > 0.11) or (gap > 3.5) or (teeth_pct > 15.0)
+            # 🚨 [치아 노출 / 입 벌림 / 입술 비대칭 비뚤어짐 하드 컷오프]
+            # 1) 입꼬리 높낮이 편차 > 0.8px (비뚤어진 입술 원천 차단)
+            # 2) 입술 중심축 이탈 > 2.8px (한쪽으로 쏠린 썩소 원천 차단)
+            # 3) 입술 벌림 비율 > 0.11 or 간격 > 3.5px or 치아 15% 이상 감지 시 즉시 탈락 (-9999점)
+            is_asym = (lip_dy > 0.8) or (lip_center_offset > 2.8)
+            is_rejected = (open_ratio > 0.11) or (gap > 3.5) or (teeth_pct > 15.0) or is_asym
             if is_rejected:
                 mouth_score = -9999.0
             else:
-                mouth_score = round(150.0 - min(50.0, (open_ratio / 0.11) * 50.0), 1)
+                asym_penalty = min(30.0, lip_dy * 25.0)
+                open_penalty = min(30.0, (open_ratio / 0.11) * 30.0)
+                mouth_score = round(150.0 - asym_penalty - open_penalty, 1)
 
             # 2. 👁️ [눈 열림 점수 (Eye Aspect Ratio 200점 만점)]
             left_ear = (np.linalg.norm(lmk[37, :2] - lmk[41, :2]) + np.linalg.norm(lmk[38, :2] - lmk[40, :2])) / (2 * np.linalg.norm(lmk[36, :2] - lmk[39, :2]))
@@ -244,7 +255,8 @@ class DualGuardFrameSelector:
         frame_paths: List[str],
         candidate_count: int = 15,
         target_w: int = 384,
-        target_h: int = 672
+        target_h: int = 672,
+        fallback_base_img_path: Optional[str] = None
     ) -> str:
         """
         81프레임이 끝나고 2차 81프레임으로 넘어가기 직전(마지막 candidate_count개 프레임)에서
@@ -310,6 +322,15 @@ class DualGuardFrameSelector:
 
             except Exception as e:
                 logger.warning(f"쿼드 가드 분석 중 예외 ({fpath}): {e}")
+
+        # 만약 모든 후보 프레임이 입술 비대칭(비뚤어짐) 또는 입벌림으로 탈락한 경우
+        if best_score < 0:
+            if fallback_base_img_path and os.path.exists(fallback_base_img_path):
+                logger.warning(
+                    f"🚨 [모든 후보 프레임 입술 비대칭/입벌림 탈락] 안전장치 100% 가동: "
+                    f"비뚤어진 프레임을 배제하고 맨 처음의 완벽한 원본 마스터 사진({os.path.basename(fallback_base_img_path)})을 2차 샷 기준 이미지로 채택!"
+                )
+                return fallback_base_img_path
 
         logger.info(
             f"🏆 [Quad-Guard 최종 1등 채택] {best_details.get('name', os.path.basename(best_candidate))} | "

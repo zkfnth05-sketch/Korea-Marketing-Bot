@@ -583,11 +583,11 @@ class ShortsVideoComposer:
             dur_app_audio = self._get_video_duration(scene_audios["app"])
             dur_cta_audio = self._get_video_duration(scene_audios["cta"])
 
-            # 비디오를 음성 길이에 1:1 완벽 동기화 (음성이 끝남과 동시에 다음 씬 전환 / 숏폼 종료)
-            # 비디오 클립이 오디오보다 길면 오디오 길이에 맞춰 칼트림
-            dur_v0 = min(dur_person, dur_hook_audio) if dur_hook_audio > 0 else dur_person
-            dur_v1 = min(dur_app, dur_app_audio) if dur_app_audio > 0 else dur_app
-            dur_v2 = min(dur_cta, dur_cta_audio) if dur_cta_audio > 0 else dur_cta
+            # 🎯 [절대 원칙: 오디오가 기준이며 비디오가 오디오 길이에 맞춘다]
+            # 각 씬별 비디오 길이는 오디오 길이 + 자연스러운 여운(Tail Padding)을 반드시 보장
+            dur_v0 = max(dur_person, (dur_hook_audio + 0.15) if dur_hook_audio > 0 else dur_person)
+            dur_v1 = max(dur_app, (dur_app_audio + 0.40) if dur_app_audio > 0 else dur_app)  # 앱 시연 음성 종료 후 0.4초 숨고르기
+            dur_v2 = max(dur_cta, (dur_cta_audio + 0.60) if dur_cta_audio > 0 else dur_cta)  # CTA 검색어 발화 종료 후 0.6초 브랜딩 여운
 
             cmd_inputs = [
                 "-i", clip_person_path,  # 0
@@ -605,18 +605,28 @@ class ShortsVideoComposer:
                 audio_idx_bgm = next_input_idx
                 next_input_idx += 1
 
+            # 비디오가 오디오보다 짧으면 마지막 프레임을 정지 화면으로 홀드(tpad)하여 음성 완결 보장
+            pad_v0 = max(0.0, dur_v0 - dur_person)
+            v0_pad_filter = f",tpad=stop_mode=clone:stop_duration={pad_v0:.3f}" if pad_v0 > 0.05 else ""
+
+            pad_v1 = max(0.0, dur_v1 - dur_app)
+            v1_pad_filter = f",tpad=stop_mode=clone:stop_duration={pad_v1:.3f}" if pad_v1 > 0.05 else ""
+
+            pad_v2 = max(0.0, dur_v2 - dur_cta)
+            v2_pad_filter = f",tpad=stop_mode=clone:stop_duration={pad_v2:.3f}" if pad_v2 > 0.05 else ""
+
             filter_complex = [
-                # 비디오 3단 스케일 + 음성 길이에 칼같이 맞춰 trim (잉여 정지 비디오 0%)
-                f"[0:v]trim=0:{dur_v0:.2f},setpts=PTS-STARTPTS,scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v0]",
-                f"[1:v]trim=0:{dur_v1:.2f},setpts=PTS-STARTPTS,scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v1]",
-                f"[2:v]trim=0:{dur_v2:.2f},setpts=PTS-STARTPTS,scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v2]",
-                # 순수 고화질 1080x1920 세로 풀화면 (싸구려 하드코딩 배너 박스 전면 제거)
+                # 비디오 3단 스케일 + 오디오 길이에 맞춘 tpad 홀드 & trim (화면 끊김 0%)
+                f"[0:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30{v0_pad_filter},trim=0:{dur_v0:.2f},setpts=PTS-STARTPTS[v0]",
+                f"[1:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30{v1_pad_filter},trim=0:{dur_v1:.2f},setpts=PTS-STARTPTS[v1]",
+                f"[2:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30{v2_pad_filter},trim=0:{dur_v2:.2f},setpts=PTS-STARTPTS[v2]",
+                # 순수 고화질 1080x1920 세로 풀화면
                 "[v0][v1][v2]concat=n=3:v=1:a=0[v_final]",
 
-                # 오디오 3단 무결점 씬 동기화 (Voice 100%)
-                f"[3:a]atrim=0:{dur_v0:.2f},asetpts=PTS-STARTPTS[a0]",
-                f"[4:a]atrim=0:{dur_v1:.2f},asetpts=PTS-STARTPTS[a1]",
-                f"[5:a]atrim=0:{dur_v2:.2f},asetpts=PTS-STARTPTS[a2]",
+                # 오디오 3단 100% 무손실 보존 + 씬 싱크 후미 무음 apad (음성 절단 0% 영구 불변)
+                f"[3:a]asetpts=PTS-STARTPTS,apad=whole_dur={dur_v0:.2f}[a0]",
+                f"[4:a]asetpts=PTS-STARTPTS,apad=whole_dur={dur_v1:.2f}[a1]",
+                f"[5:a]asetpts=PTS-STARTPTS,apad=whole_dur={dur_v2:.2f}[a2]",
                 "[a0][a1][a2]concat=n=3:v=0:a=1,volume=1.0,aresample=44100[voice_main]",
             ]
 
@@ -675,7 +685,6 @@ class ShortsVideoComposer:
             "-preset", "fast",
             "-c:a", "aac",
             "-b:a", "192k",
-            "-shortest",
             output_mp4_path
         ]
 
