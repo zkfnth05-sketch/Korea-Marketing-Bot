@@ -35,6 +35,27 @@ class AuraShortsPipeline:
         )
         return res.get("output_mp4", "")
 
+    def produce_all_8_topics(
+        self,
+        start_topic: int = 1,
+        end_topic: int = 8,
+        gender: Optional[str] = None
+    ) -> list:
+        """Aura 8대 킬러 주제 숏폼을 1번부터 8번까지 100% 무인 순차적으로 연속 렌더링"""
+        import logging
+        log = logging.getLogger("AuraShortsPipeline")
+        results = []
+        for t_id in range(start_topic, end_topic + 1):
+            log.info(f"🚀 [Aura 8대 숏폼] [{t_id}/8] 주제 #{t_id} 무인 렌더링 가동...")
+            try:
+                res = self._producer.produce(topic_id=t_id, gender=gender)
+                results.append(res)
+                log.info(f"🎉 [Aura 8대 숏폼] [{t_id}/8] 주제 #{t_id} 완료: {res.get('output_mp4')}")
+            except Exception as e:
+                log.error(f"❌ [Aura 8대 숏폼] [{t_id}/8] 주제 #{t_id} 실패: {e}")
+                results.append({"topic_id": t_id, "error": str(e)})
+        return results
+
     def produce_master_photo(
         self,
         topic_id: Optional[int] = None,

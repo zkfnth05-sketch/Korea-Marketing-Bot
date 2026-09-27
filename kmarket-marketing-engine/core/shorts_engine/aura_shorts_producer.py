@@ -157,6 +157,17 @@ class AuraShortsProducer(BaseShortsProducer):
 
         self.wan_client.free_vram()
 
+        # SNS 포스팅 가이드 자동 생성
+        try:
+            from brands.aura.aura_sns_guide_generator import AuraSNSGuideGenerator
+            AuraSNSGuideGenerator.save_guide_file(
+                output_folder=out_folder,
+                topic_id=topic_id,
+                speech_hook=scenario.get("speech_hook")
+            )
+        except Exception as e:
+            logger.warning(f"SNS 포스팅 가이드 생성 실패: {e}")
+
         logger.info(f"🎉 [Aura 마스터 사진 완료] 파일 저장: {master_save_path}")
         return {
             "topic_id": topic_id,
@@ -280,10 +291,9 @@ class AuraShortsProducer(BaseShortsProducer):
         # 5. [Step 3] Wan 2.2 S2V 립싱크 모션 렌더링 직결 (인위적인 스마트폰 액정 매립/합성 0% 완전 배제!)
         framed_img = self.prepare_framed_input_image(master_img, target_w=384, target_h=672)
         s2v_motion_prompt = scenario.get("s2v_motion_prompt") or (
-            "The woman is clearly pronouncing words, articulate speech with natural lip movements while talking to the audience, "
-            "highly synchronized lip sync matching the spoken audio, expressive mouth articulation, "
-            "a beautiful 28-year-old Korean office woman sitting across a dinner table, looking directly into camera with expressive authentic eye contact, "
-            "leaning forward slightly in a relaxed conversational posture, subtle natural head tilts, no phone in hand, natural lifelike motion"
+            "speaking expressively with articulate words, highly synchronized lip sync matching the spoken audio, "
+            "gentle head nodding and subtle head tilts, delicate subtle hand micro-gestures, natural small finger movements, "
+            "no exaggerated hand waving, no wild arm movements, calm and elegant upper body posture, authentic lifelike human motion"
         )
 
         if wan_ready:
@@ -317,40 +327,32 @@ class AuraShortsProducer(BaseShortsProducer):
             person_audio_path = hook_wav_path
 
         # 6. [Step 4] Aura 웹앱 시뮬레이션 고화질 직결 (동일 여배우 목소리 연속 발화)
-        dur_app_audio = self.composer._get_video_duration(app_wav_path)
-        app_target_dur = max(4.0, dur_app_audio + 0.40)
+        # 6. [Step 4] Aura 웹앱 시뮬레이션 고화질 직결 (표준 8.0초)
         app_clip_path = str(out_folder / f"04_app_sim_aura_{topic_id}.mp4")
-        logger.info(f"📱 [Step 4] Aura 앱 시연 비디오 준비 (오디오 {dur_app_audio:.2f}s ➡️ 할당 {app_target_dur:.2f}s)...")
+        logger.info(f"📱 [Step 4] Aura 앱 시연 비디오 준비 (8.00s)...")
         self.app_simulator.record_simulation_clip(
             topic_id=topic_id,
-            duration_sec=app_target_dur,
+            duration_sec=8.0,
             output_mp4_path=app_clip_path
         )
 
-        # 7. [Step 5] Aura 엔딩 댓글 논쟁 & 네이버 검색 공식 CTA 비디오 준비
-        dur_cta_audio = self.composer._get_video_duration(cta_wav_path)
-        cta_target_dur = max(2.5, dur_cta_audio + 0.60)
+        # 7. [Step 5] Aura 엔딩 댓글 논쟁 & 네이버 검색 공식 CTA 비디오 준비 (표준 4.0초)
         cta_clip_path = str(out_folder / f"05_cta_debate_aura_{topic_id}.mp4")
-        logger.info(f"🏷️ [Step 5] Aura 댓글 논쟁 & 공식 검색어 CTA 비디오 준비 ({cta_target_dur:.2f}s)...")
+        logger.info(f"🏷️ [Step 5] Aura 댓글 논쟁 & 공식 검색어 CTA 비디오 준비 (4.00s)...")
         self.cta_card.create_cta_segment_mp4(
             output_path=cta_clip_path,
-            duration_sec=cta_target_dur,
+            duration_sec=4.0,
             topic_title=theme_name,
             debate_question=scenario.get("debate_question", "남녀 50:50 정원제, 찬성 vs 반대?"),
             search_keyword="아우라AI데이팅",
             hero_copy=scenario.get("hero_copy", "남초 제로, 50:50 완벽 성비!")
         )
 
-        # 8. [Step 6] 22초 하이브리드 완제품 컴포징 (3단 비디오 + 3단 무결점 씬 오디오 싱크)
+        # 8. [Step 6] 22초 하이브리드 완제품 컴포징 (단일 통음성 100% 무손실 연속 재생 & 템포 왜곡 0%)
         final_mp4_name = f"Aura_22초숏폼_주제{topic_id:02d}_{scenario.get('theme_code', 'topic')}_{dt_str}.mp4"
         final_mp4_path = str(out_folder / final_mp4_name)
 
-        logger.info("✨ [Step 6] 1080p 세로 풀HD 22초 하이브리드 비디오 최종 컴포징...")
-        scene_audios = {
-            "hook": person_audio_path,
-            "app": app_wav_path,
-            "cta": cta_wav_path
-        }
+        logger.info("✨ [Step 6] 1080p 세로 풀HD 22초 하이브리드 비디오 최종 컴포징 (단일 통음성 직결)...")
         self.composer.compose_hybrid_22s_shorts(
             clip_person_path=person_clip_path,
             clip_app_path=app_clip_path,
@@ -358,7 +360,7 @@ class AuraShortsProducer(BaseShortsProducer):
             visual_direction=visual_dir,
             output_mp4_path=final_mp4_path,
             lang=voice_lang,
-            scene_audios=scene_audios,
+            scene_audios=None,
             clip_cta_path=cta_clip_path
         )
 
@@ -377,12 +379,25 @@ class AuraShortsProducer(BaseShortsProducer):
         subprocess.run(cmd_pure, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
         logger.info(f"✨ [순수 인물 1080p 원테이크 완료] 저장: {pure_one_take_path}")
 
+        # 10. [SNS 포스팅 가이드 자동 생성] (이지텍스 5대 플랫폼 포스팅 가이드 규격 동일 탑재)
+        sns_guide_path = None
+        try:
+            from brands.aura.aura_sns_guide_generator import AuraSNSGuideGenerator
+            sns_guide_path = str(AuraSNSGuideGenerator.save_guide_file(
+                output_folder=out_folder,
+                topic_id=topic_id,
+                speech_hook=speech_hook
+            ))
+        except Exception as e:
+            logger.warning(f"SNS 포스팅 가이드 생성 실패: {e}")
+
         logger.info(f"🎉 [Aura 숏폼 생산 완료] 완제품 저장: {final_mp4_path}")
         return {
             "topic_id": topic_id,
             "theme_name": theme_name,
             "output_mp4": final_mp4_path,
             "pure_person_mp4": pure_one_take_path,
+            "sns_guide_path": sns_guide_path,
             "output_folder": str(out_folder),
             "audio_hook": hook_wav_path,
             "audio_app": app_wav_path,

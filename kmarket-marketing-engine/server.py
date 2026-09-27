@@ -572,9 +572,10 @@ def execute_single_channel_task(module_name: str) -> str:
         elif module_name in ["aura_shorts", "aura_naver_clip", "aura_omni_shorts"]:
             from brands.aura.aura_shorts_pipeline import AuraShortsPipeline
             pipeline = AuraShortsPipeline()
-            log_event("🚀 [Aura 대시보드] AI 숏폼 자율 순환 생산 가동 시작 (새로운 인물 & 주제 자동 순환)...", "info")
-            out_mp4 = pipeline.produce()
-            return f"🎉 [Aura 완제품 숏폼 렌더링 완료]\n  • 파일 저장: {out_mp4}"
+            log_event("🚀 [Aura 대시보드] 8대 킬러 주제 숏폼 100% 무인 순차 렌더링 가동 (1번 탈출전화 ~ 8번 안심레이더 8편 전편 연속 생산)...", "info")
+            results = pipeline.produce_all_8_topics(start_topic=1, end_topic=8)
+            completed_count = len([r for r in results if r.get("output_mp4")])
+            return f"🎉 [Aura 8대 숏폼 무인 순차 렌더링 완결] 총 {completed_count}/8편 제작 완료 (5대 SNS 포스팅 가이드 동시 생성)"
         elif module_name == "aura_master_photo":
             from brands.aura.aura_shorts_pipeline import AuraShortsPipeline
             pipeline = AuraShortsPipeline()

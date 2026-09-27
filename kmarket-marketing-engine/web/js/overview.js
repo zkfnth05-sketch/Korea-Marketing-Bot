@@ -345,8 +345,8 @@ function renderHubGrid() {
                 </div>
                 ${isShorts ? `
                 <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:6px;">
-                    <button class="btn btn-action" id="btn-run-${brand}-${h.key}" onclick="runModule('${brand}_shorts')" style="font-size:11px;padding:7px 2px;background:${theme.actionBg};border:1.5px solid ${theme.actionBorder};color:${theme.actionColor};font-weight:800;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.05);cursor:pointer;" title="사진 생성부터 립싱크, 앱시연, 팀장음성, CTA까지 24초 풀 완제품 숏폼 자동 제작">
-                        🎬 24초 숏폼 제작
+                    <button class="btn btn-action" id="btn-run-${brand}-${h.key}" onclick="runModule('${brand}_shorts')" style="font-size:11px;padding:7px 2px;background:${theme.actionBg};border:1.5px solid ${theme.actionBorder};color:${theme.actionColor};font-weight:800;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.05);cursor:pointer;" title="1번 탈출전화부터 8번 안심레이더까지 8대 주제 숏폼을 순차적으로 100% 무인 자동 렌더링">
+                        🎬 8대 숏폼 순차 제작
                     </button>
                     <button class="btn btn-action" onclick="runModule('${brand}_master_photo')" style="font-size:11px;padding:7px 2px;background:#FFFFFF;border:1px solid #CBD5E1;color:#475569;font-weight:700;border-radius:8px;cursor:pointer;" title="텍스트 프롬프트로 28세 여성 실사 인물 사진만 단독 생성">
                         📸 인물 사진 생성

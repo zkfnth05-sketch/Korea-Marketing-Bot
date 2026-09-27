@@ -8,7 +8,7 @@ AuraPhoneUITemplate - 📱 [Aura 스마트폰 액정 화면 템플릿]
   3: 50:50 황금 성비 VIP 게이트
   4: 청담동 화보 프로필
   5: 가치관 밸런스 게임 매칭
-  6: AI 카톡 비서 말풍선
+  6: 아우라 AI 첫대화 비서 말풍선
   7: AI 아우라 매력 진단 카드
   8: 500m 안심 레이더 지도
 """
@@ -39,8 +39,8 @@ class AuraPhoneUITemplate:
                     continue
         return ImageFont.load_default()
 
-    def render(self, topic_id: int = 1) -> Image.Image:
-        """주제 ID(1~8)에 맞춰 469x1024 크기의 스마트폰 액정 UI 생성"""
+    def render(self, topic_id: int = 1, step: int = 4) -> Image.Image:
+        """주제 ID(1~8)에 맞춰 469x1024 크기의 스마트폰 액정 UI 생성 (Topic 6의 경우 step=0~4 대화 누적 렌더링 지원)"""
         ui = Image.new("RGBA", (self.width, self.height), (15, 23, 42, 255))
         draw = ImageDraw.Draw(ui)
 
@@ -55,7 +55,13 @@ class AuraPhoneUITemplate:
         draw.text((self.width // 2, 85), "💖 Aura Lounge", font=f_nav, fill=(244, 114, 182, 255), anchor="mm")
 
         # 주제별 화면 본문
-        if topic_id == 1:
+        if topic_id == 6:
+            try:
+                from .aura_web_chat_recorder import AuraWebChatRecorder
+                return AuraWebChatRecorder().render_step(step=step)
+            except Exception as e:
+                self._render_icebreaker(draw, step=step)
+        elif topic_id == 1:
             self._render_escape_call(draw)
         elif topic_id == 2:
             self._render_live_subtitles(draw)
@@ -65,8 +71,6 @@ class AuraPhoneUITemplate:
             self._render_cheongdam(draw)
         elif topic_id == 5:
             self._render_balance(draw)
-        elif topic_id == 6:
-            self._render_icebreaker(draw)
         elif topic_id == 7:
             self._render_aura_diag(draw)
         elif topic_id == 8:
@@ -169,17 +173,86 @@ class AuraPhoneUITemplate:
 
         draw.text((self.width // 2, 600), "나와 생각 똑같은 이성 18명 매칭!", font=self._get_font(20, bold=True), fill=(250, 204, 21, 255), anchor="mt")
 
-    def _render_icebreaker(self, draw: ImageDraw.ImageDraw):
-        f_title = self._get_font(26, bold=True)
-        draw.rounded_rectangle([25, 140, self.width - 25, 750], radius=24, fill=(17, 24, 39, 255), outline=(34, 197, 94, 255), width=2)
-        draw.text((self.width // 2, 175), "💬 AI 카톡 비서", font=f_title, fill=(74, 222, 128, 255), anchor="mt")
+    def _render_icebreaker(self, draw: ImageDraw.ImageDraw, step: int = 4):
+        # 1. 아우라 실제 채팅방 상단 헤더 바 (다크 모드 #0B0F19)
+        draw.rectangle([0, 55, self.width, 135], fill=(11, 15, 25, 255))
+        draw.text((25, 90), "←", font=self._get_font(24, bold=True), fill=(255, 255, 255, 255), anchor="mm")
+        
+        # 상대방 프로필 아바타 (정석대로)
+        draw.ellipse([45, 68, 85, 108], fill=(55, 65, 81, 255), outline=(244, 114, 182, 255), width=2)
+        draw.text((65, 88), "🤵", font=self._get_font(20), anchor="mm")
+        draw.text((95, 78), "정석대로", font=self._get_font(18, bold=True), fill=(255, 255, 255, 255))
+        draw.ellipse([96, 102, 104, 110], fill=(34, 197, 94, 255))
+        draw.text((110, 97), "온라인", font=self._get_font(12), fill=(156, 163, 175, 255))
 
-        draw.rounded_rectangle([45, 280, self.width - 120, 360], radius=16, fill=(55, 65, 81, 255))
-        draw.text((65, 320), "주말에 보통 뭐 하세요? ㅎㅎ", font=self._get_font(18), fill=(255, 255, 255, 255), anchor="lm")
+        # 우측 안심 탈출 & 영상통화 아이콘
+        draw.rounded_rectangle([self.width - 150, 72, self.width - 60, 104], radius=16, fill=(244, 114, 182, 30), outline=(244, 114, 182, 180), width=1)
+        draw.text((self.width - 105, 88), "🛡️ 안심 탈출", font=self._get_font(12, bold=True), fill=(244, 114, 182, 255), anchor="mm")
+        draw.text((self.width - 35, 88), "📹", font=self._get_font(20), fill=(250, 204, 21, 255), anchor="mm")
 
-        draw.rounded_rectangle([45, 410, self.width - 45, 530], radius=16, fill=(34, 197, 94, 40), outline=(34, 197, 94, 255), width=2)
-        draw.text((65, 435), "✨ AI 추천 답장 (답장률 98%)", font=self._get_font(16, bold=True), fill=(74, 222, 128, 255))
-        draw.text((65, 475), '"성수동 카페투어 좋아해요!\n가보신 좋은 곳 있으세요?"', font=self._get_font(18, bold=True), fill=(255, 255, 255, 255))
+        # 2. 글로벌 실시간 번역 안내 배너
+        draw.rounded_rectangle([20, 145, self.width - 20, 195], radius=12, fill=(30, 41, 59, 200), outline=(56, 189, 248, 120), width=1)
+        draw.text((self.width // 2, 170), "🌐 실시간 번역 중: 한국어 메시지가 자동 변환됩니다.", font=self._get_font(12, bold=True), fill=(186, 230, 253, 255), anchor="mm")
+
+        # 3. 대화 영역 (단계별 누적 렌더링)
+        if step == 0:
+            # 텅 빈 대화방 + 하단 AI 첫대화 추천 3종 카드
+            draw.text((self.width // 2, 260), "✨ 아우라 AI 첫대화 비서 가동 중 ✨", font=self._get_font(16, bold=True), fill=(244, 114, 182, 255), anchor="mm")
+            draw.text((self.width // 2, 290), "상대방의 취향을 분석해 첫인사를 추천합니다", font=self._get_font(13), fill=(148, 163, 184, 255), anchor="mm")
+
+            # AI 추천 카드 3개
+            cards = [
+                "1. 안녕하세요! 프로필 보니 영화/맛집 취향이 똑같네요!",
+                "2. 반가워요! 저도 맛있는 거 좋아하는데 인생 맛집 있으세요?",
+                "3. 독서, 영화 공통점이 정말 많네요! 대화 기대돼요 :)"
+            ]
+            y_pos = 460
+            for i, card_text in enumerate(cards):
+                draw.rounded_rectangle([20, y_pos, self.width - 20, y_pos + 80], radius=16, fill=(15, 23, 42, 240), outline=(244, 114, 182, 200), width=2)
+                draw.text((35, y_pos + 15), f"💡 맞춤 추천 #{i+1}", font=self._get_font(13, bold=True), fill=(251, 191, 36, 255))
+                draw.text((35, y_pos + 42), card_text, font=self._get_font(13), fill=(255, 255, 255, 255))
+                y_pos += 95
+        else:
+            # 대화가 차곡차곡 쌓여 올라가는 핑퐁 채팅방
+            y = 215
+
+            # 1) 내 메시지 (AI 추천으로 전송된 첫마디)
+            draw.rounded_rectangle([100, y, self.width - 20, y + 65], radius=18, fill=(236, 72, 153, 230))
+            draw.text((self.width - 35, y + 15), "프로필 보니 영화랑 맛집 취향이\n저랑 완전 똑같으시네요! ㅎㅎ", font=self._get_font(14, bold=True), fill=(255, 255, 255, 255), anchor="ra")
+            y += 80
+
+            if step >= 1:
+                # 2) 상대방 즉각 칼답
+                draw.rounded_rectangle([20, y, self.width - 100, y + 65], radius=18, fill=(30, 41, 59, 230), outline=(255, 255, 255, 40), width=1)
+                draw.text((35, y + 15), "헐 대박! 저 그 영화 인생작인데 ㅋㅋㅋ\n통하는 분 만나서 너무 반가워요!", font=self._get_font(14), fill=(241, 245, 249, 255))
+                y += 80
+
+            if step >= 2:
+                # 3) 내 2차 답장
+                draw.rounded_rectangle([120, y, self.width - 20, y + 60], radius=18, fill=(236, 72, 153, 230))
+                draw.text((self.width - 35, y + 15), "저도요! 저 최애 파스타 맛집도\n거기 근처에 있거든요 ㅎㅎ", font=self._get_font(14, bold=True), fill=(255, 255, 255, 255), anchor="ra")
+                y += 75
+
+            if step >= 3:
+                # 4) 상대방 폭풍 호응
+                draw.rounded_rectangle([20, y, self.width - 80, y + 65], radius=18, fill=(30, 41, 59, 230), outline=(255, 255, 255, 40), width=1)
+                draw.text((35, y + 15), "진짜요?! 저 거기 완전 최애인데 ㅠㅠ\n대화 너무 잘 통해서 신기해요 ㅋㅋㅋ", font=self._get_font(14), fill=(241, 245, 249, 255))
+                y += 80
+
+            if step >= 4:
+                # 5) 정점: 상대방의 주말 데이트 애프터 제안 & 호감도 100% 폭발!
+                draw.rounded_rectangle([20, y, self.width - 60, y + 70], radius=18, fill=(245, 158, 11, 40), outline=(251, 191, 36, 255), width=2)
+                draw.text((35, y + 15), "저희 이번 주말에 거기 같이 가요!!\n제가 맛있는 거 살게요 😊✨", font=self._get_font(15, bold=True), fill=(253, 224, 71, 255))
+                y += 85
+
+                # 중앙 쾌감 하이라이트 배너
+                draw.rounded_rectangle([30, y + 10, self.width - 30, y + 65], radius=20, fill=(236, 72, 153, 255))
+                draw.text((self.width // 2, y + 38), "💖 매칭 호감도 100% • 주말 데이트 확정! 💖", font=self._get_font(15, bold=True), fill=(255, 255, 255, 255), anchor="mm")
+
+        # 4. 하단 메시지 입력창
+        draw.rounded_rectangle([20, self.height - 95, self.width - 20, self.height - 45], radius=24, fill=(30, 41, 59, 255), outline=(255, 255, 255, 30), width=1)
+        draw.text((45, self.height - 70), "✨ AI 첫대화 추천 가동 중...", font=self._get_font(15), fill=(148, 163, 184, 255), anchor="lm")
+        draw.text((self.width - 45, self.height - 70), "🎙️", font=self._get_font(20), anchor="mm")
 
     def _render_aura_diag(self, draw: ImageDraw.ImageDraw):
         f_title = self._get_font(26, bold=True)

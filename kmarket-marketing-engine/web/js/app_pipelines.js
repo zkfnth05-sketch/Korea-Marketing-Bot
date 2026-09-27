@@ -204,7 +204,7 @@ const APP_PIPELINES = {
                 hubNumber: 1,
                 name: "🎬 5대 옴니 숏폼 통합 팩토리",
                 icon: "🎬",
-                desc: "<b>🎬 [영상 AI 1회 렌더링]</b> (9:16 세로 영상 + 감성 배경음악 + AI 음성 TTS + 자막)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 유튜브 쇼츠 (YouTube Shorts)<br>➔ ② 틱톡 (TikTok)<br>➔ ③ 인스타그램 릴스 (Instagram Reels)<br>➔ ④ 페이스북 릴스 (Facebook Reels)<br>➔ ⑤ 네이버 클립 (Naver Clip)</div>"
+                desc: "<b>🎬 [8대 주제 무인 순차 렌더링]</b> (1번 탈출전화 ~ 8번 안심레이더 8개 숏폼 전편 순차 제작 + 5대 SNS 포스팅 가이드 자동 생성)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 유튜브 쇼츠 (YouTube Shorts)<br>➔ ② 틱톡 (TikTok)<br>➔ ③ 인스타그램 릴스 (Instagram Reels)<br>➔ ④ 페이스북 릴스 (Facebook Reels)<br>➔ ⑤ 네이버 클립 (Naver Clip)</div>"
             },
             // #2 [통합] 4대 옴니 카드뉴스 매거진
             {

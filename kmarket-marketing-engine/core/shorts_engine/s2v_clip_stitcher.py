@@ -286,12 +286,13 @@ class S2VClipStitcher:
         logger.info(f"✂️ [마스터 음성 슬라이스 완료] 1차(0~5.06s) -> {audio_name_p1}, 2차(5.06s~끝) -> {audio_name_p2}")
 
         # 3. [1차 샷 5초 렌더링 (순수 81프레임 워크플로우)]
-        input_name_p1 = f"easytax_s2v_p1_{lang}_{dt_str}.png"
+        brand_prefix = "aura" if "aura" in str(out_folder).lower() else "s2v"
+        input_name_p1 = f"{brand_prefix}_s2v_p1_{lang}_{dt_str}.png"
         input_path_p1 = os.path.join(self.wan_client.comfy_input_dir, input_name_p1)
         base_framed_img.save(input_path_p1)
 
         clip_p1_path = str(out_folder / f"temp_person_s2v_p1_{lang}.mp4")
-        prefix_p1 = f"easytax_s2v_p1_{lang}_{dt_str}"
+        prefix_p1 = f"{brand_prefix}_s2v_p1_{lang}_{dt_str}"
         logger.info(f"🎬 [1차 샷 렌더링] 384x672 (81프레임, 5.06초) 100% VRAM 단독 렌더링 시작...")
         self.wan_client.generate_s2v_video(
             image_name=input_name_p1,
@@ -333,13 +334,13 @@ class S2VClipStitcher:
             logger.info(f"🛡️ [안전 폴백 가동] 단정하고 완벽한 원본 마스터 사진 채택: {os.path.basename(input_path_p1)}")
 
         # ComfyUI input 디렉토리로 복사 (2차 샷 기준 이미지 주입)
-        input_name_p2 = f"easytax_s2v_p2_{lang}_{dt_str}.png"
+        input_name_p2 = f"{brand_prefix}_s2v_p2_{lang}_{dt_str}.png"
         input_path_p2 = os.path.join(self.wan_client.comfy_input_dir, input_name_p2)
         shutil.copyfile(last_frame_path, input_path_p2)
 
         # 6. [2차 샷 렌더링 (초롱초롱한 눈 기준 이미지 주입 -> 순수 81프레임 워크플로우)]
         clip_p2_path = str(out_folder / f"temp_person_s2v_p2_{lang}.mp4")
-        prefix_p2 = f"easytax_s2v_p2_{lang}_{dt_str}"
+        prefix_p2 = f"{brand_prefix}_s2v_p2_{lang}_{dt_str}"
         logger.info(f"🎬 [2차 샷 렌더링] 초롱초롱 눈매 프레임 직결 주입 -> 384x672 (81프레임, 5.06초) 100% VRAM 단독 렌더링 시작...")
         self.wan_client.generate_s2v_video(
             image_name=input_name_p2,

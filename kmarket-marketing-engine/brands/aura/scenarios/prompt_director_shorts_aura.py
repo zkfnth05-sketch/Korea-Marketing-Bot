@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 PromptDirectorShortsAura - 🎬 [Aura 데이팅 전용 8대 킬러 주제 숏폼 시나리오 & 프롬프트 디렉터]
-- 8대 킬러 주제 순환 (탈출 전화, 자막 통화, 50:50 게이트, 화보 보정, 밸런스 매칭, AI 카톡 비서, 아우라 진단, 500m 레이더)
+- 8대 킬러 주제 순환 (탈출 전화, 자막 통화, 50:50 게이트, 화보 보정, 밸런스 매칭, AI 첫대화 비서, 아우라 진단, 500m 레이더)
 - 첫 3초 후킹(Hook) + 핵심 본문(Speech Script) + 엔딩 논쟁 유도 멘트 + 공식 검색어 CTA
 - Wan 2.1 T2I 마스터컷 프롬프트 및 Wan 2.2 S2V 립싱크 헌법(입 다문 미소, 치아 노출 제로)
 - 공식 검색어: '아우라AI데이팅' (붙여쓰기 100% 고정)
@@ -80,15 +80,15 @@ AURA_SHORTS_TOPICS: Dict[int, Dict[str, Any]] = {
     6: {
         "id": 6,
         "key": "ai_icebreaker",
-        "title": "AI 카톡 비서",
-        "killer_weapon": "💬 읽씹 없는 첫인사 치트키",
-        "hook_3s": "소개팅 첫 카톡에서 '안녕하세요 주말에 뭐해요' 보내면 99% 읽씹 당합니다.",
-        "body_script": "AI가 상대방 취향과 가치관을 분석해서 1초 만에 티키타카 터지는 맞춤형 첫인사를 써줘요.",
-        "ending_debate": "소개팅 첫 카톡, 뭐라고 보내시나요?",
+        "title": "AI 첫대화 비서",
+        "killer_weapon": "💬 아우라 채팅방 읽씹 방지 첫마디 AI",
+        "hook_3s": "매칭되고 첫인사로 '안녕하세요 주말에 뭐해요' 보내면 99% 읽씹 당합니다.",
+        "body_script": "아우라 채팅방에선 AI가 상대 프로필과 취향을 분석해서 1초 만에 티키타카 터지는 맞춤형 첫마디를 띄워줘요.",
+        "ending_debate": "매칭 후 첫 메시지, 여러분은 뭐라고 보내시나요?",
         "ui_type": "ai_icebreaker",
-        "ui_overlay_text": "💬 AI 맞춤형 첫 대화 추천 (Icebreaker)",
+        "ui_overlay_text": "💬 아우라 AI 맞춤형 첫 대화 추천 (Icebreaker)",
         "default_voice_gender": "female",
-        "cta": "읽씹 없는 대화 치트키, 네이버에 아우라AI데이팅 검색해보세요."
+        "cta": "읽씹 없는 첫 대화 치트키, 네이버에 아우라AI데이팅 한번 검색해보세요."
     },
     7: {
         "id": 7,

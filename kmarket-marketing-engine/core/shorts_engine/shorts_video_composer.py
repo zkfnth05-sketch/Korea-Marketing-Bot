@@ -569,7 +569,8 @@ class ShortsVideoComposer:
         # 3-1. 숏폼 전용 경쾌한 BGM (도입부 인위적 SFX 배제, 순수 주인공 음성 집중)
         from core.bgm_manager import BGMManager
         bgm_mgr = BGMManager()
-        bgm_path = bgm_mgr.get_random_upbeat_bgm(service_id="easytax")
+        brand_key = "aura" if "aura" in str(output_mp4_path).lower() else visual_direction.get("brand_name", "easytax")
+        bgm_path = bgm_mgr.get_random_upbeat_bgm(service_id=brand_key)
         has_bgm = bool(bgm_path and os.path.exists(bgm_path))
         if has_bgm:
             logger.info(f"🎵 [BGM 탑재] 경쾌한 숏폼 배경음악 결합: {os.path.basename(bgm_path)} (volume=0.12)")
@@ -655,12 +656,13 @@ class ShortsVideoComposer:
                 audio_idx_bgm = next_input_idx
                 next_input_idx += 1
 
-            mix_inputs = ["[3:a]"]
+            mix_inputs = ["[voice_main]"]
             filter_complex = [
                 f"[0:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v0]",
                 f"[1:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v1]",
                 f"[2:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v2]",
                 "[v0][v1][v2]concat=n=3:v=1:a=0[v_final]",
+                "[3:a]asetpts=PTS-STARTPTS,volume=1.0,aresample=44100[voice_main]",
             ]
             if has_bgm:
                 filter_complex.append(f"[{audio_idx_bgm}:a]volume=0.12,aresample=44100[bgm_sub]")

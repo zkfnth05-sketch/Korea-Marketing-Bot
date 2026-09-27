@@ -313,20 +313,30 @@ class BGMManager:
         """
         직전 사용된 BGM과 연속으로 겹치지 않게 무작위로 다음 경쾌한 BGM 선택
         """
-        # 기존 단일 고정 파일이 있으면 후보군에 포함
-        available_files = [self.bgm_dir / item["filename"] for item in self.catalog if (self.bgm_dir / item["filename"]).exists()]
+        # 🎯 브랜드별 특화 BGM 풀 필터링
+        service_lower = str(service_id).lower()
+        if "aura" in service_lower:
+            # Aura 데이팅: 신스팝, 칠하우스, 어쿠스틱, 트로피컬, 케이팝 (돈 떨어지는 소리 0% 완전 배제)
+            aura_allowed_ids = ["bgm_03_synthpop", "bgm_04_chillhouse", "bgm_02_acoustic", "bgm_07_tropical", "bgm_08_kpopdance", "bgm_01_marimba", "bgm_05_whistle"]
+            pool = [item for item in self.catalog if item["id"] in aura_allowed_ids]
+        elif "easytax" in service_lower:
+            pool = self.catalog
+        else:
+            pool = self.catalog
+
+        # 풀 내 실제 존재하는 파일들만 선별
+        available_files = [self.bgm_dir / item["filename"] for item in pool if (self.bgm_dir / item["filename"]).exists()]
         
         # 파일이 없으면 즉시 생성 보장
         if not available_files:
             self.ensure_all_bgms_exist()
-            available_files = [self.bgm_dir / item["filename"] for item in self.catalog if (self.bgm_dir / item["filename"]).exists()]
+            available_files = [self.bgm_dir / item["filename"] for item in pool if (self.bgm_dir / item["filename"]).exists()]
 
         # 그래도 없으면 기본 wav 파일 탐색
         if not available_files:
             fallback = list(self.bgm_dir.glob("*.wav")) + list(self.bgm_dir.glob("*.mp3"))
             if fallback:
                 return fallback[0]
-            # 비상시 bgm_kmarket.wav 경로 반환
             return self.bgm_dir / "bgm_kmarket.wav"
 
         # 직전 곡과 다른 인덱스 무작위 선택 (셔플 로테이션)

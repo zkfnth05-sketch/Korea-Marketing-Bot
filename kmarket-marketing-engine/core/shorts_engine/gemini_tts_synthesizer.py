@@ -156,21 +156,22 @@ class GeminiTTSSynthesizer:
         rate: str = "+0%",
         pitch: Optional[str] = None,
         target_duration: Optional[float] = None,
-        filename_prefix: str = "speech"
+        filename_prefix: str = "speech",
+        voice_name: Optional[str] = None
     ) -> str:
         """
         BaseShortsProducer 및 S2VClipStitcher 표준 100% 호환 인터페이스
-        - Aoede (맑고 차분한 20대 여성) / Fenrir (깔끔한 20대 남성)
+        - Aoede (맑고 차분한 20대 여성) / Puck (세련된 2030 훈남 중저음 남성)
         - 16kHz 무손실 변환 및 무음 정밀 트리밍 적용
         """
         is_female = str(gender).lower() in ["female", "f", "여", "여성", "woman"]
-        voice_name = "Aoede" if is_female else "Fenrir"
+        v_name = voice_name or ("Aoede" if is_female else "Puck")
 
         out_wav_path = os.path.join(self.output_dir, f"{filename_prefix}_{lang}.wav")
         temp_wav_path = os.path.join(self.output_dir, f"{filename_prefix}_{lang}_raw24k.wav")
 
         # 1. 24kHz 원본 생성
-        self.synthesize(text=text, output_wav_path=temp_wav_path, voice_name=voice_name, sample_rate=24000)
+        self.synthesize(text=text, output_wav_path=temp_wav_path, voice_name=v_name, sample_rate=24000)
 
         # 2. FFmpeg 16kHz Mono 변환 (Wan 2.2 S2V 완벽 동기화)
         cmd = [

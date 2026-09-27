@@ -75,6 +75,20 @@ class AuraAppSimulator:
             preset_file = Path(__file__).parent / "presets" / "aura_cheongdam_before_after_sim.mp4"
         elif topic_id == 5:
             preset_file = Path(__file__).parent / "presets" / "aura_balance_match_card_sim.mp4"
+        elif topic_id == 6:
+            preset_file = Path(__file__).parent / "presets" / "aura_ai_icebreaker_sim.mp4"
+        elif topic_id == 7:
+            preset_file = Path(__file__).parent / "presets" / "aura_ai_diagnosis_report_sim.mp4"
+            if not preset_file.exists() or preset_file.stat().st_size == 0:
+                from .aura_diagnosis_playwright_recorder import AuraDiagnosisPlaywrightRecorder
+                recorder = AuraDiagnosisPlaywrightRecorder()
+                recorder.record_8s_diagnosis_simulation(str(preset_file))
+        elif topic_id == 8:
+            preset_file = Path(__file__).parent / "presets" / "aura_safe_radar_map_sim.mp4"
+            if not preset_file.exists() or preset_file.stat().st_size == 0:
+                from .aura_map_quest_playwright_recorder import AuraMapQuestPlaywrightRecorder
+                recorder = AuraMapQuestPlaywrightRecorder()
+                recorder.record_8s_map_quest_simulation(str(preset_file))
         else:
             preset_file = Path(__file__).parent / "presets" / "aura_escape_call_sim.mp4"
 
