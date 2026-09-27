@@ -309,14 +309,39 @@ class AuraShortsScenarioDirector:
     def get_full_scenario(
         cls,
         topic_id: int = 1,
-        gender: Optional[str] = None
+        gender: Optional[str] = None,
+        use_ai_script: bool = True
     ) -> Dict[str, Any]:
-        """EasyTax의 get_full_scenario와 100% 동일한 인터페이스 반환"""
+        """EasyTax의 get_full_scenario와 100% 동일한 인터페이스 반환 (제미나이 100% 자율 창작 대본 지원)"""
         norm_id = ((topic_id - 1) % len(cls.SCRIPTS_22S)) + 1
         s = cls.SCRIPTS_22S.get(norm_id, cls.SCRIPTS_22S[1])
 
         effective_gender = gender or s["gender"]
-        full_speech = f"{s['hook_0_10s']} {s['app_10_18s']} {s['cta_18_22s']}"
+
+        hook_p1 = s.get("hook_p1_5s", "")
+        hook_p2 = s.get("hook_p2_5s", "")
+        hook_full = s.get("hook_0_10s", f"{hook_p1} {hook_p2}")
+        app_speech = s.get("app_10_18s", "")
+        cta_speech = s.get("cta_18_22s", "")
+        debate_q = s.get("debate_question", "여러분의 생각은 어떠신가요?")
+
+        # 🤖 [제미나이 2.5 Flash 실시간 자율 대본 생성]
+        if use_ai_script:
+            try:
+                from brands.aura.aura_shorts_script_writer import AuraShortsScriptWriter
+                ai_script = AuraShortsScriptWriter().generate_dynamic_script(topic_id=norm_id)
+                if ai_script:
+                    hook_p1 = ai_script.get("hook_p1_5s", hook_p1)
+                    hook_p2 = ai_script.get("hook_p2_5s", hook_p2)
+                    hook_full = ai_script.get("hook_0_10s", hook_full)
+                    app_speech = ai_script.get("app_10_18s", app_speech)
+                    cta_speech = ai_script.get("cta_18_22s", cta_speech)
+                    debate_q = ai_script.get("debate_question", debate_q)
+                    logger.info(f"🎉 [Aura 시나리오] 주제 #{norm_id} 제미나이 100% 순수 자율 창작 대본 탑재 완료")
+            except Exception as e:
+                logger.warning(f"⚠️ [Aura 시나리오] 제미나이 대본 생성 중 예외 발생, 골든 대본 유지: {e}")
+
+        full_speech = f"{hook_full} {app_speech} {cta_speech}"
 
         visual_dir = {
             "top_header": s.get("top_header", ""),
@@ -332,12 +357,12 @@ class AuraShortsScenarioDirector:
             "theme_name": s["theme_name"],
             "theme_code": s["theme_code"],
             "gender": effective_gender,
-            "speech_hook": s["hook_0_10s"],
-            "speech_hook_part1": s.get("hook_p1_5s", ""),
-            "speech_hook_part2": s.get("hook_p2_5s", ""),
-            "speech_app": s["app_10_18s"],
-            "speech_cta": s["cta_18_22s"],
-            "debate_question": s.get("debate_question", "여러분의 생각은 어떠신가요?"),
+            "speech_hook": hook_full,
+            "speech_hook_part1": hook_p1,
+            "speech_hook_part2": hook_p2,
+            "speech_app": app_speech,
+            "speech_cta": cta_speech,
+            "debate_question": debate_q,
             "hero_copy": s.get("hero_copy", ""),
             "full_speech": full_speech,
             "visual_direction": visual_dir,

@@ -588,7 +588,8 @@ class ShortsVideoComposer:
             # 각 씬별 비디오 길이는 오디오 길이 + 자연스러운 여운(Tail Padding)을 반드시 보장
             dur_v0 = max(dur_person, (dur_hook_audio + 0.15) if dur_hook_audio > 0 else dur_person)
             dur_v1 = max(dur_app, (dur_app_audio + 0.40) if dur_app_audio > 0 else dur_app)  # 앱 시연 음성 종료 후 0.4초 숨고르기
-            dur_v2 = max(dur_cta, (dur_cta_audio + 0.60) if dur_cta_audio > 0 else dur_cta)  # CTA 검색어 발화 종료 후 0.6초 브랜딩 여운
+            dur_v2 = max(dur_cta, (dur_cta_audio + 0.35) if dur_cta_audio > 0 else dur_cta)  # CTA 검색어 발화 종료 후 0.35초 브랜딩 여운
+            dur_total_target = dur_v0 + dur_v1 + dur_v2
 
             cmd_inputs = [
                 "-i", clip_person_path,  # 0
@@ -642,6 +643,20 @@ class ShortsVideoComposer:
             )
             map_audio = "[a_final]"
         else:
+            # 🎯 [대본 음성 길이 기반 비디오 자동 완결]
+            dur_full_audio = self._get_video_duration(full_audio_path)
+            # 음성 종료 후 0.35초 브랜딩 여운 부여 후 자동 칼종료
+            dur_total_target = max(15.0, dur_full_audio + 0.35) if dur_full_audio > 0 else 22.0
+            
+            dur_v0 = dur_person
+            dur_v1 = dur_app
+            dur_v2 = max(1.5, dur_total_target - (dur_v0 + dur_v1))
+            
+            logger.info(f"⏱️ [ShortsVideoComposer] 음성 동기화 길이: 음성={dur_full_audio:.2f}s ➔ 최종={dur_total_target:.2f}s (인물={dur_v0:.2f}s, 앱={dur_v1:.2f}s, CTA={dur_v2:.2f}s)")
+
+            pad_v2 = max(0.0, dur_v2 - dur_cta)
+            v2_pad_filter = f",tpad=stop_mode=clone:stop_duration={pad_v2:.3f}" if pad_v2 > 0.05 else ""
+
             cmd_inputs = [
                 "-i", clip_person_path,
                 "-i", clip_app_path,
@@ -660,9 +675,9 @@ class ShortsVideoComposer:
             filter_complex = [
                 f"[0:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v0]",
                 f"[1:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v1]",
-                f"[2:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v2]",
+                f"[2:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30{v2_pad_filter},trim=0:{dur_v2:.2f},setpts=PTS-STARTPTS[v2]",
                 "[v0][v1][v2]concat=n=3:v=1:a=0[v_final]",
-                "[3:a]asetpts=PTS-STARTPTS,volume=1.0,aresample=44100[voice_main]",
+                f"[3:a]asetpts=PTS-STARTPTS,apad=whole_dur={dur_total_target:.2f},volume=1.0,aresample=44100[voice_main]",
             ]
             if has_bgm:
                 filter_complex.append(f"[{audio_idx_bgm}:a]volume=0.12,aresample=44100[bgm_sub]")
@@ -681,6 +696,7 @@ class ShortsVideoComposer:
             "-filter_complex", filter_str,
             "-map", "[v_final]",
             "-map", map_audio,
+            "-t", f"{dur_total_target:.2f}",
             "-c:v", "libx264",
             "-pix_fmt", "yuv420p",
             "-crf", "18",
