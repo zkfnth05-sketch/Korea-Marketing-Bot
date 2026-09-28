@@ -497,7 +497,8 @@ class ShortsVideoComposer:
         target_w: int = 1080,
         target_h: int = 1920,
         scene_audios: Optional[Dict[str, str]] = None,
-        clip_cta_path: Optional[str] = None
+        clip_cta_path: Optional[str] = None,
+        logo_overlay_path: Optional[str] = None
     ) -> str:
         """
         🎬 22초 완결형 하이브리드 숏폼 비디오 최종 결합 엔진
@@ -505,6 +506,7 @@ class ShortsVideoComposer:
         - Clip 2: 라이브 앱 시뮬레이션 (EasyTaxAppRecorder / AuraAppSimulator) -> 중앙 앱 시뮬레이터 100% 개방
         - Clip 3: 18~22초 안심 신뢰 보증 & CTA 카드 (또는 브랜드 전용 CTA 클립)
         - Overlays: 상단 타이틀 박스 + 하단 자막 박스 (실시간 테마 컬러 & 글자 이탈 0% 원천 차단)
+        - Logo Overlay: 브랜드 전용 22초 상단 고정 공식 로고 배지 (Aura 2030 MAGAZINE 등)
         - Audio: 3단 독립 씬 오디오(scene_audios)가 주어질 경우 씬 전환점과 발화 시점을 마이크로초 1:1 동기화
         """
         temp_dir = os.path.dirname(output_mp4_path)
@@ -575,6 +577,11 @@ class ShortsVideoComposer:
         if has_bgm:
             logger.info(f"🎵 [BGM 탑재] 경쾌한 숏폼 배경음악 결합: {os.path.basename(bgm_path)} (volume=0.12)")
 
+        # 3-2. 로고 오버레이 준비
+        has_logo = bool(logo_overlay_path and os.path.exists(logo_overlay_path))
+        if has_logo:
+            logger.info(f"🏷️ [로고 오버레이] 22초 상단 고정 브랜드 로고 탑재: {logo_overlay_path}")
+
         # 4. FFmpeg 복합 필터 구성 (음성이 끝날 때 비디오 자동 칼종료 동기화)
         use_multi_audio = bool(scene_audios and scene_audios.get("hook") and scene_audios.get("app") and scene_audios.get("cta"))
 
@@ -600,11 +607,17 @@ class ShortsVideoComposer:
                 "-i", scene_audios["cta"],  # 5
             ]
             audio_idx_bgm = None
+            logo_idx = None
             next_input_idx = 6
 
             if has_bgm:
                 cmd_inputs.extend(["-stream_loop", "-1", "-i", str(bgm_path)])
                 audio_idx_bgm = next_input_idx
+                next_input_idx += 1
+
+            if has_logo:
+                cmd_inputs.extend(["-i", str(logo_overlay_path)])
+                logo_idx = next_input_idx
                 next_input_idx += 1
 
             # 비디오가 오디오보다 짧으면 마지막 프레임을 정지 화면으로 홀드(tpad)하여 음성 완결 보장
@@ -617,20 +630,27 @@ class ShortsVideoComposer:
             pad_v2 = max(0.0, dur_v2 - dur_cta)
             v2_pad_filter = f",tpad=stop_mode=clone:stop_duration={pad_v2:.3f}" if pad_v2 > 0.05 else ""
 
+            v_concat_tag = "v_concat" if has_logo else "v_final"
+
             filter_complex = [
                 # 비디오 3단 스케일 + 오디오 길이에 맞춘 tpad 홀드 & trim (화면 끊김 0%)
                 f"[0:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30{v0_pad_filter},trim=0:{dur_v0:.2f},setpts=PTS-STARTPTS[v0]",
                 f"[1:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30{v1_pad_filter},trim=0:{dur_v1:.2f},setpts=PTS-STARTPTS[v1]",
                 f"[2:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30{v2_pad_filter},trim=0:{dur_v2:.2f},setpts=PTS-STARTPTS[v2]",
-                # 순수 고화질 1080x1920 세로 풀화면
-                "[v0][v1][v2]concat=n=3:v=1:a=0[v_final]",
+                # 순수 고화질 1080x1920 세로 풀화면 결합
+                f"[v0][v1][v2]concat=n=3:v=1:a=0[{v_concat_tag}]",
+            ]
 
-                # 오디오 3단 100% 무손실 보존 + 씬 싱크 후미 무음 apad (음성 절단 0% 영구 불변)
+            if has_logo:
+                filter_complex.append(f"[v_concat][{logo_idx}:v]overlay=0:0[v_final]")
+
+            # 오디오 3단 100% 무손실 보존 + 씬 싱크 후미 무음 apad (음성 절단 0% 영구 불변)
+            filter_complex.extend([
                 f"[3:a]asetpts=PTS-STARTPTS,apad=whole_dur={dur_v0:.2f}[a0]",
                 f"[4:a]asetpts=PTS-STARTPTS,apad=whole_dur={dur_v1:.2f}[a1]",
                 f"[5:a]asetpts=PTS-STARTPTS,apad=whole_dur={dur_v2:.2f}[a2]",
                 "[a0][a1][a2]concat=n=3:v=0:a=1,volume=1.0,aresample=44100[voice_main]",
-            ]
+            ])
 
             # 오디오 믹싱 (Voice 100% + BGM 은은한 12%)
             mix_inputs = ["[voice_main]"]
@@ -664,6 +684,7 @@ class ShortsVideoComposer:
                 "-i", full_audio_path,
             ]
             audio_idx_bgm = None
+            logo_idx = None
             next_input_idx = 4
 
             if has_bgm:
@@ -671,14 +692,28 @@ class ShortsVideoComposer:
                 audio_idx_bgm = next_input_idx
                 next_input_idx += 1
 
+            if has_logo:
+                cmd_inputs.extend(["-i", str(logo_overlay_path)])
+                logo_idx = next_input_idx
+                next_input_idx += 1
+
+            v_concat_tag = "v_concat" if has_logo else "v_final"
+
             mix_inputs = ["[voice_main]"]
             filter_complex = [
                 f"[0:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v0]",
                 f"[1:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v1]",
                 f"[2:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30{v2_pad_filter},trim=0:{dur_v2:.2f},setpts=PTS-STARTPTS[v2]",
-                "[v0][v1][v2]concat=n=3:v=1:a=0[v_final]",
-                f"[3:a]asetpts=PTS-STARTPTS,apad=whole_dur={dur_total_target:.2f},volume=1.0,aresample=44100[voice_main]",
+                f"[v0][v1][v2]concat=n=3:v=1:a=0[{v_concat_tag}]",
             ]
+
+            if has_logo:
+                filter_complex.append(f"[v_concat][{logo_idx}:v]overlay=0:0[v_final]")
+
+            filter_complex.append(
+                f"[3:a]asetpts=PTS-STARTPTS,apad=whole_dur={dur_total_target:.2f},volume=1.0,aresample=44100[voice_main]"
+            )
+
             if has_bgm:
                 filter_complex.append(f"[{audio_idx_bgm}:a]volume=0.12,aresample=44100[bgm_sub]")
                 mix_inputs.append("[bgm_sub]")

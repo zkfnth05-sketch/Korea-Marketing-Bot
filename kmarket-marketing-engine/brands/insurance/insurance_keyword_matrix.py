@@ -240,43 +240,50 @@ class InsuranceKeywordMatrix:
         self.matrix_cache = matrix_result
         return matrix_result
 
-    # =========================================================================
-    # 🤖 4. 제미나이(Gemini) SEO 원고 프롬프트 패키징 브릿지
-    # =========================================================================
-    def build_seo_article_brief(self, seed_topic: str, category: str = "health_medical") -> Dict[str, Any]:
+    def get_live_hashtags(self, topic_id: int = 1, base_tags: Optional[List[str]] = None, count: int = 10) -> List[str]:
         """
-        시드 주제 + 실시간 네이버 스마트블록 키워드 + 실시간 트렌드 해시태그를 완벽하게 결합한 브리프 생성
+        🛡️ [실시간 4단 결합 보험 바이럴 해시태그]
+        [1] 브랜드 고정 태그 (#보험리밸런스, #shorts)
+        [2] 주제별 핵심 타깃 태그 (base_tags)
+        [3] 네이버 실시간 검색 1위 연관 보험 키워드
+        [4] 대한민국(KR) 실시간 급상승 트렌드 태그
         """
-        cat_info = self.matrix_cache.get("categories", {}).get(category, {})
-        if not cat_info:
-            cat_info = list(self.matrix_cache.get("categories", {}).values())[0] if self.matrix_cache.get("categories") else {}
-
-        naver_keys = cat_info.get("naver_top_keywords", ["실손보험 비교", "4세대 실비"])[:4]
-        google_keys = cat_info.get("google_top_keywords", ["실손보험 갱신", "보험료 다이어트"])[:4]
-        hashtags = cat_info.get("viral_hashtags", ["#보험리밸런스", "#보험비교", "#실손보험", "#가계부절약"])[:10]
-        feature = cat_info.get("feature", "InsureBalance AI 실시간 보장 분석")
-
-        # 네이버 스마트블록용 제목 키워드
-        title_keywords = [
-            f"{naver_keys[0] if naver_keys else seed_topic} 핵심 정리",
-            f"{naver_keys[0] if naver_keys else seed_topic} 손해 안 보는 법",
-            f"{naver_keys[0] if naver_keys else seed_topic} 보장 비교"
-        ]
-
-        subheading_keywords = [
-            f"1. {naver_keys[0] if naver_keys else seed_topic} 꼭 알아야 할 핵심 포인트",
-            f"2. {google_keys[0] if google_keys else '실제 가입'} 주의사항과 체크리스트",
-            f"3. 불필요한 고정비 다이어트와 리밸런싱 전략"
-        ]
-
-        return {
-            "category": category,
-            "seed_topic": seed_topic,
-            "seo_title_keywords": title_keywords,
-            "h2_h3_subheading_keywords": subheading_keywords,
-            "viral_hashtags": hashtags,
-            "scoped_seeds": naver_keys + google_keys[:2]
+        topic_cat_map = {
+            1: "health_medical",     # 실손
+            2: "auto_driver",        # 운전자
+            3: "health_medical",     # 암
+            4: "health_medical",     # 뇌심장
+            5: "savings_annuity",    # 종신
+            6: "life_dental_pet",    # 어린이
+            7: "life_dental_pet",    # 치아
+            8: "health_medical"      # 수술비
         }
+        cat_key = topic_cat_map.get(topic_id, "health_medical")
+        cat_info = self.matrix_cache.get("categories", {}).get(cat_key, {})
+
+        cat_viral = cat_info.get("viral_hashtags", [])[:3]
+        kr_trends = self.matrix_cache.get("google_kr_live_trends", [])[:2]
+        kr_trend_tags = [f"#{t.replace(' ', '')}" if not t.startswith('#') else t for t in kr_trends]
+
+        combined = []
+        if base_tags:
+            combined.extend(base_tags)
+        combined.extend(cat_viral)
+        combined.extend(kr_trend_tags)
+        combined.extend(["#보험리밸런스", "#보험다이어트", "#shorts"])
+
+        unique_tags = []
+        for t in combined:
+            tag = t.strip()
+            if not tag.startswith("#"):
+                tag = f"#{tag}"
+            if tag not in unique_tags and len(tag) > 1:
+                unique_tags.append(tag)
+        return unique_tags[:count]
+
+    def get_dashboard_summary(self) -> Dict[str, Any]:
+        """대시보드 연동용 JSON 반환"""
+        return self.matrix_cache
 
 
 if __name__ == "__main__":

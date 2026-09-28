@@ -67,3 +67,4 @@ naver_browser_profile/
 **/naver_browser_profile/
 scratch_*.py
 debug_*.py
+*_cache.json

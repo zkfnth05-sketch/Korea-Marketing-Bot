@@ -350,11 +350,19 @@ class AuraSNSGuideGenerator:
         yt_title = data["yt_title"]
         yt_desc = data["yt_desc"]
         pinned_comment = data["pinned_comment"]
-        tiktok_caption = data["tiktok_caption"]
-        reels_caption = data["reels_caption"]
-        threads_text = data["threads_text"]
-        fb_text = data["fb_text"]
-        hashtags = data["hashtags"]
+        tiktok_caption = data.get("tiktok_caption", "")
+        reels_caption = data.get("reels_caption", "")
+        threads_text = data.get("threads_text", "")
+        fb_text = data.get("fb_text", "")
+        # 🌟 실시간 바이럴 해시태그 융합 (AuraKeywordMatrix 실시간 검색 트렌드 + 2030 네이버/구글 핫키워드)
+        base_raw_tags = data.get("hashtags", "").split()
+        try:
+            from brands.aura.aura_keyword_matrix import AuraKeywordMatrix
+            matrix = AuraKeywordMatrix()
+            live_tag_list = matrix.get_live_hashtags(topic_id=norm_id, base_tags=base_raw_tags, count=10)
+            hashtags = " ".join(live_tag_list)
+        except Exception:
+            hashtags = data["hashtags"]
 
         speech_summary = speech_hook or "2030 프리미엄 AI 데이팅 아우라 핵심 기능 소개"
 

@@ -94,6 +94,16 @@ class GeminiTTSSynthesizer:
         out_p.parent.mkdir(parents=True, exist_ok=True)
         v_name = voice_name or self.default_voice
 
+        if not text or not text.strip():
+            # 빈 텍스트인 경우 0.1초 무음 WAV 생성 후 즉시 반환
+            with wave.open(str(out_p), "wb") as wf:
+                wf.setnchannels(1)
+                wf.setsampwidth(2)
+                wf.setframerate(sample_rate)
+                wf.writeframes(b"\x00" * int(sample_rate * 0.1 * 2))
+            logger.info(f"🔇 [GeminiTTSSynthesizer] 빈 텍스트 무음 처리 완료 -> {out_p.name}")
+            return str(out_p)
+
         if not self.api_keys:
             raise RuntimeError("사용 가능한 Gemini API 키가 없습니다.")
 
@@ -122,6 +132,9 @@ class GeminiTTSSynthesizer:
                         )
                     )
                 )
+
+                if not response.candidates or not response.candidates[0].content or not response.candidates[0].content.parts:
+                    raise RuntimeError("Gemini API로부터 음성 파트를 수신하지 못했습니다.")
 
                 raw_pcm = response.candidates[0].content.parts[0].inline_data.data
                 if not raw_pcm:

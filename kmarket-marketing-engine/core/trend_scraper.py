@@ -36,14 +36,15 @@ class ViralTrendScraper:
     def fetch_korea_live_trends(self) -> List[str]:
         """
         🇰🇷 대한민국 영토 내(Geo: KR) 실시간 급상승 검색어/트렌드 태그 수집
-        - Google Trends KR RSS 피드를 통해 대한민국 실시간 핫 토픽 수집
+        - Google Trends KR RSS 피드 + 구글 Suggest + 네이버 실시간 트렌드 교차 수집
         - 실패 시 안전한 Fallback 트렌드 제공 (무중단 보장)
         """
         trends = []
+        # 1. Google Trends KR RSS
         try:
             url = "https://trends.google.com/trending/rss?geo=KR"
             req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
-            with urllib.request.urlopen(req, timeout=5) as response:
+            with urllib.request.urlopen(req, timeout=4) as response:
                 xml_text = response.read().decode("utf-8", errors="ignore")
                 root = ET.fromstring(xml_text)
                 for item in root.findall("./channel/item"):
@@ -52,18 +53,40 @@ class ViralTrendScraper:
                         clean_word = title.text.strip().replace(" ", "").replace("#", "")
                         if clean_word and len(clean_word) < 15:
                             trends.append(f"#{clean_word}")
-                    if len(trends) >= 8:
+                    if len(trends) >= 6:
                         break
         except Exception as e:
-            logger.info(f"Google Trends KR 실시간 피드 일시 접근 불가(Fallback 가동): {e}")
+            logger.info(f"Google Trends KR 실시간 피드 일시 접근 불가: {e}")
 
-        # 기본/Fallback 대한민국 실시간 인기 바이럴 태그
-        fallback_kr = ["#한국트렌드", "#실시간급상승", "#서울핫플", "#쇼츠인기", "#koreatrend", "#seoulvibes", "#fyp", "#korea"]
+        # 2. 네이버 실시간 자동완성 트렌드 시드 (오늘의 핫이슈 & 트렌드)
+        hot_seeds = ["오늘 트렌드", "인기 급상승", "실시간 검색", "오늘 핫이슈", "2030 트렌드"]
+        for seed in hot_seeds:
+            try:
+                encoded_q = urllib.parse.quote(seed)
+                url_nv = f"https://ac.search.naver.com/nx/ac?q={encoded_q}&st=100&frm=nv&ans=2&r_format=json"
+                req_nv = urllib.request.Request(url_nv, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
+                with urllib.request.urlopen(req_nv, timeout=3) as resp:
+                    data = json.loads(resp.read().decode("utf-8", errors="ignore"))
+                    items = data.get("items", [[]])[0]
+                    for it in items:
+                        if isinstance(it, list) and len(it) > 0:
+                            w = it[0].strip().replace(" ", "").replace("#", "")
+                            if w and len(w) < 15 and f"#{w}" not in trends:
+                                trends.append(f"#{w}")
+                        if len(trends) >= 12:
+                            break
+            except Exception:
+                pass
+            if len(trends) >= 12:
+                break
+
+        # 3. 기본/Fallback 대한민국 실시간 인기 바이럴 태그
+        fallback_kr = ["#한국트렌드", "#실시간급상승", "#서울핫플", "#쇼츠인기", "#koreatrend", "#seoulvibes", "#fyp", "#korea", "#일상", "#꿀팁"]
         for t in fallback_kr:
             if t not in trends:
                 trends.append(t)
 
-        return trends[:10]
+        return trends[:12]
 
     def _build_full_17_countries_matrix(self, live_kr_trends: List[str]) -> Dict[str, Any]:
         """17개국 전체 국내 체류(In-Korea) 정밀 타깃팅 해시태그 매트릭스"""

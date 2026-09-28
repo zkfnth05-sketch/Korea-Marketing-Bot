@@ -1864,7 +1864,11 @@ class DashboardHandler(BaseHTTPRequestHandler):
     def _handle_get_hashtags(self):
         parsed = urllib.parse.urlparse(self.path)
         qs = urllib.parse.parse_qs(parsed.query)
-        brand = qs.get("brand", ["kmarket"])[0].lower()
+        brand = qs.get("brand", ["aura"])[0].lower()
+
+        from core.trend_scraper import ViralTrendScraper
+        scraper = ViralTrendScraper()
+        kr_live_trends = scraper.fetch_korea_live_trends()
 
         if brand == "aura":
             try:
@@ -1872,15 +1876,33 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 matrix = AuraKeywordMatrix()
                 data = matrix.get_dashboard_summary()
                 self._set_headers("application/json")
-                self.wfile.write(json.dumps({"brand": "aura", "hashtags": data}, ensure_ascii=False).encode("utf-8"))
+                self.wfile.write(json.dumps({"brand": "aura", "hashtags": data, "kr_live_trends": kr_live_trends}, ensure_ascii=False).encode("utf-8"))
                 return
             except Exception as e:
                 log_event(f"⚠️ Aura 키워드 로드 실패: {e}", "warning")
+        elif brand in ["insurance", "insure"]:
+            try:
+                from brands.insurance.insurance_keyword_matrix import InsuranceKeywordMatrix
+                matrix = InsuranceKeywordMatrix()
+                data = matrix.get_dashboard_summary()
+                self._set_headers("application/json")
+                self.wfile.write(json.dumps({"brand": "insurance", "hashtags": data, "kr_live_trends": kr_live_trends}, ensure_ascii=False).encode("utf-8"))
+                return
+            except Exception as e:
+                log_event(f"⚠️ Insurance 키워드 로드 실패: {e}", "warning")
+        elif brand in ["stock", "stockmaster"]:
+            try:
+                from brands.stock.stock_keyword_matrix import StockKeywordMatrix
+                matrix = StockKeywordMatrix()
+                data = matrix.get_dashboard_summary()
+                self._set_headers("application/json")
+                self.wfile.write(json.dumps({"brand": "stock", "hashtags": data, "kr_live_trends": kr_live_trends}, ensure_ascii=False).encode("utf-8"))
+                return
+            except Exception as e:
+                log_event(f"⚠️ Stock 키워드 로드 실패: {e}", "warning")
 
-        from core.trend_scraper import ViralTrendScraper
-        scraper = ViralTrendScraper()
         self._set_headers("application/json")
-        self.wfile.write(json.dumps({"hashtags": scraper.hashtag_db}).encode("utf-8"))
+        self.wfile.write(json.dumps({"brand": brand, "hashtags": scraper.hashtag_db, "kr_live_trends": kr_live_trends}, ensure_ascii=False).encode("utf-8"))
 
     def _handle_get_ir_analytics(self):
         from core.ir_analytics import IRAnalyticsEngine
@@ -1969,13 +1991,45 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 return
             except Exception as e:
                 log_event(f"⚠️ Aura 키워드 갱신 오류: {e}", "warning")
+        elif brand in ["insurance", "insure"]:
+            try:
+                from brands.insurance.insurance_keyword_matrix import InsuranceKeywordMatrix
+                matrix = InsuranceKeywordMatrix()
+                data = matrix.refresh_all_categories()
+                log_event("🛡️ [보험 리밸런스] 실시간 네이버 & 구글 키워드 매트릭스가 새로고침되었습니다.", "success")
+                self._set_headers("application/json")
+                self.wfile.write(json.dumps({
+                    "success": True,
+                    "message": "🛡️ 보험 리밸런스 실시간 네이버/구글 바이럴 키워드가 성공적으로 갱신되었습니다.",
+                    "brand": "insurance",
+                    "hashtags": data
+                }, ensure_ascii=False).encode("utf-8"))
+                return
+            except Exception as e:
+                log_event(f"⚠️ Insurance 키워드 갱신 오류: {e}", "warning")
+        elif brand in ["stock", "stockmaster"]:
+            try:
+                from brands.stock.stock_keyword_matrix import StockKeywordMatrix
+                matrix = StockKeywordMatrix()
+                data = matrix.refresh_all_categories()
+                log_event("📈 [StockMaster] 실시간 네이버 & 구글 주식 키워드 매트릭스가 새로고침되었습니다.", "success")
+                self._set_headers("application/json")
+                self.wfile.write(json.dumps({
+                    "success": True,
+                    "message": "📈 StockMaster 실시간 네이버/구글 주식 키워드가 성공적으로 갱신되었습니다.",
+                    "brand": "stock",
+                    "hashtags": data
+                }, ensure_ascii=False).encode("utf-8"))
+                return
+            except Exception as e:
+                log_event(f"⚠️ Stock 키워드 갱신 오류: {e}", "warning")
 
         from core.trend_scraper import ViralTrendScraper
         scraper = ViralTrendScraper()
         data = scraper.refresh_daily_trends()
-        log_event("📈 17개국 실시간 바이럴 해시태그 트렌드가 새로고침되었습니다.", "success")
+        log_event("📈 실시간 바이럴 해시태그 트렌드가 새로고침되었습니다.", "success")
         self._set_headers("application/json")
-        self.wfile.write(json.dumps({"success": True, "message": "17개국 실시간 바이럴 해시태그가 성공적으로 갱신되었습니다.", "hashtags": data}).encode("utf-8"))
+        self.wfile.write(json.dumps({"success": True, "message": "실시간 바이럴 해시태그가 성공적으로 갱신되었습니다.", "hashtags": data}).encode("utf-8"))
 
     def _handle_get_outputs(self):
         items = []

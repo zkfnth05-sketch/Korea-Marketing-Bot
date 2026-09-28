@@ -264,6 +264,40 @@ class AuraKeywordMatrix:
             all_keywords.extend(cat.get("ranked_keywords", [])[:2])
         return list(dict.fromkeys(all_keywords))[:count]
 
+    def get_live_hashtags(self, topic_id: int = 1, base_tags: Optional[List[str]] = None, count: int = 10) -> List[str]:
+        """
+        🔥 [실시간 4단 결합 바이럴 해시태그]
+        [1] 브랜드 고정 태그 (#아우라AI데이팅, #Shorts, #Reels, #TikTok)
+        [2] 주제별 핵심 타깃 태그 (base_tags)
+        [3] 네이버 실시간 검색 1위 연관 키워드 태그
+        [4] 대한민국(KR) 실시간 급상승 트렌드 태그
+        """
+        # 주제별 매핑 카테고리
+        cat_keys = list(self.CATEGORY_SEEDS.keys())
+        cat_key = cat_keys[(topic_id - 1) % len(cat_keys)]
+        cat_info = self.matrix_cache.get("categories", {}).get(cat_key, {})
+        
+        cat_viral = cat_info.get("viral_hashtags", [])[:3]
+        kr_trends = self.matrix_cache.get("google_kr_live_trends", [])[:2]
+        kr_trend_tags = [f"#{t.replace(' ', '')}" if not t.startswith('#') else t for t in kr_trends]
+
+        combined = []
+        if base_tags:
+            combined.extend(base_tags)
+        combined.extend(cat_viral)
+        combined.extend(kr_trend_tags)
+        combined.extend(["#아우라AI데이팅", "#소개팅앱", "#Shorts", "#Reels", "#TikTok"])
+
+        # 중복 제거 및 형식 정제
+        unique_tags = []
+        for t in combined:
+            tag = t.strip()
+            if not tag.startswith("#"):
+                tag = f"#{tag}"
+            if tag not in unique_tags and len(tag) > 1:
+                unique_tags.append(tag)
+        return unique_tags[:count]
+
     def build_seo_article_brief(self, seed_topic: str, category: str = "kakaotalk_signals") -> Dict[str, Any]:
         """
         시드 주제 + 네이버 스마트블록 키워드 + 구글 질문 키워드 + Aura 전환 CTA를
