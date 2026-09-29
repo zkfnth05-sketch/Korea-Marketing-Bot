@@ -158,6 +158,19 @@ class InsuranceShortsScriptWriter:
   "debate_question": "10자 내외 질문"
 }}"""
 
+        # 🆕 [무한 변주 엔진] 오늘의 훅 아키타입 지시를 프롬프트 끝에 추가
+        try:
+            from core.variation_engine.insurance_hook_variator import InsuranceHookVariator
+            hook_injection = InsuranceHookVariator().build_hook_injection(
+                topic_id=norm_id,
+                topic_title=info['title'],
+                topic_concept=info['concept'],
+                app_sim_visual=info['app_sim_visual'],
+            )
+            prompt = prompt + hook_injection
+        except Exception as e:
+            logger.debug(f"[보험 변주 엔진] 로드 실패 (기존 프롬프트로 진행): {e}")
+
         if not self.key_chain:
             logger.warning("🔑 [보험 자율 대본] 유효한 Gemini API 키가 없습니다. 골든 대본으로 폴백합니다.")
             return None

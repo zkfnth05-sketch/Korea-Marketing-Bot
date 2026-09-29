@@ -122,6 +122,19 @@ class StockGemini30sScriptWriter:
 4. **[출력 포맷]**: 설명, 인사말, 따옴표 없이 **순수 성우가 읽을 한국어 본문 텍스트만** 한 단락으로 출력할 것.
 """
 
+        # 🆕 [무한 변주 엔진] 오늘의 훅 아키타입 지시를 프롬프트 끝에 추가
+        try:
+            from core.variation_engine.stock_hook_variator import StockHookVariator
+            hook_injection = StockHookVariator().build_hook_injection(
+                topic_id=topic_id,
+                topic_title=f"주식 30초 주제 {topic_id}",
+                topic_concept=specific_topic_guide,
+                app_sim_visual="실시간 퀀트 전광판 및 4대 모달 화면",
+            )
+            prompt = prompt + hook_injection
+        except Exception as e:
+            logger.debug(f"[Stock 변주 엔진] 로드 실패 (기존 프롬프트로 진행): {e}")
+
         # Gemini 자율 생성 시도 (Gemini 2.5 Flash 생각 예산 0으로 설정하여 210~230자 순수 대본 즉시 출력)
         model_candidates = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
         for attempt in range(max(1, len(self.api_keys)) * 2):
