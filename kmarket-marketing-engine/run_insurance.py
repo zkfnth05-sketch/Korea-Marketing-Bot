@@ -53,6 +53,65 @@ def main():
         print(f"  3. 🟡 카카오/브런치: {channels.get('brunch', {}).get('status')} -> URL: {channels.get('brunch', {}).get('post_url', '-')}")
         return
 
+    # ── [숏폼 마스터 사진 단독 생성 옵션] ──
+    if "--shorts-photo" in sys.argv or "-sp" in sys.argv:
+        force_topic = 4
+        force_seed = None
+        for i, arg in enumerate(sys.argv):
+            if arg in ["--topic", "--topic-id", "-t"] and i + 1 < len(sys.argv):
+                try:
+                    force_topic = int(sys.argv[i + 1])
+                except ValueError:
+                    pass
+            if arg in ["--seed", "-s"] and i + 1 < len(sys.argv):
+                try:
+                    force_seed = int(sys.argv[i + 1])
+                except ValueError:
+                    pass
+
+        print("\n==============================================")
+        print(f"🛡️ [보험 리밸런스] 실사 인물 마스터 사진 단독 생산 파이프라인")
+        print(f"📌 대상 주제: #{force_topic} | Seed: {force_seed or '랜덤'}")
+        print("==============================================\n")
+
+        from brands.insurance.insurance_shorts_pipeline import InsuranceShortsPipeline
+        pipeline = InsuranceShortsPipeline()
+        res = pipeline.produce_master_photo(topic_id=force_topic, seed=force_seed)
+
+        print("\n[🎉 마스터 사진 생성 결과 요약]:")
+        print(f"  - 📚 주제 번호: #{res['topic_id']} [{res['theme_name']}]")
+        print(f"  - 🖼️ 이미지 규격: {res['image_size']}")
+        print(f"  - 💾 저장 경로: {res['photo_path']}")
+        print(f"  - 📂 폴더 경로: {res['folder_path']}")
+        return
+
+    # ── [숏폼 22초 풀 비디오 생성 옵션] ──
+    if "--shorts" in sys.argv or "-sh" in sys.argv:
+        force_topic = 4
+        force_seed = None
+        for i, arg in enumerate(sys.argv):
+            if arg in ["--topic", "--topic-id", "-t"] and i + 1 < len(sys.argv):
+                try:
+                    force_topic = int(sys.argv[i + 1])
+                except ValueError:
+                    pass
+            if arg in ["--seed", "-s"] and i + 1 < len(sys.argv):
+                try:
+                    force_seed = int(sys.argv[i + 1])
+                except ValueError:
+                    pass
+
+        print("\n==============================================")
+        print(f"🛡️ [보험 리밸런스] 22초 하이브리드 숏폼 비디오 풀 프로덕션 가동")
+        print(f"📌 대상 주제: #{force_topic} | Seed: {force_seed or '자율 생성'}")
+        print("==============================================\n")
+
+        from brands.insurance.insurance_shorts_pipeline import InsuranceShortsPipeline
+        pipeline = InsuranceShortsPipeline()
+        mp4_path = pipeline.produce(topic_id=force_topic, seed=force_seed)
+        print(f"\n[🎉 숏폼 완성본 비디오]: {mp4_path}")
+        return
+
     # ── [지식iN 단독 실행 옵션] ──
     if "--kin-now" in sys.argv or "-kn" in sys.argv:
         is_live = "--live" in sys.argv

@@ -97,14 +97,40 @@ class AuraShortsScriptWriter:
 
     def generate_dynamic_script(self, topic_id: int = 1) -> Optional[Dict[str, Any]]:
         """
-        주제 ID(1~8)에 맞춰 제미나이가 100% 자율 창작한 22초 대본 딕셔너리 반환.
+        주제 ID(1~8)에 맞춰 우리가 검증한 골든 대본을 [기준 원본 뼈대]로 제미나이에 주입하여,
+        핵심 팩트와 웹앱 플로우를 100% 온전히 유지하면서 세련된 2030 어조/글자수를 최적화한 대본 생성.
         실패 시 None을 반환하여 기존 골든 대본으로 자동 폴백.
         """
         norm_id = ((topic_id - 1) % len(AURA_8_TOPIC_CONCEPTS)) + 1
         info = AURA_8_TOPIC_CONCEPTS.get(norm_id, AURA_8_TOPIC_CONCEPTS[1])
 
+        # 🌟 [우리가 검증한 골든 대본 기준 원본 로드]
+        try:
+            from core.shorts_engine.aura_shorts_scenario_director import AuraShortsScenarioDirector
+            golden = AuraShortsScenarioDirector.SCRIPTS_22S.get(norm_id, {})
+        except Exception:
+            golden = {}
+
+        ref_hook_p1 = golden.get("hook_p1_5s", "")
+        ref_hook_p2 = golden.get("hook_p2_5s", "")
+        ref_app = golden.get("app_10_18s", "")
+        ref_cta = golden.get("cta_18_22s", "")
+        ref_debate = golden.get("debate_question", "이 기능, 센스다 vs 너무하다?")
+
         prompt = f"""당신은 청담/성수동 감성의 세련되고 지적이며 매력적인 2030 여성 앵커(인플루언서)입니다.
-아래 기능 상황을 바탕으로, 2030 세대가 깊이 공감할 수 있는 22초 숏폼 발화 대본을 세련되고 품격 있는 구어체로 100% 새롭게 창작해주세요.
+아래 제공된 [기준 원본 골든 대본]과 Aura 앱 기능 정보를 바탕으로, 2030 세대가 깊이 공감할 수 있는 22초 숏폼 발화 대본을 완성해주세요.
+
+[★ 핵심 원칙 (절대 불변)]
+1. 아래 [기준 원본 골든 대본]에 담긴 **스토리 라인, 핵심 팩트(가짜 긴급 호출, 실시간 번역 자막, 50:50 정원제 등), 실제 Aura 앱 작동 방식을 100% 온전히 계승**하세요.
+2. 임의로 없는 기능을 상상해서 지어내거나 팩트를 왜곡하지 마세요.
+3. [기준 원본 골든 대본]의 뼈대를 바탕으로, 성수/청담동 감성의 세련되고 품격 있는 2030 대화체와 정확한 글자수 규격에 맞춰 가장 매끄럽고 자연스러운 발화문으로 정밀 다듬기하세요.
+
+[기준 원본 골든 대본 (Ground Truth Reference)]
+- 기준 훅 1 (0~5초): {ref_hook_p1}
+- 기준 훅 2 (5~10초): {ref_hook_p2}
+- 기준 웹앱 시연 (10~18초): {ref_app}
+- 기준 CTA (18~22초): {ref_cta}
+- 기준 토론 질문: {ref_debate}
 
 [어조 및 톤앤매너 (절대 준수)]
 - 성수/청담동 감성의 세련되고 깔끔한 2030 직장인 대화체 (~하셨던 분들 계시죠?, ~하면 정말 편해요, ~해보셨나요?, ~만나보세요)

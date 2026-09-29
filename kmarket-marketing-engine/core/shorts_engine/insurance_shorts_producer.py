@@ -350,7 +350,13 @@ class InsuranceShortsProducer(BaseShortsProducer):
         final_mp4_name = f"Insurance_22초숏폼_주제{topic_id:02d}_{scenario.get('theme_code', 'topic')}_{dt_str}.mp4"
         final_mp4_path = str(out_folder / final_mp4_name)
 
-        logger.info("✨ [Step 6] 1080p 세로 풀HD 22초 하이브리드 비디오 최종 컴포징 (단일 통음성 직결, 클린 뷰)...")
+        scene_audios = {
+            "hook": person_audio_path,
+            "app": app_wav_path,
+            "cta": cta_wav_path if (cta_wav_path and os.path.exists(cta_wav_path)) else None
+        }
+
+        logger.info("✨ [Step 6] 1080p 세로 풀HD 22초 하이브리드 비디오 최종 컴포징 (씬별 정밀 음성 동기화, 클린 뷰)...")
         self.composer.compose_hybrid_22s_shorts(
             clip_person_path=person_clip_path,
             clip_app_path=app_clip_path,
@@ -358,7 +364,7 @@ class InsuranceShortsProducer(BaseShortsProducer):
             visual_direction=visual_dir,
             output_mp4_path=final_mp4_path,
             lang=voice_lang,
-            scene_audios=None,
+            scene_audios=scene_audios,
             clip_cta_path=cta_clip_path,
             logo_overlay_path=None  # 🛡️ 보험은 심의 및 신뢰도 극대화를 위해 로고 없이 순수 클린 뷰 적용
         )

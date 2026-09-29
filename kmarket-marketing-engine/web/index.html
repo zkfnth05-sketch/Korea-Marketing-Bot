@@ -340,42 +340,38 @@
 
             </section>
 
-            <!-- 탭: 📱 9:16 모바일 iFrame 실시간 클린 뷰어 -->
+            <!-- 탭: 📱 3대 앱 9:16 모바일 iFrame 실시간 뷰어 -->
             <section id="tab-iframe_viewer" class="tab-content">
                 <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                     <div>
-                        <h2>📱 KTRS 마켓 9:16 세로형 모바일 클린 뷰어</h2>
-                        <p style="color:var(--text-secondary);">나라별 팝업 모달과 하단 PWA 배너를 100% 자동 제거하여 실제 매물 화면만 깨끗하게 표시합니다.</p>
+                        <h2>📱 3대 슈퍼앱 9:16 세로형 모바일 실시간 iFrame 뷰어</h2>
+                        <p style="color:var(--text-secondary);">국내 3대 브랜드(Aura AI 데이팅, 보험 리밸런스, StockMaster AI)의 배포 웹앱을 9:16 스마트폰 뷰로 실시간 모니터링 및 조작합니다.</p>
                     </div>
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <span class="badge" style="background:#059669; color:#fff; font-weight:bold; padding:6px 12px; border-radius:20px;">✨ 팝업 & PWA 배너 자동 제거 활성화</span>
-                        <a href="/kmarket_frame.html" target="_blank" class="btn btn-outline" style="font-size:12px; padding:6px 12px;">🔗 단독 뷰어로 열기</a>
+                        <span class="badge" style="background:#0284C7; color:#fff; font-weight:bold; padding:6px 12px; border-radius:20px;">🟢 3대 앱 라이브 iFrame 정상 연동</span>
+                        <a id="btnOpenDedicatedFrame" href="/stock_frame.html" target="_blank" class="btn btn-outline" style="font-size:12px; padding:6px 12px;">🔗 주식 AI 단독 뷰어로 열기</a>
                     </div>
                 </div>
-                <div style="display:flex; justify-content:center; padding: 20px 0;">
-                    <div style="width:420px; height:800px; background:#000; border-radius:48px; padding:12px; box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 0 2px #334155; position:relative;">
-                        <div style="position:absolute; top:20px; left:50%; transform:translateX(-50%); width:120px; height:24px; background:#000; border-radius:16px; z-index:10;"></div>
-                        <iframe id="liveKMarketFrame" src="/api/kmarket/clean_view?lang=vi" style="width:100%; height:100%; border:none; border-radius:36px; background:#fff;"></iframe>
-                    </div>
+
+                <!-- 3대 브랜드 전환 탭 버튼 -->
+                <div style="display:flex; justify-content:center; gap:10px; margin: 15px 0; flex-wrap:wrap;">
+                    <button class="btn btn-primary" id="btnTabStockFrame" onclick="switchBrandFrame('stock', this)" style="background:linear-gradient(135deg, #F59E0B, #D97706); color:#fff; font-weight:700; font-size:13px; padding:8px 18px;">
+                        📈 StockMaster AI (주식 퀀트)
+                    </button>
+                    <button class="btn btn-outline" id="btnTabAuraFrame" onclick="switchBrandFrame('aura', this)" style="font-weight:700; font-size:13px; padding:8px 18px;">
+                        💖 Aura AI 데이팅 (라운지)
+                    </button>
+                    <button class="btn btn-outline" id="btnTabInsureFrame" onclick="switchBrandFrame('insure', this)" style="font-weight:700; font-size:13px; padding:8px 18px;">
+                        🛡️ 보험 리밸런스 (비교진단)
+                    </button>
                 </div>
-                <div style="display:flex; justify-content:center; gap:8px; margin-top:15px; flex-wrap:wrap; max-width:960px; margin-left:auto; margin-right:auto;">
-                    <button class="btn btn-outline btn-primary" onclick="changeCleanViewerLang('vi', this)" style="font-size:12px;padding:6px 12px;">🇻🇳 베트남어 (VI)</button>
-                    <button class="btn btn-outline" onclick="changeCleanViewerLang('zh', this)" style="font-size:12px;padding:6px 12px;">🇨🇳 중국어 (ZH)</button>
-                    <button class="btn btn-outline" onclick="changeCleanViewerLang('en', this)" style="font-size:12px;padding:6px 12px;">🇺🇸 영어 (EN)</button>
-                    <button class="btn btn-outline" onclick="changeCleanViewerLang('ja', this)" style="font-size:12px;padding:6px 12px;">🇯🇵 일본어 (JA)</button>
-                    <button class="btn btn-outline" onclick="changeCleanViewerLang('ru', this)" style="font-size:12px;padding:6px 12px;">🇷🇺 러시아어 (RU)</button>
-                    <button class="btn btn-outline" onclick="changeCleanViewerLang('th', this)" style="font-size:12px;padding:6px 12px;">🇹🇭 태국어 (TH)</button>
-                    <button class="btn btn-outline" onclick="changeCleanViewerLang('uz', this)" style="font-size:12px;padding:6px 12px;">🇺🇿 우즈벡어 (UZ)</button>
-                    <button class="btn btn-outline" onclick="changeCleanViewerLang('km', this)" style="font-size:12px;padding:6px 12px;">🇰🇭 캄보디아어 (KM)</button>
-                    <button class="btn btn-outline" onclick="changeCleanViewerLang('mn', this)" style="font-size:12px;padding:6px 12px;">🇲🇳 몽골어 (MN)</button>
-                    <button class="btn btn-outline" onclick="changeCleanViewerLang('ne', this)" style="font-size:12px;padding:6px 12px;">🇳🇵 네팔어 (NE)</button>
-                    <button class="btn btn-outline" onclick="changeCleanViewerLang('id', this)" style="font-size:12px;padding:6px 12px;">🇮🇩 인도네시아어 (ID)</button>
-                    <button class="btn btn-outline" onclick="changeCleanViewerLang('my', this)" style="font-size:12px;padding:6px 12px;">🇲🇲 미얀마어 (MY)</button>
-                    <button class="btn btn-outline" onclick="changeCleanViewerLang('si', this)" style="font-size:12px;padding:6px 12px;">🇱🇰 스리랑카어 (SI)</button>
-                    <button class="btn btn-outline" onclick="changeCleanViewerLang('kk', this)" style="font-size:12px;padding:6px 12px;">🇰🇿 카자흐어 (KK)</button>
-                    <button class="btn btn-outline" onclick="changeCleanViewerLang('bn', this)" style="font-size:12px;padding:6px 12px;">🇧🇩 방글라데시어 (BN)</button>
-                    <button class="btn btn-outline" onclick="changeCleanViewerLang('ur', this)" style="font-size:12px;padding:6px 12px;">🇵🇰 우르두어 (UR)</button>
-                    <button class="btn btn-outline" onclick="changeCleanViewerLang('ko', this)" style="font-size:12px;padding:6px 12px;">🇰🇷 한국어 (KO)</button>
+
+                <div style="display:flex; justify-content:center; padding: 10px 0;">
+                    <div style="width:420px; height:840px; background:#000; border-radius:48px; padding:12px; box-shadow: 0 25px 70px rgba(0,0,0,0.8), 0 0 0 3px #1e293b; position:relative;">
+                        <!-- 다이내믹 아일랜드 -->
+                        <div style="position:absolute; top:18px; left:50%; transform:translateX(-50%); width:120px; height:24px; background:#000; border-radius:16px; z-index:10; pointer-events:none;"></div>
+                        <iframe id="liveBrandFrame" src="https://stockmaster-ai.vercel.app/" style="width:100%; height:100%; border:none; border-radius:36px; background:#0a0f1a;"></iframe>
+                    </div>
                 </div>
             </section>
 

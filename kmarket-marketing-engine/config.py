@@ -308,6 +308,11 @@ GEMINI_FREE_API_KEY_AURA_3 = os.getenv("GEMINI_FREE_API_KEY_AURA_3", "")
 GEMINI_PAID_API_KEY_AURA_1 = os.getenv("GEMINI_PAID_API_KEY_AURA_1", "")
 GEMINI_PAID_API_KEY_AURA_2 = os.getenv("GEMINI_PAID_API_KEY_AURA_2", "")
 
+# 🎙️ Typecast AI TTS Credentials
+TYPECAST_API_KEY = os.getenv("TYPECAST_API_KEY", "__pltMYPUabgPLzeK8dsNxhBcxPHhexjh7V7YcyeKpzM5")
+TYPECAST_VOICE_ID_AURA = os.getenv("TYPECAST_VOICE_ID_AURA", "tc_667ce80314cb3a612d6959e8")
+
+
 # 🚀 구글 무료 GPU (Colab RealVisXL) 서버 URL
 COLAB_GPU_API_URL = os.getenv("COLAB_GPU_API_URL", "")
 

@@ -636,9 +636,18 @@ def execute_single_channel_task(module_name: str) -> str:
             else:
                 return f"🛡️ [보험비교 지식iN] {res.get('message', '대기 중')}"
         elif module_name in ["insurance_shorts", "insurance_naver_clip", "insurance_omni_shorts"]:
-            from brands.insurance.scenarios.prompt_director_insurance import InsurancePromptDirector
-            content = InsurancePromptDirector.generate_blog_content()
-            return f"🛡️ [보험비교 5대 옴니 숏폼 렌더링 완료]\n  - 주제: '{content.get('title', '보험 절약')}'\n  - 5대 송출: ①유튜브 쇼츠, ②틱톡, ③인스타 릴스, ④페북 릴스, ⑤네이버 클립 (9:16 + BGM + TTS + 자막)"
+            from brands.insurance.insurance_shorts_pipeline import InsuranceShortsPipeline
+            pipeline = InsuranceShortsPipeline()
+            log_event("🚀 [보험비교 대시보드] 8대 킬러 주제 숏폼 100% 무인 순차 렌더링 가동 (1번 실손전환 ~ 8번 치아보험 8편 전편 연속 생산)...", "info")
+            results = pipeline.produce_topics(start_topic=1, end_topic=8)
+            completed_count = len([r for r in results if r.get("output_mp4")])
+            return f"🎉 [보험비교 8대 숏폼 무인 순차 렌더링 완결] 총 {completed_count}/8편 제작 완료 (바탕화면 실시간 저장)"
+        elif module_name == "insurance_master_photo":
+            from brands.insurance.insurance_shorts_pipeline import InsuranceShortsPipeline
+            pipeline = InsuranceShortsPipeline()
+            log_event("🎨 [보험비교 대시보드] Wan 2.1 T2I 실사 인물 사진 단독 생성 시작...", "info")
+            res_photo = pipeline.produce_master_photo()
+            return f"📸 [보험비교 실사 인물 마스터 사진 생성 완료]\n  • 파일 저장: {res_photo.get('photo_path')}"
         elif module_name in ["insurance_cardnews", "insurance_omni_cardnews"]:
             from brands.insurance.insurance_cardnews_magazine import InsuranceCardnewsMagazine
             res = InsuranceCardnewsMagazine().publish_omni_magazine()

@@ -178,7 +178,7 @@ class GeminiTTSSynthesizer:
         - 16kHz 무손실 변환 및 무음 정밀 트리밍 적용
         """
         is_female = str(gender).lower() in ["female", "f", "여", "여성", "woman"]
-        v_name = voice_name or ("Aoede" if is_female else "Puck")
+        v_name = voice_name or ("Aoede" if is_female else "Fenrir")
 
         out_wav_path = os.path.join(self.output_dir, f"{filename_prefix}_{lang}.wav")
         temp_wav_path = os.path.join(self.output_dir, f"{filename_prefix}_{lang}_raw24k.wav")

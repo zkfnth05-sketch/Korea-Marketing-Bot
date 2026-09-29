@@ -27,14 +27,15 @@ from .aura_shorts_scenario_director import AuraShortsScenarioDirector
 from .shorts_character_anchor_aura import build_aura_shorts_t2i_character_prompt
 from .s2v_clip_stitcher import S2VClipStitcher
 from .gemini_tts_synthesizer import GeminiTTSSynthesizer
+from .typecast_synthesizer import TypecastSynthesizer
 
 logger = logging.getLogger("AuraShortsProducer")
 
 
 class AuraShortsProducer(BaseShortsProducer):
-    """Aura 데이팅 숏폼 자동 생산 엔진 (EasyTax 아키텍처 100% 계승 + Gemini 2.5 Flash TTS)"""
+    """Aura 데이팅 숏폼 자동 생산 엔진 (100% 무료 Google Gemini 2.5 Flash TTS + Wan 2.2 S2V 립싱크)"""
 
-    def __init__(self):
+    def __init__(self, use_typecast: bool = False):
         super().__init__("Aura")
         # 사용자 명시 절대 경로: 바탕화면/한국 숏폼_산출물/Aura
         self.output_base = Path(r"C:\Users\zkfnt\Desktop\한국 숏폼_산출물\Aura")
@@ -45,12 +46,19 @@ class AuraShortsProducer(BaseShortsProducer):
         self.escape_audio_builder = AuraEscapeAudioBuilder()
         self.cta_card = AuraCTACard()
         self.script_director = AuraShortsScenarioDirector()
+        
+        # 🎙️ Google Gemini 2.5 Flash TTS (비용 0원 100% 무료, Aoede 20대 여성)
         self.gemini_tts = GeminiTTSSynthesizer(default_voice="Aoede")
+        self.typecast_tts = TypecastSynthesizer()
+        self.tts = self.typecast_tts if use_typecast else self.gemini_tts
+        
         self.stitcher = S2VClipStitcher(
             wan_client=self.wan_client,
-            tts_synthesizer=self.gemini_tts,
+            tts_synthesizer=self.tts,
             ffmpeg_exe=self.composer.ffmpeg_exe
         )
+
+
 
     def get_character_prompt(
         self,
@@ -220,12 +228,12 @@ class AuraShortsProducer(BaseShortsProducer):
 
         logger.info(f"🚀 [Aura 숏폼] 생산 시작: 주제 {topic_id} [{theme_name}] | 성별: {effective_gender} | seed: {seed}")
 
-        # 3. [음성 합성] 주제별 맞춤 음색/배속 적용 (3번 주제: -7Hz, +12% 매혹적인 VIP 톤)
+        # 3. [음성 합성] Typecast 또는 Gemini TTS 초실사 음성 합성
         voice_lang = "ko"
         voice_rate = scenario.get("voice_rate", "+3%")
         voice_pitch = scenario.get("voice_pitch", "+6Hz")
-        logger.info(f"🎙️ [Step 1] Google Gemini 2.5 Flash TTS 초실사 음성 합성 (Aoede, {effective_gender})...")
-        hook_wav_path = self.gemini_tts.generate_speech_wav(
+        logger.info(f"🎙️ [Step 1] 초실사 음성 합성 ({self.tts.__class__.__name__}, {effective_gender})...")
+        hook_wav_path = self.tts.generate_speech_wav(
             text=speech_hook,
             lang=voice_lang,
             gender=effective_gender,
@@ -233,7 +241,7 @@ class AuraShortsProducer(BaseShortsProducer):
             pitch=voice_pitch,
             filename_prefix=f"aura_hook_{topic_id}_{dt_str}"
         )
-        app_wav_path = self.gemini_tts.generate_speech_wav(
+        app_wav_path = self.tts.generate_speech_wav(
             text=speech_app,
             lang=voice_lang,
             gender=effective_gender,
@@ -241,7 +249,7 @@ class AuraShortsProducer(BaseShortsProducer):
             pitch=voice_pitch,
             filename_prefix=f"aura_app_{topic_id}_{dt_str}"
         )
-        cta_wav_path = self.gemini_tts.generate_speech_wav(
+        cta_wav_path = self.tts.generate_speech_wav(
             text=speech_cta,
             lang=voice_lang,
             gender=effective_gender,
@@ -249,7 +257,7 @@ class AuraShortsProducer(BaseShortsProducer):
             pitch=voice_pitch,
             filename_prefix=f"aura_cta_{topic_id}_{dt_str}"
         )
-        full_wav_path = self.gemini_tts.generate_speech_wav(
+        full_wav_path = self.tts.generate_speech_wav(
             text=full_speech,
             lang=voice_lang,
             gender=effective_gender,
@@ -257,6 +265,7 @@ class AuraShortsProducer(BaseShortsProducer):
             pitch=voice_pitch,
             filename_prefix=f"aura_full_{topic_id}_{dt_str}"
         )
+
 
         # 4. [Step 2] 숏폼 인물 사진 로드 또는 Wan 2.1 T2I 생성 (순수 100% 인물 마스터컷, 인위적 액정 매립 전면 영구 박멸!)
         if custom_hero_image is not None:
@@ -362,10 +371,15 @@ class AuraShortsProducer(BaseShortsProducer):
             visual_direction=visual_dir,
             output_mp4_path=final_mp4_path,
             lang=voice_lang,
-            scene_audios=None,
+            scene_audios={
+                "hook": person_audio_path,
+                "app": app_wav_path,
+                "cta": cta_wav_path
+            },
             clip_cta_path=cta_clip_path,
             logo_overlay_path=aura_logo_overlay
         )
+
 
         # 9. [순수 100% 인물 클로즈업 원테이크 1080x1920 세로 풀HD 단독 완제품 생성] (Aura 공식 로고 일체형)
         pure_one_take_name = f"Aura_10초_순수인물_원테이크_주제{topic_id:02d}_{scenario.get('theme_code', 'topic')}_{dt_str}.mp4"

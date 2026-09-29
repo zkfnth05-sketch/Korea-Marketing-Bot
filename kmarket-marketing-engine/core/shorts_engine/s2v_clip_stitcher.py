@@ -247,7 +247,7 @@ class S2VClipStitcher:
         seed: int = 2026,
         speech_hook_part1: Optional[str] = None,
         speech_hook_part2: Optional[str] = None,
-        voice_pitch: Optional[str] = "+6Hz",
+        voice_pitch: Optional[str] = None,
         voice_rate: Optional[str] = "+3%"
     ) -> Tuple[str, str]:
         """
@@ -264,12 +264,14 @@ class S2VClipStitcher:
         """
         # 1. 10초 전체 대본 단일 테이크 고음질 마스터 음성 합성 (동일 톤 영구 불변)
         logger.info(f"🎙️ [단일 테이크 마스터 음성 합성] 10초 전체 문장 통째 생성 (동일 호흡/톤 100% 일치): \"{speech_hook_full[:30]}...\"")
+        is_fem = str(gender).lower() in ["female", "f", "여", "여성", "woman"]
+        eff_pitch = voice_pitch or ("+2Hz" if is_fem else "0Hz")
         master_hook_wav = self.tts.generate_speech_wav(
             text=speech_hook_full,
             lang=lang,
             gender=gender,
             rate=voice_rate,
-            pitch=voice_pitch,
+            pitch=eff_pitch,
             filename_prefix=f"aura_hook_master_{lang}_{dt_str}"
         )
 

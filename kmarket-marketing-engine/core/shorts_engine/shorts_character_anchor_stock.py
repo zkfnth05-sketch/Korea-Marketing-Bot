@@ -1,0 +1,304 @@
+# -*- coding: utf-8 -*-
+"""
+ShortsCharacterAnchorStock - 📈 [StockMaster AI 전용 캐릭터 & 배경 앵커 모듈]
+- 8대 주식/투자 주제별 실제 주 타깃 연령층(20대~40대) 스마트 직장인·개미 투자자 페르소나
+- 딱딱한 금융맨 ❌ ➔ 스마트하고 세련된 일상 사복의 현실 투자자(내돈내산 퀀트 분석가) ⭕
+- Wan 2.2 S2V 립싱크 헌법 준수:
+  1. 치아 노출 제로, 입을 부드럽게 다문 신뢰감 있는 미소 (gently and firmly closed mouth)
+  2. 스마트폰 파지 완전 배제 (순수 인물 상반신 포즈)
+  3. 얼빡샷 차단 (2.2m 미디엄 카우보이 샷, 풍부한 헤드룸 25% 확보)
+  4. 8등신 황금비율 & iPhone 15 Pro 24mm 아침 자연광 실사
+"""
+
+from typing import Dict, Any, Optional
+
+STOCK_TOPIC_SPECS = {
+    1: {
+        "topic_id": 1,
+        "title": "삼성전자 vs SK하이닉스 HBM 수급 대결",
+        "gender": "male",
+        "age": 34,
+        "framing": (
+            "photographed from 2.2 meters directly in front on Apple iPhone 15 Pro 24mm wide angle camera, camera pulled back with generous distance, "
+            "wide medium seated cowboy shot, showing head, elegant broad shoulders, chest, waist, hips, and thighs, "
+            "solo 1person male, sitting upright and comfortably on a stylish modern Scandinavian lounge armchair sofa, perfectly centered in frame, looking directly into camera lens with engaging friendly eye contact, "
+            "perfectly upright head posture with zero tilt, generous open headroom above head occupying upper 25% of frame, "
+            "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and sharp clothing fabric textures"
+        ),
+        "char_desc": (
+            "a handsome and sharp 34-year-old Korean male professional investor, perfect 8-head-high golden ratio tall fit model proportions, "
+            "strictly no glasses, bare clean face with clear glowing healthy skin, authentic handsome Korean male facial features, attractive gentle eyes, sharp clean jawline, "
+            "neat and stylish natural side-parted perm hairstyle, "
+            "wearing a stylish, neat, and chic modern Korean smart-casual daily outfit, clean contemporary civilian fashion, "
+            "looking directly into camera lens with composed gentle closed-mouth expression (lips firmly closed together, strictly zero teeth showing), "
+            "modern K-drama relatable civilian investor look"
+        ),
+        "bg_desc": (
+            "bright modern Scandinavian sunlit apartment living room with cozy wooden interior and small green indoor plants, "
+            "warm soft natural morning window daylight streaming in, casting realistic gentle shadows, "
+            "crystal clear edge-to-edge deep focus across the entire living room, vivid authentic Korean indoor realism, zero yellow tint"
+        ),
+        "vibe": "삼성전자와 하이닉스 수급 분석으로 반도체 타이밍 잡은 30대 훈남 스마트 개미 투자자"
+    },
+    2: {
+        "topic_id": 2,
+        "title": "미국 배당성장 ETF(SCHD·JEPQ) 월 100만원 배당",
+        "gender": "female",
+        "age": 32,
+        "framing": (
+            "photographed from 2.2 meters directly in front on Apple iPhone 15 Pro 24mm wide angle camera, camera pulled back with generous distance, "
+            "wide medium seated cowboy shot, showing head, elegant shoulders, chest, waist, hips, and thighs, "
+            "solo 1person female, sitting upright and comfortably on a stylish modern Scandinavian lounge armchair sofa, perfectly centered in frame, looking directly into camera lens with engaging friendly eye contact, "
+            "perfectly upright head posture with zero tilt, generous open headroom above head occupying upper 25% of frame, "
+            "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and sharp clothing fabric textures"
+        ),
+        "char_desc": (
+            "a gorgeous, poised, and intelligent 32-year-old Korean woman, perfect 8-head-high golden ratio tall fit model proportions, "
+            "strictly no glasses, bare clean face with clear glowing fair skin, authentic beautiful Korean female facial features, attractive articulate eyes, "
+            "neat and stylish natural dark brown wavy hairstyle, "
+            "wearing a stylish, neat, and chic modern Korean smart-casual daily outfit, clean contemporary civilian fashion, "
+            "looking directly into camera lens with composed gentle closed-mouth expression (lips firmly closed together, strictly zero teeth showing), "
+            "modern K-drama relatable civilian look"
+        ),
+        "bg_desc": (
+            "bright modern Scandinavian sunlit apartment living room with cozy wooden bookshelf and potted indoor greenery, "
+            "warm soft natural morning window daylight streaming in, casting realistic gentle shadows, "
+            "crystal clear edge-to-edge deep focus across the entire living room, vivid authentic Korean indoor realism, zero yellow tint"
+        ),
+        "vibe": "매달 따박따박 들어오는 미국 배당주로 조기 은퇴 플랜 세우는 30대 똑순이 서학개미"
+    },
+    3: {
+        "topic_id": 3,
+        "title": "엔비디아(NVDA) AI 빅테크 실시간 밸류에이션",
+        "gender": "male",
+        "age": 36,
+        "framing": (
+            "photographed from 2.2 meters directly in front on Apple iPhone 15 Pro 24mm wide angle camera, camera pulled back with generous distance, "
+            "wide medium seated cowboy shot, showing head, elegant broad shoulders, chest, waist, hips, and thighs, "
+            "solo 1person male, sitting upright and comfortably on a stylish modern Scandinavian lounge armchair sofa, perfectly centered in frame, looking directly into camera lens with engaging friendly eye contact, "
+            "perfectly upright head posture with zero tilt, generous open headroom above head occupying upper 25% of frame, "
+            "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and sharp clothing fabric textures"
+        ),
+        "char_desc": (
+            "a handsome, tech-savvy, and sharp 36-year-old Korean male software engineer and tech stock investor, perfect 8-head-high golden ratio tall fit model proportions, "
+            "strictly no glasses, bare clean face with clear glowing healthy skin, authentic handsome Korean male facial features, attractive sharp eyes, "
+            "stylish trendy natural wavy hairstyle, "
+            "wearing a stylish, neat, and chic modern Korean smart-casual daily outfit, clean contemporary civilian fashion, "
+            "looking directly into camera lens with composed gentle closed-mouth expression (lips firmly closed together, strictly zero teeth showing), "
+            "modern K-drama relatable civilian tech investor look"
+        ),
+        "bg_desc": (
+            "bright modern Scandinavian sunlit apartment living room with cozy wooden interior and lush indoor greenery, "
+            "warm soft natural morning window daylight streaming in, casting realistic gentle shadows, "
+            "crystal clear edge-to-edge deep focus across the entire living room, vivid authentic Korean indoor realism, zero yellow tint"
+        ),
+        "vibe": "엔비디아와 빅테크 실시간 적정주가를 AI로 팩트체크하는 30대 테크 서학개미"
+    },
+    4: {
+        "topic_id": 4,
+        "title": "저PBR 밸류업 & 고배당 금융주 스크리너",
+        "gender": "female",
+        "age": 35,
+        "framing": (
+            "photographed from 2.2 meters directly in front on Apple iPhone 15 Pro 24mm wide angle camera, camera pulled back with generous distance, "
+            "wide medium seated cowboy shot, showing head, elegant shoulders, chest, waist, hips, and thighs, "
+            "solo 1person female, sitting upright and comfortably on a stylish modern Scandinavian lounge armchair sofa, perfectly centered in frame, looking directly into camera lens with engaging friendly eye contact, "
+            "perfectly upright head posture with zero tilt, generous open headroom above head occupying upper 25% of frame, "
+            "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and sharp clothing fabric textures"
+        ),
+        "char_desc": (
+            "a poised, charming, and sensible 35-year-old Korean woman (smart professional and value investor), perfect 8-head-high golden ratio tall fit model proportions, "
+            "strictly no glasses, bare clean face with clear glowing fair skin, authentic beautiful Korean female facial features, attractive intelligent brown eyes, "
+            "neat and stylish natural dark brown wavy hairstyle, "
+            "wearing a stylish, neat, and chic modern Korean smart-casual daily outfit, clean contemporary civilian fashion, "
+            "looking directly into camera lens with composed gentle closed-mouth expression (lips firmly closed together, strictly zero teeth showing), "
+            "modern K-drama relatable civilian look"
+        ),
+        "bg_desc": (
+            "bright modern Scandinavian sunlit apartment living room with cozy wooden interior and lush indoor green plants, "
+            "warm soft natural morning window daylight streaming in, casting realistic gentle shadows, "
+            "crystal clear edge-to-edge deep focus across the entire living room, vivid authentic Korean indoor realism, zero yellow tint"
+        ),
+        "vibe": "저PBR 지주사와 금융주 배당 확대를 발 빠르게 선점한 30대 똑순이 가치투자자"
+    },
+    5: {
+        "topic_id": 5,
+        "title": "뇌동매매 방지! AI 자동 손절매 & 리스크 가드",
+        "gender": "male",
+        "age": 31,
+        "framing": (
+            "photographed from 2.2 meters directly in front on Apple iPhone 15 Pro 24mm wide angle camera, camera pulled back with generous distance, "
+            "wide medium seated cowboy shot, showing head, elegant broad shoulders, chest, waist, hips, and thighs, "
+            "solo 1person male, sitting upright and comfortably on a stylish modern Scandinavian lounge armchair sofa, perfectly centered in frame, looking directly into camera lens with engaging friendly eye contact, "
+            "perfectly upright head posture with zero tilt, generous open headroom above head occupying upper 25% of frame, "
+            "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and sharp clothing fabric textures"
+        ),
+        "char_desc": (
+            "a handsome, sincere, and relatable 31-year-old Korean young male office worker, perfect 8-head-high golden ratio tall fit model proportions, "
+            "strictly no glasses, bare clean face with clear glowing healthy skin, authentic handsome Korean male facial features, attractive gentle eyes, "
+            "neat and stylish natural soft parted hairstyle, "
+            "wearing a stylish, neat, and chic modern Korean smart-casual daily outfit, clean contemporary civilian fashion, "
+            "looking directly into camera lens with composed gentle closed-mouth expression (lips firmly closed together, strictly zero teeth showing), "
+            "modern K-drama relatable civilian look"
+        ),
+        "bg_desc": (
+            "bright modern Scandinavian sunlit apartment living room with cozy wooden interior and small potted plants, "
+            "warm soft natural morning window daylight streaming in, casting realistic gentle shadows, "
+            "crystal clear edge-to-edge deep focus across the entire living room, vivid authentic Korean indoor realism, zero yellow tint"
+        ),
+        "vibe": "고점 매수와 물타기 뇌동매매 끊고 AI 원칙 매매로 계좌를 지켜낸 30대 직장인 개미"
+    },
+    6: {
+        "topic_id": 6,
+        "title": "S&P 500 vs 나스닥 100: 직장인 20년 월적립식 복리",
+        "gender": "female",
+        "age": 29,
+        "framing": (
+            "photographed from 2.2 meters directly in front on Apple iPhone 15 Pro 24mm wide angle camera, camera pulled back with generous distance, "
+            "wide medium seated cowboy shot, showing head, elegant shoulders, chest, waist, hips, and thighs, "
+            "solo 1person female, sitting upright and comfortably on a stylish modern Scandinavian lounge armchair sofa, perfectly centered in frame, looking directly into camera lens with engaging friendly eye contact, "
+            "perfectly upright head posture with zero tilt, generous open headroom above head occupying upper 25% of frame, "
+            "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and sharp clothing fabric textures"
+        ),
+        "char_desc": (
+            "a bright, gorgeous, and energetic 29-year-old Korean young professional woman, perfect 8-head-high golden ratio tall fit model proportions, "
+            "strictly no glasses, bare clean face with clear glowing fair skin, authentic beautiful Korean female facial features, attractive charming brown eyes, "
+            "neat and stylish natural shoulder-length wavy hair, "
+            "wearing a stylish, neat, and chic modern Korean smart-casual daily outfit, clean contemporary civilian fashion, "
+            "looking directly into camera lens with composed gentle closed-mouth expression (lips firmly closed together, strictly zero teeth showing), "
+            "modern K-drama relatable civilian look"
+        ),
+        "bg_desc": (
+            "bright modern Scandinavian sunlit apartment living room with cozy wooden interior and lush indoor greenery, "
+            "warm soft natural morning window daylight streaming in, casting realistic gentle shadows, "
+            "crystal clear edge-to-edge deep focus across the entire living room, vivid authentic Korean indoor realism, zero yellow tint"
+        ),
+        "vibe": "월급날마다 S&P500 적립식 매수로 은퇴 자산 10억 플랜 실천 중인 2030 사회초년생"
+    },
+    7: {
+        "topic_id": 7,
+        "title": "외국인·기관 쌍끌이 순매수 실시간 레이더",
+        "gender": "male",
+        "age": 38,
+        "framing": (
+            "photographed from 2.2 meters directly in front on Apple iPhone 15 Pro 24mm wide angle camera, camera pulled back with generous distance, "
+            "wide medium seated cowboy shot, showing head, elegant broad shoulders, chest, waist, hips, and thighs, "
+            "solo 1person male, sitting upright and comfortably on a stylish modern Scandinavian lounge armchair sofa, perfectly centered in frame, looking directly into camera lens with engaging friendly eye contact, "
+            "perfectly upright head posture with zero tilt, generous open headroom above head occupying upper 25% of frame, "
+            "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and sharp clothing fabric textures"
+        ),
+        "char_desc": (
+            "a handsome, mature, and intelligent 38-year-old Korean male professional, perfect 8-head-high golden ratio tall fit model proportions, "
+            "strictly no glasses, bare clean face with clear glowing healthy skin, authentic handsome Korean male facial features, attractive sharp articulate eyes, "
+            "neat and stylish natural parted wavy hairstyle, "
+            "wearing a stylish, neat, and chic modern Korean smart-casual daily outfit, clean contemporary civilian fashion, "
+            "looking directly into camera lens with composed gentle closed-mouth expression (lips firmly closed together, strictly zero teeth showing), "
+            "modern K-drama relatable civilian look"
+        ),
+        "bg_desc": (
+            "bright modern Scandinavian sunlit apartment living room with cozy wooden interior and lush indoor green plants, "
+            "warm soft natural morning window daylight streaming in, casting realistic gentle shadows, "
+            "crystal clear edge-to-edge deep focus across the entire living room, vivid authentic Korean indoor realism, zero yellow tint"
+        ),
+        "vibe": "기관과 외국인 메이저 수급 추종 매매로 안정적인 수익률 내는 30대 베테랑 직장인 투자자"
+    },
+    8: {
+        "topic_id": 8,
+        "title": "초보 탈출! 원클릭 AI 종목 재무 건전성 진단",
+        "gender": "female",
+        "age": 36,
+        "framing": (
+            "photographed from 2.2 meters directly in front on Apple iPhone 15 Pro 24mm wide angle camera, camera pulled back with generous distance, "
+            "wide medium seated cowboy shot, showing head, elegant shoulders, chest, waist, hips, and thighs, "
+            "solo 1person female, sitting upright and comfortably on a stylish modern Scandinavian lounge armchair sofa, perfectly centered in frame, looking directly into camera lens with engaging friendly eye contact, "
+            "perfectly upright head posture with zero tilt, generous open headroom above head occupying upper 25% of frame, "
+            "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and sharp clothing fabric textures"
+        ),
+        "char_desc": (
+            "a poised, elegant, and intelligent 36-year-old Korean career woman, perfect 8-head-high golden ratio tall fit model proportions, "
+            "strictly no glasses, bare clean face with clear glowing healthy skin, authentic beautiful Korean female facial features, attractive reassuring brown eyes, "
+            "neat and stylish natural dark brown shoulder-length wavy hairstyle, "
+            "wearing a stylish, neat, and chic modern Korean smart-casual daily outfit, clean contemporary civilian fashion, "
+            "looking directly into camera lens with composed gentle closed-mouth expression (lips firmly closed together, strictly zero teeth showing), "
+            "modern K-drama relatable civilian look"
+        ),
+        "bg_desc": (
+            "bright modern Scandinavian sunlit apartment living room with cozy wooden interior and lush indoor green plants, "
+            "warm soft natural morning window daylight streaming in, casting realistic gentle shadows, "
+            "crystal clear edge-to-edge deep focus across the entire living room, vivid authentic Korean indoor realism, zero yellow tint"
+        ),
+        "vibe": "어려운 재무제표 대신 AI 원클릭 진단으로 깡통 종목 거르고 알짜 종목 고르는 30대 여성 투자자"
+    }
+}
+
+
+def build_stock_shorts_t2i_character_prompt(
+    topic_id: int = 1,
+    custom_char_desc: Optional[str] = None,
+    custom_bg_desc: Optional[str] = None,
+    gender: Optional[str] = None,
+    **kwargs
+) -> Dict[str, str]:
+    """
+    StockMaster AI 8대 주제별 실제 타깃 연령대(20대~40대) 8등신 스마트 개미 투자자 프롬프트 빌더
+    """
+    preset_key = ((topic_id - 1) % len(STOCK_TOPIC_SPECS)) + 1
+    spec = STOCK_TOPIC_SPECS.get(preset_key, STOCK_TOPIC_SPECS[1])
+
+    char_desc = custom_char_desc or spec["char_desc"]
+    bg_desc = custom_bg_desc or spec["bg_desc"]
+    effective_gender = gender or spec.get("gender", "male")
+
+    # 🤐 S2V 립싱크 전용 정면 직립 + 입술 밀착 다문 표정 헌법 (치아 노출 완전 박멸)
+    head_and_mouth_mandate = (
+        "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, symmetrical upright head angle, looking straight and directly into the camera lens with level eye line, "
+        "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
+        "composed calm trustworthy civilian expression, ready to speak with authentic eye contact"
+    )
+
+    framing = spec.get("framing", (
+        f"photographed from 2.2 meters directly in front on Apple iPhone 15 Pro 24mm wide angle camera, "
+        f"camera pulled back with comfortable distance, wide medium seated cowboy shot, showing head, chest, waist, hips, and upper thighs, "
+        f"solo 1person {effective_gender}, leaning comfortably and upright against a modern fabric armchair sofa, relaxed natural posture with arms resting casually, "
+        f"perfectly upright head posture with zero tilt, generous open headroom above head occupying upper 25% of frame, "
+        f"gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
+        f"spacious bright modern apartment background, f/11 deep pan-focus, zero lens blur, tack sharp crystal clear focus, visible fine skin pores and clothing fabric textures"
+    ))
+
+    positive_prompt = (
+        f"{framing}, {head_and_mouth_mandate}, {char_desc}, {bg_desc}, "
+        f"natural bright crisp daylight lighting, highly realistic 8k resolution, authentic Korean civilian documentary look, master quality"
+    )
+
+    negative_prompt = (
+        "grey hair, white hair, greying temples, salt and pepper hair, elderly, old man, aged, wrinkled, sagging skin, old person, 50s, 60s, senior citizen, "
+        "old fashioned haircut, slicked back hair, middle part ahjussi hair, "
+        "puffy hair, frizzy hair, wide hair silhouette, mushroom hair, bird nest hair, frizzy curls, expanded hair, messy hair, overly curly hair, perm hair, unkempt hair, "
+        "arrogant pose, smug look, cocky smile, boastful expression, aggressive posture, "
+        "polo shirt, collared shirt, tucked in shirt, blue polo sweater, awkward stiff pose, robotic posture, hands on knees pose, awkward hands, "
+        "showing teeth, open mouth, teeth, grinning, smiling with open mouth, smiling with teeth, parted lips, tooth, dental, toothy smile, big smile, mouth open, laughing with teeth, screaming, "
+        "glasses, spectacles, eyewear, sunglasses, rimless glasses, "
+        "chinese style, mainland chinese facial features, douyin aesthetic, heavy square jaw, broad flat nose, round wide face, "
+        "close-up, extreme close-up, tight shot, bust shot, portrait crop, shoulders only, headshot, face filling frame, cropped forehead, cropped head, head touching frame top, cut off head, "
+        "zoomed in, telephoto lens, cropped waist, "
+        "looking down, face obstructed, phone blocking face, phone covering mouth, "
+        "tilted head, sideways glance, looking away from camera, angled face, side profile, "
+        "heavy bokeh, blurry background, shallow depth of field, f/1.4 blur, cinematic bokeh blur, out of focus background, "
+        "distorted hands, extra fingers, deformed face, unnatural plastic skin, cartoon, anime, illustration, 3d render, watermark"
+    )
+
+    return {
+        "positive": positive_prompt,
+        "negative": negative_prompt,
+        "topic_id": topic_id,
+        "gender": effective_gender,
+        "vibe": spec.get("vibe", "")
+    }
