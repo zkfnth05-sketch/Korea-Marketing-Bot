@@ -182,9 +182,13 @@ class AuraShortsScenarioDirector:
                 "speaking expressively with smooth realistic lip sync, enthusiastic head nodding and playful head tilts, natural hand and upper body gestures while talking, friendly and dynamic movement, no phone in hand, lifelike motion"
             ),
             "char_desc": (
-                "an adorably gorgeous 21-year-old Korean college campus goddess, perfect 8-head-high golden ratio model proportions, delicate small petite head and face, slender elegant neck and collarbone, idol visual with bubbly charismatic charm, "
-                "fresh glowing dewy skin, youthful bright expressive eyes, neat loose half-updo hairstyle, "
-                "wearing a stylish clean sleeveless top, trendy casual cafe attire, lovely college campus fashion, looking directly into the camera lens"
+                "an exceptionally gorgeous 21-year-old Korean campus goddess with breathtakingly enchanting feline cat-like facial features, "
+                "captivating alluring cat-like almond dark eyes with subtle sharp upturned winged eyeliner, "
+                "sharp high cheekbones, delicate cute petite nose, sculpted flawless V-line jawline, "
+                "radiant luminous porcelain glass skin with soft natural peach cheek glow, "
+                "neat sleek low bun hairstyle with subtle elegant side fringe framing her face perfectly, "
+                "wearing a chic clean minimalist white ribbed-knit sleeveless dress with a wide-strap square neckline, "
+                "fitted ribbed texture accentuating her graceful slender collarbone and delicate bare shoulders, elegant sophisticated summer brunch date attire, looking directly into the camera lens"
             ),
             "bg_desc": (
                 "cozy outdoor brunch cafe patio with lush green leaves canopy, rustic wooden table with iced latte, "

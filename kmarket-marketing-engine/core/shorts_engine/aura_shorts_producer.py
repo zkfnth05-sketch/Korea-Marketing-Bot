@@ -355,7 +355,8 @@ class AuraShortsProducer(BaseShortsProducer):
             topic_title=theme_name,
             debate_question=scenario.get("debate_question", "남녀 50:50 정원제, 찬성 vs 반대?"),
             search_keyword="아우라AI데이팅",
-            hero_copy=scenario.get("hero_copy", "남초 제로, 50:50 완벽 성비!")
+            hero_copy=scenario.get("hero_copy", "남초 제로, 50:50 완벽 성비!"),
+            topic_id=topic_id
         )
 
         # 8. [Step 6] 22초 하이브리드 완제품 컴포징 (단일 통음성 100% 무손실 연속 재생 + Aura 22초 공식 로고 배지)

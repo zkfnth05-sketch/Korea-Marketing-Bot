@@ -107,15 +107,19 @@ AURA_8_TOPIC_SPECS = {
             "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, crisp high micro-contrast, visible real pores and individual hair strands"
         ),
         "char_desc": (
-            "a breathtakingly stunning 23-year-old Korean young woman, perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck and collarbone, pure legendary first-love visual aesthetic, "
-            "flowing natural dark silky wavy hair, immaculate luminous glass skin, captivating innocent eyes, delicate facial symmetry, "
-            "wearing an elegant soft knit cardigan layered over a clean camisole, stylish feminine studio photoshoot attire, refined modern aesthetic fashion, looking directly into the camera lens"
+            "an exceptionally gorgeous glamorous 25-year-old Korean young woman with a breathtakingly seductive feline cat-like facial aesthetic, "
+            "captivating alluring cat-like almond hazel eyes with subtle sharp winged eyeliner, sharp high cheekbones, delicate cute button nose, sculpted elegant jawline, "
+            "perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck, graceful collarbone, "
+            "flawless luminous glass skin with soft natural peach blush, realistic skin pores and authentic fine skin texture, "
+            "natural full lips gently closed together with a subtle alluring confident smile, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
+            "voluminous silky dark wavy hair falling gracefully over shoulders, "
+            "wearing stylish sophisticated civilian dating clothes, an elegant chic off-shoulder knit top, modern luxurious date-night fashion, looking directly into the camera lens"
         ),
         "bg_desc": (
             "high-end luxury photography studio in Cheongdam, modern curved architectural round arch alcove wall in warm peach-beige tone clearly visible behind her, "
             "modern curved studio architecture, tack sharp f/11 focus"
         ),
-        "vibe": "청담동 최고급 스튜디오의 아치형 백월과 화이트 라운지 체어에 앉아 상단 35% 시선으로 압도적 청순 첫사랑 미모를 뽐내는 정석 화보"
+        "vibe": "청담동 최고급 스튜디오의 아치형 백월과 화이트 라운지 체어에 앉아 상단 35% 시선으로 앙큼하고 매혹적인 고양이상 섹시 뷰티를 뽐내는 정석 화보"
     },
     5: {
         "topic_id": 5,
@@ -130,9 +134,13 @@ AURA_8_TOPIC_SPECS = {
             "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, visible real pores and individual hair strands"
         ),
         "char_desc": (
-            "an adorably gorgeous 21-year-old Korean college campus goddess, perfect 8-head-high golden ratio model proportions, delicate small petite head and face, slender elegant neck and collarbone, idol visual with bubbly charismatic charm, "
-            "fresh glowing dewy skin, youthful bright expressive eyes, neat loose half-updo hairstyle, "
-            "wearing stylish relaxed trendy casual cafe attire, lovely college campus fashion, looking directly into the camera lens"
+            "an exceptionally gorgeous 21-year-old Korean campus goddess with breathtakingly enchanting feline cat-like facial features, "
+            "captivating alluring cat-like almond dark eyes with subtle sharp upturned winged eyeliner, "
+            "sharp high cheekbones, delicate cute petite nose, sculpted flawless V-line jawline, "
+            "radiant luminous porcelain glass skin with soft natural peach cheek glow, "
+            "neat sleek low bun hairstyle with subtle elegant side fringe framing her face perfectly, "
+            "wearing a chic clean minimalist white ribbed-knit sleeveless dress with a wide-strap square neckline, "
+            "fitted ribbed texture accentuating her graceful slender collarbone and delicate bare shoulders, elegant sophisticated summer brunch date attire, looking directly into the camera lens"
         ),
         "bg_desc": (
             "cozy outdoor brunch cafe patio in Yeonnam-dong surrounded by abundant lush vibrant green leaves, rich lush tree canopy with deep green foliage filling the background in tack sharp f/11 focus, fresh refreshing garden terrace atmosphere, rustic wooden table with cute brunch plates and iced latte, pleasant natural daylight filtering through green leaves"
@@ -338,6 +346,10 @@ def build_aura_shorts_t2i_character_prompt(
             "strobe, softbox, studio lighting, beauty filter, airbrushed skin, plastic skin, porcelain skin, skin smoothing, glamour glow, soft glow, creamy skin, "
             "curtain, sheer curtain, window, sunlight streaming through, outdoor, cafe, dining table, brunch table, "
             "backlight, backlighting, optical halation, lens flare, hazy glow, dreamy glow, blown out background, washed out, "
+        )
+    elif norm_id == 5:
+        topic_specific_neg = (
+            "t-shirt, crew neck, short sleeves, sleeves, baggy clothes, casual cotton tee, round neck, "
         )
     elif norm_id == 6:
         topic_specific_neg = (
