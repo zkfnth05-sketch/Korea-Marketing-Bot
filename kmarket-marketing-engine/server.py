@@ -2178,6 +2178,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(res).encode("utf-8"))
 
     def _handle_get_ir_analytics(self, parsed_url):
+        import importlib
+        import core.ir_analytics
+        importlib.reload(core.ir_analytics)
         from core.ir_analytics import IRAnalyticsEngine
         query_params = urllib.parse.parse_qs(parsed_url.query)
         period = query_params.get("period", ["today"])[0]
@@ -2187,7 +2190,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
         engine = IRAnalyticsEngine(db_mgr)
         data = engine.get_detailed_dashboard_data(period=period, brand=brand)
         self._set_headers("application/json")
-        self.wfile.write(json.dumps(data).encode("utf-8"))
+        self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
 
     def _handle_get_utm_logs(self, parsed_url):
         query_params = urllib.parse.parse_qs(parsed_url.query)

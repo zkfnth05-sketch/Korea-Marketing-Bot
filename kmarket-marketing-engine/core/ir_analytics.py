@@ -19,10 +19,68 @@ class IRAnalyticsEngine:
         self.supabase_mgr = supabase_mgr or SupabaseManager(db_mgr)
 
     def get_detailed_dashboard_data(self, period: str = "today", brand: str = "all") -> Dict[str, Any]:
+        brand_filter = brand.lower() if brand else "aura"
+
+        # 💖 [1. Aura 데이팅 전용 Supabase 100% 실데이터 직결]
+        if brand_filter in ["aura", "dating"]:
+            try:
+                import importlib
+                import brands.aura.aura_supabase_manager
+                importlib.reload(brands.aura.aura_supabase_manager)
+                from brands.aura.aura_supabase_manager import AuraSupabaseManager
+                aura_mgr = AuraSupabaseManager()
+                if aura_mgr.is_connected():
+                    aura_data = aura_mgr.get_aura_traffic_analytics(period=period)
+                    if aura_data and aura_data.get("kpis"):
+                        return aura_data
+            except Exception as e:
+                logger.warning(f"Aura Supabase fallback: {e}")
+
+        # 🛡️ [2. 보험 리밸런스(InsureBalance) 전용 Supabase 100% 실데이터 직결]
+        elif brand_filter in ["insurance", "insure", "insurebalance"]:
+            try:
+                import importlib
+                import brands.insurance.insurance_supabase_manager
+                importlib.reload(brands.insurance.insurance_supabase_manager)
+                from brands.insurance.insurance_supabase_manager import InsuranceSupabaseManager
+                ins_mgr = InsuranceSupabaseManager()
+                if ins_mgr.is_connected():
+                    ins_data = ins_mgr.get_insurance_traffic_analytics(period=period)
+                    if ins_data and ins_data.get("kpis"):
+                        return ins_data
+            except Exception as e:
+                logger.warning(f"Insurance Supabase fallback: {e}")
+
+        # 📈 [3. StockMaster AI 주식 퀀트 전용 Supabase 100% 실데이터 직결]
+        elif brand_filter in ["stock", "stockmaster", "quant"]:
+            try:
+                import importlib
+                import brands.stock.stock_supabase_manager
+                importlib.reload(brands.stock.stock_supabase_manager)
+                from brands.stock.stock_supabase_manager import StockSupabaseManager
+                stk_mgr = StockSupabaseManager()
+                if stk_mgr.is_connected():
+                    stk_data = stk_mgr.get_stock_traffic_analytics(period=period)
+                    if stk_data and stk_data.get("kpis"):
+                        return stk_data
+            except Exception as e:
+                logger.warning(f"Stock Supabase fallback: {e}")
+
+        # all 일 경우 기본 Aura 실데이터 반환
+        elif brand_filter == "all":
+            try:
+                from brands.aura.aura_supabase_manager import AuraSupabaseManager
+                aura_mgr = AuraSupabaseManager()
+                if aura_mgr.is_connected():
+                    aura_data = aura_mgr.get_aura_traffic_analytics(period=period)
+                    if aura_data and aura_data.get("kpis"):
+                        return aura_data
+            except Exception as e:
+                logger.warning(f"Aura Supabase fallback: {e}")
+
         kst_now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9)))
         today_date = kst_now.date()
 
-        brand_filter = brand.lower() if brand else "all"
         brand_sql_m = ""
         brand_sql_u = ""
         if brand_filter == "kmarket":

@@ -181,7 +181,13 @@ function switchBrand(brand) {
     if (typeof loadHashtags === "function") loadHashtags();
     if (typeof loadGallery === "function") loadGallery();
     if (typeof loadGoldenCopies === "function") loadGoldenCopies();
-    if (typeof loadIRAnalytics === "function") loadIRAnalytics();
+    if (typeof loadIRAnalytics === "function") {
+        if (typeof switchIRBrand === "function") {
+            switchIRBrand(currentBrand);
+        } else {
+            loadIRAnalytics();
+        }
+    }
     if (typeof loadHealthStatus === "function") loadHealthStatus();
     if (typeof loadTelegramCommunityStats === "function") loadTelegramCommunityStats();
     if (typeof renderStockShortsSchedulerPanel === "function") renderStockShortsSchedulerPanel();
