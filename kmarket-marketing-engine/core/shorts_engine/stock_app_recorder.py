@@ -148,8 +148,8 @@ class StockAppRecorder:
                 # 1. 페이지 로드
                 logger.info(f"🌐 [StockAppRecorder] 페이지 로딩: {self.BASE_URL}")
                 t_browser_start = time.time()
-                page.goto(self.BASE_URL, wait_until="networkidle", timeout=30000)
-                page.wait_for_timeout(300)
+                page.goto(self.BASE_URL, wait_until="domcontentloaded", timeout=30000)
+                page.wait_for_timeout(1000)
 
                 # 2. 광고 iframe 및 팝업 정리
                 page.evaluate("""() => {
@@ -215,12 +215,26 @@ class StockAppRecorder:
                 page.wait_for_timeout(200)
 
                 # 주제별 시작 스크롤 위치 및 연출 분기
-                if topic_id in [3, 5]:
-                    # [주제 3, 5] 앱 맨 처음 최상단 (y=0)에서 시작
+                if topic_id in [3, 5, 6]:
+                    # [주제 3, 5, 6] 앱 맨 처음 최상단 (y=0)에서 시작
                     page.evaluate("() => window.scrollTo(0, 0)")
                     page.wait_for_timeout(300)
+                elif topic_id == 4:
+                    # 🌟 [주제 4] 10분 계량 전광판 1위 종목의 '계량 가중치 분석 (DETAIL SCORES)' 상세 카드로 즉시 스크롤!
+                    page.evaluate("""() => {
+                        const target = Array.from(document.querySelectorAll('*')).find(el => 
+                            el.textContent && (el.textContent.includes('수급 가속 특례') || el.textContent.includes('진입 가능') || el.textContent.includes('DETAIL SCORES')) && el.children.length === 0
+                        );
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'instant', block: 'start' });
+                            window.scrollBy(0, -60);
+                        } else {
+                            window.scrollTo(0, 6590);
+                        }
+                    }""")
+                    page.wait_for_timeout(400)
                 else:
-                    # [주제 1, 2, 4] 10분 계량 전광판 위치로 스크롤 이동
+                    # [주제 1, 2] 10분 계량 전광판 위치로 스크롤 이동
                     page.evaluate("() => window.scrollTo(0, 4090)")
                     page.wait_for_timeout(300)
 
@@ -230,87 +244,222 @@ class StockAppRecorder:
 
                 if topic_id == 5:
                     # =========================================================================
-                    # 🌟 [주제 5: 매크로 스트레스 센터] 28초 타임라인
+                    # 🌟 [주제 5: 최상단(y=0)부터 💡 시장 스트레스 & ■ 4대 매크로 ➔ 📰 실시간 LIVE NEWS 풀스크린 연속 스크롤]
                     # =========================================================================
-                    # [0~8초] 종합 스트레스 10점 & 안내 가이드 조망
-                    page.wait_for_timeout(8000)
-                    # [8~18초] US 10Y BOND & USD/KRW FX 스트레스 카드 스크롤
-                    page.evaluate("() => window.scrollBy({top: 400, behavior: 'smooth'})")
-                    page.wait_for_timeout(10000)
-                    # [18~28초] KOSPI & KOSDAQ Z-Score 지표 조망
-                    page.evaluate("() => window.scrollBy({top: 400, behavior: 'smooth'})")
-                    page.wait_for_timeout(9500)
+                    macro_dur_ms = int(target_duration * 0.52 * 1000)
+                    news_dur_ms = max(3000, int((target_duration - (macro_dur_ms / 1000.0) - 1.0) * 1000))
 
-                elif topic_id == 3:
-                    # =========================================================================
-                    # 🌟 [주제 3: 28초 녹화 전체 동안 최상단(y=0)부터 1등주(y=4400)까지 완벽한 균일 속도 스크롤]
-                    # =========================================================================
-                    # [0.0s ~ 27.5s (27.5초간)] 초당 ~160px의 완전히 균일한 속도로 앱 맨 위부터 1등주 카드까지 스크롤
-                    # 중간 가속/감속이나 멈춤 없이 30초 내내 물 흐르듯 균일하게 지수, AI VETO, 시장 스트레스, 1등주 카드가 이어짐
-                    page.evaluate("() => window.smoothScrollPageLinear(4400, 27500)")
-                    page.wait_for_timeout(27500)
+                    page.evaluate(f"""() => {{
+                        let startY = 0;
+                        let targetY = 4050;
+                        let durationMs = {macro_dur_ms};
+                        let startTime = performance.now();
+                        function step(now) {{
+                            let progress = Math.min((now - startTime) / durationMs, 1);
+                            window.scrollTo(0, startY + (targetY - startY) * progress);
+                            if (progress < 1) requestAnimationFrame(step);
+                        }}
+                        requestAnimationFrame(step);
+                    }}""")
+                    page.wait_for_timeout(macro_dur_ms)
+
+                    # Live News 카드 상단 맞춤 & 클릭
+                    page.evaluate("""() => {
+                        const liveTab = Array.from(document.querySelectorAll('*')).find(el => el.textContent && el.textContent.trim() === 'Live News' && el.children.length === 0);
+                        const card = liveTab ? liveTab.closest('.glass-card') || liveTab.parentElement.parentElement : null;
+                        if (card) {
+                            const cardTop = card.getBoundingClientRect().top + window.scrollY;
+                            window.scrollTo(0, cardTop - 50);
+                        } else {
+                            window.scrollTo(0, 7332);
+                        }
+                    }""")
+                    page.wait_for_timeout(300)
+                    try:
+                        live_tab = page.locator('div, button, span').filter(has_text='Live News').last
+                        live_tab.click()
+                    except Exception as ex:
+                        logger.warning(f"Live News click fallback: {ex}")
                     page.wait_for_timeout(500)
+
+                    # 실시간 LIVE NEWS 뉴스 피드 연속 스크롤
+                    page.evaluate(f"""() => {{
+                        const liveTab = Array.from(document.querySelectorAll('*')).find(el => el.textContent && el.textContent.trim() === 'Live News' && el.children.length === 0);
+                        const card = liveTab ? liveTab.closest('.glass-card') || liveTab.parentElement.parentElement : null;
+                        const box = card ? card.querySelector('.overflow-y-auto') : null;
+                        if (box) {{
+                            let start = 0;
+                            let target = 220;
+                            let duration = {news_dur_ms};
+                            let startTime = performance.now();
+                            function step(now) {{
+                                let progress = Math.min((now - startTime) / duration, 1);
+                                box.scrollTop = start + target * progress;
+                                if (progress < 1) requestAnimationFrame(step);
+                            }}
+                            requestAnimationFrame(step);
+                        }}
+                    }}""")
+                    page.wait_for_timeout(news_dur_ms)
+                    page.wait_for_timeout(500)
+
+                elif topic_id in [3, 6]:
+                    # =========================================================================
+                    # 🌟 [주제 3 & 6: 녹화 전체 동안 최상단(y=0)부터 1등주(y=4400)까지 완벽한 균일 속도 스크롤]
+                    # =========================================================================
+                    scroll_dur_ms = max(5000, int((target_duration - 0.5) * 1000))
+                    page.evaluate(f"() => window.smoothScrollPageLinear(4400, {scroll_dur_ms})")
+                    page.wait_for_timeout(scroll_dur_ms)
+                    page.wait_for_timeout(500)
+
+                elif topic_id == 4:
+                    # =========================================================================
+                    # 🌟 [주제 4: 1위 주도주 계량 가중치 분석 상세 카드 (첫 화면) ➔ 4대 모달 탭 풀스크롤]
+                    # =========================================================================
+                    top1_dur_ms = int(target_duration * 0.18 * 1000)
+                    search_dur_ms = 2200
+                    remain_ms = max(8000, int(target_duration * 1000 - top1_dur_ms - search_dur_ms))
+                    tab_dur_ms = int(remain_ms / 4)
+
+                    page.wait_for_timeout(1000)
+                    page.evaluate("() => window.scrollBy({top: 320, behavior: 'smooth'})")
+                    page.wait_for_timeout(max(500, top1_dur_ms - 1000))
+
+                    # 1위 종목명 자동 감지
+                    detected_top1 = page.evaluate("""() => {
+                        const text = document.body.innerText || '';
+                        const lines = text.split('\\n').map(l => l.trim()).filter(l => l.length > 0);
+                        let boardIdx = -1;
+                        for (let i = 0; i < lines.length; i++) {
+                            if (lines[i].includes('계량 전광판 및 실시간 리스크 센터')) {
+                                boardIdx = i;
+                                break;
+                            }
+                        }
+                        if (boardIdx === -1) return '후성';
+                        for (let i = boardIdx; i < Math.min(boardIdx + 60, lines.length); i++) {
+                            if (lines[i] === '1' && i + 1 < lines.length) {
+                                return lines[i+1];
+                            }
+                        }
+                        return '후성';
+                    }""")
+                    stock_query = detected_top1 or "후성"
+                    logger.info(f"🏆 [StockAppRecorder] 주제 4번 1위 종목 모달 오픈: {stock_query}")
+
+                    page.evaluate("() => window.scrollTo(0, 4090)")
+                    page.wait_for_timeout(300)
+                    inp = page.query_selector('input')
+                    if inp:
+                        inp.click()
+                        inp.fill("")
+                        for char in stock_query:
+                            inp.type(char, delay=40)
+                        page.wait_for_timeout(200)
+
+                    span_target = page.query_selector(f'text="{stock_query}"')
+                    if span_target:
+                        span_target.click()
+                        page.wait_for_timeout(800)
+
+                    # 4대 모달 탭 비례 순환
+                    # 1번째: [수급 현황]
+                    tab_supply = page.query_selector('text="수급 현황"')
+                    if tab_supply:
+                        tab_supply.click()
+                        page.wait_for_timeout(400)
+                        page.evaluate("() => window.smoothScrollModal(320, 600)")
+                        page.wait_for_timeout(max(500, tab_dur_ms - 400))
+
+                    # 2번째: [기술 지표]
+                    page.evaluate("() => window.smoothScrollModal(0, 200)")
+                    page.wait_for_timeout(200)
+                    tab_tech = page.query_selector('text="기술 지표"')
+                    if tab_tech:
+                        tab_tech.click()
+                        page.wait_for_timeout(400)
+                        page.evaluate("() => window.smoothScrollModal(380, 600)")
+                        page.wait_for_timeout(max(500, tab_dur_ms - 600))
+
+                    # 3번째: [리스크 평가]
+                    page.evaluate("() => window.smoothScrollModal(0, 200)")
+                    page.wait_for_timeout(200)
+                    tab_risk = page.query_selector('text="리스크 평가"')
+                    if tab_risk:
+                        tab_risk.click()
+                        page.wait_for_timeout(400)
+                        page.evaluate("() => window.smoothScrollModal(260, 600)")
+                        page.wait_for_timeout(max(500, tab_dur_ms - 600))
+
+                    # 4번째: [기본 정보]
+                    page.evaluate("() => window.smoothScrollModal(0, 200)")
+                    page.wait_for_timeout(200)
+                    tab_basic = page.query_selector('text="기본 정보"')
+                    if tab_basic:
+                        tab_basic.click()
+                        page.wait_for_timeout(400)
+                        page.evaluate("() => window.smoothScrollModal(320, 600)")
+                        page.wait_for_timeout(max(500, tab_dur_ms - 600))
 
                 else:
                     # =========================================================================
-                    # 🌟 [주제 1, 2, 4: 전광판 및 종목 모달] 28초 타임라인
+                    # 🌟 [주제 1, 2: 삼성전자 / SK하이닉스 종목 모달]
                     # =========================================================================
-                    # [0.0s ~ 4.5s] 350개 우량주 10분 전광판 헤더 & 당일 1위 종목 조망
-                    page.wait_for_timeout(4500)
+                    init_dur_ms = int(target_duration * 0.15 * 1000)
+                    search_dur_ms = 2200
+                    remain_ms = max(8000, int(target_duration * 1000 - init_dur_ms - search_dur_ms))
+                    tab_dur_ms = int(remain_ms / 4)
 
-                    # [4.5s ~ 7.5s] 검색창에 타깃 종목 타이핑 ➔ 종목 클릭 ➔ 모달 오픈
+                    page.wait_for_timeout(init_dur_ms)
+
                     stock_query = "SK하이닉스" if topic_id == 2 else "삼성전자"
                     inp = page.query_selector('input')
                     if inp:
                         inp.click()
                         inp.fill("")
                         for char in stock_query:
-                            inp.type(char, delay=60)
-                        page.wait_for_timeout(400)
+                            inp.type(char, delay=50)
+                        page.wait_for_timeout(300)
 
                     span_target = page.query_selector(f'text="{stock_query}"')
                     if span_target:
                         span_target.click()
-                        page.wait_for_timeout(1000)
+                        page.wait_for_timeout(800)
 
-                    # [주제 1, 2, 4] 4대 탭 순차 순환
-                    # 1번째: [수급 현황] 탭
+                    # 4대 탭 순차 순환
                     tab_supply = page.query_selector('text="수급 현황"')
                     if tab_supply:
                         tab_supply.click()
-                        page.wait_for_timeout(1000)
-                        page.evaluate("() => window.smoothScrollModal(320, 700)")
-                        page.wait_for_timeout(3500)
+                        page.wait_for_timeout(400)
+                        page.evaluate("() => window.smoothScrollModal(320, 600)")
+                        page.wait_for_timeout(max(500, tab_dur_ms - 400))
 
-                    # 2번째: [기술 지표] 탭
-                    page.evaluate("() => window.smoothScrollModal(0, 300)")
-                    page.wait_for_timeout(350)
+                    page.evaluate("() => window.smoothScrollModal(0, 200)")
+                    page.wait_for_timeout(200)
                     tab_tech = page.query_selector('text="기술 지표"')
                     if tab_tech:
                         tab_tech.click()
-                        page.wait_for_timeout(800)
-                        page.evaluate("() => window.smoothScrollModal(380, 700)")
-                        page.wait_for_timeout(3800)
+                        page.wait_for_timeout(400)
+                        page.evaluate("() => window.smoothScrollModal(380, 600)")
+                        page.wait_for_timeout(max(500, tab_dur_ms - 600))
 
-                    # 3번째: [리스크 평가] 탭
-                    page.evaluate("() => window.smoothScrollModal(0, 300)")
-                    page.wait_for_timeout(350)
+                    page.evaluate("() => window.smoothScrollModal(0, 200)")
+                    page.wait_for_timeout(200)
                     tab_risk = page.query_selector('text="리스크 평가"')
                     if tab_risk:
                         tab_risk.click()
-                        page.wait_for_timeout(800)
-                        page.evaluate("() => window.smoothScrollModal(260, 700)")
-                        page.wait_for_timeout(3400)
+                        page.wait_for_timeout(400)
+                        page.evaluate("() => window.smoothScrollModal(260, 600)")
+                        page.wait_for_timeout(max(500, tab_dur_ms - 600))
 
-                    # 4번째: [기본 정보] 탭
-                    page.evaluate("() => window.smoothScrollModal(0, 300)")
-                    page.wait_for_timeout(350)
+                    page.evaluate("() => window.smoothScrollModal(0, 200)")
+                    page.wait_for_timeout(200)
                     tab_basic = page.query_selector('text="기본 정보"')
                     if tab_basic:
                         tab_basic.click()
-                        page.wait_for_timeout(800)
-                        page.evaluate("() => window.smoothScrollModal(320, 700)")
-                        page.wait_for_timeout(3400)
+                        page.wait_for_timeout(400)
+                        page.evaluate("() => window.smoothScrollModal(320, 600)")
+                        page.wait_for_timeout(max(500, tab_dur_ms - 600))
 
                 # 28초 채우기
                 elapsed = time.time() - t_browser_start - self._ready_offset

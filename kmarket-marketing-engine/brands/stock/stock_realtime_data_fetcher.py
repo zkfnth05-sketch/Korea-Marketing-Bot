@@ -145,7 +145,12 @@ class StockRealtimeDataFetcher:
                 }""")
                 logger.info(f"🏆 [StockRealtimeDataFetcher] 전광판 실시간 1위 주도주: {top1_board_info}")
 
-                target_query = stock_name if stock_name not in ["리스크센터", "전광판1위", "매크로스트레스"] else "삼성전자"
+                if stock_name == "전광판1위":
+                    target_query = top1_board_info.get("stockName", "이수페타시스")
+                elif stock_name in ["리스크센터", "매크로스트레스"]:
+                    target_query = "삼성전자"
+                else:
+                    target_query = stock_name
 
                 inp = page.query_selector('input')
                 if inp:

@@ -384,14 +384,15 @@ class InsuranceShortsProducer(BaseShortsProducer):
         subprocess.run(cmd_pure, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
         logger.info(f"✨ [순수 인물 1080p 원테이크 완료] 저장: {pure_one_take_path}")
 
-        # 10. [SNS 포스팅 가이드 자동 생성]
+        # 10. [SNS 포스팅 가이드 자동 생성] (댓글창 찬반 논쟁 유발 고정 댓글 탑재)
         sns_guide_path = None
         try:
             from brands.insurance.insurance_sns_guide_generator import InsuranceSNSGuideGenerator
             sns_guide_path = str(InsuranceSNSGuideGenerator.save_guide_file(
                 output_folder=out_folder,
                 topic_id=topic_id,
-                speech_hook=speech_hook
+                speech_hook=speech_hook,
+                debate_question=scenario.get("debate_question")
             ))
         except Exception as e:
             logger.warning(f"SNS 포스팅 가이드 생성 실패: {e}")

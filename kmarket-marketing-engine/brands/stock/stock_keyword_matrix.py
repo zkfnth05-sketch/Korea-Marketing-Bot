@@ -203,7 +203,24 @@ class StockKeywordMatrix:
     def get_dashboard_summary(self) -> Dict[str, Any]:
         return self.matrix_cache
 
-    def get_live_hashtags(self, category: str = "korea_market", base_tags: Optional[List[str]] = None, count: int = 10) -> List[str]:
+    def get_live_hashtags(
+        self,
+        category: Optional[str] = None,
+        topic_id: int = 1,
+        base_tags: Optional[List[str]] = None,
+        count: int = 10
+    ) -> List[str]:
+        topic_cat_map = {
+            1: "korea_market",      # 삼성전자 vs SK하이닉스
+            2: "us_dividend_tech",  # 미국 배당성장 ETF SCHD/JEPQ
+            3: "quant_risk",        # 뇌동매매 방지 AI 손절매
+            4: "korea_market",      # 10분 계량 1위 주도주
+            5: "macro_economy",     # 시장 종합 스트레스 / 매크로
+            6: "quant_risk"         # AI 퀀트 비서
+        }
+        if not category:
+            category = topic_cat_map.get(topic_id, "korea_market")
+
         cat_info = self.matrix_cache.get("categories", {}).get(category, {})
         cat_viral = cat_info.get("viral_hashtags", [])[:4]
         kr_trends = self.matrix_cache.get("google_kr_live_trends", [])[:2]

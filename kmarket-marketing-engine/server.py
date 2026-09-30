@@ -242,6 +242,17 @@ def _brand_daemon_loop(brand: str):
     # 2. 4대 채널 옴니 블로그 무인 정시 스케줄러 가동 (하루 딱 2회: 12:00, 21:00 KST)
     threading.Thread(target=_brand_blog_worker, args=(brand,), daemon=True).start()
 
+    # 3. 📈 [StockMaster 전담] 30초 퀀트 숏폼 자율 스케줄러 가동 (평일 09:30/12:00/15:00, 주말 11:00/18:00)
+    if brand == "stock":
+        def _shorts_daemon_worker():
+            try:
+                from brands.stock.stock_shorts_scheduler import StockShortsScheduler
+                scheduler = StockShortsScheduler()
+                scheduler.run_continuous_daemon(check_interval_seconds=20)
+            except Exception as se:
+                log_event(f"⚠️ [Stock 숏폼 스케줄러 데몬 예외] {se}", "warning")
+        threading.Thread(target=_shorts_daemon_worker, daemon=True).start()
+
 # 📲 텔레그램 24시간 커뮤니티 — 브랜드별 독립 인스턴스 (K-Market / EasyTax 완전 분리)
 telegram_ai_managers = {
     "kmarket": TelegramAICommunityManager(brand="kmarket"),
@@ -1074,6 +1085,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
             b = parts[2] if len(parts) >= 3 else "aura"
             self._handle_get_kin_history(b)
             return
+        elif path == "/api/stock/shorts/status" or path.startswith("/api/stock/shorts/status"):
+            self._handle_get_stock_shorts_status()
+            return
 
         self._set_headers("text/plain", 404)
         self.wfile.write(b"Not Found")
@@ -1092,6 +1106,15 @@ class DashboardHandler(BaseHTTPRequestHandler):
         # 듀얼 봇 독립 제어 & 전체 일괄 제어
         if path == "/api/media_engine":
             self._handle_post_media_engine(payload)
+            return
+        elif path == "/api/stock/shorts/run":
+            self._handle_post_stock_shorts_run(payload)
+            return
+        elif path == "/api/stock/shorts/config":
+            self._handle_post_stock_shorts_config(payload)
+            return
+        elif path == "/api/stock/shorts/toggle-daemon":
+            self._handle_post_stock_shorts_toggle_daemon(payload)
             return
         elif path == "/api/aura/start":
             self._handle_brand_start("aura")
@@ -3029,6 +3052,83 @@ class DashboardHandler(BaseHTTPRequestHandler):
         log_event(res.get("message", f"🌐 [{brand.upper()}] 색인 핑 전송 완료"), "success" if res.get("success") else "warning")
         self._set_headers("application/json")
         self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+
+    # ── [📈 StockMaster AI] 30초 퀀트 숏폼 자율 스케줄러 핸들러 ─────────
+    def _handle_get_stock_shorts_status(self):
+        """📈 StockMaster AI 30초 퀀트 숏폼 스케줄러 실시간 현황 조회"""
+        try:
+            from brands.stock.stock_shorts_scheduler import StockShortsScheduler
+            scheduler = StockShortsScheduler()
+            data = scheduler.get_status()
+        except Exception as e:
+            data = {"success": False, "error": str(e)}
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_post_stock_shorts_run(self, payload: dict):
+        """📈 StockMaster AI 30초 퀀트 숏폼 1회 즉시 생성 (수동/선택 주제)"""
+        topic_id = payload.get("topic_id")
+        if topic_id is not None:
+            try:
+                topic_id = int(topic_id)
+            except Exception:
+                topic_id = None
+
+        def _worker():
+            try:
+                log_event(f"🎬 [StockMaster 숏폼] 주제 #{topic_id if topic_id else '자동 롤링'} 30초 완제품 즉시 렌더링 시작...", "info")
+                from brands.stock.stock_shorts_scheduler import StockShortsScheduler
+                scheduler = StockShortsScheduler()
+                res = scheduler.trigger_now(topic_id=topic_id)
+                rec = res.get("run_record", {})
+                log_event(
+                    f"🎉 [StockMaster 숏폼 완성!]\n"
+                    f"  - 🏷️ 주제: #{rec.get('topic_id')} {rec.get('topic_title')}\n"
+                    f"  - ⏱️ 실측 길이: {rec.get('duration')}s\n"
+                    f"  - 💾 용량: {rec.get('file_size_mb')} MB\n"
+                    f"  - 📁 파일: {rec.get('output_mp4')}\n"
+                    f"  - ⏭️ 다음 순차 롤링 예정: #{res.get('next_topic_id')}",
+                    "success"
+                )
+            except Exception as ex:
+                import traceback
+                err_detail = traceback.format_exc()
+                log_event(f"❌ [StockMaster 숏폼 생성 실패] {ex}\n{err_detail}", "error")
+
+        threading.Thread(target=_worker, daemon=True).start()
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps({
+            "success": True,
+            "message": f"🚀 [StockMaster] 주제 #{topic_id if topic_id else '자동 롤링'} 숏폼 생성이 백그라운드에서 시작되었습니다."
+        }, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_post_stock_shorts_config(self, payload: dict):
+        """📈 StockMaster AI 30초 퀀트 숏폼 스케줄 설정 변경"""
+        try:
+            from brands.stock.stock_shorts_scheduler import StockShortsScheduler
+            scheduler = StockShortsScheduler()
+            updated_status = scheduler.update_config(payload)
+            log_event("⚙️ [StockMaster 숏폼] 스케줄러 설정이 저장되었습니다.", "success")
+            self._set_headers("application/json")
+            self.wfile.write(json.dumps(updated_status, ensure_ascii=False).encode("utf-8"))
+        except Exception as e:
+            self._set_headers("application/json", 500)
+            self.wfile.write(json.dumps({"success": False, "error": str(e)}, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_post_stock_shorts_toggle_daemon(self, payload: dict):
+        """📈 StockMaster AI 30초 퀀트 숏폼 무인 데몬 ON/OFF 토글"""
+        try:
+            from brands.stock.stock_shorts_scheduler import StockShortsScheduler
+            scheduler = StockShortsScheduler()
+            enabled = payload.get("enabled", True)
+            updated_status = scheduler.update_config({"daemon_enabled": enabled})
+            status_text = "가동" if enabled else "정지"
+            log_event(f"⚡ [StockMaster 숏폼] 24/7 무인 스케줄러가 {status_text}되었습니다.", "info")
+            self._set_headers("application/json")
+            self.wfile.write(json.dumps(updated_status, ensure_ascii=False).encode("utf-8"))
+        except Exception as e:
+            self._set_headers("application/json", 500)
+            self.wfile.write(json.dumps({"success": False, "error": str(e)}, ensure_ascii=False).encode("utf-8"))
 
 def run_server(port: int = 8080):
     port = int(os.environ.get("PORT", port))

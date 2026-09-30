@@ -184,6 +184,7 @@ function switchBrand(brand) {
     if (typeof loadIRAnalytics === "function") loadIRAnalytics();
     if (typeof loadHealthStatus === "function") loadHealthStatus();
     if (typeof loadTelegramCommunityStats === "function") loadTelegramCommunityStats();
+    if (typeof renderStockShortsSchedulerPanel === "function") renderStockShortsSchedulerPanel();
 }
 
 window.showToast = showToast;

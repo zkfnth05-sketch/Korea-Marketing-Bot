@@ -46,3 +46,9 @@ gfpgan/
 # 🌐 크롬 브라우저 세션 프로필 및 캐시
 *_chrome_profile/
 **/*_chrome_profile/
+
+# 🧪 임시 스크래치 및 디버깅 프레임 디렉터리
+scratch_*
+debug_*
+temp_*
+scratch_test_*.py

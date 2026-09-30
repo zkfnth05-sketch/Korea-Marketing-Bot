@@ -546,14 +546,15 @@ class StockShortsProducer(BaseShortsProducer):
             logger.error(f"❌ 최종 컴포징 실패: {err}")
             raise RuntimeError(f"FFmpeg composite failed: {err}")
 
-        # SNS 포스팅 가이드 저장
+        # SNS 포스팅 가이드 저장 (댓글창 투자 토론 & 찬반 루프 고정 댓글 탑재)
         sns_guide_path = None
         try:
             from brands.stock.stock_sns_guide_generator import StockSNSGuideGenerator
             sns_guide_path = str(StockSNSGuideGenerator.save_guide_file(
                 output_folder=out_folder,
                 topic_id=topic_id,
-                speech_hook="뉴스는 좋다는데 내가 사면 왜 떨어질까? 주식 초보가 고점 설거지에 물리는 이유, 체결 강도와 이격도를 모르기 때문입니다."
+                speech_hook="뉴스는 좋다는데 내가 사면 왜 떨어질까? 주식 초보가 고점 설거지에 물리는 이유, 체결 강도와 이격도를 모르기 때문입니다.",
+                debate_question=scenario.get("debate_question")
             ))
         except Exception as e:
             logger.warning(f"SNS 가이드 생성 실패: {e}")

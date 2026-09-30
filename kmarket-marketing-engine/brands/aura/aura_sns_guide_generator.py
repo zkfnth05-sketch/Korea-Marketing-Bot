@@ -364,6 +364,21 @@ class AuraSNSGuideGenerator:
         except Exception:
             hashtags = data["hashtags"]
 
+        # 💬 [Aura 전용 찬반 논쟁 유발 고정 댓글 생성기 (독립 레고 블록)]
+        try:
+            from brands.aura.aura_debate_booster import AuraDebateBooster
+            debate_bundle = AuraDebateBooster.generate_pinned_comments(
+                topic_id=norm_id,
+                custom_question=debate_question
+            )
+            pinned_comment = debate_bundle["youtube_pinned"]
+            active_debate_q = debate_bundle["debate_question"]
+            if debate_bundle.get("threads_comment"):
+                threads_text = f"{threads_text}\n\n💬 [찬반 토론] {active_debate_q}"
+        except Exception:
+            pinned_comment = data["pinned_comment"]
+            active_debate_q = "여러분의 생각은 어떠신가요?"
+
         speech_summary = speech_hook or "2030 프리미엄 AI 데이팅 아우라 핵심 기능 소개"
 
         content = f"""================================================================================
@@ -375,6 +390,7 @@ class AuraSNSGuideGenerator:
 공식 네이버 검색어: {cls.OFFICIAL_SEARCH_KEYWORD}  (← 붙여쓰기 고정)
 공식 랜딩 URL: {cls.OFFICIAL_LANDING_URL}
 발화 훅 요약: {speech_summary}
+💬 찬반 논쟁 질문: {active_debate_q}
 🏷️ 추천 통합 해시태그: {hashtags}
 ================================================================================
 
@@ -386,7 +402,7 @@ class AuraSNSGuideGenerator:
 📌 [쇼츠 설명 (Description)]
 {yt_desc}
 
-📌 [고정 댓글 (Pinned Comment)]
+📌 [고정 댓글 (Pinned Comment - 댓글창 찬반 논쟁 유발 루프)]
 {pinned_comment}
 
 
@@ -440,12 +456,18 @@ class AuraSNSGuideGenerator:
         cls,
         output_folder: Path,
         topic_id: int = 1,
-        speech_hook: Optional[str] = None
+        speech_hook: Optional[str] = None,
+        debate_question: Optional[str] = None
     ) -> Path:
         """지정된 폴더에 SNS_포스팅_가이드.txt 파일 저장"""
         output_folder.mkdir(parents=True, exist_ok=True)
         file_path = output_folder / "SNS_포스팅_가이드.txt"
-        content = cls.generate_guide_content(topic_id=topic_id, speech_hook=speech_hook)
+        content = cls.generate_guide_content(
+            topic_id=topic_id,
+            speech_hook=speech_hook,
+            debate_question=debate_question
+        )
         file_path.write_text(content, encoding="utf-8")
         logger.info(f"📄 [Aura SNS 가이드 저장 완료] 파일: {file_path}")
         return file_path
+

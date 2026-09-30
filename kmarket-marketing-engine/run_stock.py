@@ -77,6 +77,35 @@ def main():
         scheduler.run_continuous_daemon(check_interval_seconds=300)
         return
 
+    # ── [30초 퀀트 숏폼 자율 스케줄러 & 즉시 실행 옵션] ──
+    if "--shorts-now" in sys.argv or "-sn" in sys.argv:
+        from brands.stock.stock_shorts_scheduler import StockShortsScheduler
+        topic_arg = None
+        for i, arg in enumerate(sys.argv):
+            if arg in ["--shorts-now", "-sn"] and i + 1 < len(sys.argv) and sys.argv[i + 1].isdigit():
+                topic_arg = int(sys.argv[i + 1])
+                break
+
+        print("\n==============================================")
+        print(f"📈 [StockMaster] 30초 퀀트 숏폼 1회 즉시 제작 (지정 주제: #{topic_arg if topic_arg else '자동 롤링'})")
+        print("==============================================\n")
+        scheduler = StockShortsScheduler()
+        res = scheduler.trigger_now(topic_id=topic_arg)
+        print("\n[숏폼 제작 결과 요약]:")
+        print(json.dumps(res, ensure_ascii=False, indent=2))
+        return
+
+    if "--shorts-daemon" in sys.argv or "-sd" in sys.argv:
+        from brands.stock.stock_shorts_scheduler import StockShortsScheduler
+        print("\n==============================================")
+        print("📈 [StockMaster] 30초 퀀트 숏폼 24시간 365일 무인 스케줄러 데몬 가동")
+        print("   • 평일: 09:30 / 12:00 / 15:00 (주제 1~6 순차 롤링)")
+        print("   • 주말/공휴일: 11:00(주제3) / 18:00(주제6) 특화 브랜딩")
+        print("==============================================\n")
+        scheduler = StockShortsScheduler()
+        scheduler.run_continuous_daemon(check_interval_seconds=20)
+        return
+
     is_live = "--live" in sys.argv
     dry_run = not is_live
 

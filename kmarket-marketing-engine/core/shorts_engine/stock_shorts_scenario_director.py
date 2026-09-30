@@ -66,6 +66,15 @@ class StockShortsScenarioDirector:
             "hero_copy": "시장 종합 스트레스 지수 & 4대 계량 매크로 리포트",
             "debate_question": "코스피 현 구간, 반등 랠리 vs 하방 압력?",
             "visual_direction": "메인 상단 글로벌 매크로 ➔ 시장 종합 스트레스 10점 국면 ➔ 4대 지표 스크롤"
+        },
+        6: {
+            "topic_id": 6,
+            "theme_name": "국내 최초 자기학습 AI 퀀트 비서! Stock Master AI 총괄 소개",
+            "theme_code": "stockmaster_official_overview",
+            "stock_target": "전광판1위",
+            "hero_copy": "10분 퀀트 스캔 • 30분 Gemini AI • 실시간 손절 알림!",
+            "debate_question": "감정 매매 vs 24시간 자기학습 AI 퀀트 비서?",
+            "visual_direction": "시장 스트레스 ➔ 10분 계량 전광판 ➔ 1등주 4대 모달 ➔ 실시간 손절 기능"
         }
     }
 

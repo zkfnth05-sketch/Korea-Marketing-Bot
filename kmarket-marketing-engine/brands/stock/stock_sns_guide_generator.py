@@ -204,12 +204,42 @@ class StockSNSGuideGenerator:
     OFFICIAL_URL = "https://stockmaster-ai.vercel.app/"
 
     @classmethod
-    def generate_guide_content(cls, topic_id: int, speech_hook: Optional[str] = None) -> str:
+    def generate_guide_content(
+        cls,
+        topic_id: int,
+        speech_hook: Optional[str] = None,
+        debate_question: Optional[str] = None
+    ) -> str:
         norm_id = ((topic_id - 1) % len(STOCK_TOPIC_SNS_DATA)) + 1
         data = STOCK_TOPIC_SNS_DATA.get(norm_id, STOCK_TOPIC_SNS_DATA[1])
 
         theme_name = data["theme_name"]
-        tags_str = " ".join(data["base_hashtags"])
+
+        # 🌟 실시간 바이럴 해시태그 융합 (StockKeywordMatrix 실시간 검색 트렌드 + 네이버/구글 핫키워드)
+        try:
+            from brands.stock.stock_keyword_matrix import StockKeywordMatrix
+            matrix = StockKeywordMatrix()
+            live_tag_list = matrix.get_live_hashtags(
+                topic_id=norm_id,
+                base_tags=data.get("base_hashtags", []),
+                count=10
+            )
+            tags_str = " ".join(live_tag_list)
+        except Exception:
+            tags_str = " ".join(data.get("base_hashtags", []))
+
+        # 💬 [Stock 전용 찬반 논쟁 유발 고정 댓글 생성기 (독립 레고 블록)]
+        try:
+            from brands.stock.stock_debate_booster import StockDebateBooster
+            debate_bundle = StockDebateBooster.generate_pinned_comments(
+                topic_id=norm_id,
+                custom_question=debate_question
+            )
+            pinned_comment = debate_bundle["youtube_pinned"]
+            active_debate_q = debate_bundle["debate_question"]
+        except Exception:
+            pinned_comment = data["pinned_comment"]
+            active_debate_q = "여러분의 투자 선택은?"
 
         guide = f"""================================================================================
 📈 [StockMaster AI 숏폼 5대 SNS 즉시 포스팅 가이드]
@@ -217,6 +247,7 @@ class StockSNSGuideGenerator:
 - 주제 번호: #{norm_id:02d} - {theme_name}
 - 공식 검색어: [{cls.OFFICIAL_KEYWORD}] (띄어쓰기 필수!)
 - 공식 웹앱 URL: {cls.OFFICIAL_URL}
+- 💬 찬반/투자 토론 질문: {active_debate_q}
 - 심의 준수: 특정 종목 매수/매도 권유 0%, 퀀트 데이터 기반 자가진단 및 객관적 지표 알림
 
 --------------------------------------------------------------------------------
@@ -229,8 +260,8 @@ class StockSNSGuideGenerator:
 {data['yt_desc']}
 {tags_str}
 
-[고정 댓글] (업로드 후 첫 댓글로 달고 '고정' 클릭)
-{data['pinned_comment']}
+[고정 댓글 (댓글창 투자 토론 & 찬반 루프)] (업로드 후 첫 댓글로 달고 '고정' 클릭)
+{pinned_comment}
 
 --------------------------------------------------------------------------------
 2. ⚫ 틱톡 (TikTok) - 캡션 & 해시태그
@@ -269,11 +300,21 @@ class StockSNSGuideGenerator:
         return guide
 
     @classmethod
-    def save_guide_file(cls, output_folder: Path, topic_id: int, speech_hook: Optional[str] = None) -> Path:
+    def save_guide_file(
+        cls,
+        output_folder: Path,
+        topic_id: int,
+        speech_hook: Optional[str] = None,
+        debate_question: Optional[str] = None
+    ) -> Path:
         out_p = Path(output_folder).resolve()
         out_p.mkdir(parents=True, exist_ok=True)
         guide_file = out_p / "SNS_포스팅_가이드.txt"
-        content = cls.generate_guide_content(topic_id=topic_id, speech_hook=speech_hook)
+        content = cls.generate_guide_content(
+            topic_id=topic_id,
+            speech_hook=speech_hook,
+            debate_question=debate_question
+        )
         guide_file.write_text(content, encoding="utf-8")
         logger.info(f"📄 [StockSNSGuideGenerator] SNS 포스팅 가이드 저장 완료: {guide_file}")
         return guide_file

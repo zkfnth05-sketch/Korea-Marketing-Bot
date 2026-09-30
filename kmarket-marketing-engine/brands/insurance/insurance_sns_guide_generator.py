@@ -350,13 +350,31 @@ class InsuranceSNSGuideGenerator:
         return combined
 
     @classmethod
-    def generate_guide_text(cls, topic_id: int = 1, speech_hook: Optional[str] = None) -> str:
+    def generate_guide_text(
+        cls,
+        topic_id: int = 1,
+        speech_hook: Optional[str] = None,
+        debate_question: Optional[str] = None
+    ) -> str:
         norm_id = ((topic_id - 1) % len(INSURANCE_TOPIC_SNS_DATA)) + 1
         data = INSURANCE_TOPIC_SNS_DATA.get(norm_id, INSURANCE_TOPIC_SNS_DATA[1])
 
         # 🌟 실시간 검색 트렌드 결합 해시태그 추출
         live_hashtags = cls.get_realtime_trending_hashtags(topic_id=norm_id, base_tags=data.get("base_hashtags", []))
         hashtags_str = " ".join(live_hashtags)
+
+        # 💬 [보험 전용 찬반 논쟁 유발 고정 댓글 생성기 (독립 레고 블록)]
+        try:
+            from brands.insurance.insurance_debate_booster import InsuranceDebateBooster
+            debate_bundle = InsuranceDebateBooster.generate_pinned_comments(
+                topic_id=norm_id,
+                custom_question=debate_question
+            )
+            pinned_comment = debate_bundle["youtube_pinned"]
+            active_debate_q = debate_bundle["debate_question"]
+        except Exception:
+            pinned_comment = data["pinned_comment"]
+            active_debate_q = "내 보험 보장 범위는 안전할까?"
 
         return f"""========================================================================================
 📢 [보험 리밸런스] 5대 SNS 플랫폼 원클릭 복사 포스팅 가이드 (주제 #{norm_id:02d}: {data['theme_name']})
@@ -365,6 +383,7 @@ class InsuranceSNSGuideGenerator:
   - 공식 네이버 검색 키워드: [보험 리밸런스] (띄어쓰기 필수!)
   - 공식 서비스 랜딩 URL: https://insure-rebalance.vercel.app/
   - 특정 보험사 영업 0% / 객관적 5대 보장 AI 실시간 비교
+  - 💬 찬반 논쟁 질문: {active_debate_q}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔴 1. 유튜브 쇼츠 (YouTube Shorts) 포스팅 가이드
@@ -376,8 +395,8 @@ class InsuranceSNSGuideGenerator:
 {data['yt_desc']}
 {hashtags_str}
 
-[고정 댓글 (Pinned Comment)]
-{data['pinned_comment']}
+[고정 댓글 (Pinned Comment - 댓글창 찬반 논쟁 유발 루프)]
+{pinned_comment}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚫ 2. 틱톡 (TikTok) 포스팅 가이드
@@ -425,8 +444,18 @@ class InsuranceSNSGuideGenerator:
 """
 
     @classmethod
-    def save_guide_file(cls, output_folder: Path, topic_id: int = 1, speech_hook: Optional[str] = None) -> Path:
-        guide_text = cls.generate_guide_text(topic_id=topic_id, speech_hook=speech_hook)
+    def save_guide_file(
+        cls,
+        output_folder: Path,
+        topic_id: int = 1,
+        speech_hook: Optional[str] = None,
+        debate_question: Optional[str] = None
+    ) -> Path:
+        guide_text = cls.generate_guide_text(
+            topic_id=topic_id,
+            speech_hook=speech_hook,
+            debate_question=debate_question
+        )
         guide_path = output_folder / f"SNS_포스팅_가이드_주제{topic_id:02d}.txt"
         guide_path.write_text(guide_text, encoding="utf-8")
         logger.info(f"📄 [SNS 가이드 자동 생성 완료] 저장 위치: {guide_path}")

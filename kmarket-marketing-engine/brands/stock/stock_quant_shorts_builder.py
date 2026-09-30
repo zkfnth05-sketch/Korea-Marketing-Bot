@@ -94,76 +94,96 @@ class StockQuantShortsBuilder:
         communicate = edge_tts.Communicate(text, voice, rate=rate)
         await communicate.save(output_path)
 
+    def get_exact_audio_duration(self, audio_path: str) -> float:
+        """FFmpeg로 mp3 음성 파일의 정확한 재생 길이(초)를 실측"""
+        try:
+            cmd = [self.ffmpeg_exe, "-i", str(audio_path)]
+            res = subprocess.run(cmd, capture_output=True)
+            stderr = res.stderr.decode("utf-8", errors="ignore")
+            import re
+            match = re.search(r"Duration:\s*(\d+):(\d+):(\d+\.\d+)", stderr)
+            if match:
+                h, m, s = match.groups()
+                return int(h) * 3600 + int(m) * 60 + float(s)
+        except Exception as e:
+            logger.warning(f"음성 길이 측정 실패 폴백: {e}")
+        return 30.0
+
     def generate_speech(self, text: str, output_path: str) -> str:
-        """초고속 TTS 음성 생성 (27.0~27.5초 정밀 맞춤 + 음성학적 정음 교정)"""
+        """초고속 TTS 음성 생성 (정밀 맞춤 + 음성학적 정음 교정)"""
         phonetic_text = self.phonetic_normalize(text)
         logger.info(f"🎙️ [TTS 정음 교정 대본]: {phonetic_text}")
         asyncio.run(self._generate_voice_async(phonetic_text, output_path, rate="+10%"))
         return output_path
 
     def build_shorts_by_topic(self, topic_id: int = 1, force_fresh_record: bool = True) -> Dict[str, Any]:
-        """국내 5대 마스터 주제별 30초 완제품 숏폼 자동 빌드"""
+        """국내 5대/6대 마스터 주제별 완제품 숏폼 자동 빌드 (대본 길이에 맞춤 100% 자동 동적 동기화)"""
         scenario = self.scenario_director.get_full_scenario(topic_id=topic_id)
         theme_name = scenario["theme_name"]
-        stock_target = scenario.get("stock_target", "삼성전자")
-        if stock_target in ["리스크센터", "전광판1위", "매크로스트레스"]:
-            stock_name = "삼성전자"
-        else:
-            stock_name = stock_target
+        stock_target = scenario.get("stock_target", "전광판1위" if topic_id == 4 else "삼성전자")
+        stock_name = stock_target
 
         topic_folder_names = {
             1: "[주제01] 삼성전자_실시간_4대모달_퀀트수급_30초",
             2: "[주제02] SK하이닉스_HBM독주_실시간수급_30초",
             3: "[주제03] 뇌동매매방지_1위이수페타시스_AI리스크가드_30초",
             4: "[주제04] 10분계량전광판_당일1위주도주_발굴_30초",
-            5: "[주제05] 코스피_시장종합스트레스_환율금리_30초"
+            5: "[주제05] 코스피_시장종합스트레스_환율금리_30초",
+            6: "[주제06] 스톡마스터AI_국내최초자기학습퀀트_총괄소개_30초"
         }
 
         folder_name = topic_folder_names.get(topic_id, f"[주제{topic_id:02d}] {theme_name}")
         out_folder = self.output_base / folder_name
         out_folder.mkdir(parents=True, exist_ok=True)
 
-        logger.info(f"🚀 [StockQuantShortsBuilder] {folder_name} 30초 실시간 숏폼 제작 가동!")
+        logger.info(f"🚀 [StockQuantShortsBuilder] {folder_name} 실시간 숏폼 제작 가동!")
 
         # 1. [Step 1] 주식앱 실제 배포 사이트에서 오늘 실시간 퀀트 & 매크로 데이터 수집
         logger.info(f"📡 [Step 1] stockmaster-ai.vercel.app '{stock_name}' 실시간 데이터 수집 중...")
         realtime_data = self.data_fetcher.fetch_stock_data(stock_name)
 
-        # 2. [Step 2] Gemini 2.5 Flash 맞춤 30초 대본 생성 (175~190자 / +10% 발화속도)
-        logger.info(f"🤖 [Step 2] Gemini 2.5 Flash 실시간 30초 맞춤 대본 생성 중 (주제 {topic_id})...")
+        # 2. [Step 2] Gemini Flash 맞춤 30초 대본 생성
+        logger.info(f"🤖 [Step 2] Gemini Flash 실시간 맞춤 대본 생성 중 (주제 {topic_id})...")
         script = self.script_writer.generate_30s_script(realtime_data, topic_id=topic_id)
         logger.info(f"📝 [확정 대본]: {script}")
 
-        # 3. [Step 3] 전문 금융 성우 음성 합성 (27.0~27.5초 정밀 맞춤)
+        # 3. [Step 3] 전문 금융 성우 음성 합성
         speech_audio_path = str(out_folder / "speech_audio.mp3")
         logger.info("🎙️ [Step 3] 전문 금융 성우 음성 합성 중 (+10% 정밀 속도)...")
         self.generate_speech(script, speech_audio_path)
 
-        # 4. [Step 4] 실물 웹앱 라이브 28.0초 화면 녹화
-        live_app_mp4 = str(out_folder / f"01_live_app_topic{topic_id:02d}_28s.mp4")
-        logger.info(f"📱 [Step 4] Playwright 실물 브라우저 28초 라이브 녹화 ({stock_name})...")
+        # 3-1. [오디오 퍼스트 동적 타임라인 계산]
+        audio_dur = self.get_exact_audio_duration(speech_audio_path)
+        cta_duration = 2.5
+        total_duration = round(audio_dur + 0.6, 2)
+        live_app_duration = max(18.0, round(total_duration - cta_duration, 2))
+        logger.info(f"⏱️ [Audio-First 동적 시간 동기화]: 음성실측={audio_dur:.2f}s, 앱녹화={live_app_duration:.2f}s, CTA={cta_duration:.2f}s, 완제품총길이={total_duration:.2f}s")
+
+        # 4. [Step 4] 실물 웹앱 라이브 화면 녹화
+        live_app_mp4 = str(out_folder / f"01_live_app_topic{topic_id:02d}_live.mp4")
+        logger.info(f"📱 [Step 4] Playwright 실물 브라우저 {live_app_duration:.1f}초 라이브 녹화 ({stock_name})...")
         self.recorder.record_simulation_clip(
             topic_id=topic_id,
-            duration_sec=28.0,
+            duration_sec=live_app_duration,
             output_mp4_path=live_app_mp4,
             force_fresh_record=force_fresh_record
         )
 
-        # 5. [Step 5] 2초 네이버 공식 검색 CTA 비디오 생성
-        cta_mp4 = str(out_folder / "02_cta_2s.mp4")
-        logger.info("🏷️ [Step 5] 2초 네이버 공식 검색 CTA 비디오 생성...")
+        # 5. [Step 5] 2.5초 네이버 공식 검색 CTA 비디오 생성
+        cta_mp4 = str(out_folder / "02_cta_2.5s.mp4")
+        logger.info(f"🏷️ [Step 5] {cta_duration:.1f}초 네이버 공식 검색 CTA 비디오 생성...")
         self.cta_card.create_cta_segment_mp4(
             output_path=cta_mp4,
-            duration_sec=2.0,
+            duration_sec=cta_duration,
             topic_title=theme_name,
             debate_question=scenario.get("debate_question", f"{stock_name} 지금 구간, 추격 매수 vs 조정 대기?"),
             search_keyword="스톡마스터 AI",
             hero_copy="10분마다 실시간 퀀트 데이터 무료 확인!"
         )
 
-        # 6. [Step 6] 28초 앱 영상 + 2초 CTA 결합 및 음성 믹싱 (정확히 30.0초 완제품)
+        # 6. [Step 6] 앱 영상 + CTA 결합 및 음성 믹싱 (대본 종료 시점 자동 완결)
         final_mp4 = out_folder / f"[주제{topic_id:02d}_완성본]_30초_세로풀HD.mp4"
-        logger.info(f"✨ [Step 6] 30.0초 1080x1920 세로 풀HD 최종 완제품 인코딩 중 -> {final_mp4}")
+        logger.info(f"✨ [Step 6] {total_duration:.2f}초 1080x1920 세로 풀HD 최종 완제품 인코딩 중 -> {final_mp4}")
 
         concat_list = out_folder / "concat_list.txt"
         concat_list.write_text(
@@ -178,7 +198,7 @@ class StockQuantShortsBuilder:
             "-i", speech_audio_path,
             "-map", "0:v:0",
             "-map", "1:a:0",
-            "-t", "30.00",
+            "-t", f"{total_duration:.2f}",
             "-vf", "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fps=30",
             "-c:v", "libx264",
             "-preset", "fast",
@@ -208,14 +228,16 @@ class StockQuantShortsBuilder:
             2: "SK하이닉스 HBM 독주와 5.1조원 거래대금 폭발! 실시간 퀀트 지표",
             3: "급등주 추격 매수로 계좌 녹이지 마세요! 전광판 1위 이수페타시스 142점 & AI 리스크 가드",
             4: "오늘 장중 국내 350개 우량주 중 진짜 1위 주도주 발굴!",
-            5: "대한민국 증시 시장 종합 스트레스 지수 10점 안정 국면! 글로벌 4대 매크로 리포트"
+            5: "대한민국 증시 시장 종합 스트레스 지수 10점 안정 국면! 글로벌 4대 매크로 리포트",
+            6: "하루 종일 HTS 보지 마세요! 국내 최초 자기학습 AI 퀀트 비서 Stock Master AI 총괄 소개"
         }
         topic_tags = {
             1: "#삼성전자 #주식수급 #외인기관수급 #주식AI #스톡마스터AI #삼성전자주가 #퀀트투자",
             2: "#SK하이닉스 #HBM반도체 #반도체주식 #주식AI #스톡마스터AI #SK하이닉스주가 #수급분석",
             3: "#이수페타시스 #뇌동매매방지 #주식손절매 #리스크관리 #주식AI #스톡마스터AI #원금보호 #퀀트투자",
             4: "#주도주 #급등주발굴 #10분전광판 #주식수급 #주식AI #스톡마스터AI #세력매집",
-            5: "#코스피 #시장스트레스 #미국국채금리 #환율전망 #주식AI #스톡마스터AI #증시시황"
+            5: "#코스피 #시장스트레스 #미국국채금리 #환율전망 #주식AI #스톡마스터AI #증시시황",
+            6: "#스톡마스터AI #주식AI #퀀트투자 #주식어플 #AI트레이딩 #직장인주식 #주식손절알림"
         }
 
         guide_text = f"""================================================================================
