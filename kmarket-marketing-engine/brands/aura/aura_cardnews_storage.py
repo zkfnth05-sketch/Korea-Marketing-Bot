@@ -42,6 +42,18 @@ class AuraCardnewsStorage:
     def __init__(self):
         self.BASE_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+    THEME_NAME_MAP = {
+        "escape_call": "01_소개팅긴급탈출전화",
+        "realtime_subtitles": "02_실시간AI자막통화",
+        "vip_gate_5050": "03_5050_VIP정원제",
+        "cheongdam_photo": "04_청담동화보보정",
+        "value_balance": "05_가치관밸런스매칭",
+        "smart_opener": "06_AI첫대화비서",
+        "ai_icebreaker": "06_AI첫대화비서",
+        "ai_charm_scanner": "07_AI매력상궁합진단",
+        "safe_radar_500m": "08_500m안심레이더"
+    }
+
     @classmethod
     def get_base_dir(cls) -> Path:
         """기본 저장 루트 디렉터리 반환 및 생성"""
@@ -49,17 +61,27 @@ class AuraCardnewsStorage:
         return cls.BASE_OUTPUT_DIR
 
     @classmethod
-    def create_target_directory(cls, theme_code: str = "escape_call", lang: str = "KO") -> Path:
+    def create_target_directory(cls, theme_code: str = "escape_call", lang: str = "KO", theme_title: Optional[str] = None) -> Path:
         """
-        이지텍스 산출물과 100% 동일한 형식의 바탕화면 타겟 폴더 생성
-        예: C:/Users/zkfnt/Desktop/한국 카드뉴스_산출물/아우라/아우라_KO_escape_call_20260930_1410
+        주제 번호와 한국어 이름이 명확하게 들어간 직관적인 바탕화면 타겟 폴더 생성
+        예: C:/Users/zkfnt/Desktop/한국 카드뉴스_산출물/아우라/아우라_01_소개팅긴급탈출전화_20261001_0853
         """
         cls.BASE_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
         dt_str = datetime.now().strftime("%Y%m%d_%H%M")
-        folder_name = f"아우라_{lang.upper()}_{theme_code}_{dt_str}"
+        
+        # 한국어 주제 레이블 추출
+        topic_label = cls.THEME_NAME_MAP.get(theme_code)
+        if not topic_label:
+            if theme_title:
+                clean_title = "".join(c for c in theme_title if c.isalnum() or c in ("_", "-"))
+                topic_label = clean_title
+            else:
+                topic_label = theme_code
+
+        folder_name = f"아우라_{topic_label}_{dt_str}"
         target_dir = cls.BASE_OUTPUT_DIR / folder_name
         target_dir.mkdir(parents=True, exist_ok=True)
-        logger.info(f"📁 [AuraStorage] 산출물 폴더 준비 완료: {target_dir}")
+        logger.info(f"📁 [AuraStorage] 직관적인 산출물 폴더 준비 완료: {target_dir}")
         return target_dir
 
     @classmethod

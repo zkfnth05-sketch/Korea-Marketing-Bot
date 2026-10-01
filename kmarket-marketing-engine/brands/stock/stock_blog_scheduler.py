@@ -40,7 +40,7 @@ KST = timezone(timedelta(hours=9))
 class StockBlogScheduler:
     """StockMaster 정기 자동 발행 스케줄러 레고 블록 (영구 순환 상태 지원)"""
 
-    SCHEDULE_HOURS = [12, 21]  # 하루 딱 2회 (12:00, 21:00 KST)
+    SCHEDULE_HOURS = [10, 18]  # 하루 딱 2회 (10:00, 18:00 KST)
     SCHEDULE_MINUTE = 0
 
     def __init__(self):

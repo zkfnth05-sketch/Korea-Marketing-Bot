@@ -37,7 +37,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 STATE_FILE = DATA_DIR / "aura_blog_rotation_state.json"
 
 # 골든타임 정의 (KST 기준)
-GOLDEN_HOURS = [12, 21]  # 낮 12:00, 밤 21:00
+GOLDEN_HOURS = [10, 18]  # 아침 10:00, 오후 18:00
 
 
 class AuraBlogScheduler:
@@ -85,7 +85,7 @@ class AuraBlogScheduler:
             "last_run_time": self.state.get("last_run_time", "발행 이력 없음"),
             "last_title": self.state.get("last_title", "-"),
             "published_count": self.state.get("published_count", 0),
-            "daily_schedule": "하루 2회 (12:00 / 21:00 KST)",
+            "daily_schedule": "하루 2회 (10:00 / 18:00 KST)",
             "cycle_days": "50일 무중복 순환 (100개 / 2)"
         }
 

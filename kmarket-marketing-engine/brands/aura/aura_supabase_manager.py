@@ -75,14 +75,25 @@ class AuraSupabaseManager:
             logger.warning(f"⚠️ [AuraSupabase] 업로드할 이미지 파일이 존재하지 않음: {local_image_path}")
             return None
 
-        file_name = p.name
+        import re
+        safe_stem = re.sub(r'[^a-zA-Z0-9_\-]', '_', p.stem)
+        file_name = f"{safe_stem}{p.suffix.lower()}"
         storage_path = f"{bucket_subpath}/{file_name}"
 
         try:
             with open(p, "rb") as f:
                 img_bytes = f.read()
 
-            content_type = "image/webp" if p.suffix.lower() == ".webp" else "image/jpeg"
+            suffix = p.suffix.lower()
+            if suffix == ".mp4":
+                content_type = "video/mp4"
+            elif suffix == ".webp":
+                content_type = "image/webp"
+            elif suffix == ".png":
+                content_type = "image/png"
+            else:
+                content_type = "image/jpeg"
+
             self.client.storage.from_("aura-media").upload(
                 path=storage_path,
                 file=img_bytes,

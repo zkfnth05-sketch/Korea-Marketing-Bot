@@ -125,31 +125,29 @@ AURA_8_CARDNEWS_SCENARIOS: Dict[int, Dict[str, Any]] = {
             },
             {
                 "page": 4,
-                "badge": "Aura AI 안심 기능",
-                "title": "버튼 하나로 진짜 팀장님 음성 전화가 걸려옵니다",
-                "subtitle": "Aura 앱의 '긴급 탈출 전화'로 완벽한 타이밍에 탈출하세요",
+                "badge": "실전 앱 안심 구동",
+                "title": "버튼 하나로 진짜 팀장님 음성 전화 & 대본 자동 표출",
+                "subtitle": "Aura 앱의 '긴급 탈출 전화'로 완벽한 타이밍에 1차 매너 귀가",
                 "bullets": [
-                    "소개팅 시작 전 1분 뒤 긴급 자동 수신 예약 ON",
+                    "소개팅 시작 전 30분 뒤 긴급 자동 수신 예약 ON",
                     "실제 스마트폰 벨소리와 함께 팀장님 음성 통화 연결",
                     "화면에 표출되는 자연스러운 통화 대본 보고 읽으면 끝!"
                 ],
                 "cta_button": "댓글 찬반 투표 참여 >",
-                "asset_image": "brands/aura/assets/aura_escape_call_screen.png",
+                "asset_image": "brands/aura/assets/aura_escape_call_dialog.png",
                 "use_direct_asset": True
             },
             {
                 "page": 5,
-                "badge": "찬반 토론 & 검색 CTA",
+                "badge": "찬반 토론 & 회원가입 CTA",
                 "title": "소개팅 긴급 탈출 전화, 센스다 vs 너무하다?",
-                "subtitle": "여러분의 솔직한 생각을 댓글로 남겨주세요! 👇",
+                "subtitle": "불안한 소개팅은 이제 그만! 안심하고 만나는 Aura 데이팅",
                 "bullets": [
-                    "1번: 서로 시간 낭비 안 하는 최고의 센스다",
-                    "2번: 아무리 그래도 끝까지 예의를 지켜야 한다",
-                    "네이버 검색창에 '아우라AI데이팅'을 검색해보세요!"
+                    "사진 1장으로 1초 만에 프로필 등록 & 무료 가입",
+                    "50:50 황금 성비율 • 100% 실명 인증된 2030 라운지",
+                    "긴급 탈출 가디언 + AI 첫대화 비서 평생 무료 제공"
                 ],
-                "cta_button": "네이버에 '아우라AI데이팅' 검색하기 >",
-                "asset_image": "brands/aura/assets/aura_escape_call_dialog.png",
-                "use_direct_asset": True
+                "cta_button": "네이버에 '아우라AI데이팅' 검색하기 >"
             }
         ]
     },
@@ -283,13 +281,13 @@ AURA_8_CARDNEWS_SCENARIOS: Dict[int, Dict[str, Any]] = {
             },
             {
                 "page": 5,
-                "badge": "찬반 토론 & 검색 CTA",
-                "title": "언어 안 통해도 AI 자막으로 연애 가능? 찬성 vs 반대",
-                "subtitle": "여러분의 솔직한 생각을 댓글로 남겨주세요! 👇",
+                "badge": "찬반 토론 & 회원가입 CTA",
+                "title": "외국어 몰라도 실시간 AI 자막으로 글로벌 연애 가능? 찬성 vs 반대",
+                "subtitle": "언어 장벽 없는 글로벌 썸! 안심하고 만나는 Aura 데이팅",
                 "bullets": [
-                    "1번: 마음과 감정이 통하면 언어는 문제없다",
-                    "2번: 깊은 대화와 연애까지는 그래도 무리다",
-                    "네이버 검색창에 '아우라AI데이팅'을 검색해보세요!"
+                    "사진 1장으로 1초 만에 프로필 등록 & 무료 가입",
+                    "50:50 황금 성비율 • 글로벌 라운지 즉시 입장",
+                    "실시간 AI 자막 영상통화 평생 무료 제공"
                 ],
                 "cta_button": "네이버에 '아우라AI데이팅' 검색하기 >"
             }

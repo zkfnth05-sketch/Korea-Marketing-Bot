@@ -12,6 +12,7 @@ AuraCardnewsProducer - 💖 [EasyTax 검증 규격 기반 Aura 카드뉴스 전�
 
 import os
 import sys
+import copy
 import time
 import logging
 from pathlib import Path
@@ -21,13 +22,14 @@ from PIL import Image
 from .aura_cardnews_scenario_director import AuraCardnewsScenarioDirector
 from .aura_cardnews_typography import AuraCardnewsTypography
 from .aura_cardnews_storage import AuraCardnewsStorage
+from .aura_cardnews_gemini_copywriter import AuraCardnewsGeminiCopywriter
 from core.engine.wan_pipeline_client import WanPipelineClient
 
 logger = logging.getLogger("AuraCardnewsProducer")
 
 
 class AuraCardnewsProducer:
-    """💖 Aura 2030 데이팅 5장 풀세트 카드뉴스 전용 생산 엔진 (이지텍스 엔진 아키텍처 이식)"""
+    """💖 Aura 2030 데이팅 5장 풀세트 카드뉴스 전용 생산 엔진 (제미나이 100% 실시간 카피라이터 일체형)"""
 
     OFFICIAL_KEYWORD = "아우라AI데이팅"
     OFFICIAL_URL = "https://aura-ai-dating.vercel.app/lounge"
@@ -35,6 +37,7 @@ class AuraCardnewsProducer:
     def __init__(self):
         self.scenario_director = AuraCardnewsScenarioDirector()
         self.typography_engine = AuraCardnewsTypography()
+        self.copywriter = AuraCardnewsGeminiCopywriter()
         self.wan_client = WanPipelineClient()
         self._wan_available = self.wan_client.check_health()
         if self._wan_available:
@@ -70,7 +73,6 @@ class AuraCardnewsProducer:
         )
         logger.info(f"✅ [Slide {slide_idx}] 원본 생성 완료: {raw_path}")
 
-
         # 1080x1350 스마트 비율 맞춤 크롭
         raw_img = Image.open(raw_path).convert("RGB")
         target_w, target_h = 1080, 1350
@@ -89,7 +91,8 @@ class AuraCardnewsProducer:
         topic_id: int = 1,
         master_seed: Optional[int] = None,
         target_dir: Optional[Path] = None,
-        fashion_id: Optional[int] = None
+        fashion_id: Optional[int] = None,
+        copy_data: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         🚀 [봇 자율 구동] 특정 슬라이드 번호 단독 생성 및 바탕화면 저장
@@ -102,8 +105,26 @@ class AuraCardnewsProducer:
         if not slides or slide_num > len(slides):
             raise ValueError(f"주제 {topic_id}의 {slide_num}번 슬라이드 시나리오가 없습니다.")
 
-        card_data = slides[slide_num - 1]
+        card_data = copy.deepcopy(slides[slide_num - 1])
         logger.info(f"🚀 [AuraCardnewsProducer] {slide_num}번 카드 봇 자율 생성 시작: {theme_name}")
+
+        # 제미나이 동적 카피 주입
+        if copy_data:
+            s_key = f"slide{slide_num}"
+            s_copy = copy_data.get(s_key, copy_data) if isinstance(copy_data, dict) else {}
+            if isinstance(s_copy, dict):
+                h1 = s_copy.get("headline_line1", "")
+                h2 = s_copy.get("headline_line2", "")
+                if h1:
+                    card_data["title"] = f"{h1}\n{h2}" if h2 else h1
+                if s_copy.get("subtitle"):
+                    card_data["subtitle"] = s_copy["subtitle"]
+                if s_copy.get("bullets"):
+                    card_data["bullets"] = s_copy["bullets"]
+                if s_copy.get("badge"):
+                    card_data["badge"] = s_copy["badge"]
+                if s_copy.get("cta_text"):
+                    card_data["cta_button"] = s_copy["cta_text"]
 
         # 1. 고정 에셋(Aura 앱 실물 화면 등)인 경우 Wan 생성 없이 즉시 로드 (영구 재사용)
         asset_rel_path = card_data.get("asset_image")
@@ -123,25 +144,81 @@ class AuraCardnewsProducer:
                 master_seed=master_seed
             )
 
-        # 2. 타이포그래피 합성 (1080x1350)
-        logger.info(f"🖋️ [AuraCardnewsProducer] Playwright 골든 타이포그래피 합성 ({slide_num}/5)...")
-        rendered_slide = self.typography_engine.render_slide(
-            bg_image=base_photo,
-            card_data=card_data,
-            slide_idx=slide_num,
-            total_slides=5
-        )
+        # 2. 5번 슬라이드의 경우 주제별 전용 럭셔리 엔딩 CTA 빌더 연동
+        if slide_num == 5:
+            topic_s5_rendered = False
+            temp_s5_path = Path(__file__).resolve().parent / f"temp_s5_topic{topic_id}.png"
+            s5_copy = copy_data.get("slide5", copy_data) if (copy_data and isinstance(copy_data, dict)) else None
+            try:
+                if topic_id == 1:
+                    from .aura_cardnews_s5_topic1_builder import AuraCardnewsS5Topic1Builder
+                    AuraCardnewsS5Topic1Builder().build_s5_ending_card(str(temp_s5_path), copy_data=s5_copy)
+                    rendered_slide = Image.open(str(temp_s5_path)).convert("RGB")
+                    topic_s5_rendered = True
+                elif topic_id == 2:
+                    from .aura_cardnews_s5_topic2_builder import AuraCardnewsS5Topic2Builder
+                    AuraCardnewsS5Topic2Builder().build_s5_ending_card(str(temp_s5_path), copy_data=s5_copy)
+                    rendered_slide = Image.open(str(temp_s5_path)).convert("RGB")
+                    topic_s5_rendered = True
+                elif topic_id == 3:
+                    from .aura_cardnews_s5_topic3_builder import AuraCardnewsS5Topic3Builder
+                    AuraCardnewsS5Topic3Builder().build_s5_ending_card(str(temp_s5_path), copy_data=s5_copy)
+                    rendered_slide = Image.open(str(temp_s5_path)).convert("RGB")
+                    topic_s5_rendered = True
+                elif topic_id == 4:
+                    from .aura_cardnews_s5_topic4_builder import AuraCardnewsS5Topic4Builder
+                    AuraCardnewsS5Topic4Builder().build_s5_ending_card(str(temp_s5_path), copy_data=s5_copy)
+                    rendered_slide = Image.open(str(temp_s5_path)).convert("RGB")
+                    topic_s5_rendered = True
+                elif topic_id == 5:
+                    from .aura_cardnews_s5_topic5_builder import AuraCardnewsS5Topic5Builder
+                    AuraCardnewsS5Topic5Builder().build_s5_ending_card(str(temp_s5_path), copy_data=s5_copy)
+                    rendered_slide = Image.open(str(temp_s5_path)).convert("RGB")
+                    topic_s5_rendered = True
+                elif topic_id == 6:
+                    from .aura_cardnews_s5_topic6_builder import AuraCardnewsS5Topic6Builder
+                    AuraCardnewsS5Topic6Builder().build_s5_ending_card(str(temp_s5_path), copy_data=s5_copy)
+                    rendered_slide = Image.open(str(temp_s5_path)).convert("RGB")
+                    topic_s5_rendered = True
+                elif topic_id == 7:
+                    from .aura_cardnews_s5_topic7_builder import AuraCardnewsS5Topic7Builder
+                    AuraCardnewsS5Topic7Builder().build_s5_ending_card(str(temp_s5_path), copy_data=s5_copy)
+                    rendered_slide = Image.open(str(temp_s5_path)).convert("RGB")
+                    topic_s5_rendered = True
+                elif topic_id == 8:
+                    from .aura_cardnews_s5_topic8_builder import AuraCardnewsS5Topic8Builder
+                    AuraCardnewsS5Topic8Builder().build_s5_ending_card(str(temp_s5_path), copy_data=s5_copy)
+                    rendered_slide = Image.open(str(temp_s5_path)).convert("RGB")
+                    topic_s5_rendered = True
+            except Exception as e:
+                logger.warning(f"⚠️ [Slide 5] 주제별 전용 S5 빌더 실행 실패 ({e}) -> 기본 타이포그래피 모드로 폴백")
 
+            if not topic_s5_rendered:
+                logger.info(f"🖋️ [AuraCardnewsProducer] Playwright 골든 타이포그래피 합성 ({slide_num}/5)...")
+                rendered_slide = self.typography_engine.render_slide(
+                    bg_image=base_photo,
+                    card_data=card_data,
+                    slide_idx=slide_num,
+                    total_slides=5
+                )
+        else:
+            # 2. 타이포그래피 합성 (1080x1350)
+            logger.info(f"🖋️ [AuraCardnewsProducer] Playwright 골든 타이포그래피 합성 ({slide_num}/5)...")
+            rendered_slide = self.typography_engine.render_slide(
+                bg_image=base_photo,
+                card_data=card_data,
+                slide_idx=slide_num,
+                total_slides=5
+            )
 
         # 3. 바탕화면 타겟 폴더 준비 (기존 지정 폴더 없으면 최신 폴더 또는 신규 생성)
         if target_dir is None:
-            # 기존 아우라 폴더 중 가장 최근 폴더가 있으면 거기에 추가, 없으면 신규
             base_aura = AuraCardnewsStorage.get_base_dir()
-            existing_folders = sorted(base_aura.glob(f"아우라_KO_{theme_code}_*"), key=lambda p: p.stat().st_mtime, reverse=True)
+            existing_folders = sorted(base_aura.glob(f"아우라_*{theme_code}*"), key=lambda p: p.stat().st_mtime, reverse=True)
             if existing_folders and (time.time() - existing_folders[0].stat().st_mtime) < 1800:
                 target_dir = existing_folders[0]
             else:
-                target_dir = AuraCardnewsStorage.create_target_directory(theme_code=theme_code, lang="KO")
+                target_dir = AuraCardnewsStorage.create_target_directory(theme_code=theme_code, lang="KO", theme_title=theme_name)
 
         saved_path = AuraCardnewsStorage.save_slide_image(
             image=rendered_slide,
@@ -180,14 +257,23 @@ class AuraCardnewsProducer:
         topic_id: int = 1,
         master_seed: Optional[int] = None,
         target_dir: Optional[Path] = None,
-        fashion_id: Optional[int] = None
+        fashion_id: Optional[int] = None,
+        copy_data: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
-        🚀 [5장 풀세트 원스톱 자동 생산]
-        - 신규 타겟 디렉터리 생성 (예: 아우라_KO_escape_call_YYYYMMDD_HHMM)
-        - 1번~5번 슬라이드 순차 자율 생성 및 저장 (1~3번 동일 의상 일관 적용)
-        - SNS 포스팅 가이드 및 metadata.json 자동 완성
+        🚀 [5장 풀세트 원스톱 자동 생산 - 제미나이 100% 실시간 자율 창작 연동]
         """
+        # 전용 모듈형 파이프라인으로 라우팅 (주제 6, 7, 8)
+        if topic_id == 6:
+            from .aura_cardnews_topic6_pipeline import AuraCardnewsTopic6Pipeline
+            return AuraCardnewsTopic6Pipeline().run_pipeline(target_dir=str(target_dir) if target_dir else None, copy_data=copy_data, seed=master_seed)
+        elif topic_id == 7:
+            from .aura_cardnews_topic7_pipeline import AuraCardnewsTopic7Pipeline
+            return AuraCardnewsTopic7Pipeline().run_pipeline(outfit_id=fashion_id, target_dir=str(target_dir) if target_dir else None, seed=master_seed)
+        elif topic_id == 8:
+            from .aura_cardnews_topic8_pipeline import AuraCardnewsTopic8Pipeline
+            return AuraCardnewsTopic8Pipeline().run_pipeline(outfit_id=fashion_id, target_dir=str(target_dir) if target_dir else None, copy_data=copy_data)
+
         scenario = self.scenario_director.get_scenario(topic_id=topic_id, fashion_id=fashion_id)
         chosen_fashion = scenario.get("fashion_preset", {})
         chosen_fashion_id = chosen_fashion.get("id")
@@ -196,29 +282,44 @@ class AuraCardnewsProducer:
         slides = scenario.get("slides", [])
 
         if target_dir is None:
-            target_dir = AuraCardnewsStorage.create_target_directory(theme_code=theme_code, lang="KO")
+            target_dir = AuraCardnewsStorage.create_target_directory(theme_code=theme_code, lang="KO", theme_title=theme_name)
+        elif isinstance(target_dir, str):
+            target_dir = Path(target_dir)
 
         fashion_title = f" [{chosen_fashion.get('name_ko')}]" if chosen_fashion else ""
         logger.info(f"🚀 [AuraCardnewsProducer] '{theme_name}'{fashion_title} 5장 풀세트 카드뉴스 생산 가동 -> {target_dir}")
 
+        # 제미나이 100% 실시간 카피 창작 (1회 호출)
+        if not copy_data:
+            logger.info(f"🤖 [AuraCardnewsProducer] 주제 #{topic_id} 제미나이 실시간 AI 카피라이터 가동...")
+            copy_data = self.copywriter.generate_cardnews_copy(topic_id=topic_id, outfit=chosen_fashion)
+
         slide_paths = []
         for s_idx in range(1, len(slides) + 1):
-            logger.info(f"📸 [{s_idx}/{len(slides)}] 카드뉴스 슬라이드 생성 중...")
+            logger.info(f"📸 [{s_idx}/{len(slides)}] 카드뉴스 슬라이드 생성 중 (제미나이 카피 주입)...")
             res = self.produce_slide(
                 slide_num=s_idx,
                 topic_id=topic_id,
                 master_seed=master_seed,
                 target_dir=target_dir,
-                fashion_id=chosen_fashion_id
+                fashion_id=chosen_fashion_id,
+                copy_data=copy_data
             )
             slide_paths.append(res["slide_path"])
 
-        guide_path = AuraCardnewsStorage.save_guide_file(
-            target_dir=target_dir,
-            theme_code=theme_code,
+        # 7대 SNS 포스팅 가이드 완결 생성 (AuraSNSGuideMaster 연동)
+        from .aura_sns_guide_master import AuraSNSGuideMaster
+        guide_content = AuraSNSGuideMaster.build_cardnews_guide(
+            topic_id=topic_id,
             theme_name=theme_name,
-            slides_data=slides
+            theme_code=theme_code,
+            copy_data=copy_data
         )
+
+        guide_path = target_dir / "SNS_포스팅_가이드_KO.txt"
+        with open(guide_path, "w", encoding="utf-8") as f:
+            f.write(guide_content)
+        logger.info(f"✅ SNS 포스팅 가이드 생성 완료: {guide_path}")
 
         meta_path = AuraCardnewsStorage.save_metadata(
             target_dir=target_dir,

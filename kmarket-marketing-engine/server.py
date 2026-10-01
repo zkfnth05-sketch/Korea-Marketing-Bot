@@ -155,14 +155,14 @@ def _brand_kin_worker(brand: str):
 
 def _brand_blog_worker(brand: str):
     """
-    ⏰ [정시 무인 스케줄러] 대한민국 표준시(KST) 기준 하루 딱 2회 (12:00 / 21:00) 정시에만 무인 자동 발행
+    ⏰ [정시 무인 스케줄러] 대한민국 표준시(KST) 기준 하루 딱 2회 (10:00 / 18:00) 정시에만 무인 자동 발행
     - 30분 무한 반복 도배 원천 제거
-    - 12:00 정시 1회, 21:00 정시 1회만 정확히 실행 후 다음 슬롯까지 무음 대기
+    - 10:00 정시 1회, 18:00 정시 1회만 정확히 실행 후 다음 슬롯까지 무음 대기
     """
     name_map = {"aura": "💖 Aura 데이팅", "insurance": "🛡️ InsureBalance 보험비교", "stock": "📈 Stock Master 주식AI"}
     brand_kr = name_map.get(brand, brand.upper())
 
-    log_event(f"⏰ [{brand_kr}] 4대 채널 옴니 블로그 하루 2회(12:00 / 21:00 KST) 무인 정시 스케줄러 가동", "success")
+    log_event(f"⏰ [{brand_kr}] 4대 채널 옴니 블로그 하루 2회(10:00 / 18:00 KST) 무인 정시 스케줄러 가동", "success")
     executed_slots = set()
 
     while brand_daemons_running.get(brand, False):
@@ -172,18 +172,18 @@ def _brand_blog_worker(brand: str):
             hour = now.hour
             minute = now.minute
 
-            # 정시 골든타임 2슬롯 (12:00, 21:00)
-            is_noon_slot = (hour == 12 and minute == 0)
-            is_night_slot = (hour == 21 and minute == 0)
+            # 정시 골든타임 2슬롯 (아침 10:00, 오후 18:00)
+            is_morning_slot = (hour == 10 and minute == 0)
+            is_evening_slot = (hour == 18 and minute == 0)
 
             slot_key = None
-            if is_noon_slot and f"{today_str}_12" not in executed_slots:
-                slot_key = f"{today_str}_12"
-            elif is_night_slot and f"{today_str}_21" not in executed_slots:
-                slot_key = f"{today_str}_21"
+            if is_morning_slot and f"{today_str}_10" not in executed_slots:
+                slot_key = f"{today_str}_10"
+            elif is_evening_slot and f"{today_str}_18" not in executed_slots:
+                slot_key = f"{today_str}_18"
 
             if slot_key:
-                slot_name = "낮 12:00" if "12" in slot_key else "밤 21:00"
+                slot_name = "아침 10:00" if "10" in slot_key else "오후 18:00"
                 log_event(f"⏰ [{brand_kr}] {slot_name} 정시 도달! 1회 정기 블로그 무인 발행 시작...", "info")
 
                 brand_stats[brand]["cycle"] += 1
@@ -252,6 +252,25 @@ def _brand_daemon_loop(brand: str):
             except Exception as se:
                 log_event(f"⚠️ [Stock 숏폼 스케줄러 데몬 예외] {se}", "warning")
         threading.Thread(target=_shorts_daemon_worker, daemon=True).start()
+
+    # 4. 📸 [메타(인스타+페북) 하루 2회 골든타임 카드뉴스/피드 무인 스케줄러]
+    def _meta_daemon_worker():
+        try:
+            if brand == "aura":
+                from brands.aura.aura_meta_scheduler import AuraMetaScheduler
+                m_sched = AuraMetaScheduler()
+                m_sched.start_daemon(check_interval_seconds=60)
+            elif brand == "insurance":
+                from brands.insurance.insurance_meta_scheduler import InsuranceMetaScheduler
+                m_sched = InsuranceMetaScheduler()
+                m_sched.start_daemon(check_interval_seconds=60)
+            elif brand == "stock":
+                from brands.stock.stock_meta_scheduler import StockMetaScheduler
+                m_sched = StockMetaScheduler()
+                m_sched.start_daemon(check_interval_seconds=60)
+        except Exception as me:
+            log_event(f"⚠️ [{brand_kr} 메타 스케줄러 데몬 예외] {me}", "warning")
+    threading.Thread(target=_meta_daemon_worker, daemon=True).start()
 
 # 📲 텔레그램 24시간 커뮤니티 — 브랜드별 독립 인스턴스 (K-Market / EasyTax 완전 분리)
 telegram_ai_managers = {

@@ -23,11 +23,23 @@ class AuraCardnewsS5Topic5Builder:
     def __init__(self):
         self.base_dir = Path(__file__).resolve().parent
 
-    def build_s5_ending_card(self, output_png_path: str) -> str:
-        """1080x1350 카드뉴스 규격 럭셔리 엔딩 CTA 카드 렌더링"""
+    def build_s5_ending_card(self, output_png_path: str, copy_data: dict = None) -> str:
+        """1080x1350 카드뉴스 규격 럭셔리 엔딩 CTA 카드 렌더링 (제미나이 동적 카피 주입)"""
         logger.info(f"🎨 [AuraCardnewsS5Topic5Builder] 5번 주제 5번 엔딩 CTA 카드 렌더링 시작: {output_png_path}")
 
-        html_content = """<!DOCTYPE html>
+        # 제미나이 동적 카피 또는 기본값
+        s5_copy = copy_data.get("slide5", copy_data) if (isinstance(copy_data, dict) and "slide5" in copy_data) else (copy_data or {})
+        debate_badge = s5_copy.get("debate_badge", "⚖️ 실시간 가치관 밸런스 토론")
+        debate_question = s5_copy.get("debate_question", "소개팅 첫 만남 더치페이, 칼반띵 vs 번갈아 내기 여러분의 선택은?")
+        
+        opt1_title = s5_copy.get("debate_opt1_title", "첫 만남부터 부담 없는 칼반띵")
+        opt1_sub = s5_copy.get("debate_opt1_sub", "깔끔한 정산 • 불필요한 부담 제로")
+        opt2_title = s5_copy.get("debate_opt2_title", "1차 사면 2차는 상대방이 센스 계산")
+        opt2_sub = s5_copy.get("debate_opt2_sub", "자연스러운 매너 • 다음 만남 유도")
+
+        cta_subtext = s5_copy.get("cta_subtext", "✨ 50:50 남녀 황금 성비율 • 가치관 100% 일치 매칭 지금 시작하기")
+
+        html_content = f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -37,14 +49,14 @@ class AuraCardnewsS5Topic5Builder:
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    * {
+    * {{
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       user-select: none;
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-    body {
+    }}
+    body {{
       width: 1080px;
       height: 1350px;
       overflow: hidden;
@@ -55,68 +67,68 @@ class AuraCardnewsS5Topic5Builder:
       flex-direction: column;
       justify-content: space-between;
       padding: 30px 40px 40px;
-    }
+    }}
 
     /* 금빛 수평선 */
-    .gold-divider {
+    .gold-divider {{
       height: 1px;
       background: linear-gradient(90deg, rgba(212, 175, 55, 0) 0%, rgba(212, 175, 55, 0.8) 50%, rgba(212, 175, 55, 0) 100%);
-    }
+    }}
 
     /* 글래스 카드 */
-    .glass-box {
-      background: rgba(18, 18, 24, 0.82);
+    .glass-box {{
+      background: rgba(18, 18, 26, 0.88);
       backdrop-filter: blur(28px);
       -webkit-backdrop-filter: blur(28px);
       border: 1px solid rgba(255, 255, 255, 0.14);
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
-    }
+    }}
 
-    .vote-card {
+    .vote-card {{
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(16px);
       transition: all 0.2s ease;
-    }
+    }}
 
-    .glow-gold {
-      box-shadow: 0 0 45px rgba(212, 175, 55, 0.45);
-    }
+    .glow-gold {{
+      box-shadow: 0 0 45px rgba(212, 175, 55, 0.35);
+    }}
 
-    .naver-glow {
-      box-shadow: 0 10px 40px rgba(3, 199, 90, 0.35), 0 0 30px rgba(212, 175, 55, 0.3);
-    }
+    .naver-glow {{
+      box-shadow: 0 10px 40px rgba(3, 199, 90, 0.4), 0 0 30px rgba(212, 175, 55, 0.35);
+    }}
   </style>
 </head>
 <body>
 
   <!-- Ambient Cinematic Background Glows -->
-  <div class="absolute w-[800px] h-[800px] rounded-full bg-pink-500/10 blur-[150px] top-0 left-1/2 -translate-x-1/2 pointer-events-none"></div>
+  <div class="absolute w-[800px] h-[800px] rounded-full bg-rose-500/10 blur-[150px] top-0 left-1/2 -translate-x-1/2 pointer-events-none"></div>
   <div class="absolute w-[600px] h-[600px] rounded-full bg-amber-500/10 blur-[130px] bottom-10 right-10 pointer-events-none"></div>
 
   <!-- 1. Top Header Bar (Aura 50:50 남녀 황금 성비율 + 05/05) -->
   <div class="flex justify-between items-center z-10 w-full px-2">
     <!-- Brand Badge -->
-    <div class="inline-flex items-center gap-2.5 bg-slate-900/85 backdrop-blur-md border border-white/20 rounded-full py-2 px-4 shadow-xl">
-      <span class="text-sm">💖</span>
-      <span class="text-sm font-black tracking-wider text-white">AURA</span>
-      <span class="text-xs font-bold text-pink-400 pl-2 border-l border-white/25">50:50 남녀 황금 성비율</span>
+    <div class="inline-flex items-center gap-2.5 bg-slate-900/90 backdrop-blur-md border border-white/20 rounded-full py-2.5 px-5 shadow-xl">
+      <span class="text-base">💖</span>
+      <span class="text-base font-black tracking-wider text-white">AURA</span>
+      <span class="text-xs font-bold text-pink-400 pl-2.5 border-l border-white/25">50:50 남녀 황금 성비율</span>
     </div>
 
     <!-- Page Index -->
-    <div class="text-amber-400 font-extrabold text-sm bg-slate-900/85 backdrop-blur-md px-4 py-2 rounded-full border border-amber-500/40 shadow-xl tracking-wider">
+    <div class="text-amber-400 font-extrabold text-sm bg-slate-900/90 backdrop-blur-md px-5 py-2.5 rounded-full border border-amber-500/40 shadow-xl tracking-wider">
       05 / 05 &gt;
     </div>
   </div>
 
   <!-- 2. Main Content Container -->
-  <div class="flex flex-col items-center text-center z-10 space-y-6 my-auto px-4">
+  <div class="flex flex-col items-center text-center z-10 space-y-4 my-auto px-2">
     
     <!-- Editorial Brand Subtitle -->
-    <div class="flex flex-col items-center space-y-2">
+    <div class="flex flex-col items-center space-y-1.5">
       <div class="gold-divider w-72"></div>
       <p class="text-xs tracking-[0.35em] text-[#D4AF37] font-bold uppercase py-1">
-        — A U R A   D A T I N G —
+        — A U R A   V A L U E   B A L A N C E —
       </p>
       <div class="gold-divider w-72"></div>
     </div>
@@ -127,16 +139,12 @@ class AuraCardnewsS5Topic5Builder:
       <!-- Mini Category Badge -->
       <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-500/20 border border-pink-400/40 text-pink-300 text-xs font-black mb-3">
         <span>⚖️</span>
-        <span>실시간 가치관 밸런스 토론</span>
+        <span>{debate_badge}</span>
       </div>
 
       <!-- Main Headline -->
       <h1 class="text-2xl md:text-3xl font-black leading-snug tracking-tight text-white mb-2">
-        "소개팅 첫 만남 더치페이,<br>
-        <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-pink-300 to-amber-200">
-          칼반띵 vs 번갈아 내기
-        </span>
-        여러분의 선택은?"
+        "{debate_question}"
       </h1>
       <p class="text-xs text-slate-300 font-medium tracking-wide">
         나와 생각과 가치관이 100% 통하는 사람과 연애하고 싶다면?
@@ -152,10 +160,10 @@ class AuraCardnewsS5Topic5Builder:
             <span class="text-[11px] font-bold text-slate-400">48%</span>
           </div>
           <p class="text-sm font-black text-white leading-snug">
-            첫 만남부터 부담 없는 칼반띵
+            "{opt1_title}"
           </p>
           <p class="text-[11px] text-slate-400 mt-1">
-            깔끔한 정산 • 불필요한 부담 제로
+            {opt1_sub}
           </p>
         </div>
 
@@ -166,10 +174,10 @@ class AuraCardnewsS5Topic5Builder:
             <span class="text-[11px] font-bold text-pink-300 font-black">52% (인기)</span>
           </div>
           <p class="text-sm font-black text-white leading-snug">
-            1차 사면 2차는 상대방이 센스 계산
+            "{opt2_title}"
           </p>
           <p class="text-[11px] text-slate-300 mt-1">
-            자연스러운 매너 • 다음 만남 유도
+            {opt2_sub}
           </p>
         </div>
 
@@ -208,7 +216,7 @@ class AuraCardnewsS5Topic5Builder:
       
       <!-- Sub CTA text -->
       <p class="text-xs text-slate-400 font-bold tracking-wide">
-        ✨ 50:50 남녀 황금 성비율 • 가치관 100% 일치 매칭 지금 시작하기
+        {cta_subtext}
       </p>
     </div>
 
@@ -241,6 +249,18 @@ class AuraCardnewsS5Topic5Builder:
 
         logger.info(f"✅ [AuraCardnewsS5Topic5Builder] 5번 엔딩 CTA 카드 생성 완료: {out_path}")
         return str(out_path)
+
+    def produce(self, target_dir: str = None, copy_data: dict = None) -> str:
+        """5번 엔딩 카드 렌더링 및 저장"""
+        if not target_dir:
+            from .aura_cardnews_storage import AuraCardnewsStorage
+            t_path = AuraCardnewsStorage.create_target_directory(theme_code="value_balance")
+        else:
+            t_path = Path(target_dir)
+            t_path.mkdir(parents=True, exist_ok=True)
+
+        slide5_path = t_path / "slide_5.png"
+        return self.build_s5_ending_card(str(slide5_path), copy_data=copy_data)
 
 
 if __name__ == "__main__":

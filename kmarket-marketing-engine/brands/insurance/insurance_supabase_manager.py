@@ -71,6 +71,48 @@ class InsuranceSupabaseManager:
     def is_connected(self) -> bool:
         return self.client is not None
 
+    def upload_image_to_storage(self, local_image_path: str, bucket_subpath: str = "insurance/media") -> Optional[str]:
+        """🖼️ 로컬 이미지/비디오를 Supabase Storage에 업로드하고 영구 퍼블릭 URL 반환"""
+        if not self.is_connected() or not local_image_path:
+            return None
+
+        p = Path(local_image_path)
+        if not p.exists() or p.stat().st_size == 0:
+            logger.warning(f"⚠️ [InsuranceSupabase] 업로드할 파일이 존재하지 않음: {local_image_path}")
+            return None
+
+        import re
+        safe_stem = re.sub(r'[^a-zA-Z0-9_\-]', '_', p.stem)
+        file_name = f"{safe_stem}{p.suffix.lower()}"
+        storage_path = f"{bucket_subpath}/{file_name}"
+
+        try:
+            with open(p, "rb") as f:
+                file_bytes = f.read()
+
+            suffix = p.suffix.lower()
+            if suffix == ".mp4":
+                content_type = "video/mp4"
+            elif suffix == ".webp":
+                content_type = "image/webp"
+            elif suffix == ".png":
+                content_type = "image/png"
+            else:
+                content_type = "image/jpeg"
+
+            bucket_name = "aura-media"
+            self.client.storage.from_(bucket_name).upload(
+                path=storage_path,
+                file=file_bytes,
+                file_options={"content-type": content_type, "upsert": "true"}
+            )
+            public_url = self.client.storage.from_(bucket_name).get_public_url(storage_path)
+            logger.info(f"✅ [InsuranceSupabase] Storage 업로드 성공! 영구 URL: {public_url}")
+            return public_url
+        except Exception as e:
+            logger.error(f"❌ [InsuranceSupabase] Storage 업로드 실패: {e}")
+            return None
+
     def get_insurance_traffic_analytics(self, period: str = "today") -> Dict[str, Any]:
         """
         📊 InsureBalance Supabase (visitor_logs & customer_leads) 100% 실데이터 분석

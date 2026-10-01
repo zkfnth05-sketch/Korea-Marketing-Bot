@@ -55,6 +55,34 @@ def main():
         print(f"  4. 📊 본진 웹앱 Supabase: {channels.get('supabase_research', {}).get('status')} -> Post ID: {channels.get('supabase_research', {}).get('post_id', '-')}")
         return
 
+    # ── [메타(인스타+페북) 카드뉴스 무인 자동 배포 옵션] ──
+    if "--cardnews-meta" in sys.argv or "-cm" in sys.argv:
+        from brands.stock.stock_meta_scheduler import StockMetaScheduler
+        topic_id = None
+        for i, arg in enumerate(sys.argv):
+            if arg in ["--topic", "--topic-id", "-t"] and i + 1 < len(sys.argv):
+                try:
+                    topic_id = int(sys.argv[i + 1])
+                except ValueError:
+                    pass
+
+        print("\n==============================================")
+        print(f"📈 [StockMaster AI] 메타(인스타+페북) 카드뉴스 무인 배포 가동")
+        print(f"📌 대상 주제: #{topic_id if topic_id else '자동 롤링'}")
+        print("==============================================\n")
+
+        scheduler = StockMetaScheduler()
+        res = scheduler.run_one_cycle(force_topic_id=topic_id)
+        print("\n[메타 배포 결과 요약]:")
+        print(json.dumps(res, ensure_ascii=False, indent=2))
+        return
+
+    if "--meta-daemon" in sys.argv or "-md" in sys.argv:
+        from brands.stock.stock_meta_scheduler import StockMetaScheduler
+        scheduler = StockMetaScheduler()
+        scheduler.start_daemon()
+        return
+
     # ── [지식iN 단독 실행 옵션] ──
     if "--kin-now" in sys.argv or "-kn" in sys.argv:
         is_live = "--live" in sys.argv

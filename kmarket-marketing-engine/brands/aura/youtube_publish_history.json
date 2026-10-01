@@ -1,0 +1,36 @@
+[
+  {
+    "status": "ready_staged",
+    "platform": "youtube_shorts",
+    "topic_id": 1,
+    "title": "소개팅에서 어색할 때 3초 만에 탈출하는 비법 ㄷㄷ #아우라AI데이팅 #Shorts",
+    "description_length": 191,
+    "pinned_comment": "📌 영상에서 나온 50:50 완벽 성비 AI 소개팅 라운지는\n네이버에 👉 [ 아우라AI데이팅 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://aura-ai-dating.vercel.app/lounge)",
+    "video_file": "Aura_10초_순수인물_원테이크_주제01_escape_call_20260927_210931.mp4",
+    "published_at": "2026-10-01 13:43:11",
+    "message": "유튜브 쇼츠 메타데이터 및 고정댓글 패키징 검증 완료 (토큰 연동 시 즉시 발사)"
+  },
+  {
+    "status": "ready_staged",
+    "platform": "youtube_shorts",
+    "topic_id": 1,
+    "title": "소개팅에서 어색할 때 3초 만에 탈출하는 비법 ㄷㄷ #아우라AI데이팅 #Shorts",
+    "description_length": 191,
+    "pinned_comment": "📌 영상에서 나온 50:50 완벽 성비 AI 소개팅 라운지는\n네이버에 👉 [ 아우라AI데이팅 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://aura-ai-dating.vercel.app/lounge)",
+    "video_file": "Aura_10초_순수인물_원테이크_주제01_escape_call_20260927_210931.mp4",
+    "published_at": "2026-10-01 13:43:34",
+    "message": "유튜브 쇼츠 메타데이터 및 고정댓글 패키징 검증 완료 (토큰 연동 시 즉시 발사)"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "topic_id": 2,
+    "video_id": "Humssudrnw0",
+    "video_url": "https://youtube.com/shorts/Humssudrnw0",
+    "comment_id": "UgxUDrnYIrs-Y_R73CZ4AaABAg",
+    "title": "카톡 답장 느린 사람 100% 심리 분석 (읽씹 대처법) #아우라AI데이팅 #Shorts",
+    "privacy_status": "public",
+    "published_at": "2026-10-01 14:09:17",
+    "message": "YouTube Data API v3 쇼츠 공개 발행 및 고정 댓글 등록 완료"
+  }
+]

@@ -63,6 +63,34 @@ def main():
         scheduler.start_daemon()
         return
 
+    # ── [카드뉴스 5장 메타 (인스타+페북) 무인 자동 배포 옵션] ──
+    if "--cardnews-meta" in sys.argv or "-cm" in sys.argv:
+        from brands.aura.aura_meta_scheduler import AuraMetaScheduler
+        topic_id = None
+        for i, arg in enumerate(sys.argv):
+            if arg in ["--topic", "--topic-id", "-t"] and i + 1 < len(sys.argv):
+                try:
+                    topic_id = int(sys.argv[i + 1])
+                except ValueError:
+                    pass
+
+        print("\n==============================================")
+        print(f"💖 [Aura] 1080x1350 카드뉴스 5장 풀세트 메타(Meta) 무인 배포 가동")
+        print(f"📌 대상 주제: #{topic_id if topic_id else '자동 롤링'}")
+        print("==============================================\n")
+
+        scheduler = AuraMetaScheduler()
+        res = scheduler.run_one_cycle(force_topic_id=topic_id)
+        print("\n[메타 배포 결과 요약]:")
+        print(json.dumps(res, ensure_ascii=False, indent=2))
+        return
+
+    if "--meta-daemon" in sys.argv or "-md" in sys.argv:
+        from brands.aura.aura_meta_scheduler import AuraMetaScheduler
+        scheduler = AuraMetaScheduler()
+        scheduler.start_daemon()
+        return
+
     # ── [숏폼 마스터 사진 단독 생성 옵션] ──
     if "--shorts-photo" in sys.argv or "-sp" in sys.argv:
         force_topic = 1

@@ -48,14 +48,18 @@ class AuraCardnewsPipeline:
     def produce(
         self,
         topic_id: int = 1,
-        custom_photos: Optional[List[Image.Image]] = None
+        fashion_id: Optional[int] = None,
+        copy_data: Optional[Dict[str, Any]] = None,
+        master_seed: Optional[int] = None
     ) -> Dict[str, Any]:
         """
-        Aura 1개 주제 6장 카드뉴스 세트 및 SNS 포스팅 가이드 일괄 생산
+        Aura 1개 주제 5장 카드뉴스 풀세트 및 SNS 포스팅 가이드 일괄 생산 (제미나이 100% 자율 집필)
         """
-        return self.producer.produce_cardnews_set(
+        return self.producer.produce_cardnews(
             topic_id=topic_id,
-            custom_photos=custom_photos
+            fashion_id=fashion_id,
+            copy_data=copy_data,
+            master_seed=master_seed
         )
 
     def produce_all_topics(self) -> List[Dict[str, Any]]:

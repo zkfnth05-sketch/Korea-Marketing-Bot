@@ -1,0 +1,25 @@
+{
+  "current_topic_index": 0,
+  "last_topic_id": 1,
+  "last_run_time": "2026-10-01 21:12:39",
+  "published_count": 1,
+  "history": [
+    {
+      "timestamp": "2026-10-01 21:12:39",
+      "topic_id": 1,
+      "theme_name": "4세대 실손 전환 손익 계산기",
+      "facebook": {
+        "status": "success",
+        "post_id": "1358924267302888_122097566697499579",
+        "platform": "facebook",
+        "brand": "insurance"
+      },
+      "instagram": {
+        "status": "success",
+        "media_id": "17947538457296848",
+        "platform": "instagram",
+        "brand": "insurance"
+      }
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "topic_id": 1,
+    "video_id": "TBKIMWBSySU",
+    "video_url": "https://youtube.com/shorts/TBKIMWBSySU",
+    "comment_id": "UgyY54FH0LTqxcsTb7t4AaABAg",
+    "title": "삼성전자 vs SK하이닉스 HBM 외인 수급 대폭발 ㄷㄷ #스톡마스터AI #Shorts",
+    "privacy_status": "public",
+    "published_at": "2026-10-01 14:54:36",
+    "message": "YouTube Data API v3 쇼츠 공개 발행 및 고정 댓글 등록 완료"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "topic_id": 2,
+    "video_id": "99ftL80iH-g",
+    "video_url": "https://youtube.com/shorts/99ftL80iH-g",
+    "comment_id": "UgysQ8HbdgvVQHjJw5Z4AaABAg",
+    "title": "미국 배당 ETF(SCHD·JEPQ)로 월 100만원 배당 받는 현실적 치트키 #스톡마스터AI #Shorts",
+    "privacy_status": "public",
+    "published_at": "2026-10-01 14:57:59",
+    "message": "YouTube Data API v3 쇼츠 공개 발행 및 고정 댓글 등록 완료"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "topic_id": 3,
+    "video_id": "ZXNhIk-DMLc",
+    "video_url": "https://youtube.com/shorts/ZXNhIk-DMLc",
+    "comment_id": "Ugz9KveN3-weB6nM2i54AaABAg",
+    "title": "엔비디아(NVDA) 지금 사면 고점일까? AI 퀀트 적정주가 공개 #스톡마스터AI #Shorts",
+    "privacy_status": "public",
+    "published_at": "2026-10-01 15:01:02",
+    "message": "YouTube Data API v3 쇼츠 공개 발행 및 고정 댓글 등록 완료"
+  }
+]

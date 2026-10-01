@@ -72,8 +72,8 @@ class AuraCardnewsS1Topic6Builder:
         logger.info(f"✅ [AuraCardnewsS1Topic6] 훈남 원본 사진 생성 완료: {raw_path}")
         return Path(raw_path)
 
-    def render_cover_slide(self, photo_path: Path, output_png_path: str) -> str:
-        """Playwright로 1080x1350 카드뉴스 규격 초고화질 타이포그래피 표지 렌더링"""
+    def render_cover_slide(self, photo_path: Path, output_png_path: str, copy_data: dict = None) -> str:
+        """Playwright로 1080x1350 카드뉴스 규격 초고화질 타이포그래피 표지 렌더링 (제미나이 동적 카피 주입)"""
         import base64
 
         out_path = Path(output_png_path)
@@ -81,6 +81,24 @@ class AuraCardnewsS1Topic6Builder:
 
         with open(str(photo_path), "rb") as f:
             photo_b64 = base64.b64encode(f.read()).decode("utf-8")
+
+        # 제미나이 동적 카피 또는 기본값
+        s1_copy = copy_data.get("slide1", {}) if copy_data else {}
+        badge = s1_copy.get("badge", "🔥 2030 소개팅 필살기")
+        h1_line1 = s1_copy.get("headline_line1", "마음에 드는 이성 매칭됐는데,")
+        h1_line2 = s1_copy.get("headline_line2", "첫마디로 '안녕하세요' 보내고 읽씹 당한 적?")
+        subtitle = s1_copy.get("subtitle", "프로필만 넣으면 상대 취향 저격 첫 대화를 1초 만에 써주는 AI 비서")
+
+        default_bullets = [
+            "소개팅 첫 대화에서 제일 고민되는 첫 멘트 1초 자동 생성",
+            "상대방 프로필/관심사 기반 자연스러운 티키타카 유도",
+            "답장 성공률 98% 상승 • 읽씹 걱정 없는 스마트 매칭"
+        ]
+        bullets = s1_copy.get("bullets", default_bullets)
+        while len(bullets) < 3:
+            bullets.append("Aura AI 실시간 매칭 솔루션")
+
+        cta_text = s1_copy.get("cta_text", "👉 옆으로 넘겨서 AI 첫대화 비서 보기 (1/5) >")
 
         html_content = f"""<!DOCTYPE html>
 <html lang="ko">
@@ -187,41 +205,40 @@ class AuraCardnewsS1Topic6Builder:
     
     <!-- Category Badge -->
     <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-500 to-rose-600 text-white text-sm font-black shadow-lg">
-      <span>🔥</span>
-      <span>2030 소개팅 필살기</span>
+      <span>{badge}</span>
     </div>
 
     <!-- Main Headline (Yellow Bold) -->
     <h1 class="text-[40px] font-black leading-[1.22] text-headline">
-      마음에 드는 이성 매칭됐는데,<br>
-      첫마디로 '안녕하세요' 보내고 읽씹 당한 적?
+      {h1_line1}<br>
+      {h1_line2}
     </h1>
 
     <!-- Subtitle -->
     <p class="text-[21px] font-bold text-slate-100 text-subhead leading-relaxed">
-      프로필만 넣으면 상대 취향 저격 첫 대화를 1초 만에 써주는 AI 비서
+      {subtitle}
     </p>
 
     <!-- Bullets List -->
     <div class="flex flex-col space-y-2 pt-1 pb-2">
       <div class="flex items-center gap-2.5 text-base font-bold text-slate-200 text-subhead">
         <span class="text-sky-400 text-lg">●</span>
-        <span>소개팅 첫 대화에서 제일 고민되는 첫 멘트 1초 자동 생성</span>
+        <span>{bullets[0]}</span>
       </div>
       <div class="flex items-center gap-2.5 text-base font-bold text-slate-200 text-subhead">
         <span class="text-sky-400 text-lg">●</span>
-        <span>상대방 프로필/관심사 기반 자연스러운 티키타카 유도</span>
+        <span>{bullets[1]}</span>
       </div>
       <div class="flex items-center gap-2.5 text-base font-bold text-slate-200 text-subhead">
         <span class="text-sky-400 text-lg">●</span>
-        <span>답장 성공률 98% 상승 • 읽씹 걱정 없는 스마트 매칭</span>
+        <span>{bullets[2]}</span>
       </div>
     </div>
 
     <!-- Bottom Swipe CTA Bar -->
     <div class="w-full cta-glow rounded-2xl py-4 flex items-center justify-center gap-2 shadow-2xl">
       <span class="text-white text-xl font-black tracking-wide">
-        👉 옆으로 넘겨서 AI 첫대화 비서 보기 (1/5) &gt;
+        {cta_text}
       </span>
     </div>
 
@@ -242,22 +259,21 @@ class AuraCardnewsS1Topic6Builder:
         logger.info(f"✅ [AuraCardnewsS1Topic6] 1번 표지 렌더링 완료: {out_path}")
         return str(out_path)
 
-    def produce(self, target_dir: str = None) -> str:
+    def produce(self, target_dir: str = None, copy_data: dict = None, seed: int = None) -> str:
         """사진 생성부터 표지 카드뉴스 렌더링까지 일괄 실행"""
         if not target_dir:
-            from datetime import datetime
-            today_str = datetime.now().strftime("%Y%m%d_%H%M")
-            target_dir = rf"C:\Users\zkfnt\Desktop\한국 카드뉴스_산출물\아우라\아우라_KO_ai_icebreaker_{today_str}"
-
-        t_path = Path(target_dir)
-        t_path.mkdir(parents=True, exist_ok=True)
+            from .aura_cardnews_storage import AuraCardnewsStorage
+            t_path = AuraCardnewsStorage.create_target_directory(theme_code="smart_opener")
+        else:
+            t_path = Path(target_dir)
+            t_path.mkdir(parents=True, exist_ok=True)
 
         # 1. 훈남 실사 사진 생성
-        raw_photo = self.generate_cover_photo()
+        raw_photo = self.generate_cover_photo(seed=seed)
 
         # 2. 1080x1350 표지 슬라이드 렌더링
         slide1_path = t_path / "slide_1.png"
-        self.render_cover_slide(raw_photo, str(slide1_path))
+        self.render_cover_slide(raw_photo, str(slide1_path), copy_data=copy_data)
 
         return str(slide1_path)
 

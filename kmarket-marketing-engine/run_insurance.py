@@ -53,6 +53,34 @@ def main():
         print(f"  3. 🟡 카카오/브런치: {channels.get('brunch', {}).get('status')} -> URL: {channels.get('brunch', {}).get('post_url', '-')}")
         return
 
+    # ── [메타(인스타+페북) 카드뉴스 무인 자동 배포 옵션] ──
+    if "--cardnews-meta" in sys.argv or "-cm" in sys.argv:
+        from brands.insurance.insurance_meta_scheduler import InsuranceMetaScheduler
+        topic_id = None
+        for i, arg in enumerate(sys.argv):
+            if arg in ["--topic", "--topic-id", "-t"] and i + 1 < len(sys.argv):
+                try:
+                    topic_id = int(sys.argv[i + 1])
+                except ValueError:
+                    pass
+
+        print("\n==============================================")
+        print(f"🛡️ [보험 리밸런스] 메타(인스타+페북) 카드뉴스 무인 배포 가동")
+        print(f"📌 대상 주제: #{topic_id if topic_id else '자동 롤링'}")
+        print("==============================================\n")
+
+        scheduler = InsuranceMetaScheduler()
+        res = scheduler.run_one_cycle(force_topic_id=topic_id)
+        print("\n[메타 배포 결과 요약]:")
+        print(json.dumps(res, ensure_ascii=False, indent=2))
+        return
+
+    if "--meta-daemon" in sys.argv or "-md" in sys.argv:
+        from brands.insurance.insurance_meta_scheduler import InsuranceMetaScheduler
+        scheduler = InsuranceMetaScheduler()
+        scheduler.start_daemon()
+        return
+
     # ── [숏폼 마스터 사진 단독 생성 옵션] ──
     if "--shorts-photo" in sys.argv or "-sp" in sys.argv:
         force_topic = 4
