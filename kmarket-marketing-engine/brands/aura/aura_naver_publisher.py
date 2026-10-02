@@ -40,7 +40,7 @@ class AuraNaverPublisher:
         tag_list: Optional[List[str]] = None,
         image_paths: Optional[List[str]] = None,
         category_name: Optional[str] = None,
-        landing_url: str = "https://aura-ai-dating.vercel.app/lounge",
+        landing_url: str = "https://aura-ai-dating.vercel.app/",
         timeout_sec: int = 50
     ) -> Dict[str, Any]:
         """동기 호출 인터페이스"""
@@ -59,20 +59,20 @@ class AuraNaverPublisher:
             return {"status": "error", "message": str(e), "blog_id": self.blog_id}
 
     @staticmethod
-    def format_clean_naver_text(raw_text: str, landing_url: str) -> str:
-        """마크다운 기호(#, ###, ![], **)를 완전 제거하고 가독성 높은 네이버 블로그 전용 본문으로 변환"""
+    def format_clean_naver_text(raw_text: str, landing_url: str = "https://aura-ai-dating.vercel.app/") -> str:
+        """마크다운 기호(#, ###, ![], **)를 완전 제거하고 가독성 높은 네이버 블로그 전용 본문으로 변환 (URL 완벽 격리)"""
         import re
+
         # 1. 마크다운 이미지 태그 완전 제거
         text = re.sub(r'!\[.*?\]\(.*?\)', '', raw_text)
 
-        # 2. 마크다운 링크 [라벨](URL) 정제: URL 끝에 ')'가 붙는 %29 404 오류 원천 차단
-        def _clean_md_link(match):
-            label = match.group(1).strip()
-            url = match.group(2).strip()
-            return f"{label}\n👉 {url}"
+        # 2. 본문 문장 중간에 끼어있는 마크다운 링크 [라벨](URL) 및 괄호형 URL 정제
+        # (본문 중간에 URL이 섞이면 스마트에디터 ONE이 뒷 문장을 링크로 삼키는 버그 원천 방지)
+        text = re.sub(r'\[([^\]]+)\]\((https?://[^\s\)]+)\)', r'\1', text)
+        text = re.sub(r'\((https?://[^\s\)]+)\)', '', text)
 
-        text = re.sub(r'\[([^\]]+)\]\((https?://[^\s\)]+)\)', _clean_md_link, text)
-        text = re.sub(r'\((https?://[^\s\)]+)\)', r' \1 ', text)
+        # 3. 본문 문장 중간에 노출된 순수 URL 패턴도 본문에서 제거 (본문 하단 단독 링크 블록으로 일괄 유도)
+        text = re.sub(r'https?://[^\s]+', '', text)
 
         lines = text.split("\n")
         cleaned_lines = []
@@ -91,17 +91,24 @@ class AuraNaverPublisher:
                 cleaned_lines.append("  · " + l[2:].strip())
             else:
                 clean_l = l.replace("**", "").replace("__", "")
+                # 연속 공백 및 NBSP 유니코드 정제
+                clean_l = clean_l.replace("\u00a0", " ")
+                clean_l = re.sub(r'[ \t]+', ' ', clean_l)
                 cleaned_lines.append(clean_l)
 
         result = "\n".join(cleaned_lines)
         result = re.sub(r'\n{3,}', '\n\n', result).strip()
 
-        if landing_url not in result:
-            result += (
-                f"\n\n💑 [Aura Dating] 유령회원 ZERO! 남녀 50:50 황금 성비 보장 매칭\n"
-                f"남초 어플의 끝없는 읽씹과 유령회원에 지치셨나요? 1:1 남녀 50:50 성비 보장과 AI 매력 분석을 무료로 경험해보세요.\n"
-                f"👉 Aura 라운지 바로가기: {landing_url}\n"
-            )
+        # 4. 본문 최하단에 [네이버 포털 검색창 직접 검색 유도 훅 박스] 배치 (영문 URL 생텍스트 완전 배제)
+        result += (
+            f"\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"💑 [Aura AI 데이팅] 유령회원 ZERO! 남녀 50:50 황금 성비 보장\n"
+            f"남초 어플의 끝없는 읽씹과 유령회원에 지치셨나요?\n"
+            f"1:1 남녀 50:50 성비 보장과 AI 매력 분석을 무료로 경험해보세요.\n\n"
+            f"🔍 네이버 검색창에 [아우라AI데이팅]을 검색해 보세요!\n"
+            f"👉 공식 사이트에서 무료 AI 매력도 진단 및 1:1 매칭 신청 가능\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        )
         return result
 
     async def publish_article_async(
@@ -111,7 +118,7 @@ class AuraNaverPublisher:
         tag_list: Optional[List[str]] = None,
         image_paths: Optional[List[str]] = None,
         category_name: Optional[str] = None,
-        landing_url: str = "https://aura-ai-dating.vercel.app/lounge",
+        landing_url: str = "https://aura-ai-dating.vercel.app/",
         timeout_sec: int = 50
     ) -> Dict[str, Any]:
         """Playwright를 통한 실제 SmartEditor ONE 포스팅 실행 (맨 처음 사진 ➔ 그 밑 본문)"""

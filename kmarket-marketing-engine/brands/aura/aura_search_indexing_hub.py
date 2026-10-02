@@ -35,7 +35,7 @@ class AuraSearchIndexingHub:
     """💖 Aura 2대 포털 검색엔진 (구글 + 네이버) 동시 색인 핑 통합 허브"""
 
     BRAND_NAME = "Aura (아우라)"
-    LANDING_URL = "https://aura-ai-dating.vercel.app/lounge"
+    LANDING_URL = "https://aura-ai-dating.vercel.app/"
     BASE_URL = "https://aura-ai-dating.vercel.app/"
     SITEMAP_URL = "https://aura-ai-dating.vercel.app/sitemap.xml"
 

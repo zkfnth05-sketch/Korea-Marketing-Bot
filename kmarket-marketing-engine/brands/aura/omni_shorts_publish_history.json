@@ -1,0 +1,43 @@
+[
+  {
+    "status": "success",
+    "date": "2026-10-02",
+    "published_at": "2026-10-02 18:33:37",
+    "brand": "aura",
+    "topic_id": 6,
+    "title": "소개팅 애프터 신청 골든타임 & 카톡 멘트 추천",
+    "video_file": "Aura_10초_순수인물_원테이크_주제06_ai_icebreaker_20260927_145050.mp4",
+    "channels": {
+      "youtube": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "topic_id": 6,
+        "video_id": "IyFNIDGLZ5s",
+        "video_url": "https://youtube.com/shorts/IyFNIDGLZ5s",
+        "comment_id": "Ugwuow8LE6nQwK5vC5J4AaABAg",
+        "title": "소개팅 애프터 신청 골든타임 & 카톡 멘트 추천 #아우라AI데이팅 #Shorts",
+        "privacy_status": "public",
+        "published_at": "2026-10-02 18:33:44",
+        "message": "YouTube Data API v3 쇼츠 공개 발행 및 고정 댓글 등록 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "aura",
+        "topic_id": 6,
+        "title": "소개팅 애프터 신청 골든타임 & 카톡 멘트 추천",
+        "video_file": "Aura_10초_순수인물_원테이크_주제06_ai_icebreaker_20260927_145050.mp4",
+        "channel_url": "https://clip.naver.com/@auraaidating",
+        "published_at": "2026-10-02 18:34:11"
+      },
+      "instagram_reel": {
+        "status": "error",
+        "error": "'AuraMetaPublisher' object has no attribute 'publish_instagram_reel'"
+      },
+      "facebook_reel": {
+        "status": "error",
+        "error": "'AuraMetaPublisher' object has no attribute 'publish_facebook_reel'"
+      }
+    }
+  }
+]

@@ -214,7 +214,7 @@ class RedditBrowserDriver:
     # ──────────────────────────────────────────────
 
     def fetch_live_posts(self, subreddits: List[str], limit_per_sub: int = 15) -> List[Dict[str, Any]]:
-        """타깃 서브레딧들에서 실시간 최신 글 목록 무인 추출 (영구 프로필 사용)"""
+        """타깃 서브레딧들에서 실시간 최신 글 목록 및 본문(Body) 무인 정밀 추출 (영구 프로필 사용)"""
         from playwright.sync_api import sync_playwright
 
         all_posts = []
@@ -226,44 +226,57 @@ class RedditBrowserDriver:
                 for sub in subreddits:
                     sub_url = f"https://www.reddit.com/r/{sub}/new/"
                     try:
-                        logger.info(f"🔍 [Reddit Driver] r/{sub} 최신 글 스캔 중...")
+                        logger.info(f"🔍 [Reddit Driver] r/{sub} 최신 글 및 본문 정밀 스캔 중...")
                         page.goto(sub_url, wait_until="domcontentloaded", timeout=25000)
-                        page.wait_for_timeout(random.randint(3000, 5000))
+                        page.wait_for_timeout(random.randint(2500, 4000))
 
-                        # 자연스러운 스크롤 (글 더 로딩)
-                        self._human_scroll(page, "down", random.randint(200, 400))
-                        page.wait_for_timeout(random.randint(1500, 2500))
+                        # 자연스러운 스크롤 2~3회 수행하여 충분한 최신 글 로딩
+                        for _ in range(random.randint(2, 3)):
+                            self._human_scroll(page, "down", random.randint(300, 600))
+                            page.wait_for_timeout(random.randint(1000, 1800))
 
-                        # Modern Reddit shreddit-post 추출
-                        posts_data = page.eval_on_selector_all(
-                            "shreddit-post",
-                            """elements => elements.map(el => {
+                        # Modern Reddit shreddit-post 제목 + 본문 텍스트 완벽 추출
+                        posts_data = page.evaluate("""() => {
+                            const els = Array.from(document.querySelectorAll('shreddit-post'));
+                            return els.map(el => {
+                                let bodyText = '';
+                                const bodyEl = el.querySelector('div[slot="text-body"], div[id*="-post-rtjson-content"], div.md, faceplate-expandable-section, div[data-click-id="text"]');
+                                if (bodyEl) {
+                                    bodyText = (bodyEl.innerText || bodyEl.textContent || '').trim();
+                                }
+                                if (!bodyText) {
+                                    const fullText = (el.innerText || el.textContent || '').trim();
+                                    const postTitle = (el.getAttribute('post-title') || '').trim();
+                                    bodyText = fullText.replace(postTitle, '').trim();
+                                }
                                 return {
                                     id: el.getAttribute('id') || '',
                                     title: el.getAttribute('post-title') || '',
+                                    body: bodyText,
                                     permalink: el.getAttribute('permalink') || '',
                                     author: el.getAttribute('author') || '',
                                     content_type: el.getAttribute('content-type') || 'text'
                                 };
-                            })"""
-                        )
+                            });
+                        }""")
 
                         for p_data in posts_data[:limit_per_sub]:
                             p_id = p_data.get("id", "")
                             p_title = p_data.get("title", "")
+                            p_body = p_data.get("body", "")
                             p_link = p_data.get("permalink", "")
                             if p_id and p_title and p_link:
                                 all_posts.append({
                                     "id": p_id,
                                     "title": p_title,
-                                    "body": p_title,  # shreddit 기본 텍스트 매칭
+                                    "body": p_body,
                                     "subreddit": sub,
                                     "permalink": p_link,
                                     "url": f"https://www.reddit.com{p_link}",
                                     "author": p_data.get("author", "redditor")
                                 })
 
-                        logger.info(f"✅ r/{sub} 실시간 글 {len(posts_data)}건 수집 완료")
+                        logger.info(f"✅ r/{sub} 실시간 글+본문 {len(posts_data)}건 수집 완료")
                     except Exception as e:
                         logger.warning(f"r/{sub} 스캔 중 오류 (스킵): {e}")
 

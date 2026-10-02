@@ -8,7 +8,7 @@ Aura Gemini Writer (💖 Aura 2030 매거진 전문 AI 원고 & 비주얼 프롬
   2. 4대 키 체인 중 무료키 2개(GEMINI_FREE_API_KEY_KMARKET, GEMINI_FREE_API_KEY_EASYTAX) 100% 우선 활용 (비용 0원)
   3. 무료키 429 한도 초과 시 ➔ 유료키 2개로 0.1초 만에 자동 무중단 롤오버
   4. 글 본문 스토리 맥락에 100% 부합하는 맞춤형 16:9 영문 visual_prompt 동시 기획
-  5. 랜딩 URL: https://aura-ai-dating.vercel.app/lounge 고정 연동
+  5. 랜딩 URL: https://aura-ai-dating.vercel.app/ 고정 연동
 """
 
 import os
@@ -40,7 +40,7 @@ class AuraGeminiWriter:
     - 유료키 2개 안전 롤오버
     """
 
-    LANDING_URL = "https://aura-ai-dating.vercel.app/lounge"
+    LANDING_URL = "https://aura-ai-dating.vercel.app/"
 
     def __init__(self):
         from config import (
@@ -186,13 +186,14 @@ class AuraGeminiWriter:
 2. 소제목은 독자가 읽고 싶어지는 매력적이고 세련된 에디토리얼 소제목(예: '✨ 1. 뻔한 질문 대신 상대방의 프로필에서 단서 찾기', '💡 2. 답장 간격보다 중요한 '대화의 텐션' 맞추기')으로 작성하십시오.
 3. 제목에 특정 개수(예: '5가지 멘트', '3대 시그널')가 있다면, 본문 소제목이나 불릿포인트에서도 반드시 그 개수에 맞게 구체적인 실전 팁을 하나하나 명확히 다루십시오.
 4. 본문(content_md) 안에 `![...](...)` 같은 로컬 이미지 마크다운 코드를 절대 넣지 마십시오. 이미지는 시스템이 에디터 상단에 별도로 업로드합니다.
+5. 🚨 [URL 삽입 절대 금지]: 본문 텍스트 중간에 `(http...)` 또는 `[링크](http...)` 같은 인라인 URL을 절대로 삽입하지 마십시오. URL 링크와 공식 배너 카드는 시스템 엔진이 본문 하단에 별도 공식 모듈로 안전하게 자동 결합합니다. 본문 끝맺음은 오직 남녀 50:50 황금 성비 소개와 공식 검색 유도 문구("네이버에서 '아우라AI데이팅'을 검색해보세요")로만 정갈하게 작성하십시오.
 
 반드시 아래 JSON 포맷으로만 응답하십시오:
 {{
   "title_naver": "네이버 스마트블록 및 모바일 인기글 1위용 직관형/생활밀착형 고클릭률 제목",
   "title_tistory": "구글 검색(SEO) 및 Daum 검색 최적화용 가이드/총정리형 고신뢰도 제목",
   "title_kakao": "카카오/브런치스토리 및 소셜 피드용 감성 에세이 및 강력한 훅(Hook) 제목",
-  "excerpt": "독자의 호기심을 자극하고 본문 핵심을 꿰뚫는 1~2줄 요약문 (120자 내외)",
+  "excerpt": "독자의 호기심을 자극하고 본문 핵심을꿰뚫는 1~2줄 요약문 (120자 내외)",
   "visual_prompt": "이 글의 장면과 분위기에 100% 부합하는 Imagen 3 전용 영문 사진 프롬프트 1문장 (반드시 realistic Korean young adult, upright straight head posture looking directly forward with zero head tilt, cozy Seoul aesthetic, cinematic natural lighting, photorealistic, 16:9 포함)",
   "discussion_prompt": "아우라 싱글 유저들이 글을 다 읽고 아래 댓글창에서 활발하게 의견을 나누고 티키타카 소통할 수 있도록 유도하는 매력적인 1~2문장의 질문 (예: 'Aura 여러분은 소개팅 첫 카톡에서 상대방 프로필 사진 칭찬 vs 솔직한 인사 중 어떤 멘트를 가장 선호하시나요? 아래 댓글로 여러분만의 꿀팁을 들려주세요!')",
   "content_md": "마크다운 전문 (공백 포함 약 1,800~2,200자, 공백 제외 1,400자 이상의 꽉 찬 전문)"
@@ -208,7 +209,7 @@ class AuraGeminiWriter:
 - 네이버 실시간 고노출 키워드: {', '.join(naver_keywords)}
 - 구글 Suggest 질문형 키워드: {', '.join(google_keywords)}
 - 바이럴 해시태그: {' '.join(hashtags)}
-- 공식 랜딩 링크: {self.LANDING_URL}
+- 공식 검색어: 아우라AI데이팅
 
 [글자수 및 구성 절대 수칙]
 1. 제목 3종(title_naver, title_tistory, title_kakao)은 서로 다른 매력적인 스타일로 각각 작성하십시오.
@@ -218,9 +219,9 @@ class AuraGeminiWriter:
    - 주제에 부합하는 실전 핵심 공략법/멘트/팁 3~5개 항목 (각 항목마다 세련된 소제목 부여, 1,000자 이상)
    - Aura의 '{aura_feature}'를 자연스럽게 소개하는 스마트 솔루션 제안 (300자)
    - 💡 Aura 에디터 실전 치트키 (Tip Box, 150자)
-   - 공식 앱 라운지 바로가기 링크 ({self.LANDING_URL}) 및 남녀 50:50 황금 성비 혜택, 해시태그
+   - 맺음말: 남녀 50:50 황금 성비 AI 매칭 혜택 안내 및 공식 검색어 유도("네이버에 '아우라AI데이팅'을 검색해보세요")
 4. 절대 `[본론 1]`, `도입부` 같은 메타 지침 문구를 쓰지 마십시오! 독자가 읽는 매거진 잡지처럼 세련되게 작성하십시오.
-5. 로컬 이미지 마크다운 태그(`![...](...)`)는 본문에 포함하지 마십시오.
+5. 🚨 본문 텍스트 내에 직접적인 URL 주소(http/https)를 적지 마십시오! 링크는 시스템이 본문 끝에 공식 카드로 자동 생성합니다.
 6. 독자 소통용 댓글 유도 질문(discussion_prompt)을 반드시 매력적으로 작성하십시오.
 """
 

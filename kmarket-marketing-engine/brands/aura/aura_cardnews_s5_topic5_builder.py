@@ -37,7 +37,7 @@ class AuraCardnewsS5Topic5Builder:
         opt2_title = s5_copy.get("debate_opt2_title", "1차 사면 2차는 상대방이 센스 계산")
         opt2_sub = s5_copy.get("debate_opt2_sub", "자연스러운 매너 • 다음 만남 유도")
 
-        cta_subtext = s5_copy.get("cta_subtext", "✨ 50:50 남녀 황금 성비율 • 가치관 100% 일치 매칭 지금 시작하기")
+        cta_subtext = s5_copy.get("cta_subtext", "👉 프로필 링크에서 3초 만에 가치관 100% 맞는 이상형 확인! ✨")
 
         html_content = f"""<!DOCTYPE html>
 <html lang="ko">
@@ -226,7 +226,7 @@ class AuraCardnewsS5Topic5Builder:
   <div class="flex justify-between items-center z-10 w-full px-4 pt-2 border-t border-white/10 text-xs text-slate-400 font-medium">
     <div>
       <span class="text-slate-500">Official Web:</span>
-      <span class="text-amber-400/90 font-bold ml-1">https://aura-ai-dating.vercel.app/lounge</span>
+      <span class="text-amber-400/90 font-bold ml-1">https://aura-ai-dating.vercel.app/</span>
     </div>
     <div class="text-slate-500 text-[11px]">
       © 2026 AURA AI Dating. All rights reserved.

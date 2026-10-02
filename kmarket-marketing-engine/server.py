@@ -13,6 +13,7 @@ import json
 import logging
 import threading
 import time
+from datetime import datetime
 import mimetypes
 import webbrowser
 from pathlib import Path
@@ -54,6 +55,10 @@ from core.telegram_outreach_poster import TelegramOutreachPoster
 from core.telegram_stealth_inviter import TelegramStealthInviter
 from modules.telegram_community_publisher import TelegramCommunityPublisher
 from core.golden_batch_producer import GoldenBatchProducer
+from core.today_live_tracker import TodayLiveTracker
+
+# 🚀 3대 브랜드 실시간 마케팅 무인 발행 라이브 피드 추적기
+today_live_tracker = TodayLiveTracker()
 
 # 🌟 8대 황금 타깃 듀얼 브랜드 대량 생산 배치 프로듀서
 golden_batch_producer = GoldenBatchProducer()
@@ -110,59 +115,78 @@ def _brand_kin_worker(brand: str):
     name_map = {"aura": "💖 Aura 데이팅", "insurance": "🛡️ InsureBalance 보험비교", "stock": "📈 Stock Master 주식AI"}
     brand_kr = name_map.get(brand, brand.upper())
     
-    # 각 브랜드 전용 독립 레고 블록 파이프라인 로드
-    pipe = None
+    # 각 브랜드 전용 독립 레고 블록 지식iN 스케줄러 로드
+    scheduler = None
     try:
         if brand == "aura":
-            from brands.aura.aura_kin_pipeline import AuraKinPipeline
-            pipe = AuraKinPipeline()
+            from brands.aura.aura_kin_scheduler import AuraKinScheduler
+            scheduler = AuraKinScheduler()
         elif brand == "insurance":
-            from brands.insurance.insurance_kin_pipeline import InsuranceKinPipeline
-            pipe = InsuranceKinPipeline()
+            from brands.insurance.insurance_kin_scheduler import InsuranceKinScheduler
+            scheduler = InsuranceKinScheduler()
         elif brand == "stock":
-            from brands.stock.stock_kin_pipeline import StockKinPipeline
-            pipe = StockKinPipeline()
+            from brands.stock.stock_kin_scheduler import StockKinScheduler
+            scheduler = StockKinScheduler()
     except Exception as ie:
-        log_event(f"❌ [{brand_kr} 지식iN 파이프라인 로드 실패] {ie}", "error")
+        log_event(f"❌ [{brand_kr} 지식iN 스케줄러 로드 실패] {ie}", "error")
         return
 
     log_event(f"🎯 [{brand_kr}] 네이버 지식iN 24시간 실시간 레이더 가동 시작 (300초 주기 / 1일 10건 목표)", "success")
 
-    # [수동 1회 낚아채기] 무한 루프 차단: 1회 실행 후 즉시 종료
-    try:
-        res = pipe.run_catch_cycle(max_catch=1, dry_run=False)
-        status = res.get("status", "")
-        
-        if res.get("success"):
-            rec = res.get("record", {})
-            pub_url = res.get("published_url", "")
-            today_total = res.get("today_total", 1)
-            log_event(f"🎉 [{brand_kr} 지식iN 등록 성공!] '{rec.get('title', '')}' ➔ {pub_url} (오늘 누적 {today_total}/10건)", "success")
-        elif status == "daily_limit_reached":
-            today_total = res.get("today_total", 10)
-            log_event(f"🛑 [{brand_kr} 지식iN] 오늘 등록 한도 {today_total}/10건 달성 완료!", "info")
-        elif status == "login_required":
-            log_event(f"⚠️ [{brand_kr} 지식iN] 네이버 1회 로그인 세션 저장이 필요합니다.", "warning")
-        else:
-            msg = res.get("message")
-            if msg:
-                log_event(f"ℹ️ [{brand_kr} 지식iN] {msg}", "info")
-    except Exception as e:
-        log_event(f"⚠️ [{brand_kr} 지식iN 1회 실행 예외] {e}", "warning")
+    while brand_daemons_running.get(brand, False):
+        try:
+            res = scheduler.trigger_scheduled_catch()
+            status = res.get("status", "")
+            
+            if res.get("success"):
+                rec = res.get("record", {})
+                pub_url = res.get("published_url", "")
+                daily_total = res.get("daily_total", 1)
+                log_event(f"🎉 [{brand_kr} 지식iN 등록 성공!] '{rec.get('title', '')}' ➔ {pub_url} (오늘 누적 {daily_total}/10건)", "success")
+            elif status == "daily_quota_full" or status == "daily_limit_reached":
+                # 당일 10개 쿼터 완료 시 조용히 대기 (과도한 로그 방지)
+                pass
+            elif status == "login_required":
+                log_event(f"⚠️ [{brand_kr} 지식iN] 네이버 1회 로그인 세션 저장이 필요합니다.", "warning")
+            else:
+                msg = res.get("message")
+                if msg and "새로운 질문이 없습니다" not in msg and "금일 목표" not in msg:
+                    log_event(f"ℹ️ [{brand_kr} 지식iN] {msg}", "info")
+        except Exception as e:
+            log_event(f"⚠️ [{brand_kr} 지식iN 레이더 예외] {e}", "warning")
 
-    log_event(f"⏹️ [{brand_kr}] 지식iN 1회 낚아채기가 완료되었습니다.", "info")
+        # 300초(5분) 대기 (5초 슬립 루프로 정지 신호 즉시 감지)
+        for _ in range(60):
+            if not brand_daemons_running.get(brand, False):
+                break
+            time.sleep(5)
+
+    log_event(f"⏹️ [{brand_kr}] 네이버 지식iN 무인 레이더가 정지되었습니다.", "info")
+
 
 
 def _brand_blog_worker(brand: str):
     """
-    ⏰ [정시 무인 스케줄러] 대한민국 표준시(KST) 기준 하루 딱 2회 (10:00 / 18:00) 정시에만 무인 자동 발행
-    - 30분 무한 반복 도배 원천 제거
-    - 10:00 정시 1회, 18:00 정시 1회만 정확히 실행 후 다음 슬롯까지 무음 대기
+    ⏰ [정시 무인 스케줄러 - 15분 시차 분산(Staggered)]
+    - 제미나이 무료 키 및 IP/서버 부하 분산을 위해 브랜드별 15분 간격 분산 발행:
+      * 💖 Aura AI 데이팅: 09:45 / 14:45 / 19:45 KST
+      * 🛡️ 보험 리밸런스: 10:00 / 15:00 / 20:00 KST
+      * 📈 StockMaster AI: 10:15 / 15:15 / 20:15 KST
     """
     name_map = {"aura": "💖 Aura 데이팅", "insurance": "🛡️ InsureBalance 보험비교", "stock": "📈 Stock Master 주식AI"}
     brand_kr = name_map.get(brand, brand.upper())
 
-    log_event(f"⏰ [{brand_kr}] 4대 채널 옴니 블로그 하루 2회(10:00 / 18:00 KST) 무인 정시 스케줄러 가동", "success")
+    if brand == "aura":
+        slots = [(9, 45), (14, 45), (19, 45)]
+        slot_desc = "하루 3회 (09:45 / 14:45 / 19:45 KST)"
+    elif brand == "insurance":
+        slots = [(10, 0), (15, 0), (20, 0)]
+        slot_desc = "하루 3회 (10:00 / 15:00 / 20:00 KST)"
+    else:  # stock
+        slots = [(10, 15), (15, 15), (20, 15)]
+        slot_desc = "하루 3회 (10:15 / 15:15 / 20:15 KST)"
+
+    log_event(f"⏰ [{brand_kr}] 4대 채널 옴니 블로그 15분 시차 정시 스케줄러 가동 ({slot_desc})", "success")
     executed_slots = set()
 
     while brand_daemons_running.get(brand, False):
@@ -172,18 +196,17 @@ def _brand_blog_worker(brand: str):
             hour = now.hour
             minute = now.minute
 
-            # 정시 골든타임 2슬롯 (아침 10:00, 오후 18:00)
-            is_morning_slot = (hour == 10 and minute == 0)
-            is_evening_slot = (hour == 18 and minute == 0)
-
             slot_key = None
-            if is_morning_slot and f"{today_str}_10" not in executed_slots:
-                slot_key = f"{today_str}_10"
-            elif is_evening_slot and f"{today_str}_18" not in executed_slots:
-                slot_key = f"{today_str}_18"
+            slot_name = None
+            for s_hour, s_min in slots:
+                if hour == s_hour and minute == s_min:
+                    key_candidate = f"{today_str}_{s_hour:02d}{s_min:02d}"
+                    if key_candidate not in executed_slots:
+                        slot_key = key_candidate
+                        slot_name = f"{s_hour:02d}:{s_min:02d}"
+                        break
 
             if slot_key:
-                slot_name = "아침 10:00" if "10" in slot_key else "오후 18:00"
                 log_event(f"⏰ [{brand_kr}] {slot_name} 정시 도달! 1회 정기 블로그 무인 발행 시작...", "info")
 
                 brand_stats[brand]["cycle"] += 1
@@ -234,43 +257,182 @@ def _brand_blog_worker(brand: str):
 def _brand_daemon_loop(brand: str):
     name_map = {"aura": "💖 Aura 데이팅", "insurance": "🛡️ InsureBalance 보험비교", "stock": "📈 Stock Master 주식AI"}
     brand_kr = name_map.get(brand, brand.upper())
-    log_event(f"🚀 [{brand_kr}] 무인 자율 마케팅 데몬 가동! (지식iN 레이더 + 하루 2회 정시 블로그 스케줄러 탑재)", "success")
+    log_event(f"🚀 [{brand_kr}] 무인 자율 마케팅 데몬 가동! (지식iN 24시간 실시간 레이더 + 15분 시차 분산 블로그/카드뉴스/숏폼 스케줄러 탑재)", "success")
 
     # 1. 지식iN 자율 레이더 스레드 가동 (정해진 5분 주기 감시, 일일 한도 달성 시 취침)
     threading.Thread(target=_brand_kin_worker, args=(brand,), daemon=True).start()
 
-    # 2. 4대 채널 옴니 블로그 무인 정시 스케줄러 가동 (하루 딱 2회: 12:00, 21:00 KST)
+    # 2. 4대 채널 옴니 블로그 무인 정시 스케줄러 가동 (15분 시차 분산: Aura 45분 / 보험 00분 / 주식 15분)
     threading.Thread(target=_brand_blog_worker, args=(brand,), daemon=True).start()
 
-    # 3. 📈 [StockMaster 전담] 30초 퀀트 숏폼 자율 스케줄러 가동 (평일 09:30/12:00/15:00, 주말 11:00/18:00)
-    if brand == "stock":
-        def _shorts_daemon_worker():
-            try:
-                from brands.stock.stock_shorts_scheduler import StockShortsScheduler
-                scheduler = StockShortsScheduler()
-                scheduler.run_continuous_daemon(check_interval_seconds=20)
-            except Exception as se:
-                log_event(f"⚠️ [Stock 숏폼 스케줄러 데몬 예외] {se}", "warning")
-        threading.Thread(target=_shorts_daemon_worker, daemon=True).start()
-
-    # 4. 📸 [메타(인스타+페북) 하루 2회 골든타임 카드뉴스/피드 무인 스케줄러]
-    def _meta_daemon_worker():
+    # 3. 🤖 [24시간 무인 인간 행동 봇 (08:30, 12:30, 15:30, 21:30 KST - 30분 체류 및 2~3회 좋아요, 0 API)]
+    def _human_behavior_worker():
         try:
             if brand == "aura":
-                from brands.aura.aura_meta_scheduler import AuraMetaScheduler
-                m_sched = AuraMetaScheduler()
-                m_sched.start_daemon(check_interval_seconds=60)
+                from brands.aura.aura_human_behavior_bot import AuraHumanBehaviorBot
+                AuraHumanBehaviorBot(headless=True).run_daemon()
             elif brand == "insurance":
-                from brands.insurance.insurance_meta_scheduler import InsuranceMetaScheduler
-                m_sched = InsuranceMetaScheduler()
-                m_sched.start_daemon(check_interval_seconds=60)
+                from brands.insurance.insurance_human_behavior_bot import InsuranceHumanBehaviorBot
+                InsuranceHumanBehaviorBot(headless=True).run_daemon()
             elif brand == "stock":
-                from brands.stock.stock_meta_scheduler import StockMetaScheduler
-                m_sched = StockMetaScheduler()
-                m_sched.start_daemon(check_interval_seconds=60)
-        except Exception as me:
-            log_event(f"⚠️ [{brand_kr} 메타 스케줄러 데몬 예외] {me}", "warning")
-    threading.Thread(target=_meta_daemon_worker, daemon=True).start()
+                from brands.stock.stock_human_behavior_bot import StockHumanBehaviorBot
+                StockHumanBehaviorBot(headless=True).run_daemon()
+        except Exception as he:
+            log_event(f"⚠️ [{brand_kr} 인간 행동 봇 데몬 예외] {he}", "warning")
+    threading.Thread(target=_human_behavior_worker, daemon=True).start()
+
+    # 4. 🎬 [골든타임 15분 시차 숏폼 데몬 - Aura 18:15 / 보험 18:30 / 주식 18:45 KST]
+    def _omni_shorts_daemon_worker():
+        try:
+            shorts_hour = 18
+            shorts_min = 15 if brand == "aura" else (30 if brand == "insurance" else 45)
+            executed_shorts_slots = set()
+            while brand_daemons_running.get(brand, False):
+                now = get_now_kst()
+                today_str = now.strftime("%Y-%m-%d")
+                slot_str = f"{today_str}_{shorts_hour:02d}{shorts_min:02d}"
+                if now.hour == shorts_hour and now.minute == shorts_min and slot_str not in executed_shorts_slots:
+                    executed_shorts_slots.add(slot_str)
+                    log_event(f"⏰ [{brand_kr}] 저녁 {shorts_hour:02d}:{shorts_min:02d} 골든타임 도달! 쏘기 직전 숏폼 1편 제작 및 4대 채널 단발 송출 시작...", "info")
+                    if brand == "aura":
+                        from brands.aura.aura_omni_shorts_pilot import AuraOmniShortsPilot
+                        AuraOmniShortsPilot().execute_single_slot()
+                    elif brand == "insurance":
+                        from brands.insurance.insurance_omni_shorts_pilot import InsuranceOmniShortsPilot
+                        InsuranceOmniShortsPilot().execute_single_slot()
+                    elif brand == "stock":
+                        from brands.stock.stock_omni_shorts_pilot import StockOmniShortsPilot
+                        StockOmniShortsPilot().execute_single_slot()
+                time.sleep(20)
+        except Exception as se:
+            log_event(f"⚠️ [{brand_kr} 숏폼 정시 데몬 예외] {se}", "warning")
+    threading.Thread(target=_omni_shorts_daemon_worker, daemon=True).start()
+
+    # 5. 📸 [1일 2회 순차 롤링 카드뉴스 데몬 - 1차 점심(11:15~45) / 2차 야간(21:15~45) KST]
+    def _omni_cardnews_daemon_worker():
+        try:
+            if brand == "aura":
+                card_slots = [(11, 15), (21, 15)]
+            elif brand == "insurance":
+                card_slots = [(11, 30), (21, 30)]
+            else:  # stock
+                card_slots = [(11, 45), (21, 45)]
+
+            executed_card_slots = set()
+            while brand_daemons_running.get(brand, False):
+                now = get_now_kst()
+                today_str = now.strftime("%Y-%m-%d")
+                hour = now.hour
+                minute = now.minute
+
+                for c_hour, c_min in card_slots:
+                    slot_str = f"{today_str}_{c_hour:02d}{c_min:02d}"
+                    if hour == c_hour and minute == c_min and slot_str not in executed_card_slots:
+                        executed_card_slots.add(slot_str)
+                        time_label = "점심" if c_hour < 15 else "야간"
+                        log_event(f"⏰ [{brand_kr}] {time_label} {c_hour:02d}:{c_min:02d} 골든타임 도달! 쏘기 직전 순차 5장 카드뉴스 제작 및 Meta 단발 송출 시작...", "info")
+                        if brand == "aura":
+                            from brands.aura.aura_omni_cardnews_pilot import AuraOmniCardnewsPilot
+                            AuraOmniCardnewsPilot().execute_single_slot()
+                        elif brand == "insurance":
+                            from brands.insurance.insurance_omni_cardnews_pilot import InsuranceOmniCardnewsPilot
+                            InsuranceOmniCardnewsPilot().execute_single_slot()
+                        elif brand == "stock":
+                            from brands.stock.stock_omni_cardnews_pilot import StockOmniCardnewsPilot
+                            StockOmniCardnewsPilot().execute_single_slot()
+                time.sleep(20)
+        except Exception as ce:
+            log_event(f"⚠️ [{brand_kr} 카드뉴스 정시 데몬 예외] {ce}", "warning")
+    threading.Thread(target=_omni_cardnews_daemon_worker, daemon=True).start()
+
+    # 6. 🎬 [24시간 무인 유튜브 전담 30분 스텔스 봇 (09:00, 13:00, 16:30, 22:30 KST - 쇼츠 16~35초 완시청, 댓글 탐색, 좋아요 2~3회, 0 API)]
+    def _youtube_behavior_worker():
+        try:
+            if brand == "aura":
+                from brands.aura.aura_youtube_behavior_bot import AuraYouTubeBehaviorScheduler
+                AuraYouTubeBehaviorScheduler().start()
+            elif brand == "insurance":
+                from brands.insurance.insurance_youtube_behavior_bot import InsuranceYouTubeBehaviorScheduler
+                InsuranceYouTubeBehaviorScheduler().start()
+            elif brand == "stock":
+                from brands.stock.stock_youtube_behavior_bot import StockYouTubeBehaviorScheduler
+                StockYouTubeBehaviorScheduler().start()
+        except Exception as ye:
+            log_event(f"⚠️ [{brand_kr} 유튜브 스텔스 봇 데몬 예외] {ye}", "warning")
+    threading.Thread(target=_youtube_behavior_worker, daemon=True).start()
+
+    # 7. 📱 [24시간 무인 틱톡 전담 30분 스텔스 봇 (09:30, 13:30, 17:00, 23:00 KST - FYP 완시청, 댓글 탐색, 좋아요 2~3회, 0 API)]
+    def _tiktok_behavior_worker():
+        try:
+            if brand == "aura":
+                from brands.aura.aura_tiktok_behavior_bot import AuraTikTokBehaviorScheduler
+                AuraTikTokBehaviorScheduler().start()
+            elif brand == "insurance":
+                from brands.insurance.insurance_tiktok_behavior_bot import InsuranceTikTokBehaviorScheduler
+                InsuranceTikTokBehaviorScheduler().start()
+            elif brand == "stock":
+                from brands.stock.stock_tiktok_behavior_bot import StockTikTokBehaviorScheduler
+                StockTikTokBehaviorScheduler().start()
+        except Exception as te:
+            log_event(f"⚠️ [{brand_kr} 틱톡 스텔스 봇 데몬 예외] {te}", "warning")
+    threading.Thread(target=_tiktok_behavior_worker, daemon=True).start()
+
+    # 8. 🤖 [24시간 무인 레딧 전담 스텔스 안전 침투 데몬 (08:00, 10:00, 13:00, 16:00, 20:00 ±30분 무작위 시프트)]
+    def _reddit_daemon_worker():
+        try:
+            if brand == "aura":
+                from brands.aura.aura_reddit_engine import AuraRedditEngine
+                aura_reddit = AuraRedditEngine()
+                while brand_daemons_running.get(brand, False):
+                    try:
+                        aura_reddit.orchestrator.run_scheduled_session()
+                    except Exception as re:
+                        log_event(f"⚠️ [Aura 레딧 세션 예외] {re}", "warning")
+                    time.sleep(60)
+            elif brand == "insurance":
+                from brands.insurance.insurance_reddit_engine import InsuranceRedditEngine
+                ins_reddit = InsuranceRedditEngine()
+                while brand_daemons_running.get(brand, False):
+                    try:
+                        ins_reddit.orchestrator.run_scheduled_session()
+                    except Exception as re:
+                        log_event(f"⚠️ [보험 레딧 세션 예외] {re}", "warning")
+                    time.sleep(60)
+        except Exception as rde:
+            log_event(f"⚠️ [{brand_kr} 레딧 스텔스 봇 데몬 예외] {rde}", "warning")
+    threading.Thread(target=_reddit_daemon_worker, daemon=True).start()
+
+    # 9. ☕ [24시간 무인 네이버 카페 정예 스텔스 침투 데몬 (15분 시차: Aura 14:15 / 보험 14:30 / 주식 14:45 KST - 1일 1회 1등글 선별 100% 자율)]
+    def _brand_cafe_worker():
+        try:
+            import asyncio
+            cafe_hour = 14
+            cafe_min = 15 if brand == "aura" else (30 if brand == "insurance" else 45)
+            executed_cafe_slots = set()
+            while brand_daemons_running.get(brand, False):
+                now = get_now_kst()
+                today_str = now.strftime("%Y-%m-%d")
+                slot_str = f"{today_str}_{cafe_hour:02d}{cafe_min:02d}"
+                if now.hour == cafe_hour and now.minute == cafe_min and slot_str not in executed_cafe_slots:
+                    executed_cafe_slots.add(slot_str)
+                    log_event(f"⏰ [{brand_kr}] 오후 {cafe_hour:02d}:{cafe_min:02d} 네이버 카페 골든타임 도달! 5일 로테이션 스캔 & 파이썬 100% 심사 침투 가동...", "info")
+                    if brand == "aura":
+                        from brands.aura.aura_cafe_pipeline import AuraCafePipeline
+                        res = asyncio.run(AuraCafePipeline().run_daily_stealth_infiltration(dry_run=False))
+                        log_event(f"☕ [Aura 카페 침투 결과] {res.get('status')}: {res.get('message', '완료')}", "success" if "SUCCESS" in str(res.get("status")) else "info")
+                    elif brand == "insurance":
+                        from brands.insurance.insurance_cafe_pipeline import InsuranceCafePipeline
+                        res = asyncio.run(InsuranceCafePipeline().run_daily_stealth_infiltration(dry_run=False))
+                        log_event(f"☕ [보험 카페 침투 결과] {res.get('status')}: {res.get('message', '완료')}", "success" if "SUCCESS" in str(res.get("status")) else "info")
+                    elif brand == "stock":
+                        from brands.stock.stock_cafe_pipeline import StockCafePipeline
+                        res = asyncio.run(StockCafePipeline().run_daily_stealth_infiltration(dry_run=False))
+                        log_event(f"☕ [주식 카페 침투 결과] {res.get('status')}: {res.get('message', '완료')}", "success" if "SUCCESS" in str(res.get("status")) else "info")
+                time.sleep(20)
+        except Exception as cde:
+            log_event(f"⚠️ [{brand_kr} 네이버 카페 데몬 예외] {cde}", "warning")
+    threading.Thread(target=_brand_cafe_worker, daemon=True).start()
+
 
 # 📲 텔레그램 24시간 커뮤니티 — 브랜드별 독립 인스턴스 (K-Market / EasyTax 완전 분리)
 telegram_ai_managers = {
@@ -400,11 +562,31 @@ for _name in [
     "AuraBlogScheduler", "AuraBlogEngine", "AuraMultiPublisher",
     "AuraNaverPublisher", "AuraTistoryPublisher", "AuraBrunchPublisher",
     "AuraSupabaseManager", "AuraPipeline", "InsurancePipeline", "StockPipeline",
-    "ChannelScheduler"
+    "AuraRedditEngine", "AuraRedditScanner", "AuraRedditCopywriter",
+    "InsuranceRedditEngine", "InsuranceRedditScanner", "InsuranceRedditCopywriter",
+    "RedditSafetyOrchestrator", "ChannelScheduler",
+    "AuraYouTubeScheduler", "AuraYouTubeAPIPublisher", "AuraYouTubeHybridPilot",
+    "AuraMetaScheduler", "AuraMetaPublisher",
+    "InsuranceYouTubeScheduler", "InsuranceYouTubeAPIPublisher", "InsuranceYouTubeHybridPilot",
+    "InsuranceMetaScheduler", "InsuranceMetaPublisher",
+    "StockShortsScheduler", "StockQuantShortsBuilder", "StockYouTubeAPIPublisher", 
+    "StockMetaScheduler", "StockMetaPublisher",
+    "AuraKinScanner", "InsuranceKinScanner", "StockKinScanner",
+    "AuraYouTubeBehaviorBot", "InsuranceYouTubeBehaviorBot", "StockYouTubeBehaviorBot"
 ]:
     _t_log = logging.getLogger(_name)
     _t_log.addHandler(_dash_handler)
     _t_log.setLevel(logging.INFO)
+
+def init_verified_live_logs():
+    """서버 부팅 시 3대 브랜드 무인 관제 센터 정상 가동 안내만 깔끔하게 출력"""
+    log_event("🚀 [System] 대한민국 3대 슈퍼앱 24시간 무인 마케팅 관제 센터 가동 완료 (포트 8080)", "success")
+    log_event("🌐 [Live Web] 💖 Aura AI 데이팅: https://aura-ai-dating.vercel.app/", "info")
+    log_event("🌐 [Live Web] 🛡️ 보험 리밸런스: https://insure-rebalance.vercel.app/", "info")
+    log_event("🌐 [Live Web] 📈 StockMaster AI: https://stockmaster-ai.vercel.app/", "info")
+    log_event("⏰ [Schedule] 3대 브랜드 15분 시차 분산 스케줄러가 정상 대기 중입니다.", "success")
+
+init_verified_live_logs()
 
 # 🏭 원클릭 마케팅 콘텐츠 팩토리 서비스 인스턴스
 from core.engine.factory_service import FactoryService
@@ -600,12 +782,16 @@ def execute_single_channel_task(module_name: str) -> str:
             brunch_status = ch.get('brunch', {}).get('status', '-')
             return f"💖 [Aura 4대 옴니 배포 완료] 주제 #{res.get('topic_id')} '{res.get('title')}'\n  - 앱피드: {feed_status}\n  - 🟢 네이버: {naver_url}\n  - 🟠 티스토리: {tistory_url}\n  - 🟡 브런치: {brunch_status}"
         elif module_name in ["aura_shorts", "aura_naver_clip", "aura_omni_shorts"]:
-            from brands.aura.aura_shorts_pipeline import AuraShortsPipeline
-            pipeline = AuraShortsPipeline()
-            log_event("🚀 [Aura 대시보드] 8대 킬러 주제 숏폼 100% 무인 순차 렌더링 가동 (1번 탈출전화 ~ 8번 안심레이더 8편 전편 연속 생산)...", "info")
-            results = pipeline.produce_all_8_topics(start_topic=1, end_topic=8)
-            completed_count = len([r for r in results if r.get("output_mp4")])
-            return f"🎉 [Aura 8대 숏폼 무인 순차 렌더링 완결] 총 {completed_count}/8편 제작 완료 (5대 SNS 포스팅 가이드 동시 생성)"
+            from brands.aura.aura_omni_shorts_pilot import AuraOmniShortsPilot
+            pilot = AuraOmniShortsPilot()
+            log_event("🚀 [Aura] 쏘기 직전 숏폼 1편 단독 제작 및 4대 채널(유튜브+클립+릴스) 1회 단발 송출 가동...", "info")
+            res = pilot.execute_single_slot()
+            if res.get("status") == "skipped":
+                return f"🛑 [Aura 숏폼] {res.get('message', '오늘 송출 완료')}"
+            ch = res.get("channels", {})
+            yt_url = ch.get("youtube", {}).get("video_url", "-")
+            clip_status = ch.get("naver_clip", {}).get("status", "-")
+            return f"🎉 [Aura 숏폼 1회 단발 송출 완료] 주제 #{res.get('topic_id')} '{res.get('title')}'\n  - 🔴 유튜브: {yt_url}\n  - 🟢 네이버 클립: {clip_status}\n  - 📁 파일: {res.get('video_file')}"
         elif module_name == "aura_master_photo":
             from brands.aura.aura_shorts_pipeline import AuraShortsPipeline
             pipeline = AuraShortsPipeline()
@@ -613,9 +799,16 @@ def execute_single_channel_task(module_name: str) -> str:
             res_photo = pipeline.produce_master_photo()
             return f"📸 [Aura 실사 인물 마스터 사진 생성 완료]\n  • 파일 저장: {res_photo.get('photo_path')}"
         elif module_name in ["aura_cardnews", "aura_omni_cardnews"]:
-            from brands.aura.aura_cardnews_magazine import AuraCardnewsMagazine
-            res = AuraCardnewsMagazine().publish_omni_magazine()
-            return res.get("message", "💖 Aura 4대 옴니 카드뉴스 매거진 완성 및 배포 완료")
+            from brands.aura.aura_omni_cardnews_pilot import AuraOmniCardnewsPilot
+            pilot = AuraOmniCardnewsPilot()
+            log_event("🎨 [Aura] 쏘기 직전 5장 카드뉴스 단독 제작 및 Meta(페북+인스타) 1회 단발 송출 가동...", "info")
+            res = pilot.execute_single_slot(force=True)
+            if res.get("status") == "skipped":
+                return f"🛑 [Aura 카드뉴스] {res.get('message', '오늘 송출 완료')}"
+            ch = res.get("channels", {})
+            fb_res = ch.get("facebook_cardnews", {}).get("status", "-")
+            ig_res = ch.get("instagram_carousel", {}).get("status", "-")
+            return f"🎉 [Aura 5장 카드뉴스 1회 단발 송출 완료] 주제 #{res.get('topic_id')} '{res.get('title')}'\n  - 📘 페이스북 앨범: {fb_res}\n  - 📸 인스타그램 캐러셀: {ig_res}\n  - 📁 슬라이드: {res.get('slides_count')}장"
         elif module_name in ["aura_threads", "aura_omni_threads"]:
             from brands.aura.aura_text_thread_hub import AuraTextThreadHub
             res = AuraTextThreadHub().publish_omni_thread()
@@ -636,6 +829,21 @@ def execute_single_channel_task(module_name: str) -> str:
             from brands.aura.aura_search_indexing_hub import AuraSearchIndexingHub
             res = AuraSearchIndexingHub().ping_all_engines()
             return res.get("message", "🌐 Aura 2대 포털 검색엔진 동시 색인 핑 전송 완료")
+        elif module_name in ["aura_reddit", "aura_reddit_cycle", "aura_reddit_promo"]:
+            from brands.aura.aura_reddit_engine import AuraRedditEngine
+            engine = AuraRedditEngine()
+            if module_name == "aura_reddit_cycle":
+                cycle_res = engine.run_safe_cycle()
+                return f"💖 [Aura 레딧 안전 사이클 완료] 업보트 {cycle_res.get('upvotes', 0)}건, 비홍보 {cycle_res.get('organic_comments', 0)}건, 스텔스홍보 {cycle_res.get('promo_comments', 0)}건"
+            else:
+                p_cnt = engine.scan_and_reply(limit_per_sub=10, max_promo=1, auto_post=True)
+                return f"💖 [Aura 레딧 스텔스 마케팅 완료] 12대 서브레딧 스캔 ➔ {p_cnt}건 처리 완료"
+        elif module_name in ["aura_naver_cafe", "aura_daum_cafe"]:
+            import asyncio
+            from brands.aura.aura_cafe_pipeline import AuraCafePipeline
+            pipe = AuraCafePipeline()
+            res = asyncio.run(pipe.run_daily_stealth_infiltration(dry_run=False))
+            return f"☕ [Aura 카페 스텔스] {res.get('message', '카페 스텔스 침투 완료')}"
         else:
             from brands.aura.aura_pipeline import AuraPipeline
             res = AuraPipeline(dry_run=False).run_full_daily_cycle()
@@ -666,12 +874,16 @@ def execute_single_channel_task(module_name: str) -> str:
             else:
                 return f"🛡️ [보험비교 지식iN] {res.get('message', '대기 중')}"
         elif module_name in ["insurance_shorts", "insurance_naver_clip", "insurance_omni_shorts"]:
-            from brands.insurance.insurance_shorts_pipeline import InsuranceShortsPipeline
-            pipeline = InsuranceShortsPipeline()
-            log_event("🚀 [보험비교 대시보드] 8대 킬러 주제 숏폼 100% 무인 순차 렌더링 가동 (1번 실손전환 ~ 8번 치아보험 8편 전편 연속 생산)...", "info")
-            results = pipeline.produce_topics(start_topic=1, end_topic=8)
-            completed_count = len([r for r in results if r.get("output_mp4")])
-            return f"🎉 [보험비교 8대 숏폼 무인 순차 렌더링 완결] 총 {completed_count}/8편 제작 완료 (바탕화면 실시간 저장)"
+            from brands.insurance.insurance_omni_shorts_pilot import InsuranceOmniShortsPilot
+            pilot = InsuranceOmniShortsPilot()
+            log_event("🚀 [보험비교] 쏘기 직전 숏폼 1편 단독 제작 및 4대 채널(유튜브+클립+릴스) 1회 단발 송출 가동...", "info")
+            res = pilot.execute_single_slot()
+            if res.get("status") == "skipped":
+                return f"🛡️ [보험 숏폼] {res.get('message', '오늘 송출 완료')}"
+            ch = res.get("channels", {})
+            yt_url = ch.get("youtube", {}).get("video_url", "-")
+            clip_status = ch.get("naver_clip", {}).get("status", "-")
+            return f"🎉 [보험 숏폼 1회 단발 송출 완료] 주제 #{res.get('topic_id')} '{res.get('title')}'\n  - 🔴 유튜브: {yt_url}\n  - 🟢 네이버 클립: {clip_status}\n  - 📁 파일: {res.get('video_file')}"
         elif module_name == "insurance_master_photo":
             from brands.insurance.insurance_shorts_pipeline import InsuranceShortsPipeline
             pipeline = InsuranceShortsPipeline()
@@ -679,9 +891,16 @@ def execute_single_channel_task(module_name: str) -> str:
             res_photo = pipeline.produce_master_photo()
             return f"📸 [보험비교 실사 인물 마스터 사진 생성 완료]\n  • 파일 저장: {res_photo.get('photo_path')}"
         elif module_name in ["insurance_cardnews", "insurance_omni_cardnews"]:
-            from brands.insurance.insurance_cardnews_magazine import InsuranceCardnewsMagazine
-            res = InsuranceCardnewsMagazine().publish_omni_magazine()
-            return res.get("message", "🛡️ 보험비교 4대 옴니 카드뉴스 매거진 완성 및 배포 완료")
+            from brands.insurance.insurance_omni_cardnews_pilot import InsuranceOmniCardnewsPilot
+            pilot = InsuranceOmniCardnewsPilot()
+            log_event("🎨 [보험비교] 쏘기 직전 5장 카드뉴스 단독 제작 및 Meta(페북+인스타) 1회 단발 송출 가동...", "info")
+            res = pilot.execute_single_slot()
+            if res.get("status") == "skipped":
+                return f"🛡️ [보험 카드뉴스] {res.get('message', '오늘 송출 완료')}"
+            ch = res.get("channels", {})
+            fb_res = ch.get("facebook_cardnews", {}).get("status", "-")
+            ig_res = ch.get("instagram_carousel", {}).get("status", "-")
+            return f"🎉 [보험 5장 카드뉴스 1회 단발 송출 완료] 주제 #{res.get('topic_id')} '{res.get('title')}'\n  - 📘 페이스북 앨범: {fb_res}\n  - 📸 인스타그램 캐러셀: {ig_res}\n  - 📁 슬라이드: {res.get('slides_count')}장"
         elif module_name in ["insurance_threads", "insurance_omni_threads"]:
             from brands.insurance.insurance_text_thread_hub import InsuranceTextThreadHub
             res = InsuranceTextThreadHub().publish_omni_thread()
@@ -689,7 +908,21 @@ def execute_single_channel_task(module_name: str) -> str:
         elif module_name in ["insurance_seo", "insurance_search_advisor", "insurance_omni_seo", "insurance_google_ping"]:
             from brands.insurance.insurance_search_indexing_hub import InsuranceSearchIndexingHub
             res = InsuranceSearchIndexingHub().ping_all_engines()
-            return res.get("message", "🌐 보험비교 2대 포털 검색엔진 동시 색인 핑 전송 완료")
+        elif module_name in ["insurance_reddit", "insurance_reddit_cycle", "insurance_reddit_promo"]:
+            from brands.insurance.insurance_reddit_engine import InsuranceRedditEngine
+            engine = InsuranceRedditEngine()
+            if module_name == "insurance_reddit_cycle":
+                cycle_res = engine.run_safe_cycle()
+                return f"🛡️ [보험 레딧 안전 사이클 완료] 업보트 {cycle_res.get('upvotes', 0)}건, 비홍보 {cycle_res.get('organic_comments', 0)}건, 스텔스홍보 {cycle_res.get('promo_comments', 0)}건"
+            else:
+                p_cnt = engine.scan_and_reply(limit_per_sub=10, max_promo=1, auto_post=True)
+                return f"🛡️ [보험 레딧 스텔스 마케팅 완료] 10대 서브레딧 스캔 ➔ {p_cnt}건 처리 완료"
+        elif module_name in ["insurance_naver_cafe", "insurance_daum_cafe", "insurance_cafe"]:
+            import asyncio
+            from brands.insurance.insurance_cafe_pipeline import InsuranceCafePipeline
+            pipe = InsuranceCafePipeline()
+            res = asyncio.run(pipe.run_daily_stealth_infiltration(dry_run=False))
+            return f"☕ [보험비교 카페 스텔스] {res.get('message', '카페 스텔스 침투 완료')}"
         else:
             res = pipe.run_full_daily_cycle()
             return f"🛡️ [보험비교 #{module_name}] 자율 파이프라인 가동 완료"
@@ -722,13 +955,27 @@ def execute_single_channel_task(module_name: str) -> str:
             else:
                 return f"📈 [주식AI 지식iN] {res.get('message', '대기 중')}"
         elif module_name in ["stock_shorts", "stock_naver_clip", "stock_omni_shorts"]:
-            from brands.stock.scenarios.prompt_director_stock import StockPromptDirector
-            content = StockPromptDirector.generate_blog_content()
-            return f"📈 [주식AI 5대 옴니 숏폼 렌더링 완료]\n  - 주제: '{content.get('title', '수급 레이더')}'\n  - 5대 송출: ①유튜브 쇼츠, ②틱톡, ③인스타 릴스, ④페북 릴스, ⑤네이버 클립 (9:16 + BGM + TTS + 자막)"
+            from brands.stock.stock_omni_shorts_pilot import StockOmniShortsPilot
+            pilot = StockOmniShortsPilot()
+            log_event("🚀 [주식AI] 쏘기 직전 숏폼 1편 단독 제작 및 4대 채널(유튜브+클립+릴스) 1회 단발 송출 가동...", "info")
+            res = pilot.execute_single_slot()
+            if res.get("status") == "skipped":
+                return f"📈 [주식 숏폼] {res.get('message', '오늘 송출 완료')}"
+            ch = res.get("channels", {})
+            yt_url = ch.get("youtube", {}).get("video_url", "-")
+            clip_status = ch.get("naver_clip", {}).get("status", "-")
+            return f"🎉 [주식 숏폼 1회 단발 송출 완료] 주제 #{res.get('topic_id')} '{res.get('title')}'\n  - 🔴 유튜브: {yt_url}\n  - 🟢 네이버 클립: {clip_status}\n  - 📁 파일: {res.get('video_file')}"
         elif module_name in ["stock_cardnews", "stock_omni_cardnews"]:
-            from brands.stock.stock_cardnews_magazine import StockCardnewsMagazine
-            res = StockCardnewsMagazine().publish_omni_magazine()
-            return res.get("message", "📈 주식AI 4대 옴니 카드뉴스 매거진 완성 및 배포 완료")
+            from brands.stock.stock_omni_cardnews_pilot import StockOmniCardnewsPilot
+            pilot = StockOmniCardnewsPilot()
+            log_event("🎨 [주식AI] 쏘기 직전 5장 카드뉴스 단독 제작 및 Meta(페북+인스타) 1회 단발 송출 가동...", "info")
+            res = pilot.execute_single_slot()
+            if res.get("status") == "skipped":
+                return f"📈 [주식 카드뉴스] {res.get('message', '오늘 송출 완료')}"
+            ch = res.get("channels", {})
+            fb_res = ch.get("facebook_cardnews", {}).get("status", "-")
+            ig_res = ch.get("instagram_carousel", {}).get("status", "-")
+            return f"🎉 [주식 5장 카드뉴스 1회 단발 송출 완료] 주제 #{res.get('topic_id')} '{res.get('title')}'\n  - 📘 페이스북 앨범: {fb_res}\n  - 📸 인스타그램 캐러셀: {ig_res}\n  - 📁 슬라이드: {res.get('slides_count')}장"
         elif module_name in ["stock_threads", "stock_omni_threads"]:
             from brands.stock.stock_text_thread_hub import StockTextThreadHub
             res = StockTextThreadHub().publish_omni_thread()
@@ -737,6 +984,12 @@ def execute_single_channel_task(module_name: str) -> str:
             from brands.stock.stock_search_indexing_hub import StockSearchIndexingHub
             res = StockSearchIndexingHub().ping_all_engines()
             return res.get("message", "🌐 주식AI 2대 포털 검색엔진 동시 색인 핑 전송 완료")
+        elif module_name in ["stock_naver_cafe", "stock_daum_cafe", "stock_cafe"]:
+            import asyncio
+            from brands.stock.stock_cafe_pipeline import StockCafePipeline
+            pipe = StockCafePipeline()
+            res = asyncio.run(pipe.run_daily_stealth_infiltration(dry_run=False))
+            return f"☕ [주식AI 카페 스텔스] {res.get('message', '카페 스텔스 침투 완료')}"
         else:
             res = pipe.run_full_daily_cycle()
             return f"📈 [주식AI #{module_name}] 자율 파이프라인 가동 완료"
@@ -1059,6 +1312,10 @@ class DashboardHandler(BaseHTTPRequestHandler):
         elif path == "/api/status":
             self._handle_get_status()
             return
+        elif path == "/api/today-live-feed" or path.startswith("/api/today-live-feed/"):
+            brand_part = path.replace("/api/today-live-feed", "").strip("/")
+            self._handle_get_today_live_feed(brand=brand_part if brand_part else None)
+            return
         elif path == "/api/outputs":
             self._handle_get_outputs()
             return
@@ -1103,6 +1360,12 @@ class DashboardHandler(BaseHTTPRequestHandler):
             parts = path.strip("/").split("/")
             b = parts[2] if len(parts) >= 3 else "aura"
             self._handle_get_kin_history(b)
+            return
+        elif path.startswith("/api/cafe/"):
+            # /api/cafe/aura/history, /api/cafe/stock/history, /api/cafe/insurance/history
+            parts = path.strip("/").split("/")
+            b = parts[2] if len(parts) >= 3 else "aura"
+            self._handle_get_cafe_history(b)
             return
         elif path == "/api/stock/shorts/status" or path.startswith("/api/stock/shorts/status"):
             self._handle_get_stock_shorts_status()
@@ -1228,6 +1491,12 @@ class DashboardHandler(BaseHTTPRequestHandler):
             b = parts[2] if len(parts) >= 3 else "aura"
             self._handle_post_kin_run(b)
             return
+        elif path.startswith("/api/cafe/"):
+            # /api/cafe/aura/run, /api/cafe/stock/run, /api/cafe/insurance/run
+            parts = path.strip("/").split("/")
+            b = parts[2] if len(parts) >= 3 else "aura"
+            self._handle_post_cafe_run(b)
+            return
         elif path == "/api/google-index/ping":
             self._handle_google_index_ping(payload)
             return
@@ -1299,13 +1568,31 @@ class DashboardHandler(BaseHTTPRequestHandler):
             total_count = row[0]
             top_score = row[1]
 
-            # 2. K-Market 전용 실적
+            # 2. Aura 실적
+            cursor.execute("SELECT COUNT(*), COALESCE(MAX(score), 0.0) FROM marketing_history WHERE service_id = 'aura'")
+            aura_row = cursor.fetchone()
+            aura_count = aura_row[0]
+            aura_score = aura_row[1]
+
+            # 3. Insurance 실적
+            cursor.execute("SELECT COUNT(*), COALESCE(MAX(score), 0.0) FROM marketing_history WHERE service_id = 'insurance'")
+            ins_row = cursor.fetchone()
+            ins_count = ins_row[0]
+            ins_score = ins_row[1]
+
+            # 4. Stock 실적
+            cursor.execute("SELECT COUNT(*), COALESCE(MAX(score), 0.0) FROM marketing_history WHERE service_id = 'stock'")
+            stock_row = cursor.fetchone()
+            stock_count = stock_row[0]
+            stock_score = stock_row[1]
+
+            # 5. K-Market 전용 실적
             cursor.execute("SELECT COUNT(*), COALESCE(MAX(score), 0.0) FROM marketing_history WHERE service_id = 'kmarket'")
             km_row = cursor.fetchone()
             km_count = km_row[0]
             km_score = km_row[1]
 
-            # 3. EasyTax 전용 실적
+            # 6. EasyTax 전용 실적
             cursor.execute("SELECT COUNT(*), COALESCE(MAX(score), 0.0) FROM marketing_history WHERE service_id = 'easytax'")
             tax_row = cursor.fetchone()
             tax_count = tax_row[0]
@@ -1328,12 +1615,38 @@ class DashboardHandler(BaseHTTPRequestHandler):
         insurance_kin_q = _get_brand_kin_quota("insurance")
         stock_kin_q = _get_brand_kin_quota("stock")
 
+        from core.emergency_guard import EmergencyGuard
+        sentinel_report = EmergencyGuard(db_mgr).get_full_sentinel_report()
+
+        # 3대 브랜드 독립 인간 행동 봇 (하루 30분 / 매회 2~3회 좋아요) 실시간 통계
+        human_routines = {}
+        try:
+            from brands.aura.aura_human_behavior_bot import AuraHumanBehaviorBot
+            from brands.insurance.insurance_human_behavior_bot import InsuranceHumanBehaviorBot
+            from brands.stock.stock_human_behavior_bot import StockHumanBehaviorBot
+            human_routines = {
+                "aura": AuraHumanBehaviorBot().get_today_routine_summary(),
+                "insurance": InsuranceHumanBehaviorBot().get_today_routine_summary(),
+                "stock": StockHumanBehaviorBot().get_today_routine_summary(),
+            }
+        except Exception:
+            pass
+
         data = {
             "master_autopilot_running": (
                 brand_daemons_running.get("aura", False) or 
                 brand_daemons_running.get("insurance", False) or 
                 brand_daemons_running.get("stock", False)
             ),
+            "emergency_status": {
+                "is_emergency": sentinel_report.get("is_emergency", False),
+                "overall_status": sentinel_report.get("overall_status", "healthy"),
+                "alerts": sentinel_report.get("alerts", []),
+                "summary": sentinel_report.get("summary", {})
+            },
+            "human_routines": human_routines,
+            "mission_timeline": sentinel_report.get("mission_timeline", []),
+            "production_details": sentinel_report.get("production_details", {}),
             "kin_quotas": {
                 "aura": aura_kin_q,
                 "insurance": insurance_kin_q,
@@ -1353,9 +1666,12 @@ class DashboardHandler(BaseHTTPRequestHandler):
             "season": season,
             "total_history_count": total_count,
             "top_score": top_score,
-            "aura_history_count": brand_stats.get("aura", {}).get("total_published", 0),
-            "insurance_history_count": brand_stats.get("insurance", {}).get("total_published", 0),
-            "stock_history_count": brand_stats.get("stock", {}).get("total_published", 0),
+            "aura_history_count": aura_count,
+            "aura_top_score": aura_score,
+            "insurance_history_count": ins_count,
+            "insurance_top_score": ins_score,
+            "stock_history_count": stock_count,
+            "stock_top_score": stock_score,
             "kmarket_history_count": km_count,
             "kmarket_top_score": km_score,
             "kmarket_seo_count": 1105,
@@ -1373,8 +1689,18 @@ class DashboardHandler(BaseHTTPRequestHandler):
             "golden_eight_languages": GOLDEN_EIGHT_LANGUAGES,
             "golden_eight_details": GOLDEN_EIGHT_DETAILS,
             "golden_batch_summary": golden_batch_producer.get_today_production_summary(),
+            "today_live_feed": today_live_tracker.get_all_live_feed(),
             "recent_logs": recent_logs[-50:]
         }
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_get_today_live_feed(self, brand: Optional[str] = None):
+        """🚀 3대 브랜드 실시간 마케팅 무인 발행 라이브 피드 반환 (전체 또는 개별 브랜드 독립)"""
+        if brand and brand in ["aura", "insurance", "stock"]:
+            data = today_live_tracker.get_brand_live_status(brand)
+        else:
+            data = today_live_tracker.get_all_live_feed()
         self._set_headers("application/json")
         self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
 
@@ -1553,16 +1879,22 @@ class DashboardHandler(BaseHTTPRequestHandler):
     def _handle_brand_start(self, brand: str):
         global brand_daemons_running, running_channels
         brand_daemons_running[brand] = True
-        main_ch = f"{brand}_blog"
-        if not running_channels.get(main_ch, False):
-            running_channels[main_ch] = True
-            threading.Thread(target=channel_continuous_worker, args=(main_ch,), daemon=True).start()
+        
+        # 3대 슈퍼앱 24대 마케팅 허브 전체 채널 일괄 가동
+        brand_modules = [
+            "shorts", "cardnews", "reddit", "omni_blog", "blog", "seo", "threads",
+            "naver_kin", "naver_cafe", "daum_cafe", "ppomppu", "dcinside",
+            "nate_pann", "bobaedream", "fmkorea", "kakao_channel"
+        ]
+        for m in brand_modules:
+            ch_key = f"{brand}_{m}"
+            running_channels[ch_key] = True
 
         t = threading.Thread(target=_brand_daemon_loop, args=(brand,), daemon=True)
         t.start()
         name_map = {"aura": "💖 Aura 데이팅", "insurance": "🛡️ InsureBalance 보험비교", "stock": "📈 Stock Master 주식AI"}
         brand_kr = name_map.get(brand, brand.upper())
-        res = {"success": True, "message": f"🚀 {brand_kr} 24개 옴니채널 무인 마케팅 데몬이 가동되었습니다!"}
+        res = {"success": True, "message": f"🚀 {brand_kr} 24개 옴니채널 무인 마케팅 데몬 및 허브가 일괄 가동되었습니다!"}
         self._set_headers("application/json")
         self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
 
@@ -2190,11 +2522,14 @@ class DashboardHandler(BaseHTTPRequestHandler):
         db = DBManager()
         checker = SystemHealthChecker(db)
         res = checker.run_full_diagnosis(
+            is_aura_running=brand_daemons_running.get("aura", False),
+            is_ins_running=brand_daemons_running.get("insurance", False),
+            is_stock_running=brand_daemons_running.get("stock", False),
             is_km_running=kmarket_running,
             is_tax_running=easytax_running
         )
         self._set_headers("application/json")
-        self.wfile.write(json.dumps(res).encode("utf-8"))
+        self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
 
     def _handle_get_ir_analytics(self, parsed_url):
         import importlib
@@ -2720,12 +3055,18 @@ class DashboardHandler(BaseHTTPRequestHandler):
         db = DBManager()
         checker = SystemHealthChecker(db)
         res = checker.run_full_diagnosis(
-            is_km_running=kmarket_running,
-            is_tax_running=easytax_running
+            is_aura_running=aura_running,
+            is_ins_running=insurance_running,
+            is_stock_running=stock_running,
+            is_km_running=False,
+            is_tax_running=False
         )
-        log_event(f"🩺 실시간 자가진단 완료: 종합 건강도 {res['health_score']}% (정상 맥박 확인)", "success")
+        score = res.get('health_score', 0)
+        status_msg = f"🩺 [실시간 정밀 자가진단] 건강도 {score}%"
+        log_event(status_msg, "info" if score < 100 else "success")
         self._set_headers("application/json")
-        self.wfile.write(json.dumps({"success": True, "message": f"자가진단 완료: 종합 건강도 {res['health_score']}%", "diagnosis": res}).encode("utf-8"))
+        self.wfile.write(json.dumps({"success": True, "message": status_msg, "diagnosis": res}).encode("utf-8"))
+
 
     def _handle_get_scenarios(self, parsed):
         from core.scenario_engine import ScenarioEngine
@@ -3005,7 +3346,6 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps({"success": res.get("success", False), "message": msg, "detail": res}, ensure_ascii=False).encode("utf-8"))
 
     # ── [지식iN] 네이버 지식iN 실시간 낚아채기 핸들러 ─────────────────
-    # ── [지식iN] 네이버 지식iN 실시간 낚아채기 핸들러 ─────────────────
     def _handle_get_kin_history(self, brand="aura"):
         """지식iN 최근 낚아챈 질문 히스토리 및 24시간 일일 쿼터 통계 반환"""
         if brand == "stock":
@@ -3020,15 +3360,18 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
         state = scheduler._load_state()
         history = scheduler.pipeline._load_history()
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        actual_today_count = sum(1 for h in history if str(h.get("created_at", "")).startswith(today_str))
+        daily_total = max(state.get("daily_total", 0), actual_today_count)
 
         res_data = {
             "success": True,
             "brand": brand,
-            "daily_total": state.get("daily_total", 0),
+            "daily_total": daily_total,
             "daily_target": scheduler.DAILY_TARGET,
             "mode": "24/7 Realtime Radar",
             "last_run_at": state.get("last_run_at", "대기 중"),
-            "history": history[:15]
+            "history": history[:20]
         }
         self._set_headers("application/json")
         self.wfile.write(json.dumps(res_data, ensure_ascii=False).encode("utf-8"))
@@ -3056,6 +3399,65 @@ class DashboardHandler(BaseHTTPRequestHandler):
             log_event(f"ℹ️ [{brand_name} 지식iN] {res.get('message', '새 질문 탐색 완료')}", "info")
         self._set_headers("application/json")
         self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+
+    # ── [카페] 네이버 8대/5대 정예 카페 스텔스 침투 핸들러 ─────────
+    def _handle_get_cafe_history(self, brand="aura"):
+        """8대/5대 정예 카페 스텔스 침투 현황 및 최근 이력 반환"""
+        if brand == "stock":
+            from brands.stock.stock_live_tracker import StockLiveTracker
+            tracker = StockLiveTracker()
+        elif brand == "insurance":
+            from brands.insurance.insurance_live_tracker import InsuranceLiveTracker
+            tracker = InsuranceLiveTracker()
+        else:
+            from brands.aura.aura_live_tracker import AuraLiveTracker
+            tracker = AuraLiveTracker()
+
+        today_str = get_now_kst().strftime("%Y-%m-%d")
+        cafe_info = tracker._get_cafe_info(today_str)
+        res_data = {
+            "success": True,
+            "brand": brand,
+            "data": cafe_info
+        }
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps(res_data, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_post_cafe_run(self, brand="aura"):
+        """8대/5대 정예 카페 1회 즉시 스텔스 침투 트리거 (백그라운드 비동기)"""
+        name_map = {"aura": "💖 Aura 데이팅", "insurance": "🛡️ 보험 리밸런스", "stock": "📈 StockMaster AI"}
+        b_name = name_map.get(brand, brand.upper())
+
+        def _worker():
+            try:
+                import asyncio
+                log_event(f"☕ [{b_name} 카페] 5일 로테이션 스캔 & 파이썬 100% 심사 침투 시작...", "info")
+                if brand == "stock":
+                    from brands.stock.stock_cafe_pipeline import StockCafePipeline
+                    res = asyncio.run(StockCafePipeline().run_daily_stealth_infiltration(dry_run=False))
+                elif brand == "insurance":
+                    from brands.insurance.insurance_cafe_pipeline import InsuranceCafePipeline
+                    res = asyncio.run(InsuranceCafePipeline().run_daily_stealth_infiltration(dry_run=False))
+                else:
+                    from brands.aura.aura_cafe_pipeline import AuraCafePipeline
+                    res = asyncio.run(AuraCafePipeline().run_daily_stealth_infiltration(dry_run=False))
+
+                st = res.get("status", "")
+                msg = res.get("message", "완료")
+                is_ok = "SUCCESS" in str(st) or "COMPLETED" in str(st)
+                log_event(f"☕ [{b_name} 카페 결과] {st}: {msg}", "success" if is_ok else "info")
+            except Exception as e:
+                import traceback
+                err = traceback.format_exc()
+                log_event(f"❌ [{b_name} 카페 침투 예외] {e}\n{err}", "error")
+
+        threading.Thread(target=_worker, daemon=True).start()
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps({
+            "success": True,
+            "brand": brand,
+            "message": f"☕ [{b_name}] 네이버 카페 1회 즉시 침투가 백그라운드에서 시작되었습니다."
+        }, ensure_ascii=False).encode("utf-8"))
 
     def _handle_seo_ping(self, brand="aura"):
         """구글/네이버 검색엔진 동시 색인 핑 전송"""
@@ -3167,8 +3569,18 @@ def run_server(port: int = 8080):
     print(f"🌐 Browser URL: http://localhost:{port}")
     print("========================================================\n")
 
-    # 🛑 [수동 제어 모드] 서버 기동 시 무단 자동 실행 전면 차단 (오직 대시보드 버튼 클릭 시에만 수동 동작)
-    print("🔒 [안전 제어] 모든 백그라운드 자동 루프가 비활성화되었습니다. (수동 대시보드 조작 대기 중)\n")
+    # 🤖 [Rule 6 준수: 24시간 365일 무인 자율 구동 데몬 3대 브랜드 자동 기동]
+    print("🤖 [무인 자율 구동] 3대 브랜드(Aura, 보험, 주식) 24/7 상주 데몬 자동 가동...")
+    for b in ["aura", "insurance", "stock"]:
+        brand_daemons_running[b] = True
+        threading.Thread(target=_brand_daemon_loop, args=(b,), daemon=True).start()
+    print("  • ✍️ 4대 옴니 블로그 정시 스케줄러 (하루 3회: 10:00, 15:00, 20:00 KST)")
+    print("  • 📸 5장 카드뉴스 정시 단발 스케줄러 (하루 2회 순차: 점심 11:30, 야간 21:30 KST)")
+    print("  • 🎬 숏폼 정시 단발 스케줄러 (저녁 18:30 KST)")
+    print("  • 🕵️ 인간 행동 워밍업 봇 (하루 4회: 08:30, 12:30, 15:30, 21:30 KST)")
+    print("  • 🎬 유튜브 30분 스텔스 인간 행동 봇 (하루 4회: 09:00, 13:00, 16:30, 22:30 KST)")
+    print("  • 📱 틱톡 30분 스텔스 인간 행동 봇 (하루 4회: 09:30, 13:30, 17:00, 23:00 KST)")
+    print("  • 🎯 네이버 지식iN 실시간 낚아채기 레이더 (300초 주기)\n")
 
     # 🌐 서버 준비 완료 직후 브라우저 자동 오픈 (에러 없는 1초 컷 즉시 실행)
     def _open_browser():

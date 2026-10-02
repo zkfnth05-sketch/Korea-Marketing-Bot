@@ -34,7 +34,7 @@ from core.shorts_engine.stock_app_recorder import StockAppRecorder
 from brands.stock.ui_templates.stock_cta_card import StockCTACard
 from brands.stock.stock_sns_guide_generator import StockSNSGuideGenerator
 from brands.stock.stock_realtime_data_fetcher import StockRealtimeDataFetcher
-from brands.stock.stock_gemini_30s_script_writer import StockGemini30sScriptWriter
+from brands.stock.stock_shorts_script_writer import StockShortsScriptWriter
 from core.shorts_engine.stock_shorts_scenario_director import StockShortsScenarioDirector
 
 if sys.platform == "win32":
@@ -56,7 +56,7 @@ class StockQuantShortsBuilder:
         self.output_base.mkdir(parents=True, exist_ok=True)
         self.ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
         self.data_fetcher = StockRealtimeDataFetcher()
-        self.script_writer = StockGemini30sScriptWriter()
+        self.script_writer = StockShortsScriptWriter()
         self.scenario_director = StockShortsScenarioDirector()
         self.recorder = StockAppRecorder()
         self.cta_card = StockCTACard()
@@ -264,6 +264,20 @@ class StockQuantShortsBuilder:
 ================================================================================
 """
         guide_file.write_text(guide_text, encoding="utf-8")
+
+        # SQLite 마케팅 DB에 실시간 실적 기록
+        try:
+            from core.db_manager import DBManager
+            DBManager().record_history(
+                service_id="stock",
+                target_lang="ko",
+                content_type="shorts",
+                content_text=f"[{topic_titles.get(topic_id, theme_name)}]\n{script}",
+                target_url="https://stockmaster-ai.vercel.app/",
+                score=95.0
+            )
+        except Exception as dbe:
+            logger.warning(f"DB 기록 실패 (계속 진행): {dbe}")
 
         logger.info(f"🎉 [{folder_name} 30초 완제품 완성!] {final_mp4} ({final_mp4.stat().st_size / 1024 / 1024:.2f} MB)")
         return {

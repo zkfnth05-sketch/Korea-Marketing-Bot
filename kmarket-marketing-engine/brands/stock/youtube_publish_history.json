@@ -34,5 +34,17 @@
     "privacy_status": "public",
     "published_at": "2026-10-01 15:01:02",
     "message": "YouTube Data API v3 쇼츠 공개 발행 및 고정 댓글 등록 완료"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "topic_id": 5,
+    "video_id": "PY7Vsipv9UE",
+    "video_url": "https://youtube.com/shorts/PY7Vsipv9UE",
+    "comment_id": "UgwNAiXaLvW9Ej8Agxx4AaABAg",
+    "title": "외인·기관 실시간 쌍끌이 순매수 레이더 포착 종목 TOP 3 #스톡마스터AI #Shorts",
+    "privacy_status": "public",
+    "published_at": "2026-10-02 18:46:45",
+    "message": "YouTube Data API v3 쇼츠 공개 발행 및 고정 댓글 등록 완료"
   }
 ]

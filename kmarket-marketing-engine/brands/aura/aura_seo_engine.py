@@ -45,7 +45,7 @@ class AuraSEOEngine:
     BRAND = "aura"
     NAME = "Aura 2030 AI Dating"
     BASE_DOMAIN = "https://aura-ai-dating.vercel.app"
-    LANDING_URL = "https://aura-ai-dating.vercel.app/lounge"
+    LANDING_URL = "https://aura-ai-dating.vercel.app/"
 
     def __init__(self):
         self.output_dir = OUTPUTS_DIR / "seo_aura"

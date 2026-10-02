@@ -116,7 +116,7 @@ class AuraNaverClipPublisher:
         clip_desc = (
             f"{main_title}\n\n"
             f"🔍 네이버 검색창에 👉 [아우라AI데이팅] 검색해보세요!\n"
-            f"공식 라운지: https://aura-ai-dating.vercel.app/lounge\n\n"
+            f"공식 라운지: https://aura-ai-dating.vercel.app/\n\n"
             f"#아우라AI데이팅 #소개팅꿀팁 #소개팅탈출 #데이팅앱추천 #연애심리"
         )
 

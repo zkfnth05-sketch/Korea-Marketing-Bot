@@ -26,16 +26,16 @@ from brands.aura.ui_templates.aura_brand_logo import AuraBrandLogo
 from .aura_shorts_scenario_director import AuraShortsScenarioDirector
 from .shorts_character_anchor_aura import build_aura_shorts_t2i_character_prompt
 from .s2v_clip_stitcher import S2VClipStitcher
-from .gemini_tts_synthesizer import GeminiTTSSynthesizer
 from .typecast_synthesizer import TypecastSynthesizer
+from brands.aura.aura_voice_cloner import AuraVoiceCloner
 
 logger = logging.getLogger("AuraShortsProducer")
 
 
 class AuraShortsProducer(BaseShortsProducer):
-    """Aura 데이팅 숏폼 자동 생산 엔진 (100% 무료 Google Gemini 2.5 Flash TTS + Wan 2.2 S2V 립싱크)"""
+    """Aura 데이팅 숏폼 자동 생산 엔진 (알리바바 CosyVoice 아라 보이스 + Wan 2.2 S2V 립싱크)"""
 
-    def __init__(self, use_typecast: bool = False):
+    def __init__(self, use_voice_cloner: bool = True, use_typecast: bool = False):
         super().__init__("Aura")
         # 사용자 명시 절대 경로: 바탕화면/한국 숏폼_산출물/Aura
         self.output_base = Path(r"C:\Users\zkfnt\Desktop\한국 숏폼_산출물\Aura")
@@ -47,10 +47,9 @@ class AuraShortsProducer(BaseShortsProducer):
         self.cta_card = AuraCTACard()
         self.script_director = AuraShortsScenarioDirector()
         
-        # 🎙️ Google Gemini 2.5 Flash TTS (비용 0원 100% 무료, Aoede 20대 여성)
-        self.gemini_tts = GeminiTTSSynthesizer(default_voice="Aoede")
-        self.typecast_tts = TypecastSynthesizer()
-        self.tts = self.typecast_tts if use_typecast else self.gemini_tts
+        # 🎙️ 알리바바 CosyVoice 아라(Ara) 보이스 복제기 (1순위 알리바바 -> 2순위 Typecast -> 3순위 Edge-TTS)
+        self.voice_cloner = AuraVoiceCloner(output_dir=str(self.output_base))
+        self.tts = self.voice_cloner
         
         self.stitcher = S2VClipStitcher(
             wan_client=self.wan_client,

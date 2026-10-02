@@ -23,7 +23,7 @@ logger = logging.getLogger("StockLiveTrendScanner")
 BLUE_CHIP_WHITELIST = {
     # ⚡ HBM & 반도체
     "삼성전자": {"code": "005930", "sector": "반도체/HBM", "keywords": ["HBM3E", "파운드리", "영업이익", "외국인순매수"]},
-    "SK하이닉스": {"code": "000660", "sector": "반도체/HBM", "keywords": ["HBM 공급", "엔비디아", "실적서프라이즈", "기관매집"]},
+    "SK하이닉스": {"code": "000660", "sector": "반도체/HBM", "keywords": ["HBM 공급", "글로벌AI", "실적서프라이즈", "기관매집"]},
     "한미반도체": {"code": "042700", "sector": "반도체장비", "keywords": ["듀얼TC본더", "HBM", "목표주가", "신고가"]},
     "리노공업": {"code": "058470", "sector": "반도체소부장", "keywords": ["온디바이스AI", "소켓", "영업이익률", "우량주"]},
     "HPSP": {"code": "403870", "sector": "반도체장비", "keywords": ["고압수소어닐링", "독점", "외인매수", "성장주"]},

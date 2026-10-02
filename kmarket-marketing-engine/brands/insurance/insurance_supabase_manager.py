@@ -333,6 +333,7 @@ class InsuranceSupabaseManager:
                 "cumulative_pv": len(total_unique_sessions),
                 "yoy_growth": f"상담신청 {total_leads_cnt}건 (설계사 {total_planners}명)",
                 "monthly_visitors": period_leads_cnt,
+                "visitor_unit": "건",
                 "kpi_period_label": f"{period_label} [보험 리밸런스] 순 유입자 수 (중복제거)",
                 "visitor_period_label": f"{period_label} [보험 리밸런스] 고객 상담 신청 (건)"
             }

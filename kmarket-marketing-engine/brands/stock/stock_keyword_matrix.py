@@ -27,17 +27,17 @@ class StockKeywordMatrix:
             "description": "삼성전자, SK하이닉스 HBM, 밸류업 프로그램, 2차전지 반등 수급",
             "seeds": ["삼성전자 주가", "SK하이닉스 주가", "코스피 전망", "밸류업 수혜주", "2차전지 관련주"]
         },
-        "us_dividend_tech": {
-            "name": "미국 배당주 & 빅테크",
-            "icon": "🇺🇸",
-            "description": "엔비디아 실적, SCHD 배당 ETF, 테슬라 로보택시, 미국주식 양도세 절세",
-            "seeds": ["엔비디아 주가", "SCHD ETF", "미국주식 절세", "테슬라 주가", "미국 배당주 추천"]
+        "korea_dividend_growth": {
+            "name": "국내 고배당주 & 월배당 포트폴리오",
+            "icon": "💰",
+            "description": "국내 금융지주 배당, 맥쿼리인프라, 고배당 알짜주, ISA 비과세 절세",
+            "seeds": ["국내 배당주 추천", "맥쿼리인프라 배당", "금융지주 배당금", "ISA 계좌 절세", "고배당 ETF"]
         },
-        "etf_index": {
-            "name": "S&P500 & 나스닥 지수 ETF",
+        "korea_theme_leaders": {
+            "name": "코스피·코스닥 주도주 & 체결강도",
             "icon": "📈",
-            "description": "S&P500 적립식 복리, QQQ 나스닥100, 미국 장기채 TLT 금리인하 수혜",
-            "seeds": ["S&P500 ETF", "나스닥100 QQQ", "미국채권 ETF", "적립식 ETF", "TQQQ 레버리지"]
+            "description": "실시간 체결강도 120% 돌파, 외인/기관 블록오더, 2차전지·바이오·로봇 주도주",
+            "seeds": ["체결강도 급등주", "외국인 기관 순매수", "코스피 주도주", "코스닥 대장주", "거래대금 상위"]
         },
         "macro_economy": {
             "name": "거시경제 & 금리·환율",
@@ -65,20 +65,20 @@ class StockKeywordMatrix:
             "K방산 한화에어로스페이스", "유한양행 레이저티닙 바이오", "조선주 슈퍼사이클 신조선가",
             "현대차 기아 하이브리드 실적", "공모주 청약 상장일 매도", "외국인 기관 순매수 수급"
         ],
-        "us_dividend_tech": [
-            "SCHD JEPI 배당 ETF 비교", "엔비디아 블랙웰 실적 전망", "미국주식 양도소득세 250만 절세",
-            "마이크로소프트 애저 코파일럿", "애플 인텔리전스 온디바이스", "리얼티인컴 월배당 리츠",
-            "테슬라 로보택시 FSD 자율주행", "일라이릴리 비만치료제 마운자로", "워런버핏 포트폴리오 현금보유"
+        "korea_dividend_growth": [
+            "국내 고배당주 순위 비교", "맥쿼리인프라 배당금 계산", "금융지주 분기배당 일정",
+            "삼성전자 우선주 배당수익률", "ISA 절세계좌 배당비과세", "리츠 부동산 배당주",
+            "통신사 고배당 SK텔레콤 KT", "배당성장주 10년 연속 증액", "배당락 전후 매매 전략"
         ],
-        "etf_index": [
-            "S&P 500 ETF VOO SPY 비교", "나스닥 100 QQQ QQM 차이", "월 50만원 S&P500 복리수익",
-            "미국 장기채 TLT 금리인하", "TQQQ SOXL 레버리지 음의복리", "TIGER 미국S&P500 절세계좌",
-            "한국판 SCHD 배당다우존스", "금 은 원자재 ETF 헤지", "비트코인 현물 ETF IBIT"
+        "korea_theme_leaders": [
+            "코스피 체결강도 120 돌파 종목", "외국인 기관 쌍끌이 순매수 상위", "2차전지 에코프로 포스코홀딩스",
+            "바이오 대장주 알테오젠 삼천당제약", "로봇 두산로보틱스 레인보우로보틱스", "방산 한화에어로스페이스 LIG넥스원",
+            "조선주 HD현대중공업 삼성중공업", "코스닥 거래대금 폭발 주도주", "AI 반도체 HBM CXL 관련주"
         ],
         "macro_economy": [
-            "미국 연준 FOMC 기준금리 인하", "원달러 환율 전망 1350원", "미국 CPI 소비자물가지수",
-            "장단기 금리차 역전 해소 침체", "엔 캐리 트레이드 청산 파장", "공포와 탐욕 지수 바닥매수",
-            "VIX 변동성 공포지수", "달러 인덱스 DXY 강달러", "국제 유가 WTI 정유주 영향"
+            "한국은행 기준금리 동결 인하", "원달러 환율 전망 1350원", "수출입 동향 무역수지 흑자",
+            "외국인 수급 코스피 영향", "금투세 폐지 증시 영향", "공포와 탐욕 지수 바닥매수",
+            "VKOSPI 한국 변동성지수", "원화 가치 및 외국인 수급", "국제 유가 WTI 정유주 영향"
         ],
         "chart_financials": [
             "PER PBR ROE 재무제표 보는법", "이동평균선 골든크로스 매매법", "지지선 저항선 매물대 차트",
@@ -94,9 +94,9 @@ class StockKeywordMatrix:
 
     VIRAL_TAG_POOL: Dict[str, List[str]] = {
         "korea_market": ["#국내주식", "#삼성전자주가", "#SK하이닉스", "#밸류업프로그램", "#2차전지", "#코스피전망", "#StockMaster"],
-        "us_dividend_tech": ["#미국주식", "#엔비디아", "#SCHD", "#미국배당주", "#테슬라", "#서학개미", "#StockMaster"],
-        "etf_index": ["#ETF추천", "#SP500", "#나스닥100", "#적립식투자", "#복리수익", "#채권ETF", "#StockMaster"],
-        "macro_economy": ["#거시경제", "#FOMC금리인하", "#환율전망", "#CPI발표", "#공포탐욕지수", "#미국증시전망", "#StockMaster"],
+        "korea_dividend_growth": ["#국내배당주", "#맥쿼리인프라", "#금융지주배당", "#고배당주", "#ISA계좌", "#배당수익률", "#StockMaster"],
+        "korea_theme_leaders": ["#체결강도", "#코스피주도주", "#코스닥대장주", "#외국인순매수", "#기관수급", "#급등주포착", "#StockMaster"],
+        "macro_economy": ["#거시경제", "#한국은행금리", "#환율전망", "#원달러환율", "#코스피전망", "#증시시황", "#StockMaster"],
         "chart_financials": ["#주식차트보는법", "#재무제표보는법", "#골든크로스", "#DART공시", "#거래량매매", "#RSI지표", "#StockMaster"],
         "quant_risk": ["#주식투자원칙", "#뇌동매매방지", "#손절매기준", "#분할매수", "#AI퀀트", "#주식멘탈관리", "#StockMaster"]
     }
@@ -291,11 +291,17 @@ class StockKeywordMatrix:
         keywords = live_stock.get("keywords", [])
         seeds = [f"{name} {kw}" for kw in keywords[:3]]
 
-        title_keywords = [
-            f"오늘 실검 1위 [{name}] 급등, 10분 계량 전광판의 진단은?",
-            f"외국인·기관 연속 순매수 [{name}] {keywords[0] if keywords else '수급'} 긴급 분석",
-            f"[{name}] 목표주가와 20일선 지지선 손익비 팩트체크"
+        import random
+        # 🎨 [다채로운 6대 퀀트 제목 템플릿] 동일한 문장 반복 도배 원천 차단
+        title_templates = [
+            f"오늘 수급 1위 [{name}] 급등 배경과 10분 계량 전광판 긴급 진단",
+            f"외국인·기관 대량 순매수 [{name}] {keywords[0] if keywords else '수급'} 퀀트 팩트체크",
+            f"[{name}] {sector} 주가 전망: 20일선 지지선과 10분 전광판 지표 분석",
+            f"체결강도 급증 [{name}] 10분 계량 전광판이 포착한 수급 시그널",
+            f"[{name}] 기관 연속 매집과 ATR 리스크 관리 손절선 대응 전략",
+            f"실시간 검색 1위 [{name}] 과열일까 기회일까? AI 퀀트 전광판 검증"
         ]
+        random.shuffle(title_templates)
 
         subheading_keywords = [
             f"1. 오늘 실시간 수급 핫이슈: {name} ({sector}) 자금 쏠림 배경",
@@ -309,8 +315,8 @@ class StockKeywordMatrix:
             "is_live_trend": True,
             "live_stock": live_stock,
             "category": "korea_market",
-            "seed_topic": f"오늘 실시간 검색어 1위 [{name}] ({sector}) 퀀트 수급 분석",
-            "seo_title_keywords": title_keywords,
+            "seed_topic": f"오늘 [{name}] ({sector}) 퀀트 수급 및 10분 계량 전광판 분석",
+            "seo_title_keywords": title_templates,
             "h2_h3_subheading_keywords": subheading_keywords,
             "viral_hashtags": tags,
             "scoped_seeds": seeds

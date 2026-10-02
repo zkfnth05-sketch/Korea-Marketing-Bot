@@ -1,0 +1,58 @@
+[
+  {
+    "timestamp": "2026-10-02 15:16:43",
+    "slot_id": "test",
+    "slot_name": "🚀 1분 퀵 검증 세션",
+    "target_min": 1,
+    "target_likes": 3,
+    "actual_sec": 67,
+    "likes_given": 2,
+    "shorts_watched": 2,
+    "comments_inspected": 0,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "stock"
+  },
+  {
+    "timestamp": "2026-10-02 16:30:13",
+    "slot_id": "afternoon",
+    "slot_name": "☕ 오후 휴식 쇼츠 (7분)",
+    "target_min": 7,
+    "target_likes": 2,
+    "actual_sec": 433,
+    "likes_given": 2,
+    "shorts_watched": 14,
+    "comments_inspected": 0,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "stock"
+  },
+  {
+    "timestamp": "2026-10-02 22:30:13",
+    "slot_id": "night",
+    "slot_name": "🌙 야간 침대 쇼츠 (8분)",
+    "target_min": 8,
+    "target_likes": 2,
+    "actual_sec": 481,
+    "likes_given": 2,
+    "shorts_watched": 15,
+    "comments_inspected": 4,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "stock"
+  },
+  {
+    "timestamp": "2026-10-02 22:30:16",
+    "slot_id": "night",
+    "slot_name": "🌙 야간 침대 쇼츠 (8분)",
+    "target_min": 8,
+    "target_likes": 3,
+    "actual_sec": 504,
+    "likes_given": 3,
+    "shorts_watched": 15,
+    "comments_inspected": 6,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "stock"
+  }
+]

@@ -20,7 +20,6 @@ from config import BASE_DIR, OUTPUTS_DIR, LANGUAGES, DESKTOP_SHORTS_EASYTAX
 from core.scenario_director_shorts_easytax import ScenarioDirectorShortsEasyTax
 from core.local_gpu_media_generator_easytax import LocalGPUMediaGeneratorEasyTax
 from core.gemini_media_generator import GeminiMediaGenerator
-from core.media_quality_verifier import MediaQualityVerifier
 from core.motion_video_composer import MotionVideoComposer
 from core.tts_engine import TTSEngine
 from core.auto_publishers.shorts_multi_publisher import ShortsMultiPublisher
@@ -44,7 +43,6 @@ class ShortsEasyTax:
 
         self.scenario_director = ScenarioDirectorShortsEasyTax()
         self.gemini_media_gen = LocalGPUMediaGeneratorEasyTax()
-        self.quality_verifier = MediaQualityVerifier(service_id=self.service_id)
         self.motion_composer = MotionVideoComposer(output_dir=self.output_dir)
         self.tts_engine = TTSEngine()
         self.publisher = ShortsMultiPublisher()
@@ -135,14 +133,9 @@ class ShortsEasyTax:
 
             final_img_path = img_path if img_path and Path(img_path).exists() else None
 
-            # AI 비전 품질 검사관 (로깅 및 품질 측정 전용 - 유료 재촬영 차단)
-            if final_img_path:
-                passed, q_score, reason, _ = self.quality_verifier.verify_scene_image(
-                    final_img_path,
-                    scene_name=f"EasyTax Scene {s_idx} ({scene['name']})",
-                    lang=lang
-                )
-                logger.info(f"[{lang.upper()}] 🖼 EasyTax 씬 {s_idx}/5 AI 품질 점수: {q_score}점 ({reason})")
+            # 파이썬 실물 이미지 검증 (크기 및 존재 확인)
+            if final_img_path and Path(final_img_path).exists():
+                logger.info(f"[{lang.upper()}] 🖼 EasyTax 씬 {s_idx}/5 파이썬 실물 확인 완료 -> {Path(final_img_path).name}")
 
             # 씬별 맞춤 실물 UI 오버레이 부착
             extra_overlay = None

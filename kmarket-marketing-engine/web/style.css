@@ -1278,3 +1278,39 @@ html, body {
     color: #DC2626;
 }
 
+/* ======================================================================
+   🚨 Emergency Guard & Live Mission Sentinel Styling
+   ====================================================================== */
+@keyframes pulseAlert {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(244, 63, 94, 0.2);
+        border-color: #F43F5E;
+    }
+    50% {
+        box-shadow: 0 8px 30px rgba(244, 63, 94, 0.45);
+        border-color: #BE123C;
+    }
+}
+
+@keyframes shakeBell {
+    0%, 100% { transform: rotate(0deg); }
+    20% { transform: rotate(-15deg); }
+    40% { transform: rotate(15deg); }
+    60% { transform: rotate(-10deg); }
+    80% { transform: rotate(10deg); }
+}
+
+.emergency-alert-box {
+    transition: all 0.3s ease;
+}
+
+.all-clear-box {
+    transition: all 0.3s ease;
+}
+
+.all-clear-box:hover {
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.15);
+    border-color: #4ADE80;
+}
+
+

@@ -147,14 +147,8 @@ class InsuranceMetaScheduler:
         insta_tags = " ".join(self.hashtag_matrix.get_instagram_hashtags(topic_id=topic_id, count=18))
         fb_tags = " ".join(self.hashtag_matrix.get_facebook_hashtags(topic_id=topic_id, count=6))
 
-        # 0. 포스팅 직전 스텔스 인간 행동 웜업 (신뢰도 충전)
-        try:
-            from brands.insurance.insurance_meta_stealth_incubator import InsuranceMetaStealthIncubator
-            incubator = InsuranceMetaStealthIncubator(headless=True)
-            incubator.run_warmup_session(duration_seconds=15)
-        except Exception:
-            pass
-
+        # 🚀 [코드 분리 원칙] 인간 행동(체류/좋아요)은 InsuranceHumanBehaviorBot이 하루 30분 정시 전담!
+        # API 송출 봇은 0.1초 고속 정시 배포만 깔끔하게 실행합니다.
         results = {}
 
         fb_caption = (

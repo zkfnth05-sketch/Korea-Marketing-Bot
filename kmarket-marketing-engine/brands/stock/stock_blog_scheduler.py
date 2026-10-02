@@ -40,7 +40,7 @@ KST = timezone(timedelta(hours=9))
 class StockBlogScheduler:
     """StockMaster 정기 자동 발행 스케줄러 레고 블록 (영구 순환 상태 지원)"""
 
-    SCHEDULE_HOURS = [10, 18]  # 하루 딱 2회 (10:00, 18:00 KST)
+    SCHEDULE_HOURS = [10, 15, 20]  # 하루 딱 3회 (10:00, 15:00, 20:00 KST)
     SCHEDULE_MINUTE = 0
 
     def __init__(self):
@@ -77,12 +77,20 @@ class StockBlogScheduler:
         except Exception as e:
             logger.error(f"❌ 상태 파일 저장 실패: {e}")
 
-    def can_publish_today(self, max_daily_posts: int = 2) -> tuple[bool, str]:
-        """하루 최대 2건 제한 및 최소 4시간 발행 간격 엄격 검증"""
+    def can_publish_today(self, max_daily_posts: int = 3) -> tuple[bool, str]:
+        """하루 최대 3건 제한 및 최소 3.5시간 발행 간격 엄격 검증"""
         today_str = dt.now().strftime("%Y-%m-%d")
         history = self.state.get("history", [])
         
-        today_posts = [h for h in history if (h.get("published_at") or "").startswith(today_str)]
+        # 실제 성공한 블로그 글만 일일 한도 카운트에 산입 (실패/미발행 건은 차단 사유가 되지 않음)
+        today_posts = [
+            h for h in history 
+            if (h.get("published_at") or "").startswith(today_str)
+            and (
+                h.get("publish_results", {}).get("channels", {}).get("naver_blog", {}).get("status") == "success"
+                or h.get("publish_results", {}).get("channels", {}).get("tistory", {}).get("status") == "success"
+            )
+        ]
         if len(today_posts) >= max_daily_posts:
             return False, f"🛑 [안전 차단] 오늘 이미 일일 최대 발행 한도({len(today_posts)}/{max_daily_posts}회)를 모두 완료했습니다. 저품질 방지를 위해 추가 발행을 차단합니다."
             
@@ -91,8 +99,8 @@ class StockBlogScheduler:
             try:
                 last_dt = dt.strptime(last_pub_str, "%Y-%m-%d %H:%M:%S")
                 diff_hours = (dt.now() - last_dt).total_seconds() / 3600.0
-                if diff_hours < 4.0:
-                    return False, f"⚠️ [안전 쿨타임] 직전 발행 후 최소 4시간이 지나지 않았습니다 (경과: {diff_hours:.1f}시간). 블로그 도배 방지를 위해 대기합니다."
+                if diff_hours < 3.5:
+                    return False, f"⚠️ [안전 쿨타임] 직전 발행 후 최소 3.5시간이 지나지 않았습니다 (경과: {diff_hours:.1f}시간). 블로그 도배 방지를 위해 대기합니다."
             except Exception:
                 pass
                 
@@ -101,9 +109,9 @@ class StockBlogScheduler:
     def run_one_cycle(self, force_topic_id: Optional[int] = None) -> Dict[str, Any]:
         """
         주제 1개에 대해 안전 검증 후 수동 1회 발행
-        (하루 최대 2건 엄격 제한 & 도배 원천 차단)
+        (하루 최대 3건 엄격 제한 & 도배 원천 차단)
         """
-        can_pub, reason = self.can_publish_today(max_daily_posts=2)
+        can_pub, reason = self.can_publish_today(max_daily_posts=3)
         if not can_pub and force_topic_id is None:
             logger.warning(reason)
             return {"status": "BLOCKED_DAILY_CAP", "message": reason}

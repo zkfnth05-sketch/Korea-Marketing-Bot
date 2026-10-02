@@ -35,7 +35,7 @@ class AuraCardnewsPipeline:
     """💖 Aura 데이팅 전용 1080x1350 풀블리드 카드뉴스 통합 파이프라인"""
 
     OFFICIAL_KEYWORD = "아우라AI데이팅"
-    OFFICIAL_URL = "https://aura-ai-dating.vercel.app/lounge"
+    OFFICIAL_URL = "https://aura-ai-dating.vercel.app/"
 
     def __init__(self):
         self.producer = AuraCardnewsProducer()

@@ -1,0 +1,30 @@
+[
+  {
+    "timestamp": "2026-10-02 23:00:18",
+    "slot_id": "night",
+    "slot_name": "🌙 야간 침대 틱톡 (8분)",
+    "target_min": 8,
+    "target_likes": 2,
+    "actual_sec": 516,
+    "likes_given": 0,
+    "videos_watched": 17,
+    "comments_inspected": 0,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "stock"
+  },
+  {
+    "timestamp": "2026-10-02 23:00:21",
+    "slot_id": "night",
+    "slot_name": "🌙 야간 침대 틱톡 (8분)",
+    "target_min": 8,
+    "target_likes": 2,
+    "actual_sec": 514,
+    "likes_given": 0,
+    "videos_watched": 18,
+    "comments_inspected": 0,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "stock"
+  }
+]

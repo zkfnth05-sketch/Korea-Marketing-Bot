@@ -19,26 +19,26 @@ from typing import Dict, Any, Optional
 
 logger = logging.getLogger("StockShortsScriptWriter")
 
-# 8대 주제별 '순수 상황 & 기능 정의'
+# 8대 주제별 '순수 상황 & 기능 정의' (100% 국내 코스피/코스닥 주도주 전담)
 STOCK_8_TOPIC_CONCEPTS: Dict[int, Dict[str, str]] = {
     1: {
         "title": "삼성전자 vs SK하이닉스 HBM 수급 대결",
-        "concept": "삼성전자와 SK하이닉스 중 무엇을 매수할지 고민하는 투자자를 위해, 엔비디아 공급망 수급과 외인/기관 순매수 추이 및 퀀트 적정주가를 1초 만에 객관적으로 비교해주는 기능.",
+        "concept": "삼성전자와 SK하이닉스 중 무엇을 매수할지 고민하는 국내 투자자를 위해, 글로벌 AI 반도체 공급망 수급과 외인/기관 순매수 추이 및 퀀트 적정주가를 1초 만에 객관적으로 비교해주는 기능.",
         "app_sim_visual": "삼성전자 및 SK하이닉스 실시간 수급 비교 및 AI 퀀트 적정주가 분석표가 1초 만에 뜨는 화면."
     },
     2: {
-        "title": "미국 배당성장 ETF(SCHD·JEPQ) 월 100만원 배당",
-        "concept": "매달 통장에 배당금을 받는 제2의 월급을 원하는 투자자를 위해, SCHD와 JEPQ 최적의 배당 비율과 예상 월 수령액을 투자금 입력만으로 1초 만에 시뮬레이션해주는 기능.",
-        "app_sim_visual": "배당 계산기에서 투자금 입력 후 SCHD/JEPQ 월별 배당 예상 수령액 그래프가 1초 만에 시뮬레이션되는 화면."
+        "title": "국내 고배당주(금융지주·맥쿼리) 월배당 시뮬레이션",
+        "concept": "매달 통장에 배당금을 받는 제2의 월급을 원하는 국내 투자자를 위해, 국내 대표 고배당주와 배당락 방어 퀀트 점수 및 예상 월 수령액을 1초 만에 시뮬레이션해주는 기능.",
+        "app_sim_visual": "배당 계산기에서 투자금 입력 후 국내 고배당주 월별 배당 예상 수령액 그래프가 1초 만에 시뮬레이션되는 화면."
     },
     3: {
-        "title": "엔비디아(NVDA) AI 빅테크 실시간 밸류에이션",
-        "concept": "엔비디아 및 M7 빅테크 기업의 고점 여부와 밸류에이션이 불안한 투자자를 위해, PER/실적 기반 적정주가와 월가 애널리스트 컨센서스를 1초 만에 분석해주는 기능.",
-        "app_sim_visual": "엔비디아 실시간 PER 밸류에이션 및 적정 목표주가 분석 차트가 1초 만에 렌더링되는 화면."
+        "title": "코스피·코스닥 세력 체결강도 120% 돌파 유망주",
+        "concept": "당일 장중 메이저 수급이 급격히 유입되는 주도주를 잡고 싶은 국내 투자자를 위해, 실시간 체결강도 120% 돌파 종목과 외인/기관 블록오더를 1초 만에 포착해주는 기능.",
+        "app_sim_visual": "실시간 체결강도 120% 돌파 급등 유망주 레이더와 수급 수치가 1초 만에 렌더링되는 화면."
     },
     4: {
         "title": "저PBR 밸류업 & 고배당 금융주 스크리너",
-        "concept": "정부 밸류업 정책에 맞춰 어떤 저평가 종목을 사야 할지 모르는 투자자를 위해, PBR 1배 미만 알짜 기업과 주주환원율/배당수익률 순위를 1초 만에 필터링해주는 기능.",
+        "concept": "정부 밸류업 정책에 맞춰 어떤 저평가 종목을 사야 할지 모르는 국내 투자자를 위해, PBR 1배 미만 알짜 기업과 주주환원율/배당수익률 순위를 1초 만에 필터링해주는 기능.",
         "app_sim_visual": "저PBR 밸류업 스크리너에서 PBR 1배 미만 알짜 금융/지주사 순위표가 1초 만에 정렬되는 화면."
     },
     5: {
@@ -47,13 +47,13 @@ STOCK_8_TOPIC_CONCEPTS: Dict[int, Dict[str, str]] = {
         "app_sim_visual": "종목 변동성 기반 AI 손절선(-3%/-5%) 및 익절 목표가 리스크 매트릭스가 1초 만에 계산되는 화면."
     },
     6: {
-        "title": "S&P 500 vs 나스닥 100: 직장인 20년 월적립식 복리",
-        "concept": "월급으로 미국 지수 ETF에 적립식 투자하려는 직장인을 위해, 월 적립액 입력만으로 S&P 500과 나스닥 100의 20년 복리 수익 곡선과 미래 예상 자산을 1초 만에 비교해주는 기능.",
-        "app_sim_visual": "월 적립식 복리 시뮬레이터에서 20년 자산 성장 곡선 그래프가 1초 만에 비교 렌더링되는 화면."
+        "title": "코스피200 우량주 vs 코스닥 성장주 직장인 월적립식 복리",
+        "concept": "월급으로 국내 대표 지수 및 우량주에 적립식 투자하려는 직장인을 위해, 월 적립액 입력만으로 코스피200과 코스닥 성장주의 10년 복리 수익 곡선과 미래 예상 자산을 1초 만에 비교해주는 기능.",
+        "app_sim_visual": "월 적립식 복리 시뮬레이터에서 10년 자산 성장 곡선 그래프가 1초 만에 비교 렌더링되는 화면."
     },
     7: {
         "title": "외국인·기관 쌍끌이 순매수 실시간 레이더",
-        "concept": "개미들만 사고 메이저 세력은 매도하는 종목에 물리지 않도록, 장중 외국인과 기관이 3일 연속 동시 순매수하는 진짜 주도주를 1초 만에 포착해주는 기능.",
+        "concept": "개미들만 사고 메이저 세력은 매도하는 종목에 물리지 않도록, 장중 외국인과 기관이 3일 연속 동시 순매수하는 진짜 국내 주도주를 1초 만에 포착해주는 기능.",
         "app_sim_visual": "외국인·기관 쌍끌이 실시간 순매수 상위 종목 레이더 전광판이 1초 만에 실시간 렌더링되는 화면."
     },
     8: {
@@ -234,3 +234,22 @@ class StockShortsScriptWriter:
 
         logger.warning(f"⚠️ [주식 대본] 제미나이 호출 모두 실패 ➔ 기존 검증된 골든 대본으로 자동 폴백")
         return None
+
+    def generate_30s_script(self, stock_data: Optional[Dict[str, Any]] = None, topic_id: int = 1) -> str:
+        """하위 호환용 30초 풀 스크립트 문자열 반환 (단일화 인터페이스)"""
+        res = self.generate_dynamic_script(topic_id=topic_id)
+        if res and res.get("full_speech"):
+            return res["full_speech"]
+        
+        # 골든 대본 폴백
+        try:
+            from core.shorts_engine.stock_shorts_scenario_director import StockShortsScenarioDirector
+            norm_id = ((topic_id - 1) % len(STOCK_8_TOPIC_CONCEPTS)) + 1
+            golden = StockShortsScenarioDirector.SCRIPTS_22S.get(norm_id, {})
+            h1 = golden.get("hook_p1_5s", "")
+            h2 = golden.get("hook_p2_5s", "")
+            app = golden.get("app_10_20s", "")
+            cta = f"지금 네이버에 '{self.OFFICIAL_KEYWORD}'를 검색해보세요!"
+            return f"{h1} {h2} {app} {cta}".strip()
+        except Exception:
+            return f"실시간 퀀트 데이터와 시장 스트레스를 1초 만에 확인하세요. 지금 네이버에 '{self.OFFICIAL_KEYWORD}'를 검색해보세요!"

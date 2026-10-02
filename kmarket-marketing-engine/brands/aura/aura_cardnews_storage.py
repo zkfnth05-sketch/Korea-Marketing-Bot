@@ -122,7 +122,7 @@ class AuraCardnewsStorage:
             "service_id": "aura",
             "brand_name": "Aura AI 데이팅",
             "search_keyword": "아우라AI데이팅",
-            "landing_url": "https://aura-ai-dating.vercel.app/lounge",
+            "landing_url": "https://aura-ai-dating.vercel.app/",
             "lang": lang.lower(),
             "theme_code": theme_code,
             "theme_title": theme_title,

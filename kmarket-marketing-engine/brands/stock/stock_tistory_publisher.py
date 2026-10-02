@@ -98,9 +98,28 @@ class StockTistoryPublisher:
             browser = None
             context = None
 
-            if has_session_file:
-                # 🌟 [1순위: 검증된 저장 세션 파일 모드]
-                logger.info("📄 [Tistory-Stock] 저장된 세션 파일(storage_state)로 접속")
+            if is_persistent:
+                # 🌟 [1순위: 크롬 영구 프로필 모드 - 카카오 세션 자동 연장 & 영구 유지]
+                logger.info(f"📂 [Tistory-Stock] 크롬 영구 프로필 모드로 실행: {self.profile_dir.name}")
+                context = await p.chromium.launch_persistent_context(
+                    user_data_dir=str(self.profile_dir),
+                    headless=True,
+                    args=["--disable-blink-features=AutomationControlled"],
+                    viewport={"width": 1280, "height": 900},
+                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+                )
+                if has_session_file:
+                    try:
+                        with open(self.session_file, "r", encoding="utf-8") as sf:
+                            s_data = json.load(sf)
+                            await context.add_cookies(s_data.get("cookies", []))
+                            logger.info("🍪 [Tistory-Stock] 영구 프로필에 최신 세션 쿠키 완벽 동기화 완료")
+                    except Exception as e:
+                        logger.warning(f"세션 쿠키 주입 통과: {e}")
+                page = context.pages[0] if context.pages else await context.new_page()
+            elif has_session_file:
+                # 🌟 [2순위: 세션 파일 폴백]
+                logger.info(f"📄 [Tistory-Stock] 저장된 세션 파일(storage_state)로 접속: {self.session_file.name}")
                 browser = await p.chromium.launch(
                     headless=True,
                     args=["--disable-blink-features=AutomationControlled"]
@@ -111,38 +130,30 @@ class StockTistoryPublisher:
                     viewport={"width": 1280, "height": 900}
                 )
                 page = await context.new_page()
-            elif is_persistent:
-                # 🌟 [2순위: 영구 프로필 모드]
-                logger.info(f"📂 [Tistory-Stock] 크롬 영구 프로필 모드로 실행: {self.profile_dir.name}")
-                context = await p.chromium.launch_persistent_context(
-                    user_data_dir=str(self.profile_dir),
-                    headless=True,
-                    args=["--disable-blink-features=AutomationControlled"],
-                    viewport={"width": 1280, "height": 900},
-                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
-                )
-                page = context.pages[0] if context.pages else await context.new_page()
             else:
-                return {"status": "error", "message": "티스토리 세션 부재 (1회연동 bat 실행 필요)", "blog_name": self.blog_name}
+                return {"status": "error", "message": "티스토리 세션 부재 ([1회연동] bat 실행 필요)", "blog_name": self.blog_name}
 
             try:
                 # 1. 글쓰기 페이지 진입
                 await page.goto(write_url, wait_until="domcontentloaded", timeout=timeout_sec * 1000)
-                await asyncio.sleep(1)
-
-                # 🛡️ 세션 만료 즉각 감지 (로그인 페이지 리다이렉트 확인)
-                cur_url = page.url
-                if "auth" in cur_url or "login" in cur_url or "accounts.kakao.com" in cur_url:
-                    logger.warning("⚠️ [Tistory-Stock] 티스토리 세션 만료 감지 (1회 연동 로그인 필요)")
-                    return {
-                        "status": "session_expired",
-                        "message": "티스토리 카카오 세션 만료. [1회연동]_주식AI_티스토리_영구로그인.bat 실행 필요",
-                        "blog_name": self.blog_name
-                    }
+                await asyncio.sleep(2)
 
                 # 2. 제목 입력기 대기 (유연한 선택자 지원)
-                title_el = await page.wait_for_selector("#post-title-inp, textarea[id*='title'], input[name='title']", timeout=15000)
+                title_el = None
+                try:
+                    title_el = await page.wait_for_selector("#post-title-inp, textarea[id*='title'], input[name='title']", timeout=15000)
+                except Exception:
+                    pass
+
                 if not title_el:
+                    cur_url = page.url
+                    if "auth" in cur_url or "login" in cur_url or "accounts.kakao.com" in cur_url:
+                        logger.warning("⚠️ [Tistory-Stock] 티스토리 세션 만료 감지 (1회 연동 로그인 필요)")
+                        return {
+                            "status": "session_expired",
+                            "message": "티스토리 카카오 세션 만료. [1회연동]_주식AI_티스토리_영구로그인.bat 실행 필요",
+                            "blog_name": self.blog_name
+                        }
                     raise RuntimeError("티스토리 제목 입력 필드를 찾을 수 없습니다.")
 
                 # 2. 제목 입력
@@ -239,6 +250,24 @@ class StockTistoryPublisher:
                                 post_url = href
                             else:
                                 post_url = f"https://{self.blog_name}.tistory.com{href}"
+
+                # 관리자 주소가 남아있을 경우 RSS 피드를 통해 실제 공개 글 링크 즉시 획득
+                if "manage" in post_url:
+                    try:
+                        import urllib.request
+                        import xml.etree.ElementTree as ET
+                        rss_url = f"https://{self.blog_name}.tistory.com/rss"
+                        req = urllib.request.Request(rss_url, headers={"User-Agent": "Mozilla/5.0"})
+                        with urllib.request.urlopen(req, timeout=5) as resp:
+                            root = ET.fromstring(resp.read().decode("utf-8"))
+                            items = root.findall("./channel/item")
+                            if items and items[0].find("link") is not None:
+                                post_url = items[0].find("link").text.strip()
+                    except Exception as rss_err:
+                        logger.debug(f"RSS 링크 조회 통과: {rss_err}")
+
+                if "manage" in post_url:
+                    post_url = f"https://{self.blog_name}.tistory.com/"
 
                 # 🌟 [세션 자동 수명 연장] 살아있는 최신 세션 상태를 디스크에 즉시 자동 저장
                 try:

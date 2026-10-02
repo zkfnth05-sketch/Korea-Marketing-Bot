@@ -242,14 +242,66 @@ class StockSupabaseManager:
                 chart_badge = "기준: 오늘 24H 순 방문자(중복제거)"
                 period_label = "오늘 24H"
 
-            # 🚀 [주식 맞춤 15대 옴니채널 리졸버]
-            channel_inflows = [
-                {"name": "🎬 #1 유튜브 쇼츠 (급등주 퀀트 분석)", "category": "global_sns", "count": max(1, len(period_posts)), "share": 35.0, "color": "#EF4444", "unit": "명"},
-                {"name": "💡 #7 네이버 지식iN (100대 황금키워드)", "category": "seo_blog", "count": max(1, len(period_posts)), "share": 25.0, "color": "#10B981", "unit": "명"},
-                {"name": "📜 #6 Meta 스레드 (투자 썰 타래)", "category": "community", "count": 1, "share": 15.0, "color": "#0F172A", "unit": "명"},
-                {"name": "💖 #4 네이버 블로그 (종목 분석 칼럼)", "category": "seo_blog", "count": 1, "share": 15.0, "color": "#10B981", "unit": "명"},
-                {"name": "🔗 다이렉트 / 즐겨찾기 직접 접속", "category": "other", "count": 1, "share": 10.0, "color": "#64748B", "unit": "명"}
-            ]
+            # 🚀 [주식 맞춤 15대 옴니채널 리졸버 & 실데이터 1:1 집계]
+            from core.db_manager import DBManager
+            db_mgr = DBManager()
+            stock_utm_logs = db_mgr.get_recent_utm_logs(limit=100, service_id="stock")
+            
+            # 기간별 필터링
+            filtered_utm = []
+            for log in stock_utm_logs:
+                created_str = log.get("created_at", "")
+                dt_k = parse_kst(created_str)
+                if dt_k and is_in_period(dt_k, period):
+                    filtered_utm.append(log)
+
+            def resolve_stock_channel(source: str, medium: str) -> Dict[str, str]:
+                s = (source or "").lower()
+                m = (medium or "").lower()
+                if "youtube" in s or "shorts" in s or "yt" in m:
+                    return {"name": "🎬 #1 유튜브 쇼츠 (급등주 퀀트 분석)", "category": "global_sns", "color": "#EF4444"}
+                if "kin" in s or "지식" in s:
+                    return {"name": "💡 #7 네이버 지식iN (100대 황금키워드)", "category": "seo_blog", "color": "#10B981"}
+                if "threads" in s:
+                    return {"name": "📜 #6 Meta 스레드 (투자 썰 타래)", "category": "community", "color": "#0F172A"}
+                if "blog" in s or "naver" in s:
+                    return {"name": "💖 #4 네이버 블로그 (종목 분석 칼럼)", "category": "seo_blog", "color": "#10B981"}
+                return {"name": "🔗 다이렉트 / 즐겨찾기 직접 접속", "category": "other", "color": "#64748B"}
+
+            channel_map: Dict[str, Dict[str, Any]] = {}
+            for log in filtered_utm:
+                c_info = resolve_stock_channel(log.get("utm_source", ""), log.get("utm_medium", ""))
+                c_name = c_info["name"]
+                if c_name not in channel_map:
+                    channel_map[c_name] = {
+                        "name": c_name,
+                        "category": c_info["category"],
+                        "color": c_info["color"],
+                        "count": 0
+                    }
+                channel_map[c_name]["count"] += 1
+
+            channel_inflows = []
+            if channel_map:
+                total_inflows = sum(c["count"] for c in channel_map.values())
+                for c_name, c_data in sorted(channel_map.items(), key=lambda x: x[1]["count"], reverse=True):
+                    c_count = c_data["count"]
+                    share = round((c_count / max(total_inflows, 1)) * 100, 1)
+                    channel_inflows.append({
+                        "name": c_data["name"],
+                        "category": c_data["category"],
+                        "count": c_count,
+                        "share": share,
+                        "color": c_data["color"],
+                        "unit": "명"
+                    })
+            elif period_uv > 0:
+                # 실 유입자가 1명(장중 직접 접속)인 경우 정확히 1명 (100%) 매칭
+                channel_inflows = [
+                    {"name": "🔗 다이렉트 / 즐겨찾기 직접 접속", "category": "other", "count": period_uv, "share": 100.0, "color": "#64748B", "unit": "명"}
+                ]
+            else:
+                channel_inflows = []
 
             # 4대 핵심 KPI
             active_kpis = {
@@ -257,6 +309,7 @@ class StockSupabaseManager:
                 "cumulative_pv": base_uv,
                 "yoy_growth": f"리서치 {total_posts_cnt}건 (회원 {total_profiles_cnt}명)",
                 "monthly_visitors": total_posts_cnt,
+                "visitor_unit": "건",
                 "kpi_period_label": f"{period_label} [StockMaster] 순 유입자 수 (중복제거)",
                 "visitor_period_label": f"{period_label} [StockMaster] 퀀트 리서치 발행 (건)"
             }

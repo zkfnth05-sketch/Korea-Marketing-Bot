@@ -75,7 +75,7 @@ class AuraMultiPublisher:
         excerpt = article_pkg.get("excerpt", "")
         tags = article_pkg.get("tags", [])
         img_path = article_pkg.get("image_path", "")
-        landing_url = article_pkg.get("landing_url", "https://aura-ai-dating.vercel.app/lounge")
+        landing_url = article_pkg.get("landing_url", "https://aura-ai-dating.vercel.app/")
 
         logger.info(f"\n" + "=" * 60)
         logger.info(f"🚀 [Aura 4대 채널 무인 배포 가동] 주제 #{topic_id}")
@@ -97,7 +97,7 @@ class AuraMultiPublisher:
                 "status": feed_res.get("status", "success"),
                 "feed_post_id": feed_res.get("post_id"),
                 "translations_count": len(article_pkg.get("translations", {})),
-                "lounge_url": "https://aura-ai-dating.vercel.app/lounge"
+                "lounge_url": "https://aura-ai-dating.vercel.app/"
             }
             logger.info(f"✅ [1/4] 💖 Aura 앱 라운지 피드 등록 완료 (글ID: {feed_res.get('post_id')})")
         except Exception as e:

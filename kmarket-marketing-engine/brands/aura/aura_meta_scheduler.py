@@ -59,7 +59,7 @@ class AuraMetaScheduler:
 
     BRAND = "aura"
     OFFICIAL_KEYWORD = "아우라AI데이팅"
-    LANDING_URL = "https://aura-ai-dating.vercel.app/lounge"
+    LANDING_URL = "https://aura-ai-dating.vercel.app/"
 
     def __init__(self):
         self.publisher = AuraMetaPublisher()
@@ -221,14 +221,8 @@ class AuraMetaScheduler:
         slide_paths, ig_caption, fb_caption, fb_comment = self.find_desktop_cardnews_and_guide(topic_id)
         shorts_path = self.find_desktop_shorts(topic_id)
 
-        # 0. 포스팅 직전 스텔스 인간 행동 웜업 (신뢰도 충전)
-        try:
-            from brands.aura.aura_meta_stealth_incubator import AuraMetaStealthIncubator
-            incubator = AuraMetaStealthIncubator(headless=True)
-            incubator.run_warmup_session(duration_seconds=15)
-        except Exception:
-            pass
-
+        # 🚀 [코드 분리 원칙] 인간 행동(체류/좋아요)은 AuraHumanBehaviorBot이 하루 30분 정시 전담!
+        # API 송출 봇은 0.1초 고속 정시 배포만 깔끔하게 실행합니다.
         results = {}
 
         # 1. 페이스북 & 인스타그램 5장 완(Wan 2.1) 카드뉴스 풀세트 발행 (SNS 가이드 원본 본문 사용)

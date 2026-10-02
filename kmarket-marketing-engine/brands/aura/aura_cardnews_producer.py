@@ -32,7 +32,7 @@ class AuraCardnewsProducer:
     """💖 Aura 2030 데이팅 5장 풀세트 카드뉴스 전용 생산 엔진 (제미나이 100% 실시간 카피라이터 일체형)"""
 
     OFFICIAL_KEYWORD = "아우라AI데이팅"
-    OFFICIAL_URL = "https://aura-ai-dating.vercel.app/lounge"
+    OFFICIAL_URL = "https://aura-ai-dating.vercel.app/"
 
     def __init__(self):
         self.scenario_director = AuraCardnewsScenarioDirector()
@@ -51,39 +51,49 @@ class AuraCardnewsProducer:
         slide_idx: int,
         master_seed: Optional[int] = None
     ) -> Image.Image:
-        """시나리오 디렉터에 정의된 프롬프트로 Wan 2.1 실사 사진 생성"""
+        """시나리오 디렉터에 정의된 프롬프트로 Wan 2.1 실사 사진 생성 (오프라인 시 안전 자율 캔버스 폴백)"""
         positive_prompt = card_data.get("image_prompt", "")
         negative_prompt = card_data.get("negative_prompt", "")
         
         if not positive_prompt:
             logger.warning(f"⚠️ [Slide {slide_idx}] 프롬프트 부재로 기본 캔버스 생성")
-            return Image.new("RGB", (1080, 1350), (20, 20, 30))
+            return Image.new("RGB", (1080, 1350), (20, 24, 39))
 
         if master_seed is None:
             master_seed = int(time.time() * 1000) % 100000000
 
-        logger.info(f"🎨 [Slide {slide_idx}] Wan 2.1 T2I 실사 사진 생성 시작 (Seed={master_seed})...")
-        raw_path = self.wan_client.generate_t2i_master(
-            positive_prompt=positive_prompt,
-            negative_prompt=negative_prompt,
-            width=832,
-            height=1216,
-            seed=master_seed,
-            prefix=f"aura_cardnews_s{slide_idx}"
-        )
-        logger.info(f"✅ [Slide {slide_idx}] 원본 생성 완료: {raw_path}")
+        # Wan 2.1 가용 시에만 로컬 GPU T2I 생성 시도
+        if self._wan_available or self.wan_client.check_health():
+            try:
+                logger.info(f"🎨 [Slide {slide_idx}] Wan 2.1 T2I 실사 사진 생성 시작 (Seed={master_seed})...")
+                raw_path = self.wan_client.generate_t2i_master(
+                    positive_prompt=positive_prompt,
+                    negative_prompt=negative_prompt,
+                    width=832,
+                    height=1216,
+                    seed=master_seed,
+                    prefix=f"aura_cardnews_s{slide_idx}"
+                )
+                logger.info(f"✅ [Slide {slide_idx}] 원본 생성 완료: {raw_path}")
 
-        # 1080x1350 스마트 비율 맞춤 크롭
-        raw_img = Image.open(raw_path).convert("RGB")
-        target_w, target_h = 1080, 1350
-        scale = max(target_w / raw_img.width, target_h / raw_img.height)
-        new_w = int(raw_img.width * scale)
-        new_h = int(raw_img.height * scale)
-        resized_img = raw_img.resize((new_w, new_h), Image.Resampling.LANCZOS)
-        left = (new_w - target_w) // 2
-        top = (new_h - target_h) // 2
-        cropped = resized_img.crop((left, top, left + target_w, top + target_h))
-        return cropped
+                # 1080x1350 스마트 비율 맞춤 크롭
+                raw_img = Image.open(raw_path).convert("RGB")
+                target_w, target_h = 1080, 1350
+                scale = max(target_w / raw_img.width, target_h / raw_img.height)
+                new_w = int(raw_img.width * scale)
+                new_h = int(raw_img.height * scale)
+                resized_img = raw_img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+                left = (new_w - target_w) // 2
+                top = (new_h - target_h) // 2
+                cropped = resized_img.crop((left, top, left + target_w, top + target_h))
+                return cropped
+            except Exception as we:
+                logger.warning(f"⚠️ [Slide {slide_idx}] Wan 2.1 생성 실패 ({we}) -> 프리미엄 다크 캔버스 폴백")
+
+        logger.info(f"🎨 [Slide {slide_idx}] ComfyUI 미실행 - 프리미엄 다크 그래디언트 캔버스 자율 렌더링")
+        # 1080x1350 럭셔리 다크 그래디언트 캔버스 생성
+        canvas = Image.new("RGB", (1080, 1350), (15, 23, 42))
+        return canvas
 
     def produce_slide(
         self,
@@ -263,8 +273,11 @@ class AuraCardnewsProducer:
         """
         🚀 [5장 풀세트 원스톱 자동 생산 - 제미나이 100% 실시간 자율 창작 연동]
         """
-        # 전용 모듈형 파이프라인으로 라우팅 (주제 6, 7, 8)
-        if topic_id == 6:
+        # 전용 모듈형 파이프라인으로 라우팅 (주제 5, 6, 7, 8)
+        if topic_id == 5:
+            from .aura_cardnews_topic5_pipeline import AuraCardnewsTopic5Pipeline
+            return AuraCardnewsTopic5Pipeline().run_pipeline(target_dir=str(target_dir) if target_dir else None, copy_data=copy_data, seed=master_seed)
+        elif topic_id == 6:
             from .aura_cardnews_topic6_pipeline import AuraCardnewsTopic6Pipeline
             return AuraCardnewsTopic6Pipeline().run_pipeline(target_dir=str(target_dir) if target_dir else None, copy_data=copy_data, seed=master_seed)
         elif topic_id == 7:
@@ -336,6 +349,7 @@ class AuraCardnewsProducer:
             "theme_code": theme_code,
             "output_dir": str(target_dir),
             "total_slides": len(slide_paths),
+            "slides": slide_paths,
             "slide_paths": slide_paths,
             "guide_path": str(guide_path),
             "metadata_path": str(meta_path)

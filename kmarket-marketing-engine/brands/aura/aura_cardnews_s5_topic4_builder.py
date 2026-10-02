@@ -39,7 +39,7 @@ class AuraCardnewsS5Topic4Builder:
         opt2_sub = s5_copy.get("debate_opt2_sub", "실물과 분위기가 다르면 결국 실망, 꾸밈없는 사진이 진정성 있다")
 
         default_benefits = [
-            "사진 1장 1초 화보 생성",
+            "3초 화보 & 이상형 확인",
             "50:50 황금 성비 라운지",
             "매칭률 5배 폭발 AI 프로필"
         ]
@@ -47,7 +47,7 @@ class AuraCardnewsS5Topic4Builder:
         while len(benefits) < 3:
             benefits.append("Aura VIP 화보 혜택")
 
-        cta_subtext = s5_copy.get("cta_subtext", "✨ 50:50 남녀 황금 성비율 • 오늘 가입하고 내 매력 살린 프로필로 매칭 시작하기")
+        cta_subtext = s5_copy.get("cta_subtext", "👉 프로필 링크에서 3초 만에 내 AI 프로필 & 이상형 확인! ✨")
 
         html_content = f"""<!DOCTYPE html>
 <html lang="ko">
@@ -257,7 +257,7 @@ class AuraCardnewsS5Topic4Builder:
   <div class="flex justify-between items-center z-10 w-full px-4 pt-2 border-t border-white/10 text-xs text-slate-400 font-medium">
     <div>
       <span class="text-slate-500">Official Web:</span>
-      <span class="text-amber-400/90 font-bold ml-1">https://aura-ai-dating.vercel.app/lounge</span>
+      <span class="text-amber-400/90 font-bold ml-1">https://aura-ai-dating.vercel.app/</span>
     </div>
     <div class="text-slate-500 text-[11px]">
       © 2026 AURA AI Dating. All rights reserved.

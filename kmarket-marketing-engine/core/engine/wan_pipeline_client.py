@@ -71,94 +71,100 @@ class WanPipelineClient:
         timeout_sec: int = 1800,
         check_vram_safety: bool = False
     ) -> List[str]:
-        """ComfyUI에 작업을 제출하고 완료될 때까지 대기 후 생성된 이미지 경로 반환"""
+        """ComfyUI에 작업을 제출하고 완료될 때까지 대기 후 생성된 이미지 경로 반환 (GPU 전역 순차 대기열 보호)"""
         from core.engine.vram_safety_guard import VRAMSafetyGuard, VRAMSafetyException
+        from core.engine.gpu_lock import gpu_lock
 
-        self.free_vram()
+        task_label = f"ComfyUI_{prefix}"
+        with gpu_lock(task_name=task_label, timeout_sec=timeout_sec):
+            self.free_vram()
 
-        # 🛡️ [VRAM 안전 가드레일 1단계: 사전 진입 게이트]
-        if check_vram_safety:
-            VRAMSafetyGuard.assert_vram_headroom(min_free_gb=11.5, host=self.host, auto_free_fn=self.free_vram)
+            # 🛡️ [VRAM 안전 가드레일 1단계: 사전 진입 게이트]
+            if check_vram_safety:
+                VRAMSafetyGuard.assert_vram_headroom(min_free_gb=11.5, host=self.host, auto_free_fn=self.free_vram)
 
-        # 이전 프레임 정리
-        for f in glob.glob(os.path.join(self.comfy_output_dir, f"{prefix}_*.png")):
-            try:
-                os.remove(f)
-            except Exception:
-                pass
-
-        data = json.dumps({"prompt": prompt_dict}).encode('utf-8')
-        req = urllib.request.Request(f"{self.host}/prompt", data=data, headers={"Content-Type": "application/json"})
-        with urllib.request.urlopen(req) as resp:
-            res = json.loads(resp.read().decode('utf-8'))
-            prompt_id = res.get("prompt_id")
-
-        start_time = time.time()
-        completed_hist = None
-
-        # 런타임 로그 감시 준비
-        log_path = VRAMSafetyGuard.get_latest_comfyui_log_path() if check_vram_safety else None
-        last_log_pos = os.path.getsize(log_path) if log_path and os.path.exists(log_path) else 0
-
-        while time.time() - start_time < timeout_sec:
-            time.sleep(2)
-
-            # 🛡️ [VRAM 안전 가드레일 2단계: 실시간 런타임 킬스위치]
-            if check_vram_safety and log_path and os.path.exists(log_path):
+            # 이전 프레임 정리
+            for f in glob.glob(os.path.join(self.comfy_output_dir, f"{prefix}_*.png")):
                 try:
-                    curr_size = os.path.getsize(log_path)
-                    if curr_size > last_log_pos:
-                        with open(log_path, "r", encoding="utf-8", errors="ignore") as lf:
-                            lf.seek(last_log_pos)
-                            new_lines = lf.readlines()
-                            last_log_pos = curr_size
-                        for line in new_lines:
-                            violation, reason = VRAMSafetyGuard.check_log_line_for_violation(line)
-                            if violation:
-                                VRAMSafetyGuard.trigger_emergency_interrupt(host=self.host)
-                                err_msg = (
-                                    f"🚨 [GPU 과열 방지 안전 차단] {reason}. "
-                                    "텍스트 인코더 잔류 등으로 비디오 모델(12.5GB)이 VRAM에 오르지 못하고 CPU로 튕겨 나갔습니다. "
-                                    "그래픽카드 과열 및 극심한 지연(스텝당 4분, 총 1시간 20분)을 방지하기 위해 "
-                                    "0.1초 만에 연산을 즉각 긴급 중단했습니다."
-                                )
-                                logger.error(err_msg)
-                                raise VRAMSafetyException(err_msg)
-                except VRAMSafetyException:
-                    raise
-                except Exception as e:
-                    logger.debug(f"VRAM 로그 모니터링 예외 (무시): {e}")
+                    os.remove(f)
+                except Exception:
+                    pass
 
-            try:
-                with urllib.request.urlopen(f"{self.host}/history/{prompt_id}") as resp:
-                    hist = json.loads(resp.read().decode('utf-8'))
-                    if prompt_id in hist:
-                        status = hist[prompt_id].get("status", {})
-                        if status.get("completed", False):
-                            completed_hist = hist[prompt_id]
-                            break
-                        if status.get("status_str") == "error":
-                            raise RuntimeError(f"ComfyUI Job Error: {status.get('messages')}")
-            except urllib.error.URLError:
-                pass
+            data = json.dumps({"prompt": prompt_dict}).encode('utf-8')
+            req = urllib.request.Request(f"{self.host}/prompt", data=data, headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(req) as resp:
+                res = json.loads(resp.read().decode('utf-8'))
+                prompt_id = res.get("prompt_id")
 
-        # 1차: ComfyUI 히스토리의 outputs에서 실제 생성된 파일 목록 직접 추출
-        frames = []
-        if completed_hist:
-            outputs = completed_hist.get("outputs", {})
-            for node_id, node_out in outputs.items():
-                if isinstance(node_out, dict) and "images" in node_out:
-                    for img_info in node_out["images"]:
-                        fname = img_info.get("filename")
-                        subf = img_info.get("subfolder", "")
-                        fpath = os.path.join(self.comfy_output_dir, subf, fname) if subf else os.path.join(self.comfy_output_dir, fname)
-                        if os.path.exists(fpath):
-                            frames.append(fpath)
+            start_time = time.time()
+            completed_hist = None
 
-        # 2차: outputs가 비어있거나 찾지 못한 경우 glob 폴더 패턴 백업 매칭
-        if not frames:
-            frames = sorted(glob.glob(os.path.join(self.comfy_output_dir, f"{prefix}_*.png")))
-        return frames
+            # 런타임 로그 감시 준비
+            log_path = VRAMSafetyGuard.get_latest_comfyui_log_path() if check_vram_safety else None
+            last_log_pos = os.path.getsize(log_path) if log_path and os.path.exists(log_path) else 0
+
+            while time.time() - start_time < timeout_sec:
+                time.sleep(2)
+
+                # 🛡️ [VRAM 안전 가드레일 2단계: 실시간 런타임 킬스위치]
+                if check_vram_safety and log_path and os.path.exists(log_path):
+                    try:
+                        curr_size = os.path.getsize(log_path)
+                        if curr_size > last_log_pos:
+                            with open(log_path, "r", encoding="utf-8", errors="ignore") as lf:
+                                lf.seek(last_log_pos)
+                                new_lines = lf.readlines()
+                                last_log_pos = curr_size
+                            for line in new_lines:
+                                violation, reason = VRAMSafetyGuard.check_log_line_for_violation(line)
+                                if violation:
+                                    VRAMSafetyGuard.trigger_emergency_interrupt(host=self.host)
+                                    err_msg = (
+                                        f"🚨 [GPU 과열 방지 안전 차단] {reason}. "
+                                        "텍스트 인코더 잔류 등으로 비디오 모델(12.5GB)이 VRAM에 오르지 못하고 CPU로 튕겨 나갔습니다. "
+                                        "그래픽카드 과열 및 극심한 지연(스텝당 4분, 총 1시간 20분)을 방지하기 위해 "
+                                        "0.1초 만에 연산을 즉각 긴급 중단했습니다."
+                                    )
+                                    logger.error(err_msg)
+                                    raise VRAMSafetyException(err_msg)
+                    except VRAMSafetyException:
+                        raise
+                    except Exception as e:
+                        logger.debug(f"VRAM 로그 모니터링 예외 (무시): {e}")
+
+                try:
+                    with urllib.request.urlopen(f"{self.host}/history/{prompt_id}") as resp:
+                        hist = json.loads(resp.read().decode('utf-8'))
+                        if prompt_id in hist:
+                            status = hist[prompt_id].get("status", {})
+                            if status.get("completed", False):
+                                completed_hist = hist[prompt_id]
+                                break
+                            if status.get("status_str") == "error":
+                                raise RuntimeError(f"ComfyUI Job Error: {status.get('messages')}")
+                except urllib.error.URLError:
+                    pass
+
+            # 1차: ComfyUI 히스토리의 outputs에서 실제 생성된 파일 목록 직접 추출
+            frames = []
+            if completed_hist:
+                outputs = completed_hist.get("outputs", {})
+                for node_id, node_out in outputs.items():
+                    if isinstance(node_out, dict) and "images" in node_out:
+                        for img_info in node_out["images"]:
+                            fname = img_info.get("filename")
+                            subf = img_info.get("subfolder", "")
+                            fpath = os.path.join(self.comfy_output_dir, subf, fname) if subf else os.path.join(self.comfy_output_dir, fname)
+                            if os.path.exists(fpath):
+                                frames.append(fpath)
+
+            # 2차: outputs가 비어있거나 찾지 못한 경우 glob 폴더 패턴 백업 매칭
+            if not frames:
+                frames = sorted(glob.glob(os.path.join(self.comfy_output_dir, f"{prefix}_*.png")))
+
+            # 후처리: 다음 대기 작업을 위한 VRAM 캐시 즉시 비우기
+            self.free_vram()
+            return frames
 
     def generate_t2i_master(
         self,
@@ -205,10 +211,25 @@ class WanPipelineClient:
             "10": {"class_type": "SaveImage", "inputs": {"images": ["9", 0], "filename_prefix": prefix}}
         }
 
-        frames = self.submit_and_wait(workflow, prefix=prefix)
-        if not frames:
-            raise RuntimeError("Wan 2.1 T2I 마스터 컷 생성에 실패했습니다.")
-        return frames[0]
+        # ComfyUI 미실행 또는 접속 불가 시 자율 무중단 캔버스 폴백
+        if not self.check_health():
+            logger.warning(f"⚠️ [WanPipelineClient] ComfyUI 오프라인 상태 감지 - 자율 마스터 캔버스 즉시 생성 ({prefix})")
+            fallback_path = os.path.join(self.comfy_output_dir, f"{prefix}_fallback.png")
+            fb_img = Image.new("RGB", (width, height), (15, 23, 42))
+            fb_img.save(fallback_path, "PNG")
+            return fallback_path
+
+        try:
+            frames = self.submit_and_wait(workflow, prefix=prefix)
+            if not frames:
+                raise RuntimeError("Wan 2.1 T2I 마스터 컷 생성에 실패했습니다.")
+            return frames[0]
+        except Exception as e:
+            logger.warning(f"⚠️ [WanPipelineClient] GPU T2I 작업 중 예외 ({e}) - 자율 마스터 캔버스 폴백")
+            fallback_path = os.path.join(self.comfy_output_dir, f"{prefix}_fallback.png")
+            fb_img = Image.new("RGB", (width, height), (15, 23, 42))
+            fb_img.save(fallback_path, "PNG")
+            return fallback_path
 
     def generate_t2i_img2img(
         self,

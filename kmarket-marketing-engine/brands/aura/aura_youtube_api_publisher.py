@@ -131,7 +131,7 @@ class AuraYouTubeAPIPublisher:
         desc_body = description or (
             "소개팅 긴급 탈출부터 50:50 완벽 성비 라운지까지!\n\n"
             "🔍 네이버 검색창에 👉 [ 아우라AI데이팅 ] 검색해보세요!\n"
-            "공식 라운지 바로가기: https://aura-ai-dating.vercel.app/lounge\n\n"
+            "공식 라운지 바로가기: https://aura-ai-dating.vercel.app/\n\n"
         )
         full_desc = f"{desc_body.strip()}\n\n{tag_str}".strip()
 
@@ -139,7 +139,7 @@ class AuraYouTubeAPIPublisher:
         pinned_comment = (
             "📌 영상에서 나온 50:50 완벽 성비 AI 소개팅 라운지는\n"
             "네이버에 👉 [ 아우라AI데이팅 ] 검색하시면 바로 나옵니다!\n"
-            "(공식 링크: https://aura-ai-dating.vercel.app/lounge)"
+            "(공식 링크: https://aura-ai-dating.vercel.app/)"
         )
 
         creds = self._get_credentials()

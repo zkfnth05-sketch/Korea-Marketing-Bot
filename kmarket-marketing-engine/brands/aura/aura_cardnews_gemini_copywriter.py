@@ -23,6 +23,7 @@ if str(WORKSPACE_DIR) not in sys.path:
     sys.path.insert(0, str(WORKSPACE_DIR))
 
 from brands.aura.aura_cardnews_scenario_director import AuraCardnewsScenarioDirector
+from brands.aura.aura_production_safety_gate import AuraProductionSafetyGate
 
 logger = logging.getLogger("AuraCardnewsGeminiCopywriter")
 
@@ -31,7 +32,7 @@ class AuraCardnewsGeminiCopywriter:
     """Aura 8대 주제 카드뉴스 5장 전체 카피 실시간 AI 창작 엔진"""
 
     OFFICIAL_KEYWORD = "아우라AI데이팅"
-    OFFICIAL_URL = "https://aura-ai-dating.vercel.app/lounge"
+    OFFICIAL_URL = "https://aura-ai-dating.vercel.app/"
 
     # 8대 주제별 핵심 기능 & 킬러 소구점 헌장 (제미나이가 뜬구름 잡지 않고 100% 주제 밀착 창작하도록 강제)
     TOPIC_DOSSIERS = {
@@ -183,7 +184,7 @@ class AuraCardnewsGeminiCopywriter:
    - debate_opt2_title: Option 2 제목 (16~22자)
    - debate_opt2_sub: Option 2 디테일 부연 (25~35자)
    - benefit_items: Aura 가입 시 즉시 받는 VIP 3대 혜택 3개 (각 18~28자)
-   - cta_subtext: "✨ 50:50 남녀 황금 성비율 • 오늘 가입하고 설레는 만남 시작하기"
+   - cta_subtext: "👉 프로필 링크에서 3초 만에 내 이상형/성향 확인해보세요! ✨"
 
 6. SNS 캡션 (인스타그램/스레드 본문):
    - sns_caption: 인스타그램 피드에 그대로 올려서 댓글 수백 개를 유도할 수 있는 7~10줄 이상의 풍성한 스토리텔링 본문 (이모지, 공감 질문, 핵심 기능 소개 포함)
@@ -237,14 +238,14 @@ class AuraCardnewsGeminiCopywriter:
     "debate_opt2_title": "선택지 2 제목 (16~22자)",
     "debate_opt2_sub": "선택지 2 부연 설명 (25~35자)",
     "benefit_items": [
-      "VIP 혜택 1 (18~28자)",
-      "VIP 혜택 2 (18~28자)",
-      "VIP 혜택 3 (18~28자)"
+      "사진 1장 3초 이상형 확인",
+      "50:50 황금 성비율 매칭",
+      "내 연애 스타일 & 핫플 테스트"
     ],
-    "cta_subtext": "✨ 50:50 남녀 황금 성비율 • 오늘 가입하고 설레는 만남 시작하기"
+    "cta_subtext": "👉 프로필 링크에서 3초 만에 나랑 꼭 맞는 이상형 & 연애 성향 확인하기"
   }},
-  "sns_caption": "인스타그램/스레드 본문 카피 (7~10줄 이상, 공감 질문 및 솔루션 포함)",
-  "hashtags": "#아우라AI데이팅 #2030소개팅 #동네친구 #성수동데이트"
+  "sns_caption": "인스타그램/스레드 본문 카피 (7~10줄 이상, 공감 질문 및 솔루션 포함 + 마지막에 '👉 프로필 링크에서 3초 만에 내 이상형/성향 확인해보세요!' 유도 필수)",
+  "hashtags": "#아우라AI데이팅 #2030소개팅 #동네친구 #성수동데이트 #이상형테스트"
 }}
 """
 
@@ -256,11 +257,16 @@ class AuraCardnewsGeminiCopywriter:
             key_name = key_info["name"]
             api_key = key_info["key"]
 
+            # 429 쿨다운 중인 키는 네트워크 호출 자체를 생략하여 API 낭비 차단
+            if AuraProductionSafetyGate.is_cooled_down(key_name):
+                logger.info(f"⏳ [AuraGeminiCopywriter] 키 '{key_name}' 429 쿨다운 중 -> API 호출 스킵 ➔ 즉시 다음 키로 전환")
+                continue
+
             try:
                 client = self._get_genai_client(api_key)
                 from google.genai import types as genai_types
 
-                for model_name in ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]:
+                for model_name in ["gemini-2.0-flash", "gemini-2.5-flash", "gemini-flash-latest"]:
                     try:
                         logger.info(f"🤖 [AuraGeminiCopywriter] {key_name} ({model_name})로 주제 #{topic_id} 실시간 깊이 있는 카피 창작 중...")
                         response = client.models.generate_content(
@@ -278,12 +284,20 @@ class AuraCardnewsGeminiCopywriter:
                                 logger.info(f"🎉 [AuraGeminiCopywriter] {key_name} ({model_name}) 깊이 있는 카피 창작 대성공! (주제 #{topic_id} / {theme_title})")
                                 return data
                     except Exception as model_err:
-                        if "404" in str(model_err) or "not found" in str(model_err).lower():
+                        err_str = str(model_err)
+                        if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+                            logger.warning(f"🛑 [AuraGeminiCopywriter] {key_name} 429 쿼터 초과 -> 즉시 쿨다운 등록 및 다음 키로 스위칭")
+                            AuraProductionSafetyGate.record_429(key_name)
+                            break
+                        if "404" in err_str or "not found" in err_str.lower():
                             continue
                         raise model_err
 
             except Exception as e:
-                logger.warning(f"⚠️ [AuraGeminiCopywriter] {key_name} 실패: {str(e)[:100]} ➔ 다음 키 시도")
+                err_s = str(e)
+                if "429" in err_s or "RESOURCE_EXHAUSTED" in err_s:
+                    AuraProductionSafetyGate.record_429(key_name)
+                logger.warning(f"⚠️ [AuraGeminiCopywriter] {key_name} 실패: {err_s[:100]} ➔ 다음 키 시도")
 
         # 안전 Fallback: 풍성한 기본 시나리오 반환
         logger.warning(f"🛡️ [AuraGeminiCopywriter] 제미나이 전원 실패 시 안전 Fallback 시나리오 가동")

@@ -1,0 +1,104 @@
+[
+  {
+    "status": "success",
+    "date": "2026-10-02",
+    "published_at": "2026-10-02 21:15:34",
+    "brand": "aura",
+    "topic_id": 5,
+    "title": "애프터 신청 100% 성공하는 골든타임 & 카톡 멘트",
+    "slides_count": 5,
+    "channels": {
+      "facebook_cardnews": {
+        "status": "success",
+        "post_id": "1356851504174047_122110680819483292",
+        "comment_id": null,
+        "slides_count": 5,
+        "platform": "facebook",
+        "brand": "aura"
+      },
+      "instagram_carousel": {
+        "status": "error",
+        "message": "HTTP 400: {\"error\":{\"message\":\"User access is restricted\",\"type\":\"OAuthException\",\"code\":25,\"error_subcode\":2207050,\"is_transient\":false,\"error_user_title\":\"\\uc0ac\\uc6a9\\uc790\\uac00 \\uc81c\\ud55c\\ub418\\uc5c8\\uc2b5\\ub2c8\\ub2e4\",\"error_user_msg\":\"Instagram \\uacc4\\uc815\\uc774 \\uc81c\\ud55c\\ub418\\uc5c8\\uc2b5\\ub2c8\\ub2e4.\",\"fbtrace_id\":\"AWccfO0Cj9b1DpTWbM6CTMh\"}}",
+        "brand": "aura"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-02",
+    "published_at": "2026-10-02 21:46:38",
+    "brand": "aura",
+    "topic_id": 6,
+    "title": "MBTI 유형별 절대 실패 없는 소개팅 대화법",
+    "slides_count": 5,
+    "channels": {
+      "facebook_cardnews": {
+        "status": "success",
+        "post_id": "1356851504174047_122110692777483292",
+        "comment_id": null,
+        "slides_count": 5,
+        "platform": "facebook",
+        "brand": "aura"
+      },
+      "instagram_carousel": {
+        "status": "success",
+        "media_id": "18105101153359854",
+        "slides_count": 5,
+        "platform": "instagram_carousel",
+        "brand": "aura"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-02",
+    "published_at": "2026-10-02 21:47:34",
+    "brand": "aura",
+    "topic_id": 7,
+    "title": "외모보다 대화가 통하는 50:50 황금 성비 라운지 이용법",
+    "slides_count": 5,
+    "channels": {
+      "facebook_cardnews": {
+        "status": "success",
+        "post_id": "1356851504174047_122110693857483292",
+        "comment_id": null,
+        "slides_count": 5,
+        "platform": "facebook",
+        "brand": "aura"
+      },
+      "instagram_carousel": {
+        "status": "success",
+        "media_id": "18035020571847398",
+        "slides_count": 5,
+        "platform": "instagram_carousel",
+        "brand": "aura"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-02",
+    "published_at": "2026-10-02 21:49:59",
+    "brand": "aura",
+    "topic_id": 8,
+    "title": "주말에 뭐하지? 솔로 탈출을 위한 2030 주말 힐링 스팟",
+    "slides_count": 5,
+    "channels": {
+      "facebook_cardnews": {
+        "status": "success",
+        "post_id": "1356851504174047_122110695213483292",
+        "comment_id": null,
+        "slides_count": 5,
+        "platform": "facebook",
+        "brand": "aura"
+      },
+      "instagram_carousel": {
+        "status": "success",
+        "media_id": "18015331100746862",
+        "slides_count": 5,
+        "platform": "instagram_carousel",
+        "brand": "aura"
+      }
+    }
+  }
+]

@@ -29,7 +29,7 @@ class AuraDebateBooster:
     """💖 Aura AI 데이팅 전용 찬반 논쟁 고정 댓글 생성기"""
 
     OFFICIAL_KEYWORD = "아우라AI데이팅"
-    OFFICIAL_URL = "https://aura-ai-dating.vercel.app/lounge"
+    OFFICIAL_URL = "https://aura-ai-dating.vercel.app/"
 
     @classmethod
     def get_debate_question(cls, topic_id: int = 1, custom_question: Optional[str] = None) -> str:

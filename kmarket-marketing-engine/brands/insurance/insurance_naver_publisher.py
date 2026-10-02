@@ -58,7 +58,7 @@ class InsuranceNaverPublisher:
         tag_list: Optional[List[str]] = None,
         image_paths: Optional[List[str]] = None,
         category_name: Optional[str] = None,
-        landing_url: str = "https://insurebalance.co.kr",
+        landing_url: str = "https://insure-rebalance.vercel.app/",
         timeout_sec: int = 50
     ) -> Dict[str, Any]:
         """동기 호출 인터페이스"""
@@ -77,8 +77,10 @@ class InsuranceNaverPublisher:
             return {"status": "error", "message": str(e), "blog_id": self.blog_id}
 
     @staticmethod
-    def format_clean_naver_text(raw_text: str, landing_url: str = "") -> str:
-        """마크다운 기호(#, ###, ![], **, >, [이미지:...])를 완전 제거하고 가독성 높은 네이버 블로그 전용 본문으로 변환"""
+    def format_clean_naver_text(raw_text: str, landing_url: str = "https://insure-rebalance.vercel.app/") -> str:
+        """마크다운 기호(#, ###, ![], **, >, [이미지:...])를 완전 제거하고 가독성 높은 네이버 블로그 전용 본문으로 변환 (URL 완벽 격리)"""
+        import re
+
         # 1. 마크다운 이미지 태그 및 [16:9...], [이미지:...], [사진:...] 안내 찌꺼기 완벽 제거
         text = re.sub(r'!\[.*?\]\(.*?\)', '', raw_text)
         text = re.sub(r'\[.*?16:9.*?\]', '', text, flags=re.IGNORECASE)
@@ -89,16 +91,12 @@ class InsuranceNaverPublisher:
         text = re.sub(r'-{4,}', '', text)
         text = re.sub(r'={4,}', '', text)
 
-        # 2. 마크다운 링크 [라벨](URL) 정제:
-        def _clean_md_link(match):
-            label = match.group(1).strip()
-            url = match.group(2).strip()
-            return f"{label} ( 👉 {url} )"
+        # 2. 본문 중간에 끼어있는 마크다운 링크 및 괄호형 URL 정제
+        text = re.sub(r'\[([^\]]+)\]\((https?://[^\s\)]+)\)', r'\1', text)
+        text = re.sub(r'\((https?://[^\s\)]+)\)', '', text)
 
-        text = re.sub(r'\[([^\]]+)\]\((https?://[^\s\)]+)\)', _clean_md_link, text)
-
-        # 3. 괄호에 둘러싸인 잔여 URL 정제: (https://...) -> https://...
-        text = re.sub(r'\((https?://[^\s\)]+)\)', r' \1 ', text)
+        # 3. 본문 문장 중간의 순수 URL 패턴도 본문에서 제거 (본문 하단 단독 링크 블록으로 일괄 유도)
+        text = re.sub(r'https?://[^\s]+', '', text)
 
         lines = text.split("\n")
         cleaned_lines = []
@@ -126,10 +124,22 @@ class InsuranceNaverPublisher:
                 cleaned_lines.append("  · " + l[2:].strip())
             else:
                 clean_l = l.replace("**", "").replace("__", "")
+                clean_l = clean_l.replace("\u00a0", " ")
+                clean_l = re.sub(r'[ \t]+', ' ', clean_l)
                 cleaned_lines.append(clean_l)
 
         result = "\n".join(cleaned_lines)
         result = re.sub(r'\n{3,}', '\n\n', result).strip()
+
+        # 4. 본문 최하단에 [네이버 포털 검색창 직접 검색 유도 훅 박스] 배치 (영문 URL 생텍스트 완전 배제)
+        result += (
+            f"\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"🛡️ [보험 리밸런스] 34개 보험사 실시간 비교 & 숨은 보험금 찾기\n"
+            f"매달 새는 불필요한 중복 특약 정리로 가계부 고정비를 절약해보세요.\n\n"
+            f"🔍 네이버 검색창에 [보험 리밸런스]를 검색해 보세요!\n"
+            f"👉 공식 센터에서 무료 보험 리모델링 및 보장 분석 신청 가능\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        )
         return result
 
     async def publish_article_async(
@@ -139,7 +149,7 @@ class InsuranceNaverPublisher:
         tag_list: Optional[List[str]] = None,
         image_paths: Optional[List[str]] = None,
         category_name: Optional[str] = None,
-        landing_url: str = "https://insurebalance.co.kr",
+        landing_url: str = "https://insure-rebalance.vercel.app/",
         timeout_sec: int = 50
     ) -> Dict[str, Any]:
         """Playwright 비동기 네이버 블로그 스마트에디터 ONE 자동 발행"""
@@ -238,39 +248,41 @@ class InsuranceNaverPublisher:
                 await page.keyboard.press("Enter")
                 await asyncio.sleep(0.5)
 
-                # 5. 정제 본문 + 클릭 가능한 파란색 CTA 카드 HTML 클립보드 주입
+                # 5. 정제 본문 클립보드 붙여넣기
                 clean_body = self.format_clean_naver_text(content_text, landing_url)
-                
-                # HTML 형태의 단락 및 CTA 카드 블록 생성
-                paragraphs = clean_body.split("\n\n")
-                body_html_parts = []
-                for p_text in paragraphs:
-                    p_clean = p_text.strip().replace("\n", "<br/>")
-                    if p_clean:
-                        body_html_parts.append(f"<p>{p_clean}</p>")
-                
-                # 파란색 좌측 바 + 클릭 가능한 파란 버튼 CTA 카드
-                cta_card_html = f"""
-<br/>
-<blockquote style="margin: 30px 0; padding: 20px; background-color: #f8fafc; border-left: 5px solid #0284c7; border-radius: 6px;">
-  <p style="font-weight: bold; font-size: 16px; margin: 0 0 8px 0; color: #0f172a;">🛡️ 내 보험 보장 점수, 3분 만에 확인해보세요</p>
-  <p style="font-size: 14px; color: #475569; margin: 0 0 14px 0;">복잡한 보험 약관과 부족한 보장, 보험리밸런스가 객관적으로 진단해 드립니다.</p>
-  <p style="margin: 0;"><a href="{landing_url}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #0284c7; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px;">보험리밸런스 무료 진단 시작하기 👉</a></p>
-</blockquote>
-<br/>
-"""
-                full_paste_html = "".join(body_html_parts) + cta_card_html
-
-                await page.evaluate("""({html, text}) => {
-                    const blobHtml = new Blob([html], { type: 'text/html' });
-                    const blobText = new Blob([text], { type: 'text/plain' });
-                    const item = new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText });
-                    return navigator.clipboard.write([item]);
-                }""", {"html": full_paste_html, "text": clean_body})
-
+                await page.evaluate("text => navigator.clipboard.writeText(text)", clean_body)
                 await page.keyboard.press("Control+V")
-                await asyncio.sleep(2.5)
-                logger.info("📝 [Naver-Insurance] 본문 및 클릭 가능한 파란색 CTA 카드 붙여넣기 완료")
+                await asyncio.sleep(2.0)
+                logger.info("📝 [Naver-Insurance] 정제 본문 클립보드 붙여넣기 완료")
+
+                # 5-1. 🌟 네이버 공식 OpenGraph(OG) 링크 카드 자동 삽입
+                try:
+                    logger.info(f"🔗 [Naver-Insurance] 네이버 공식 OG 링크 카드 삽입 시작: {landing_url}")
+                    await page.keyboard.press("Enter")
+                    await asyncio.sleep(0.5)
+
+                    og_btn = await page.query_selector("button.se-oglink-toolbar-button")
+                    if og_btn:
+                        await og_btn.click()
+                        await asyncio.sleep(1.0)
+
+                        og_inp = await page.wait_for_selector("input.se-popup-oglink-input", timeout=5000)
+                        if og_inp:
+                            await og_inp.fill(landing_url)
+                            await asyncio.sleep(0.5)
+
+                            search_btn = await page.query_selector("button.se-popup-oglink-button")
+                            if search_btn:
+                                await search_btn.click()
+                                await asyncio.sleep(2.5)
+
+                            confirm_btn = await page.wait_for_selector("button.se-popup-button-confirm", timeout=5000)
+                            if confirm_btn:
+                                await confirm_btn.click()
+                                await asyncio.sleep(1.5)
+                                logger.info("🎉 [Naver-Insurance] 네이버 공식 OG 링크 카드 삽입 완료!")
+                except Exception as og_err:
+                    logger.warning(f"⚠️ [Naver-Insurance] OG 링크 카드 삽입 통과: {og_err}")
 
                 # 6. 상단 우측 [발행] 버튼 클릭 (발행 설정 레이어 열기)
                 publish_opened = False

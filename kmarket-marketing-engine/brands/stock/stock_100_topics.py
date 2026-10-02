@@ -6,8 +6,8 @@
 - 타깃: 2040 스마트 서학개미·동학개미, 직장인 적립식 투자자, AI 퀀트 관심자
 - 6대 핵심 카테고리:
   1. korea_market     : 국내 대형주 / 반도체(삼성전자·SK하이닉스) / 밸류업 저PBR / 2차전지
-  2. us_dividend_tech : 미국 배당성장주(SCHD·O·JEPQ) / 빅테크 M7(엔비디아·애플) / 절세
-  3. etf_index        : 지수 추종 ETF(S&P 500·나스닥100) / 채권 ETF / 월적립식 복리
+  2. korea_dividend_growth : 국내 고배당주(금융지주·맥쿼리·통신주) / 배당성장 / ISA 절세
+  3. korea_theme_leaders   : 코스피·코스닥 주도주(2차전지·바이오·로봇·방산) / 체결강도 120% / 수급 유입
   4. macro_economy    : 미국 연준(Fed) FOMC 금리 / 원달러 환율 / CPI 물가지표 / 경기침체
   5. chart_financials : 초보 재무제표(PER·PBR·ROE) / 이동평균선 / 지지·저항선 / DART 공시
   6. quant_risk       : 뇌동매매 방지 멘탈 / 손절매 기준 / AI 퀀트 알고리즘 / 자산배분
@@ -21,7 +21,7 @@ STOCK_100_TOPICS: List[Dict[str, Any]] = [
         "id": 1,
         "category": "korea_market",
         "title": "삼성전자 vs SK하이닉스: HBM(고대역폭 메모리) 승부처와 AI 반도체 수혜주",
-        "intent": "HBM3E 납품 경쟁과 엔비디아 밸류체인 속 두 기업의 실적 및 밸류에이션 비교",
+        "intent": "HBM3E 납품 경쟁과 글로벌 AI 반도체 밸류체인 속 두 기업의 실적 및 밸류에이션 비교",
         "app_feature": "StockMaster AI 반도체 수급 레이더",
         "tags": ["삼성전자주가", "SK하이닉스HBM", "AI반도체주", "국내주식전망"]
     },
@@ -157,11 +157,11 @@ STOCK_100_TOPICS: List[Dict[str, Any]] = [
     },
     {
         "id": 18,
-        "category": "us_dividend_tech",
-        "title": "엔비디아(NVDA) 독점 붕괴될까? 빅테크 자체 AI 칩(커스텀 ASIC) 개발 경쟁",
-        "intent": "블랙웰(Blackwell) 아키텍처 출시와 빅테크 CAPEX(설비투자) 증가세 지속 여부",
-        "app_feature": "StockMaster 엔비디아 AI 생태계 분석",
-        "tags": ["엔비디아주가", "NVDA실적", "AI반도체독점", "빅테크CAPEX"]
+        "category": "korea_market",
+        "title": "코스피·코스닥 AI 반도체 공급망 대장주: HBM·CXL·유리기판 관련주 실시간 수급 진단",
+        "intent": "국내 AI 반도체 소부장 대장주 외국인/기관 수급 및 퀀트 적정주가 분석",
+        "app_feature": "StockMaster 국내 반도체 수급 생태계 분석",
+        "tags": ["AI반도체관련주", "HBM소부장", "CXL관련주", "코스피수급"]
     },
     {
         "id": 19,
@@ -336,10 +336,10 @@ STOCK_100_TOPICS: List[Dict[str, Any]] = [
     {
         "id": 40,
         "category": "etf_index",
-        "title": "반도체 지수 ETF(SOXX vs SMH): 엔비디아 비중 20% 넘는 SMH가 압도한 비결",
-        "intent": "필라델피아 반도체 지수(SOXX)와 반도체 대장주 압축 포트폴리오(SMH) 비교",
-        "app_feature": "StockMaster 글로벌 반도체 ETF 분석",
-        "tags": ["SOXX주가", "SMH비교", "반도체ETF추천", "필라델피아반도체"]
+        "title": "국내 반도체 ETF(KODEX 반도체 vs TIGER Fn반도체TOP10): 삼성전자와 SK하이닉스 비중별 수익률 비교",
+        "intent": "국내 대표 반도체 ETF 구성 종목 및 외국인 수급 비교 분석",
+        "app_feature": "StockMaster 국내 반도체 ETF 수급 분석",
+        "tags": ["KODEX반도체", "TIGER반도체", "국내반도체ETF", "삼성전자SK하이닉스"]
     },
     {
         "id": 41,

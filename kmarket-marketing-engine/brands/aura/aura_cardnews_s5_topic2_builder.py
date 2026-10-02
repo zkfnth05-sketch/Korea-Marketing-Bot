@@ -38,7 +38,7 @@ class AuraCardnewsS5Topic2Builder:
         opt2_sub = s5_copy.get("debate_opt2_sub", "직접 언어가 통해야 진짜 연애가 된다")
 
         default_benefits = [
-            "사진 1장 1초 가입",
+            "3초 글로벌 이상형 확인",
             "글로벌 라운지 입장",
             "실시간 자막 통화 무료"
         ]
@@ -46,7 +46,7 @@ class AuraCardnewsS5Topic2Builder:
         while len(benefits) < 3:
             benefits.append("Aura VIP 글로벌 혜택")
 
-        cta_subtext = s5_copy.get("cta_subtext", "✨ 50:50 남녀 황금 성비율 • 오늘 가입하고 글로벌 친구와 첫 통화 시작하기")
+        cta_subtext = s5_copy.get("cta_subtext", "👉 프로필 링크에서 3초 만에 글로벌 이상형 확인해보세요! ✨")
 
         html_content = f"""<!DOCTYPE html>
 <html lang="ko">
@@ -256,7 +256,7 @@ class AuraCardnewsS5Topic2Builder:
   <div class="flex justify-between items-center z-10 w-full px-4 pt-2 border-t border-white/10 text-xs text-slate-400 font-medium">
     <div>
       <span class="text-slate-500">Official Web:</span>
-      <span class="text-sky-400 font-bold ml-1">https://aura-ai-dating.vercel.app/lounge</span>
+      <span class="text-sky-400 font-bold ml-1">https://aura-ai-dating.vercel.app/</span>
     </div>
     <div class="text-slate-500 text-[11px]">
       © 2026 AURA AI Dating. All rights reserved.

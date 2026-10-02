@@ -40,7 +40,7 @@ def main():
         print(f"  - 🟠 티스토리 제목: {res.get('title_tistory', res['title'])}")
         print(f"  - 🟡 카카오/브런치 제목: {res.get('title_kakao', res['title'])}")
         print(f"  - 🎨 16:9 사진 URL: {res['image_url']}")
-        print(f"  - 🔗 랜딩 URL: https://aura-ai-dating.vercel.app/lounge")
+        print(f"  - 🔗 랜딩 URL: https://aura-ai-dating.vercel.app/")
         print(f"  - ⏰ 발행 시각: {res['published_at']}")
         print(f"  - ⏭️ 다음 예정 주제 번호: #{res['next_topic_id']}")
 
@@ -164,6 +164,28 @@ def main():
         print("==============================================\n")
         scheduler = AuraKinScheduler()
         scheduler.run_continuous_daemon(check_interval_seconds=300)
+        return
+
+    # ── [레딧(Reddit) 글로벌 여성 타겟 스텔스 마케팅 옵션] ──
+    if "--reddit" in sys.argv or "-rd" in sys.argv:
+        is_live = "--live" in sys.argv
+        from brands.aura.aura_reddit_engine import AuraRedditEngine
+        print("\n==============================================")
+        print(f"💖 [Aura] 레딧 12대 서브레딧 스텔스 마케팅 1회 실행 (Mode: {'LIVE' if is_live else 'DRY-RUN/SIMULATION'})")
+        print("==============================================\n")
+        engine = AuraRedditEngine()
+        res_count = engine.scan_and_reply(limit_per_sub=10, max_promo=1, auto_post=is_live)
+        print(f"\n[레딧 실행 결과]: {res_count}건 처리 완료")
+        return
+
+    if "--reddit-cycle" in sys.argv or "-rc" in sys.argv:
+        from brands.aura.aura_reddit_engine import AuraRedditEngine
+        print("\n==============================================")
+        print("💖 [Aura] 레딧 안전 종합 사이클 1회 가동 (업보트+스크롤+비홍보+스텔스홍보)")
+        print("==============================================\n")
+        engine = AuraRedditEngine()
+        cycle_res = engine.run_safe_cycle()
+        print(json.dumps(cycle_res, ensure_ascii=False, indent=2))
         return
 
     is_live = "--live" in sys.argv

@@ -47,7 +47,7 @@ class AuraBrunchPublisher:
         content_text: str,
         tag_list: Optional[List[str]] = None,
         topic_id: int = 1,
-        landing_url: str = "https://aura-ai-dating.vercel.app/lounge",
+        landing_url: str = "https://aura-ai-dating.vercel.app/",
         timeout_sec: int = 40
     ) -> Dict[str, Any]:
         """동기 호출 인터페이스"""
@@ -65,7 +65,7 @@ class AuraBrunchPublisher:
         subtitle: str = "",
         body_text: str = "",
         topic_id: int = 1,
-        landing_url: str = "https://aura-ai-dating.vercel.app/lounge",
+        landing_url: str = "https://aura-ai-dating.vercel.app/",
         tag_list: Optional[List[str]] = None,
         timeout_sec: int = 40
     ) -> Dict[str, Any]:
@@ -85,7 +85,7 @@ class AuraBrunchPublisher:
         content_text: str,
         tag_list: Optional[List[str]] = None,
         topic_id: int = 1,
-        landing_url: str = "https://aura-ai-dating.vercel.app/lounge",
+        landing_url: str = "https://aura-ai-dating.vercel.app/",
         timeout_sec: int = 40
     ) -> Dict[str, Any]:
         """Playwright 브런치 에디터 자동 발행 / 저장 (영구 크롬 프로필 탑재)"""
@@ -158,15 +158,28 @@ class AuraBrunchPublisher:
                     await page.keyboard.type(title)
                 await asyncio.sleep(1)
 
-                # 본문 입력 (클립보드 방식)
+                # 본문 입력 (클립보드 방식 - URL 완벽 분리 정제)
+                import re
+                clean_body = re.sub(r'!\[.*?\]\(.*?\)', '', content_text)
+                clean_body = re.sub(r'\[([^\]]+)\]\((https?://[^\s\)]+)\)', r'\1', clean_body)
+                clean_body = re.sub(r'\((https?://[^\s\)]+)\)', '', clean_body)
+                clean_body = re.sub(r'https?://[^\s\)]+', '', clean_body)
+                clean_body += (
+                    f"\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"💑 [Aura AI 데이팅] 유령회원 ZERO! 남녀 50:50 황금 성비 보장\n\n"
+                    f"🔍 네이버 검색창에 [아우라AI데이팅]을 검색해 보세요!\n"
+                    f"👉 공식 라운지:\n{landing_url}\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                )
+
                 try:
                     process = subprocess.Popen(['clip'], stdin=subprocess.PIPE, close_fds=True)
-                    process.communicate(input=content_text.encode('utf-16le'))
+                    process.communicate(input=clean_body.encode('utf-16le'))
                     await page.keyboard.press("Tab")
                     await page.keyboard.press("Control+v")
                 except Exception:
                     await page.keyboard.press("Tab")
-                    await page.keyboard.type(content_text[:300])
+                    await page.keyboard.type(clean_body[:300])
 
                 await asyncio.sleep(1)
 

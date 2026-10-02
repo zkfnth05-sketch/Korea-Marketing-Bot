@@ -1,5 +1,5 @@
 // ==========================================
-// [모듈 3] platforms.js: 8대 AI 마케팅 허브 실제 발행 내역 & 실시간 라이브 뷰어 전담 모듈 (가로 1열 와이드 뷰)
+// [모듈 3] platforms.js: 3대 슈퍼앱 8대 AI 마케팅 허브 실제 발행 내역 & 실시간 라이브 뷰어 전담 모듈 (가로 1열 와이드 뷰)
 // ==========================================
 
 async function loadPlatforms(btn) {
@@ -15,10 +15,10 @@ async function loadPlatforms(btn) {
     }
     if (headerDesc) {
         headerDesc.innerText = currentBrand === "stock"
-            ? "외인/기관 수급 숏폼 · 테마주 4장 카드뉴스 · 종목 분석 블로그 · 구글/네이버 색인 핑 · 실시간 수급 스레드 · VIP 시황 텔레그램 실제 발행본을 실시간으로 직접 확인하고 검증합니다."
+            ? "외인/기관 수급 숏폼(유튜브/인스타/틱톡/페북/클립) · 4장 퀀트 카드뉴스 · 옴니 블로그 · 구글/네이버 색인 핑 · 실시간 수급 스레드 · VIP 시황 텔레그램 실제 발행본을 실시간으로 직접 확인하고 검증합니다."
             : currentBrand === "aura"
-            ? "소개팅 첫인상 숏폼 · 연애 센스 카드뉴스 · 연애 심리 블로그 · 구글 색인 핑 · 2030 공감 스레드 · 텔레그램 커뮤니티 실제 발행본을 실시간으로 직접 확인합니다."
-            : "보험료 다이어트 숏폼 · 호갱 탈출 카드뉴스 · 보험 비교 블로그 · 구글 색인 핑 · 절약 스레드 · 텔레그램 상담실 실제 발행본을 실시간으로 직접 확인합니다.";
+            ? "소개팅 첫인상 숏폼 · 연애 센스 카드뉴스 · 2030 연애 심리 블로그 · 구글/네이버 색인 핑 · 2030 공감 스레드 · 텔레그램 커뮤니티 실제 발행본을 실시간으로 직접 확인합니다."
+            : "보험료 다이어트 숏폼 · 호갱 탈출 카드뉴스 · 4대 옴니 블로그 · 구글/네이버 색인 핑 · 절약 스레드 · 텔레그램 상담실 실제 발행본을 실시간으로 직접 확인합니다.";
     }
 
     try {
@@ -41,11 +41,12 @@ async function loadPlatforms(btn) {
             return;
         }
 
+        const borderCol = currentBrand === "aura" ? "#EC4899" : currentBrand === "insurance" ? "#10B981" : currentBrand === "kmarket" ? "#10B981" : currentBrand === "easytax" ? "#F59E0B" : "#F59E0B";
+
         container.innerHTML = filteredKeys.map((k, idx) => {
             const p = platforms[k];
             const prev = p.published_preview || {};
             const isReady = p.status === "ready";
-            const borderCol = currentBrand === "kmarket" ? "#10B981" : "#F59E0B";
 
             return `
                 <div class="platform-card" style="width:100%;background:#F6F1EA;border:1px solid #E5DDD1;border-left:5px solid ${borderCol};border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow-md);transition:transform 0.25s ease, box-shadow 0.25s ease;">
@@ -61,7 +62,7 @@ async function loadPlatforms(btn) {
                                         🟢 실시간 정상 송출
                                     </span>
                                 </div>
-                                <div style="font-size:12px;color:#6E665E;margin-top:2px;display:flex;align-items:center;gap:8px;">
+                                <div style="font-size:12px;color:#6E665E;margin-top:2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                                     <span>🌐 배포 채널: <strong style="color:#0284C7;">${p.api_type}</strong></span>
                                     <span>·</span>
                                     <span>비중: <strong style="color:#1E1B18;">${p.ratio}</strong></span>
@@ -88,40 +89,20 @@ async function loadPlatforms(btn) {
                     <div style="background:#FFFFFF;border:1px solid #E5DDD1;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow-sm);">
                         <div style="display:flex;justify-content:space-between;align-items:center;">
                             <span style="font-size:12px;font-weight:800;color:#0284C7;display:flex;align-items:center;gap:5px;">
-                                <span>📄</span> 실제 발행된 콘텐츠 본문 (실시간 검증 뷰어)
+                                <span>📄</span> 실제 발행된 콘텐츠 본문 & SNS 업로드 가이드 (실시간 검증 뷰어)
                             </span>
                             <span style="font-size:11.5px;color:#7C3AED;font-weight:700;">🏷️ ${prev.media_tag || '✅ 산출물 생성 완료'}</span>
                         </div>
 
-                        ${(p.feed && p.feed.length > 0) ? `
-                            <div style="font-size:11.5px; color:#7C3AED; font-weight:700; display:flex; justify-content:space-between; align-items:center;">
-                                <span>📜 실시간 질문 감지 & 80:20 솔루션 답변 피드 (${p.feed.length}건)</span>
-                                <span style="font-size:11px; color:#64748b;">마우스로 스크롤하여 이전 내역 열람 👇</span>
+                        <div style="font-size:14px;font-weight:800;color:#0F172A;line-height:1.45;">${prev.title || p.target_content}</div>
+                        <div style="font-size:12.5px;color:#334155;line-height:1.65;white-space:pre-line;background:#F5F1E8;padding:12px 14px;border-radius:8px;border-left:3px solid #0284C7;">${prev.caption || p.diagnostic}</div>
+                        
+                        ${prev.local_path ? `
+                            <div style="font-size:11px;color:#64748B;background:#F8FAFC;padding:6px 10px;border-radius:6px;border:1px dashed #CBD5E1;display:flex;align-items:center;gap:6px;">
+                                <span>📁 파일 저장 경로:</span>
+                                <code style="font-family:'JetBrains Mono',monospace;color:#0F172A;">${prev.local_path}</code>
                             </div>
-                            <div style="max-height:240px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding-right:6px;">
-                                ${p.feed.map((item, fIdx) => `
-                                    <div style="background:#FFFFFF; border:1px solid #E8E3DA; border-left:3px solid #EA580C; border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:6px;">
-                                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                                            <span style="font-size:11.5px; font-weight:800; color:#EA580C;">#${fIdx+1} 💬 Reddit 질문 감지</span>
-                                            <span style="font-size:11px; color:#64748B;">${item.created_at}</span>
-                                        </div>
-                                        <div style="font-size:13px; font-weight:800; color:#0F172A;">${item.title}</div>
-                                        <div style="font-size:12.5px; color:#334155; line-height:1.55; background:#F5F1E8; padding:10px 12px; border-radius:6px; white-space:pre-line;">${item.content_text}</div>
-                                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px; font-size:11.5px; border-top:1px dashed #E8E3DA; padding-top:6px;">
-                                            <a href="${item.reddit_url}" target="_blank" style="color:#0284C7; text-decoration:none; font-weight:700;">
-                                                🔗 레딧 원본 질문/댓글 새창 보기 →
-                                            </a>
-                                            <a href="${item.target_url}" target="_blank" style="color:#059669; text-decoration:none; font-weight:600;">
-                                                🛒 본문에 포함된 랜딩 URL: ${item.target_url}
-                                            </a>
-                                        </div>
-                                    </div>
-                                `).join("")}
-                            </div>
-                        ` : `
-                            <div style="font-size:14px;font-weight:800;color:#0F172A;line-height:1.45;">${prev.title || p.target_content}</div>
-                            <div style="font-size:13px;color:#334155;line-height:1.6;white-space:pre-line;background:#F5F1E8;padding:12px 14px;border-radius:8px;border-left:3px solid #0284C7;">${prev.caption || p.diagnostic}</div>
-                        `}
+                        ` : ''}
                     </div>
                 </div>
             `;

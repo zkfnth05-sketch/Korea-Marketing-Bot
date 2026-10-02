@@ -193,7 +193,7 @@ class AuraCardnewsS5Builder:
 
       <!-- Search Instruction Text -->
       <p class="text-base font-bold text-amber-300 tracking-wide pt-1">
-        🔍 지금 네이버 검색창에 <span class="text-white underline underline-offset-4 decoration-[#03C75A] font-extrabold">'아우라AI데이팅'</span>을 검색해보세요!
+        👉 프로필 링크에서 3초 이상형 확인 또는 네이버에 <span class="text-white underline underline-offset-4 decoration-[#03C75A] font-extrabold">'아우라AI데이팅'</span> 검색!
       </p>
     </div>
 
@@ -204,7 +204,7 @@ class AuraCardnewsS5Builder:
     <div class="gold-divider w-full max-w-xl opacity-60"></div>
     <div class="flex items-center justify-between w-full max-w-xl text-xs text-zinc-400 font-semibold px-2">
       <span>50:50 남녀 정원제 프리미엄 데이팅</span>
-      <span class="text-amber-400/90 font-mono tracking-wider">aura-ai-dating.vercel.app/lounge</span>
+      <span class="text-amber-400/90 font-mono tracking-wider">aura-ai-dating.vercel.app</span>
     </div>
   </div>
 

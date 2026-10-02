@@ -38,7 +38,7 @@ class AuraCardnewsS5Topic1Builder:
         opt2_sub = s5_copy.get("debate_opt2_sub", "아무리 그래도 끝까지 예의를 지켜야 한다")
 
         default_benefits = [
-            "사진 1장 1초 가입",
+            "3초 이상형/성향 확인",
             "50:50 황금 성비 라운지",
             "긴급 탈출 평생 무료"
         ]
@@ -46,7 +46,7 @@ class AuraCardnewsS5Topic1Builder:
         while len(benefits) < 3:
             benefits.append("Aura VIP 안심 혜택")
 
-        cta_subtext = s5_copy.get("cta_subtext", "✨ 50:50 남녀 황금 성비율 • 오늘 가입하고 이번 주말 설레는 첫 만남 시작하기")
+        cta_subtext = s5_copy.get("cta_subtext", "👉 프로필 링크에서 3초 만에 내 이상형/성향 확인해보세요! ✨")
 
         html_content = f"""<!DOCTYPE html>
 <html lang="ko">
@@ -256,7 +256,7 @@ class AuraCardnewsS5Topic1Builder:
   <div class="flex justify-between items-center z-10 w-full px-4 pt-2 border-t border-white/10 text-xs text-slate-400 font-medium">
     <div>
       <span class="text-slate-500">Official Web:</span>
-      <span class="text-amber-400/90 font-bold ml-1">https://aura-ai-dating.vercel.app/lounge</span>
+      <span class="text-amber-400/90 font-bold ml-1">https://aura-ai-dating.vercel.app/</span>
     </div>
     <div class="text-slate-500 text-[11px]">
       © 2026 AURA AI Dating. All rights reserved.

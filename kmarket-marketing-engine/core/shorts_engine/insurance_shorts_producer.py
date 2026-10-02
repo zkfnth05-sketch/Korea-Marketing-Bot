@@ -23,15 +23,15 @@ from brands.insurance.ui_templates.insurance_cta_card import InsuranceCTACard
 from .insurance_shorts_scenario_director import InsuranceShortsScenarioDirector
 from .shorts_character_anchor_insurance import build_insurance_shorts_t2i_character_prompt
 from .s2v_clip_stitcher import S2VClipStitcher
-from .gemini_tts_synthesizer import GeminiTTSSynthesizer
+from brands.insurance.insurance_voice_cloner import InsuranceVoiceCloner
 
 logger = logging.getLogger("InsuranceShortsProducer")
 
 
 class InsuranceShortsProducer(BaseShortsProducer):
-    """🛡️ 보험 리밸런스 숏폼 자동 생산 엔진 (Aura 아키텍처 100% 계승 + Gemini 2.5 Flash TTS + 실물 웹앱 Playwright 녹화)"""
+    """🛡️ 보험 리밸런스 숏폼 자동 생산 엔진 (알리바바 CosyVoice 서연 보이스 + 실물 웹앱 Playwright 녹화 + Wan 2.2 S2V)"""
 
-    def __init__(self):
+    def __init__(self, use_voice_cloner: bool = True):
         super().__init__("Insurance")
         # 산출물 절대 경로: 바탕화면/한국 숏폼_산출물/Insurance
         self.output_base = Path(r"C:\Users\zkfnt\Desktop\한국 숏폼_산출물\Insurance")
@@ -40,10 +40,14 @@ class InsuranceShortsProducer(BaseShortsProducer):
         self.app_simulator = InsuranceAppRecorder()
         self.cta_card = InsuranceCTACard()
         self.script_director = InsuranceShortsScenarioDirector()
-        self.gemini_tts = GeminiTTSSynthesizer(default_voice="Aoede")
+        
+        # 🎙️ 알리바바 CosyVoice 서연(Seoyeon) 보이스 복제기 (1순위 알리바바 -> 2순위 Typecast -> 3순위 Edge-TTS)
+        self.voice_cloner = InsuranceVoiceCloner(output_dir=str(self.output_base))
+        self.tts = self.voice_cloner
+
         self.stitcher = S2VClipStitcher(
             wan_client=self.wan_client,
-            tts_synthesizer=self.gemini_tts,
+            tts_synthesizer=self.tts,
             ffmpeg_exe=self.composer.ffmpeg_exe
         )
 
@@ -217,12 +221,12 @@ class InsuranceShortsProducer(BaseShortsProducer):
 
         logger.info(f"🚀 [보험 숏폼] 생산 시작: 주제 {topic_id} [{theme_name}] | 성별: {effective_gender} | seed: {seed}")
 
-        # 3. [Step 1] Google Gemini 2.5 Flash TTS 초실사 음성 합성
+        # 3. [Step 1] 알리바바 CosyVoice / 초실사 음성 합성 (여성: 서연 / 남성: 진우)
         voice_lang = "ko"
         voice_rate = scenario.get("voice_rate", "+3%")
         voice_pitch = scenario.get("voice_pitch", "+2Hz")
-        logger.info(f"🎙️ [Step 1] Google Gemini 2.5 Flash TTS 초실사 음성 합성 (Aoede, {effective_gender})...")
-        hook_wav_path = self.gemini_tts.generate_speech_wav(
+        logger.info(f"🎙️ [Step 1] 초실사 음성 복제 합성 (성별: {effective_gender})...")
+        hook_wav_path = self.tts.generate_speech_wav(
             text=speech_hook,
             lang=voice_lang,
             gender=effective_gender,
@@ -230,7 +234,7 @@ class InsuranceShortsProducer(BaseShortsProducer):
             pitch=voice_pitch,
             filename_prefix=f"insure_hook_{topic_id}_{dt_str}"
         )
-        app_wav_path = self.gemini_tts.generate_speech_wav(
+        app_wav_path = self.tts.generate_speech_wav(
             text=speech_app,
             lang=voice_lang,
             gender=effective_gender,
@@ -238,7 +242,7 @@ class InsuranceShortsProducer(BaseShortsProducer):
             pitch=voice_pitch,
             filename_prefix=f"insure_app_{topic_id}_{dt_str}"
         )
-        cta_wav_path = self.gemini_tts.generate_speech_wav(
+        cta_wav_path = self.tts.generate_speech_wav(
             text=speech_cta,
             lang=voice_lang,
             gender=effective_gender,
@@ -246,7 +250,7 @@ class InsuranceShortsProducer(BaseShortsProducer):
             pitch=voice_pitch,
             filename_prefix=f"insure_cta_{topic_id}_{dt_str}"
         )
-        full_wav_path = self.gemini_tts.generate_speech_wav(
+        full_wav_path = self.tts.generate_speech_wav(
             text=full_speech,
             lang=voice_lang,
             gender=effective_gender,

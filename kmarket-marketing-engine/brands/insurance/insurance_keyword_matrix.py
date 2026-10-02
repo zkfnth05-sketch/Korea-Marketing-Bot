@@ -281,6 +281,39 @@ class InsuranceKeywordMatrix:
                 unique_tags.append(tag)
         return unique_tags[:count]
 
+    def build_seo_article_brief(self, seed_topic: str, category: str = "health_medical") -> Dict[str, Any]:
+        """
+        📝 Gemini 블로그 칼럼 집필용 고노출 SEO 브리프 조립
+        """
+        import random
+        cat_info = self.CATEGORY_SEEDS.get(category, self.CATEGORY_SEEDS["health_medical"])
+        seeds = cat_info.get("seeds", ["실손보험 전환", "암보험 비교", "보험료 절감"])
+        chosen_seeds = random.sample(seeds, min(3, len(seeds)))
+
+        title_keywords = [
+            f"{chosen_seeds[0]} 완벽 비교 가이드",
+            f"{chosen_seeds[0]} 가계부 절약 꿀팁",
+            f"{chosen_seeds[0]} 핵심 주의사항"
+        ]
+
+        subheading_keywords = [
+            f"1. {chosen_seeds[0]} 가입 전 반드시 알아야 할 보장 범위",
+            f"2. {chosen_seeds[1] if len(chosen_seeds) > 1 else '중복 특약'} 정리로 월 보험료 다이어트하는 법",
+            f"3. 34개 보험사 비교 및 전문가 추천 리밸런싱 솔루션"
+        ]
+
+        tags = self.get_live_hashtags(base_tags=chosen_seeds, count=10)
+
+        return {
+            "category": category,
+            "category_name": cat_info.get("name", "보험 리밸런스"),
+            "seed_topic": seed_topic,
+            "seo_title_keywords": title_keywords,
+            "h2_h3_subheading_keywords": subheading_keywords,
+            "viral_hashtags": tags,
+            "scoped_seeds": chosen_seeds
+        }
+
     def get_dashboard_summary(self) -> Dict[str, Any]:
         """대시보드 연동용 JSON 반환"""
         return self.matrix_cache

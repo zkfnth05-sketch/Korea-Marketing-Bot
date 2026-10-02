@@ -275,12 +275,16 @@ function renderHubGrid() {
             </div>
         ` : '';
 
-        // 🌐 옴니블로그 전용 24시간 무인 정시 스케줄러 배지 위젯
+        // 🌐 옴니블로그 전용 24시간 무인 정시 스케줄러 배지 위젯 (15분 시차 분산)
+        const blogScheduleText = brand === "aura" ? "하루 3회 (09:45 / 14:45 / 19:45)"
+                               : brand === "stock" ? "하루 3회 (10:15 / 15:15 / 20:15)"
+                               : "하루 3회 (10:00 / 15:00 / 20:00)";
+
         const blogWidget = isOmniBlog ? `
             <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #E5DDD1;">
                 <div style="display:flex;justify-content:space-between;align-items:center;background:#EFF6FF;border:1px solid #BFDBFE;padding:5px 8px;border-radius:6px;font-size:11px;font-weight:700;color:#1D4ED8;">
-                    <span>⏰ 24시간 무인 정시 스케줄:</span>
-                    <span style="color:#2563EB;">하루 2회 (12:00 / 21:00)</span>
+                    <span>⏰ 15분 시차 정시 스케줄:</span>
+                    <span style="color:#2563EB;">${blogScheduleText}</span>
                 </div>
             </div>
         ` : '';
@@ -434,11 +438,11 @@ async function loadKinStats(brand = "aura") {
             const countEl = document.getElementById(`kin-count-${brand}`);
             if (countEl) countEl.innerText = data.daily_total || 0;
             const slotEl = document.getElementById(`kin-slot-${brand}`);
-            if (slotEl && data.current_slot) slotEl.innerText = data.current_slot.name || "실시간 감지 중";
+            if (slotEl && data.current_slot) slotEl.innerText = data.current_slot.name || "24시간 실시간 감지";
             const recentEl = document.getElementById(`kin-recent-${brand}`);
             if (recentEl && data.history && data.history.length > 0) {
                 const latest = data.history[0];
-                recentEl.innerHTML = `<a href="${latest.url}" target="_blank" style="color:#2563EB;text-decoration:underline;font-weight:600;" title="${latest.title}">[${latest.score}점] ${latest.title}</a>`;
+                recentEl.innerHTML = `<span style="color:#64748B;font-size:10.5px;">[${latest.created_at || '-'}]</span> <a href="${latest.url}" target="_blank" style="color:#0284C7;text-decoration:underline;font-weight:700;" title="${latest.title}">${latest.title}</a>`;
             }
         }
     } catch (e) {
@@ -522,52 +526,8 @@ async function stopChannelDaemon(moduleKey, btn) {
     }
 }
 
-// 4. 채널 뱃지 동기화
-function updateChannelBadges(runningChannels) {
-    if (!runningChannels) return;
-    const modules = [
-        "shorts", "cardnews", "reddit", "fb_groups", "blog", "seo", "threads",
-        "naver_clip", "naver_blog", "tistory", "naver_post", "brunch", "search_advisor",
-        "naver_kin", "naver_cafe", "daum_cafe", "ppomppu", "dcinside", "bobaedream",
-        "nate_pann", "fmkorea", "kakao_channel"
-    ];
-    const brands = ["stock", "aura", "insurance", "kmarket", "easytax"];
+// 4. 채널 뱃지 동기화는 하단의 실시간 세션/장애 감지 통합 updateChannelBadges()를 단일 사용합니다.
 
-    brands.forEach(b => {
-        modules.forEach(m => {
-            const key = `${b}_${m}`;
-            const isRunning = !!runningChannels[key];
-            const badge = document.getElementById(`badge-status-${b}-${m}`);
-            const startBtn = document.getElementById(`btn-start-${b}-${m}`);
-
-            if (badge) {
-                if (isRunning) {
-                    badge.className = "badge-running";
-                    badge.style.background = "#DCFCE7";
-                    badge.style.color = "#15803D";
-                    badge.style.border = "1px solid #86EFAC";
-                    badge.innerHTML = "🟢 실행 중 (24h)";
-                } else {
-                    badge.className = "badge-idle";
-                    badge.style.background = "#F6F1EA";
-                    badge.style.color = "#6E665E";
-                    badge.style.border = "1px solid #E5DDD1";
-                    badge.innerHTML = "⚪ 대기";
-                }
-            }
-
-            if (startBtn) {
-                if (isRunning) {
-                    startBtn.innerHTML = `🔄 무인 가동 중 🟢`;
-                    startBtn.style.background = "#059669";
-                } else {
-                    startBtn.innerHTML = "🚀 무인 가동";
-                    startBtn.style.background = startBtn.getAttribute("data-original-bg") || "";
-                }
-            }
-        });
-    });
-}
 
 // 5. 사이드바 데몬 시작/정지 & 3대 슈퍼앱 마스터 제어
 async function startStockDaemon() {
@@ -696,6 +656,618 @@ async function stopAllBots() {
     if (typeof loadTelegramCommunityStats === "function") loadTelegramCommunityStats();
 }
 
+// 🚨 6-1. 실시간 비상관제 & ALL CLEAR 가드 배너 렌더링
+let lastEmergencyStatus = null;
+let lastSummary = null;
+
+function renderEmergencyGuardBanner(emergencyStatus, summary) {
+    const container = document.getElementById("emergency-guard-banner-container");
+    if (!container) return;
+
+    const activeBrand = (typeof currentBrand !== 'undefined') ? currentBrand : 'all';
+    const liveFeed = (typeof window.__lastLiveFeed !== "undefined") ? window.__lastLiveFeed : {};
+    const brands = liveFeed.brands || {};
+
+    const realAlerts = [];
+    Object.keys(brands).forEach(bKey => {
+        if (activeBrand !== "all" && bKey !== activeBrand) return;
+        const bData = brands[bKey];
+        const chs = bData.blog?.channels || {};
+        const bName = bData.brand_name || bKey;
+
+        // 티스토리 세션 만료 실시간 감지
+        if (chs.tistory?.is_session_expired) {
+            const batName = bKey === "aura" ? "[1회연동]_아우라_티스토리_영구로그인.bat"
+                          : bKey === "insurance" ? "[1회연동]_보험비교_티스토리_영구로그인.bat"
+                          : "[1회연동]_주식AI_티스토리_영구로그인.bat";
+            realAlerts.push({
+                brand: bName,
+                title: `🔴 [${bName}] 티스토리 카카오 로그인 세션 만료`,
+                message: "카카오 세션 쿠키가 만료되어 티스토리 자동 포스팅이 차단되었습니다.",
+                action_guide: `바탕화면의 [${batName}] 배치 파일을 1회 실행하여 로그인해 주세요.`
+            });
+        }
+
+        // 네이버 블로그 에러 실시간 감지
+        if (chs.naver_blog?.status === "error") {
+            realAlerts.push({
+                brand: bName,
+                title: `🔴 [${bName}] 네이버 블로그 포스팅 오류`,
+                message: chs.naver_blog.message || "네이버 블로그 로그인 및 세션 확인이 필요합니다.",
+                action_guide: `바탕화면의 [1회연동]_..._네이버_영구로그인.bat 실행 필요`
+            });
+        }
+    });
+
+    if (realAlerts.length > 0) {
+        // 🔴 긴급 장애 경보 배너 (RED) - 세션 만료 및 에러 직격 표출
+        container.innerHTML = `
+            <div class="emergency-alert-box" style="background:#FEF2F2;border:2.5px solid #EF4444;border-radius:14px;padding:16px 20px;box-shadow:0 8px 25px rgba(239,68,68,0.25);">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:12px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:26px;">🚨</span>
+                        <div>
+                            <h3 style="margin:0;font-size:16px;font-weight:900;color:#991B1B;">[긴급 조치 필요] 실시간 채널 장애 ${realAlerts.length}건 감지</h3>
+                            <span style="font-size:12px;color:#B91C1C;font-weight:700;">아래 표시된 항목의 조치 방법을 확인하고 1회 로그인을 완료해 주세요.</span>
+                        </div>
+                    </div>
+                    <span class="badge" style="background:#DC2626;color:#FFFFFF;font-weight:800;padding:6px 12px;border-radius:8px;font-size:12px;">
+                        🔴 ACTION REQUIRED
+                    </span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    ${realAlerts.map(a => `
+                        <div style="background:#FFFFFF;border:1.5px solid #FECACA;border-left:5px solid #DC2626;border-radius:8px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                            <div>
+                                <div style="font-size:13.5px;font-weight:800;color:#991B1B;">${a.title}</div>
+                                <div style="font-size:12px;color:#4B5563;margin-top:2px;">${a.message}</div>
+                            </div>
+                            <div style="font-size:12px;font-weight:800;color:#991B1B;background:#FEE2E2;padding:6px 12px;border-radius:6px;border:1px solid #FCA5A5;">
+                                👉 ${a.action_guide}
+                            </div>
+                        </div>
+                    `).join("")}
+                </div>
+            </div>
+        `;
+    } else {
+        container.innerHTML = `
+            <div class="all-clear-box" style="background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:12px;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:20px;">🟢</span>
+                    <div>
+                        <strong style="color:#166534;font-size:14px;">현재 감지된 시스템 장애 0건 (모든 채널 정상)</strong>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// 🚀 [신규 전광판] 3대 브랜드 실시간 마케팅 무인 발행 라이브 전광판 렌더러
+function renderTodayLiveFeedBoard(liveFeed) {
+    const container = document.getElementById("today-live-feed-container");
+    if (!container || !liveFeed || !liveFeed.brands) return;
+
+    const summary = liveFeed.summary || {};
+    const brands = liveFeed.brands || {};
+    const timestamp = liveFeed.timestamp || "";
+    const today = liveFeed.today || "";
+
+    const brandConfigs = {
+        aura: {
+            title: "💖 Aura AI 데이팅",
+            sub: "2030 소개팅 · 데이팅 앱",
+            color: "#EC4899",
+            bgGradient: "linear-gradient(135deg, #FFF1F2 0%, #FDF2F8 100%)",
+            border: "#FBCFE8",
+            badgeBg: "#FCE7F3",
+            badgeColor: "#BE185D",
+            landing: "https://aura-ai-dating.vercel.app/"
+        },
+        insurance: {
+            title: "🛡️ 보험 리밸런스",
+            sub: "실손 · 3대질병 · 보험비교",
+            color: "#10B981",
+            bgGradient: "linear-gradient(135deg, #ECFDF5 0%, #F0FDF4 100%)",
+            border: "#A7F3D0",
+            badgeBg: "#D1FAE5",
+            badgeColor: "#065F46",
+            landing: "https://insure-rebalance.vercel.app/"
+        },
+        stock: {
+            title: "📈 StockMaster AI",
+            sub: "국내주식 · 10분 계량 전광판",
+            color: "#F59E0B",
+            bgGradient: "linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)",
+            border: "#FDE68A",
+            badgeBg: "#FEF3C7",
+            badgeColor: "#92400E",
+            landing: "https://stockmaster-ai.vercel.app/"
+        }
+    };
+
+    let brandCardsHtml = Object.keys(brandConfigs).map(bKey => {
+        const cfg = brandConfigs[bKey];
+        const bData = brands[bKey] || {};
+        const blog = bData.blog || {};
+        const kin = bData.kin || {};
+        const shorts = bData.shorts || {};
+        const channels = blog.channels || {};
+        const shortsPlatforms = shorts.platforms || {};
+
+        // 0. 자체 홈페이지 블로그 (Supabase / 라운지)
+        const supa = channels.supabase_research || channels.app_lounge || {};
+        let supaHtml = "";
+        if (bKey === "stock" && supa.title) {
+            supaHtml = `
+                <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                    <div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span style="background:#FEF3C7;color:#92400E;font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:4px;">🌐 자체 홈페이지 퀀트 블로그</span>
+                            <span style="font-size:10.5px;color:#64748B;">🕒 ${supa.published_at || blog.last_run_time || '-'}</span>
+                        </div>
+                        <div style="font-size:12px;font-weight:700;color:#0F172A;margin-top:2px;">${supa.title}</div>
+                    </div>
+                    <a href="${cfg.landing}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:#F59E0B;color:#FFFFFF;border-radius:5px;font-size:11px;font-weight:800;text-decoration:none;">
+                        <span>🔗 홈페이지 글 열기</span><span>↗</span>
+                    </a>
+                </div>
+            `;
+        } else if (bKey === "aura") {
+            supaHtml = `
+                <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                    <div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span style="background:#FCE7F3;color:#BE185D;font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:4px;">💖 Aura 자체 VIP 라운지</span>
+                            <span style="font-size:10.5px;color:#059669;font-weight:700;">🟢 실시간 연동 중</span>
+                        </div>
+                    </div>
+                    <a href="${cfg.landing}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:#EC4899;color:#FFFFFF;border-radius:5px;font-size:11px;font-weight:800;text-decoration:none;">
+                        <span>🔗 라운지 열기</span><span>↗</span>
+                    </a>
+                </div>
+            `;
+        }
+
+        // 1. 네이버 블로그
+        const nb = channels.naver_blog || {};
+        let naverHtml = "";
+        if (nb.is_success && nb.url) {
+            naverHtml = `
+                <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                    <div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span style="background:#ECFDF5;color:#059669;font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:4px;">🟢 네이버 블로그 (${nb.is_today ? '오늘 발행' : '이전 발행'})</span>
+                            <span style="font-size:10.5px;color:#64748B;">🕒 ${nb.published_at || blog.last_run_time || '-'}</span>
+                        </div>
+                        <div style="font-size:12px;font-weight:700;color:#0F172A;margin-top:2px;">${blog.last_title_naver || blog.last_title || '네이버 글'}</div>
+                    </div>
+                    <a href="${nb.url}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:#03C75A;color:#FFFFFF;border-radius:5px;font-size:11px;font-weight:800;text-decoration:none;">
+                        <span>🔗 네이버 글 열기</span><span>↗</span>
+                    </a>
+                </div>
+            `;
+        } else {
+            const isErr = nb.status === "error" || (nb.status === "not_published_today" && nb.message);
+            naverHtml = `
+                <div style="background:${isErr ? '#FFF1F2' : '#FFFFFF'};border:${isErr ? '1.5px solid #FECDD3' : '1px solid #E2E8F0'};border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <span style="background:${isErr ? '#FFE4E6' : '#F1F5F9'};color:${isErr ? '#E11D48' : '#64748B'};font-size:10.5px;font-weight:700;padding:2px 6px;border-radius:4px;">${isErr ? '❌ 네이버 블로그 미발행' : '⚪ 네이버 블로그'}</span>
+                        <span style="font-size:11px;color:${isErr ? '#9F1239' : '#64748B'};font-weight:${isErr ? '700' : '400'};">${nb.message || '오늘 발행 대기 중'}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 2. 티스토리 블로그
+        const tb = channels.tistory || {};
+        let tistoryHtml = "";
+        const batFile = bKey === "aura" ? "[1회연동]_Aura_티스토리_영구로그인.bat" 
+                      : bKey === "insurance" ? "[1회연동]_보험비교_티스토리_영구로그인.bat" 
+                      : "[1회연동]_주식AI_티스토리_영구로그인.bat";
+
+        if (tb.is_success && tb.url) {
+            tistoryHtml = `
+                <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                    <div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span style="background:#FFF7ED;color:#C2410C;font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:4px;">🟠 티스토리</span>
+                            <span style="font-size:10.5px;color:#64748B;">🕒 ${tb.published_at || '-'}</span>
+                        </div>
+                    </div>
+                    <a href="${tb.url}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:#FF5722;color:#FFFFFF;border-radius:5px;font-size:11px;font-weight:800;text-decoration:none;">
+                        <span>🔗 티스토리 열기</span><span>↗</span>
+                    </a>
+                </div>
+            `;
+        } else if (tb.is_session_expired) {
+            tistoryHtml = `
+                <div style="background:#FEF2F2;border:1.5px solid #FECACA;border-radius:8px;padding:8px 10px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="background:#FEE2E2;color:#DC2626;font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:4px;">🔴 티스토리 세션 만료</span>
+                        <span style="font-size:11px;color:#991B1B;font-weight:700;">⚠️ 조치 필요</span>
+                    </div>
+                    <div style="font-size:11px;color:#7F1D1D;margin-top:4px;line-height:1.4;">
+                        👉 바탕화면의 <strong>${batFile}</strong> 을 실행하여 1회 로그인해 주세요.
+                    </div>
+                </div>
+            `;
+        } else {
+            const isFail = tb.status === "error" || (tb.message && !tb.message.includes("대기"));
+            tistoryHtml = `
+                <div style="background:${isFail ? '#FFF1F2' : '#FFFFFF'};border:${isFail ? '1.5px solid #FECDD3' : '1px solid #E2E8F0'};border-radius:8px;padding:8px 10px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="background:${isFail ? '#FFE4E6' : '#F1F5F9'};color:${isFail ? '#E11D48' : '#64748B'};font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:4px;">${isFail ? '❌ 티스토리 미발행 / 오류' : '⚪ 티스토리'}</span>
+                        <span style="font-size:11px;color:${isFail ? '#BE123C' : '#64748B'};font-weight:700;">${tb.status || '대기'}</span>
+                    </div>
+                    <div style="font-size:11px;color:${isFail ? '#9F1239' : '#64748B'};margin-top:4px;line-height:1.4;">
+                        ${tb.message ? `💬 사유: ${tb.message}` : '오늘 발행 대기 중'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // 3. 4대 숏폼 플랫폼 분리 렌더링
+        const yt = shortsPlatforms.youtube || {};
+        const insta = shortsPlatforms.instagram || {};
+        const fb = shortsPlatforms.facebook || {};
+        const clip = shortsPlatforms.naver_clip || {};
+
+        let shortsListHtml = `
+            <div style="display:flex;flex-direction:column;gap:6px;">
+                <!-- 🔴 YouTube Shorts -->
+                <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
+                    <div style="display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;">
+                        <span style="font-size:13px;">🔴</span>
+                        <span style="font-size:11px;font-weight:800;color:#0F172A;">유튜브 쇼츠</span>
+                        <span style="font-size:10px;color:#64748B;">🕒 ${yt.published_at || '-'}</span>
+                    </div>
+                    ${yt.url ? `<a href="${yt.url}" target="_blank" style="font-size:10.5px;font-weight:700;color:#DC2626;text-decoration:underline;">🎬 영상 보기 ↗</a>` : `<span style="font-size:10px;color:#94A3B8;">대기</span>`}
+                </div>
+                <!-- 📸 Instagram Reels -->
+                <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
+                    <div style="display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;">
+                        <span style="font-size:13px;">📸</span>
+                        <span style="font-size:11px;font-weight:800;color:#0F172A;">인스타 릴스</span>
+                        <span style="font-size:10px;color:#64748B;">🕒 ${insta.published_at || '-'}</span>
+                    </div>
+                    ${(insta.is_success && insta.url) ? `<a href="${insta.url}" target="_blank" style="font-size:10.5px;font-weight:700;color:#E1306C;text-decoration:underline;">🎬 릴스 열기 ↗</a>` : `<span style="font-size:10px;color:#94A3B8;">대기</span>`}
+                </div>
+                <!-- 🔵 Facebook Reels -->
+                <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
+                    <div style="display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;">
+                        <span style="font-size:13px;">🔵</span>
+                        <span style="font-size:11px;font-weight:800;color:#0F172A;">페이스북 릴스</span>
+                        <span style="font-size:10px;color:#64748B;">🕒 ${fb.published_at || '-'}</span>
+                    </div>
+                    ${(fb.is_success && fb.url) ? `<a href="${fb.url}" target="_blank" style="font-size:10.5px;font-weight:700;color:#1877F2;text-decoration:underline;">🎬 릴스 열기 ↗</a>` : `<span style="font-size:10px;color:#94A3B8;">대기</span>`}
+                </div>
+                <!-- 🟢 Naver Clip -->
+                <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
+                    <div style="display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;">
+                        <span style="font-size:13px;">🟢</span>
+                        <span style="font-size:11px;font-weight:800;color:#0F172A;">네이버 클립</span>
+                        <span style="font-size:10px;color:#64748B;">🕒 ${clip.published_at || '-'}</span>
+                    </div>
+                    ${clip.url ? `<a href="${clip.url}" target="_blank" style="font-size:10.5px;font-weight:700;color:#03C75A;text-decoration:underline;">🟢 클립 열기 ↗</a>` : `<span style="font-size:10px;color:#94A3B8;">대기</span>`}
+                </div>
+            </div>
+        `;
+
+        // 4. 📸 4대 옴니 카드뉴스 섹션
+        const cardnews = bData.cardnews || {};
+        const cardPlatforms = cardnews.platforms || {};
+        const cardIg = cardPlatforms.instagram || {};
+        const cardFb = cardPlatforms.facebook || {};
+        const cardLocal = cardPlatforms.local_slides || {};
+
+        let cardnewsListHtml = `
+            <div style="display:flex;flex-direction:column;gap:6px;">
+                <!-- 📸 Instagram Carousel (5장 캐러셀) -->
+                <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
+                    <div style="display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;">
+                        <span style="font-size:13px;">📸</span>
+                        <span style="font-size:11px;font-weight:800;color:#0F172A;">인스타 캐러셀 (5장)</span>
+                        <span style="font-size:10px;color:#64748B;">🕒 ${cardIg.published_at || '-'}</span>
+                    </div>
+                    ${(cardIg.is_success && cardIg.url) ? `<a href="${cardIg.url}" target="_blank" style="font-size:10.5px;font-weight:700;color:#E1306C;text-decoration:underline;">📸 캐러셀 열기 ↗</a>` : `<span style="font-size:10px;color:#94A3B8;">대기</span>`}
+                </div>
+                <!-- 📘 Facebook Album (5장 앨범) -->
+                <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
+                    <div style="display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;">
+                        <span style="font-size:13px;">📘</span>
+                        <span style="font-size:11px;font-weight:800;color:#0F172A;">페이스북 앨범 (5장)</span>
+                        <span style="font-size:10px;color:#64748B;">🕒 ${cardFb.published_at || '-'}</span>
+                    </div>
+                    ${(cardFb.is_success && cardFb.url) ? `<a href="${cardFb.url}" target="_blank" style="font-size:10.5px;font-weight:700;color:#1877F2;text-decoration:underline;">📘 앨범 열기 ↗</a>` : `<span style="font-size:10px;color:#94A3B8;">대기</span>`}
+                </div>
+                <!-- 📁 1080x1350 카드뉴스 5장 완제품 -->
+                <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
+                    <div style="display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;">
+                        <span style="font-size:13px;">📁</span>
+                        <span style="font-size:11px;font-weight:800;color:#0F172A;">1080x1350 완제품</span>
+                        <span style="font-size:10px;color:#64748B;">🕒 ${cardLocal.time || '-'}</span>
+                    </div>
+                    ${cardLocal.is_success ? `<span style="font-size:10px;font-weight:700;color:#059669;background:#ECFDF5;padding:2px 6px;border-radius:4px;" title="${cardLocal.folder}">✅ ${cardLocal.slide_count}장 완성</span>` : `<span style="font-size:10px;color:#94A3B8;">제작 대기</span>`}
+                </div>
+            </div>
+        `;
+
+        // 5. 지식iN 목록
+        const kinAnswers = kin.recent_answers || [];
+        let kinListHtml = "";
+        if (kinAnswers.length > 0) {
+            kinListHtml = `
+                <div style="display:flex;flex-direction:column;gap:5px;margin-top:6px;">
+                    ${kinAnswers.map((ka, kIdx) => `
+                        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;gap:6px;background:#FFFFFF;padding:5px 8px;border-radius:5px;border:1px solid #E2E8F0;">
+                            <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:210px;">
+                                <strong style="color:#0284C7;">#${kIdx+1}</strong> <span title="${ka.title}">${ka.title}</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:6px;white-space:nowrap;">
+                                <span style="font-size:10px;color:#64748B;">🕒 ${ka.created_at || '-'}</span>
+                                ${ka.url ? `<a href="${ka.url}" target="_blank" style="color:#0284C7;font-weight:800;text-decoration:underline;font-size:10.5px;">열기↗</a>` : ''}
+                            </div>
+                        </div>
+                    `).join("")}
+                </div>
+            `;
+        } else {
+            kinListHtml = `<div style="font-size:11px;color:#94A3B8;margin-top:4px;">오늘 등록된 답변 대기 중</div>`;
+        }
+
+        // 6. ☕ 네이버 카페 침투 (5일 로테이션 스텔스)
+        const cafe = bData.cafe || {};
+        const cafePosts = cafe.recent_posts || [];
+        let cafeListHtml = "";
+        if (cafePosts.length > 0) {
+            cafeListHtml = `
+                <div style="display:flex;flex-direction:column;gap:5px;margin-top:6px;">
+                    ${cafePosts.map((cp, cIdx) => `
+                        <div style="background:#FFFFFF;padding:6px 8px;border-radius:6px;border:1px solid #E2E8F0;display:flex;flex-direction:column;gap:4px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;gap:6px;">
+                                <div style="display:flex;align-items:center;gap:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:210px;">
+                                    <span style="background:#FEF3C7;color:#D97706;font-size:9.5px;font-weight:800;padding:1px 5px;border-radius:3px;white-space:nowrap;">${cp.cafe_name || '정예카페'}</span>
+                                    <strong style="color:#0F172A;" title="${cp.title}">${cp.title}</strong>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:5px;white-space:nowrap;">
+                                    <span style="font-size:10px;color:#64748B;">🕒 ${cp.datetime || cp.date || '-'}</span>
+                                    ${cp.url ? `<a href="${cp.url}" target="_blank" style="color:#D97706;font-weight:800;text-decoration:underline;font-size:10.5px;">열기↗</a>` : ''}
+                                </div>
+                            </div>
+                            ${cp.reply_text ? `
+                                <div style="font-size:10.5px;color:#475569;background:#FDF8F3;border-left:2px solid #F59E0B;padding:4px 6px;border-radius:3px;line-height:1.35;word-break:break-all;" title="${cp.reply_text}">
+                                    💬 <em>"${cp.reply_text.length > 70 ? cp.reply_text.substring(0, 70) + '...' : cp.reply_text}"</em>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join("")}
+                </div>
+            `;
+        } else {
+            cafeListHtml = `
+                <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:6px;padding:6px 8px;font-size:11px;color:#64748B;display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+                    <span>⚪ 오늘 정시 침투 대기 중 (순번: <strong>${cafe.current_slot || '1번 슬롯'}</strong>)</span>
+                    <span style="font-size:10px;color:#D97706;font-weight:700;">1일 1건 엄수</span>
+                </div>
+            `;
+        }
+
+        return `
+            <div style="background:${cfg.bgGradient};border:1.5px solid ${cfg.border};border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+                <!-- 브랜드 헤더 -->
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px dashed ${cfg.border};padding-bottom:10px;">
+                    <div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <h4 style="margin:0;font-size:15px;font-weight:800;color:#0F172A;">${cfg.title}</h4>
+                            <span style="font-size:10.5px;font-weight:700;color:${cfg.badgeColor};background:${cfg.badgeBg};padding:2px 6px;border-radius:4px;">${cfg.sub}</span>
+                        </div>
+                        <div style="font-size:11px;color:#64748B;margin-top:3px;">
+                            랜딩: <a href="${cfg.landing}" target="_blank" style="color:#64748B;text-decoration:underline;">${cfg.landing}</a>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="publishOmniBlog('${bKey}', this)" style="font-size:11px;font-weight:700;padding:5px 10px;background:#FFFFFF;border:1px solid ${cfg.border};color:${cfg.color};border-radius:6px;cursor:pointer;" title="오늘의 블로그 즉시 1회 발행">
+                        ✍️ 즉시발행
+                    </button>
+                </div>
+
+                <!-- 1. 📰 4대 블로그 섹션 -->
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                    <div style="font-size:12px;font-weight:800;color:#334155;">📰 블로그 채널 발행 상태 (초 단위 시간 검증)</div>
+                    ${supaHtml}
+                    ${naverHtml}
+                    ${tistoryHtml}
+                </div>
+
+                <!-- 2. 🎬 4대 숏폼 & 릴스 섹션 -->
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-size:12px;font-weight:800;color:#DC2626;">🎬 4대 숏폼 & 릴스 (플랫폼별 발행 URL & 시간)</span>
+                        <span style="font-size:10.5px;font-weight:700;color:#DC2626;background:#FEE2E2;padding:2px 6px;border-radius:4px;">오늘 ${shorts.today_count || 0}건</span>
+                    </div>
+                    ${shortsListHtml}
+                </div>
+
+                <!-- 3. 📸 4대 옴니 카드뉴스 섹션 -->
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-size:12px;font-weight:800;color:#7C3AED;">📸 4대 옴니 카드뉴스 (1080x1350 & 배포 URL)</span>
+                        <span style="font-size:10.5px;font-weight:700;color:#7C3AED;background:#F3E8FF;padding:2px 6px;border-radius:4px;">오늘 ${cardnews.today_count || 0}건</span>
+                    </div>
+                    ${cardnewsListHtml}
+                </div>
+
+                <!-- 4. 💬 네이버 지식iN 1:1 낚아채기 섹션 -->
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-size:12px;font-weight:800;color:#0284C7;">💬 네이버 지식iN (오늘 ${kin.today_count || 0} / ${kin.target_count || 10}건)</span>
+                        <button onclick="triggerKinCatch('${bKey}', this)" style="font-size:10px;font-weight:700;padding:2px 6px;background:#E0F2FE;color:#0284C7;border:1px solid #BAE6FD;border-radius:4px;cursor:pointer;">⚡ 1회 낚아채기</button>
+                    </div>
+                    ${kinListHtml}
+                </div>
+
+                <!-- 5. ☕ 네이버 카페 8대 정예 침투 섹션 -->
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-size:12px;font-weight:800;color:#D97706;">☕ 네이버 카페 침투 (오늘 ${cafe.today_count || 0} / 1건 | 슬롯: ${cafe.current_slot || '-'})</span>
+                        <button onclick="triggerCafeInfiltration('${bKey}', this)" style="font-size:10px;font-weight:700;padding:2px 6px;background:#FEF3C7;color:#D97706;border:1px solid #FDE68A;border-radius:4px;cursor:pointer;">⚡ 1회 즉시 침투</button>
+                    </div>
+                    ${cafeListHtml}
+                </div>
+            </div>
+        `;
+    }).join("");
+
+    container.innerHTML = `
+        <div class="section-card" style="border-top: 4px solid #3B82F6; background:#FFFFFF; box-shadow:0 6px 20px rgba(0,0,0,0.06); margin-bottom: 24px;">
+            <!-- 전광판 상단 바 -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+                <div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <h3 class="section-title" style="margin:0;font-size:17px;font-weight:800;color:#1E293B;">
+                            🚀 3대 브랜드 실시간 마케팅 무인 발행 라이브 전광판 (100% 투명 시간/URL 표출)
+                        </h3>
+                        <span class="badge-live-pulse" style="font-size:11px;"><span class="pulse-dot"></span> 실시간 동기화</span>
+                    </div>
+                    <p class="section-subtitle" style="margin-top:4px;font-size:12px;color:#64748B;">
+                        모든 블로그, 숏폼(유튜브/인스타/페북/클립), 카드뉴스, 지식iN, 네이버 카페의 <strong>실제 발행 URL과 초 단위 시각(YYYY-MM-DD HH:MM:SS)</strong>을 투명하게 직격 표출합니다.
+                    </p>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <div style="font-size:11.5px;color:#475569;background:#F1F5F9;padding:6px 12px;border-radius:8px;font-weight:700;">
+                        📅 오늘(${today}) 실적: 블로그 <strong style="color:#2563EB;">${summary.total_blog_today || 0}</strong>건 | 숏폼 <strong style="color:#DC2626;">${summary.total_shorts_today || 0}</strong>건 | 카드뉴스 <strong style="color:#7C3AED;">${summary.total_cardnews_today || 0}</strong>세트 | 지식iN <strong style="color:#0284C7;">${summary.total_kin_today || 0}</strong>건 | 카페 <strong style="color:#D97706;">${summary.total_cafe_today || 0}</strong>건
+                    </div>
+                    <button class="btn btn-secondary" onclick="fetchStatus()" style="font-size:12px;padding:6px 12px;">
+                        🔄 실시간 갱신
+                    </button>
+                    <button class="btn" onclick="publishOmniBlog('all', this)" style="background:linear-gradient(135deg, #3B82F6, #1D4ED8);color:#FFFFFF;font-weight:800;font-size:12px;padding:6px 14px;border-radius:8px;border:none;cursor:pointer;">
+                        ⚡ 3대 앱 1회 일괄 발행
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3대 브랜드 카드 그리드 (3열) -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:16px;">
+                ${brandCardsHtml}
+            </div>
+        </div>
+    `;
+}
+
+function updateChannelBadges(runningChannels = {}, liveFeed = {}) {
+    const brand = currentBrand || "aura";
+    const bFeed = (liveFeed && liveFeed.brands && liveFeed.brands[brand]) || {};
+    const blog = bFeed.blog || {};
+    const kin = bFeed.kin || {};
+    const shorts = bFeed.shorts || {};
+    const channels = blog.channels || {};
+    const shortsPlatforms = shorts.platforms || {};
+
+    // 1. 옴니 블로그 카드 (#card-${brand}-omni_blog)
+    const blogBadge = document.getElementById(`badge-status-${brand}-omni_blog`);
+    const blogCard = document.getElementById(`card-${brand}-omni_blog`);
+    const tb = channels.tistory || {};
+    const nb = channels.naver_blog || {};
+    const supa = channels.supabase_research || {};
+
+    if (blogBadge && blogCard) {
+        if (tb.is_session_expired) {
+            blogBadge.innerHTML = "🔴 티스토리 세션 만료";
+            blogBadge.style.background = "#FEF2F2";
+            blogBadge.style.color = "#DC2626";
+            blogBadge.style.border = "1.5px solid #F87171";
+            blogCard.style.border = "2px solid #EF4444";
+            blogCard.style.boxShadow = "0 4px 14px rgba(239, 68, 68, 0.2)";
+
+            let errBox = document.getElementById(`err-box-${brand}-omni_blog`);
+            if (!errBox) {
+                errBox = document.createElement("div");
+                errBox.id = `err-box-${brand}-omni_blog`;
+                errBox.style.cssText = "background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;padding:8px 10px;border-radius:8px;font-size:11.5px;margin-top:8px;line-height:1.4;";
+                blogBadge.parentElement.after(errBox);
+            }
+            const batFile = brand === "aura" ? "[1회연동]_아우라_티스토리_영구로그인.bat" 
+                          : brand === "insurance" ? "[1회연동]_보험비교_티스토리_영구로그인.bat" 
+                          : "[1회연동]_주식AI_티스토리_영구로그인.bat";
+            errBox.innerHTML = `⚠️ <strong>장애 원인:</strong> 카카오 로그인 세션 만료<br>👉 <strong>해결 조치:</strong> 바탕화면의 <code>${batFile}</code> 을 실행해 주세요.`;
+        } else if (nb.is_success && nb.is_today) {
+            blogBadge.innerHTML = "🟢 네이버 오늘 발행 완료";
+            blogBadge.style.background = "#ECFDF5";
+            blogBadge.style.color = "#059669";
+            blogBadge.style.border = "1px solid #A7F3D0";
+            blogCard.style.border = "1px solid #E5DDD1";
+            blogCard.style.boxShadow = "var(--shadow-md)";
+
+            const errBox = document.getElementById(`err-box-${brand}-omni_blog`);
+            if (errBox) errBox.remove();
+        } else if (supa.is_success) {
+            blogBadge.innerHTML = "🟢 본진 블로그 발행 완료";
+            blogBadge.style.background = "#ECFDF5";
+            blogBadge.style.color = "#059669";
+            blogBadge.style.border = "1px solid #A7F3D0";
+            blogCard.style.border = "1px solid #E5DDD1";
+            blogCard.style.boxShadow = "var(--shadow-md)";
+
+            const errBox = document.getElementById(`err-box-${brand}-omni_blog`);
+            if (errBox) errBox.remove();
+        } else {
+            blogBadge.innerHTML = "⚪ 정시 스케줄 대기";
+            blogBadge.style.background = "#F6F1EA";
+            blogBadge.style.color = "#6E665E";
+            blogBadge.style.border = "1px solid #E5DDD1";
+            blogCard.style.border = "1px solid #E5DDD1";
+            blogCard.style.boxShadow = "var(--shadow-md)";
+
+            const errBox = document.getElementById(`err-box-${brand}-omni_blog`);
+            if (errBox) errBox.remove();
+        }
+    }
+
+    // 2. 지식iN 허브 카드
+    const kinBadge = document.getElementById(`badge-status-${brand}-naver_kin`);
+    const kinCountEl = document.getElementById(`kin-count-${brand}`);
+    const kinRecentEl = document.getElementById(`kin-recent-${brand}`);
+    if (kinCountEl) kinCountEl.innerText = `${kin.today_count || 0}`;
+    if (kinRecentEl && kin.recent_answers && kin.recent_answers.length > 0) {
+        const ka = kin.recent_answers[0];
+        kinRecentEl.innerHTML = `<span style="color:#64748B;font-size:10.5px;">[${ka.created_at || '-'}]</span> <a href="${ka.url}" target="_blank" style="color:#0284C7;text-decoration:underline;font-weight:700;">${ka.title}</a>`;
+    }
+    if (kinBadge) {
+        kinBadge.innerHTML = `🟢 감시 중 (오늘 ${kin.today_count || 0}/10건)`;
+        kinBadge.style.background = "#ECFDF5";
+        kinBadge.style.color = "#059669";
+        kinBadge.style.border = "1px solid #A7F3D0";
+    }
+
+    // 3. 숏폼 허브 카드
+    const shortsBadge = document.getElementById(`badge-status-${brand}-shorts`);
+    if (shortsBadge) {
+        const isDaemonOn = runningChannels[`${brand}_shorts`];
+        const yt = shortsPlatforms.youtube || {};
+        shortsBadge.innerHTML = yt.published_at ? `🟢 최신: ${yt.published_at}` : isDaemonOn ? "🟢 24시간 무인 가동 중" : "⚪ 정시 스케줄 대기";
+        shortsBadge.style.background = isDaemonOn ? "#ECFDF5" : "#F6F1EA";
+        shortsBadge.style.color = isDaemonOn ? "#059669" : "#6E665E";
+        shortsBadge.style.border = isDaemonOn ? "1px solid #A7F3D0" : "1px solid #E5DDD1";
+    }
+
+    // 4. 나머지 20대 허브 채널 뱃지 동기화
+    Object.keys(runningChannels || {}).forEach(chKey => {
+        if (chKey.startsWith(`${brand}_`)) {
+            const pureKey = chKey.replace(`${brand}_`, "");
+            const badge = document.getElementById(`badge-status-${brand}-${pureKey}`);
+            if (badge && pureKey !== "omni_blog" && pureKey !== "naver_kin" && pureKey !== "shorts") {
+                const isRunning = runningChannels[chKey];
+                badge.innerHTML = isRunning ? "🟢 24시간 무인 가동 중" : "⚪ 대기 중";
+                badge.style.background = isRunning ? "#ECFDF5" : "#F6F1EA";
+                badge.style.color = isRunning ? "#059669" : "#6E665E";
+                badge.style.border = isRunning ? "1px solid #A7F3D0" : "1px solid #E5DDD1";
+            }
+        }
+    });
+}
+
+
 // 6. 실시간 서버 상태 폴링 (3초 주기)
 let lastSeenLogKeys = new Set();
 
@@ -704,6 +1276,16 @@ async function fetchStatus() {
         const res = await fetch("/api/status");
         if (!res.ok) return;
         const data = await res.json();
+
+        // 🚀 실시간 무인 발행 라이브 전광판 렌더링
+        if (data.today_live_feed) {
+            renderTodayLiveFeedBoard(data.today_live_feed);
+        }
+
+        // 🚨 실시간 비상관제 배너 렌더링
+        if (data.emergency_status) {
+            renderEmergencyGuardBanner(data.emergency_status, data.emergency_status.summary);
+        }
 
         isStockRunning = data.stock_running || false;
         isAuraRunning = data.aura_running || false;
@@ -777,8 +1359,8 @@ async function fetchStatus() {
             masterBadge.style.background = anyRunning ? "#10B981" : "#64748B";
         }
 
-        // 22대 허브 실시간 뱃지 동기화
-        updateChannelBadges(data.running_channels);
+        // 22대 허브 실시간 뱃지 & 실시간 장애(빨간불) 동기화
+        updateChannelBadges(data.running_channels, data.today_live_feed);
         if (data.golden_targets) {
             updateGoldenTargetIndicators(data.golden_targets);
         }
@@ -797,10 +1379,17 @@ async function fetchStatus() {
             if (brand === "stock") totalEl.innerText = `${data.stock_history_count || 0} 건`;
             else if (brand === "aura") totalEl.innerText = `${data.aura_history_count || 0} 건`;
             else if (brand === "insurance") totalEl.innerText = `${data.insurance_history_count || 0} 건`;
+            else if (brand === "kmarket") totalEl.innerText = `${data.kmarket_history_count || 0} 건`;
+            else if (brand === "easytax") totalEl.innerText = `${data.easytax_history_count || 0} 건`;
             else totalEl.innerText = `${data.total_history_count || 0} 건`;
         }
         if (topScoreEl) {
-            topScoreEl.innerText = `${data.top_score || 0.0} 점`;
+            if (brand === "stock") topScoreEl.innerText = `${data.stock_top_score || 0.0} 점`;
+            else if (brand === "aura") topScoreEl.innerText = `${data.aura_top_score || 0.0} 점`;
+            else if (brand === "insurance") topScoreEl.innerText = `${data.insurance_top_score || 0.0} 점`;
+            else if (brand === "kmarket") topScoreEl.innerText = `${data.kmarket_top_score || 0.0} 점`;
+            else if (brand === "easytax") topScoreEl.innerText = `${data.easytax_top_score || 0.0} 점`;
+            else topScoreEl.innerText = `${data.top_score || 0.0} 점`;
         }
         if (seoCountEl) {
             const bLabel = brand === "stock" ? "Stock AI" : brand === "aura" ? "Aura" : "InsureBalance";
@@ -1151,7 +1740,84 @@ async function publishOmniBlog(brand) {
     }
 }
 
+// 💬 네이버 지식iN 실시간 1회 낚아채기 트리거
+async function triggerKinCatch(brand, btn) {
+    const nameMap = { aura: "💖 Aura 데이팅", insurance: "🛡️ 보험 리밸런스", stock: "📈 StockMaster AI" };
+    const bName = nameMap[brand] || brand;
+    const originalText = btn ? btn.innerText : "";
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = "⏳ 낚아채는 중...";
+        btn.style.opacity = "0.7";
+    }
+    appendLog(`[Action] ${bName} 지식iN 실시간 1회 낚아채기 시작... (적합도 심사 & 제미나이 1:1 답변)`, "info");
+    showToast(`🎯 ${bName} 지식iN 1회 낚아채기가 시작되었습니다!`, "info");
+    try {
+        const res = await fetch(`/api/kin/${brand}/run`, { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+            const rec = data.record || {};
+            appendLog(`[Success] 🎉 [${bName} 지식iN 등록 완료] '${rec.title || ''}'`, "success");
+            showToast(`🎉 ${bName} 지식iN 답변이 성공적으로 등록되었습니다!`, "success");
+        } else {
+            appendLog(`[Info] ℹ️ [${bName} 지식iN] ${data.message || '새 질문 탐색 완료'}`, "info");
+            showToast(data.message || "새 질문 탐색 완료", "info");
+        }
+        if (typeof fetchStatus === "function") fetchStatus();
+    } catch (e) {
+        appendLog(`[Error] ❌ 지식iN 통신 오류: ${e}`, "error");
+        showToast("지식iN 서버 통신 실패", "error");
+    } finally {
+        setTimeout(() => {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = originalText;
+                btn.style.opacity = "1";
+            }
+        }, 2000);
+    }
+}
+
+// ☕ 네이버 카페 5일 로테이션 1회 즉시 침투 트리거
+async function triggerCafeInfiltration(brand, btn) {
+    const nameMap = { aura: "💖 Aura 데이팅", insurance: "🛡️ 보험 리밸런스", stock: "📈 StockMaster AI" };
+    const bName = nameMap[brand] || brand;
+    const originalText = btn ? btn.innerText : "";
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = "⏳ 침투 중...";
+        btn.style.opacity = "0.7";
+    }
+    appendLog(`[Action] ${bName} 네이버 카페 5일 로테이션 1회 침투 시작... (파이썬 100% 심사 & 게이트키퍼)`, "info");
+    showToast(`☕ ${bName} 네이버 카페 1회 즉시 침투가 시작되었습니다!`, "info");
+    try {
+        const res = await fetch(`/api/cafe/${brand}/run`, { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+            appendLog(`[Success] 🎉 [${bName} 카페 침투 가동] ${data.message}`, "success");
+            showToast(data.message || "카페 침투가 백그라운드에서 가동되었습니다.", "success");
+        } else {
+            appendLog(`[Error] ❌ [${bName} 카페] ${data.message || '침투 요청 실패'}`, "error");
+            showToast(data.message || "카페 침투 요청 실패", "error");
+        }
+        if (typeof fetchStatus === "function") fetchStatus();
+    } catch (e) {
+        appendLog(`[Error] ❌ 카페 침투 통신 오류: ${e}`, "error");
+        showToast("카페 침투 통신 실패", "error");
+    } finally {
+        setTimeout(() => {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = originalText;
+                btn.style.opacity = "1";
+            }
+        }, 2000);
+    }
+}
+
 window.publishOmniBlog = publishOmniBlog;
+window.triggerKinCatch = triggerKinCatch;
+window.triggerCafeInfiltration = triggerCafeInfiltration;
 window.renderActionGrid = renderHubGrid;
 window.startChannelDaemon = startChannelDaemon;
 window.stopChannelDaemon = stopChannelDaemon;
@@ -1177,6 +1843,9 @@ window.triggerGoldenBatchRun = triggerGoldenBatchRun;
 window.startGoldenBatchDaemon = startGoldenBatchDaemon;
 window.stopGoldenBatchDaemon = stopGoldenBatchDaemon;
 window.updateGoldenBatchPanel = updateGoldenBatchPanel;
+window.renderEmergencyGuardBanner = renderEmergencyGuardBanner;
+window.renderTodayLiveFeedBoard = renderTodayLiveFeedBoard;
+window.updateChannelBadges = updateChannelBadges;
 
 // 초기화 시 엔진 상태 로드
 document.addEventListener("DOMContentLoaded", () => {

@@ -220,9 +220,10 @@ const APP_PIPELINES = {
                 id: "reddit",
                 key: "reddit",
                 hubNumber: 3,
-                name: "Reddit 1:1 리드 헌터",
+                name: "🤖 Reddit 글로벌 여성 2단계 족집게 스텔스 헌터",
                 icon: "🤖",
-                desc: "26개 서브레딧 실시간 감지 (1시간 간격 정기 자율 헌팅)"
+                desc: "<b>🤖 [2단계 족집게 스텔스 헌터]</b> (12대 서브레딧 실시간 스캔 + 1단계 파이썬 100% 심사 + 2단계 제미나이 1회 검증 + 80:20 스텔스 답변)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 연동 계정: <strong>u/seoul_chloe_</strong> (영구 세션 유지 🟢)<br>➔ ② 타겟 채널: r/Language_Exchange, r/Korean, r/koreatravel 등 12개<br>➔ ③ 안전 쿼터: 홍보 4회 + 비홍보 4회 (하루 5개 분산 세션)<br>➔ ④ 스텔스 원칙: Zero URL + 구글 'Aura AI Dating' 듀얼 검색 유도</div>",
+                redditUrl: "https://www.reddit.com/user/seoul_chloe_/comments/"
             },
             // #5 [통합] 4대 채널 옴니 블로그 통합 허브
             {
@@ -245,7 +246,7 @@ const APP_PIPELINES = {
                 googleConsoleUrl: "https://search.google.com/search-console",
                 naverAdvisorUrl: "https://searchadvisor.naver.com/console/board",
                 sitemapUrl: "https://aura-ai-dating.vercel.app/sitemap_aura.xml",
-                domainUrl: "https://aura-ai-dating.vercel.app/lounge"
+                domainUrl: "https://aura-ai-dating.vercel.app/"
             },
             // #7 [통합] 2대 텍스트 스토리 타래 허브 (Threads + X)
             {
@@ -390,9 +391,10 @@ const APP_PIPELINES = {
                 id: "reddit",
                 key: "reddit",
                 hubNumber: 3,
-                name: "Reddit 1:1 리드 헌터",
+                name: "🤖 Reddit 외국인·유학생 2단계 족집게 스텔스 헌터",
                 icon: "🤖",
-                desc: "26개 서브레딧 실시간 감지 (1시간 간격 정기 자율 헌팅)"
+                desc: "<b>🤖 [2단계 족집게 스텔스 헌터]</b> (10대 서브레딧 실시간 스캔 + 1단계 파이썬 100% 심사 + 2단계 제미나이 1회 검증 + 80:20 스텔스 답변)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 타겟 채널: r/Living_in_Korea, r/teachinginkorea, r/korea 등 10개<br>➔ ② 안전 쿼터: 홍보 4회 + 비홍보 4회 (하루 5개 분산 세션)<br>➔ ③ 핵심 소구: NHIS vs 4세대 실손 + 비급여(MRI/도수) 80~90% 환급 + 전화스팸 0%<br>➔ ④ 스텔스 원칙: Zero URL + 구글 '보험 리밸런스' 검색 유도</div>",
+                redditUrl: "https://www.reddit.com/r/Living_in_Korea/"
             },
             // #5 [통합] 4대 채널 옴니 블로그 통합 허브
             {

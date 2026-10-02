@@ -94,16 +94,26 @@ class AuraSupabaseManager:
             else:
                 content_type = "image/jpeg"
 
-            self.client.storage.from_("aura-media").upload(
-                path=storage_path,
-                file=img_bytes,
-                file_options={"content-type": content_type, "upsert": "true"}
-            )
-            public_url = self.client.storage.from_("aura-media").get_public_url(storage_path)
-            logger.info(f"✅ [AuraSupabase] Storage 업로드 성공! 영구 URL: {public_url}")
-            return public_url
+            for attempt in range(3):
+                try:
+                    self.client.storage.from_("aura-media").upload(
+                        path=storage_path,
+                        file=img_bytes,
+                        file_options={"content-type": content_type, "upsert": "true"}
+                    )
+                    public_url = self.client.storage.from_("aura-media").get_public_url(storage_path)
+                    logger.info(f"✅ [AuraSupabase] Storage 업로드 성공! 영구 URL: {public_url}")
+                    return public_url
+                except Exception as e:
+                    if attempt < 2:
+                        import time
+                        logger.warning(f"⚠️ [AuraSupabase] Storage 업로드 일시 지연/오류 ({e}), 1.5초 후 재시도 ({attempt+1}/2)...")
+                        time.sleep(1.5)
+                    else:
+                        logger.error(f"❌ [AuraSupabase] Storage 업로드 최종 실패: {e}")
+                        return None
         except Exception as e:
-            logger.error(f"❌ [AuraSupabase] Storage 업로드 실패: {e}")
+            logger.error(f"❌ [AuraSupabase] 이미지 파일 로드 예외: {e}")
             return None
 
     def map_category_to_lounge(self, cat_key: str) -> str:
@@ -130,7 +140,7 @@ class AuraSupabaseManager:
         excerpt = article_pkg.get("excerpt", "")
         cat_key = article_pkg.get("category", "kakaotalk_signals")
         lounge_cat = self.map_category_to_lounge(cat_key)
-        landing_url = article_pkg.get("landing_url", "https://aura-ai-dating.vercel.app/lounge")
+        landing_url = article_pkg.get("landing_url", "https://aura-ai-dating.vercel.app/")
 
         # 🖼️ 제미나이 생성 이미지 Supabase Storage 업로드 및 영구 URL 획득
         local_img_path = article_pkg.get("image_path", "")
@@ -259,7 +269,7 @@ class AuraSupabaseManager:
             "thumbnail_url": article_pkg.get("image_url", ""),
             "visual_prompt": article_pkg.get("visual_prompt", ""),
             "tags": article_pkg.get("tags", []),
-            "landing_url": article_pkg.get("landing_url", "https://aura-ai-dating.vercel.app/lounge"),
+            "landing_url": article_pkg.get("landing_url", "https://aura-ai-dating.vercel.app/"),
             "translations": translations_data,
             "published_at": datetime.now(timezone.utc).isoformat(),
             "created_at": datetime.now(timezone.utc).isoformat()
@@ -537,6 +547,7 @@ class AuraSupabaseManager:
                 "cumulative_pv": len(total_unique_sessions),
                 "yoy_growth": f"회원가입 {total_signups}명 (오늘 {today_signups}명)",
                 "monthly_visitors": period_signups,
+                "visitor_unit": "명",
                 "kpi_period_label": f"{period_label} [Aura] 순 유입자 수 (중복제거)",
                 "visitor_period_label": f"{period_label} [Aura] 실제 신규 회원가입 (명)"
             }

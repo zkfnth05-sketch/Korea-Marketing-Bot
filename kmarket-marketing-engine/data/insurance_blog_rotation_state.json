@@ -1,10 +1,96 @@
 {
-  "current_topic_index": 10,
-  "last_topic_id": 10,
-  "last_run_time": "2026-09-23 18:57:20",
-  "last_title": "🚨 50대 부모님 유병자보험 3·2·5 무턱대고 가입했다 매달 3만 원 버린 사연? (3·5·5 전환 꿀팁)",
-  "published_count": 10,
+  "current_topic_index": 12,
+  "last_topic_id": 12,
+  "last_run_time": "2026-10-02 20:02:06",
+  "last_title": "도수치료 함부로 받았다가 보험료 폭탄? 4세대 실비 비급여 특약 팩트체크 🚨",
+  "published_count": 12,
   "history": [
+    {
+      "topic_id": 12,
+      "title": "도수치료 함부로 받았다가 보험료 폭탄? 4세대 실비 비급여 특약 팩트체크 🚨",
+      "title_naver": "도수치료 함부로 받았다가 보험료 폭탄? 4세대 실비 비급여 특약 팩트체크 🚨",
+      "title_tistory": "도수치료 체외충격파 실손보험 청구 팁: 4세대 실비 비급여 할증과 수술비 특약 리밸런싱",
+      "title_brunch": "3년 차 직장인의 가계부 다이어트: 도수치료 청구서에서 시작된 보험료 절약 썰",
+      "category": "health_medical",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_012.webp",
+      "published_at": "2026-10-02 20:02:06",
+      "publish_results": {
+        "topic_id": 12,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "도수치료 함부로 받았다가 보험료 폭탄? 4세대 실비 비급여 특약 팩트체크 🚨",
+            "url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224429713980&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=21808",
+            "post_url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224429713980&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=21808",
+            "tags": [
+              "도수치료실손보험",
+              "4세대실비",
+              "체외충격파청구",
+              "수술비특약",
+              "실손보험전환",
+              "암보험비교",
+              "보험리밸런스",
+              "수술비 특약",
+              "실손보험 전환",
+              "암보험 비교"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다.",
+            "blog_name": "insure-balance"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 11,
+      "title": "어린이보험 30대 막차 끝?🚨 2030 청년보험 똑똑하게 갈아타고 월 고정비 줄인 썰 💸",
+      "title_naver": "어린이보험 30대 막차 끝?🚨 2030 청년보험 똑똑하게 갈아타고 월 고정비 줄인 썰 💸",
+      "title_tistory": "어린이보험 연령 축소 대응법: 2030 청년보험 가입 조건과 3대 진단비 완벽 분석",
+      "title_brunch": "가계부 살림꾼의 보험 다이어트: 2030 청년보험으로 지키는 우리 집 통장 잔고",
+      "category": "health_medical",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_011.webp",
+      "published_at": "2026-10-02 15:51:20",
+      "publish_results": {
+        "topic_id": 11,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "어린이보험 30대 막차 끝?🚨 2030 청년보험 똑똑하게 갈아타고 월 고정비 줄인 썰 💸",
+            "url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224429485444&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=21030",
+            "post_url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224429485444&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=21030",
+            "tags": [
+              "어린이보험",
+              "청년보험",
+              "허혈성심장질환",
+              "암보험비교",
+              "4세대실비",
+              "보험리밸런스",
+              "허혈성 심장질환",
+              "암보험 비교",
+              "4세대 실비",
+              "5세대실손보험전환"
+            ]
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [1회연동]_보험비교_티스토리_영구로그인.bat 실행 필요",
+            "blog_name": "think83157"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        }
+      }
+    },
     {
       "topic_id": 10,
       "title": "🚨 50대 부모님 유병자보험 3·2·5 무턱대고 가입했다 매달 3만 원 버린 사연? (3·5·5 전환 꿀팁)",

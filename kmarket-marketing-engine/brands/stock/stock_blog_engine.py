@@ -154,14 +154,23 @@ class StockBlogEngine:
             except Exception as e:
                 logger.warning(f"⚠️ [StockBlog] Gemini 작성 실패: {e}")
 
-        # 4. 맞춤 실사 사진 1장 생성
-        photo_info = {
-            "image_path": "",
-            "web_url": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&auto=format&fit=crop&q=80",
-            "is_fallback": True,
-            "prompt_used": ""
-        }
+        # 4. 🔥 [실시간 100% 실측] 실제 10분 계량 전광판 1600x1600 고화질 캡처 1순위 바인딩
+        image_path = ""
+        metrics = {}
         if generate_photo:
+            try:
+                capturer = self._get_capturer()
+                c_mode = "semiconductor" if ("반도체" in seed_topic or "삼성" in seed_topic or "하이닉스" in seed_topic) else "rank1"
+                capture_res = capturer.capture_dashboard(mode=c_mode)
+                if capture_res.get("status") == "success" and capture_res.get("image_path"):
+                    image_path = capture_res["image_path"]
+                    metrics = capture_res.get("metrics", {})
+                    logger.info(f"✅ [StockBlog] 실제 10분 계량 전광판 1600x1600 캡처 바인딩 성공: {Path(image_path).name}")
+            except Exception as e:
+                logger.warning(f"⚠️ [StockBlog] 실시간 전광판 캡처 실패 ({e}), 보조 생성기 시도")
+
+        # 캡처 실패 시에만 최후의 보조 생성기 동작
+        if not image_path and generate_photo:
             try:
                 img_gen = self._get_image_gen()
                 custom_p = gemini_result.get("visual_prompt") if gemini_result else None
@@ -171,9 +180,9 @@ class StockBlogEngine:
                     topic_title=seed_topic,
                     custom_visual_prompt=custom_p
                 )
-                logger.info(f"✅ [StockBlog] 맞춤 사진 1장 생성 완료 ({photo_info['web_url']})")
+                image_path = photo_info.get("image_path", "")
             except Exception as e:
-                logger.warning(f"⚠️ [StockBlog] 사진 생성 실패: {e}")
+                logger.warning(f"⚠️ [StockBlog] 보조 사진 생성 실패: {e}")
 
         # 5. 완성형 본문 조립
         title = gemini_result.get("title", seed_topic) if gemini_result else seed_topic
@@ -218,8 +227,9 @@ class StockBlogEngine:
             "content_html": full_html,
             "summary": gemini_result.get("summary", "") if gemini_result else "",
             "tags": gemini_result.get("tags", topic.get("tags", ["주식투자", "StockMaster"])) if gemini_result else topic.get("tags", []),
-            "image_path": photo_info.get("image_path", ""),
-            "image_url": photo_info.get("web_url", ""),
+            "image_path": image_path,
+            "image_url": "",
+            "metrics": metrics,
             "landing_url": self.LANDING_URL
         }
 

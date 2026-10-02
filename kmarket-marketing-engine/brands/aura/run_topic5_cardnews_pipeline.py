@@ -80,7 +80,7 @@ def run_pipeline(target_dir: str = None) -> str:
 📌 [콘텐츠 주제]: Aura Theme 5 - "소개팅 첫 만남 더치페이, 칼반띵 vs 2차 사기? 가치관 밸런스 매칭"
 📌 [타겟층]: 2030 싱글 남녀, 소개팅 전 가치관 갈등으로 지친 사용자
 📌 [공식 유입 키워드]: 네이버 검색창 [아우라AI데이팅] (붙여쓰기)
-📌 [공식 웹 랜딩 URL]: https://aura-ai-dating.vercel.app/lounge
+📌 [공식 웹 랜딩 URL]: https://aura-ai-dating.vercel.app/
 
 ================================================================================
 📸 [카드뉴스 슬라이드 순서 및 구성]
@@ -107,10 +107,10 @@ AURA AI는 나와 연애관, 가치관, 라이프스타일이 100% 일치하는 
 
 댓글에 [1번] vs [2번] 여러분의 솔직한 생각을 남겨주세요! 👇
 
-🔍 네이버 검색창에 [아우라AI데이팅] 검색하고
-나랑 가치관 100% 맞는 인연을 지금 바로 만나보세요! ✨
+👉 프로필 링크에서 3초 만에 내 이상형/가치관 테스트해보기! ✨
+🔍 (또는 네이버 검색창에 [아우라AI데이팅] 검색)
 
-🔗 프로필 링크 또는 공식 웹: https://aura-ai-dating.vercel.app/lounge
+🔗 프로필 링크 또는 공식 웹: https://aura-ai-dating.vercel.app/
 
 #아우라AI데이팅 #소개팅가치관 #밸런스게임 #소개팅더치페이 #데이트비용 #소개팅팁 #20대연애 #30대연애 #직장인소개팅 #데이팅앱추천 #성비50대50 #가치관매칭 #AURA
 """
@@ -134,7 +134,7 @@ AURA AI는 나와 연애관, 가치관, 라이프스타일이 100% 일치하는 
             "slide_5": "실시간 찬반 토론 & 네이버 검색 [아우라AI데이팅] CTA"
         },
         "official_search_keyword": "아우라AI데이팅",
-        "official_landing_url": "https://aura-ai-dating.vercel.app/lounge",
+        "official_landing_url": "https://aura-ai-dating.vercel.app/",
         "output_dir": str(out_dir)
     }
     with open(metadata_path, "w", encoding="utf-8") as f:

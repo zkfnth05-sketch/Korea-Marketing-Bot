@@ -644,18 +644,18 @@ class ShortsVideoComposer:
             if has_logo:
                 filter_complex.append(f"[v_concat][{logo_idx}:v]overlay=0:0[v_final]")
 
-            # 오디오 3단 100% 무손실 보존 + 씬 싱크 후미 무음 apad (음성 절단 0% 영구 불변)
+            # 오디오 3단 100% 무손실 보존 + 씬 싱크 후미 무음 apad (음성 절단 0% 영구 불변 + 보이스 볼륨 10% 부스트)
             filter_complex.extend([
                 f"[3:a]asetpts=PTS-STARTPTS,apad=whole_dur={dur_v0:.2f}[a0]",
                 f"[4:a]asetpts=PTS-STARTPTS,apad=whole_dur={dur_v1:.2f}[a1]",
                 f"[5:a]asetpts=PTS-STARTPTS,apad=whole_dur={dur_v2:.2f}[a2]",
-                "[a0][a1][a2]concat=n=3:v=0:a=1,volume=1.0,aresample=44100[voice_main]",
+                "[a0][a1][a2]concat=n=3:v=0:a=1,volume=1.10,aresample=44100[voice_main]",
             ])
 
-            # 오디오 믹싱 (Voice 100% + BGM 은은한 12%)
+            # 오디오 믹싱 (Voice 110% 부스트 + BGM 은은한 10%)
             mix_inputs = ["[voice_main]"]
             if has_bgm:
-                filter_complex.append(f"[{audio_idx_bgm}:a]volume=0.12,aresample=44100[bgm_sub]")
+                filter_complex.append(f"[{audio_idx_bgm}:a]volume=0.10,aresample=44100[bgm_sub]")
                 mix_inputs.append("[bgm_sub]")
 
             filter_complex.append(
@@ -711,11 +711,11 @@ class ShortsVideoComposer:
                 filter_complex.append(f"[v_concat][{logo_idx}:v]overlay=0:0[v_final]")
 
             filter_complex.append(
-                f"[3:a]asetpts=PTS-STARTPTS,apad=whole_dur={dur_total_target:.2f},volume=1.0,aresample=44100[voice_main]"
+                f"[3:a]asetpts=PTS-STARTPTS,apad=whole_dur={dur_total_target:.2f},volume=1.10,aresample=44100[voice_main]"
             )
 
             if has_bgm:
-                filter_complex.append(f"[{audio_idx_bgm}:a]volume=0.12,aresample=44100[bgm_sub]")
+                filter_complex.append(f"[{audio_idx_bgm}:a]volume=0.10,aresample=44100[bgm_sub]")
                 mix_inputs.append("[bgm_sub]")
 
             filter_complex.append(

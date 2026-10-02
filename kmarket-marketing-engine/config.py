@@ -348,9 +348,9 @@ BASE_URLS = {
 AUTOPILOT_MODE = os.getenv("AUTOPILOT_MODE", "1") == "1"
 REDDIT_AUTO_REPLY = os.getenv("REDDIT_AUTO_REPLY", "1") == "1"
 
-# 🛡️ 안전 레딧 파라미터 (영구 정지 방지 — 2026.08 전면 재설계)
-DAILY_REDDIT_PROMO_LIMIT = int(os.getenv("DAILY_REDDIT_PROMO_LIMIT", "2"))       # 홍보성 댓글 일일 최대 (절대 초과 금지)
-DAILY_REDDIT_ORGANIC_LIMIT = int(os.getenv("DAILY_REDDIT_ORGANIC_LIMIT", "8"))   # 비홍보 댓글 일일 최대
+# 🛡️ 안전 레딧 파라미터 (영구 정지 방지 — 2026.08 전면 재설계 / 홍보 4회 + 비홍보 4회 황금 균형)
+DAILY_REDDIT_PROMO_LIMIT = int(os.getenv("DAILY_REDDIT_PROMO_LIMIT", "4"))       # 홍보성 댓글 일일 최대 (4회 엄격 제한)
+DAILY_REDDIT_ORGANIC_LIMIT = int(os.getenv("DAILY_REDDIT_ORGANIC_LIMIT", "4"))   # 비홍보 댓글 일일 최대 (4회 엄격 제한)
 DAILY_REDDIT_UPVOTE_LIMIT = int(os.getenv("DAILY_REDDIT_UPVOTE_LIMIT", "20"))    # 업보트 일일 최대
 HOURLY_REDDIT_LIMIT = int(os.getenv("HOURLY_REDDIT_LIMIT", "1"))                 # 시간당 최대 홍보 댓글
 REPLY_DELAY_MIN_SEC = int(os.getenv("REPLY_DELAY_MIN_SEC", "600"))               # 홍보 댓글 간 최소 간격 10분

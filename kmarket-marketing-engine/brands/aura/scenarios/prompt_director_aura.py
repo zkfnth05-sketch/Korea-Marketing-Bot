@@ -17,7 +17,7 @@ except Exception:
 
 class AuraPromptDirector:
     BRAND_NAME = "Aura (아우라)"
-    LANDING_URL = "https://aura-ai-dating.vercel.app/lounge"
+    LANDING_URL = "https://aura-ai-dating.vercel.app/"
 
     THEMES = [
         "ai_charm_report",      # AI 얼굴/성격 매력도 분석

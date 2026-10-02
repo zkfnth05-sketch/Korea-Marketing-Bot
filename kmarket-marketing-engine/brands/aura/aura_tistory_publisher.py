@@ -74,8 +74,19 @@ class AuraTistoryPublisher:
             browser = None
             context = None
 
-            if has_session_file:
-                # 🌟 [1순위: 검증된 저장 세션 파일 모드]
+            if is_persistent:
+                # 🌟 [1순위: 크롬 영구 프로필 모드 - 카카오 세션 자동 연장 & 영구 유지]
+                logger.info(f"📂 [Tistory-Aura] 크롬 영구 프로필 모드로 실행: {self.profile_dir.name}")
+                context = await p.chromium.launch_persistent_context(
+                    user_data_dir=str(self.profile_dir),
+                    headless=True,
+                    args=["--disable-blink-features=AutomationControlled"],
+                    viewport={"width": 1280, "height": 900},
+                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+                )
+                page = context.pages[0] if context.pages else await context.new_page()
+            elif has_session_file:
+                # 🌟 [2순위: 세션 파일 폴백]
                 logger.info("📄 [Tistory-Aura] 저장된 세션 파일(storage_state)로 접속")
                 browser = await p.chromium.launch(
                     headless=True,
@@ -87,19 +98,8 @@ class AuraTistoryPublisher:
                     viewport={"width": 1280, "height": 900}
                 )
                 page = await context.new_page()
-            elif is_persistent:
-                # 🌟 [2순위: 영구 프로필 모드]
-                logger.info(f"📂 [Tistory-Aura] 크롬 영구 프로필 모드로 실행: {self.profile_dir.name}")
-                context = await p.chromium.launch_persistent_context(
-                    user_data_dir=str(self.profile_dir),
-                    headless=True,
-                    args=["--disable-blink-features=AutomationControlled"],
-                    viewport={"width": 1280, "height": 900},
-                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
-                )
-                page = context.pages[0] if context.pages else await context.new_page()
             else:
-                return {"status": "error", "message": "티스토리 세션 부재 (1회연동 bat 실행 필요)", "blog_name": self.blog_name}
+                return {"status": "error", "message": "티스토리 세션 부재 ([1회연동] bat 실행 필요)", "blog_name": self.blog_name}
 
             try:
                 # 1. 글쓰기 페이지 진입
@@ -195,6 +195,24 @@ class AuraTistoryPublisher:
                                 post_url = href
                             else:
                                 post_url = f"https://{self.blog_name}.tistory.com{href}"
+
+                # 관리자 주소가 남아있을 경우 RSS 피드를 통해 실제 공개 글 링크 즉시 획득
+                if "manage" in post_url:
+                    try:
+                        import urllib.request
+                        import xml.etree.ElementTree as ET
+                        rss_url = f"https://{self.blog_name}.tistory.com/rss"
+                        req = urllib.request.Request(rss_url, headers={"User-Agent": "Mozilla/5.0"})
+                        with urllib.request.urlopen(req, timeout=5) as resp:
+                            root = ET.fromstring(resp.read().decode("utf-8"))
+                            items = root.findall("./channel/item")
+                            if items and items[0].find("link") is not None:
+                                post_url = items[0].find("link").text.strip()
+                    except Exception as rss_err:
+                        logger.debug(f"RSS 링크 조회 통과: {rss_err}")
+
+                if "manage" in post_url:
+                    post_url = f"https://{self.blog_name}.tistory.com/"
 
                 # 🌟 [세션 자동 수명 연장] 살아있는 최신 세션 상태를 디스크에 즉시 자동 저장
                 try:

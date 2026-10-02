@@ -1,0 +1,44 @@
+[
+  {
+    "timestamp": "2026-10-02 18:23:22",
+    "slot_id": "init_warmup",
+    "slot_name": "🛡️ 보험 1회차 계정 예열 세션",
+    "target_min": 1.2,
+    "target_likes": 3,
+    "actual_sec": 100,
+    "likes_given": 1,
+    "videos_watched": 3,
+    "comments_inspected": 0,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "insurance"
+  },
+  {
+    "timestamp": "2026-10-02 23:00:18",
+    "slot_id": "night",
+    "slot_name": "🌙 야간 침대 틱톡 (8분)",
+    "target_min": 8,
+    "target_likes": 2,
+    "actual_sec": 495,
+    "likes_given": 0,
+    "videos_watched": 16,
+    "comments_inspected": 0,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "insurance"
+  },
+  {
+    "timestamp": "2026-10-02 23:00:21",
+    "slot_id": "night",
+    "slot_name": "🌙 야간 침대 틱톡 (8분)",
+    "target_min": 8,
+    "target_likes": 3,
+    "actual_sec": 510,
+    "likes_given": 1,
+    "videos_watched": 19,
+    "comments_inspected": 0,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "insurance"
+  }
+]

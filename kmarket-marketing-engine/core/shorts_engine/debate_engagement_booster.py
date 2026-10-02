@@ -25,7 +25,7 @@ BRAND_SPECS = {
     "aura": {
         "name": "Aura AI 데이팅",
         "official_keyword": "아우라AI데이팅",
-        "landing_url": "https://aura-ai-dating.vercel.app/lounge",
+        "landing_url": "https://aura-ai-dating.vercel.app/",
         "default_debates": {
             1: "소개팅 자리에서 가짜 업무 전화로 탈출하는 것, 센스다 vs 예의없다?",
             2: "언어 안 통해도 AI 자막 통화로 외국인 연애 가능? 가능하다 vs 무리다",

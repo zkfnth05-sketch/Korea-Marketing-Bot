@@ -1,0 +1,30 @@
+[
+  {
+    "timestamp": "2026-10-02 18:27:42",
+    "slot_id": "now_test",
+    "slot_name": "📸 인스타 즉시 검증 세션",
+    "target_min": 1.0,
+    "target_likes": 2,
+    "actual_sec": 71,
+    "likes_given": 1,
+    "actions": [
+      {
+        "posts_viewed": 3,
+        "likes": 0,
+        "platform": "instagram"
+      },
+      {
+        "posts_viewed": 1,
+        "platform": "threads"
+      },
+      {
+        "shorts_watched": 1,
+        "likes": 1,
+        "platform": "youtube"
+      }
+    ],
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "aura"
+  }
+]

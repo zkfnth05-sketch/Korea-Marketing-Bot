@@ -512,7 +512,29 @@ class AuraMetaPublisher:
             logger.error(f"❌ [Meta-Aura] 페이스북 비디오 업로드 예외: {e}")
             return {"status": "error", "message": str(e), "brand": self.brand}
 
-    def _record_history(self, post_type: str, item_id: str, content_snippet: str):
+    def get_instagram_permalink(self, media_id: str) -> str:
+        """Instagram Graph API로 미디어 고유 영구 링크(permalink) 조회"""
+        if not bool(self.user_token and media_id):
+            return f"https://www.instagram.com/{self.ig_username}/" if self.ig_username else "https://www.instagram.com/"
+        try:
+            url = f"{GRAPH_URL}/{media_id}?fields=permalink,shortcode&access_token={self.user_token}"
+            req = urllib.request.Request(url, method="GET")
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                data = json.loads(resp.read().decode('utf-8'))
+                return data.get("permalink") or (f"https://www.instagram.com/{self.ig_username}/" if self.ig_username else "https://www.instagram.com/")
+        except Exception:
+            return f"https://www.instagram.com/{self.ig_username}/" if self.ig_username else "https://www.instagram.com/"
+
+    def get_facebook_permalink(self, post_id: str) -> str:
+        """Facebook Page 게시물/릴스 고유 링크 조회"""
+        if post_id and "_" in post_id:
+            parts = post_id.split("_")
+            return f"https://www.facebook.com/{parts[0]}/posts/{parts[1]}"
+        elif post_id and post_id.isdigit():
+            return f"https://www.facebook.com/reel/{post_id}"
+        return f"https://www.facebook.com/{self.page_id}" if self.page_id else "https://www.facebook.com/"
+
+    def _record_history(self, post_type: str, item_id: str, content_snippet: str, url: Optional[str] = None):
         history = []
         if self.history_file.exists():
             try:
@@ -521,10 +543,19 @@ class AuraMetaPublisher:
             except Exception:
                 history = []
         
+        target_url = url
+        if not target_url:
+            if "instagram" in post_type:
+                target_url = self.get_instagram_permalink(item_id)
+            elif "facebook" in post_type:
+                target_url = self.get_facebook_permalink(item_id)
+
         history.append({
             "timestamp": get_now_kst_str(),
             "type": post_type,
             "id": item_id,
+            "url": target_url,
+            "permalink": target_url,
             "snippet": content_snippet[:100]
         })
         with open(self.history_file, "w", encoding="utf-8") as f:

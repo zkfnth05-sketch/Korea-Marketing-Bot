@@ -37,11 +37,14 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 STATE_FILE = DATA_DIR / "aura_blog_rotation_state.json"
 
 # 골든타임 정의 (KST 기준)
-GOLDEN_HOURS = [10, 18]  # 아침 10:00, 오후 18:00
+GOLDEN_HOURS = [10, 15, 20]  # 하루 3회: 오전 10:00, 오후 15:00, 저녁 20:00
 
 
 class AuraBlogScheduler:
-    """💖 Aura 2030 매거진 하루 2회 자율 순환 스케줄러"""
+    """💖 Aura 2030 매거진 하루 3회 자율 순환 스케줄러"""
+
+    SCHEDULE_HOURS = [10, 15, 20]  # 하루 딱 3회: 오전 10:00, 오후 15:00, 저녁 20:00 (KST)
+    SCHEDULE_MINUTE = 0
 
     def __init__(self):
         self.state = self._load_state()
@@ -85,12 +88,12 @@ class AuraBlogScheduler:
             "last_run_time": self.state.get("last_run_time", "발행 이력 없음"),
             "last_title": self.state.get("last_title", "-"),
             "published_count": self.state.get("published_count", 0),
-            "daily_schedule": "하루 2회 (10:00 / 18:00 KST)",
-            "cycle_days": "50일 무중복 순환 (100개 / 2)"
+            "daily_schedule": "하루 3회 (10:00 / 15:00 / 20:00 KST)",
+            "cycle_days": "33.3일 무중복 순환 (100개 / 3)"
         }
 
-    def can_publish_today(self, max_daily_posts: int = 2) -> tuple[bool, str]:
-        """하루 최대 2건 제한 및 최소 4시간 발행 간격 엄격 검증"""
+    def can_publish_today(self, max_daily_posts: int = 3) -> tuple[bool, str]:
+        """하루 최대 3건 제한 및 최소 3.5시간 발행 간격 엄격 검증"""
         today_str = datetime.datetime.now().strftime("%Y-%m-%d")
         history = self.state.get("history", [])
         
@@ -103,8 +106,8 @@ class AuraBlogScheduler:
             try:
                 last_dt = datetime.datetime.strptime(last_pub_str, "%Y-%m-%d %H:%M:%S")
                 diff_hours = (datetime.datetime.now() - last_dt).total_seconds() / 3600.0
-                if diff_hours < 4.0:
-                    return False, f"⚠️ [안전 쿨타임] 직전 발행 후 최소 4시간이 지나지 않았습니다 (경과: {diff_hours:.1f}시간). 블로그 도배 방지를 위해 대기합니다."
+                if diff_hours < 3.5:
+                    return False, f"⚠️ [안전 쿨타임] 직전 발행 후 최소 3.5시간이 지나지 않았습니다 (경과: {diff_hours:.1f}시간). 블로그 도배 방지를 위해 대기합니다."
             except Exception:
                 pass
                 
@@ -113,9 +116,9 @@ class AuraBlogScheduler:
     def run_one_cycle(self, force_topic_id: Optional[int] = None) -> Dict[str, Any]:
         """
         주제 1개에 대해 안전 검증 후 수동 1회 발행
-        (하루 최대 2건 엄격 제한 & 도배 원천 차단)
+        (하루 최대 3건 엄격 제한 & 도배 원천 차단)
         """
-        can_pub, reason = self.can_publish_today(max_daily_posts=2)
+        can_pub, reason = self.can_publish_today(max_daily_posts=3)
         if not can_pub and force_topic_id is None:
             logger.warning(reason)
             return {"status": "BLOCKED_DAILY_CAP", "message": reason}

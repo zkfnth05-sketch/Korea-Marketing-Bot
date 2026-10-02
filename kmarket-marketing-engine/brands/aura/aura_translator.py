@@ -81,13 +81,25 @@ class AuraTranslator:
                 if system_instruction:
                     cfg.system_instruction = system_instruction
 
-                response = client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=prompt,
-                    config=cfg
-                )
-                if response and response.text:
-                    return response.text.strip()
+                models_to_try = [
+                    "gemini-2.5-flash-lite",
+                    "gemini-flash-lite-latest",
+                    "gemini-3.1-flash-lite",
+                    "gemini-flash-latest",
+                    "gemini-2.5-flash"
+                ]
+                for model_name in models_to_try:
+                    try:
+                        response = client.models.generate_content(
+                            model=model_name,
+                            contents=prompt,
+                            config=cfg
+                        )
+                        if response and response.text:
+                            return response.text.strip()
+                    except Exception as me:
+                        logger.debug(f"AuraTranslator 모델 {model_name} 실패: {me}")
+                        continue
             except Exception as e:
                 err_str = str(e)
                 if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
@@ -117,7 +129,7 @@ class AuraTranslator:
             "Rules:\n"
             "1. Maintain a youthful, warm, romantic, and trendy 2030 dating magazine tone for each language.\n"
             "2. Keep all emojis, bullet points, and structure intact.\n"
-            "3. The official landing URL 'https://aura-ai-dating.vercel.app/lounge' must remain unchanged.\n"
+            "3. The official landing URL 'https://aura-ai-dating.vercel.app/' must remain unchanged.\n"
             "4. Output MUST be valid JSON with keys 'en', 'ja', and 'es'."
         )
 

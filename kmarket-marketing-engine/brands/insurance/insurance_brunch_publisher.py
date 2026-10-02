@@ -96,7 +96,7 @@ class InsuranceBrunchPublisher:
         content_text: str,
         tag_list: Optional[List[str]] = None,
         topic_id: int = 1,
-        landing_url: str = "https://insurebalance.co.kr",
+        landing_url: str = "https://insure-rebalance.vercel.app/",
         timeout_sec: int = 40
     ) -> Dict[str, Any]:
         """Playwright 브런치 에디터 자동 발행 / 저장 (영구 크롬 프로필/세션 탑재)"""
@@ -177,15 +177,28 @@ class InsuranceBrunchPublisher:
                     await page.keyboard.type(title)
                 await asyncio.sleep(1)
 
-                # 본문 입력 (클립보드 방식)
+                # 본문 입력 (클립보드 방식 - URL 완벽 분리 정제)
+                import re
+                clean_body = re.sub(r'!\[.*?\]\(.*?\)', '', content_text)
+                clean_body = re.sub(r'\[([^\]]+)\]\((https?://[^\s\)]+)\)', r'\1', clean_body)
+                clean_body = re.sub(r'\((https?://[^\s\)]+)\)', '', clean_body)
+                clean_body = re.sub(r'https?://[^\s\)]+', '', clean_body)
+                clean_body += (
+                    f"\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"🛡️ [보험 리밸런스] 34개 보험사 실시간 비교 & 숨은 보험금 찾기\n\n"
+                    f"🔍 네이버 검색창에 [보험 리밸런스]를 검색해 보세요!\n"
+                    f"👉 공식 비교센터:\n{landing_url}\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                )
+
                 try:
                     process = subprocess.Popen(['clip'], stdin=subprocess.PIPE, close_fds=True)
-                    process.communicate(input=content_text.encode('utf-16le'))
+                    process.communicate(input=clean_body.encode('utf-16le'))
                     await page.keyboard.press("Tab")
                     await page.keyboard.press("Control+v")
                 except Exception:
                     await page.keyboard.press("Tab")
-                    await page.keyboard.type(content_text[:300])
+                    await page.keyboard.type(clean_body[:300])
 
                 await asyncio.sleep(1)
 

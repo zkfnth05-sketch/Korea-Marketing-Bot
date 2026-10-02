@@ -153,6 +153,12 @@
 
             <!-- 탭 1: 대시보드 & 제어 -->
             <section class="tab-content active" id="tab-overview">
+                <!-- 🚨 실시간 비상관제 & ALL CLEAR 가드 배너 -->
+                <div id="emergency-guard-banner-container" style="margin-bottom: 20px;"></div>
+
+                <!-- 🚀 3대 브랜드 실시간 마케팅 무인 발행 라이브 전광판 & 원클릭 바로가기 -->
+                <div id="today-live-feed-container" style="margin-bottom: 24px;"></div>
+
                 <!-- 📜 시스템 핵심 지표 카드 -->
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -210,7 +216,7 @@
                 <div id="telegram-community-panel-container"></div>
 
                 <!-- 실시간 활동 로그 콘솔 -->
-                <div class="section-card">
+                <div class="section-card" style="margin-bottom: 24px;">
                     <div class="log-header" style="display:flex;justify-content:space-between;align-items:center;">
                         <h3 class="section-title" style="margin:0;">📜 실시간 엔진 활동 로그</h3>
                         <button class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="refreshOverview(this)">🔄 새로고침</button>
@@ -277,19 +283,19 @@
                             </div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-icon pink" style="background:rgba(236,72,153,0.15); color:#EC4899;">💖</div>
+                            <div class="stat-icon pink" id="kpi-icon-growth" style="background:rgba(236,72,153,0.15); color:#EC4899;">💖</div>
                             <div class="stat-info">
-                                <span class="stat-label">Aura 실제 회원가입자</span>
+                                <span class="stat-label" id="kpi-label-growth">Aura 실제 회원가입자</span>
                                 <h3 class="stat-value" style="color:#EC4899; font-size:16px; font-weight:800;" id="kpi-yoy">회원가입 72명</h3>
-                                <span class="stat-sub">Supabase users 테이블 실데이터</span>
+                                <span class="stat-sub" id="kpi-sub-growth">Supabase users 테이블 실데이터</span>
                             </div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-icon orange">🎯</div>
+                            <div class="stat-icon orange" id="kpi-icon-visitor">🎯</div>
                             <div class="stat-info">
                                 <span class="stat-label" id="kpi-label-visitor">기간 신규 회원가입</span>
                                 <h3 class="stat-value" id="kpi-monthly-visitors">0 명</h3>
-                                <span class="stat-sub">선택 기간 내 실제 가입 성과</span>
+                                <span class="stat-sub" id="kpi-sub-visitor">선택 기간 내 실제 가입 성과</span>
                             </div>
                         </div>
                     </div>
@@ -576,45 +582,42 @@
                             </div>
                         </div>
 
-                        <h4 style="font-size:14px;color:#10b981;margin:18px 0 12px 0;">🛒 1. KTRS 마켓 공식 계정 (70% 라이프/나눔 채널)</h4>
+                        <h4 style="font-size:14px;color:#ec4899;margin:18px 0 12px 0;">💖 1. Aura AI 데이팅 공식 연동 키</h4>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>KTRS 마켓 YouTube Data API Key</label>
-                                <input type="password" id="cfg-km-youtube" class="form-control" placeholder="KTRS 마켓 전용 YouTube API 키">
+                                <label>Aura YouTube API / Token</label>
+                                <input type="password" id="cfg-aura-youtube" class="form-control" placeholder="Aura 전용 YouTube API 키">
                             </div>
                             <div class="form-group">
-                                <label>KTRS 마켓 Instagram/Meta Token</label>
-                                <input type="password" id="cfg-km-meta" class="form-control" placeholder="KTRS 마켓 전용 Meta Graph Token">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>KTRS 마켓 TikTok Creator Token</label>
-                                <input type="password" id="cfg-km-tiktok" class="form-control" placeholder="KTRS 마켓 전용 TikTok Posting Token">
+                                <label>Aura Meta Graph Token</label>
+                                <input type="password" id="cfg-aura-meta" class="form-control" placeholder="Aura 전용 Meta Graph Token">
                             </div>
                         </div>
 
-                        <h4 style="font-size:14px;color:#f59e0b;margin:18px 0 12px 0;">💰 2. EasyTax 공식 계정 (30% 세무/환급 채널)</h4>
+                        <h4 style="font-size:14px;color:#10b981;margin:18px 0 12px 0;">🛡️ 2. InsureBalance 보험비교 공식 연동 키</h4>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>EasyTax YouTube Data API Key</label>
-                                <input type="password" id="cfg-tax-youtube" class="form-control" placeholder="EasyTax 전용 YouTube API 키">
+                                <label>Insurance YouTube API Key</label>
+                                <input type="password" id="cfg-ins-youtube" class="form-control" placeholder="Insurance 전용 YouTube API 키">
                             </div>
                             <div class="form-group">
-                                <label>EasyTax Instagram/Meta Token</label>
-                                <input type="password" id="cfg-tax-meta" class="form-control" placeholder="EasyTax 전용 Meta Graph Token">
+                                <label>Insurance Meta Graph Token</label>
+                                <input type="password" id="cfg-ins-meta" class="form-control" placeholder="Insurance 전용 Meta Graph Token">
                             </div>
                         </div>
+
+                        <h4 style="font-size:14px;color:#f59e0b;margin:18px 0 12px 0;">📈 3. Stock Master 주식 AI 공식 연동 키</h4>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>EasyTax TikTok Creator Token</label>
-                                <input type="password" id="cfg-tax-tiktok" class="form-control" placeholder="EasyTax 전용 TikTok Posting Token">
+                                <label>Stock YouTube API Key</label>
+                                <input type="password" id="cfg-stock-youtube" class="form-control" placeholder="Stock 전용 YouTube API 키">
                             </div>
                             <div class="form-group">
-                                <label>17개국 텔레그램 봇 토큰</label>
-                                <input type="password" id="cfg-tg-token" class="form-control" placeholder="공통 텔레그램 봇 토큰">
+                                <label>Stock Meta Graph Token</label>
+                                <input type="password" id="cfg-stock-meta" class="form-control" placeholder="Stock 전용 Meta Graph Token">
                             </div>
                         </div>
+
 
                         <h4 style="font-size:14px;color:#60a5fa;margin:18px 0 12px 0;">🛡️ 3. Anti-Ban & 듀얼 오토파일럿 가동 설정</h4>
                         <div class="form-row">
@@ -649,17 +652,18 @@
                         </div>
                     </div>
 
-                    <!-- 1. 🧠 현재 브랜드 전용 핵심 3대 두뇌 상태 -->
-                    <h4 style="font-size:14px;color:#a855f7;margin:20px 0 12px 0;" id="health-brain-title">🧠 핵심 3대 AI 및 시스템 두뇌 맥박</h4>
+                    <!-- 1. 🚨 실시간 장애 감지 & 즉시 조치 센터 -->
+                    <h4 style="font-size:14px;color:#dc2626;margin:20px 0 12px 0;" id="health-brain-title">🚨 실시간 장애 감지 & 조치 안내 센터</h4>
                     <div class="stats-grid" id="health-brain-grid">
                         <!-- loadHealthStatus()로 동적 렌더링 -->
                     </div>
 
-                    <!-- 2. 📡 현재 브랜드 전용 7대 채널 실시간 맥박 (100% 분리) -->
-                    <h4 style="font-size:14px;margin:28px 0 12px 0;" id="health-channels-title">📡 7대 소셜 & 커뮤니티 채널 맥박</h4>
+                    <!-- 2. 📡 채널별 실시간 발행 및 세션 상태 -->
+                    <h4 style="font-size:14px;margin:28px 0 12px 0;" id="health-channels-title">📡 채널별 실시간 발행 및 세션 상태 (실제 링크 검증)</h4>
                     <div class="action-grid" id="health-channels-grid">
                         <!-- loadHealthStatus()로 동적 렌더링 -->
                     </div>
+
                 </div>
             </section>
         </main>
@@ -669,17 +673,17 @@
     <div id="toast-container"></div>
 
     <!-- 🧩 100% 모듈 분리된 JavaScript 파일 로드 -->
-    <script src="js/common.js?v=4.0"></script>
-    <script src="js/app_pipelines.js?v=4.0"></script>
-    <script src="js/overview.js?v=4.0"></script>
-    <script src="js/platforms.js?v=4.0"></script>
-    <script src="js/ir_analytics.js?v=4.0"></script>
-    <script src="js/health.js?v=4.0"></script>
-    <script src="js/gallery.js?v=4.0"></script>
-    <script src="js/golden_copies.js?v=4.0"></script>
-    <script src="js/hashtags.js?v=4.0"></script>
-    <script src="js/settings.js?v=4.0"></script>
-    <script src="js/telegram_manager.js?v=4.0"></script>
-    <script src="app.js?v=4.0"></script>
+    <script src="js/common.js?v=4.1"></script>
+    <script src="js/app_pipelines.js?v=4.1"></script>
+    <script src="js/overview.js?v=4.1"></script>
+    <script src="js/platforms.js?v=4.1"></script>
+    <script src="js/ir_analytics.js?v=4.1"></script>
+    <script src="js/health.js?v=4.1"></script>
+    <script src="js/gallery.js?v=4.1"></script>
+    <script src="js/golden_copies.js?v=4.1"></script>
+    <script src="js/hashtags.js?v=4.1"></script>
+    <script src="js/settings.js?v=4.1"></script>
+    <script src="js/telegram_manager.js?v=4.1"></script>
+    <script src="app.js?v=4.1"></script>
 </body>
 </html>

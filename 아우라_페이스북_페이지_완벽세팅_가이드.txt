@@ -18,7 +18,7 @@
 [2] 상세 연락처 및 웹사이트 연동
 ----------------------------------------------------------------------
 * 웹사이트 (Website):
-  https://aura-ai-dating.vercel.app/lounge
+  https://aura-ai-dating.vercel.app/
 
 * 이메일 (Email):
   (Aura 전용으로 만드신 구글 이메일 입력, 예: aura.official.kr@gmail.com)
@@ -39,7 +39,7 @@
   [앱 사용하기 (Use App)] 또는 [자세히 알아보기 (Learn More)]
 
 * 연결 웹사이트 링크:
-  https://aura-ai-dating.vercel.app/lounge
+  https://aura-ai-dating.vercel.app/
 
 
 [4] 사용자 이름 (골뱅이 @Username - 페이지 URL)
@@ -72,7 +72,7 @@
 4. 📸 청담동 스냅 보정: 가짜 필터 NO, 본판 100% 살린 인생 화보!
 
 지금 바로 청정 라운지에 입장해 보세요.
-👉 공식 라운지 바로가기: https://aura-ai-dating.vercel.app/lounge
+👉 공식 라운지 바로가기: https://aura-ai-dating.vercel.app/
 
 네이버 검색창에 [아우라AI데이팅]을 검색해 보세요! 🔍
 

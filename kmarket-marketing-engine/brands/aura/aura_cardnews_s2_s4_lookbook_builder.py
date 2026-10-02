@@ -420,7 +420,7 @@ class AuraCardnewsS2S4LookbookBuilder:
         # ── 5. 최하단 푸터 ─────────────────────────────────────────────────────
         draw.line([(self.w // 2 - 250, 1285), (self.w // 2 + 250, 1285)], fill=(180, 150, 75, 120), width=1)
         f_footer = self._get_font(16, bold=False)
-        draw.text((self.w // 2, 1310), "자연스러운 AI 프로필 화보 • AURA | aura-ai-dating.vercel.app/lounge", font=f_footer, fill=(120, 105, 95), anchor="mm")
+        draw.text((self.w // 2, 1310), "자연스러운 AI 프로필 화보 • AURA | aura-ai-dating.vercel.app", font=f_footer, fill=(120, 105, 95), anchor="mm")
 
         out_p = Path(output_path).resolve()
         out_p.parent.mkdir(parents=True, exist_ok=True)

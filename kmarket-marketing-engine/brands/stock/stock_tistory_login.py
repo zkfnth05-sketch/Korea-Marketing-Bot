@@ -67,13 +67,20 @@ async def run_login_flow():
                 break
 
         if not logged_in:
-            print("\n⚠️ 시간이 초과되었거나 로그인이 감지되지 않았습니다. 현재 상태로 저장을 시도합니다.")
-            cookies = await context.cookies()
-            t_cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies if "tistory.com" in c.get("domain", "")])
+            print("\n❌ [로그인 미완료] 150초 동안 로그인이 감지되지 않았습니다. 미인증 세션을 저장하지 않습니다.")
+            await context.close()
+            return False
 
-        print("\n🎉 [대성공!] StockMaster 티스토리 로그인이 정상 감지되었습니다!")
+        # 로그인 성공 확인: 실제 블로그 관리자 페이지로 이동하여 최종 쿠키 동기화
+        try:
+            await page.goto("https://stockmaster-ai.tistory.com/manage/posts", timeout=15000)
+            await asyncio.sleep(2)
+        except Exception:
+            pass
+
+        print("\n🎉 [대성공!] StockMaster 티스토리 로그인이 완벽히 확인되었습니다!")
         await context.storage_state(path=str(SESSION_FILE))
-        print(f"💾 1. 티스토리 크롬 영구 프로필 및 세션 저장 완료: {PROFILE_DIR.name}")
+        print(f"💾 1. 티스토리 크롬 영구 프로필 및 세션 영구 저장 완료: {PROFILE_DIR.name}")
 
         accounts_data = {}
         if ACCOUNTS_FILE.exists():

@@ -177,15 +177,28 @@ class StockBrunchPublisher:
                     await page.keyboard.type(title)
                 await asyncio.sleep(1)
 
-                # 본문 입력 (클립보드 방식)
+                # 본문 입력 (클립보드 방식 - URL 완벽 분리 정제)
+                import re
+                clean_body = re.sub(r'!\[.*?\]\(.*?\)', '', content_text)
+                clean_body = re.sub(r'\[([^\]]+)\]\((https?://[^\s\)]+)\)', r'\1', clean_body)
+                clean_body = re.sub(r'\((https?://[^\s\)]+)\)', '', clean_body)
+                clean_body = re.sub(r'https?://[^\s\)]+', '', clean_body)
+                clean_body += (
+                    f"\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"📈 [StockMaster AI] 10분마다 350개 국내 주도주 AI 퀀트 정밀 분석!\n\n"
+                    f"🔍 네이버 검색창에 [스톡마스터 AI]를 검색해 보세요!\n"
+                    f"👉 공식 진단실:\n{landing_url}\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                )
+
                 try:
                     process = subprocess.Popen(['clip'], stdin=subprocess.PIPE, close_fds=True)
-                    process.communicate(input=content_text.encode('utf-16le'))
+                    process.communicate(input=clean_body.encode('utf-16le'))
                     await page.keyboard.press("Tab")
                     await page.keyboard.press("Control+v")
                 except Exception:
                     await page.keyboard.press("Tab")
-                    await page.keyboard.type(content_text[:300])
+                    await page.keyboard.type(clean_body[:300])
 
                 await asyncio.sleep(1)
 

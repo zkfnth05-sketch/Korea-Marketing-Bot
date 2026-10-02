@@ -223,7 +223,7 @@ class AuraCardnewsS5Topic7Builder:
 
     <!-- Sub URL Info -->
     <div class="text-center text-xs text-slate-400 font-medium">
-      네이버 검색창에 <span class="text-emerald-400 font-bold">'아우라AI데이팅'</span>을 검색하고 AI 매력 진단 리포트를 받아보세요!
+      👉 프로필 링크 또는 네이버에 <span class="text-emerald-400 font-bold">'아우라AI데이팅'</span> 검색하고 3초 만에 이상형 확인!
     </div>
 
   </div>

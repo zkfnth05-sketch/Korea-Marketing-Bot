@@ -74,11 +74,11 @@ class AuraYouTubeHybridPilot:
         self,
         video_path: Optional[str] = None,
         topic_id: int = 1,
-        skip_warmup: bool = False,
+        skip_warmup: bool = True,
         privacy_status: str = "public"
     ) -> Dict[str, Any]:
         """
-        [1단계 인간 웜업 ➔ 2단계 API 배포] 원스톱 전자동 실행
+        [순수 API 배포] 인간 행동은 AuraHumanBehaviorBot이 전담하므로 업로드 직전 웜업 스킵
         """
         start_time = time.time()
         logger.info("=" * 70)

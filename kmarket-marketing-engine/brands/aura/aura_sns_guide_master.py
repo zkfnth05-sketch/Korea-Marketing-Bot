@@ -9,7 +9,7 @@ AuraSNSGuideMaster - 📢 [Aura 데이팅 전용 카드뉴스 & 숏폼 SNS 포�
   4. 관리자가 복사(Ctrl+C)하여 즉시 붙여넣을 수 있는 완벽한 원스톱 포맷 제공
 • 공식 규격:
   - 포털 검색어: '아우라AI데이팅' (붙여쓰기 철칙)
-  - 공식 랜딩 URL: https://aura-ai-dating.vercel.app/lounge
+  - 공식 랜딩 URL: https://aura-ai-dating.vercel.app/
   - 카페 침투: Zero-URL 원칙 ("네이버에 아우라AI데이팅 한번 검색해보세요")
 """
 
@@ -27,7 +27,7 @@ class AuraSNSGuideMaster:
     """💖 Aura 데이팅 카드뉴스 & 숏폼 SNS 포스팅 가이드 완결 마스터"""
 
     OFFICIAL_KEYWORD = "아우라AI데이팅"
-    OFFICIAL_URL = "https://aura-ai-dating.vercel.app/lounge"
+    OFFICIAL_URL = "https://aura-ai-dating.vercel.app/"
     BRAND_TITLE = "Aura AI 데이팅 (50:50 남녀 황금 성비 라운지)"
 
     @classmethod
@@ -104,8 +104,8 @@ class AuraSNSGuideMaster:
 📌 [인스타 캡션 (복사해서 바로 사용)]
 {sns_caption}
 
-🔍 네이버 검색창에 [{cls.OFFICIAL_KEYWORD}] 검색하고
-나랑 100% 맞는 인연을 지금 바로 만나보세요! ✨
+👉 프로필 링크에서 3초 만에 내 이상형/성향 확인해보세요! ✨
+🔍 (또는 네이버 검색창에 [{cls.OFFICIAL_KEYWORD}] 검색)
 🔗 프로필 링크(@aura_official) 또는 공식 웹: {cls.OFFICIAL_URL}
 
 📌 [인스타 탐색탭 알고리즘 노출 폭발 18~20개 4단 해시태그 풀]
@@ -129,7 +129,7 @@ class AuraSNSGuideMaster:
 {threads_tags}
 
 💬 [첫 번째 댓글 (알고리즘 보호 전환 링크)]
-👉 50:50 황금 성비 클린 라운지 입장하기: {cls.OFFICIAL_URL}
+👉 3초 만에 내 이상형 확인 & 클린 라운지 입장하기: {cls.OFFICIAL_URL}
 (또는 네이버에 '{cls.OFFICIAL_KEYWORD}' 검색)
 
 
@@ -146,7 +146,7 @@ class AuraSNSGuideMaster:
 {fb_tags}
 
 💬 [첫 번째 댓글 (스텔스 전환 링크)]
-👉 공식 웹사이트에서 무료 확인: {cls.OFFICIAL_URL}
+👉 3초 만에 내 이상형/성향 진단 & 공식 웹 바로가기: {cls.OFFICIAL_URL}
 👉 네이버 검색창에 [{cls.OFFICIAL_KEYWORD}] 검색!
 
 

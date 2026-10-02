@@ -6,7 +6,7 @@ StockWebSimulatorActions - 🎯 [StockMaster AI 8대 주제별 실물 웹앱 실
 - 타깃 URL: https://stockmaster-ai.vercel.app/
 - 1080x1920 세로 9:16 모바일 풀HD 뷰 최적화
 - [0.0s ~ 1.5s] 350개 핵심 종목 10분 계량 전광판 헤더 & 당일 1위 주도주 조망
-- [1.5s ~ 3.5s] 검색창 종목 검색 (삼성전자/SK하이닉스/엔비디아) 또는 필터 탭 클릭
+- [1.5s ~ 3.5s] 검색창 종목 검색 (삼성전자/SK하이닉스/이수페타시스) 또는 필터 탭 클릭
 - [3.5s ~ 12.0s] 체결강도, 외인/기관 수급, AI 적정주가 상세 차트로 부드러운 안착 스크롤
 """
 
@@ -37,14 +37,14 @@ STOCK_TOPIC_ACTION_SPECS: Dict[int, Dict[str, Any]] = {
     },
     3: {
         "topic_id": 3,
-        "title": "엔비디아(NVDA) AI 빅테크 실시간 밸류에이션",
+        "title": "코스피·코스닥 세력 체결강도 120% 돌파 유망주",
         "init_scroll_y": 4090,
         "search_query": "이수페타시스",
         "filter_btn": "",
         "start_scroll_y": 4090,
         "end_scroll_y": 5400,
         "duration_scroll_ms": 7800,
-        "description": "엔비디아 HBM 공급망 1위 수급 가속 종목 실시간 퀀트 점수 142점 확인"
+        "description": "국내 반도체 공급망 1위 수급 가속 종목 실시간 퀀트 점수 및 체결강도 확인"
     },
     4: {
         "topic_id": 4,

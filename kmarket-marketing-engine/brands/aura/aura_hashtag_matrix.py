@@ -139,6 +139,14 @@ class AuraHashtagMatrix:
         return " ".join(tag_list)
 
     @classmethod
+    def get_youtube_shorts_hashtags(cls, topic_id: int = 1, count: int = 7) -> List[str]:
+        """유튜브 쇼츠 전용 해시태그 리스트 반환 (호환 래퍼)"""
+        norm_id = ((topic_id - 1) % 8) + 1
+        topic_tags = cls.TOPIC_LONGTAIL_TAGS.get(norm_id, cls.TOPIC_LONGTAIL_TAGS[1])
+        tags = [f"#{cls.OFFICIAL_KEYWORD}"] + topic_tags[:4] + ["#Shorts", "#Reels"]
+        return tags[:count]
+
+    @classmethod
     def get_naver_tags(cls, topic_id: int = 1) -> str:
         """네이버 블로그 / 포스트 / 카페용 검색 태그 문자열 반환"""
         norm_id = ((topic_id - 1) % 8) + 1

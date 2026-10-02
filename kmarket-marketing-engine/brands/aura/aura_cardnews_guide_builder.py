@@ -12,7 +12,7 @@ AuraCardnewsGuideBuilder - 📢 [Aura 데이팅 카드뉴스 네이버 포스트
   7. ✈️ 텔레그램 (Telegram): 5장 앨범 + 원클릭 버튼 링크
 • 철칙:
   - 공식 검색어: '아우라AI데이팅' (붙여쓰기 엄수)
-  - 공식 URL: https://aura-ai-dating.vercel.app/lounge
+  - 공식 URL: https://aura-ai-dating.vercel.app/
   - 네이버 카페: 링크(URL) 절대 금지, 오직 포털 검색 유도 문구만 사용
 """
 
@@ -22,7 +22,7 @@ from typing import Dict, Any, List, Optional
 logger = logging.getLogger("AuraCardnewsGuideBuilder")
 
 OFFICIAL_KEYWORD = "아우라AI데이팅"
-OFFICIAL_URL = "https://aura-ai-dating.vercel.app/lounge"
+OFFICIAL_URL = "https://aura-ai-dating.vercel.app/"
 
 
 class AuraCardnewsGuideBuilder:
@@ -195,8 +195,8 @@ Aura 실전 소개팅 백과 (2030 매너 꿀팁)
 3️⃣ 아우라 AI 긴급 탈출 전화 솔루션
 4️⃣ 남녀 50:50 정원제 클린 데이팅
 
-지금 프로필 링크(@aura_dating)를 누르시거나,
-네이버 검색창에 [{OFFICIAL_KEYWORD}]을 검색해 보세요! ✨
+👉 지금 프로필 링크(@aura_dating)에서 3초 만에 내 이상형/성향 확인해보세요! ✨
+🔍 (또는 네이버 검색창에 [{OFFICIAL_KEYWORD}] 검색)
 
 {hashtags_sns}
 
@@ -209,8 +209,9 @@ Aura 실전 소개팅 백과 (2030 매너 꿀팁)
 (slide_1.png 이미지 첨부)
 
 🔗 [이어달릴 2번 답글 링크]
-네이버에 [{OFFICIAL_KEYWORD}] 검색하거나 공식 라운지에서 확인:
+👉 프로필 링크에서 3초 만에 이상형 확인하거나 공식 웹에서 확인:
 {OFFICIAL_URL}
+(네이버에 [{OFFICIAL_KEYWORD}] 검색)
 
 
 [6] 📘 페이스북 (Facebook) 피드 포스팅 가이드
@@ -224,7 +225,7 @@ Aura 실전 소개팅 백과 (2030 매너 꿀팁)
 👉 상세 확인은 첫 번째 댓글 링크를 확인하세요!
 
 💬 [첫 번째 댓글 (스텔스 링크)]
-Aura AI 데이팅 공식 라운지 바로가기:
+👉 3초 만에 내 이상형/성향 진단 & 공식 웹 바로가기:
 {OFFICIAL_URL}
 (또는 네이버에 '{OFFICIAL_KEYWORD}' 검색)
 

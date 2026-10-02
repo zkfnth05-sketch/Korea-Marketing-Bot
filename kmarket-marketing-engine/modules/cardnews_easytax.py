@@ -20,7 +20,6 @@ from core.scenario_director_cardnews_easytax import ScenarioDirectorCardnewsEasy
 from core.local_gpu_media_generator_easytax import LocalGPUMediaGeneratorEasyTax
 from core.gemini_media_generator import GeminiMediaGenerator
 from core.cardnews_composer_easytax import CardnewsComposerEasyTax
-from core.media_quality_verifier import MediaQualityVerifier
 from core.supabase_manager import SupabaseManager
 from core.gemini_cardnews_copywriter import GeminiCardnewsCopywriter
 from core.auto_publishers.cardnews_multi_publisher import CardnewsMultiPublisher
@@ -40,7 +39,6 @@ class CardnewsEasyTax:
         self.scenario_director = ScenarioDirectorCardnewsEasyTax()
         self.media_gen = LocalGPUMediaGeneratorEasyTax()
         self.composer = CardnewsComposerEasyTax()
-        self.quality_verifier = MediaQualityVerifier(service_id=self.service_id)
         self.supabase = SupabaseManager()
         self.copywriter = GeminiCardnewsCopywriter(service_id=self.service_id)
         self.publisher = CardnewsMultiPublisher()
@@ -93,16 +91,9 @@ class CardnewsEasyTax:
                 hero_image_path = top_img_path
                 logger.info(f"[{lang.upper()}] 🔒 [주인공 1번 슬라이드 앵커 등록 완료]: {hero_image_path.name}")
 
-            # AI 비전 품질 검사관 (로깅 및 품질 측정 전용 - 유료 재촬영 차단)
+            # 파이썬 실물 이미지 확인
             if top_img_path and Path(top_img_path).exists():
-                is_sc = card.get("is_scene_focus", False) or card.get("is_app_screen", False)
-                passed, q_score, reason, _ = self.quality_verifier.verify_scene_image(
-                    top_img_path,
-                    scene_name=f"EasyTax Card Slide {s_idx} ({card.get('title')})",
-                    lang=lang,
-                    is_scene_focus=is_sc
-                )
-                logger.info(f"[{lang.upper()}] 🖼 EasyTax 카드뉴스 슬라이드 {s_idx}/5 AI 품질 점수: {q_score}점 ({reason})")
+                logger.info(f"[{lang.upper()}] 🖼 EasyTax 카드뉴스 슬라이드 {s_idx}/5 파이썬 실물 확인 완료 -> {Path(top_img_path).name}")
 
 
             # 2. 7:3 분할 캔버스 합성 (1080x1350)

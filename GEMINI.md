@@ -35,7 +35,7 @@
 
 | 브랜드 | 공식 명칭 | 공식 네이버/포털 검색 키워드 | 공식 서비스 랜딩 URL |
 | :--- | :--- | :--- | :--- |
-| **💖 Aura** | **Aura AI 데이팅** | **`아우라AI데이팅`** *(붙여쓰기)* <br>*(예: "네이버에 아우라AI데이팅 한번 검색해보세요")* | `https://aura-ai-dating.vercel.app/lounge` |
+| **💖 Aura** | **Aura AI 데이팅** | **`아우라AI데이팅`** *(붙여쓰기)* <br>*(예: "네이버에 아우라AI데이팅 한번 검색해보세요")* | `https://aura-ai-dating.vercel.app/` |
 | **🛡️ Insurance** | **보험 리밸런스** | **`보험 리밸런스`** *(띄어쓰기 필수)* <br>*(예: "네이버에 보험 리밸런스 검색해보세요")* | `https://insure-rebalance.vercel.app/` |
 | **📈 Stock** | **StockMaster AI** | **`스톡마스터 AI`** *(띄어쓰기 필수)* <br>*(예: "네이버에 스톡마스터 AI 검색해보세요")* | `https://stockmaster-ai.vercel.app/` |
 

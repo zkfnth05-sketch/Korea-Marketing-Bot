@@ -31,12 +31,12 @@ class InsuranceTistoryPublisher:
     """InsureBalance 보험 전용 티스토리 블로그 자동 발행 엔진 (영구 크롬 프로필/세션 지원)"""
 
     def __init__(self, blog_name: Optional[str] = None):
-        loaded_name = "insure-balance"
+        loaded_name = "think83157"
         if ACCOUNTS_FILE.exists():
             try:
                 with open(ACCOUNTS_FILE, "r", encoding="utf-8") as fp:
                     data = json.load(fp)
-                    loaded_name = data.get("credentials", {}).get("tistory_blog_name") or "insure-balance"
+                    loaded_name = data.get("credentials", {}).get("tistory_blog_name") or "think83157"
             except Exception:
                 pass
         self.blog_name = blog_name or loaded_name
@@ -99,7 +99,19 @@ class InsuranceTistoryPublisher:
             browser = None
             context = None
 
-            if has_session_file:
+            if is_persistent:
+                # 🌟 [1순위: 크롬 영구 프로필 모드 - 카카오 세션 자동 연장 & 영구 유지]
+                logger.info(f"📂 [Tistory-Insurance] 크롬 영구 프로필 모드로 실행: {self.profile_dir.name}")
+                context = await p.chromium.launch_persistent_context(
+                    user_data_dir=str(self.profile_dir),
+                    headless=True,
+                    args=["--disable-blink-features=AutomationControlled"],
+                    viewport={"width": 1280, "height": 900},
+                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+                )
+                page = context.pages[0] if context.pages else await context.new_page()
+            elif has_session_file:
+                # 🌟 [2순위: 세션 파일 폴백]
                 logger.info("📄 [Tistory-Insurance] 저장된 세션 파일(storage_state)로 접속")
                 browser = await p.chromium.launch(
                     headless=True,
@@ -111,37 +123,30 @@ class InsuranceTistoryPublisher:
                     viewport={"width": 1280, "height": 900}
                 )
                 page = await context.new_page()
-            elif is_persistent:
-                logger.info(f"📂 [Tistory-Insurance] 크롬 영구 프로필 모드로 실행: {self.profile_dir.name}")
-                context = await p.chromium.launch_persistent_context(
-                    user_data_dir=str(self.profile_dir),
-                    headless=True,
-                    args=["--disable-blink-features=AutomationControlled"],
-                    viewport={"width": 1280, "height": 900},
-                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
-                )
-                page = context.pages[0] if context.pages else await context.new_page()
             else:
                 return {"status": "error", "message": "티스토리 세션 부재 ([1회연동] bat 실행 필요)", "blog_name": self.blog_name}
 
             try:
                 # 1. 글쓰기 페이지 진입
                 await page.goto(write_url, wait_until="domcontentloaded", timeout=timeout_sec * 1000)
-                await asyncio.sleep(1)
+                await asyncio.sleep(2)
 
-                # 🛡️ 세션 만료 즉각 감지
-                cur_url = page.url
-                if "auth" in cur_url or "login" in cur_url or "accounts.kakao.com" in cur_url:
-                    logger.warning("⚠️ [Tistory-Insurance] 티스토리 세션 만료 감지 (1회 연동 로그인 필요)")
-                    return {
-                        "status": "session_expired",
-                        "message": "티스토리 카카오 세션 만료. [1회연동]_보험비교_티스토리_영구로그인.bat 실행 필요",
-                        "blog_name": self.blog_name
-                    }
+                # 2. 제목 입력기 대기 (유연한 선택자 지원)
+                title_el = None
+                try:
+                    title_el = await page.wait_for_selector("#post-title-inp, textarea[id*='title'], input[name='title']", timeout=15000)
+                except Exception:
+                    pass
 
-                # 2. 제목 입력기 대기
-                title_el = await page.wait_for_selector("#post-title-inp, textarea[id*='title'], input[name='title']", timeout=15000)
                 if not title_el:
+                    cur_url = page.url
+                    if "auth" in cur_url or "login" in cur_url or "accounts.kakao.com" in cur_url:
+                        logger.warning("⚠️ [Tistory-Insurance] 티스토리 세션 만료 감지 (1회 연동 로그인 필요)")
+                        return {
+                            "status": "session_expired",
+                            "message": "티스토리 카카오 세션 만료. [1회연동]_보험비교_티스토리_영구로그인.bat 실행 필요",
+                            "blog_name": self.blog_name
+                        }
                     raise RuntimeError("티스토리 제목 입력 필드를 찾을 수 없습니다.")
 
                 await title_el.fill(title)
@@ -232,7 +237,7 @@ class InsuranceTistoryPublisher:
 
                 # 포스트 번호 파싱
                 post_url = f"https://{self.blog_name}.tistory.com"
-                if "/manage/posts" in final_url:
+                if "/manage/posts" in final_url or "manage" in final_url:
                     try:
                         first_post = await page.wait_for_selector(".link_post, .tit_post a, .item_post a, td.tit a", timeout=5000)
                         if first_post:
@@ -240,7 +245,24 @@ class InsuranceTistoryPublisher:
                             if href:
                                 post_url = href if href.startswith("http") else f"https://{self.blog_name}.tistory.com{href}"
                     except Exception:
-                        post_url = f"https://{self.blog_name}.tistory.com"
+                        pass
+
+                if "manage" in post_url:
+                    try:
+                        import urllib.request
+                        import xml.etree.ElementTree as ET
+                        rss_url = f"https://{self.blog_name}.tistory.com/rss"
+                        req = urllib.request.Request(rss_url, headers={"User-Agent": "Mozilla/5.0"})
+                        with urllib.request.urlopen(req, timeout=5) as resp:
+                            root = ET.fromstring(resp.read().decode("utf-8"))
+                            items = root.findall("./channel/item")
+                            if items and items[0].find("link") is not None:
+                                post_url = items[0].find("link").text.strip()
+                    except Exception:
+                        pass
+
+                if "manage" in post_url:
+                    post_url = f"https://{self.blog_name}.tistory.com/"
 
                 logger.info(f"🎉 [Tistory-Insurance] 티스토리 포스팅 성공: {post_url}")
                 return {

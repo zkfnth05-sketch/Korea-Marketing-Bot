@@ -4,7 +4,7 @@ AuraSNSGuideGenerator - 📢 [Aura 데이팅 전용 숏폼 5대 SNS 포스팅 �
 - 유튜브 쇼츠(YouTube Shorts), 틱톡(TikTok), 인스타그램 릴스(Instagram Reels), 스레드(Threads), 페이스북 릴스(Facebook Reels)
 - 숏폼 영상 1편이 생성될 때마다 해당 영상 폴더 내에 'SNS_포스팅_가이드.txt'를 100% 무인 자동 생성
 - 관리자가 복사(Ctrl+C)해서 즉시 포스팅할 수 있는 완벽한 템플릿 제공
-- 공식 검색어: '아우라AI데이팅' (붙여쓰기 철칙) / 공식 URL: https://aura-ai-dating.vercel.app/lounge
+- 공식 검색어: '아우라AI데이팅' (붙여쓰기 철칙) / 공식 URL: https://aura-ai-dating.vercel.app/
 """
 
 import logging
@@ -25,13 +25,13 @@ AURA_TOPIC_SNS_DATA: Dict[int, Dict[str, Any]] = {
             "눈치 보지 말고 매너 있게 1초 만에 탈출하세요.\n\n"
             "👉 지금 바로 나만의 인연/동네 친구 찾기\n"
             "🔗 네이버 검색창에 [아우라AI데이팅] 검색!\n"
-            "공식 라운지: https://aura-ai-dating.vercel.app/lounge\n"
+            "공식 라운지: https://aura-ai-dating.vercel.app/\n"
         ),
         "pinned_comment": "분위기 싸한 소개팅, 억지로 버티지 마세요! 네이버에 '아우라AI데이팅' 검색하고 안심 탈출 기능 무료 체험해보세요 ✨",
         "tiktok_caption": (
             "소개팅 폭망했을 때 버튼 하나로 탈출하는 레전드 기능 ㅋㅋㅋ\n"
             "팀장님 긴급 호출 전화 울리자마자 칼퇴하듯 집으로 런!\n"
-            "👇 프로필 링크(Bio)에서 무료 입장 가능!"
+            "👇 프로필 링크(Bio)에서 3초 만에 내 이상형 확인!"
         ),
         "reels_caption": (
             "소개팅 자리에서 밥만 먹고 도망치고 싶었던 분들 필독 🚨\n\n"
@@ -41,7 +41,7 @@ AURA_TOPIC_SNS_DATA: Dict[int, Dict[str, Any]] = {
             "1️⃣ 어색한 자리 합법 탈출! AI 긴급 탈출 전화\n"
             "2️⃣ 유령회원 제로 & 남녀 50:50 완벽 성비 정원제\n"
             "3️⃣ 스토킹 걱정 없는 500m 안심 레이더\n\n"
-            "👉 프로필 링크(@aura_official)나 네이버에서 [아우라AI데이팅]을 검색하세요!"
+            "👉 프로필 링크(@aura_official)에서 3초 이상형 확인 또는 네이버에서 [아우라AI데이팅]을 검색하세요!"
         ),
         "threads_text": (
             "소개팅 나갔는데 사진이랑 실물 너무 달라서 멘붕 온 적 있음?\n"
@@ -65,13 +65,13 @@ AURA_TOPIC_SNS_DATA: Dict[int, Dict[str, Any]] = {
             "언어 장벽 제로 글로벌 데이팅의 시작!\n\n"
             "👉 글로벌 친구 & 인연 찾기\n"
             "🔗 네이버 검색창에 [아우라AI데이팅] 검색!\n"
-            "공식 라운지: https://aura-ai-dating.vercel.app/lounge\n"
+            "공식 라운지: https://aura-ai-dating.vercel.app/\n"
         ),
         "pinned_comment": "언어 장벽 없이 외국인/글로벌 친구 사귀기! 네이버에 '아우라AI데이팅' 검색해보세요 💖",
         "tiktok_caption": (
             "외국어 1도 몰라도 일본인 친구랑 1초 만에 밤샘 통화 가능한 AI 통역 통화 ㄷㄷ\n"
             "내가 한국어로 말하면 실시간 번역 자막이 바로 뜸!\n"
-            "👇 프로필 링크에서 바로 만나보세요!"
+            "👇 프로필 링크(Bio)에서 3초 만에 글로벌 이상형 확인!"
         ),
         "reels_caption": (
             "일본 여행 가기 전에 일본인 친구 사귀고 싶은 사람 손! 🙋‍♀️\n\n"
@@ -80,7 +80,7 @@ AURA_TOPIC_SNS_DATA: Dict[int, Dict[str, Any]] = {
             "1️⃣ 한국어-일본어-영어 실시간 AI 자막 통화\n"
             "2️⃣ 해외 여행 가기 전 현지인 로컬 친구 매칭\n"
             "3️⃣ 100% 본인 인증 회원만 매칭\n\n"
-            "👉 프로필 링크나 네이버에서 [아우라AI데이팅]을 검색해보세요!"
+            "👉 프로필 링크에서 3초 만에 이상형 확인 또는 네이버에서 [아우라AI데이팅]을 검색해보세요!"
         ),
         "threads_text": (
             "일본어 아리가또밖에 모르는데 일본 친구랑 3시간 통화함 ㅋㅋㅋ\n"
@@ -103,13 +103,13 @@ AURA_TOPIC_SNS_DATA: Dict[int, Dict[str, Any]] = {
             "유령회원 제로, 진짜 매칭되는 2030 프리미엄 라운지.\n\n"
             "👉 50:50 VIP 라운지 입장하기\n"
             "🔗 네이버 검색창에 [아우라AI데이팅] 검색!\n"
-            "공식 라운지: https://aura-ai-dating.vercel.app/lounge\n"
+            "공식 라운지: https://aura-ai-dating.vercel.app/\n"
         ),
         "pinned_comment": "남초 현상 없는 완벽한 5:5 성비 소개팅! 네이버에 '아우라AI데이팅' 검색하고 VIP 게이트를 확인해보세요 👑",
         "tiktok_caption": (
             "남초 90% 소개팅 앱들에 질린 분들 주목 🚨\n"
             "남녀 성비 50:50 안 맞으면 문 닫아버리는 정원제 데이팅 앱!\n"
-            "👇 프로필 링크에서 지금 대기 순번 확인해보세요!"
+            "👇 프로필 링크(Bio)에서 3초 만에 내 이상형 확인!"
         ),
         "reels_caption": (
             "기존 소개팅 앱에서 매칭 안 되고 과금만 유도당해서 지치셨나요? 😤\n\n"
@@ -118,7 +118,7 @@ AURA_TOPIC_SNS_DATA: Dict[int, Dict[str, Any]] = {
             "1️⃣ 남녀 성비 50:50 칼같은 정원제 운영\n"
             "2️⃣ 유령회원 및 알바 계정 영구 제명\n"
             "3️⃣ 상위 0.1% 매력 지수 VIP 라운지\n\n"
-            "👉 프로필 링크나 네이버에서 [아우라AI데이팅]을 검색하세요!"
+            "👉 프로필 링크에서 3초 만에 이상형 확인 또는 네이버에서 [아우라AI데이팅]을 검색하세요!"
         ),
         "threads_text": (
             "소개팅 앱 남초 90% 실화냐? 매칭 안 되는 이유가 있었음...\n"
@@ -140,13 +140,13 @@ AURA_TOPIC_SNS_DATA: Dict[int, Dict[str, Any]] = {
             "과한 뽀샵 없이 내 이목구비 그대로 살린 인생 프로필을 만들어보세요.\n\n"
             "👉 내 사진 청담동 화보로 만들기\n"
             "🔗 네이버 검색창에 [아우라AI데이팅] 검색!\n"
-            "공식 라운지: https://aura-ai-dating.vercel.app/lounge\n"
+            "공식 라운지: https://aura-ai-dating.vercel.app/\n"
         ),
         "pinned_comment": "사진 한 장으로 인생 프로필 완성! 네이버에 '아우라AI데이팅' 검색하고 무료 AI 화보 받아보세요 📸",
         "tiktok_caption": (
             "소개팅 사진 없어서 고민인 사람? 방구석 셀카 1초 만에 청담동 화보로 바꿔줌 ㄷㄷ\n"
             "과한 포토샵 아니고 이목구비 찰떡 살린 실사 화보!\n"
-            "👇 프로필 링크에서 지금 바로 생성해보세요!"
+            "👇 프로필 링크(Bio)에서 3초 만에 인생 프로필 & 이상형 확인!"
         ),
         "reels_caption": (
             "소개팅 매칭률 90%는 '첫인상 사진'에서 결정됩니다 📸\n\n"
@@ -155,7 +155,7 @@ AURA_TOPIC_SNS_DATA: Dict[int, Dict[str, Any]] = {
             "1️⃣ 어색한 뽀샵 NO! 자연스러운 고급 피부 텍스처\n"
             "2️⃣ 청담동 조명 & 황금비율 구도 자동 매칭\n"
             "3️⃣ 프로필 등록 시 매칭률 300% 상승\n\n"
-            "👉 프로필 상단 링크나 네이버에서 [아우라AI데이팅]을 검색하세요!"
+            "👉 프로필 링크에서 3초 만에 AI 프로필 & 이상형 확인 또는 네이버에서 [아우라AI데이팅]을 검색하세요!"
         ),
         "threads_text": (
             "소개팅 앱 프로필 사진에 셀카 올리면 매칭 안 되는 거 국룰...\n"
@@ -178,13 +178,13 @@ AURA_TOPIC_SNS_DATA: Dict[int, Dict[str, Any]] = {
             "시간 낭비 없는 진짜 가치관 매칭의 세계!\n\n"
             "👉 내 가치관 궁합 테스트하기\n"
             "🔗 네이버 검색창에 [아우라AI데이팅] 검색!\n"
-            "공식 라운지: https://aura-ai-dating.vercel.app/lounge\n"
+            "공식 라운지: https://aura-ai-dating.vercel.app/\n"
         ),
         "pinned_comment": "연락 스타일부터 가치관까지 딱 맞는 연애! 네이버에 '아우라AI데이팅' 검색해보세요 💖",
         "tiktok_caption": (
             "데이트 비용 더치페이 vs 번갈아 내기? 연락 하루종일 vs 용건만?\n"
             "나랑 가치관 100% 일치하는 사람만 골라주는 데이팅 밸런스 게임 ㅋㅋㅋ\n"
-            "👇 프로필 링크에서 테스트해보세요!"
+            "👇 프로필 링크(Bio)에서 3초 만에 연애 가치관 테스트 & 이상형 확인!"
         ),
         "reels_caption": (
             "연애할 때 가치관 안 맞으면 결국 헤어지게 됩니다 💔\n\n"
@@ -193,7 +193,7 @@ AURA_TOPIC_SNS_DATA: Dict[int, Dict[str, Any]] = {
             "1️⃣ 연애 가치관 12가지 항목 100% 매칭률 분석\n"
             "2️⃣ 대화 전 서로의 라이프스타일 미리 확인\n"
             "3️⃣ 성향 불일치로 인한 감정 낭비 제로\n\n"
-            "👉 프로필 링크나 네이버에서 [아우라AI데이팅]을 검색하세요!"
+            "👉 프로필 링크에서 3초 만에 가치관 테스트 & 이상형 확인 또는 네이버에서 [아우라AI데이팅]을 검색하세요!"
         ),
         "threads_text": (
             "데이트 비용 전액 부담 vs 5:5 더치페이, 뭐가 맞다고 생각함?\n"
@@ -216,13 +216,13 @@ AURA_TOPIC_SNS_DATA: Dict[int, Dict[str, Any]] = {
             "대화 끊길 걱정 없이 자연스러운 티키타카를 시작하세요.\n\n"
             "👉 AI 첫대화 추천받기\n"
             "🔗 네이버 검색창에 [아우라AI데이팅] 검색!\n"
-            "공식 라운지: https://aura-ai-dating.vercel.app/lounge\n"
+            "공식 라운지: https://aura-ai-dating.vercel.app/\n"
         ),
         "pinned_comment": "첫마디 읽씹 방지! 답장률 99% AI 대화 비서, 네이버에 '아우라AI데이팅' 검색해보세요 💬",
         "tiktok_caption": (
             "소개팅 매칭되고 첫마디 뭐라고 보내야 할지 10분 고민하는 사람 ㅋㅋㅋ\n"
             "AI가 상대방 취향 분석해서 답장 100% 오는 멘트 써줌 ㄷㄷ\n"
-            "👇 프로필 링크에서 확인해보세요!"
+            "👇 프로필 링크(Bio)에서 3초 만에 첫대화 멘트 & 이상형 확인!"
         ),
         "reels_caption": (
             "소개팅 앱에서 '안녕하세요'는 읽씹 1순위 멘트입니다 🚫\n\n"
@@ -231,7 +231,7 @@ AURA_TOPIC_SNS_DATA: Dict[int, Dict[str, Any]] = {
             "1️⃣ 상대 프로필 기반 답장 유도형 첫인사 추천\n"
             "2️⃣ 어색한 침묵 깰 수 있는 맞춤형 스몰토크 제안\n"
             "3️⃣ 만남 약속으로 이어지는 자연스러운 멘트 가이드\n\n"
-            "👉 프로필 링크나 네이버에서 [아우라AI데이팅]을 검색하세요!"
+            "👉 프로필 링크에서 3초 만에 티키타카 이상형 확인 또는 네이버에서 [아우라AI데이팅]을 검색하세요!"
         ),
         "threads_text": (
             "소개팅 앱에서 매칭됐을 때 가장 받기 싫은 첫마디:\n"
@@ -256,13 +256,13 @@ AURA_TOPIC_SNS_DATA: Dict[int, Dict[str, Any]] = {
             "나만의 매력을 알고 나면 소개팅 매칭 성공률이 수직 상승합니다.\n\n"
             "👉 내 AI 아우라 매력 진단받기\n"
             "🔗 네이버 검색창에 [아우라AI데이팅] 검색!\n"
-            "공식 라운지: https://aura-ai-dating.vercel.app/lounge\n"
+            "공식 라운지: https://aura-ai-dating.vercel.app/\n"
         ),
         "pinned_comment": "내 매력 지수 상위 몇 %? 네이버에 '아우라AI데이팅' 검색하고 무료 AI 진단 받아보세요 ✨",
         "tiktok_caption": (
             "친구들이랑 다 같이 해봤는데 소름 돋게 정확한 AI 외모/매력 분석 ㅋㅋㅋ\n"
             "내 매력 키워드랑 상위 % 바로 나옴!\n"
-            "👇 프로필 링크에서 지금 무료로 진단해보세요!"
+            "👇 프로필 링크(Bio)에서 3초 만에 내 이상형 & 매력 진단하기!"
         ),
         "reels_caption": (
             "내 진짜 매력과 아우라를 객관적으로 분석해주는 AI 진단 등장! 🔍\n\n"
@@ -271,7 +271,7 @@ AURA_TOPIC_SNS_DATA: Dict[int, Dict[str, Any]] = {
             "1️⃣ 상위 % 매력 지수 및 외모 타입 분석\n"
             "2️⃣ 나에게 찰떡으로 꽂히는 이성 취향 매칭\n"
             "3️⃣ 프로필 매력도 극대화 꿀팁 제공\n\n"
-            "👉 프로필 상단 링크나 네이버에서 [아우라AI데이팅]을 검색하세요!"
+            "👉 프로필 링크에서 3초 만에 매력 진단 & 이상형 확인 또는 네이버에서 [아우라AI데이팅]을 검색하세요!"
         ),
         "threads_text": (
             "AI 외모 진단 돌려봤는데 상위 0.1% 여우상 나옴 ㅋㅋㅋ\n"
@@ -294,13 +294,13 @@ AURA_TOPIC_SNS_DATA: Dict[int, Dict[str, Any]] = {
             "스토킹 걱정 제로! 성수동 카페 메이트, 한강 러닝 메이트를 안전하게 당일 번개로 만나보세요.\n\n"
             "👉 안전한 동네 친구 번개 퀘스트\n"
             "🔗 네이버 검색창에 [아우라AI데이팅] 검색!\n"
-            "공식 라운지: https://aura-ai-dating.vercel.app/lounge\n"
+            "공식 라운지: https://aura-ai-dating.vercel.app/\n"
         ),
         "pinned_comment": "스토킹 걱정 제로! 500m 안심 지터링 보안 동네 친구, 네이버에 '아우라AI데이팅' 검색해보세요 🛡️",
         "tiktok_caption": (
             "동네 친구 찾고 싶은데 집 주소 털릴까 봐 불안했던 사람 필독 🚨\n"
             "500m 랜덤 보안으로 내 위치 철통 방어하면서 당일 번개 메이트 찾기!\n"
-            "👇 프로필 링크에서 동네 퀘스트 확인해보세요!"
+            "👇 프로필 링크(Bio)에서 3초 만에 동네 500m 안심 이상형 확인!"
         ),
         "reels_caption": (
             "동네 친구 만나고 싶은데 위치 노출될까 봐 무서우셨죠? 🛡️\n\n"
@@ -309,7 +309,7 @@ AURA_TOPIC_SNS_DATA: Dict[int, Dict[str, Any]] = {
             "1️⃣ 실제 집 주소 노출 ZERO! 500m 지터링 보안\n"
             "2️⃣ 성수동 카페 번개, 러닝 메이트 당일 퀘스트\n"
             "3️⃣ 100% 실명/본인 인증 안전한 동네 친구\n\n"
-            "👉 프로필 링크나 네이버에서 [아우라AI데이팅]을 검색하세요!"
+            "👉 프로필 링크에서 3초 만에 동네 안심 이상형 확인 또는 네이버에서 [아우라AI데이팅]을 검색하세요!"
         ),
         "threads_text": (
             "동네 산책 메이트나 러닝 친구 찾을 때 집 위치 노출 불안한 사람 나뿐임?\n"
@@ -329,7 +329,7 @@ class AuraSNSGuideGenerator:
     """Aura 데이팅 전용 5대 SNS 포스팅 가이드 텍스트 자동 생성기"""
 
     OFFICIAL_SEARCH_KEYWORD = "아우라AI데이팅"
-    OFFICIAL_LANDING_URL = "https://aura-ai-dating.vercel.app/lounge"
+    OFFICIAL_LANDING_URL = "https://aura-ai-dating.vercel.app/"
 
     @classmethod
     def generate_guide_content(

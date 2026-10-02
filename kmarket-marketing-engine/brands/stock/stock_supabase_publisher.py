@@ -116,6 +116,20 @@ class StockSupabasePublisher:
                 "created_at": datetime.utcnow().isoformat()
             }
 
+            # 3. 🛡️ 중복 도배 원천 차단 게이트 (동일 제목 이미 존재 시 INSERT 대신 UPDATE)
+            existing = self.client.table("quant_research_posts").select("id").eq("title", title).execute()
+            if existing.data and len(existing.data) > 0:
+                existing_id = existing.data[0].get("id")
+                logger.info(f"ℹ️ [StockSupabase] 동일 제목 포스트(ID: {existing_id})가 이미 존재하여 최신 전광판 데이터로 안전하게 갱신(UPDATE)합니다.")
+                res = self.client.table("quant_research_posts").update(post_data).eq("id", existing_id).execute()
+                return {
+                    "status": "success",
+                    "post_id": existing_id,
+                    "title": title,
+                    "category": category,
+                    "is_updated": True
+                }
+
             res = self.client.table("quant_research_posts").insert(post_data).execute()
             
             if res.data and len(res.data) > 0:

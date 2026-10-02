@@ -25,15 +25,15 @@ from .stock_shorts_scenario_director import StockShortsScenarioDirector
 from brands.stock.stock_shorts_script_writer import StockShortsScriptWriter
 from .shorts_character_anchor_stock import build_stock_shorts_t2i_character_prompt
 from .s2v_clip_stitcher import S2VClipStitcher
-from .gemini_tts_synthesizer import GeminiTTSSynthesizer
+from brands.stock.stock_voice_cloner import StockVoiceCloner
 
 logger = logging.getLogger("StockShortsProducer")
 
 
 class StockShortsProducer(BaseShortsProducer):
-    """📈 StockMaster AI 숏폼 자동 생산 엔진 (독립 레고 블록 + Wan 2.1/2.2 + Gemini TTS + 실물 웹앱 녹화)"""
+    """📈 StockMaster AI 숏폼 자동 생산 엔진 (알리바바 CosyVoice 진우 보이스 + Wan 2.1/2.2 + 실물 웹앱 녹화)"""
 
-    def __init__(self):
+    def __init__(self, use_voice_cloner: bool = True):
         super().__init__("Stock")
         # 산출물 절대 경로: 바탕화면/한국 숏폼_산출물/Stock
         self.output_base = Path(r"C:\Users\zkfnt\Desktop\한국 숏폼_산출물\Stock")
@@ -43,10 +43,14 @@ class StockShortsProducer(BaseShortsProducer):
         self.cta_card = StockCTACard()
         self.script_director = StockShortsScenarioDirector()
         self.script_writer = StockShortsScriptWriter()
-        self.gemini_tts = GeminiTTSSynthesizer(default_voice="Aoede")
+        
+        # 🎙️ 알리바바 CosyVoice 진우(Jinwoo) 보이스 복제기 (1순위 알리바바 -> 2순위 Typecast -> 3순위 Edge-TTS)
+        self.voice_cloner = StockVoiceCloner(output_dir=str(self.output_base))
+        self.tts = self.voice_cloner
+
         self.stitcher = S2VClipStitcher(
             wan_client=self.wan_client,
-            tts_synthesizer=self.gemini_tts,
+            tts_synthesizer=self.tts,
             ffmpeg_exe=self.composer.ffmpeg_exe
         )
 
@@ -252,10 +256,10 @@ class StockShortsProducer(BaseShortsProducer):
 
         logger.info(f"🚀 [주식 숏폼] 생산 시작: 주제 {topic_id} [{theme_name}] | 성별: {effective_gender} | seed: {seed}")
 
-        # 3. [Step 1] Google Gemini 2.5 Flash TTS 초실사 음성 합성
+        # 3. [Step 1] Alibaba CosyVoice 음성 복제 합성 (1순위 알리바바 -> 2순위 Typecast -> 3순위 Edge-TTS)
         voice_lang = "ko"
-        logger.info(f"🎙️ [Step 1] Google Gemini 2.5 Flash TTS 초실사 음성 합성 (Aoede, {effective_gender})...")
-        hook_wav_path = self.gemini_tts.generate_speech_wav(
+        logger.info(f"🎙️ [Step 1] 알리바바 CosyVoice 음성 합성 진행 ({effective_gender})...")
+        hook_wav_path = self.tts.generate_speech_wav(
             text=speech_hook,
             lang=voice_lang,
             gender=effective_gender,
@@ -263,7 +267,7 @@ class StockShortsProducer(BaseShortsProducer):
             pitch=voice_pitch,
             filename_prefix=f"stock_hook_{topic_id}_{dt_str}"
         )
-        app_wav_path = self.gemini_tts.generate_speech_wav(
+        app_wav_path = self.tts.generate_speech_wav(
             text=speech_app,
             lang=voice_lang,
             gender=effective_gender,
@@ -271,7 +275,7 @@ class StockShortsProducer(BaseShortsProducer):
             pitch=voice_pitch,
             filename_prefix=f"stock_app_{topic_id}_{dt_str}"
         )
-        cta_wav_path = self.gemini_tts.generate_speech_wav(
+        cta_wav_path = self.tts.generate_speech_wav(
             text=speech_cta,
             lang=voice_lang,
             gender=effective_gender,
@@ -279,7 +283,7 @@ class StockShortsProducer(BaseShortsProducer):
             pitch=voice_pitch,
             filename_prefix=f"stock_cta_{topic_id}_{dt_str}"
         )
-        full_wav_path = self.gemini_tts.generate_speech_wav(
+        full_wav_path = self.tts.generate_speech_wav(
             text=full_speech,
             lang=voice_lang,
             gender=effective_gender,
@@ -476,9 +480,9 @@ class StockShortsProducer(BaseShortsProducer):
             "지금 네이버에 '스톡마스터 AI'를 검색해보세요!"
         )
 
-        # 2. [Step 1] Google Gemini 2.5 Flash TTS 초실사 성우 음성 합성 (24.5초)
-        logger.info("🎙️ [Step 1] Google Gemini 2.5 Flash TTS 초실사 성우 음성 합성...")
-        speech_wav = self.gemini_tts.generate_speech_wav(
+        # 2. [Step 1] Alibaba CosyVoice 초실사 성우 음성 합성 (24.5초)
+        logger.info("🎙️ [Step 1] Alibaba CosyVoice 음성 합성 진행...")
+        speech_wav = self.tts.generate_speech_wav(
             text=full_speech,
             lang="ko",
             gender="male",

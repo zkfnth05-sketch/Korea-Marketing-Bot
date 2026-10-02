@@ -124,7 +124,7 @@ class PromptDirectorShortsAura:
 
     BRAND_NAME = "Aura AI 데이팅"
     OFFICIAL_SEARCH_KEYWORD = "아우라AI데이팅"
-    LANDING_URL = "https://aura-ai-dating.vercel.app/lounge"
+    LANDING_URL = "https://aura-ai-dating.vercel.app/"
 
     @classmethod
     def get_topic(cls, topic_id: int) -> Dict[str, Any]:

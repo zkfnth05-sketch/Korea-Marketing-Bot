@@ -22,7 +22,7 @@ import json
 import logging
 import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, List, Optional
 
 if sys.platform == "win32":
     try:
@@ -62,13 +62,13 @@ class StockMetaScheduler:
 
     TOPICS = [
         {"topic_id": 1, "theme_name": "삼성전자 vs SK하이닉스 HBM 수급 대결"},
-        {"topic_id": 2, "theme_name": "미국 배당성장 ETF(SCHD·JEPQ) 월 100만원 배당"},
-        {"topic_id": 3, "theme_name": "엔비디아(NVDA) AI 밸류에이션 및 적정주가"},
-        {"topic_id": 4, "theme_name": "S&P500 vs 나스닥100 적립식 복리 비교"},
-        {"topic_id": 5, "theme_name": "테슬라(TSLA) 로보택시 & FSD 퀀트 분석"},
-        {"topic_id": 6, "theme_name": "직장인 뇌동매매 방지 손절매 및 분할매수 원칙"},
-        {"topic_id": 7, "theme_name": "밸류업 프로그램 저PBR 고배당 금융주"},
-        {"topic_id": 8, "theme_name": "AI 퀀트 적정주가 & 외국인 쌍끌이 레이더"}
+        {"topic_id": 2, "theme_name": "국내 고배당주(금융지주·맥쿼리) 월배당 시뮬레이션"},
+        {"topic_id": 3, "theme_name": "코스피·코스닥 세력 체결강도 120% 돌파 유망주"},
+        {"topic_id": 4, "theme_name": "밸류업 프로그램 저PBR 고배당 금융주"},
+        {"topic_id": 5, "theme_name": "직장인 뇌동매매 방지 AI 손절매 & 리스크 가드"},
+        {"topic_id": 6, "theme_name": "코스피200 우량주 vs 코스닥 성장주 직장인 월적립식 복리"},
+        {"topic_id": 7, "theme_name": "외국인·기관 쌍끌이 순매수 실시간 레이더"},
+        {"topic_id": 8, "theme_name": "초보 탈출! 원클릭 AI 종목 재무 건전성 진단"}
     ]
 
     def __init__(self):
@@ -143,15 +143,8 @@ class StockMetaScheduler:
         slide_paths = self.find_desktop_cardnews(topic_id)
         shorts_path = self.find_desktop_shorts(topic_id)
 
-        # 0. 포스팅 직전 스텔스 인간 행동 웜업 (신뢰도 충전)
-        try:
-            from brands.stock.stock_meta_stealth_incubator import StockMetaStealthIncubator
-            incubator = StockMetaStealthIncubator(headless=True)
-            incubator.run_warmup_session(duration_seconds=15)
-        except Exception:
-            pass
-
-        # 4단 티어 바이럴 해시태그 조립
+        # 🚀 [코드 분리 원칙] 인간 행동(체류/좋아요)은 StockHumanBehaviorBot이 하루 30분 정시 전담!
+        # API 송출 봇은 0.1초 고속 정시 배포만 깔끔하게 실행합니다.
         insta_tags = " ".join(self.hashtag_matrix.get_instagram_hashtags(topic_id=topic_id, count=18))
         fb_tags = " ".join(self.hashtag_matrix.get_facebook_hashtags(topic_id=topic_id, count=6))
 

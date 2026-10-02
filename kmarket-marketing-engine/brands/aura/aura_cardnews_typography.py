@@ -25,7 +25,7 @@ class AuraCardnewsTypography:
     """💖 Aura 전용 1080x1350 카드뉴스 고화질 무결점 타이포그래피 렌더러"""
 
     OFFICIAL_KEYWORD = "아우라AI데이팅"
-    OFFICIAL_URL = "https://aura-ai-dating.vercel.app/lounge"
+    OFFICIAL_URL = "https://aura-ai-dating.vercel.app/"
     BRAND_NAME = "AURA"
     BRAND_SUB = "50:50 남녀 황금 성비율"
 

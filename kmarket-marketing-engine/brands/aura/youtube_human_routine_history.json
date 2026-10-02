@@ -1,0 +1,58 @@
+[
+  {
+    "timestamp": "2026-10-02 16:30:13",
+    "slot_id": "afternoon",
+    "slot_name": "☕ 오후 휴식 쇼츠 (7분)",
+    "target_min": 7,
+    "target_likes": 3,
+    "actual_sec": 424,
+    "likes_given": 0,
+    "shorts_watched": 14,
+    "comments_inspected": 0,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "aura"
+  },
+  {
+    "timestamp": "2026-10-02 18:26:23",
+    "slot_id": "now_test",
+    "slot_name": "🎬 유튜브 즉시 검증 세션",
+    "target_min": 1.0,
+    "target_likes": 3,
+    "actual_sec": 79,
+    "likes_given": 2,
+    "shorts_watched": 2,
+    "comments_inspected": 1,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "aura"
+  },
+  {
+    "timestamp": "2026-10-02 22:30:13",
+    "slot_id": "night",
+    "slot_name": "🌙 야간 침대 쇼츠 (8분)",
+    "target_min": 8,
+    "target_likes": 2,
+    "actual_sec": 485,
+    "likes_given": 2,
+    "shorts_watched": 15,
+    "comments_inspected": 6,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "aura"
+  },
+  {
+    "timestamp": "2026-10-02 22:30:16",
+    "slot_id": "night",
+    "slot_name": "🌙 야간 침대 쇼츠 (8분)",
+    "target_min": 8,
+    "target_likes": 3,
+    "actual_sec": 489,
+    "likes_given": 3,
+    "shorts_watched": 17,
+    "comments_inspected": 3,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "aura"
+  }
+]

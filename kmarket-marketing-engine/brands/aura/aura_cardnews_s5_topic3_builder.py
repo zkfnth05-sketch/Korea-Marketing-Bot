@@ -37,7 +37,7 @@ class AuraCardnewsS5Topic3Builder:
         opt2_title = s5_copy.get("debate_opt2_title", "2번 반대")
         opt2_sub = s5_copy.get("debate_opt2_sub", "내가 가입하고 싶을 때 기다려야 하니 너무 답답하고 과하다!")
 
-        cta_subtext = s5_copy.get("cta_subtext", "✨ 50:50 남녀 황금 성비율 • 오늘 가입하고 클린 라운지 입장하기")
+        cta_subtext = s5_copy.get("cta_subtext", "👉 프로필 링크에서 3초 만에 내 이상형/성향 확인해보세요! ✨")
 
         html_content = f"""<!DOCTYPE html>
 <html lang="ko">
@@ -215,7 +215,7 @@ class AuraCardnewsS5Topic3Builder:
     <div class="gold-divider w-full max-w-xl opacity-60"></div>
     <div class="flex items-center justify-between w-full max-w-xl text-xs text-zinc-400 font-semibold px-2">
       <span>50:50 남녀 정원제 프리미엄 데이팅</span>
-      <span class="text-amber-400/90 font-mono tracking-wider">aura-ai-dating.vercel.app/lounge</span>
+      <span class="text-amber-400/90 font-mono tracking-wider">aura-ai-dating.vercel.app</span>
     </div>
   </div>
 

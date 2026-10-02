@@ -33,12 +33,12 @@ class StockNaverPublisher:
 
     def __init__(self, blog_id: Optional[str] = None):
         # accounts.json에서 naver_blog_id 자동 로드
-        loaded_id = "zkfnth02"
+        loaded_id = "stockmaster_ai"
         if ACCOUNTS_FILE.exists():
             try:
                 with open(ACCOUNTS_FILE, "r", encoding="utf-8") as fp:
                     data = json.load(fp)
-                    loaded_id = data.get("credentials", {}).get("naver_blog_id") or "zkfnth02"
+                    loaded_id = data.get("credentials", {}).get("naver_blog_id") or "stockmaster_ai"
             except Exception:
                 pass
         self.blog_id = blog_id or loaded_id
@@ -78,22 +78,19 @@ class StockNaverPublisher:
             return {"status": "error", "message": str(e), "blog_id": self.blog_id}
 
     @staticmethod
-    def format_clean_naver_text(raw_text: str, landing_url: str) -> str:
-        """마크다운 기호(#, ###, ![], **)를 완전 제거하고 가독성 높은 네이버 블로그 전용 본문으로 변환"""
+    def format_clean_naver_text(raw_text: str, landing_url: str = "https://stockmaster-ai.vercel.app/") -> str:
+        """마크다운 기호(#, ###, ![], **)를 완전 제거하고 가독성 높은 네이버 블로그 전용 본문으로 변환 (URL 완벽 격리)"""
+        import re
+
         # 1. 마크다운 이미지 태그 제거
         text = re.sub(r'!\[.*?\]\(.*?\)', '', raw_text)
 
-        # 2. 마크다운 링크 [라벨](URL) 정제:
-        # 네이버 에디터에서 (https://...) 뒤의 ')'가 %29로 URL에 포함되는 치명적 404 오류 원천 차단
-        def _clean_md_link(match):
-            label = match.group(1).strip()
-            url = match.group(2).strip()
-            return f"{label}\n👉 {url}"
+        # 2. 본문 중간에 끼어있는 마크다운 링크 및 괄호형 URL 정제
+        text = re.sub(r'\[([^\]]+)\]\((https?://[^\s\)]+)\)', r'\1', text)
+        text = re.sub(r'\((https?://[^\s\)]+)\)', '', text)
 
-        text = re.sub(r'\[([^\]]+)\]\((https?://[^\s\)]+)\)', _clean_md_link, text)
-
-        # 3. 괄호에 둘러싸인 잔여 URL 정제: (https://...) -> https://...
-        text = re.sub(r'\((https?://[^\s\)]+)\)', r' \1 ', text)
+        # 3. 본문 문장 중간의 순수 URL 패턴도 본문에서 제거 (본문 하단 단독 링크 블록으로 일괄 유도)
+        text = re.sub(r'https?://[^\s]+', '', text)
 
         lines = text.split("\n")
         cleaned_lines = []
@@ -112,17 +109,22 @@ class StockNaverPublisher:
                 cleaned_lines.append("  · " + l[2:].strip())
             else:
                 clean_l = l.replace("**", "").replace("__", "")
+                clean_l = clean_l.replace("\u00a0", " ")
+                clean_l = re.sub(r'[ \t]+', ' ', clean_l)
                 cleaned_lines.append(clean_l)
 
         result = "\n".join(cleaned_lines)
         result = re.sub(r'\n{3,}', '\n\n', result).strip()
 
-        if landing_url and landing_url not in result:
-            result += (
-                f"\n\n📈 [StockMaster AI] 10분마다 실시간 350개 국내 주도주 정밀 분석!\n"
-                f"감(Feel)에 의존하는 뇌동매매는 이제 그만! 세력의 체결강도, 블록오더, AI 리스크 방어 신호를 100% 무료로 확인하세요.\n"
-                f"👉 실시간 전광판 바로가기: {landing_url}\n"
-            )
+        # 4. 본문 최하단에 [네이버 포털 검색창 직접 검색 유도 훅 박스] 배치 (영문 URL 생텍스트 완전 배제)
+        result += (
+            f"\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"📈 [StockMaster AI] 10분마다 350개 국내 주도주 AI 퀀트 정밀 분석!\n"
+            f"감에 의존하는 뇌동매매는 이제 그만! 세력 체결강도, 블록오더, 수급 분석을 무료로 확인하세요.\n\n"
+            f"🔍 네이버 검색창에 [스톡마스터 AI]를 검색해 보세요!\n"
+            f"👉 공식 진단실에서 무료 실시간 종목 진단 및 퀀트 지표 확인 가능\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        )
         return result
 
     async def publish_article_async(
@@ -315,7 +317,40 @@ class StockNaverPublisher:
                 final_url = page.url
                 logger.info(f"✅ [Naver-Stock] 발행 후 최종 URL: {final_url}")
 
-                post_url = final_url if "blog.naver.com" in final_url and "postwrite" not in final_url else f"https://blog.naver.com/{self.blog_id}"
+                post_url = ""
+                if "blog.naver.com" in final_url and "postwrite" not in final_url and "Write" not in final_url:
+                    if "logNo=" in final_url or re.search(r'blog\.naver\.com/[^/]+/\d+', final_url):
+                        post_url = final_url
+
+                # URL에 글 번호가 바로 안 보일 경우 RSS로 방금 등록된 글 링크 최종 확인
+                if not post_url:
+                    try:
+                        import urllib.request
+                        import xml.etree.ElementTree as ET
+                        rss_url = f"https://rss.blog.naver.com/{self.blog_id}.xml"
+                        req = urllib.request.Request(rss_url, headers={"User-Agent": "Mozilla/5.0"})
+                        with urllib.request.urlopen(req, timeout=5) as resp:
+                            root = ET.fromstring(resp.read().decode("utf-8", errors="ignore"))
+                            items = root.findall("./channel/item")
+                            if items:
+                                top_item = items[0]
+                                rss_title = top_item.find("title").text if top_item.find("title") is not None else ""
+                                rss_link = top_item.find("link").text if top_item.find("link") is not None else ""
+                                if title[:15] in rss_title or rss_title[:15] in title:
+                                    post_url = rss_link
+                                    logger.info(f"📡 [Naver-Stock] RSS에서 실제 발행 링크 확인 성공: {post_url}")
+                    except Exception as rss_e:
+                        logger.warning(f"⚠️ RSS 확인 통과: {rss_e}")
+
+                if not post_url:
+                    logger.error(f"❌ [Naver-Stock] 실제 글이 발행되지 않았습니다 (최종 페이지: {final_url})")
+                    return {
+                        "status": "error",
+                        "blog_id": self.blog_id,
+                        "message": f"실제 글 발행 미완료 (URL: {final_url})",
+                        "url": ""
+                    }
+
                 logger.info(f"🎉 [Naver-Stock] 최종 공개 발행 완료! {post_url}")
                 return {
                     "status": "success",

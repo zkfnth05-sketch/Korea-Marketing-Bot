@@ -55,23 +55,34 @@ class StockKinScheduler:
         self.pipeline = StockKinPipeline()
 
     def _load_state(self) -> Dict[str, Any]:
-        """일일 등록 상태 로드 (날짜 바뀌면 자동 리셋)"""
+        """일일 등록 상태 로드 (날짜 바뀌면 자동 리셋 & history 실측 건수 100% 동기화)"""
         today_str = datetime.now().strftime("%Y-%m-%d")
-        if STATE_FILE.exists():
-            try:
-                with open(STATE_FILE, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    if data.get("date") == today_str:
-                        return data
-            except Exception:
-                pass
-        return {
+        state = {
             "date": today_str,
             "daily_total": 0,
             "target": self.DAILY_TARGET,
             "last_run_at": "",
             "last_doc_id": ""
         }
+        if STATE_FILE.exists():
+            try:
+                with open(STATE_FILE, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    if data.get("date") == today_str:
+                        state = data
+            except Exception:
+                pass
+
+        # 💡 [Rule 5 준수: 100% 정직한 실측 전수 조사] 실제 등록된 history 파일 전수 카운트
+        try:
+            history = self.pipeline._load_history()
+            actual_today = sum(1 for h in history if str(h.get("created_at", "")).startswith(today_str))
+            if actual_today > state.get("daily_total", 0):
+                state["daily_total"] = actual_today
+        except Exception:
+            pass
+
+        return state
 
     def _save_state(self, state: Dict[str, Any]):
         """일일 등록 상태 저장"""

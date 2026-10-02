@@ -100,7 +100,7 @@ async function loadIRAnalytics(btn) {
         if (!res.ok) return;
         const data = await res.json();
 
-        // 1. 상단 4대 핵심 KPI 카드 (100% 실데이터 - 순 유입자수 & 가입자수 기준)
+        // 1. 상단 4대 핵심 KPI 카드 (100% 실데이터 - 브랜드별 맞춤 렌더링)
         const kpis = data.kpis || {};
         if (document.getElementById("kpi-today-pv")) {
             document.getElementById("kpi-today-pv").innerText = `${(kpis.today_pv || 0).toLocaleString()} 명`;
@@ -109,10 +109,48 @@ async function loadIRAnalytics(btn) {
             document.getElementById("kpi-cumulative-pv").innerText = `${(kpis.cumulative_pv || 0).toLocaleString()} 명`;
         }
         if (document.getElementById("kpi-yoy")) {
-            document.getElementById("kpi-yoy").innerText = kpis.yoy_growth || "회원가입 72명";
+            document.getElementById("kpi-yoy").innerText = kpis.yoy_growth || (selectedIRBrand === "stock" ? "리서치 11건 (회원 3명)" : selectedIRBrand === "insurance" ? "상담신청 288건" : "회원가입 72명");
         }
+        
+        // 4번째 KPI 카드 단위 판별 (주식/보험: 건, 데이팅: 명)
+        const visitorUnit = kpis.visitor_unit || (selectedIRBrand === "stock" ? "건" : selectedIRBrand === "insurance" ? "건" : "명");
         if (document.getElementById("kpi-monthly-visitors")) {
-            document.getElementById("kpi-monthly-visitors").innerText = `${(kpis.monthly_visitors || 0).toLocaleString()} 명`;
+            document.getElementById("kpi-monthly-visitors").innerText = `${(kpis.monthly_visitors || 0).toLocaleString()} ${visitorUnit}`;
+        }
+
+        // 3번째 카드 동적 브랜드 맞춤 전환 (아이콘, 라벨, 서브텍스트, 테마컬러)
+        const iconGrowthEl = document.getElementById("kpi-icon-growth");
+        const labelGrowthEl = document.getElementById("kpi-label-growth");
+        const subGrowthEl = document.getElementById("kpi-sub-growth");
+        const valGrowthEl = document.getElementById("kpi-yoy");
+
+        if (selectedIRBrand === "stock") {
+            if (iconGrowthEl) {
+                iconGrowthEl.innerText = "📈";
+                iconGrowthEl.style.background = "rgba(245,158,11,0.15)";
+                iconGrowthEl.style.color = "#F59E0B";
+            }
+            if (labelGrowthEl) labelGrowthEl.innerText = "Stock 퀀트 리서치 & 회원";
+            if (subGrowthEl) subGrowthEl.innerText = "Supabase quant_research 포스트 실데이터";
+            if (valGrowthEl) valGrowthEl.style.color = "#F59E0B";
+        } else if (selectedIRBrand === "insurance") {
+            if (iconGrowthEl) {
+                iconGrowthEl.innerText = "🛡️";
+                iconGrowthEl.style.background = "rgba(2,132,199,0.15)";
+                iconGrowthEl.style.color = "#0284C7";
+            }
+            if (labelGrowthEl) labelGrowthEl.innerText = "보험 자가진단 & 상담신청";
+            if (subGrowthEl) subGrowthEl.innerText = "Supabase 34개사 자가진단 실데이터";
+            if (valGrowthEl) valGrowthEl.style.color = "#0284C7";
+        } else {
+            if (iconGrowthEl) {
+                iconGrowthEl.innerText = "💖";
+                iconGrowthEl.style.background = "rgba(236,72,153,0.15)";
+                iconGrowthEl.style.color = "#EC4899";
+            }
+            if (labelGrowthEl) labelGrowthEl.innerText = "Aura 실제 회원가입자";
+            if (subGrowthEl) subGrowthEl.innerText = "Supabase users 테이블 실데이터";
+            if (valGrowthEl) valGrowthEl.style.color = "#EC4899";
         }
 
         // 동적 라벨 갱신

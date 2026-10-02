@@ -38,7 +38,7 @@ if str(PROJECT_ROOT) not in sys.path:
 class AuraKinGeminiSolver:
     """💖 Aura 전용 지식iN 5단 키 체인 기반 AI 심사 및 3박자 킬러 답변기"""
 
-    LANDING_URL = "https://aura-ai-dating.vercel.app"
+    LANDING_URL = "https://aura-ai-dating.vercel.app/"
     PASS_SCORE_THRESHOLD = 85 # 85점 이상만 합격
 
     def __init__(self):
@@ -95,7 +95,13 @@ class AuraKinGeminiSolver:
                 from google.genai import types as genai_types
 
                 client = genai.Client(api_key=api_key)
-                models_to_try = ["gemini-2.5-flash", "gemini-3.1-flash-lite"]
+                models_to_try = [
+                    "gemini-2.5-flash-lite",
+                    "gemini-flash-lite-latest",
+                    "gemini-3.1-flash-lite",
+                    "gemini-flash-latest",
+                    "gemini-2.5-flash"
+                ]
 
                 for model_name in models_to_try:
                     try:
