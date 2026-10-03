@@ -23,7 +23,7 @@ import asyncio
 import urllib.parse
 from pathlib import Path
 from datetime import datetime
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Set
 from playwright.async_api import async_playwright
 
 # UTF-8 콘솔 지원
@@ -90,13 +90,15 @@ class StockKinScanner:
         max_questions: int = 5,
         max_days: int = 2,
         max_answers: int = 4,
-        custom_keywords: Optional[List[str]] = None
+        custom_keywords: Optional[List[str]] = None,
+        exclude_doc_ids: Optional[Set[str]] = None
     ) -> List[Dict[str, Any]]:
         """
         초신선 골든 필터 기반 실시간 주식 질문 스캔:
         1. 작성일: 최근 24~48시간 (오늘~어제, max_days=2)만 허용
         2. 답변수: 0개 ~ 최대 4개 이하만 선별
         3. 내 답변 제외: 본인 계정 답변 완료글 배제
+        4. 중복 질문 제외: exclude_doc_ids에 포함된 doc_id 즉시 스킵
         """
         if custom_keywords:
             selected_keywords = custom_keywords
@@ -104,7 +106,7 @@ class StockKinScanner:
             selected_keywords = random.sample(self.all_keywords, min(sample_keywords_count, len(self.all_keywords)))
 
         collected = []
-        seen_doc_ids = set()
+        seen_doc_ids = set(exclude_doc_ids) if exclude_doc_ids else set()
 
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
@@ -207,7 +209,8 @@ class StockKinScanner:
         max_questions: int = 5,
         max_days: int = 2,
         max_answers: int = 4,
-        custom_keywords: Optional[List[str]] = None
+        custom_keywords: Optional[List[str]] = None,
+        exclude_doc_ids: Optional[Set[str]] = None
     ) -> List[Dict[str, Any]]:
         """동기 인터페이스 래퍼"""
         return asyncio.run(self.async_scan_questions(
@@ -215,7 +218,8 @@ class StockKinScanner:
             max_questions=max_questions,
             max_days=max_days,
             max_answers=max_answers,
-            custom_keywords=custom_keywords
+            custom_keywords=custom_keywords,
+            exclude_doc_ids=exclude_doc_ids
         ))
 
     @staticmethod

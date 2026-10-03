@@ -272,7 +272,8 @@ class S2VClipStitcher:
             gender=gender,
             rate=voice_rate,
             pitch=eff_pitch,
-            filename_prefix=f"aura_hook_master_{lang}_{dt_str}"
+            filename_prefix=f"hook_master_{lang}_{dt_str}",
+            output_dir=str(out_folder)
         )
 
         # 2. 통음성을 81프레임(5.0625초) 규격에 맞춰 1차/2차 입력용으로 마이크로초 정밀 슬라이스

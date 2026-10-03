@@ -32,6 +32,7 @@ class StockCafeReplyWriter:
             GEMINI_FREE_API_KEY_AURA_1,
             GEMINI_FREE_API_KEY_AURA_2,
             GEMINI_FREE_API_KEY_AURA_3,
+            GEMINI_FREE_API_KEY_AURA_4,
             GEMINI_PAID_API_KEY_AURA_1,
             GEMINI_API_KEY
         )
@@ -39,6 +40,7 @@ class StockCafeReplyWriter:
             {"name": "STOCK_KEY_1", "key": GEMINI_FREE_API_KEY_AURA_1},
             {"name": "STOCK_KEY_2", "key": GEMINI_FREE_API_KEY_AURA_2},
             {"name": "STOCK_KEY_3", "key": GEMINI_FREE_API_KEY_AURA_3},
+            {"name": "STOCK_KEY_4", "key": GEMINI_FREE_API_KEY_AURA_4},
             {"name": "STOCK_PAID_1", "key": GEMINI_PAID_API_KEY_AURA_1},
             {"name": "DEFAULT", "key": GEMINI_API_KEY}
         ]

@@ -101,7 +101,7 @@ class StockSupabaseManager:
             else:
                 content_type = "image/jpeg"
 
-            bucket_name = "aura-media"
+            bucket_name = "stock-media"
             self.client.storage.from_(bucket_name).upload(
                 path=storage_path,
                 file=file_bytes,

@@ -26,6 +26,7 @@ STOCK_CONFIG = {
     "official_keyword": "스톡마스터 AI",
     "cta_template": "네이버에 스톡마스터 AI 검색해보세요",
     "forbidden_topics": "보험, 데이팅, 소개팅, 연애, 세금, 매칭, 환급",
+    "forbidden_claims": "한정 무료 이벤트, 선착순 마감, 쿠폰, 사은품, 특가, 캐시백, 원금보장, 100% 급등 보장",
     "duration_sec": 30,
     # Stock 30초 글자수 규격 (코드 전수 조사 확정)
     # - stock_gemini_30s_script_writer.py 기준
@@ -49,6 +50,7 @@ class StockHookVariator:
     [절대 규칙]
     - 주제의 컨셉/기능 설명은 그대로 유지
     - 앱 시뮬레이터 UI와 불일치하는 내용 생성 금지
+    - 허위 수익률 보장/이벤트 날조 절대 금지 (객관적 퀀트 데이터 원칙)
     - 캐릭터/의상/배경 프롬프트에는 일절 관여하지 않음
     - 30초 발화 기준 210~230자 규격 칼같이 준수
     """
@@ -64,7 +66,7 @@ class StockHookVariator:
         기존 제미나이 프롬프트에 '추가 삽입'할 훅 아키타입 지시문을 생성.
 
         Args:
-            topic_id: 주제 번호 (1~5)
+            topic_id: 주제 번호 (1~8)
             topic_title: 주제 제목 (예: "삼성전자 vs SK하이닉스 HBM 수급 대결")
             topic_concept: 주제 상세 설명
             app_sim_visual: 앱 시연 화면 설명 (이 범위를 벗어나면 안 됨)
@@ -87,6 +89,11 @@ class StockHookVariator:
 - 검증 허용 범위: {cfg['char_gate_min']}~{cfg['char_gate_max']}자
 - 이 범위를 벗어나면 30초 안에 발화가 불가능하거나 영상과 음성이 불일치합니다.
 - 반드시 공식 검색어 '{cfg['official_keyword']}'를 포함하세요.
+
+### 🚨 [허위 마케팅 및 가짜 이벤트 날조 전면 금지 (절대 위반 금지)]
+- StockMaster AI는 객관적 퀀트 데이터 분석 플랫폼입니다.
+- **절대 '원금보장', '100% 급등 보장', '한정 무료 이벤트', '선착순 마감', '사은품' 등의 거짓말 문구를 지어내지 마세요.**
+- 오직 제공된 "{topic_title}"의 실제 퀀트 기능({topic_concept})만을 객관적이고 스마트한 금융 아나운서 어조로 소개하세요.
 
 ### 🚨 [주제 범위 이탈 절대 금지]
 - 이 대본은 반드시 "{topic_title}" 주제에 대한 것이어야 합니다.

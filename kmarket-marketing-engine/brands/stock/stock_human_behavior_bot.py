@@ -4,7 +4,7 @@
 ========================================================================================
 - 역할:
   1. API 업로드 코드는 0% 배제! 오직 사람처럼 행동(체류, 탐색, 시청, 좋아요)만 전담
-  2. 하루 총 30분을 4개 일과 시간(08:30, 12:30, 15:30, 21:30)으로 분할 실행
+  2. 하루 총 45분을 4개 일과 시간(08:30, 12:30, 15:30, 21:30)으로 분할 실행
   3. [사용자 절대 수칙] 매번 실시할 때마다 좋아요 2~3회씩 실행
   4. 특정 주제 편향 방지: 일상/유머/맛집/반려동물(50%) + 주식/증시/재테크(50%) 다채로운 탐색
   5. Gemini AI 호출 0회 (순수 파이썬 + Playwright 스텔스 브라우저, API 비용 0원)
@@ -87,10 +87,10 @@ class StockHumanBehaviorBot:
     """📈 StockMaster AI 전용 순수 인간 행동 봇 (API 업로드 일체 분리)"""
 
     SLOTS = [
-        {"id": "morning", "time": "08:30", "name": "🌅 아침 출근길 (7분)", "target_min": 7},
-        {"id": "lunch", "time": "12:30", "name": "🍱 점심시간 (8분)", "target_min": 8},
-        {"id": "afternoon", "time": "15:30", "name": "☕ 오후 티타임 (7분)", "target_min": 7},
-        {"id": "night", "time": "21:30", "name": "🌙 야간 침대 휴식 (8분)", "target_min": 8}
+        {"id": "morning", "time": "08:30", "start_h": 8, "start_m": 30, "end_h": 12, "end_m": 29, "name": "🌅 아침 출근길 (11분)", "target_min": 11},
+        {"id": "lunch", "time": "12:30", "start_h": 12, "start_m": 30, "end_h": 15, "end_m": 29, "name": "🍱 점심시간 (12분)", "target_min": 12},
+        {"id": "afternoon", "time": "15:30", "start_h": 15, "start_m": 30, "end_h": 21, "end_m": 29, "name": "☕ 오후 티타임 (11분)", "target_min": 11},
+        {"id": "night", "time": "21:30", "start_h": 21, "start_m": 30, "end_h": 23, "end_m": 59, "name": "🌙 야간 침대 휴식 (11분)", "target_min": 11}
     ]
 
     def __init__(self, headless: bool = True):
@@ -226,8 +226,8 @@ class StockHumanBehaviorBot:
         slot_name = slot.get("name", "인간 행동 세션")
         target_sec = slot.get("target_min", 7) * 60
 
-        total_session_target_likes = random.randint(2, 3)
-        ig_target_likes = 1 if total_session_target_likes == 2 else random.choice([1, 2])
+        total_session_target_likes = random.randint(3, 5)
+        ig_target_likes = random.randint(2, 3)
         yt_target_likes = total_session_target_likes - ig_target_likes
 
         logger.info("=" * 70)
@@ -251,103 +251,110 @@ class StockHumanBehaviorBot:
             "brand": self.brand
         }
 
-        # 1. 인스타그램 & 스레드
-        meta_sec = int(target_sec * 0.5)
-        async with async_playwright() as p:
-            try:
-                ctx = await p.chromium.launch_persistent_context(
-                    user_data_dir=str(self.meta_profile_dir),
-                    headless=self.headless,
-                    user_agent=ua,
-                    viewport={"width": 1280, "height": 850},
-                    args=["--disable-blink-features=AutomationControlled", "--no-sandbox", "--disable-infobars"]
-                )
+        from core.engine.browser_guard import async_browser_lock, clean_browser_profile_locks, get_safe_browser_args
 
-                # meta_session.json 쿠키 주입
-                session_file = CURRENT_DIR / "meta_session.json"
-                if session_file.exists():
-                    try:
-                        with open(session_file, "r", encoding="utf-8") as sf:
-                            sdata = json.load(sf)
-                            cookies = sdata.get("cookies", [])
-                            if cookies:
-                                clean_cookies = []
-                                for c in cookies:
-                                    c_item = {
-                                        "name": c.get("name"),
-                                        "value": c.get("value"),
-                                        "domain": c.get("domain", ".instagram.com"),
-                                        "path": c.get("path", "/")
-                                    }
-                                    if "sameSite" in c and c["sameSite"] in ["Strict", "Lax", "None"]:
-                                        c_item["sameSite"] = c["sameSite"]
-                                    clean_cookies.append(c_item)
-                                await ctx.add_cookies(clean_cookies)
-                                logger.info(f"🍪 [Stock HumanBot] 인스타그램 세션 쿠키 {len(clean_cookies)}개 브라우저 주입 완료")
-                    except Exception as ce:
-                        logger.debug(f"쿠키 주입 예외 (무시): {ce}")
+        clean_browser_profile_locks(self.meta_profile_dir)
+        clean_browser_profile_locks(self.youtube_profile_dir)
 
-                page = ctx.pages[0] if ctx.pages else await ctx.new_page()
-                await page.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
+        async with async_browser_lock(f"Stock 인간행동 세션 ({slot_name})"):
+            # 1. 인스타그램 & 스레드
+            meta_sec = int(target_sec * 0.5)
+            async with async_playwright() as p:
+                try:
+                    ctx = await p.chromium.launch_persistent_context(
+                        user_data_dir=str(self.meta_profile_dir),
+                        headless=self.headless,
+                        user_agent=ua,
+                        viewport={"width": 1280, "height": 850},
+                        args=get_safe_browser_args()
+                    )
 
-                ig_res = await self._simulate_instagram_activity(page, int(meta_sec * 0.7), target_likes=ig_target_likes)
-                summary["actions"].append(ig_res)
-                summary["likes_given"] += ig_res.get("likes", 0)
+                    # meta_session.json 쿠키 주입
+                    session_file = CURRENT_DIR / "meta_session.json"
+                    if session_file.exists():
+                        try:
+                            with open(session_file, "r", encoding="utf-8") as sf:
+                                sdata = json.load(sf)
+                                cookies = sdata.get("cookies", [])
+                                if cookies:
+                                    clean_cookies = []
+                                    for c in cookies:
+                                        c_item = {
+                                            "name": c.get("name"),
+                                            "value": c.get("value"),
+                                            "domain": c.get("domain", ".instagram.com"),
+                                            "path": c.get("path", "/")
+                                        }
+                                        if "sameSite" in c and c["sameSite"] in ["Strict", "Lax", "None"]:
+                                            c_item["sameSite"] = c["sameSite"]
+                                        clean_cookies.append(c_item)
+                                    await ctx.add_cookies(clean_cookies)
+                                    logger.info(f"🍪 [Stock HumanBot] 인스타그램 세션 쿠키 {len(clean_cookies)}개 브라우저 주입 완료")
+                        except Exception as ce:
+                            logger.debug(f"쿠키 주입 예외 (무시): {ce}")
 
-                th_res = await self._simulate_threads_activity(page, int(meta_sec * 0.3))
-                summary["actions"].append(th_res)
+                    page = ctx.pages[0] if ctx.pages else await ctx.new_page()
+                    await page.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
 
-                await ctx.close()
-            except Exception as e:
-                logger.warning(f"메타 브라우저 컨텍스트 오류: {e}")
+                    ig_res = await self._simulate_instagram_activity(page, int(meta_sec * 0.7), target_likes=ig_target_likes)
+                    summary["actions"].append(ig_res)
+                    summary["likes_given"] += ig_res.get("likes", 0)
 
-        # 2. 유튜브
-        yt_sec = int(target_sec * 0.5)
-        async with async_playwright() as p:
-            try:
-                ctx_yt = await p.chromium.launch_persistent_context(
-                    user_data_dir=str(self.youtube_profile_dir),
-                    headless=self.headless,
-                    user_agent=ua,
-                    viewport={"width": 1280, "height": 850},
-                    args=["--disable-blink-features=AutomationControlled", "--no-sandbox", "--disable-infobars"]
-                )
-                # youtube_session.json 쿠키 주입
-                yt_session_file = CURRENT_DIR / "youtube_session.json"
-                if yt_session_file.exists():
-                    try:
-                        with open(yt_session_file, "r", encoding="utf-8") as ysf:
-                            ydata = json.load(ysf)
-                            ycookies = ydata if isinstance(ydata, list) else ydata.get("cookies", [])
-                            if ycookies:
-                                clean_ycookies = []
-                                for c in ycookies:
-                                    c_item = {
-                                        "name": c.get("name"),
-                                        "value": c.get("value"),
-                                        "domain": c.get("domain", ".youtube.com"),
-                                        "path": c.get("path", "/")
-                                    }
-                                    if "sameSite" in c and c["sameSite"] in ["Strict", "Lax", "None"]:
-                                        c_item["sameSite"] = c["sameSite"]
-                                    if c.get("name", "").startswith(("__Secure-", "__Host-")) or c.get("secure"):
-                                        c_item["secure"] = True
-                                    clean_ycookies.append(c_item)
-                                await ctx_yt.add_cookies(clean_ycookies)
-                                logger.info(f"🍪 [Stock HumanBot] 유튜브 세션 쿠키 {len(clean_ycookies)}개 브라우저 주입 완료")
-                    except Exception as ye:
-                        logger.debug(f"유튜브 쿠키 주입 예외: {ye}")
+                    th_res = await self._simulate_threads_activity(page, int(meta_sec * 0.3))
+                    summary["actions"].append(th_res)
 
-                page_yt = ctx_yt.pages[0] if ctx_yt.pages else await ctx_yt.new_page()
-                await page_yt.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
+                    await ctx.close()
+                except Exception as e:
+                    logger.warning(f"메타 브라우저 컨텍스트 오류: {e}")
 
-                yt_res = await self._simulate_youtube_activity(page_yt, yt_sec, target_likes=yt_target_likes)
-                summary["actions"].append(yt_res)
-                summary["likes_given"] += yt_res.get("likes", 0)
+            # 2. 유튜브
+            yt_sec = int(target_sec * 0.5)
+            async with async_playwright() as p:
+                try:
+                    ctx_yt = await p.chromium.launch_persistent_context(
+                        user_data_dir=str(self.youtube_profile_dir),
+                        headless=self.headless,
+                        user_agent=ua,
+                        viewport={"width": 1280, "height": 850},
+                        args=get_safe_browser_args()
+                    )
 
-                await ctx_yt.close()
-            except Exception as e:
-                logger.warning(f"유튜브 브라우저 컨텍스트 오류: {e}")
+                    # youtube_session.json 쿠키 주입
+                    yt_session_file = CURRENT_DIR / "youtube_session.json"
+                    if yt_session_file.exists():
+                        try:
+                            with open(yt_session_file, "r", encoding="utf-8") as ysf:
+                                ydata = json.load(ysf)
+                                ycookies = ydata if isinstance(ydata, list) else ydata.get("cookies", [])
+                                if ycookies:
+                                    clean_ycookies = []
+                                    for c in ycookies:
+                                        c_item = {
+                                            "name": c.get("name"),
+                                            "value": c.get("value"),
+                                            "domain": c.get("domain", ".youtube.com"),
+                                            "path": c.get("path", "/")
+                                        }
+                                        if "sameSite" in c and c["sameSite"] in ["Strict", "Lax", "None"]:
+                                            c_item["sameSite"] = c["sameSite"]
+                                        if c.get("name", "").startswith(("__Secure-", "__Host-")) or c.get("secure"):
+                                            c_item["secure"] = True
+                                        clean_ycookies.append(c_item)
+                                    await ctx_yt.add_cookies(clean_ycookies)
+                                    logger.info(f"🍪 [Stock HumanBot] 유튜브 세션 쿠키 {len(clean_ycookies)}개 브라우저 주입 완료")
+                        except Exception as ye:
+                            logger.debug(f"유튜브 쿠키 주입 예외: {ye}")
+
+                    page_yt = ctx_yt.pages[0] if ctx_yt.pages else await ctx_yt.new_page()
+                    await page_yt.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
+
+                    yt_res = await self._simulate_youtube_activity(page_yt, yt_sec, target_likes=yt_target_likes)
+                    summary["actions"].append(yt_res)
+                    summary["likes_given"] += yt_res.get("likes", 0)
+
+                    await ctx_yt.close()
+                except Exception as e:
+                    logger.warning(f"유튜브 브라우저 컨텍스트 오류: {e}")
 
         elapsed_sec = int(time.time() - session_start)
         summary["actual_sec"] = elapsed_sec
@@ -400,16 +407,16 @@ class StockHumanBehaviorBot:
             "brand_name": self.brand_name,
             "date": today_str,
             "total_minutes": round(total_sec / 60, 1),
-            "target_minutes": 30,
+            "target_minutes": 45,
             "total_likes": total_likes,
-            "target_likes": "세션당 2~3회 (일 8~12회)",
+            "target_likes": "세션당 3~5회 (일 12~20회)",
             "completed_slots": completed_slots,
             "gemini_calls": 0
         }
 
     def run_daemon(self, check_interval_seconds: int = 30):
-        """24시간 365일 4개 일과 시간(08:30, 12:30, 15:30, 21:30) 자동 감시 및 무인 실행 데몬"""
-        logger.info(f"🤖 [{self.brand_name}] 24시간 365일 무인 인간 행동 봇 가동 (하루 30분 4회 분할, 세션당 2~3회 좋아요)")
+        """24시간 365일 4개 일과 시간대 윈도우(아침 08:30~ / 점심 12:30~ / 오후 15:30~ / 야간 21:30~) 자율 보정 데몬"""
+        logger.info(f"🤖 [{self.brand_name}] 24시간 365일 무인 인간 행동 봇 가동 (슬롯 윈도우 자율 보정, 하루 45분 4회 분할, 세션당 3~5회 좋아요)")
         executed_slots = set()
         last_date = ""
 
@@ -417,7 +424,7 @@ class StockHumanBehaviorBot:
             try:
                 now = datetime.now()
                 today_str = now.strftime("%Y-%m-%d")
-                current_hm = now.strftime("%H:%M")
+                cur_min = now.hour * 60 + now.minute
 
                 if today_str != last_date:
                     executed_slots.clear()
@@ -425,13 +432,14 @@ class StockHumanBehaviorBot:
 
                 for slot in self.SLOTS:
                     slot_id = slot["id"]
-                    slot_time = slot.get("time", "")
+                    start_total = slot.get("start_h", 0) * 60 + slot.get("start_m", 0)
+                    end_total = slot.get("end_h", 23) * 60 + slot.get("end_m", 59)
                     exec_key = f"{today_str}_{slot_id}"
 
-                    if current_hm == slot_time and exec_key not in executed_slots:
-                        logger.info(f"⏰ [{self.brand_name}] {slot['name']} 도달! {slot.get('target_min', 7)}분 인간 활동 및 2~3회 좋아요 시작...")
-                        self.execute_slot_session(slot_id)
+                    if start_total <= cur_min <= end_total and exec_key not in executed_slots:
+                        logger.info(f"⏰ [{self.brand_name}] {slot['name']} 골든타임 도달! {slot.get('target_min', 7)}분 인간 활동 및 2~3회 좋아요 시작...")
                         executed_slots.add(exec_key)
+                        self.execute_slot_session(slot_id)
 
                 time.sleep(check_interval_seconds)
             except Exception as e:

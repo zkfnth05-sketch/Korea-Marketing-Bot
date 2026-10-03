@@ -10,5 +10,29 @@
     "privacy_status": "public",
     "published_at": "2026-10-01 14:45:55",
     "message": "YouTube Data API v3 쇼츠 공개 발행 및 고정 댓글 등록 완료"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "topic_id": 2,
+    "video_id": "a57staVHeb8",
+    "video_url": "https://youtube.com/shorts/a57staVHeb8",
+    "comment_id": "Ugwnb-3fVJIq0_pXGrt4AaABAg",
+    "title": "운전자보험 1만원대로 민식이법 벌금/변호사 완벽 방어하는 법 #보험리밸런스 #Shorts",
+    "privacy_status": "public",
+    "published_at": "2026-10-03 12:15:42",
+    "message": "YouTube Data API v3 쇼츠 공개 발행 및 고정 댓글 등록 완료"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "topic_id": 2,
+    "video_id": "syx273YROes",
+    "video_url": "https://youtube.com/shorts/syx273YROes",
+    "comment_id": "UgzQ43H_G44czRd_YBt4AaABAg",
+    "title": "운전자보험 1만원대로 민식이법 벌금/변호사 완벽 방어하는 법 #보험리밸런스 #Shorts",
+    "privacy_status": "public",
+    "published_at": "2026-10-03 15:58:51",
+    "message": "YouTube Data API v3 쇼츠 공개 발행 및 고정 댓글 등록 완료"
   }
 ]

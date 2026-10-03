@@ -53,6 +53,7 @@ class GlobalGPULock:
         self._current_task: Optional[str] = None
         self._task_start_time: Optional[float] = None
         self._queue_count = 0
+        self._reentrant_depth = 0
         self._initialized = True
 
     def _write_status(self, task_name: Optional[str], status: str):
@@ -87,9 +88,16 @@ class GlobalGPULock:
     def acquire(self, task_name: str, timeout_sec: int = 3600) -> bool:
         """
         GPU 독점 점유권 획득. 이미 다른 작업이 돌고 있으면 차분히 대기.
+        (동일 프로세스 내 중첩 호출 시 재진입 Re-entrancy 100% 보장)
         """
         start_wait = time.time()
         logged_wait = False
+
+        # 동일 스레드/프로세스 내 중첩 락(Re-entrancy) 즉시 통과
+        if self._reentrant_depth > 0 and self._current_task is not None:
+            self._reentrant_depth += 1
+            logger.debug(f"🔄 [GPU Lock 재진입] '{task_name}' (현재 깊이: {self._reentrant_depth})")
+            return True
 
         self._queue_count += 1
         try:
@@ -101,15 +109,31 @@ class GlobalGPULock:
                     file_locked = False
                     if LOCK_FILE.exists():
                         try:
-                            # 1시간 이상 방치된 고아 락 파일 자동 청소
-                            file_age = time.time() - LOCK_FILE.stat().st_mtime
-                            if file_age > 3600:
-                                logger.warning(f"⚠️ [GPU Lock] 1시간 경과된 고아 락 파일 감지 -> 자동 정리: {LOCK_FILE}")
+                            content = LOCK_FILE.read_text(encoding="utf-8", errors="ignore").strip()
+                            # 1. 락을 소유한 프로세스 PID 검사
+                            is_pid_alive = False
+                            owner_pid = None
+                            if "pid=" in content:
+                                try:
+                                    import psutil
+                                    pid_str = content.split("pid=")[-1].split(")")[0].strip()
+                                    owner_pid = int(pid_str)
+                                    if psutil.pid_exists(owner_pid):
+                                        is_pid_alive = True
+                                except Exception:
+                                    pass
+                            
+                            if owner_pid == os.getpid():
+                                # 현재 자신의 프로세스가 소유 중인 파일 락 -> 통과!
+                                file_locked = False
+                            elif not is_pid_alive or (time.time() - LOCK_FILE.stat().st_mtime > 3600):
+                                logger.warning(f"⚠️ [GPU Lock] 비정상 종료된 고아 락 파일 감지 -> 자동 정리: {LOCK_FILE}")
                                 LOCK_FILE.unlink(missing_ok=True)
+                                file_locked = False
                             else:
                                 file_locked = True
                         except Exception:
-                            file_locked = True
+                            file_locked = False
 
                     if not file_locked:
                         # 완벽하게 락 획득 성공!
@@ -120,6 +144,7 @@ class GlobalGPULock:
                         
                         self._current_task = task_name
                         self._task_start_time = time.time()
+                        self._reentrant_depth = 1
                         self._write_status(task_name, "running")
 
                         wait_duration = round(time.time() - start_wait, 1)
@@ -149,7 +174,13 @@ class GlobalGPULock:
             self._queue_count = max(0, self._queue_count - 1)
 
     def release(self, task_name: Optional[str] = None):
-        """GPU 점유권 해제 및 VRAM 캐시 자동 정리"""
+        """GPU 점유권 해제 및 VRAM 캐시 자동 정리 (재진입 깊이 관리)"""
+        if self._reentrant_depth > 1:
+            self._reentrant_depth -= 1
+            logger.debug(f"🔄 [GPU Lock 재진입 해제] (남은 깊이: {self._reentrant_depth})")
+            return
+
+        self._reentrant_depth = 0
         try:
             LOCK_FILE.unlink(missing_ok=True)
         except Exception:
@@ -162,12 +193,27 @@ class GlobalGPULock:
         self._task_start_time = None
         self._write_status(None, "idle")
 
+        # 🧹 [자동 VRAM 완전 비우기] 다음 대기 작업을 위해 ComfyUI 모델 캐시 및 VRAM 100% 클린 리셋
+        try:
+            import urllib.request
+            req = urllib.request.Request(
+                "http://127.0.0.1:8188/free",
+                data=json.dumps({"unload_models": True, "free_memory": True}).encode("utf-8"),
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=3) as _:
+                pass
+            logger.debug("🧹 [GPU Lock] 렌더링 완료 후 ComfyUI VRAM 캐시 100% 자동 클린 완료")
+        except Exception:
+            pass
+
         try:
             self._thread_lock.release()
         except RuntimeError:
             pass
 
-        logger.info(f"✅ [GPU 점유권 반환 완료] '{finished_task}' 작업 종료 (소요: {duration}초). 다음 대기 작업에 GPU를 인계합니다.")
+        logger.info(f"✅ [GPU 점유권 반환 및 VRAM 완전 방출 완료] '{finished_task}' 작업 종료 (소요: {duration}초). 다음 대기 작업에 클린 GPU를 인계합니다.")
 
 
 # 글로벌 인스턴스

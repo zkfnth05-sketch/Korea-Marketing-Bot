@@ -302,9 +302,19 @@ class InsuranceMetaPublisher:
             return {"status": "error", "message": str(e), "brand": self.brand}
 
     def publish_instagram_reels(self, video_url: str, caption: str) -> Dict[str, Any]:
-        """📸 인스타그램 릴스(Reels) 비디오 자동 발행"""
+        """📸 인스타그램 릴스(Reels) 비디오 자동 발행 (로컬 MP4 또는 HTTPS URL 지원)"""
         if not bool(self.user_token and self.ig_user_id):
             return {"status": "error", "message": "Instagram 자격 증명 부재", "brand": self.brand}
+
+        # 로컬 파일 경로인 경우 Supabase Storage에 업로드하여 공개 HTTPS URL 확보
+        if os.path.exists(video_url):
+            from brands.insurance.insurance_supabase_manager import InsuranceSupabaseManager
+            mgr = InsuranceSupabaseManager()
+            uploaded_url = mgr.upload_image_to_storage(video_url, bucket_subpath="shorts")
+            if uploaded_url:
+                video_url = uploaded_url
+            else:
+                return {"status": "error", "message": "숏폼 비디오 스토리지 업로드 실패", "brand": self.brand}
 
         create_url = f"{GRAPH_URL}/{self.ig_user_id}/media"
         create_payload = {
@@ -316,15 +326,33 @@ class InsuranceMetaPublisher:
         try:
             data = urllib.parse.urlencode(create_payload).encode('utf-8')
             req = urllib.request.Request(create_url, data=data, method="POST")
-            with urllib.request.urlopen(req, timeout=35) as resp:
+            with urllib.request.urlopen(req, timeout=45) as resp:
                 create_res = json.loads(resp.read().decode('utf-8'))
                 creation_id = create_res.get("id")
 
             if not creation_id:
                 return {"status": "error", "message": "릴스 미디어 컨테이너 생성 실패", "brand": self.brand}
 
+            # 릴스 비디오 Meta 트랜스코딩 완료 대기 (최대 120초 자율 폴링)
             import time
-            time.sleep(5)
+            is_finished = False
+            for _ in range(24):
+                time.sleep(5)
+                status_url = f"{GRAPH_URL}/{creation_id}?fields=status_code,status&access_token={self.user_token}"
+                req_s = urllib.request.Request(status_url, method="GET")
+                try:
+                    with urllib.request.urlopen(req_s, timeout=20) as s_resp:
+                        s_res = json.loads(s_resp.read().decode('utf-8'))
+                        if s_res.get("status_code") == "FINISHED":
+                            is_finished = True
+                            break
+                        elif s_res.get("status_code") == "ERROR":
+                            return {"status": "error", "message": f"릴스 인코딩 오류: {s_res}", "brand": self.brand}
+                except Exception:
+                    pass
+
+            if not is_finished:
+                logger.warning(f"⚠️ [Meta-Insurance] 릴스 인코딩 대기 시간 초과, 즉시 발행 시도: {creation_id}")
 
             publish_url = f"{GRAPH_URL}/{self.ig_user_id}/media_publish"
             publish_payload = {
@@ -333,7 +361,7 @@ class InsuranceMetaPublisher:
             }
             data_pub = urllib.parse.urlencode(publish_payload).encode('utf-8')
             req_pub = urllib.request.Request(publish_url, data=data_pub, method="POST")
-            with urllib.request.urlopen(req_pub, timeout=35) as resp_pub:
+            with urllib.request.urlopen(req_pub, timeout=45) as resp_pub:
                 pub_res = json.loads(resp_pub.read().decode('utf-8'))
                 media_id = pub_res.get("id")
                 logger.info(f"✅ [Meta-Insurance] 인스타그램 릴스 발행 성공! Media ID: {media_id}")
@@ -344,6 +372,10 @@ class InsuranceMetaPublisher:
                     "platform": "instagram_reels",
                     "brand": self.brand
                 }
+        except urllib.error.HTTPError as he:
+            err_body = he.read().decode("utf-8") if hasattr(he, "read") else str(he)
+            logger.error(f"❌ [Meta-Insurance] 인스타그램 릴스 발행 HTTP 에러 ({he.code}): {err_body}")
+            return {"status": "error", "message": f"HTTP {he.code}: {err_body}", "brand": self.brand}
         except Exception as e:
             logger.error(f"❌ [Meta-Insurance] 인스타그램 릴스 발행 실패: {e}")
             return {"status": "error", "message": str(e), "brand": self.brand}

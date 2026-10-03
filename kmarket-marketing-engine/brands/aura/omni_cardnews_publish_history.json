@@ -100,5 +100,99 @@
         "brand": "aura"
       }
     }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-03",
+    "published_at": "2026-10-03 10:36:05",
+    "brand": "aura",
+    "topic_id": 1,
+    "title": "소개팅 첫 만남, 어색함 3초 만에 깨는 대화 치트키 4선",
+    "slides_count": 5,
+    "channels": {
+      "facebook_cardnews": {
+        "status": "error",
+        "message": "카드뉴스 이미지 업로드 실패",
+        "brand": "aura"
+      },
+      "instagram_carousel": {
+        "status": "error",
+        "message": "HTTP 400: {\"error\":{\"message\":\"API access blocked.\",\"type\":\"OAuthException\",\"code\":200,\"fbtrace_id\":\"AUoc_E8evurVpT2lXJqkvQ2\"}}",
+        "brand": "aura"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-03",
+    "published_at": "2026-10-03 11:45:51",
+    "brand": "aura",
+    "topic_id": 3,
+    "title": "카톡 답장 속도와 말투로 읽는 100% 호감 시그널 4가지",
+    "slides_count": 5,
+    "channels": {
+      "facebook_cardnews": {
+        "status": "error",
+        "message": "카드뉴스 이미지 업로드 실패",
+        "brand": "aura"
+      },
+      "instagram_carousel": {
+        "status": "error",
+        "message": "HTTP 400: {\"error\":{\"message\":\"API access blocked.\",\"type\":\"OAuthException\",\"code\":200,\"fbtrace_id\":\"AXcBBn9cfCZr18pmyZuwFAt\"}}",
+        "brand": "aura"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-03",
+    "published_at": "2026-10-03 11:49:12",
+    "brand": "aura",
+    "topic_id": 2,
+    "title": "성수동 소개팅 실패 없는 감성 코스 BEST 4",
+    "slides_count": 5,
+    "channels": {
+      "facebook_cardnews": {
+        "status": "success",
+        "post_id": "1356851504174047_122110944903483292",
+        "comment_id": null,
+        "slides_count": 5,
+        "platform": "facebook",
+        "brand": "aura"
+      },
+      "instagram_carousel": {
+        "status": "success",
+        "media_id": "18111412109143693",
+        "slides_count": 5,
+        "platform": "instagram_carousel",
+        "brand": "aura"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-03",
+    "published_at": "2026-10-03 11:59:27",
+    "brand": "aura",
+    "topic_id": 3,
+    "title": "카톡 답장 속도와 말투로 읽는 100% 호감 시그널 4가지",
+    "slides_count": 5,
+    "channels": {
+      "facebook_cardnews": {
+        "status": "success",
+        "post_id": "1356851504174047_122110951419483292",
+        "comment_id": null,
+        "slides_count": 5,
+        "platform": "facebook",
+        "brand": "aura"
+      },
+      "instagram_carousel": {
+        "status": "success",
+        "media_id": "18104591099265723",
+        "slides_count": 5,
+        "platform": "instagram_carousel",
+        "brand": "aura"
+      }
+    }
   }
 ]

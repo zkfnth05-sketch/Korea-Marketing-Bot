@@ -69,13 +69,30 @@ class WanPipelineClient:
         prompt_dict: Dict[str, Any],
         prefix: str,
         timeout_sec: int = 1800,
-        check_vram_safety: bool = False
+        check_vram_safety: bool = False,
+        task_label: Optional[str] = None
     ) -> List[str]:
         """ComfyUI에 작업을 제출하고 완료될 때까지 대기 후 생성된 이미지 경로 반환 (GPU 전역 순차 대기열 보호)"""
         from core.engine.vram_safety_guard import VRAMSafetyGuard, VRAMSafetyException
         from core.engine.gpu_lock import gpu_lock
 
-        task_label = f"ComfyUI_{prefix}"
+        # 직관적인 한글 GPU 작업 라벨 매핑
+        if not task_label:
+            if "aura_cardnews" in prefix or "cardnews" in prefix:
+                task_label = f"🎨 💖 Aura 데이팅 카드뉴스 실사 사진 렌더링 중 ({prefix})"
+            elif "s2v" in prefix or "wan_s2v" in prefix:
+                task_label = f"🎬 💖 Aura 22초 숏폼 아바타 Wan 2.2 립싱크 영상 생성 중 ({prefix})"
+            elif "stock" in prefix:
+                task_label = f"📈 StockMaster AI 퀀트 숏폼 렌더링 중 ({prefix})"
+            elif "insure" in prefix or "insurance" in prefix:
+                task_label = f"🛡️ 보험 리밸런스 숏폼 렌더링 중 ({prefix})"
+            elif "face_inpaint" in prefix:
+                task_label = f"🎭 Wan 2.1 인물 얼굴 보존 인페인팅 렌더링 중 ({prefix})"
+            elif "cond_bake" in prefix:
+                task_label = f"🧁 텍스트 임베딩 고속 사전 베이킹 중 ({prefix})"
+            else:
+                task_label = f"🎮 GPU 그래픽카드 연산 가동 중 ({prefix})"
+
         with gpu_lock(task_name=task_label, timeout_sec=timeout_sec):
             self.free_vram()
 
@@ -211,25 +228,15 @@ class WanPipelineClient:
             "10": {"class_type": "SaveImage", "inputs": {"images": ["9", 0], "filename_prefix": prefix}}
         }
 
-        # ComfyUI 미실행 또는 접속 불가 시 자율 무중단 캔버스 폴백
+        # ComfyUI 미실행 또는 접속 불가 시 즉시 중단 (빈 캔버스 폴백 100% 영구 차단)
         if not self.check_health():
-            logger.warning(f"⚠️ [WanPipelineClient] ComfyUI 오프라인 상태 감지 - 자율 마스터 캔버스 즉시 생성 ({prefix})")
-            fallback_path = os.path.join(self.comfy_output_dir, f"{prefix}_fallback.png")
-            fb_img = Image.new("RGB", (width, height), (15, 23, 42))
-            fb_img.save(fallback_path, "PNG")
-            return fallback_path
+            raise RuntimeError(f"[WanPipelineClient] ComfyUI 엔진 오프라인 상태 ({prefix}) - 렌더링 불가")
 
-        try:
-            frames = self.submit_and_wait(workflow, prefix=prefix)
-            if not frames:
-                raise RuntimeError("Wan 2.1 T2I 마스터 컷 생성에 실패했습니다.")
-            return frames[0]
-        except Exception as e:
-            logger.warning(f"⚠️ [WanPipelineClient] GPU T2I 작업 중 예외 ({e}) - 자율 마스터 캔버스 폴백")
-            fallback_path = os.path.join(self.comfy_output_dir, f"{prefix}_fallback.png")
-            fb_img = Image.new("RGB", (width, height), (15, 23, 42))
-            fb_img.save(fallback_path, "PNG")
-            return fallback_path
+        task_kr = f"🎨 Wan 2.1 실사 T2I 마스터 사진 렌더링 ({prefix})"
+        frames = self.submit_and_wait(workflow, prefix=prefix, task_label=task_kr)
+        if not frames:
+            raise RuntimeError(f"Wan 2.1 T2I 마스터 컷 생성 실패 ({prefix})")
+        return frames[0]
 
     def generate_t2i_img2img(
         self,
@@ -306,7 +313,7 @@ class WanPipelineClient:
             "10": {"class_type": "SaveImage",  "inputs": {"images": ["9", 0], "filename_prefix": prefix}}
         }
 
-        frames = self.submit_and_wait(workflow, prefix=prefix)
+        frames = self.submit_and_wait(workflow, prefix=prefix, task_label=f"🎭 💖 Aura 카드뉴스 동일인물 씬전환 렌더링 중 ({prefix})")
         if not frames:
             raise RuntimeError("WAN img2img 동일 인물 씬 전환 생성 실패")
         return frames[0]
@@ -367,7 +374,7 @@ class WanPipelineClient:
         )
 
         # 3. 제출 및 대기
-        frames = self.submit_and_wait(workflow, prefix=prefix)
+        frames = self.submit_and_wait(workflow, prefix=prefix, task_label=f"🎭 💖 Aura 카드뉴스 얼굴 보존 인페인팅 렌더링 중 ({prefix})")
         if not frames:
             raise RuntimeError("WAN 얼굴 보존 인페인팅 생성 실패")
         return frames[0]
@@ -469,7 +476,8 @@ class WanPipelineClient:
         }
 
 
-        generated_frames = self.submit_and_wait(workflow, prefix=prefix, check_vram_safety=True)
+        task_s2v = f"🎬 💖 Aura 22초 숏폼 아바타 Wan 2.2 S2V 립싱크 렌더링 중 ({prefix})"
+        generated_frames = self.submit_and_wait(workflow, prefix=prefix, check_vram_safety=True, task_label=task_s2v)
         if not generated_frames:
             raise RuntimeError("Wan 2.2 S2V 렌더링 프레임이 생성되지 않았습니다.")
 

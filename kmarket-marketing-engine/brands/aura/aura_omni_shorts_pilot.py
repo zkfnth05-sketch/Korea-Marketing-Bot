@@ -42,6 +42,7 @@ from brands.aura.aura_hashtag_matrix import AuraHashtagMatrix
 from brands.aura.aura_youtube_api_publisher import AuraYouTubeAPIPublisher
 from brands.aura.aura_naver_clip_publisher import AuraNaverClipPublisher
 from brands.aura.aura_meta_publisher import AuraMetaPublisher
+from brands.aura.aura_mbs_reels_publisher import AuraMBSReelsPublisher
 
 logger = logging.getLogger("AuraOmniShortsPilot")
 
@@ -69,6 +70,7 @@ class AuraOmniShortsPilot:
         self.youtube_pub = AuraYouTubeAPIPublisher()
         self.clip_pub = AuraNaverClipPublisher()
         self.meta_pub = AuraMetaPublisher()
+        self.mbs_pub = AuraMBSReelsPublisher()
         self.history_file = CURRENT_DIR / "omni_shorts_publish_history.json"
         self.state_file = CURRENT_DIR / "omni_shorts_schedule_state.json"
 
@@ -89,13 +91,52 @@ class AuraOmniShortsPilot:
             logger.warning(f"상태 저장 경고: {e}")
 
     def get_next_topic_id(self) -> int:
-        """1~8번 주제 자율 순환"""
+        """
+        🔄 [8-Topic LRU Anti-Duplication Ring Buffer]
+        - 최근 발행 이력(history)을 전수 역추적하여 가장 오랫동안 송출되지 않은 주제(LRU)를 자동 선정
+        - 오늘 이미 송출된 주제는 최우선적으로 배제 (하루 3회 정시 슬롯 간 중복 0% 철통 보장)
+        """
+        all_topics = list(self.HOOK_TITLES.keys())
+        today_str = datetime.now().strftime("%Y-%m-%d")
+
+        history = []
+        if self.history_file.exists():
+            try:
+                with open(self.history_file, "r", encoding="utf-8") as f:
+                    history = json.load(f)
+            except Exception:
+                history = []
+
+        today_published = {
+            item.get("topic_id")
+            for item in history
+            if item.get("date") == today_str and item.get("status") == "success" and item.get("topic_id") is not None
+        }
+
+        last_seen = {}
+        for idx, item in enumerate(reversed(history)):
+            tid = item.get("topic_id")
+            if tid in all_topics and item.get("status") == "success":
+                if tid not in last_seen:
+                    last_seen[tid] = idx
+
+        for tid in all_topics:
+            if tid not in last_seen:
+                last_seen[tid] = 999999
+
+        candidates = [tid for tid in all_topics if tid not in today_published]
+        if not candidates:
+            candidates = all_topics
+
+        candidates.sort(key=lambda t: last_seen.get(t, 999999), reverse=True)
+        chosen_id = candidates[0]
+
         state = self._load_state()
-        last_id = state.get("last_topic_id", 0)
-        next_id = (last_id % 8) + 1
-        state["last_topic_id"] = next_id
+        state["last_topic_id"] = chosen_id
         self._save_state(state)
-        return next_id
+
+        logger.info(f"🔄 [Aura 숏폼 LRU 자동 선정] 후보군 {candidates} ➔ 선정 주제: #{chosen_id} (오늘 송출완료: {today_published})")
+        return chosen_id
 
     def is_already_published_today(self, topic_id: int) -> bool:
         """[중복 방지 락] 오늘 이미 해당 주제가 송출되었는지 점검"""
@@ -113,86 +154,30 @@ class AuraOmniShortsPilot:
 
     def produce_fresh_short(self, topic_id: int) -> str:
         """
-        🎬 [쏘기 직전 1편 신선 제작]
-        - 과거 생성된 오래된 파일을 무단 주워오지 않고, 쏘기 직전 해당 주제 1편을 신선하게 제작
+        🎬 [쏘기 직전 1편 실시간 100% 신선 제작]
+        - 과거 생성된 오래된 파일을 무단 주워오지 않고, 쏘기 직전 해당 주제 1편을 실시간으로 신선하게 제작
+        - 실패 시 절대 옛날 파일을 주워오지 않고 즉시 중단(Fail-Fast)
         """
         logger.info("=" * 70)
-        logger.info(f"🎬 [Aura 숏폼 제작] 쏘기 직전 주제 #{topic_id} 1편 신규 단독 렌더링 시작...")
+        logger.info(f"🎬 [Aura 숏폼 실시간 제작] 쏘기 직전 주제 #{topic_id} 1편 신규 단독 렌더링 시작...")
         logger.info("=" * 70)
 
-        # 1. Aura 숏폼 파이프라인 호출
-        try:
+        from core.engine.gpu_lock import gpu_lock
+        with gpu_lock(f"Aura 숏폼 제작 #{topic_id}"):
             from brands.aura.aura_shorts_pipeline import AuraShortsPipeline
             pipeline = AuraShortsPipeline()
             output_mp4 = pipeline.produce(topic_id=topic_id)
             if output_mp4 and os.path.exists(output_mp4):
-                logger.info(f"🎉 [Aura 숏폼 제작 성공] 갓 생성된 신선한 완제품: {output_mp4}")
+                logger.info(f"🎉 [Aura 숏폼 제작 100% 성공] 방금 생성된 신선한 완제품: {output_mp4}")
                 return str(output_mp4)
-        except Exception as pe:
-            logger.warning(f"⚠️ [Aura 숏폼 엔진 예외] {pe} -> 고유 주제 완제품 탐색 폴백 가동")
-
-        # 2. 폴백: 바탕화면 내 해당 주제 고유 완제품 탐색 (오래된 1번 단일 파일 무한 복제 금지, 주제 일치 검증)
-        desktop_dir = Path(r"C:\Users\zkfnt\Desktop\한국 숏폼_산출물\Aura")
-        if desktop_dir.exists():
-            topic_pattern = f"*주제{topic_id:02d}*.mp4"
-            candidates = list(desktop_dir.glob(f"**/{topic_pattern}"))
-            valid_candidates = [p for p in candidates if "04_app_sim" not in p.name and "temp" not in p.name]
-            if valid_candidates:
-                chosen = max(valid_candidates, key=os.path.getmtime)
-                logger.info(f"📂 [주제 #{topic_id} 전용 완제품 확보] {chosen.name}")
-                return str(chosen)
-
-        raise FileNotFoundError(f"주제 #{topic_id}에 매칭되는 유효한 숏폼 비디오가 없습니다.")
+            raise RuntimeError(f"Aura 주제 #{topic_id} 실시간 숏폼 렌더링 실패: 산출물 MP4 부재")
 
     def build_meta_packages(self, topic_id: int) -> Dict[str, Any]:
-        """제목, 설명문, 카피, 공식 검색어, 4단 티어 해시태그 100% 패키징"""
+        """[제미나이 100% 실시간 카피 + 실시간 급상승 트렌드 해시태그 융합] 4대 채널 포스팅 패키지"""
         main_title = self.HOOK_TITLES.get(topic_id, f"Aura 연애 꿀팁 #{topic_id}")
-        hashtags = self.hashtag_matrix.get_youtube_shorts_hashtags(topic_id=topic_id, count=7)
-        hashtag_str = " ".join(hashtags)
-
-        # 1. 유튜브 메타데이터
-        yt_title = f"{main_title} #{self.OFFICIAL_KEYWORD} #Shorts"
-        yt_desc = (
-            f"{main_title}\n\n"
-            f"🔍 네이버 검색창에 👉 [ {self.OFFICIAL_KEYWORD} ] 검색해보세요!\n"
-            f"공식 라운지: {self.LANDING_URL}\n\n"
-            f"{hashtag_str}"
-        )
-        yt_pinned = (
-            f"📌 영상에서 나온 50:50 완벽 성비 AI 소개팅 라운지는\n"
-            f"네이버에 👉 [ {self.OFFICIAL_KEYWORD} ] 검색하시면 바로 나옵니다!\n"
-            f"(공식 링크: {self.LANDING_URL})"
-        )
-
-        # 2. 네이버 클립 메타데이터 (300자 이내 준수)
-        clip_desc = (
-            f"{main_title}\n\n"
-            f"🔍 네이버 검색창에 👉 [{self.OFFICIAL_KEYWORD}] 검색해보세요!\n"
-            f"공식 링크: {self.LANDING_URL}\n\n"
-            f"#{self.OFFICIAL_KEYWORD} #소개팅꿀팁 #데이팅앱추천 #연애심리"
-        )
-
-        # 3. 인스타그램 & 페이스북 릴스 메타데이터
-        ig_caption = (
-            f"💖 {main_title}\n\n"
-            f"외모보다 통하는 대화, 유령회원 제로 50:50 성비 라운지 ✨\n"
-            f"프로필 링크 또는 네이버 검색창에 [{self.OFFICIAL_KEYWORD}] 검색!\n\n"
-            f"{hashtag_str}"
-        )
-        fb_caption = (
-            f"💖 {main_title}\n\n"
-            f"외모보다 통하는 대화! 2030 검증된 솔로들을 위한 청정 라운지 🚀\n"
-            f"🔍 네이버에 👉 [{self.OFFICIAL_KEYWORD}] 검색해보세요!\n\n"
-            f"{hashtag_str}"
-        )
-        fb_first_comment = f"👉 공식 서비스 둘러보기: {self.LANDING_URL}"
-
-        return {
-            "main_title": main_title,
-            "youtube": {"title": yt_title, "desc": yt_desc, "pinned": yt_pinned},
-            "naver_clip": {"title": main_title, "desc": clip_desc},
-            "meta": {"ig_caption": ig_caption, "fb_caption": fb_caption, "fb_comment": fb_first_comment}
-        }
+        from core.gemini_domestic_sns_copywriter import GeminiDomesticSNSCopywriter
+        copywriter = GeminiDomesticSNSCopywriter(brand="aura")
+        return copywriter.generate_full_package(topic_id=topic_id, topic_title=main_title, media_type="shorts")
 
     def execute_single_slot(self, topic_id: Optional[int] = None, force: bool = False) -> Dict[str, Any]:
         """
@@ -234,6 +219,14 @@ class AuraOmniShortsPilot:
             "channels": {}
         }
 
+        # 🛑 [대표님 긴급 수칙] 외부 API 송출 차단 모드 검사
+        dispatch_allowed, dispatch_msg = AuraProductionSafetyGate.is_api_dispatch_allowed()
+        if not dispatch_allowed:
+            logger.warning(f"{dispatch_msg} (주제 #{target_topic} 바탕화면 실물 보관 완료)")
+            results["channels"] = {"all_channels": {"status": "blocked", "message": dispatch_msg}}
+            self.save_publish_history(results)
+            return results
+
         # 4. [Channel 1] 유튜브 쇼츠 1회 API 송출
         logger.info(f"🔴 [1/4 유튜브 쇼츠 API 송출] 주제 #{target_topic} 발사...")
         try:
@@ -261,29 +254,31 @@ class AuraOmniShortsPilot:
             logger.error(f"❌ 네이버 클립 송출 실패: {ce}")
             results["channels"]["naver_clip"] = {"status": "error", "error": str(ce)}
 
-        # 6. [Channel 3 & 4] 인스타그램 릴스 & 페이스북 릴스
-        if self.meta_pub.is_available():
-            logger.info(f"📸 [3/4 인스타그램 릴스 송출] 주제 #{target_topic} 발사...")
+        # 6. [Channel 3 & 4] Meta 릴스 (MBS 웹 자동화: 인스타그램 + 페이스북 릴스 동시 송출)
+        if self.mbs_pub.is_available():
+            logger.info(f"🌐 [Meta Business Suite] 숏폼 릴스({os.path.basename(fresh_video)}) 인스타+페북 웹 무인 발행 개시...")
             try:
-                ig_res = self.meta_pub.publish_instagram_reel(
+                mbs_res = self.mbs_pub.publish_reel(
+                    video_path=fresh_video,
+                    caption=pkg["meta"]["ig_caption"]
+                )
+                results["channels"]["meta_business_suite_reels"] = mbs_res
+                logger.info(f"🎉 [MBS 릴스 발행 완료]: {mbs_res.get('status')}")
+            except Exception as mbse:
+                logger.error(f"❌ [MBS 릴스 발행 예외] {mbse}")
+                results["channels"]["meta_business_suite_reels"] = {"status": "error", "error": str(mbse)}
+        elif self.meta_pub.is_available():
+            logger.info(f"📸 [대체 Graph API] 인스타그램 & 페이스북 릴스 송출...")
+            try:
+                ig_res = self.meta_pub.publish_instagram_reels(
                     video_url=fresh_video,
                     caption=pkg["meta"]["ig_caption"]
                 )
                 results["channels"]["instagram_reel"] = ig_res
             except Exception as ige:
                 results["channels"]["instagram_reel"] = {"status": "error", "error": str(ige)}
-
-            logger.info(f"📘 [4/4 페이스북 릴스 송출] 주제 #{target_topic} 발사...")
-            try:
-                fb_res = self.meta_pub.publish_facebook_reel(
-                    video_path=fresh_video,
-                    description=pkg["meta"]["fb_caption"]
-                )
-                results["channels"]["facebook_reel"] = fb_res
-            except Exception as fbe:
-                results["channels"]["facebook_reel"] = {"status": "error", "error": str(fbe)}
         else:
-            logger.info("ℹ️ [Meta] 토큰 점검 중으로 유튜브 & 네이버 클립 2대 핵심 채널 송출 완료")
+            logger.info("ℹ️ [Meta] MBS 프로필 및 API 점검 요망 (유튜브 & 네이버 클립 송출 완료)")
 
         # 7. 중복 락 및 히스토리 영구 기록
         self._record_history(results)

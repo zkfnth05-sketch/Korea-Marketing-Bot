@@ -6,7 +6,8 @@ ShortsCharacterAnchorInsurance - 🛡️ [보험 리밸런스 전용 캐릭터 &
 - Wan 2.2 S2V 립싱크 헌법 준수:
   1. 치아 노출 제로, 입을 부드럽게 다문 온화한 미소 (gently closed mouth)
   2. 스마트폰 파지 완전 배제 (순수 인물 상반신 포즈)
-  3. 얼빡샷 차단 (1.6m~2.0m 미디엄 카우보이 샷, 풍부한 헤드룸 확보)
+  3. 황금 상반신 1.4m 미디엄 버스트 샷 (가슴 상단~머리, 300px+ 고해상도 얼굴 디테일)
+  4. 눈 뒤집힘(rolled back eyes) 및 동공 왜곡 100% 원천 차단
 """
 
 from typing import Dict, Any, Optional
@@ -17,9 +18,18 @@ INSURANCE_TOPIC_SPECS = {
         "title": "실손의료비 4세대 전환 손익",
         "gender": "female",
         "age": 42,
+        "framing": (
+            "photographed from 1.4 meters directly in front on Apple iPhone 15 Pro, "
+            "clear medium bust shot, showing head, graceful neck, natural shoulders, chest, and upper torso, "
+            "solo 1person female, comfortably sitting upright on a modern living room sofa, perfectly centered in frame, "
+            "perfectly upright head posture with zero tilt, natural balanced headroom occupying upper 8% of frame, "
+            "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, "
+            "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and sharp fabric textures"
+        ),
         "char_desc": (
             "an authentic relatable 42-year-old Korean woman (homemaker and working professional), healthy glowing skin, neat natural elegant hairstyle, "
-            "wearing clean stylish civilian casual clothes, a chic modern daily outfit, comfortably sitting upright on a modern living room sofa, "
+            "wearing clean stylish civilian casual clothes, a chic modern daily outfit, "
             "approachable civilian consumer persona, looking directly into camera with genuine composed closed-mouth expression (lips fully closed together, zero teeth)"
         ),
         "bg_desc": (
@@ -34,33 +44,43 @@ INSURANCE_TOPIC_SPECS = {
         "gender": "male",
         "age": 36,
         "framing": (
-            "photographed from 2.2 meters directly in front on Apple iPhone 15 Pro 24mm wide angle camera, camera pulled back with generous distance, "
-            "wide medium standing cowboy shot, showing head, broad masculine shoulders, chest, waist, hips, thighs, and hands resting naturally at waist level, "
-            "solo 1person male, standing confidently on a wide clean modern Seoul Gangnam business district sidewalk, perfectly centered in frame, looking directly into camera lens with engaging relatable eye contact, "
-            "perfectly upright head posture with zero tilt, generous open headroom above head occupying upper 25% of frame, "
+            "photographed from 2.0 meters away on Apple iPhone 15 Pro, "
+            "clear medium waist-up shot showing head, broad suited shoulders, suit jacket, arms, and torso down to the waistline and belt, "
+            "subtle headroom occupying upper 5% of frame, "
+            "solo 1person male, standing with natural upright posture, perfectly centered in frame, "
+            "perfectly upright head posture with zero tilt, head held straight and level, "
+            "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, symmetrical eyes with natural relaxed eyelids, "
             "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
-            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire urban street frame, visible fine skin pores and sharp fabric textures"
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and sharp fabric textures"
         ),
         "char_desc": (
-            "a handsome and charming 35-year-old Korean male working professional, perfect 8-head-high golden ratio tall fit model proportions, "
-            "strictly no glasses, bare clean face with clear natural skin, authentic handsome Korean male facial features, attractive gentle eyes, sharp clean jawline, "
+            "a handsome and sharp 35-year-old Korean male professional, youthful attractive look, "
+            "strictly no glasses, bare clean face with clear natural skin, authentic handsome Korean male facial features, attractive gentle dark eyes, sharp clean jawline, "
             "stylish trendy Korean parted perm hairstyle (soft wavy side-parted comma hair with natural textured fringe), "
-            "wearing a stylish and clean modern Korean smart business casual outfit, a tailored commuter office look with slacks, chic everyday working professional attire, "
+            "wearing a sharp tailored dark navy business suit jacket over a crisp white dress shirt and neat tie, pristine executive professional look, "
             "looking directly into camera lens with confident composed closed-mouth expression (lips firmly closed together, strictly zero teeth showing), "
-            "modern K-drama handsome relatable civilian commuter look"
+            "modern K-drama handsome relatable commuter look"
         ),
         "bg_desc": (
-            "bustling modern Seoul Gangnam and Yeouido business boulevard during bright golden morning commute, towering sleek glass skyscrapers reflecting morning sky, "
-            "lush green roadside street trees lining the wide pedestrian sidewalk, warm natural morning sunlight casting realistic shadows on pavement, "
-            "crystal clear edge-to-edge deep focus across the entire urban street, vivid authentic Korean city realism, zero yellow tint"
+            "bustling modern Seoul Gangnam business boulevard background with modern architectural glass facade and green city trees behind him, "
+            "bright crisp natural morning sunlight, crystal clear edge-to-edge deep focus across the entire scene, vivid authentic Korean city realism, zero yellow tint"
         ),
-        "vibe": "강남/여의도 도심 빌딩 숲 출근길에서 1만3천원 운전자보험 꿀팁 알려주는 8등신 훈남 직장인 실사 비주얼"
+        "vibe": "강남/여의도 도심 빌딩 숲 출근길에서 1만3천원 운전자보험 꿀팁 알려주는 훈남 직장인 실사 비주얼"
     },
     3: {
         "topic_id": 3,
         "title": "암보험 일반암 vs 유사암 진실",
         "gender": "female",
         "age": 45,
+        "framing": (
+            "photographed from 1.4 meters directly in front on Apple iPhone 15 Pro, "
+            "clear medium bust shot, showing head, elegant neck, natural shoulders, chest, and upper torso, "
+            "solo 1person female, sitting upright in a modern home study library, perfectly centered in frame, "
+            "perfectly upright head posture with zero tilt, natural balanced headroom occupying upper 8% of frame, "
+            "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, "
+            "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear focus across entire frame, visible fine skin pores and fabric textures"
+        ),
         "char_desc": (
             "a poised and sensible 45-year-old Korean career woman, clear fair skin, neat graceful short bob hairstyle, "
             "wearing an elegant, neat, and sophisticated luxury knit sweater, articulate and trustworthy closed-mouth expression looking directly into camera (lips completely closed, zero teeth)"
@@ -75,9 +95,18 @@ INSURANCE_TOPIC_SPECS = {
         "title": "뇌·심장 질환 뇌출혈 vs 뇌혈관",
         "gender": "male",
         "age": 42,
+        "framing": (
+            "photographed from 1.4 meters directly in front on Apple iPhone 15 Pro, "
+            "clear medium bust shot, showing head, masculine neck, broad natural shoulders, chest, and upper torso, "
+            "solo 1person male, standing upright in a bright modern luxury living room, perfectly centered in frame, "
+            "perfectly upright head posture with zero tilt, natural balanced headroom occupying upper 8% of frame, "
+            "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, "
+            "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear focus across entire frame, visible fine skin pores and fabric textures"
+        ),
         "char_desc": (
             "an exceptionally handsome, stylish, and trustworthy 40s Korean male (youthful handsome look in his early 40s), "
-            "clear smooth healthy skin, sharp masculine jawline, warm honest engaging eyes, "
+            "clear smooth healthy skin, sharp masculine jawline, warm honest engaging dark eyes, "
             "stylish trendy Korean parted perm hairstyle (soft wavy side-parted comma hair with natural textured fringe, thick rich jet-black healthy hair, strictly ZERO grey hair, strictly NO white hair), "
             "wearing a modern sophisticated charcoal-grey crewneck knit sweater, chic high-end Korean civilian casual look, "
             "looking directly into camera lens with composed trustworthy closed-mouth expression (lips firmly closed together, strictly zero teeth showing)"
@@ -93,10 +122,11 @@ INSURANCE_TOPIC_SPECS = {
         "gender": "male",
         "age": 33,
         "framing": (
-            "photographed from 2.2 meters directly in front on Apple iPhone 15 Pro 24mm wide angle camera, camera pulled back with comfortable distance, "
-            "wide medium seated cowboy shot, showing head, natural shoulders, chest, waist, hips, and upper thighs, hands resting gently and politely on lap, "
-            "solo 1person male, sitting naturally and upright on a comfortable sofa armchair in a modern cafe lounge, polite humble everyday posture, "
-            "perfectly upright head posture with zero tilt, generous open headroom above head occupying upper 25% of frame, "
+            "photographed from 1.4 meters directly in front on Apple iPhone 15 Pro, "
+            "clear medium bust shot, showing head, masculine neck, natural shoulders, chest, and upper torso, "
+            "solo 1person male, sitting naturally and upright in a contemporary cafe lounge, perfectly centered in frame, "
+            "perfectly upright head posture with zero tilt, natural balanced headroom occupying upper 8% of frame, "
+            "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, "
             "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
             "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear focus across entire frame, visible fine skin pores and sharp fabric textures"
         ),
@@ -118,10 +148,11 @@ INSURANCE_TOPIC_SPECS = {
         "gender": "female",
         "age": 30,
         "framing": (
-            "photographed from 2.2 meters directly in front on Apple iPhone 15 Pro 24mm wide angle camera, camera pulled back with generous distance, "
-            "wide medium seated cowboy shot, showing head, elegant shoulders, chest, waist, hips, and thighs, "
-            "solo 1person female, sitting upright and comfortably on a stylish modern Scandinavian lounge armchair sofa, perfectly centered in frame, looking directly into camera lens with engaging friendly eye contact, "
-            "perfectly upright head posture with zero tilt, generous open headroom above head occupying upper 25% of frame, "
+            "photographed from 1.4 meters directly in front on Apple iPhone 15 Pro, "
+            "clear medium bust shot, showing head, elegant neck, natural shoulders, chest, and upper torso, "
+            "solo 1person female, sitting upright on a stylish modern lounge sofa, perfectly centered in frame, "
+            "perfectly upright head posture with zero tilt, natural balanced headroom occupying upper 8% of frame, "
+            "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, "
             "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
             "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and sharp clothing fabric textures"
         ),
@@ -146,10 +177,11 @@ INSURANCE_TOPIC_SPECS = {
         "gender": "female",
         "age": 37,
         "framing": (
-            "photographed from 2.2 meters directly in front on Apple iPhone 15 Pro 24mm wide angle camera, camera pulled back with generous distance, "
-            "wide medium seated cowboy shot, showing head, elegant shoulders, chest, waist, hips, and thighs, "
-            "solo 1person female, sitting upright and comfortably on a stylish modern Scandinavian lounge armchair sofa, perfectly centered in frame, looking directly into camera lens with engaging friendly eye contact, "
-            "perfectly upright head posture with zero tilt, generous open headroom above head occupying upper 25% of frame, "
+            "photographed from 1.4 meters directly in front on Apple iPhone 15 Pro, "
+            "clear medium bust shot, showing head, elegant neck, natural shoulders, chest, and upper torso, "
+            "solo 1person female, sitting upright in a modern Scandinavian living room, perfectly centered in frame, "
+            "perfectly upright head posture with zero tilt, natural balanced headroom occupying upper 8% of frame, "
+            "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, "
             "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
             "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and sharp clothing fabric textures"
         ),
@@ -174,10 +206,11 @@ INSURANCE_TOPIC_SPECS = {
         "gender": "female",
         "age": 39,
         "framing": (
-            "photographed from 2.2 meters directly in front on Apple iPhone 15 Pro 24mm wide angle camera, camera pulled back with generous distance, "
-            "wide medium seated cowboy shot, showing head, elegant shoulders, chest, waist, hips, and thighs, "
-            "solo 1person female, sitting upright and comfortably on a stylish modern Scandinavian lounge armchair sofa, perfectly centered in frame, looking directly into camera lens with engaging friendly eye contact, "
-            "perfectly upright head posture with zero tilt, generous open headroom above head occupying upper 25% of frame, "
+            "photographed from 1.4 meters directly in front on Apple iPhone 15 Pro, "
+            "clear medium bust shot, showing head, elegant neck, natural shoulders, chest, and upper torso, "
+            "solo 1person female, sitting upright in a modern Scandinavian living room, perfectly centered in frame, "
+            "perfectly upright head posture with zero tilt, natural balanced headroom occupying upper 8% of frame, "
+            "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, "
             "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
             "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and sharp clothing fabric textures"
         ),
@@ -210,7 +243,7 @@ def build_insurance_shorts_t2i_character_prompt(
     보험 리밸런스 8대 주제별 실제 타깃 연령대(30대~50대) 일반인 마스터 프롬프트 빌더
     - 일상 사복 패션 & 편안한 공간 배경
     - 립싱크 최적화 (gently and firmly closed mouth, strictly zero teeth)
-    - 얼빡샷 차단 (1.6m~2.8m 미디엄 카우보이 샷)
+    - 1.4m 미디엄 버스트 샷 (얼굴 해상도 300px+ 확보 및 동공 이탈 원천 차단)
     """
     preset_key = ((topic_id - 1) % len(INSURANCE_TOPIC_SPECS)) + 1
     spec = INSURANCE_TOPIC_SPECS.get(preset_key, INSURANCE_TOPIC_SPECS[1])
@@ -219,9 +252,10 @@ def build_insurance_shorts_t2i_character_prompt(
     bg_desc = custom_bg_desc or spec["bg_desc"]
     effective_gender = gender or spec.get("gender", "female")
 
-    # 🤐 S2V 립싱크 전용 정면 직립 + 입술 밀착 다문 표정 헌법 (치아 노출 완전 박멸)
+    # 🤐 S2V 립싱크 전용 정면 직립 + 입술 밀착 다문 표정 + 완벽한 정면 동공 응시
     head_and_mouth_mandate = (
-        "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, symmetrical upright head angle, looking straight and directly into the camera lens with level eye line, "
+        "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, symmetrical upright head angle, "
+        "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into the camera lens at horizontal eye level, symmetrical eyes, natural relaxed eyelids, "
         "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
         "composed calm trustworthy civilian expression, ready to speak with authentic eye contact"
     )
@@ -231,10 +265,11 @@ def build_insurance_shorts_t2i_character_prompt(
         framing = spec["framing"]
     else:
         framing = (
-            f"photographed from 2.2 meters directly in front on Apple iPhone 15 Pro 24mm wide angle camera, "
-            f"camera pulled back with comfortable distance, wide medium seated cowboy shot, showing head, chest, waist, hips, and upper thighs, "
-            f"solo 1person {effective_gender}, leaning comfortably and upright against a modern fabric armchair sofa, relaxed natural posture with arms resting casually, "
-            f"perfectly upright head posture with zero tilt, generous open headroom above head occupying upper 25% of frame, "
+            f"photographed from 1.4 meters directly in front on Apple iPhone 15 Pro, "
+            f"clear medium bust shot, showing head, natural neck, shoulders, chest, and upper torso, "
+            f"solo 1person {effective_gender}, sitting comfortably and upright in a bright modern room, "
+            f"perfectly upright head posture with zero tilt, natural balanced headroom occupying upper 8% of frame, "
+            f"perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, "
             f"gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
             f"spacious bright modern apartment background, f/11 deep pan-focus, zero lens blur, tack sharp crystal clear focus, visible fine skin pores and fabric textures"
         )
@@ -245,16 +280,16 @@ def build_insurance_shorts_t2i_character_prompt(
     )
 
     negative_prompt = (
+        "extreme close-up, tight face shot, headshot portrait, cropped torso, cropped chest, cropped waist, big face, zoomed in face, "
+        "rolled back eyes, rolled eyes, upturned eyes, whites of eyes only, misaligned pupils, crossed eyes, strabismus, lazy eye, dilated pupils, deformed pupils, asymmetrical eyes, weird eyes, creepy eyes, blind eyes, blank stare, "
+        "cropped forehead, cropped head, head touching frame top, cut off head, "
         "grey hair, white hair, greying temples, salt and pepper hair, elderly, old man, aged, wrinkled, sagging skin, old person, 50s, 60s, senior citizen, "
         "old fashioned haircut, slicked back hair, middle part ahjussi hair, "
         "puffy hair, frizzy hair, wide hair silhouette, mushroom hair, bird nest hair, frizzy curls, expanded hair, messy hair, overly curly hair, perm hair, unkempt hair, "
-        "arrogant pose, smug look, cocky smile, boastful expression, aggressive posture, "
-        "polo shirt, collared shirt, tucked in shirt, blue polo sweater, awkward stiff pose, robotic posture, hands on knees pose, awkward hands, "
+        "arrogant pose, smug look, cocky smile, boastful expression, aggressive posture, awkward stiff pose, robotic posture, "
         "showing teeth, open mouth, teeth, grinning, smiling with open mouth, smiling with teeth, parted lips, tooth, dental, toothy smile, big smile, mouth open, laughing with teeth, screaming, "
         "glasses, spectacles, eyewear, sunglasses, rimless glasses, "
         "chinese style, mainland chinese facial features, douyin aesthetic, heavy square jaw, broad flat nose, round wide face, "
-        "close-up, extreme close-up, tight shot, bust shot, portrait crop, shoulders only, headshot, face filling frame, cropped forehead, cropped head, head touching frame top, cut off head, "
-        "zoomed in, telephoto lens, cropped waist, "
         "looking down, face obstructed, phone blocking face, phone covering mouth, "
         "tilted head, sideways glance, looking away from camera, angled face, side profile, "
         "heavy bokeh, blurry background, shallow depth of field, f/1.4 blur, cinematic bokeh blur, out of focus background, "
@@ -268,3 +303,4 @@ def build_insurance_shorts_t2i_character_prompt(
         "gender": effective_gender,
         "vibe": spec.get("vibe", "")
     }
+

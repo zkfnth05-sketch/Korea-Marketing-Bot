@@ -51,6 +51,42 @@ def main():
         print(json.dumps(results, ensure_ascii=False, indent=2))
         return
 
+    # ── [3대 브랜드 24시간 365일 완전 무인 통합 데몬 모드] ──
+    if "--daemon" in sys.argv or "-d" in sys.argv:
+        import time
+        import threading
+        print(f"\n========================================================")
+        print(f"🤖 [대한민국 3대 브랜드] 24시간 365일 무인 자율 마케팅 데몬 통합 기동")
+        print(f"Mode: {'LIVE (실제 발행)' if is_live else 'DRY-RUN (시뮬레이션)'}")
+        print(f"• 1. 💖 Aura AI 데이팅 (아우라AI데이팅)")
+        print(f"• 2. 🛡️ InsureBalance 보험비교 (보험 리밸런스)")
+        print(f"• 3. 📈 StockMaster AI (스톡마스터 AI)")
+        print(f"• ⏰ 카드뉴스(15.5초 릴스): 11:30 KST (Meta Business Suite 웹 자동화)")
+        print(f"• ⏰ 숏폼(22~30초 풀HD): 18:30 KST (유튜브+네이버클립+MBS 릴스)")
+        print(f"• ⏰ 블로그(2,000자 칼럼+16:9 사진): 10:00 / 15:00 / 20:00 KST")
+        print(f"• ⏰ 휴먼 웜업(네이버 블로그/카페): 08:30 / 12:30 / 15:30 / 21:30 KST")
+        print(f"• ⏰ 네이버 지식iN 실시간 모니터링: 30분 간격 자동 탐색")
+        print(f"========================================================\n")
+
+        aura_pipe = AuraPipeline(dry_run=dry_run)
+        insure_pipe = InsurancePipeline(dry_run=dry_run)
+        stock_pipe = StockPipeline(dry_run=dry_run)
+
+        t_aura = threading.Thread(target=aura_pipe.run_daemon, daemon=True, name="AuraDaemon")
+        t_insure = threading.Thread(target=insure_pipe.run_daemon, daemon=True, name="InsuranceDaemon")
+        t_stock = threading.Thread(target=stock_pipe.run_daemon, daemon=True, name="StockDaemon")
+
+        t_aura.start()
+        t_insure.start()
+        t_stock.start()
+
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print("\n🛑 3대 브랜드 통합 데몬이 사용자에 의해 중단되었습니다.")
+            return
+
     print(f"\n========================================================")
     print(f"🏭 대한민국 3대 앱 24대 허브 무인 마케팅 공장 전체 점화")
     print(f"Mode: {'LIVE' if is_live else 'DRY-RUN'} (손 하나 안 대는 24시간 자율 가동)")

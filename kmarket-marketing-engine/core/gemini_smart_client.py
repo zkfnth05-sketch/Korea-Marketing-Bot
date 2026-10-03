@@ -13,6 +13,10 @@
 import logging
 from typing import List, Optional, Any
 from config import (
+    GEMINI_FREE_API_KEY_AURA_1,
+    GEMINI_FREE_API_KEY_AURA_2,
+    GEMINI_FREE_API_KEY_AURA_3,
+    GEMINI_FREE_API_KEY_AURA_4,
     GEMINI_FREE_API_KEY_EASYTAX,
     GEMINI_FREE_API_KEY_KMARKET,
     GEMINI_API_KEY_EASYTAX,
@@ -28,7 +32,7 @@ class GeminiSmartClient:
     구글 Gemini 멀티티어 자동 롤오버 스마트 클라이언트
     [무료키 1순위 -> 보조 무료키 -> 유료키 -> 기본키]
     """
-    def __init__(self, service_id: str = "easytax"):
+    def __init__(self, service_id: str = "aura"):
         self.service_id = service_id.lower()
         self.key_chain: List[dict] = []
         self._build_key_chain()
@@ -36,21 +40,37 @@ class GeminiSmartClient:
 
     def _build_key_chain(self):
         """서비스 ID에 맞춤화된 우선순위 키 체인 구성"""
-        if self.service_id == "easytax":
+        if self.service_id in ["aura", "insurance", "stock"]:
+            candidates = [
+                {"name": "AURA_FREE_1 (무료 1순위)", "key": GEMINI_FREE_API_KEY_AURA_1},
+                {"name": "AURA_FREE_2 (무료 2순위)", "key": GEMINI_FREE_API_KEY_AURA_2},
+                {"name": "AURA_FREE_3 (무료 3순위)", "key": GEMINI_FREE_API_KEY_AURA_3},
+                {"name": "AURA_FREE_4 (무료 4순위)", "key": GEMINI_FREE_API_KEY_AURA_4},
+                {"name": "KMARKET_FREE (보조 무료 5순위)", "key": GEMINI_FREE_API_KEY_KMARKET},
+                {"name": "EASYTAX_FREE (보조 무료 6순위)", "key": GEMINI_FREE_API_KEY_EASYTAX},
+                {"name": "DEFAULT_KEY (기본 7순위)", "key": GEMINI_API_KEY},
+            ]
+        elif self.service_id == "easytax":
             candidates = [
                 {"name": "EASYTAX_FREE (무료 1순위)", "key": GEMINI_FREE_API_KEY_EASYTAX},
                 {"name": "KMARKET_FREE (무료 2순위)", "key": GEMINI_FREE_API_KEY_KMARKET},
-                {"name": "EASYTAX_PAID (유료 3순위)", "key": GEMINI_API_KEY_EASYTAX},
-                {"name": "KMARKET_PAID (유료 4순위)", "key": GEMINI_API_KEY_KMARKET},
-                {"name": "DEFAULT_KEY (기본 5순위)", "key": GEMINI_API_KEY},
+                {"name": "AURA_FREE_1 (보조 무료 3순위)", "key": GEMINI_FREE_API_KEY_AURA_1},
+                {"name": "AURA_FREE_2 (보조 무료 4순위)", "key": GEMINI_FREE_API_KEY_AURA_2},
+                {"name": "AURA_FREE_3 (보조 무료 5순위)", "key": GEMINI_FREE_API_KEY_AURA_3},
+                {"name": "AURA_FREE_4 (보조 무료 6순위)", "key": GEMINI_FREE_API_KEY_AURA_4},
+                {"name": "EASYTAX_PAID (유료 7순위)", "key": GEMINI_API_KEY_EASYTAX},
+                {"name": "DEFAULT_KEY (기본 8순위)", "key": GEMINI_API_KEY},
             ]
         else:
             candidates = [
                 {"name": "KMARKET_FREE (무료 1순위)", "key": GEMINI_FREE_API_KEY_KMARKET},
                 {"name": "EASYTAX_FREE (무료 2순위)", "key": GEMINI_FREE_API_KEY_EASYTAX},
-                {"name": "KMARKET_PAID (유료 3순위)", "key": GEMINI_API_KEY_KMARKET},
-                {"name": "EASYTAX_PAID (유료 4순위)", "key": GEMINI_API_KEY_EASYTAX},
-                {"name": "DEFAULT_KEY (기본 5순위)", "key": GEMINI_API_KEY},
+                {"name": "AURA_FREE_1 (보조 무료 3순위)", "key": GEMINI_FREE_API_KEY_AURA_1},
+                {"name": "AURA_FREE_2 (보조 무료 4순위)", "key": GEMINI_FREE_API_KEY_AURA_2},
+                {"name": "AURA_FREE_3 (보조 무료 5순위)", "key": GEMINI_FREE_API_KEY_AURA_3},
+                {"name": "AURA_FREE_4 (보조 무료 6순위)", "key": GEMINI_FREE_API_KEY_AURA_4},
+                {"name": "KMARKET_PAID (유료 7순위)", "key": GEMINI_API_KEY_KMARKET},
+                {"name": "DEFAULT_KEY (기본 8순위)", "key": GEMINI_API_KEY},
             ]
 
         # 중복 제거 및 빈 키 필터링

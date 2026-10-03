@@ -238,7 +238,8 @@ class AuraShortsProducer(BaseShortsProducer):
             gender=effective_gender,
             rate=voice_rate,
             pitch=voice_pitch,
-            filename_prefix=f"aura_hook_{topic_id}_{dt_str}"
+            filename_prefix=f"aura_hook_{topic_id}_{dt_str}",
+            output_dir=str(out_folder)
         )
         app_wav_path = self.tts.generate_speech_wav(
             text=speech_app,
@@ -246,7 +247,8 @@ class AuraShortsProducer(BaseShortsProducer):
             gender=effective_gender,
             rate=voice_rate,
             pitch=voice_pitch,
-            filename_prefix=f"aura_app_{topic_id}_{dt_str}"
+            filename_prefix=f"aura_app_{topic_id}_{dt_str}",
+            output_dir=str(out_folder)
         )
         cta_wav_path = self.tts.generate_speech_wav(
             text=speech_cta,
@@ -254,7 +256,8 @@ class AuraShortsProducer(BaseShortsProducer):
             gender=effective_gender,
             rate=voice_rate,
             pitch=voice_pitch,
-            filename_prefix=f"aura_cta_{topic_id}_{dt_str}"
+            filename_prefix=f"aura_cta_{topic_id}_{dt_str}",
+            output_dir=str(out_folder)
         )
         full_wav_path = self.tts.generate_speech_wav(
             text=full_speech,
@@ -262,7 +265,8 @@ class AuraShortsProducer(BaseShortsProducer):
             gender=effective_gender,
             rate=voice_rate,
             pitch=voice_pitch,
-            filename_prefix=f"aura_full_{topic_id}_{dt_str}"
+            filename_prefix=f"aura_full_{topic_id}_{dt_str}",
+            output_dir=str(out_folder)
         )
 
 

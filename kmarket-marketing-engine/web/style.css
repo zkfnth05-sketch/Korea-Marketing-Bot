@@ -1313,4 +1313,40 @@ html, body {
     border-color: #4ADE80;
 }
 
+/* ======================================================================
+   🎮 GPU Live Rendering Sentinel & Dynamic Visual Effects
+   ====================================================================== */
+@keyframes gpuPulseBorder {
+    0% {
+        box-shadow: 0 4px 15px rgba(236, 72, 153, 0.25);
+        border-color: #EC4899;
+    }
+    50% {
+        box-shadow: 0 8px 30px rgba(139, 92, 246, 0.45), 0 0 20px rgba(236, 72, 153, 0.3);
+        border-color: #8B5CF6;
+    }
+    100% {
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);
+        border-color: #F59E0B;
+    }
+}
+
+@keyframes floatIcon {
+    0%, 100% {
+        transform: translateY(0px) scale(1);
+    }
+    50% {
+        transform: translateY(-6px) scale(1.08);
+    }
+}
+
+.gpu-rendering-active-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gpu-rendering-active-card:hover {
+    transform: translateY(-3px);
+}
+
+
 

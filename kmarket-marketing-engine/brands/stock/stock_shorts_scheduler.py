@@ -239,14 +239,14 @@ class StockShortsScheduler:
         }
 
     def check_and_run_slot(self) -> Optional[Dict[str, Any]]:
-        """정시 스케줄 도달 여부 점검 및 자동 실행"""
+        """정시 스케줄 도달 여부 점검 및 슬롯 윈도우 자율 실행"""
         state = self._load_state()
         if not state.get("daemon_enabled", True):
             return None
 
         now = datetime.now()
         today_str = now.strftime("%Y-%m-%d")
-        current_hm = now.strftime("%H:%M")
+        cur_min = now.hour * 60 + now.minute
         is_open = self.is_krx_open_day(now.date())
 
         # 날짜가 바뀌었으면 오늘 실행 슬롯 목록 리셋
@@ -257,20 +257,40 @@ class StockShortsScheduler:
 
         executed_today = set(state.get("executed_slots_today", []))
 
-        # 슬롯 정의 선택
+        # 슬롯 정의 선택 및 시간 윈도우 정렬
         if is_open:
             slots = state.get("weekday_slots", {})
+            default_windows = {
+                "slot_0930": (9 * 60 + 30, 11 * 60 + 59),
+                "slot_1200": (12 * 60, 14 * 60 + 59),
+                "slot_1500": (15 * 60, 23 * 60 + 59)
+            }
         else:
             slots = state.get("weekend_slots", {})
+            default_windows = {
+                "slot_1100": (11 * 60, 17 * 60 + 59),
+                "slot_1800": (18 * 60, 23 * 60 + 59)
+            }
 
         for slot_key, slot_info in slots.items():
             if not slot_info.get("enabled", True):
                 continue
             slot_time = slot_info.get("time", "")
 
-            # 현재 시각(HH:MM)과 슬롯 시간이 일치하고 오늘 아직 실행 안 된 경우
-            if slot_time == current_hm and slot_key not in executed_today:
-                logger.info(f"⏰ [StockShortsScheduler] 정시 슬롯 도달! ({slot_key} - {slot_time}, 개장일={is_open})")
+            # 시작/종료 분 계산
+            if slot_key in default_windows:
+                start_total, end_total = default_windows[slot_key]
+            else:
+                try:
+                    sh, sm = map(int, slot_time.split(":"))
+                    start_total = sh * 60 + sm
+                    end_total = 23 * 60 + 59
+                except Exception:
+                    continue
+
+            # 슬롯 윈도우 범위 내에 있고 오늘 아직 실행 안 된 경우
+            if start_total <= cur_min <= end_total and slot_key not in executed_today:
+                logger.info(f"⏰ [StockShortsScheduler] 슬롯 윈도우 골든타임 도달! ({slot_key} - {slot_time}, 개장일={is_open})")
 
                 # 주말이면 고정 주제(3 또는 6), 평일이면 순차 롤링 주제
                 if not is_open:
@@ -284,7 +304,8 @@ class StockShortsScheduler:
                 # 오늘 실행 슬롯에 추가
                 state = self._load_state()
                 executed_list = state.get("executed_slots_today", [])
-                executed_list.append(slot_key)
+                if slot_key not in executed_list:
+                    executed_list.append(slot_key)
                 state["executed_slots_today"] = executed_list
                 self._save_state(state)
                 return res

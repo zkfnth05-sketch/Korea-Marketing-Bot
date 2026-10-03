@@ -1,10 +1,56 @@
 {
-  "current_topic_index": 26,
-  "last_topic_id": 26,
-  "last_run_time": "2026-10-02 19:02:01",
-  "last_title": "연남동 소개팅 실패 없는 맛집 & 코스 3단계 완벽 가이드",
-  "published_count": 24,
+  "current_topic_index": 27,
+  "last_topic_id": 27,
+  "last_run_time": "2026-10-03 09:46:09",
+  "last_title": "연남동 소개팅 맛집 고민 끝! 퇴근 후 실패 없는 성공률 200% 데이트 코스 5",
+  "published_count": 25,
   "history": [
+    {
+      "topic_id": 27,
+      "title": "연남동 소개팅 맛집 고민 끝! 퇴근 후 실패 없는 성공률 200% 데이트 코스 5",
+      "title_naver": "연남동 소개팅 맛집 고민 끝! 퇴근 후 실패 없는 성공률 200% 데이트 코스 5",
+      "title_tistory": "연남동 소개팅 장소 총정리: 직장인 평일 저녁 여유로운 분위기의 맛집과 카페 추천",
+      "title_kakao": "퇴근 후 연남동, 어색함은 줄이고 설렘은 더하는 완벽한 평일 데이트 가이드",
+      "category": "date_spots",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_027_date_spots_20261003_094509.webp",
+      "published_at": "2026-10-03 09:46:09",
+      "publish_results": {
+        "topic_id": 27,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-027",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "연남동 소개팅 맛집 고민 끝! 퇴근 후 실패 없는 성공률 200% 데이트 코스 5",
+            "url": "https://blog.naver.com/PostView.naver?blogId=zkfnth01&Redirect=View&logNo=224430114166&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=17413",
+            "tags": [
+              "연남동소개팅",
+              "연남동소개팅맛집",
+              "연남동소개팅장소",
+              "연남동소개팅카페",
+              "연남동소개팅술집",
+              "연남동소개팅추천",
+              "연남동소개팅코스",
+              "연남동소개팅디시"
+            ]
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. python brands/aura/aura_tistory_login.py 1회 실행 필요",
+            "blog_name": "aura-magazine"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 (1회 로그인 스크립트 실행 필요)"
+          }
+        }
+      }
+    },
     {
       "topic_id": 26,
       "title": "연남동 소개팅 실패 없는 맛집 & 코스 3단계 완벽 가이드",

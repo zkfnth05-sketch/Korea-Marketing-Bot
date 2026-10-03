@@ -69,16 +69,21 @@ class InsuranceKinPipeline:
         """
         logger.info(f"🚀 [Insurance 지식iN 파이프라인] 실시간 낚아채기 사이클 가동 시작... (mode={'DRY-RUN' if dry_run else 'LIVE'})")
 
-        # 1. 질문 스캔 — 전체 100개 키워드 전수 탐색, 48시간 이내 최신 질문만 수집
-        scanned_questions = self.scanner.scan_recent_questions(sample_keywords_count=100, max_questions=100)
+        # 0. 히스토리 로드 및 100% 영구 중복 방어 집합(done_ids) 구축
+        history = self._load_history()
+        # 과거에 1번이라도 처리/시도되었거나 성공한 모든 질문 ID를 영구 중복 방어에 포함
+        done_ids = {h.get("doc_id") for h in history if h.get("doc_id")}
+
+        # 1. 질문 스캔 — 전체 100개 키워드 전수 탐색 (이미 처리된 done_ids는 스캔 단계에서 사전 제외)
+        scanned_questions = self.scanner.scan_recent_questions(
+            sample_keywords_count=100,
+            max_questions=100,
+            exclude_doc_ids=done_ids
+        )
         if not scanned_questions:
             logger.info("ℹ️ 현재 실시간 스캔된 신규 보험 질문이 없습니다.")
             return {"success": False, "status": "no_questions", "message": "새 질문 대기 중"}
 
-        # 히스토리 로드
-        history = self._load_history()
-        # ✅ done_ids: 실제로 "published" 성공한 doc_id만 중복 방어 (실패·미확인은 재시도 허용)
-        done_ids = {h.get("doc_id") for h in history if h.get("status") == "published" and "answerNo=" in h.get("published_url", "")}
         # 오늘 이미 실제 성공 등록된 수 계산 (answerNo= 포함된 진짜 URL만 카운트)
         today_str = datetime.now().strftime("%Y-%m-%d")
         today_published = sum(
@@ -132,6 +137,11 @@ class InsuranceKinPipeline:
                 break
 
             t_question = candidate["question"]
+            doc_id = t_question.get("doc_id", "")
+            if doc_id in done_ids:
+                logger.info(f"⏭️ [중복 스킵] 이미 처리된 질문 ID({doc_id}) 스킵")
+                continue
+
             logger.info(f"🎯 [질문 선발] {candidate['score']}점 | {t_question['title']}")
 
             # ✅ 선발된 질문의 실제 본문(.questionDetail)을 상세 페이지에서 100% 정밀 크롤링 보강
@@ -147,6 +157,7 @@ class InsuranceKinPipeline:
                 )
                 if not re_passed:
                     logger.warning(f"⚠️ [Insurance 실제 본문 2차 심사 탈락] {re_score}점 (사유: {re_reason}) | 제목: {t_question['title']} ➔ 다음 후보 탐색")
+                    done_ids.add(doc_id)
                     continue
                 logger.info(f"✅ [Insurance 실제 본문 2차 심사 통과] {re_score}점 ({re_reason})")
             else:
@@ -193,9 +204,13 @@ class InsuranceKinPipeline:
             self._save_history_record(record)
             last_record = record
 
-            if pub_res.get("success"):
+            # 영구 락에 등록하여 이번 루프 및 향후 루프에서 영구 배제
+            done_ids.add(doc_id)
+
+            if pub_res.get("status") == "already_answered":
+                logger.info(f"🛡️ [Insurance 지식iN] 이미 답변이 등록된 질문({doc_id}) — 중복 방지 완료")
+            elif pub_res.get("success"):
                 published_count += 1
-                done_ids.add(t_question["doc_id"])  # 이 사이클 내 중복 방어
                 logger.info(f"✅ [{published_count}번째 성공] {t_question['title']} ➔ {pub_res.get('published_url', '')}")
             else:
                 logger.warning(f"⚠️ [등록 실패] {t_question['title']} — {pub_res.get('status')} / {pub_res.get('message', '')}")

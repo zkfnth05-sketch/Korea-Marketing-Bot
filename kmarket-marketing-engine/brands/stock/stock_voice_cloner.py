@@ -54,7 +54,7 @@ class StockVoiceCloner:
             self.ffmpeg_exe = "ffmpeg"
 
         self.dashscope_api_key = os.getenv("DASHSCOPE_API_KEY", os.getenv("ALIYUN_API_KEY", ""))
-        self.typecast_api_key = os.getenv("TYPECAST_API_KEY", "__pltMYPUabgPLzeK8dsNxhBcxPHhexjh7V7YcyeKpzM5")
+        self.typecast_api_key = os.getenv("TYPECAST_API_KEY", "")
         # 👨 남성: 진우(Jinwoo) / 👩 여성: 서연(Seoyeon) 독립 Voice ID
         self.typecast_voice_id_male = os.getenv("TYPECAST_VOICE_ID_STOCK", "tc_6541f92e4299b0c2017367c3")
         self.typecast_voice_id_female = os.getenv("TYPECAST_VOICE_ID_INSURANCE", "tc_667ce80314cb3a612d6959e8")
@@ -188,15 +188,18 @@ class StockVoiceCloner:
         rate: str = "+0%",
         pitch: Optional[str] = None,
         target_duration: Optional[float] = None,
-        filename_prefix: str = "speech"
+        filename_prefix: str = "speech",
+        output_dir: Optional[str] = None
     ) -> str:
         """
         BaseShortsProducer 및 S2VClipStitcher 표준 100% 호환 인터페이스
         - 남성: 진우(Jinwoo) / 여성: 서연(Seoyeon)
-        - 16kHz 무손실 변환 및 무음 정밀 트리밍 적용
+        - 16kHz 무손실 변환 및 무음 정밀 트리밍 적용 (지정된 에피소드 폴더에 100% 캡슐화)
         """
-        out_wav_path = os.path.join(self.output_dir, f"{filename_prefix}_{lang}.wav")
-        temp_wav_path = os.path.join(self.output_dir, f"{filename_prefix}_{lang}_raw24k.wav")
+        eff_dir = Path(output_dir).resolve() if output_dir else self.output_dir
+        eff_dir.mkdir(parents=True, exist_ok=True)
+        out_wav_path = os.path.join(str(eff_dir), f"{filename_prefix}_{lang}.wav")
+        temp_wav_path = os.path.join(str(eff_dir), f"{filename_prefix}_{lang}_raw24k.wav")
 
         # 1. 24kHz 원본 합성
         self.synthesize(text=text, output_wav_path=temp_wav_path, gender=gender, sample_rate=24000)

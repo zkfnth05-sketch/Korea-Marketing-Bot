@@ -63,21 +63,11 @@ class InsurancePipeline:
     # 1. 숏폼 파이프라인 (쏘기 전 1편 신규 생산 -> 4대 플랫폼 1회 단발 발송)
     def run_shorts(self, topic_id: Optional[int] = None, force: bool = False) -> Dict[str, Any]:
         logger.info(f"🎬 [{self.NAME}] 숏폼 파이프라인 가동: 쏘기 직전 1편 신규 제작 및 4대 채널(유튜브+클립+릴스) 단발 송출")
-        if force:
-            today_str = get_now_kst().strftime("%Y-%m-%d")
-            self.shorts_pilot.published_records = [
-                r for r in self.shorts_pilot.published_records if r.get("date") != today_str
-            ]
         return self.shorts_pilot.execute_single_slot(topic_id=topic_id, force=force)
 
     # 2. 카드뉴스 파이프라인 (쏘기 전 5장 신규 렌더링 -> 2대 플랫폼 1회 단발 발송)
     def run_cardnews(self, topic_id: Optional[int] = None, force: bool = False) -> Dict[str, Any]:
         logger.info(f"🎨 [{self.NAME}] 카드뉴스 파이프라인 가동: 쏘기 직전 5장 신규 제작 및 Meta(페북+인스타) 단발 송출")
-        if force:
-            today_str = get_now_kst().strftime("%Y-%m-%d")
-            self.cardnews_pilot.published_records = [
-                r for r in self.cardnews_pilot.published_records if r.get("date") != today_str
-            ]
         return self.cardnews_pilot.execute_single_slot(topic_id=topic_id, force=force)
 
     # 3. 휴먼비헤이비어 봇 파이프라인 (네이버 블로그/카페 웜업)

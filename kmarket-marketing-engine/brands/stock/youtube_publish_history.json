@@ -46,5 +46,17 @@
     "privacy_status": "public",
     "published_at": "2026-10-02 18:46:45",
     "message": "YouTube Data API v3 쇼츠 공개 발행 및 고정 댓글 등록 완료"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "topic_id": 2,
+    "video_id": "TeM-ebPS38M",
+    "video_url": "https://youtube.com/shorts/TeM-ebPS38M",
+    "comment_id": "UgyFx3v7io-PNpPu_zR4AaABAg",
+    "title": "국내 고배당주(금융지주·맥쿼리) 월배당 시뮬레이션 현실적 치트키 #스톡마스터AI #Shorts",
+    "privacy_status": "public",
+    "published_at": "2026-10-03 12:01:33",
+    "message": "YouTube Data API v3 쇼츠 공개 발행 및 고정 댓글 등록 완료"
   }
 ]

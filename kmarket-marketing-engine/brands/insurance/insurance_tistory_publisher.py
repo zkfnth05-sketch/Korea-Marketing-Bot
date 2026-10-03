@@ -60,6 +60,77 @@ class InsuranceTistoryPublisher:
         has_session = self.session_file.exists() and self.session_file.stat().st_size > 100
         return has_profile or has_session
 
+    def keep_alive_session(self) -> Dict[str, Any]:
+        """
+        🔄 [24시간 무활동 만료 방지 킵얼라이브]
+        티스토리 메인 홈에 조용히 접속하여 카카오 세션 토큰 수명을 24시간 연장
+        """
+        if not self.is_available():
+            return {"status": "skipped", "message": "티스토리 세션 미연동 상태"}
+
+        try:
+            return asyncio.run(self._keep_alive_async())
+        except Exception as e:
+            logger.warning(f"⚠️ [Insurance Tistory Keep-Alive 예외] {e}")
+            return {"status": "error", "message": str(e)}
+
+    async def _ensure_tistory_session(self, page, context):
+        """카카오 영구 쿠키(_kawlt)를 통해 티스토리 TSSESSION 자동 갱신 브릿지"""
+        cookies = await context.cookies()
+        c_dict = {c["name"]: c["value"] for c in cookies}
+        if "TSSESSION" not in c_dict:
+            try:
+                await page.goto("https://www.tistory.com/auth/login", wait_until="domcontentloaded", timeout=15000)
+                kakao_btn = await page.query_selector("a.btn_login.link_kakao_id, .link_kakao")
+                if kakao_btn:
+                    await kakao_btn.click()
+                    await asyncio.sleep(2)
+                acc_elem = page.get_by_text("zkfnth021@gmail.com")
+                if await acc_elem.count() > 0:
+                    await acc_elem.first.click()
+                    await asyncio.sleep(3)
+                else:
+                    any_acc = await page.query_selector("a.link_profile, .item_account a")
+                    if any_acc:
+                        await any_acc.click()
+                        await asyncio.sleep(3)
+                await context.storage_state(path=str(self.session_file))
+            except Exception as ex:
+                logger.warning(f"카카오 자동 SSO 브릿지 시도: {ex}")
+
+    async def _keep_alive_async(self) -> Dict[str, Any]:
+        async with async_playwright() as p:
+            context = await p.chromium.launch_persistent_context(
+                user_data_dir=str(self.profile_dir),
+                headless=True,
+                args=[
+                    "--disable-blink-features=AutomationControlled",
+                    "--no-first-run",
+                    "--no-default-browser-check"
+                ],
+                viewport={"width": 1280, "height": 900},
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+            )
+            page = context.pages[0] if context.pages else await context.new_page()
+            try:
+                await self._ensure_tistory_session(page, context)
+                await page.goto("https://www.tistory.com", wait_until="domcontentloaded", timeout=15000)
+                await asyncio.sleep(1)
+                cur_url = page.url
+                cookies = await context.cookies()
+                cookie_dict = {c["name"]: c["value"] for c in cookies}
+                has_auth = "TSSESSION" in cookie_dict or "_T_ID" in cookie_dict
+
+                if has_auth and "auth/login" not in cur_url:
+                    await context.storage_state(path=str(self.session_file))
+                    logger.info("🎉 [Insurance Tistory Keep-Alive 성공] 카카오 티스토리 세션 수명이 24시간 자동 연장되었습니다.")
+                    return {"status": "active", "message": "세션 정상 유지 및 자동 갱신 완료"}
+                else:
+                    logger.warning("⚠️ [Insurance Tistory Keep-Alive] 세션 만료 감지 (재로그인 필요)")
+                    return {"status": "session_expired", "message": "카카오 세션 만료"}
+            finally:
+                await context.close()
+
     def publish_post(
         self,
         title: str,
@@ -105,7 +176,11 @@ class InsuranceTistoryPublisher:
                 context = await p.chromium.launch_persistent_context(
                     user_data_dir=str(self.profile_dir),
                     headless=True,
-                    args=["--disable-blink-features=AutomationControlled"],
+                    args=[
+                        "--disable-blink-features=AutomationControlled",
+                        "--no-first-run",
+                        "--no-default-browser-check"
+                    ],
                     viewport={"width": 1280, "height": 900},
                     user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
                 )
@@ -127,7 +202,8 @@ class InsuranceTistoryPublisher:
                 return {"status": "error", "message": "티스토리 세션 부재 ([1회연동] bat 실행 필요)", "blog_name": self.blog_name}
 
             try:
-                # 1. 글쓰기 페이지 진입
+                # 1. 카카오 세션 검증 & 글쓰기 페이지 진입
+                await self._ensure_tistory_session(page, context)
                 await page.goto(write_url, wait_until="domcontentloaded", timeout=timeout_sec * 1000)
                 await asyncio.sleep(2)
 

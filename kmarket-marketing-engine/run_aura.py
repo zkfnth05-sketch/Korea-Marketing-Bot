@@ -188,8 +188,13 @@ def main():
         print(json.dumps(cycle_res, ensure_ascii=False, indent=2))
         return
 
-    is_live = "--live" in sys.argv
-    dry_run = not is_live
+    if "--daemon" in sys.argv or "-d" in sys.argv:
+        print("\n==============================================")
+        print("💖 [Aura] 24시간 365일 무인 자율 백그라운드 스케줄러 데몬 시작")
+        print("==============================================\n")
+        pipeline = AuraPipeline(dry_run=dry_run)
+        pipeline.run_daemon()
+        return
 
     print(f"\n==============================================")
     print(f"💖 Aura 데이팅 마케팅 파이프라인 가동 (Mode: {'LIVE' if is_live else 'DRY-RUN'})")

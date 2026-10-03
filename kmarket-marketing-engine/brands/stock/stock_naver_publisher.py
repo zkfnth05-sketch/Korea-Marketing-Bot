@@ -79,11 +79,32 @@ class StockNaverPublisher:
 
     @staticmethod
     def format_clean_naver_text(raw_text: str, landing_url: str = "https://stockmaster-ai.vercel.app/") -> str:
-        """마크다운 기호(#, ###, ![], **)를 완전 제거하고 가독성 높은 네이버 블로그 전용 본문으로 변환 (URL 완벽 격리)"""
+        """마크다운 기호 및 JSON 기계어를 완전 제거하고 가독성 높은 네이버 블로그 전용 본문으로 변환 (100% 무결성 가드)"""
         import re
 
+        text = raw_text or ""
+
+        # 🚨 [1단계: JSON 원문 유출 긴급 정제 게이트]
+        if '{"title_naver"' in text or '"visual_prompt"' in text or text.strip().startswith('{'):
+            logger.warning("🚨 [StockNaverPublisher] 본문에 JSON 기계어 유출 감지! 본문만 정밀 발라냅니다.")
+            try:
+                clean_json = text.strip()
+                if "```json" in clean_json:
+                    clean_json = clean_json.split("```json", 1)[1].split("```", 1)[0]
+                elif "```" in clean_json:
+                    clean_json = clean_json.split("```", 1)[0]
+                p = json.loads(clean_json)
+                text = p.get("body_markdown") or p.get("content_md") or text
+            except Exception:
+                c_match = re.search(r'"(?:body_markdown|content_md)"\s*:\s*"((?:[^"\\]|\\.)*)"', text, re.DOTALL)
+                if c_match:
+                    text = c_match.group(1).encode('utf-8').decode('unicode_escape', errors='replace').replace('\\n', '\n').replace('\\"', '"')
+                else:
+                    text = re.sub(r'["\']?(?:title_naver|title_tistory|title_brunch|summary|visual_prompt|body_markdown|content_md)["\']?\s*:\s*["\']?.*?(?:["\']?,?\n|$)', '', text)
+                    text = text.replace('{', '').replace('}', '').replace('```json', '').replace('```', '')
+
         # 1. 마크다운 이미지 태그 제거
-        text = re.sub(r'!\[.*?\]\(.*?\)', '', raw_text)
+        text = re.sub(r'!\[.*?\]\(.*?\)', '', text)
 
         # 2. 본문 중간에 끼어있는 마크다운 링크 및 괄호형 URL 정제
         text = re.sub(r'\[([^\]]+)\]\((https?://[^\s\)]+)\)', r'\1', text)

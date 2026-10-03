@@ -52,6 +52,7 @@ GOLDEN_TIMES = [
 ]
 
 from brands.insurance.insurance_meta_publisher import InsuranceMetaPublisher
+from brands.insurance.insurance_mbs_reels_publisher import InsuranceMBSReelsPublisher
 from brands.insurance.insurance_hashtag_matrix import InsuranceHashtagMatrix
 
 
@@ -75,6 +76,7 @@ class InsuranceMetaScheduler:
 
     def __init__(self):
         self.publisher = InsuranceMetaPublisher()
+        self.mbs_pub = InsuranceMBSReelsPublisher()
         self.hashtag_matrix = InsuranceHashtagMatrix()
         self.state = self._load_state()
 
@@ -169,24 +171,41 @@ class InsuranceMetaScheduler:
         )
 
         if mode in ["cardnews", "all"]:
-            if slide_paths:
+            cardnews_reels_path = None
+            if slide_paths and len(slide_paths) >= 2:
+                try:
+                    from core.cardnews_to_reels_converter import CardnewsToReelsConverter
+                    converter = CardnewsToReelsConverter()
+                    slide_dir = Path(slide_paths[0]).parent
+                    out_reels = str(slide_dir / f"insurance_topic{topic_id}_cardnews_reels.mp4")
+                    conv_res = converter.convert(slide_paths=slide_paths, output_path=out_reels, brand="insurance")
+                    if conv_res.get("status") == "success":
+                        cardnews_reels_path = out_reels
+                        logger.info(f"🎬 [CardnewsToReels 완료] 릴스 변환 성공: {out_reels}")
+                except Exception as ce:
+                    logger.error(f"❌ [CardnewsToReels 변환 예외] {ce}")
+
+            if self.mbs_pub.is_available() and cardnews_reels_path and os.path.exists(cardnews_reels_path):
+                logger.info(f"🌐 [Meta Business Suite] 카드뉴스 릴스({os.path.basename(cardnews_reels_path)}) 인스타+페북 동시 발행...")
+                results["mbs_cardnews_reels"] = self.mbs_pub.publish_reel(cardnews_reels_path, ig_caption)
+            elif slide_paths:
                 results["facebook_cardnews"] = self.publisher.publish_facebook_cardnews_album(slide_paths, fb_caption)
                 results["instagram_carousel"] = self.publisher.publish_instagram_carousel(slide_paths, ig_caption)
-            else:
-                sample_img_url = "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=1080"
-                results["facebook_photo"] = self.publisher.publish_facebook_photo(sample_img_url, fb_caption)
-                results["instagram_feed"] = self.publisher.publish_instagram_photo(sample_img_url, ig_caption)
 
         if mode in ["shorts", "all"] and shorts_path and os.path.exists(shorts_path):
-            video_title = f"[보험 리밸런스] {theme_name}"
-            video_desc = (
-                f"🛡️ [보험 리밸런스] {theme_name} 🚗💨\n\n"
-                f"🔍 네이버 검색창에 👉 [ {self.OFFICIAL_KEYWORD} ] 검색해보세요!\n"
-                f"👉 공식 진단: {self.LANDING_URL}\n\n"
-                f"{fb_tags}"
-            )
-            results["facebook_video"] = self.publisher.publish_facebook_video(shorts_path, video_title, video_desc)
-            results["instagram_reels"] = self.publisher.publish_instagram_reels(shorts_path, ig_caption)
+            if self.mbs_pub.is_available():
+                logger.info(f"🌐 [Meta Business Suite] 숏폼 릴스({os.path.basename(shorts_path)}) 인스타+페북 동시 발행...")
+                results["mbs_shorts_reels"] = self.mbs_pub.publish_reel(shorts_path, ig_caption)
+            else:
+                video_title = f"[보험 리밸런스] {theme_name}"
+                video_desc = (
+                    f"🛡️ [보험 리밸런스] {theme_name} 🚗💨\n\n"
+                    f"🔍 네이버 검색창에 👉 [ {self.OFFICIAL_KEYWORD} ] 검색해보세요!\n"
+                    f"👉 공식 진단: {self.LANDING_URL}\n\n"
+                    f"{fb_tags}"
+                )
+                results["facebook_video"] = self.publisher.publish_facebook_video(shorts_path, video_title, video_desc)
+                results["instagram_reels"] = self.publisher.publish_instagram_reels(shorts_path, ig_caption)
 
         now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 

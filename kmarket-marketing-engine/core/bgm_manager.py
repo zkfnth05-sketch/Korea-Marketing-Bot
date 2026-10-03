@@ -313,10 +313,30 @@ class BGMManager:
         """
         직전 사용된 BGM과 연속으로 겹치지 않게 무작위로 다음 경쾌한 BGM 선택
         """
-        # 🎯 브랜드별 특화 BGM 풀 필터링
         service_lower = str(service_id).lower()
+
+        # 🎯 0순위: 브랜드별 차별화 BGM 전략
+        brand_bgm_dir = BASE_DIR / "brands" / service_lower / "assets" / "bgm"
+        if brand_bgm_dir.exists():
+            # 💖 Aura 데이팅 전용: 대표님 지정 시그니처 03번 Carefree (우쿨렐레 & 어쿠스틱) 100% 고정
+            if "aura" in service_lower:
+                pick03 = brand_bgm_dir / "bgm_03_carefree.mp3"
+                if pick03.exists() and pick03.stat().st_size > 50000:
+                    logger.info(f"💖 [Aura 전용 시그니처] 숏츠/릴스 03번 Carefree 고정 적용: {pick03.name}")
+                    return pick03
+
+            # 🛡️ 보험 / 📈 주식 등 타 브랜드: 신나는 고에너지 BGM 풀 스마트 셔플 로테이션
+            brand_mp3s = sorted(list(brand_bgm_dir.glob("*.mp3")))
+            if brand_mp3s:
+                candidate_indices = [i for i in range(len(brand_mp3s)) if i != self._last_played_idx]
+                chosen_idx = random.choice(candidate_indices) if candidate_indices else 0
+                self._last_played_idx = chosen_idx
+                selected_file = brand_mp3s[chosen_idx]
+                logger.info(f"🎶 [BGM 셔플 로테이션] 숏폼 스튜디오 BGM 선정: {selected_file.name} ({service_id})")
+                return selected_file
+
+        # 🎯 1순위: 합성 카탈로그 BGM 풀 필터링
         if "aura" in service_lower:
-            # Aura 데이팅: 신스팝, 칠하우스, 어쿠스틱, 트로피컬, 케이팝 (돈 떨어지는 소리 0% 완전 배제)
             aura_allowed_ids = ["bgm_03_synthpop", "bgm_04_chillhouse", "bgm_02_acoustic", "bgm_07_tropical", "bgm_08_kpopdance", "bgm_01_marimba", "bgm_05_whistle"]
             pool = [item for item in self.catalog if item["id"] in aura_allowed_ids]
         elif "easytax" in service_lower:

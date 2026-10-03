@@ -68,6 +68,10 @@ class StockShortsScriptWriter:
     """📈 StockMaster AI 8대 주제 전용 제미나이 2.5 Flash 실시간 자율 대본 생성 엔진"""
 
     OFFICIAL_KEYWORD = "스톡마스터 AI"
+    FORBIDDEN_WORDS = [
+        "한정", "이벤트", "선착순", "마감", "사은품", "쿠폰", "오늘만", 
+        "특가", "캐시백", "당첨", "추천주 100% 급등", "원금보장", "수익률 보장", "보험", "데이팅", "소개팅", "연애"
+    ]
 
     def __init__(self):
         try:
@@ -123,7 +127,7 @@ class StockShortsScriptWriter:
 
 [★ 핵심 원칙 (절대 불변)]
 1. 아래 [기준 원본 골든 대본]에 담긴 **스토리 라인, 핵심 팩트(외인/기관 수급 분석, 적정주가, 배당 계산, 저PBR 스크리너 등), 실제 기능 플로우를 100% 온전히 계승**하세요.
-2. 특정 종목 매수/매도 권유나 미확인 정보 등 팩트를 왜곡하지 마세요. (심의 100% 프리패스 객관적 퀀트 데이터 강조)
+2. 🚨 [허위 마케팅 및 거짓말 날조 전면 금지]: 특정 종목 매수/매도 권유나 미확인 정보, '원금보장', '한정 무료 이벤트', '선착순 마감' 등의 거짓말 문구를 절대 지어내지 마세요.
 3. [기준 원본 골든 대본]의 뼈대를 바탕으로, 전문 주식 아나운서 어조와 정확한 글자수 규격(10초 훅 / 12초 앱 시연)에 맞춰 가장 매끄럽고 명쾌한 발화문으로 정밀 다듬기하세요.
 
 [기준 원본 골든 대본 (Ground Truth Reference)]
@@ -157,6 +161,19 @@ class StockShortsScriptWriter:
   "hero_copy": "15자 내외 핵심 헤드라인",
   "debate_question": "10자 내외 질문"
 }}"""
+
+        # 🆕 [무한 변주 엔진] 오늘의 훅 아키타입 지시를 프롬프트 끝에 추가
+        try:
+            from core.variation_engine.stock_hook_variator import StockHookVariator
+            hook_injection = StockHookVariator().build_hook_injection(
+                topic_id=norm_id,
+                topic_title=info['title'],
+                topic_concept=info['concept'],
+                app_sim_visual=info['app_sim_visual'],
+            )
+            prompt = prompt + hook_injection
+        except Exception as e:
+            logger.debug(f"[주식 변주 엔진] 로드 실패 (기존 프롬프트로 진행): {e}")
 
         if not self.key_chain:
             logger.warning("🔑 [Stock 자율 대본] 유효한 Gemini API 키가 없습니다. 골든 대본으로 폴백합니다.")
@@ -193,17 +210,28 @@ class StockShortsScriptWriter:
                     hero_copy = data.get("hero_copy", "").strip()
                     debate_q = data.get("debate_question", "").strip()
 
-                    # 공식 검색어 포함 검증 (누락 시 자동 보정)
-                    if self.OFFICIAL_KEYWORD not in cta_speech:
-                        cta_speech = f"네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"
-
                     hook_full = f"{hook_p1} {hook_p2}".strip()
                     full_speech = f"{hook_full} {app_speech} {cta_speech}".strip()
 
-                    # 🔒 무결성 게이트 검증
-                    # 1) 훅 글자수 검증: 45자 ~ 70자 (Wan 10초 립싱크 안전 마진: 9.0s ~ 10.2s)
-                    if len(hook_full) < 45 or len(hook_full) > 70:
-                        logger.warning(f"⚠️ 훅 글자수 범위 벗어남({len(hook_full)}자, 목표: 55~65자), 다음 시도")
+                    # 🔒 [무결성 게이트 1: 금지어 / 허위 이벤트 검증]
+                    has_forbidden = False
+                    for bad_word in self.FORBIDDEN_WORDS:
+                        if bad_word in full_speech:
+                            logger.warning(f"🚫 [금지어 감지 탈락] '{bad_word}' 포함 대본 기각: {full_speech}")
+                            has_forbidden = True
+                            break
+                    if has_forbidden:
+                        continue
+
+                    # 공식 검색어 포함 검증 (누락 시 자동 보정)
+                    if self.OFFICIAL_KEYWORD not in cta_speech:
+                        cta_speech = f"네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"
+                        full_speech = f"{hook_full} {app_speech} {cta_speech}".strip()
+
+                    # 🔒 [무결성 게이트 2: 구간별 및 전체 글자수 검증]
+                    # 1) 훅 글자수 검증: 40자 ~ 80자 (Wan 10초 립싱크 안전 마진)
+                    if len(hook_full) < 40 or len(hook_full) > 80:
+                        logger.warning(f"⚠️ 훅 글자수 범위 벗어남({len(hook_full)}자, 목표: 50~70자), 다음 시도")
                         continue
 
                     # 2) 앱 시연 글자수 검증: 65자 ~ 115자 (12초 앱 시연 음성 공백 방지)

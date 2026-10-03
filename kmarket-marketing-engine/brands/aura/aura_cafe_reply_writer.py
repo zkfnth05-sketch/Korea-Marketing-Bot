@@ -33,6 +33,7 @@ class AuraCafeReplyWriter:
             GEMINI_FREE_API_KEY_AURA_1,
             GEMINI_FREE_API_KEY_AURA_2,
             GEMINI_FREE_API_KEY_AURA_3,
+            GEMINI_FREE_API_KEY_AURA_4,
             GEMINI_PAID_API_KEY_AURA_1,
             GEMINI_API_KEY
         )
@@ -40,6 +41,7 @@ class AuraCafeReplyWriter:
             {"name": "AURA_FREE_1", "key": GEMINI_FREE_API_KEY_AURA_1},
             {"name": "AURA_FREE_2", "key": GEMINI_FREE_API_KEY_AURA_2},
             {"name": "AURA_FREE_3", "key": GEMINI_FREE_API_KEY_AURA_3},
+            {"name": "AURA_FREE_4", "key": GEMINI_FREE_API_KEY_AURA_4},
             {"name": "AURA_PAID_1", "key": GEMINI_PAID_API_KEY_AURA_1},
             {"name": "DEFAULT", "key": GEMINI_API_KEY}
         ]

@@ -1,10 +1,53 @@
 {
-  "current_topic_index": 12,
-  "last_topic_id": 12,
-  "last_run_time": "2026-10-02 20:02:06",
-  "last_title": "도수치료 함부로 받았다가 보험료 폭탄? 4세대 실비 비급여 특약 팩트체크 🚨",
-  "published_count": 12,
+  "current_topic_index": 13,
+  "last_topic_id": 13,
+  "last_run_time": "2026-10-03 10:01:59",
+  "last_title": "백내장 다초점 렌즈 수술비 실손보험 청구 거절? 대법원 판례 기준과 숨은 보험금 찾는 법 💸",
+  "published_count": 13,
   "history": [
+    {
+      "topic_id": 13,
+      "title": "백내장 다초점 렌즈 수술비 실손보험 청구 거절? 대법원 판례 기준과 숨은 보험금 찾는 법 💸",
+      "title_naver": "백내장 다초점 렌즈 수술비 실손보험 청구 거절? 대법원 판례 기준과 숨은 보험금 찾는 법 💸",
+      "title_tistory": "백내장 수술 실손보험금 분쟁 총정리: 통원 vs 입원 대법원 판례와 지급 노하우",
+      "title_brunch": "부모님 백내장 수술비, 왜 20만 원만 나왔을까? 보험금 분쟁과 가계 고정비 절약법",
+      "category": "health_medical",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_013.webp",
+      "published_at": "2026-10-03 10:01:59",
+      "publish_results": {
+        "topic_id": 13,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "백내장 다초점 렌즈 수술비 실손보험 청구 거절? 대법원 판례 기준과 숨은 보험금 찾는 법 💸",
+            "url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224430123312&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=27189",
+            "post_url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224430123312&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=27189",
+            "tags": [
+              "백내장수술비",
+              "실손보험분쟁",
+              "실손보험전환",
+              "허혈성심장질환",
+              "암보험비교",
+              "허혈성 심장질환",
+              "암보험 비교",
+              "실손보험 전환",
+              "5세대실손보험전환",
+              "실손보험전환환급금"
+            ]
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [1회연동]_보험비교_티스토리_영구로그인.bat 실행 필요",
+            "blog_name": "think83157"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        }
+      }
+    },
     {
       "topic_id": 12,
       "title": "도수치료 함부로 받았다가 보험료 폭탄? 4세대 실비 비급여 특약 팩트체크 🚨",

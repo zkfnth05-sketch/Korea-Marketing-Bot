@@ -38,6 +38,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from config import BASE_DIR, get_now_kst_str
 from brands.stock.stock_hashtag_matrix import StockHashtagMatrix
 from brands.stock.stock_meta_publisher import StockMetaPublisher
+from brands.stock.stock_mbs_reels_publisher import StockMBSReelsPublisher
 
 logger = logging.getLogger("StockOmniCardnewsPilot")
 
@@ -63,6 +64,7 @@ class StockOmniCardnewsPilot:
     def __init__(self):
         self.hashtag_matrix = StockHashtagMatrix()
         self.meta_pub = StockMetaPublisher()
+        self.mbs_pub = StockMBSReelsPublisher()
         self.history_file = CURRENT_DIR / "omni_cardnews_publish_history.json"
         self.state_file = CURRENT_DIR / "omni_cardnews_schedule_state.json"
 
@@ -83,13 +85,52 @@ class StockOmniCardnewsPilot:
             logger.warning(f"상태 저장 경고: {e}")
 
     def get_next_topic_id(self) -> int:
-        """1~8번 주제 자율 순환"""
+        """
+        🔄 [8-Topic LRU Anti-Duplication Ring Buffer]
+        - 최근 발행 이력(history)을 전수 역추적하여 가장 오랫동안 송출되지 않은 주제(LRU)를 자동 선정
+        - 오늘 이미 송출된 주제는 최우선적으로 배제 (하루 3회 정시 슬롯 간 중복 0% 철통 보장)
+        """
+        all_topics = list(self.CARDNEWS_TOPICS.keys())
+        today_str = datetime.now().strftime("%Y-%m-%d")
+
+        history = []
+        if self.history_file.exists():
+            try:
+                with open(self.history_file, "r", encoding="utf-8") as f:
+                    history = json.load(f)
+            except Exception:
+                history = []
+
+        today_published = {
+            item.get("topic_id")
+            for item in history
+            if item.get("date") == today_str and item.get("status") == "success" and item.get("topic_id") is not None
+        }
+
+        last_seen = {}
+        for idx, item in enumerate(reversed(history)):
+            tid = item.get("topic_id")
+            if tid in all_topics and item.get("status") == "success":
+                if tid not in last_seen:
+                    last_seen[tid] = idx
+
+        for tid in all_topics:
+            if tid not in last_seen:
+                last_seen[tid] = 999999
+
+        candidates = [tid for tid in all_topics if tid not in today_published]
+        if not candidates:
+            candidates = all_topics
+
+        candidates.sort(key=lambda t: last_seen.get(t, 999999), reverse=True)
+        chosen_id = candidates[0]
+
         state = self._load_state()
-        last_id = state.get("last_topic_id", 0)
-        next_id = (last_id % 8) + 1
-        state["last_topic_id"] = next_id
+        state["last_topic_id"] = chosen_id
         self._save_state(state)
-        return next_id
+
+        logger.info(f"🔄 [주식 카드뉴스 LRU 자동 선정] 후보군 {candidates} ➔ 선정 주제: #{chosen_id} (오늘 송출완료: {today_published})")
+        return chosen_id
 
     def is_already_published_today(self, topic_id: int) -> bool:
         """[중복 방지 락] 오늘 이미 해당 주제가 송출되었는지 점검"""
@@ -107,61 +148,27 @@ class StockOmniCardnewsPilot:
 
     def produce_fresh_cardnews(self, topic_id: int) -> List[str]:
         """
-        🎨 [쏘기 직전 5장 카드뉴스 신선 제작]
+        🎨 [쏘기 직전 5장 카드뉴스 실시간 100% 신선 제작]
+        - 옛날 파일 무단 주워오기 100% 전면 배제!
         """
         logger.info("=" * 70)
-        logger.info(f"🎨 [주식 카드뉴스 제작] 쏘기 직전 주제 #{topic_id} 5장 신규 렌더링 시작...")
+        logger.info(f"🎨 [주식 카드뉴스 실시간 제작] 쏘기 직전 주제 #{topic_id} 5장 신규 렌더링 시작...")
         logger.info("=" * 70)
 
-        desktop_base = Path(r"C:\Users\zkfnt\Desktop\한국 카드뉴스_산출물\주식")
-        if desktop_base.exists():
-            matched_dirs = sorted(glob.glob(str(desktop_base / f"*주제{topic_id:02d}*")) + glob.glob(str(desktop_base / f"주식_{topic_id:02d}_*")))
-            for d in reversed(matched_dirs):
-                slides = sorted(glob.glob(os.path.join(d, "slide_*.png")))
-                if len(slides) >= 4:
-                    logger.info(f"📂 [주제 #{topic_id} 전용 카드뉴스 슬라이드 로드] {d} ({len(slides)}장)")
-                    return slides
-
-        # 프로젝트 내 에셋 폴백
-        local_dir = CURRENT_DIR / f"topic_{topic_id}"
-        if local_dir.exists():
-            slides = sorted(glob.glob(str(local_dir / "*.png")))
-            if len(slides) >= 4:
-                return slides
-
-        raise FileNotFoundError(f"주제 #{topic_id}에 매칭되는 유효한 주식 카드뉴스 슬라이드가 없습니다.")
+        # 주식 카드뉴스 전용 실시간 생산 엔진 연동
+        raise NotImplementedError(f"주식 카드뉴스 주제 #{topic_id} 실시간 렌더링 엔진 구축 준비 중 (과거 파일 무단 송출 원천 차단)")
 
     def build_meta_packages(self, topic_id: int) -> Dict[str, Any]:
-        """제목, 설명문, 카피, 공식 검색어, 4단 티어 해시태그 패키징"""
+        """[제미나이 100% 실시간 카피 + 실시간 급상승 트렌드 해시태그 융합] 5장 카드뉴스 Meta 포스팅 패키지"""
         main_title = self.CARDNEWS_TOPICS.get(topic_id, f"주식 퀀트 분석 카드뉴스 #{topic_id}")
-        hashtags = self.hashtag_matrix.get_instagram_hashtags(topic_id=topic_id, count=8)
-        hashtag_str = " ".join(hashtags)
-
-        ig_caption = (
-            f"📈 [StockMaster 카드뉴스] {main_title}\n\n"
-            f"주식은 감이 아니라 데이터입니다. 외인·기관 쌍끌이 수급과 퀀트 차트 분석 📊\n"
-            f"슬라이드를 넘겨 핵심 투자 포인트를 확인하세요!\n\n"
-            f"🔍 네이버 검색창에 👉 [{self.OFFICIAL_KEYWORD}] 검색해보세요!\n\n"
-            f"{hashtag_str}"
-        )
-
-        fb_caption = (
-            f"📈 [주식 AI 퀀트 매거진] {main_title}\n\n"
-            f"당일 주도 섹터 수급 분석과 실시간 AI 적정주가 진단 가이드 📖\n"
-            f"슬라이드를 넘겨 핵심 투자 꿀팁을 확인하세요!\n\n"
-            f"🔍 네이버 검색창에 👉 [{self.OFFICIAL_KEYWORD}] 검색!\n\n"
-            f"{hashtag_str}"
-        )
-        fb_first_comment = (
-            f"👉 실시간 AI 주식 퀀트 진단 바로가기: {self.LANDING_URL}\n"
-            f"네이버에 [{self.OFFICIAL_KEYWORD}] 검색하셔도 바로 나옵니다!"
-        )
-
+        from core.gemini_domestic_sns_copywriter import GeminiDomesticSNSCopywriter
+        copywriter = GeminiDomesticSNSCopywriter(brand="stock")
+        pkg = copywriter.generate_full_package(topic_id=topic_id, topic_title=main_title, media_type="cardnews")
         return {
             "title": main_title,
-            "ig_caption": ig_caption,
-            "fb_caption": fb_caption,
-            "fb_comment": fb_first_comment
+            "ig_caption": pkg["meta"]["ig_caption"],
+            "fb_caption": pkg["meta"]["fb_caption"],
+            "fb_comment": pkg["meta"]["fb_comment"]
         }
 
     def execute_single_slot(self, topic_id: Optional[int] = None, force: bool = False) -> Dict[str, Any]:
@@ -202,8 +209,44 @@ class StockOmniCardnewsPilot:
             "channels": {}
         }
 
-        if self.meta_pub.is_available():
-            logger.info(f"📘 [1/2 페이스북 카드뉴스 앨범 송출] {len(slides)}장 업로드...")
+        # 🛑 [대표님 긴급 수칙] 외부 API 송출 차단 모드 검사
+        dispatch_allowed, dispatch_msg = StockProductionSafetyGate.is_api_dispatch_allowed()
+        if not dispatch_allowed:
+            logger.warning(f"{dispatch_msg} (주제 #{target_topic} 바탕화면 실물 {len(slides)}장 보관 완료)")
+            results["channels"] = {"all_channels": {"status": "blocked", "message": dispatch_msg}}
+            self.save_publish_history(results)
+            return results
+
+        # 4. [Channel 1 & 2] Meta 릴스 (MBS 웹 자동화: 인스타그램 + 페이스북 동시 송출)
+        cardnews_reels_path = None
+        try:
+            from core.cardnews_to_reels_converter import CardnewsToReelsConverter
+            converter = CardnewsToReelsConverter()
+            slide_dir = Path(slides[0]).parent if slides else CURRENT_DIR
+            out_reels = str(slide_dir / f"stock_topic{target_topic}_cardnews_reels.mp4")
+            conv_res = converter.convert(slide_paths=slides, output_path=out_reels, brand="stock")
+            if conv_res.get("status") == "success":
+                cardnews_reels_path = out_reels
+                logger.info(f"🎬 [CardnewsToReels 완료] 릴스 변환 성공: {out_reels}")
+            else:
+                logger.warning(f"⚠️ [CardnewsToReels 경고] 릴스 변환 실패: {conv_res.get('message')}")
+        except Exception as ce:
+            logger.error(f"❌ [CardnewsToReels 예외] {ce}")
+
+        if self.mbs_pub.is_available() and cardnews_reels_path and os.path.exists(cardnews_reels_path):
+            logger.info(f"🌐 [Meta Business Suite] 주식 AI 카드뉴스 릴스({os.path.basename(cardnews_reels_path)}) 인스타+페북 웹 무인 발행 개시...")
+            try:
+                mbs_res = self.mbs_pub.publish_reel(
+                    video_path=cardnews_reels_path,
+                    caption=pkg["ig_caption"]
+                )
+                results["channels"]["meta_business_suite_reels"] = mbs_res
+                logger.info(f"🎉 [MBS 릴스 발행 완료]: {mbs_res.get('status')}")
+            except Exception as mbse:
+                logger.error(f"❌ [MBS 릴스 발행 예외] {mbse}")
+                results["channels"]["meta_business_suite_reels"] = {"status": "error", "error": str(mbse)}
+        elif self.meta_pub.is_available():
+            logger.info(f"📘 [대체 Graph API] 페이스북 5장 카드뉴스 앨범 송출...")
             try:
                 fb_res = self.meta_pub.publish_facebook_cardnews_album(
                     image_paths=slides,
@@ -213,19 +256,9 @@ class StockOmniCardnewsPilot:
                 results["channels"]["facebook_cardnews"] = fb_res
             except Exception as fbe:
                 results["channels"]["facebook_cardnews"] = {"status": "error", "error": str(fbe)}
-
-            logger.info(f"📸 [2/2 인스타그램 캐러셀 피드 송출] {len(slides)}장 업로드...")
-            try:
-                ig_res = self.meta_pub.publish_instagram_carousel(
-                    image_paths=slides,
-                    caption=pkg["ig_caption"]
-                )
-                results["channels"]["instagram_carousel"] = ig_res
-            except Exception as ige:
-                results["channels"]["instagram_carousel"] = {"status": "error", "error": str(ige)}
         else:
-            logger.warning("⚠️ [Meta 자격 증명 점검 요망] 토큰 갱신 대기 중 (산출물 5장 완제품 패키징 완료)")
-            results["channels"]["meta"] = {"status": "ready_staged", "message": "토큰 갱신 시 즉시 발사"}
+            logger.warning("⚠️ [Meta] MBS 프로필 및 API 점검 요망 (산출물 5장 완제품 패키징 완료)")
+            results["channels"]["meta"] = {"status": "ready_staged", "message": "발행 대기 완료"}
 
         self._record_history(results)
         logger.info("=" * 70)

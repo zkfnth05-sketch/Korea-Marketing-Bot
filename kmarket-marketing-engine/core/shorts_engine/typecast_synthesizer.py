@@ -40,7 +40,7 @@ class TypecastSynthesizer:
         model: Optional[str] = None,
         output_dir: Optional[str] = None
     ):
-        self.api_key = api_key or os.getenv("TYPECAST_API_KEY", "__pltMYPUabgPLzeK8dsNxhBcxPHhexjh7V7YcyeKpzM5")
+        self.api_key = api_key or os.getenv("TYPECAST_API_KEY", "")
         self.default_voice_id = default_voice_id or os.getenv("TYPECAST_VOICE_ID_AURA", self.DEFAULT_VOICE_ID)
         self.model = model or self.DEFAULT_MODEL
         self.output_dir = output_dir or r"D:\ComfyUI_Wan_Engine\ComfyUI\input"

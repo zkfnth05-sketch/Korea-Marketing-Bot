@@ -98,7 +98,7 @@ class StockHashtagMatrix:
         tags.extend(topic_tags[:7])
 
         # 3. 미들 트렌드 태그 4~5개 (Tier 2)
-        tags.extend(cls.MID_TREND_TAGS["us_stocks"][:2])
+        tags.extend(cls.MID_TREND_TAGS["korea_stocks"][:2])
         tags.extend(cls.MID_TREND_TAGS["etf_dividend"][:3])
 
         # 4. 대형 메가 태그 3~4개 (Tier 1)

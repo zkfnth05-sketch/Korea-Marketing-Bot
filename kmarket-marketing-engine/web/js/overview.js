@@ -745,7 +745,7 @@ function renderEmergencyGuardBanner(emergencyStatus, summary) {
 }
 
 // 🚀 [신규 전광판] 3대 브랜드 실시간 마케팅 무인 발행 라이브 전광판 렌더러
-function renderTodayLiveFeedBoard(liveFeed) {
+function renderTodayLiveFeedBoard(liveFeed, gpuStatus) {
     const container = document.getElementById("today-live-feed-container");
     if (!container || !liveFeed || !liveFeed.brands) return;
 
@@ -753,6 +753,49 @@ function renderTodayLiveFeedBoard(liveFeed) {
     const brands = liveFeed.brands || {};
     const timestamp = liveFeed.timestamp || "";
     const today = liveFeed.today || "";
+
+    // 🎮 GPU 실시간 렌더링 가동 전광판 배너
+    let gpuBannerHtml = "";
+    if (gpuStatus && (gpuStatus.status === "busy" || gpuStatus.status === "running" || (gpuStatus.current_task && gpuStatus.status !== "idle"))) {
+        const taskName = gpuStatus.current_task || "미디어 실사 렌더링 중";
+        const isCardnews = taskName.includes("카드뉴스") || taskName.includes("T2I") || taskName.includes("사진");
+        const isShorts = taskName.includes("숏폼") || taskName.includes("S2V") || taskName.includes("영상");
+        const badgeColor = isCardnews ? "#EC4899" : isShorts ? "#8B5CF6" : "#F59E0B";
+        const bgGrad = isCardnews
+            ? "linear-gradient(135deg, #FFF1F2 0%, #FDF2F8 50%, #FAF5FF 100%)"
+            : "linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 50%, #F0F9FF 100%)";
+        const borderCol = isCardnews ? "#F472B6" : "#A78BFA";
+
+        gpuBannerHtml = `
+            <div class="gpu-live-status-banner" style="background:${bgGrad};border:2px solid ${borderCol};border-radius:14px;padding:14px 18px;margin-bottom:16px;box-shadow:0 8px 25px rgba(236,72,153,0.18);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;animation:gpuPulseBorder 2s infinite alternate;">
+                <div style="display:flex;align-items:center;gap:14px;">
+                    <div style="width:44px;height:44px;border-radius:12px;background:#0F172A;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+                        ${isCardnews ? '🎨' : isShorts ? '🎬' : '⚡'}
+                    </div>
+                    <div>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span style="background:${badgeColor};color:#FFFFFF;font-size:11px;font-weight:800;padding:2px 8px;border-radius:12px;display:inline-flex;align-items:center;gap:5px;">
+                                <span class="pulse-dot" style="background:#FFFFFF;width:6px;height:6px;border-radius:50%;display:inline-block;"></span>
+                                GPU 실시간 연산 가동 중
+                            </span>
+                            <span style="font-size:11.5px;color:#64748B;font-weight:600;">🎮 NVIDIA GeForce RTX 5060 Ti (100% 자율 생산)</span>
+                        </div>
+                        <div style="font-size:14.5px;font-weight:800;color:#0F172A;margin-top:4px;">
+                            ${taskName}
+                        </div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="badge" style="background:#ECFDF5;color:#059669;border:1px solid #A7F3D0;font-weight:700;font-size:11.5px;">
+                        🟢 렌더링 완료 시 자동 동기화
+                    </span>
+                    <button class="btn btn-secondary" onclick="switchTabDirect('gallery')" style="font-size:11.5px;padding:6px 12px;">
+                        📸 갤러리/사진 확인 →
+                    </button>
+                </div>
+            </div>
+        `;
+    }
 
     const brandConfigs = {
         aura: {
@@ -1120,6 +1163,7 @@ function renderTodayLiveFeedBoard(liveFeed) {
     }).join("");
 
     container.innerHTML = `
+        ${gpuBannerHtml}
         <div class="section-card" style="border-top: 4px solid #3B82F6; background:#FFFFFF; box-shadow:0 6px 20px rgba(0,0,0,0.06); margin-bottom: 24px;">
             <!-- 전광판 상단 바 -->
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
@@ -1277,9 +1321,18 @@ async function fetchStatus() {
         if (!res.ok) return;
         const data = await res.json();
 
-        // 🚀 실시간 무인 발행 라이브 전광판 렌더링
+        // 🚀 실시간 무인 발행 라이브 전광판 렌더링 (GPU 상태 포함)
         if (data.today_live_feed) {
-            renderTodayLiveFeedBoard(data.today_live_feed);
+            renderTodayLiveFeedBoard(data.today_live_feed, data.gpu_status);
+        }
+
+        // 갤러리 탭 실시간 GPU 상태 동기화
+        if (typeof cachedGPUStatus !== "undefined") {
+            cachedGPUStatus = data.gpu_status || null;
+            const galleryTab = document.getElementById("tab-gallery");
+            if (galleryTab && galleryTab.classList.contains("active") && typeof renderGalleryItems === "function") {
+                renderGalleryItems();
+            }
         }
 
         // 🚨 실시간 비상관제 배너 렌더링

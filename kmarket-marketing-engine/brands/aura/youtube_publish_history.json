@@ -44,5 +44,17 @@
     "privacy_status": "public",
     "published_at": "2026-10-02 18:33:44",
     "message": "YouTube Data API v3 쇼츠 공개 발행 및 고정 댓글 등록 완료"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "topic_id": 1,
+    "video_id": "H-apCCi8n84",
+    "video_url": "https://youtube.com/shorts/H-apCCi8n84",
+    "comment_id": "UgwEGmcIMQGWEiJTj3d4AaABAg",
+    "title": "소개팅에서 어색할 때 3초 만에 탈출하는 비법 ㄷㄷ #아우라AI데이팅 #Shorts",
+    "privacy_status": "public",
+    "published_at": "2026-10-03 11:29:45",
+    "message": "YouTube Data API v3 쇼츠 공개 발행 및 고정 댓글 등록 완료"
   }
 ]

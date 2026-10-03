@@ -1,10 +1,54 @@
 {
-  "current_topic_index": 15,
-  "last_topic_id": 1,
-  "last_run_time": "2026-10-02 21:20:38",
-  "last_title": "[알테오젠] 바이오플랫폼 주가 전망: 20일선 지지선과 10분 전광판 지표 분석",
-  "published_count": 23,
+  "current_topic_index": 16,
+  "last_topic_id": 16,
+  "last_run_time": "2026-10-03 10:16:48",
+  "last_title": "[현대차] 자동차/밸류업 주가 전망: 20일선 지지선과 10분 전광판 지표 분석",
+  "published_count": 24,
   "history": [
+    {
+      "topic_id": 16,
+      "title": "[현대차] 자동차/밸류업 주가 전망: 20일선 지지선과 10분 전광판 지표 분석",
+      "title_naver": "[현대차] 자동차/밸류업 주가 전망: 20일선 지지선과 10분 전광판 지표 분석",
+      "title_tistory": "[현대차] 기관 연속 매집과 ATR 리스크 관리 손절선 대응 전략",
+      "title_brunch": "외국인·기관 대량 순매수 [현대차] 하이브리드 퀀트 팩트체크",
+      "category": "korea_market",
+      "image_url": "",
+      "published_at": "2026-10-03 10:16:48",
+      "publish_results": {
+        "topic_id": 16,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "[현대차] 자동차/밸류업 주가 전망: 20일선 지지선과 10분 전광판 지표 분석",
+            "url": "https://blog.naver.com/stockmaster_ai/224430132661?fromRss=true&trackingCode=rss",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224430132661?fromRss=true&trackingCode=rss",
+            "tags": [
+              "현대차",
+              "현대차 하이브리드",
+              "현대차 인도IPO",
+              "현대차 주주환원",
+              "StockMaster"
+            ]
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [1회연동]_주식AI_티스토리_영구로그인.bat 실행 필요",
+            "blog_name": "stockmaster-ai"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 28,
+            "title": "[현대차] 자동차/밸류업 주가 전망: 20일선 지지선과 10분 전광판 지표 분석",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
     {
       "topic_id": 1,
       "title": "[알테오젠] 바이오플랫폼 주가 전망: 20일선 지지선과 10분 전광판 지표 분석",

@@ -123,96 +123,99 @@ class AuraNaverClipPublisher:
         upload_url = "https://clipcreators.naver.com/web/upload"
         logger.info(f"🚀 [Naver-Aura Real Clip] 숏폼 발행 시작: '{main_title}' (영상: {target_video.name})")
 
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(
-                headless=True,
-                args=["--disable-blink-features=AutomationControlled"]
-            )
-            context = await browser.new_context(
-                storage_state=str(self.session_file),
-                viewport={"width": 1280, "height": 900},
-                permissions=["clipboard-read", "clipboard-write"]
-            )
-            page = await context.new_page()
+        from core.engine.browser_guard import async_browser_lock, get_safe_browser_args
 
-            try:
-                # 1. 업로드 페이지 이동
-                await page.goto(upload_url, wait_until="networkidle", timeout=timeout_sec * 1000)
-                await asyncio.sleep(2.0)
+        async with async_browser_lock(f"Aura 네이버 클립 발행 ({main_title[:15]})"):
+            async with async_playwright() as p:
+                browser = await p.chromium.launch(
+                    headless=True,
+                    args=get_safe_browser_args()
+                )
+                context = await browser.new_context(
+                    storage_state=str(self.session_file),
+                    viewport={"width": 1280, "height": 900},
+                    permissions=["clipboard-read", "clipboard-write"]
+                )
+                page = await context.new_page()
 
-                # 2. 동영상 파일 주입
-                file_input = await page.wait_for_selector("input[type='file']", timeout=10000)
-                await file_input.set_input_files(str(target_video.resolve()))
-                logger.info(f"🎬 [Naver-Aura] 동영상 파일 주입 성공: {target_video.name}")
+                try:
+                    # 1. 업로드 페이지 이동
+                    await page.goto(upload_url, wait_until="networkidle", timeout=timeout_sec * 1000)
+                    await asyncio.sleep(2.0)
 
-                # 3. 편집 폼 로드 대기 및 설명문 입력
-                desc_area = await page.wait_for_selector("textarea[name='description']", timeout=15000)
-                await desc_area.click()
-                await desc_area.fill(clip_desc)
-                logger.info("📝 [Naver-Aura] 클립 설명 & 해시태그 입력 완료")
-                await asyncio.sleep(1.0)
+                    # 2. 동영상 파일 주입
+                    file_input = await page.wait_for_selector("input[type='file']", timeout=10000)
+                    await file_input.set_input_files(str(target_video.resolve()))
+                    logger.info(f"🎬 [Naver-Aura] 동영상 파일 주입 성공: {target_video.name}")
 
-                # 4. 1차 카테고리 선택 (일상기록/라이프스타일/플레이스)
-                cat1_btn = await page.query_selector(".ClipDetailForm_dropdownPrimary__6ZbSU, button:has-text('1차 카테고리')")
-                if cat1_btn:
-                    await cat1_btn.click()
+                    # 3. 편집 폼 로드 대기 및 설명문 입력
+                    desc_area = await page.wait_for_selector("textarea[name='description']", timeout=15000)
+                    await desc_area.click()
+                    await desc_area.fill(clip_desc)
+                    logger.info("📝 [Naver-Aura] 클립 설명 & 해시태그 입력 완료")
                     await asyncio.sleep(1.0)
-                    target_opt = await page.query_selector("button.ClipDetailForm_dropdownOption__KunGJ:has-text('일상기록'), button.ClipDetailForm_dropdownOption__KunGJ:has-text('라이프스타일'), button.ClipDetailForm_dropdownOption__KunGJ:has-text('플레이스'), button.ClipDetailForm_dropdownOption__KunGJ")
-                    if target_opt:
-                        await target_opt.click()
+
+                    # 4. 1차 카테고리 선택 (일상기록/라이프스타일/플레이스)
+                    cat1_btn = await page.query_selector(".ClipDetailForm_dropdownPrimary__6ZbSU, button:has-text('1차 카테고리')")
+                    if cat1_btn:
+                        await cat1_btn.click()
+                        await asyncio.sleep(1.0)
+                        target_opt = await page.query_selector("button.ClipDetailForm_dropdownOption__KunGJ:has-text('일상기록'), button.ClipDetailForm_dropdownOption__KunGJ:has-text('라이프스타일'), button.ClipDetailForm_dropdownOption__KunGJ:has-text('플레이스'), button.ClipDetailForm_dropdownOption__KunGJ")
+                        if target_opt:
+                            await target_opt.click()
+                            await asyncio.sleep(1.0)
+
+                    # 5. 2차 카테고리 선택
+                    cat2_btn = await page.query_selector(".ClipDetailForm_dropdownSecondary__2ebKr, button:has-text('2차 카테고리')")
+                    if cat2_btn and not await cat2_btn.is_disabled():
+                        await cat2_btn.click()
+                        await asyncio.sleep(1.0)
+                        target_opt2 = await page.query_selector("button.ClipDetailForm_dropdownOption__KunGJ")
+                        if target_opt2:
+                            await target_opt2.click()
+                            await asyncio.sleep(1.0)
+
+                    # 6. 인코딩 완료 대기 및 등록 버튼 활성화
+                    submit_btn = await page.wait_for_selector("button.ClipDetailForm_submitBtn__8PUrw, button[type='submit']:has-text('등록')", timeout=10000)
+                    for _ in range(30):
+                        if not await submit_btn.is_disabled():
+                            break
                         await asyncio.sleep(1.0)
 
-                # 5. 2차 카테고리 선택
-                cat2_btn = await page.query_selector(".ClipDetailForm_dropdownSecondary__2ebKr, button:has-text('2차 카테고리')")
-                if cat2_btn and not await cat2_btn.is_disabled():
-                    await cat2_btn.click()
-                    await asyncio.sleep(1.0)
-                    target_opt2 = await page.query_selector("button.ClipDetailForm_dropdownOption__KunGJ")
-                    if target_opt2:
-                        await target_opt2.click()
-                        await asyncio.sleep(1.0)
+                    # 7. 최종 등록 클릭
+                    await submit_btn.click()
+                    logger.info("🎉 [Naver-Aura] 네이버 클립 [등록] 버튼 클릭 성공!")
+                    await asyncio.sleep(5.0)
 
-                # 6. 인코딩 완료 대기 및 등록 버튼 활성화
-                submit_btn = await page.wait_for_selector("button.ClipDetailForm_submitBtn__8PUrw, button[type='submit']:has-text('등록')", timeout=10000)
-                for _ in range(30):
-                    if not await submit_btn.is_disabled():
-                        break
-                    await asyncio.sleep(1.0)
+                    # 모달 확인창 처리
+                    modal_confirm = await page.query_selector("[role='dialog'] button:has-text('확인'), [role='dialog'] button:has-text('등록'), [role='dialog'] button:has-text('게시')")
+                    if modal_confirm:
+                        await modal_confirm.click()
+                        await asyncio.sleep(3.0)
 
-                # 7. 최종 등록 클릭
-                await submit_btn.click()
-                logger.info("🎉 [Naver-Aura] 네이버 클립 [등록] 버튼 클릭 성공!")
-                await asyncio.sleep(5.0)
+                    # 세션 최신 상태 저장
+                    await context.storage_state(path=str(self.session_file))
 
-                # 모달 확인창 처리
-                modal_confirm = await page.query_selector("[role='dialog'] button:has-text('확인'), [role='dialog'] button:has-text('등록'), [role='dialog'] button:has-text('게시')")
-                if modal_confirm:
-                    await modal_confirm.click()
-                    await asyncio.sleep(3.0)
+                    logger.info(f"🎉 [Naver-Aura] 네이버 클립 숏폼 공개 발행 완료! 채널 URL: {self.channel_url}")
 
-                # 세션 최신 상태 저장
-                await context.storage_state(path=str(self.session_file))
+                    res = {
+                        "status": "success",
+                        "platform": "naver_clip",
+                        "brand": "aura",
+                        "topic_id": topic_id,
+                        "title": main_title,
+                        "video_file": target_video.name,
+                        "channel_url": self.channel_url,
+                        "published_at": get_now_kst_str()
+                    }
+                    self._save_history(res)
+                    await browser.close()
+                    return res
 
-                logger.info(f"🎉 [Naver-Aura] 네이버 클립 숏폼 공개 발행 완료! 채널 URL: {self.channel_url}")
-
-                res = {
-                    "status": "success",
-                    "platform": "naver_clip",
-                    "brand": "aura",
-                    "topic_id": topic_id,
-                    "title": main_title,
-                    "video_file": target_video.name,
-                    "channel_url": self.channel_url,
-                    "published_at": get_now_kst_str()
-                }
-                self._save_history(res)
-                await browser.close()
-                return res
-
-            except Exception as e:
-                logger.error(f"❌ [Naver-Aura Real Clip] 실행 중 예외: {e}")
-                await browser.close()
-                return {"status": "error", "error": str(e), "brand": "aura"}
+                except Exception as e:
+                    logger.error(f"❌ [Naver-Aura Real Clip] 실행 중 예외: {e}")
+                    await browser.close()
+                    return {"status": "error", "error": str(e), "brand": "aura"}
 
     def _save_history(self, data: Dict[str, Any]):
         logs = []

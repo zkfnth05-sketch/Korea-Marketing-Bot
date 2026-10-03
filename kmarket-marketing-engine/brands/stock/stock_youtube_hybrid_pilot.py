@@ -91,10 +91,10 @@ class StockYouTubeHybridPilot:
         logger.info(f"  • 공개 설정: {privacy_status}")
         logger.info("=" * 70)
 
-        # 1. 대상 비디오 파일 확보
-        target_video = Path(video_path) if video_path else self.find_latest_short_video(topic_id)
-        if not target_video or not target_video.exists():
-            logger.warning("⚠️ 업로드할 StockMaster AI 숏폼 비디오가 없어 메타데이터 검증 모드로 전환합니다.")
+        # 1. 명시적으로 전달받은 실시간 신규 비디오 파일 검증 (과거 파일 무단 탐색 100% 차단)
+        if not video_path or not Path(video_path).exists():
+            raise FileNotFoundError(f"업로드할 실시간 신선 주식 숏폼 비디오 경로가 지정되지 않았거나 존재하지 않습니다: {video_path}")
+        target_video = Path(video_path)
 
         # 2. [Step 1] 브라우저 인간 웜업 (Trust Score 확보)
         warmup_result = {}

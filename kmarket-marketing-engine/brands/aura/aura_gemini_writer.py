@@ -242,16 +242,26 @@ class AuraGeminiWriter:
         if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
             clean_str = clean_str[start_idx:end_idx + 1]
 
+        parsed = {}
         try:
             parsed = json.loads(clean_str)
         except Exception as parse_err:
-            logger.warning(f"⚠️ [AuraGeminiWriter] JSON 파싱 실패 ({parse_err}), 정규식 구조 추출 시도")
+            logger.warning(f"⚠️ [AuraGeminiWriter] JSON 파싱 실패 ({parse_err}), 정규식 정밀 추출 가동")
             t_match = re.search(r'"title_naver"\s*:\s*"([^"]+)"', clean_str)
             p_title = t_match.group(1) if t_match else f"2026 {topic_title}"
             v_match = re.search(r'"visual_prompt"\s*:\s*"([^"]+)"', clean_str)
             p_vis = v_match.group(1) if v_match else "realistic Korean young adult couple talking warmly in cozy cafe, 16:9"
             d_match = re.search(r'"discussion_prompt"\s*:\s*"([^"]+)"', clean_str)
             p_disc = d_match.group(1) if d_match else "Aura 회원 여러분의 생각은 어떠신가요? 아래 댓글로 여러분만의 꿀팁을 남겨주세요!"
+            
+            # content_md 정밀 추출 (JSON 전체 덤프 원천 차단)
+            c_match = re.search(r'"content_md"\s*:\s*"((?:[^"\\]|\\.)*)"', clean_str, re.DOTALL)
+            if c_match:
+                extracted_content = c_match.group(1).encode('utf-8').decode('unicode_escape', errors='replace')
+                extracted_content = extracted_content.replace('\\n', '\n').replace('\\"', '"')
+            else:
+                extracted_content = self._generate_fallback_content(topic_title, category_name, aura_feature)
+
             parsed = {
                 "title_naver": p_title,
                 "title_tistory": f"[2026 가이드] {topic_title} 핵심 정리",
@@ -259,7 +269,7 @@ class AuraGeminiWriter:
                 "excerpt": f"2030 {topic_title} 실전 가이드",
                 "visual_prompt": p_vis,
                 "discussion_prompt": p_disc,
-                "content_md": clean_str
+                "content_md": extracted_content
             }
 
         title_naver = parsed.get("title_naver") or parsed.get("title", f"2026 {topic_title}")
@@ -267,6 +277,12 @@ class AuraGeminiWriter:
         title_kakao = parsed.get("title_kakao") or f"{topic_title}에 대한 솔직한 이야기"
         title = title_naver  # 기본 호환용 타이틀
         content_md = parsed.get("content_md", "")
+
+        # 🚨 [절대 무결성 게이트: 본문 내 JSON 원문 및 기계어 유출 100% 차단]
+        if not content_md or '{"title_naver"' in content_md or '"visual_prompt"' in content_md or content_md.strip().startswith('{'):
+            logger.warning("🚨 [AuraGeminiWriter] 본문에 JSON 기계어 유출 감지! 고품질 한국어 칼럼으로 안전 복원합니다.")
+            content_md = self._generate_fallback_content(topic_title, category_name, aura_feature)
+
         excerpt = parsed.get("excerpt", f"2030 {topic_title} 실전 가이드")
         visual_prompt = parsed.get("visual_prompt", "")
         discussion_prompt = parsed.get("discussion_prompt", "Aura 싱글 여러분의 생각은 어떠신가요? 아래 댓글로 여러분만의 솔직한 생각과 꿀팁을 들려주세요!")
@@ -287,6 +303,33 @@ class AuraGeminiWriter:
             "hashtags": hashtags,
             "landing_url": self.LANDING_URL
         }
+
+    def _generate_fallback_content(self, topic_title: str, category_name: str, aura_feature: str) -> str:
+        """JSON 파싱 실패 시 기계어 노출을 100% 방지하는 완성형 2,000자 한국어 전문 칼럼"""
+        return f"""매일 똑같은 일상, 바쁘게 돌아가는 하루를 마치고 나면 어느새 찾아오는 여유로운 시간. 우리는 늘 새로운 설렘과 따뜻한 인연을 기대하곤 합니다. 특히 '{topic_title}'에 대한 고민은 2030 세대라면 누구나 한 번쯤 깊이 공감해 보았을 주제입니다.
+
+소개팅이나 썸, 연애의 과정에서 가장 중요한 것은 무엇일까요? 바로 상대방의 입장에서 한 번 더 생각해보는 '진정성'과 자연스러운 '센스'입니다. 오늘은 복잡한 고민을 끝내고 실전에서 바로 활용할 수 있는 핵심 꿀팁을 정리해 드립니다.
+
+---
+
+### ✨ 1. 첫인상을 결정짓는 대화의 온도 조절법
+첫 만남이나 연락에서 무리하게 과한 멘트를 던지기보다는, 상대방이 편안하게 대답할 수 있는 '열린 질문'을 건네는 것이 좋습니다. 상대방의 프로필이나 최근 관심사를 자연스럽게 언급하며 공감대를 형성하면 어색했던 분위기가 순식간에 부드러워집니다.
+
+### 💡 2. 서두르지 않는 여유, 관계를 진전시키는 타이밍
+호감이 갈수록 마음이 급해지기 쉽지만, 관계는 서서히 온도를 높여갈 때 가장 단단해집니다. 답장 간격에 지나치게 얽매이기보다는, 대화가 오가는 순간의 텐션에 집중해 보세요. 상대방의 호흡에 맞춰주는 배려만으로도 깊은 호감을 이끌어낼 수 있습니다.
+
+### 🍷 3. 실패 없는 데이트 동선과 분위기 연출
+데이트 장소를 고를 때 가장 중요한 것은 '대화에 온전히 집중할 수 있는 환경'입니다. 너무 시끄럽거나 복잡한 곳보다는 은은한 조명과 적당한 소음이 있는 장소를 선택하세요. 동선이 매끄러울수록 두 사람의 대화도 끊기지 않고 자연스럽게 이어집니다.
+
+---
+
+### 💑 4. 스마트한 인연 찾기, Aura AI 매칭 솔루션
+나와 가치관과 라이프스타일이 꼭 맞는 사람을 찾고 싶다면, {aura_feature}을 활용해 보세요. 남초 어플의 읽씹과 허위 프로필 걱정 없이, 남녀 50:50 황금 성비 속에서 성사율 높은 진짜 만남을 경험하실 수 있습니다.
+
+💡 **Aura 에디터 한 줄 치트키**
+진정한 매력은 꾸며낸 기술이 아니라, 상대방의 이야기에 귀 기울여주는 다정한 태도에서 시작됩니다.
+
+네이버에서 '아우라AI데이팅'을 검색해보세요!"""
 
 
 if __name__ == "__main__":

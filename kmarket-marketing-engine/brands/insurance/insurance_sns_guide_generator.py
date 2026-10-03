@@ -451,12 +451,14 @@ class InsuranceSNSGuideGenerator:
         speech_hook: Optional[str] = None,
         debate_question: Optional[str] = None
     ) -> Path:
+        out_p = Path(output_folder).resolve()
+        out_p.mkdir(parents=True, exist_ok=True)
         guide_text = cls.generate_guide_text(
             topic_id=topic_id,
             speech_hook=speech_hook,
             debate_question=debate_question
         )
-        guide_path = output_folder / f"SNS_포스팅_가이드_주제{topic_id:02d}.txt"
+        guide_path = out_p / "SNS_포스팅_가이드.txt"
         guide_path.write_text(guide_text, encoding="utf-8")
         logger.info(f"📄 [SNS 가이드 자동 생성 완료] 저장 위치: {guide_path}")
         return guide_path

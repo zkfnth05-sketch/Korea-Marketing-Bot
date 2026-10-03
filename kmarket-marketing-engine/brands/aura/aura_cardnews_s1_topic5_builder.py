@@ -71,17 +71,10 @@ class AuraCardnewsS1Topic5Builder:
                 logger.info(f"✅ [AuraCardnewsS1Topic5] 여신 원본 사진 생성 완료: {raw_path}")
                 return Path(raw_path)
             except Exception as e:
-                logger.warning(f"⚠️ [AuraCardnewsS1Topic5] Wan 2.1 생성 실패 ({e}) -> 마스터 고화질 에셋 폴백")
+                logger.error(f"❌ [AuraCardnewsS1Topic5] Wan 2.1 실사 생성 실패: {e}")
+                raise RuntimeError(f"Aura 5번 표지 실사 사진 생성 실패: {e}")
 
-        if self.asset_base.exists():
-            logger.info(f"📱 [AuraCardnewsS1Topic5] 마스터 고화질 에셋 활용: {self.asset_base}")
-            return self.asset_base
-
-        # 최종 안전망: 다크 럭셔리 캔버스 생성
-        fallback_path = self.base_dir / "temp_s1_topic5_canvas.png"
-        img = Image.new("RGB", (1080, 1350), (20, 24, 39))
-        img.save(str(fallback_path), "PNG")
-        return fallback_path
+        raise RuntimeError("ComfyUI Wan 2.1 엔진 미가용 상태 (눈가림 에셋/캔버스 폴백 100% 차단)")
 
     def render_cover_slide(self, photo_path: Path, output_png_path: str, copy_data: dict = None) -> str:
         """Playwright로 1080x1350 카드뉴스 규격 초고화질 타이포그래피 표지 렌더링"""

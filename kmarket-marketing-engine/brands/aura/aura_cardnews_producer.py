@@ -56,44 +56,41 @@ class AuraCardnewsProducer:
         negative_prompt = card_data.get("negative_prompt", "")
         
         if not positive_prompt:
-            logger.warning(f"⚠️ [Slide {slide_idx}] 프롬프트 부재로 기본 캔버스 생성")
-            return Image.new("RGB", (1080, 1350), (20, 24, 39))
+            raise ValueError(f"[Slide {slide_idx}] 이미지 프롬프트 부재로 실사 사진 생성 불가")
 
         if master_seed is None:
             master_seed = int(time.time() * 1000) % 100000000
 
         # Wan 2.1 가용 시에만 로컬 GPU T2I 생성 시도
-        if self._wan_available or self.wan_client.check_health():
-            try:
-                logger.info(f"🎨 [Slide {slide_idx}] Wan 2.1 T2I 실사 사진 생성 시작 (Seed={master_seed})...")
-                raw_path = self.wan_client.generate_t2i_master(
-                    positive_prompt=positive_prompt,
-                    negative_prompt=negative_prompt,
-                    width=832,
-                    height=1216,
-                    seed=master_seed,
-                    prefix=f"aura_cardnews_s{slide_idx}"
-                )
-                logger.info(f"✅ [Slide {slide_idx}] 원본 생성 완료: {raw_path}")
+        if not (self._wan_available or self.wan_client.check_health()):
+            raise RuntimeError(f"[Slide {slide_idx}] ComfyUI Wan 2.1 엔진 미실행 (빈 캔버스 폴백 100% 원천 금지)")
 
-                # 1080x1350 스마트 비율 맞춤 크롭
-                raw_img = Image.open(raw_path).convert("RGB")
-                target_w, target_h = 1080, 1350
-                scale = max(target_w / raw_img.width, target_h / raw_img.height)
-                new_w = int(raw_img.width * scale)
-                new_h = int(raw_img.height * scale)
-                resized_img = raw_img.resize((new_w, new_h), Image.Resampling.LANCZOS)
-                left = (new_w - target_w) // 2
-                top = (new_h - target_h) // 2
-                cropped = resized_img.crop((left, top, left + target_w, top + target_h))
-                return cropped
-            except Exception as we:
-                logger.warning(f"⚠️ [Slide {slide_idx}] Wan 2.1 생성 실패 ({we}) -> 프리미엄 다크 캔버스 폴백")
+        try:
+            logger.info(f"🎨 [Slide {slide_idx}] Wan 2.1 T2I 실사 사진 실시간 생성 시작 (Seed={master_seed})...")
+            raw_path = self.wan_client.generate_t2i_master(
+                positive_prompt=positive_prompt,
+                negative_prompt=negative_prompt,
+                width=832,
+                height=1216,
+                seed=master_seed,
+                prefix=f"aura_cardnews_s{slide_idx}"
+            )
+            logger.info(f"✅ [Slide {slide_idx}] 실사 원본 생성 완료: {raw_path}")
 
-        logger.info(f"🎨 [Slide {slide_idx}] ComfyUI 미실행 - 프리미엄 다크 그래디언트 캔버스 자율 렌더링")
-        # 1080x1350 럭셔리 다크 그래디언트 캔버스 생성
-        canvas = Image.new("RGB", (1080, 1350), (15, 23, 42))
-        return canvas
+            # 1080x1350 스마트 비율 맞춤 크롭
+            raw_img = Image.open(raw_path).convert("RGB")
+            target_w, target_h = 1080, 1350
+            scale = max(target_w / raw_img.width, target_h / raw_img.height)
+            new_w = int(raw_img.width * scale)
+            new_h = int(raw_img.height * scale)
+            resized_img = raw_img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+            left = (new_w - target_w) // 2
+            top = (new_h - target_h) // 2
+            cropped = resized_img.crop((left, top, left + target_w, top + target_h))
+            return cropped
+        except Exception as we:
+            logger.error(f"❌ [Slide {slide_idx}] Wan 2.1 실사 T2I 생성 실패: {we}")
+            raise RuntimeError(f"Slide {slide_idx} Wan 2.1 실사 이미지 렌더링 실패: {we}")
 
     def produce_slide(
         self,
@@ -354,6 +351,12 @@ class AuraCardnewsProducer:
             "guide_path": str(guide_path),
             "metadata_path": str(meta_path)
         }
+        # 🧹 다음 숏폼/카드뉴스 대기 작업을 위한 VRAM 캐시 즉시 완전 방출
+        try:
+            self.wan_client.free_vram()
+        except Exception:
+            pass
+
         logger.info(f"🎉 [성공] '{theme_name}' 5장 카드뉴스 풀세트 완벽 생성 완료: {target_dir}")
         return result
 

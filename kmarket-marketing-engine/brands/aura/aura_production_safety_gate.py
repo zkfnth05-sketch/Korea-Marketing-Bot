@@ -202,6 +202,15 @@ class AuraProductionSafetyGate:
         return True, f"숏폼 비디오 완제품 무결성 확인 완료 ({p.name}, {size // 1024}KB)"
 
 
+    @classmethod
+    def is_api_dispatch_allowed(cls) -> Tuple[bool, str]:
+        """외부 API(유튜브, 인스타, 페이스북, 틱톡, 네이버, 텔레그램 등) 실제 송출 허용 여부 판별"""
+        from config import ENABLE_EXTERNAL_API_DISPATCH, BLOCK_EXTERNAL_API_DISPATCH
+        if BLOCK_EXTERNAL_API_DISPATCH or not ENABLE_EXTERNAL_API_DISPATCH:
+            return False, "🛑 [API 송출 차단 모드] 대표님 긴급 차단 지시에 따라 외부 API 송출이 전면 차단되었습니다. (로컬 산출물 보관만 유지)"
+        return True, "API 송출 허용"
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     c_ok, c_msg = AuraProductionSafetyGate.verify_desktop_cardnews()

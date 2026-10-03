@@ -91,10 +91,10 @@ class AuraYouTubeBehaviorBot:
     """💖 Aura 전용 유튜브 쇼츠 30분 스텔스 인간 행동 봇"""
 
     SLOTS = [
-        {"id": "morning", "time": "09:00", "name": "🌅 아침 출근길 쇼츠 (7분)", "target_min": 7},
-        {"id": "lunch", "time": "13:00", "name": "🍱 점심시간 쇼츠 (8분)", "target_min": 8},
-        {"id": "afternoon", "time": "16:30", "name": "☕ 오후 휴식 쇼츠 (7분)", "target_min": 7},
-        {"id": "night", "time": "22:30", "name": "🌙 야간 침대 쇼츠 (8분)", "target_min": 8}
+        {"id": "morning", "time": "09:00", "start_h": 9, "start_m": 0, "end_h": 12, "end_m": 59, "name": "🌅 아침 출근길 쇼츠 (7분)", "target_min": 7},
+        {"id": "lunch", "time": "13:00", "start_h": 13, "start_m": 0, "end_h": 16, "end_m": 29, "name": "🍱 점심시간 쇼츠 (8분)", "target_min": 8},
+        {"id": "afternoon", "time": "16:30", "start_h": 16, "start_m": 30, "end_h": 22, "end_m": 29, "name": "☕ 오후 휴식 쇼츠 (7분)", "target_min": 7},
+        {"id": "night", "time": "22:30", "start_h": 22, "start_m": 30, "end_h": 23, "end_m": 59, "name": "🌙 야간 침대 쇼츠 (8분)", "target_min": 8}
     ]
 
     def __init__(self, headless: bool = True):
@@ -222,53 +222,58 @@ class AuraYouTubeBehaviorBot:
             "brand": self.brand
         }
 
-        async with async_playwright() as p:
-            try:
-                ctx_yt = await p.chromium.launch_persistent_context(
-                    user_data_dir=str(self.youtube_profile_dir),
-                    headless=self.headless,
-                    user_agent=ua,
-                    viewport={"width": 1280, "height": 850},
-                    args=["--disable-blink-features=AutomationControlled", "--no-sandbox", "--disable-infobars"]
-                )
+        from core.engine.browser_guard import async_browser_lock, clean_browser_profile_locks, get_safe_browser_args
 
-                # youtube_session.json 쿠키 주입
-                if self.session_file.exists():
-                    try:
-                        with open(self.session_file, "r", encoding="utf-8") as sf:
-                            sdata = json.load(sf)
-                            cookies = sdata if isinstance(sdata, list) else sdata.get("cookies", [])
-                            if cookies:
-                                clean_cookies = []
-                                for c in cookies:
-                                    c_item = {
-                                        "name": c.get("name"),
-                                        "value": c.get("value"),
-                                        "domain": c.get("domain", ".youtube.com"),
-                                        "path": c.get("path", "/")
-                                    }
-                                    if "sameSite" in c and c["sameSite"] in ["Strict", "Lax", "None"]:
-                                        c_item["sameSite"] = c["sameSite"]
-                                    if c.get("name", "").startswith(("__Secure-", "__Host-")) or c.get("secure"):
-                                        c_item["secure"] = True
-                                    clean_cookies.append(c_item)
-                                await ctx_yt.add_cookies(clean_cookies)
-                                logger.info(f"🍪 [Aura YouTubeBot] 유튜브 세션 쿠키 {len(clean_cookies)}개 브라우저 주입 완료")
-                    except Exception as ce:
-                        logger.debug(f"유튜브 쿠키 주입 예외: {ce}")
+        clean_browser_profile_locks(self.youtube_profile_dir)
 
-                page_yt = ctx_yt.pages[0] if ctx_yt.pages else await ctx_yt.new_page()
-                await page_yt.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
+        async with async_browser_lock(f"Aura 유튜브 세션 ({slot_name})"):
+            async with async_playwright() as p:
+                try:
+                    ctx_yt = await p.chromium.launch_persistent_context(
+                        user_data_dir=str(self.youtube_profile_dir),
+                        headless=self.headless,
+                        user_agent=ua,
+                        viewport={"width": 1280, "height": 850},
+                        args=get_safe_browser_args()
+                    )
 
-                yt_res = await self._simulate_youtube_shorts_session(page_yt, target_sec, target_likes=target_likes)
-                summary["shorts_watched"] = yt_res.get("shorts_watched", 0)
-                summary["likes_given"] = yt_res.get("likes", 0)
-                summary["comments_inspected"] = yt_res.get("comments_inspected", 0)
+                    # youtube_session.json 쿠키 주입
+                    if self.session_file.exists():
+                        try:
+                            with open(self.session_file, "r", encoding="utf-8") as sf:
+                                sdata = json.load(sf)
+                                cookies = sdata if isinstance(sdata, list) else sdata.get("cookies", [])
+                                if cookies:
+                                    clean_cookies = []
+                                    for c in cookies:
+                                        c_item = {
+                                            "name": c.get("name"),
+                                            "value": c.get("value"),
+                                            "domain": c.get("domain", ".youtube.com"),
+                                            "path": c.get("path", "/")
+                                        }
+                                        if "sameSite" in c and c["sameSite"] in ["Strict", "Lax", "None"]:
+                                            c_item["sameSite"] = c["sameSite"]
+                                        if c.get("name", "").startswith(("__Secure-", "__Host-")) or c.get("secure"):
+                                            c_item["secure"] = True
+                                        clean_cookies.append(c_item)
+                                    await ctx_yt.add_cookies(clean_cookies)
+                                    logger.info(f"🍪 [Aura YouTubeBot] 유튜브 세션 쿠키 {len(clean_cookies)}개 브라우저 주입 완료")
+                        except Exception as ce:
+                            logger.debug(f"유튜브 쿠키 주입 예외: {ce}")
 
-                await ctx_yt.close()
-            except Exception as e:
-                logger.warning(f"유튜브 브라우저 세션 오류: {e}")
-                summary["status"] = f"error: {e}"
+                    page_yt = ctx_yt.pages[0] if ctx_yt.pages else await ctx_yt.new_page()
+                    await page_yt.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
+
+                    yt_res = await self._simulate_youtube_shorts_session(page_yt, target_sec, target_likes=target_likes)
+                    summary["shorts_watched"] = yt_res.get("shorts_watched", 0)
+                    summary["likes_given"] = yt_res.get("likes", 0)
+                    summary["comments_inspected"] = yt_res.get("comments_inspected", 0)
+
+                    await ctx_yt.close()
+                except Exception as e:
+                    logger.warning(f"유튜브 브라우저 세션 오류: {e}")
+                    summary["status"] = f"error: {e}"
 
         elapsed_sec = int(time.time() - session_start)
         summary["actual_sec"] = elapsed_sec
@@ -351,20 +356,17 @@ class AuraYouTubeBehaviorScheduler:
         while self.is_running:
             try:
                 now = datetime.now()
-                now_str = now.strftime("%H:%M")
                 today_date = now.strftime("%Y-%m-%d")
-
-                # 자정 넘어가면 실행 세트 초기화
-                if now_str == "00:00":
-                    self._executed_today.clear()
+                cur_min = now.hour * 60 + now.minute
 
                 for slot in self.bot.SLOTS:
                     slot_id = slot["id"]
-                    slot_time = slot["time"]
+                    start_total = slot.get("start_h", 0) * 60 + slot.get("start_m", 0)
+                    end_total = slot.get("end_h", 23) * 60 + slot.get("end_m", 59)
                     key = f"{today_date}_{slot_id}"
 
-                    if now_str == slot_time and key not in self._executed_today:
-                        logger.info(f"⏰ [Aura YouTube 스케줄 알람] {slot['name']} 정시 감지 ➔ 스텔스 세션 즉각 착수!")
+                    if start_total <= cur_min <= end_total and key not in self._executed_today:
+                        logger.info(f"⏰ [Aura YouTube 스케줄 알람] {slot['name']} 골든타임 도달! ➔ 스텔스 세션 즉각 착수!")
                         self._executed_today.add(key)
                         self.bot.execute_slot_session(slot_id)
 

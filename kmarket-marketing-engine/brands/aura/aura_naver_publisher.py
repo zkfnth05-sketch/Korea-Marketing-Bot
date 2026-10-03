@@ -60,18 +60,41 @@ class AuraNaverPublisher:
 
     @staticmethod
     def format_clean_naver_text(raw_text: str, landing_url: str = "https://aura-ai-dating.vercel.app/") -> str:
-        """마크다운 기호(#, ###, ![], **)를 완전 제거하고 가독성 높은 네이버 블로그 전용 본문으로 변환 (URL 완벽 격리)"""
+        """마크다운 기호 및 JSON 기계어를 완전 제거하고 가독성 높은 네이버 블로그 전용 본문으로 변환 (100% 무결성 가드)"""
         import re
 
-        # 1. 마크다운 이미지 태그 완전 제거
-        text = re.sub(r'!\[.*?\]\(.*?\)', '', raw_text)
+        text = raw_text or ""
 
-        # 2. 본문 문장 중간에 끼어있는 마크다운 링크 [라벨](URL) 및 괄호형 URL 정제
-        # (본문 중간에 URL이 섞이면 스마트에디터 ONE이 뒷 문장을 링크로 삼키는 버그 원천 방지)
+        # 🚨 [1단계: JSON 원문 유출 긴급 정제 게이트]
+        if '{"title_naver"' in text or '"visual_prompt"' in text or text.strip().startswith('{'):
+            logger.warning("🚨 [AuraNaverPublisher] 본문에 JSON 기계어 유출 감지! content_md 본문만 정밀 발라냅니다.")
+            try:
+                # JSON 파싱 시도
+                clean_json = text.strip()
+                if "```json" in clean_json:
+                    clean_json = clean_json.split("```json", 1)[1].split("```", 1)[0]
+                elif "```" in clean_json:
+                    clean_json = clean_json.split("```", 1)[0]
+                p = json.loads(clean_json)
+                text = p.get("content_md") or p.get("body_markdown") or text
+            except Exception:
+                # 정규식 추출 시도
+                c_match = re.search(r'"content_md"\s*:\s*"((?:[^"\\]|\\.)*)"', text, re.DOTALL)
+                if c_match:
+                    text = c_match.group(1).encode('utf-8').decode('unicode_escape', errors='replace').replace('\\n', '\n').replace('\\"', '"')
+                else:
+                    # JSON 키워드 및 중괄호 라인 전면 삭제
+                    text = re.sub(r'["\']?(?:title_naver|title_tistory|title_kakao|excerpt|visual_prompt|discussion_prompt|content_md)["\']?\s*:\s*["\']?.*?(?:["\']?,?\n|$)', '', text)
+                    text = text.replace('{', '').replace('}', '').replace('```json', '').replace('```', '')
+
+        # 2. 마크다운 이미지 태그 완전 제거
+        text = re.sub(r'!\[.*?\]\(.*?\)', '', text)
+
+        # 3. 본문 문장 중간에 끼어있는 마크다운 링크 [라벨](URL) 및 괄호형 URL 정제
         text = re.sub(r'\[([^\]]+)\]\((https?://[^\s\)]+)\)', r'\1', text)
         text = re.sub(r'\((https?://[^\s\)]+)\)', '', text)
 
-        # 3. 본문 문장 중간에 노출된 순수 URL 패턴도 본문에서 제거 (본문 하단 단독 링크 블록으로 일괄 유도)
+        # 4. 본문 문장 중간에 노출된 순수 URL 패턴도 본문에서 제거
         text = re.sub(r'https?://[^\s]+', '', text)
 
         lines = text.split("\n")
@@ -80,6 +103,9 @@ class AuraNaverPublisher:
             l = line.strip()
             if not l:
                 cleaned_lines.append("")
+                continue
+            # JSON 찌꺼기 라인 추가 필터링
+            if l.startswith('"visual_prompt"') or l.startswith('"discussion_prompt"') or l.startswith('"excerpt"'):
                 continue
             if l.startswith("# "):
                 continue  # 대제목은 이미 제목란에 입력됨
@@ -91,7 +117,6 @@ class AuraNaverPublisher:
                 cleaned_lines.append("  · " + l[2:].strip())
             else:
                 clean_l = l.replace("**", "").replace("__", "")
-                # 연속 공백 및 NBSP 유니코드 정제
                 clean_l = clean_l.replace("\u00a0", " ")
                 clean_l = re.sub(r'[ \t]+', ' ', clean_l)
                 cleaned_lines.append(clean_l)
@@ -99,7 +124,7 @@ class AuraNaverPublisher:
         result = "\n".join(cleaned_lines)
         result = re.sub(r'\n{3,}', '\n\n', result).strip()
 
-        # 4. 본문 최하단에 [네이버 포털 검색창 직접 검색 유도 훅 박스] 배치 (영문 URL 생텍스트 완전 배제)
+        # 5. 본문 최하단에 [네이버 포털 검색창 직접 검색 유도 훅 박스] 배치
         result += (
             f"\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
             f"💑 [Aura AI 데이팅] 유령회원 ZERO! 남녀 50:50 황금 성비 보장\n"

@@ -97,10 +97,10 @@ class InsuranceTikTokBehaviorBot:
     """🛡️ 보험 리밸런스 전용 틱톡 30분 스텔스 인간 행동 봇"""
 
     SLOTS = [
-        {"id": "morning", "time": "09:30", "name": "🌅 아침 출근길 틱톡 (7분)", "target_min": 7},
-        {"id": "lunch", "time": "13:30", "name": "🍱 점심시간 틱톡 (8분)", "target_min": 8},
-        {"id": "afternoon", "time": "17:00", "name": "☕ 오후 퇴근길 틱톡 (7분)", "target_min": 7},
-        {"id": "night", "time": "23:00", "name": "🌙 야간 침대 틱톡 (8분)", "target_min": 8}
+        {"id": "morning", "time": "09:30", "start_h": 9, "start_m": 30, "end_h": 13, "end_m": 29, "name": "🌅 아침 출근길 틱톡 (15분)", "target_min": 15},
+        {"id": "lunch", "time": "13:30", "start_h": 13, "start_m": 30, "end_h": 16, "end_m": 59, "name": "🍱 점심시간 틱톡 (15분)", "target_min": 15},
+        {"id": "afternoon", "time": "17:00", "start_h": 17, "start_m": 0, "end_h": 22, "end_m": 59, "name": "☕ 오후 퇴근길 틱톡 (15분)", "target_min": 15},
+        {"id": "night", "time": "23:00", "start_h": 23, "start_m": 0, "end_h": 23, "end_m": 59, "name": "🌙 야간 침대 틱톡 (15분)", "target_min": 15}
     ]
 
     def __init__(self, headless: bool = True):
@@ -230,52 +230,58 @@ class InsuranceTikTokBehaviorBot:
             "brand": self.brand
         }
 
-        async with async_playwright() as p:
-            try:
-                ctx_tt = await p.chromium.launch_persistent_context(
-                    user_data_dir=str(self.profile_dir),
-                    headless=self.headless,
-                    user_agent=ua,
-                    viewport={"width": 1280, "height": 850},
-                    args=["--disable-blink-features=AutomationControlled", "--no-sandbox", "--disable-infobars"]
-                )
+        from core.engine.browser_guard import async_browser_lock, clean_browser_profile_locks, get_safe_browser_args
 
-                if self.session_file.exists():
-                    try:
-                        with open(self.session_file, "r", encoding="utf-8") as sf:
-                            sdata = json.load(sf)
-                            cookies = sdata if isinstance(sdata, list) else sdata.get("cookies", [])
-                            if cookies:
-                                clean_cookies = []
-                                for c in cookies:
-                                    c_item = {
-                                        "name": c.get("name"),
-                                        "value": c.get("value"),
-                                        "domain": c.get("domain", ".tiktok.com"),
-                                        "path": c.get("path", "/")
-                                    }
-                                    if "sameSite" in c and c["sameSite"] in ["Strict", "Lax", "None"]:
-                                        c_item["sameSite"] = c["sameSite"]
-                                    if c.get("secure"):
-                                        c_item["secure"] = True
-                                    clean_cookies.append(c_item)
-                                await ctx_tt.add_cookies(clean_cookies)
-                                logger.info(f"🍪 [Insurance TikTokBot] 틱톡 세션 쿠키 {len(clean_cookies)}개 브라우저 주입 완료")
-                    except Exception as ce:
-                        logger.debug(f"틱톡 쿠키 주입 예외: {ce}")
+        clean_browser_profile_locks(self.profile_dir)
 
-                page_tt = ctx_tt.pages[0] if ctx_tt.pages else await ctx_tt.new_page()
-                await page_tt.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
+        async with async_browser_lock(f"Insurance 틱톡 세션 ({slot_name})"):
+            async with async_playwright() as p:
+                try:
+                    ctx_tt = await p.chromium.launch_persistent_context(
+                        user_data_dir=str(self.profile_dir),
+                        headless=self.headless,
+                        user_agent=ua,
+                        viewport={"width": 1280, "height": 850},
+                        args=get_safe_browser_args()
+                    )
 
-                tt_res = await self._simulate_tiktok_session(page_tt, target_sec, target_likes=target_likes)
-                summary["videos_watched"] = tt_res.get("videos_watched", 0)
-                summary["likes_given"] = tt_res.get("likes", 0)
-                summary["comments_inspected"] = tt_res.get("comments_inspected", 0)
+                    # tiktok_session.json 쿠키 주입
+                    if self.session_file.exists():
+                        try:
+                            with open(self.session_file, "r", encoding="utf-8") as sf:
+                                sdata = json.load(sf)
+                                cookies = sdata if isinstance(sdata, list) else sdata.get("cookies", [])
+                                if cookies:
+                                    clean_cookies = []
+                                    for c in cookies:
+                                        c_item = {
+                                            "name": c.get("name"),
+                                            "value": c.get("value"),
+                                            "domain": c.get("domain", ".tiktok.com"),
+                                            "path": c.get("path", "/")
+                                        }
+                                        if "sameSite" in c and c["sameSite"] in ["Strict", "Lax", "None"]:
+                                            c_item["sameSite"] = c["sameSite"]
+                                        if c.get("secure"):
+                                            c_item["secure"] = True
+                                        clean_cookies.append(c_item)
+                                    await ctx_tt.add_cookies(clean_cookies)
+                                    logger.info(f"🍪 [Insurance TikTokBot] 틱톡 세션 쿠키 {len(clean_cookies)}개 브라우저 주입 완료")
+                        except Exception as ce:
+                            logger.debug(f"틱톡 쿠키 주입 예외: {ce}")
 
-                await ctx_tt.close()
-            except Exception as e:
-                logger.warning(f"보험 틱톡 브라우저 세션 오류: {e}")
-                summary["status"] = f"error: {e}"
+                    page_tt = ctx_tt.pages[0] if ctx_tt.pages else await ctx_tt.new_page()
+                    await page_tt.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
+
+                    tt_res = await self._simulate_tiktok_session(page_tt, target_sec, target_likes=target_likes)
+                    summary["videos_watched"] = tt_res.get("videos_watched", 0)
+                    summary["likes_given"] = tt_res.get("likes", 0)
+                    summary["comments_inspected"] = tt_res.get("comments_inspected", 0)
+
+                    await ctx_tt.close()
+                except Exception as e:
+                    logger.warning(f"보험 틱톡 브라우저 세션 오류: {e}")
+                    summary["status"] = f"error: {e}"
 
         elapsed_sec = int(time.time() - session_start)
         summary["actual_sec"] = elapsed_sec
@@ -322,9 +328,9 @@ class InsuranceTikTokBehaviorBot:
             "brand_name": self.brand_name,
             "date": today_str,
             "total_minutes": round(total_sec / 60, 1),
-            "target_minutes": 30,
+            "target_minutes": 60,
             "total_likes": total_likes,
-            "target_likes": "세션당 2~3회 (일 8~12회)",
+            "target_likes": "세션당 3~5회 (일 12~20회)",
             "completed_slots": completed_slots,
             "gemini_calls": 0
         }
@@ -352,7 +358,7 @@ class InsuranceTikTokBehaviorScheduler:
             try:
                 now = datetime.now()
                 today_str = now.strftime("%Y-%m-%d")
-                current_hm = now.strftime("%H:%M")
+                cur_min = now.hour * 60 + now.minute
 
                 if today_str != last_date:
                     executed_today.clear()
@@ -360,13 +366,14 @@ class InsuranceTikTokBehaviorScheduler:
 
                 for slot in self.bot.SLOTS:
                     slot_id = slot["id"]
-                    slot_time = slot.get("time", "")
+                    start_total = slot.get("start_h", 0) * 60 + slot.get("start_m", 0)
+                    end_total = slot.get("end_h", 23) * 60 + slot.get("end_m", 59)
                     exec_key = f"{today_str}_{slot_id}"
 
-                    if current_hm == slot_time and exec_key not in executed_today:
-                        logger.info(f"⏰ [Insurance TikTok Scheduler] {slot['name']} 도달! 무인 스텔스 세션 즉시 가동...")
-                        self.bot.execute_slot_session(slot_id)
+                    if start_total <= cur_min <= end_total and exec_key not in executed_today:
+                        logger.info(f"⏰ [Insurance TikTok Scheduler] {slot['name']} 골든타임 도달! 무인 스텔스 세션 즉시 가동...")
                         executed_today.add(exec_key)
+                        self.bot.execute_slot_session(slot_id)
 
                 time.sleep(30)
             except Exception as e:

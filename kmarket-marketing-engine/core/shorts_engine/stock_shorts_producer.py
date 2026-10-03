@@ -265,7 +265,8 @@ class StockShortsProducer(BaseShortsProducer):
             gender=effective_gender,
             rate=voice_rate,
             pitch=voice_pitch,
-            filename_prefix=f"stock_hook_{topic_id}_{dt_str}"
+            filename_prefix=f"stock_hook_{topic_id}_{dt_str}",
+            output_dir=str(out_folder)
         )
         app_wav_path = self.tts.generate_speech_wav(
             text=speech_app,
@@ -273,7 +274,8 @@ class StockShortsProducer(BaseShortsProducer):
             gender=effective_gender,
             rate=voice_rate,
             pitch=voice_pitch,
-            filename_prefix=f"stock_app_{topic_id}_{dt_str}"
+            filename_prefix=f"stock_app_{topic_id}_{dt_str}",
+            output_dir=str(out_folder)
         )
         cta_wav_path = self.tts.generate_speech_wav(
             text=speech_cta,
@@ -281,7 +283,8 @@ class StockShortsProducer(BaseShortsProducer):
             gender=effective_gender,
             rate=voice_rate,
             pitch=voice_pitch,
-            filename_prefix=f"stock_cta_{topic_id}_{dt_str}"
+            filename_prefix=f"stock_cta_{topic_id}_{dt_str}",
+            output_dir=str(out_folder)
         )
         full_wav_path = self.tts.generate_speech_wav(
             text=full_speech,
@@ -289,7 +292,8 @@ class StockShortsProducer(BaseShortsProducer):
             gender=effective_gender,
             rate=voice_rate,
             pitch=voice_pitch,
-            filename_prefix=f"stock_full_{topic_id}_{dt_str}"
+            filename_prefix=f"stock_full_{topic_id}_{dt_str}",
+            output_dir=str(out_folder)
         )
 
         # 4. [Step 2] 숏폼 인물 사진 로드 또는 Wan 2.1 T2I 생성 (순수 100% 인물 마스터컷)

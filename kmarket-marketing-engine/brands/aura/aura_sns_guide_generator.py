@@ -336,6 +336,7 @@ class AuraSNSGuideGenerator:
         cls,
         topic_id: int = 1,
         speech_hook: Optional[str] = None,
+        debate_question: Optional[str] = None,
         custom_metadata: Optional[Dict[str, Any]] = None
     ) -> str:
         """

@@ -40,5 +40,47 @@
     "status": "success",
     "gemini_calls": 0,
     "brand": "insurance"
+  },
+  {
+    "timestamp": "2026-10-03 09:30:00",
+    "slot_id": "morning",
+    "slot_name": "🌅 아침 출근길 틱톡 (7분)",
+    "target_min": 7,
+    "target_likes": 2,
+    "actual_sec": 445,
+    "likes_given": 0,
+    "videos_watched": 14,
+    "comments_inspected": 0,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "insurance"
+  },
+  {
+    "timestamp": "2026-10-03 12:21:11",
+    "slot_id": "morning",
+    "slot_name": "🌅 아침 출근길 틱톡 (15분)",
+    "target_min": 15,
+    "target_likes": 3,
+    "actual_sec": 227,
+    "likes_given": 0,
+    "videos_watched": 5,
+    "comments_inspected": 0,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "insurance"
+  },
+  {
+    "timestamp": "2026-10-03 13:32:06",
+    "slot_id": "lunch",
+    "slot_name": "🍱 점심시간 틱톡 (15분)",
+    "target_min": 15,
+    "target_likes": 3,
+    "actual_sec": 1078,
+    "likes_given": 0,
+    "videos_watched": 32,
+    "comments_inspected": 0,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "insurance"
   }
 ]

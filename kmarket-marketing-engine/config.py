@@ -301,15 +301,16 @@ GEMINI_API_KEY_EASYTAX_BLOG = os.getenv("GEMINI_API_KEY_EASYTAX_BLOG") or GEMINI
 GEMINI_FREE_API_KEY_KMARKET = os.getenv("GEMINI_FREE_API_KEY_KMARKET") or GEMINI_API_KEY_KMARKET_BLOG
 GEMINI_FREE_API_KEY_EASYTAX = os.getenv("GEMINI_FREE_API_KEY_EASYTAX") or GEMINI_API_KEY_EASYTAX_BLOG
 
-# 💖 Aura AI 데이팅 전용 5대 스마트 키 체인 (무료 3개 + 유료 2개)
+# 💖 Aura / 국내 3대 브랜드 스마트 키 체인 (무료 4개 + 유료 2개)
 GEMINI_FREE_API_KEY_AURA_1 = os.getenv("GEMINI_FREE_API_KEY_AURA_1", "")
 GEMINI_FREE_API_KEY_AURA_2 = os.getenv("GEMINI_FREE_API_KEY_AURA_2", "")
 GEMINI_FREE_API_KEY_AURA_3 = os.getenv("GEMINI_FREE_API_KEY_AURA_3", "")
+GEMINI_FREE_API_KEY_AURA_4 = os.getenv("GEMINI_FREE_API_KEY_AURA_4", "")
 GEMINI_PAID_API_KEY_AURA_1 = os.getenv("GEMINI_PAID_API_KEY_AURA_1", "")
 GEMINI_PAID_API_KEY_AURA_2 = os.getenv("GEMINI_PAID_API_KEY_AURA_2", "")
 
 # 🎙️ Typecast AI TTS Credentials
-TYPECAST_API_KEY = os.getenv("TYPECAST_API_KEY", "__pltMYPUabgPLzeK8dsNxhBcxPHhexjh7V7YcyeKpzM5")
+TYPECAST_API_KEY = os.getenv("TYPECAST_API_KEY", "")
 TYPECAST_VOICE_ID_AURA = os.getenv("TYPECAST_VOICE_ID_AURA", "tc_667ce80314cb3a612d6959e8")
 
 
@@ -347,6 +348,10 @@ BASE_URLS = {
 # Autopilot & Anti-Ban Safety Parameters
 AUTOPILOT_MODE = os.getenv("AUTOPILOT_MODE", "1") == "1"
 REDDIT_AUTO_REPLY = os.getenv("REDDIT_AUTO_REPLY", "1") == "1"
+
+# 🛑 외부 API 송출 전면 차단 마스터 스위치 (대표님 긴급 차단 지시 준수)
+ENABLE_EXTERNAL_API_DISPATCH = os.getenv("ENABLE_EXTERNAL_API_DISPATCH", "0") == "1"
+BLOCK_EXTERNAL_API_DISPATCH = os.getenv("BLOCK_EXTERNAL_API_DISPATCH", "1") == "1"
 
 # 🛡️ 안전 레딧 파라미터 (영구 정지 방지 — 2026.08 전면 재설계 / 홍보 4회 + 비홍보 4회 황금 균형)
 DAILY_REDDIT_PROMO_LIMIT = int(os.getenv("DAILY_REDDIT_PROMO_LIMIT", "4"))       # 홍보성 댓글 일일 최대 (4회 엄격 제한)

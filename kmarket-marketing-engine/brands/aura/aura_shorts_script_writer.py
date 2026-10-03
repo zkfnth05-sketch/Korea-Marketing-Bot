@@ -67,6 +67,10 @@ class AuraShortsScriptWriter:
     """💖 Aura 8대 주제 전용 제미나이 2.5 Flash 실시간 자율 대본 생성 엔진"""
 
     OFFICIAL_KEYWORD = "아우라AI데이팅"
+    FORBIDDEN_WORDS = [
+        "한정", "이벤트", "선착순", "마감", "할인", "무료 혜택", "쿠폰", 
+        "사은품", "오늘만", "특가", "캐시백", "당첨", "보험", "주식", "투자", "환급"
+    ]
 
     def __init__(self):
         try:
@@ -122,7 +126,7 @@ class AuraShortsScriptWriter:
 
 [★ 핵심 원칙 (절대 불변)]
 1. 아래 [기준 원본 골든 대본]에 담긴 **스토리 라인, 핵심 팩트(가짜 긴급 호출, 실시간 번역 자막, 50:50 정원제 등), 실제 Aura 앱 작동 방식을 100% 온전히 계승**하세요.
-2. 임의로 없는 기능을 상상해서 지어내거나 팩트를 왜곡하지 마세요.
+2. 🚨 [허위 마케팅 및 거짓말 날조 전면 금지]: '한정 무료 이벤트', '선착순 마감', '할인 혜택', '쿠폰', '사은품', '오늘만 특가' 같은 허위 마케팅 문구를 절대 지어내지 마세요.
 3. [기준 원본 골든 대본]의 뼈대를 바탕으로, 성수/청담동 감성의 세련되고 품격 있는 2030 대화체와 정확한 글자수 규격에 맞춰 가장 매끄럽고 자연스러운 발화문으로 정밀 다듬기하세요.
 
 [기준 원본 골든 대본 (Ground Truth Reference)]
@@ -143,14 +147,14 @@ class AuraShortsScriptWriter:
 - 실제 앱 시연 화면(10~18초): {info['app_sim_visual']}
 - 공식 포털 검색어: {self.OFFICIAL_KEYWORD}
 
-[대본 글자수 절대 규칙 (공백 포함 전체 140~145자 내외 엄수)]
-- hook_p1 (0~5초): 세련되게 시선을 사로잡는 2030 현실 소개팅/연애 공감 질문
-- hook_p2 (5~10초): 아우라 기능으로 매끄럽게 이어지는 스마트한 해결책 소개
-- app_speech (10~18초): 실제 스마트폰 화면에서 벌어지는 상황을 세련되게 설명하는 멘트
-- cta_speech (18~22초): 시청자 댓글 참여 질문과 "네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요" 유도
+[대본 글자수 절대 규칙 (정확히 20.0초 완제품 동기화)]
+- hook_p1 (0~5초): 세련되게 시선을 사로잡는 2030 현실 소개팅/연애 공감 질문 [공백 포함 정확히 22~28자]
+- hook_p2 (5~10초): 아우라 기능으로 매끄럽게 이어지는 스마트한 해결책 소개 [공백 포함 정확히 22~28자]
+- app_speech (10~18초): 실제 스마트폰 화면에서 벌어지는 상황을 세련되게 설명하는 멘트 [공백 포함 40~50자 (약 7~8초 분량)]
+- cta_speech (18~20초): 시청자 댓글 유도와 "네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!" 유도 [공백 포함 15~18자]
 - debate_question: 댓글 창에서 토론을 유도할 센스 있는 10자 내외 질문
 
-★ 핵심 준수 사항: 전체 발화문 합계(hook_p1 + hook_p2 + app_speech + cta_speech)가 반드시 [공백 포함 정확히 140~145자] 내외가 되도록 글자수를 칼같이 맞춰서 작성하세요.
+★ 핵심 준수 사항: 전체 발화문 합계(hook_p1 + hook_p2 + app_speech + cta_speech)가 반드시 [공백 포함 정확히 110~125자] 내외가 되도록 글자수를 칼같이 맞춰서 작성하세요 (20초 초과 절대 금지).
 
 반드시 아래 JSON 포맷으로만 응답하세요:
 {{
@@ -195,7 +199,7 @@ class AuraShortsScriptWriter:
                         contents=prompt,
                         config=types.GenerateContentConfig(
                             response_mime_type="application/json",
-                            temperature=0.8
+                            temperature=0.7
                         )
                     )
                     if not resp or not resp.text:
@@ -208,15 +212,26 @@ class AuraShortsScriptWriter:
                     cta_speech = data.get("cta_speech", "").strip()
                     debate_q = data.get("debate_question", "").strip()
 
+                    full_speech = f"{hook_p1} {hook_p2} {app_speech} {cta_speech}"
+
+                    # 🔒 [무결성 게이트 1: 금지어 / 허위 이벤트 검증]
+                    has_forbidden = False
+                    for bad_word in self.FORBIDDEN_WORDS:
+                        if bad_word in full_speech:
+                            logger.warning(f"🚫 [금지어 감지 탈락] '{bad_word}' 포함 대본 기각: {full_speech}")
+                            has_forbidden = True
+                            break
+                    if has_forbidden:
+                        continue
+
                     # 공식 검색어 포함 검증 (누락 시 자동 보정)
                     if self.OFFICIAL_KEYWORD not in cta_speech:
                         cta_speech = f"{cta_speech} 네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"
+                        full_speech = f"{hook_p1} {hook_p2} {app_speech} {cta_speech}"
 
-                    full_speech = f"{hook_p1} {hook_p2} {app_speech} {cta_speech}"
-
-                    # 🔒 무결성 게이트 검증 (목표 140~145자, 안전 허용 범위: 115자 ~ 165자)
-                    if len(full_speech) < 115 or len(full_speech) > 165:
-                        logger.warning(f"⚠️ 글자 수 범위 벗어남({len(full_speech)}자, 목표: 140~145자), 다음 시도")
+                    # 🔒 [무결성 게이트 2: 글자 수 검증 (목표 110~125자, 안전 허용 범위: 100자 ~ 130자)]
+                    if len(full_speech) < 100 or len(full_speech) > 130:
+                        logger.warning(f"⚠️ 글자 수 범위 벗어남({len(full_speech)}자, 목표: 110~125자), 다음 시도")
                         continue
 
                     logger.info(f"✨ [Gemini 자율 대본 성공] 주제 #{norm_id} ({len(full_speech)}자, model={model})")

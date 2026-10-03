@@ -68,6 +68,10 @@ class InsuranceShortsScriptWriter:
     """🛡️ 보험 리밸런스 8대 주제 전용 제미나이 2.5 Flash 실시간 자율 대본 생성 엔진"""
 
     OFFICIAL_KEYWORD = "보험 리밸런스"
+    FORBIDDEN_WORDS = [
+        "한정", "이벤트", "선착순", "마감", "사은품", "쿠폰", "오늘만", 
+        "특가", "캐시백", "당첨", "데이팅", "소개팅", "연애", "매칭", "주식", "종목"
+    ]
 
     def __init__(self):
         try:
@@ -123,7 +127,7 @@ class InsuranceShortsScriptWriter:
 
 [★ 핵심 원칙 (절대 불변)]
 1. 아래 [기준 원본 골든 대본]에 담긴 **스토리 라인, 핵심 팩트(고객이 직접 생년월일/성별 입력, 34개사 최저가 비교, 비갱신형 등), 실제 기능 플로우를 100% 온전히 계승**하세요.
-2. 임의로 없는 기능을 상상해서 지어내거나(예: 증권 구멍을 색출해준다 등 ❌) 팩트를 왜곡하지 마세요.
+2. 🚨 [허위 마케팅 및 거짓말 날조 전면 금지]: '한정 이벤트', '선착순 마감', '사은품 증정', '오늘만 특가' 등의 거짓말 문구를 절대 지어내지 마세요.
 3. [기준 원본 골든 대본]의 뼈대를 바탕으로, 전문 금융 아나운서 어조와 정확한 글자수 규격(10초 훅 / 12초 앱 시연)에 맞춰 가장 매끄럽고 명쾌한 발화문으로 정밀 다듬기하세요.
 
 [기준 원본 골든 대본 (Ground Truth Reference)]
@@ -139,16 +143,26 @@ class InsuranceShortsScriptWriter:
 - 실제 앱 시연 화면(10~20초): {info['app_sim_visual']}
 - 공식 포털 검색어: {self.OFFICIAL_KEYWORD}
 
-[대본 글자수 절대 규칙 (Wan 2.2 S2V 10초 립싱크 완벽 동기화)]
-1. hook_p1 (0~5초): 시선을 사로잡는 현실 보험 공감 질문 [공백 포함 정확히 25~32자]
-2. hook_p2 (5~10초): 핵심 팩트와 해결책 제시 [공백 포함 정확히 25~32자]
-   ★ 중요: hook_p1과 hook_p2를 합친 전체 훅(0~10초)은 반드시 [공백 포함 55~65자] 내외여야 합니다.
-3. app_speech (10~20초): 실제 앱 화면에서 34개사 실시간 비교/자가진단이 일어나는 상황 설명 [공백 포함 75~100자 (약 8~9초 발화 분량으로 침묵 없이 꽉 차게)]
-4. cta_speech (20~22초): "네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!" 유도 [공백 포함 18~25자]
+[대본 글자수 절대 규칙 (정확히 22.0초 완제품 동기화 - 120~130자)]
+1. hook_p1 (0~5초): 시선을 사로잡는 현실 보험 공감 질문 [공백 포함 22~26자]
+2. hook_p2 (5~10초): 핵심 팩트와 해결책 제시 [공백 포함 22~26자]
+   ★ 중요: hook_p1과 hook_p2를 합친 전체 훅(0~10초)은 [공백 포함 45~52자]여야 합니다. (Wan 2.2 S2V 10초 립싱크 완벽 동기화)
+3. app_speech (10~20초): 실제 앱 화면에서 34개사 실시간 비교/자가진단이 일어나는 상황 설명 [공백 포함 48~56자 (정확히 8~9초 발화 분량)]
+4. cta_speech (20~22초): "지금 네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!" [공백 포함 20~24자]
 
-[글자수 합계 엄수: 전체 대본 합계가 공백 포함 정확히 150~185자 내외가 되도록 작성하세요.]
+[글자수 합계 엄수: 전체 대본 합계가 공백 포함 정확히 120~130자가 되도록 반드시 간결하고 명확하게 작성하세요 (22초 완제품 일치).]
 
-반드시 아래 JSON 포맷으로만 응답하세요:
+[작성 예시 (124자 규격)]:
+{{
+  "hook_p1": "운전자보험 매달 3, 4만 원씩 내시나요?",
+  "hook_p2": "필수 3대 특약만 챙기면 월 1만 원이면 끝납니다!",
+  "app_speech": "보험 리밸런스에서 증권만 스캔하면 쓸데없이 새는 중복 특약을 1초 만에 싹 정리해 줍니다.",
+  "cta_speech": "지금 네이버에 보험 리밸런스 검색해보세요!",
+  "hero_copy": "필수 3대 특약으로 월 13,000원 완성!",
+  "debate_question": "운전자보험 1만원대, 충분할까 vs 부족할까?"
+}}
+
+반드시 위 예시와 동일한 JSON 포맷으로만 응답하세요:
 {{
   "hook_p1": "...",
   "hook_p2": "...",
@@ -206,27 +220,38 @@ class InsuranceShortsScriptWriter:
                     hero_copy = data.get("hero_copy", "").strip()
                     debate_q = data.get("debate_question", "").strip()
 
-                    # 공식 검색어 포함 검증 (누락 시 자동 보정)
-                    if self.OFFICIAL_KEYWORD not in cta_speech:
-                        cta_speech = f"네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"
-
                     hook_full = f"{hook_p1} {hook_p2}".strip()
                     full_speech = f"{hook_full} {app_speech} {cta_speech}".strip()
 
-                    # 🔒 무결성 게이트 검증
-                    # 1) 훅 글자수 검증: 45자 ~ 70자 (Wan 10초 립싱크 안전 마진: 9.0s ~ 10.2s)
-                    if len(hook_full) < 45 or len(hook_full) > 70:
-                        logger.warning(f"⚠️ 훅 글자수 범위 벗어남({len(hook_full)}자, 목표: 55~65자), 다음 시도")
+                    # 🔒 [무결성 게이트 1: 금지어 / 허위 이벤트 검증]
+                    has_forbidden = False
+                    for bad_word in self.FORBIDDEN_WORDS:
+                        if bad_word in full_speech:
+                            logger.warning(f"🚫 [금지어 감지 탈락] '{bad_word}' 포함 대본 기각: {full_speech}")
+                            has_forbidden = True
+                            break
+                    if has_forbidden:
                         continue
 
-                    # 2) 앱 시연 글자수 검증: 65자 ~ 110자 (12초 앱 시연 음성 공백 방지)
-                    if len(app_speech) < 65 or len(app_speech) > 115:
-                        logger.warning(f"⚠️ 앱 시연 글자수 범위 벗어남({len(app_speech)}자, 목표: 75~100자), 다음 시도")
+                    # 공식 검색어 포함 검증 (누락 시 자동 보정)
+                    if self.OFFICIAL_KEYWORD not in cta_speech:
+                        cta_speech = f"네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"
+                        full_speech = f"{hook_full} {app_speech} {cta_speech}".strip()
+
+                    # 🔒 [무결성 게이트 2: 구간별 및 전체 글자수 검증 (정확히 21.5~22.5초 일치)]
+                    # 1) 훅 글자수 검증: 42자 ~ 56자 (Wan 10초 립싱크 완벽 동기화)
+                    if len(hook_full) < 42 or len(hook_full) > 56:
+                        logger.warning(f"⚠️ 훅 글자수 범위 벗어남({len(hook_full)}자, 목표: 45~52자), 다음 시도")
                         continue
 
-                    # 3) 전체 글자수 검증: 135자 ~ 195자
-                    if len(full_speech) < 135 or len(full_speech) > 195:
-                        logger.warning(f"⚠️ 전체 글자수 범위 벗어남({len(full_speech)}자, 목표: 150~185자), 다음 시도")
+                    # 2) 앱 시연 글자수 검증: 42자 ~ 58자 (8~9초 앱 시연 음성 정밀 일치)
+                    if len(app_speech) < 42 or len(app_speech) > 58:
+                        logger.warning(f"⚠️ 앱 시연 글자수 범위 벗어남({len(app_speech)}자, 목표: 48~56자), 다음 시도")
+                        continue
+
+                    # 3) 전체 글자수 검증: 115자 ~ 132자 (정확한 22초대 완결 보장)
+                    if len(full_speech) < 115 or len(full_speech) > 132:
+                        logger.warning(f"⚠️ 전체 글자수 범위 벗어남({len(full_speech)}자, 목표: 120~130자), 다음 시도")
                         continue
 
                     logger.info(f"✨ [Gemini 보험 자율 대본 성공] 주제 #{norm_id} (훅:{len(hook_full)}자, 전체:{len(full_speech)}자, model={model})")
