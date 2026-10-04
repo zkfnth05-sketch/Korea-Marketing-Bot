@@ -500,6 +500,10 @@ def _brand_daemon_loop(brand: str):
                     from brands.insurance.insurance_reddit_engine import InsuranceRedditEngine
                     ins_reddit = InsuranceRedditEngine()
                     ins_reddit.orchestrator.run_scheduled_session()
+                elif brand == "stock":
+                    from brands.stock.stock_reddit_engine import StockRedditEngine
+                    stock_reddit = StockRedditEngine()
+                    stock_reddit.orchestrator.run_scheduled_session()
             except Exception as re:
                 log_event(f"⚠️ [{brand_kr} 레딧 세션 예외] {re}", "warning")
             time.sleep(60)
@@ -1199,6 +1203,15 @@ def execute_single_channel_task(module_name: str) -> str:
             from brands.stock.stock_search_indexing_hub import StockSearchIndexingHub
             res = StockSearchIndexingHub().ping_all_engines()
             return res.get("message", "🌐 주식AI 2대 포털 검색엔진 동시 색인 핑 전송 완료")
+        elif module_name in ["stock_reddit", "stock_reddit_cycle", "stock_reddit_promo"]:
+            from brands.stock.stock_reddit_engine import StockRedditEngine
+            engine = StockRedditEngine()
+            if module_name == "stock_reddit_cycle":
+                cycle_res = engine.run_safe_cycle()
+                return f"📈 [주식AI 레딧 안전 사이클 완료] 업보트 {cycle_res.get('upvotes', 0)}건, 비홍보 {cycle_res.get('organic_comments', 0)}건, 스텔스홍보 {cycle_res.get('promo_comments', 0)}건"
+            else:
+                p_cnt = engine.scan_and_reply(limit_per_sub=10, max_promo=1, auto_post=True)
+                return f"📈 [주식AI 레딧 스텔스 마케팅 완료] 10대 서브레딧 스캔 ➔ {p_cnt}건 처리 완료"
         elif module_name in ["stock_naver_cafe", "stock_daum_cafe", "stock_cafe"]:
             import asyncio
             from brands.stock.stock_cafe_pipeline import StockCafePipeline

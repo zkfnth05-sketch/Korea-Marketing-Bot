@@ -114,6 +114,17 @@ class StockPipeline:
         logger.info(f"🌐 [{self.NAME}] 검색엔진 색인 핑 파이프라인 가동")
         return self.seo_hub.ping_all_engines()
 
+    # 9. 레딧 글로벌 투자자 2단계 족집게 스텔스 침투
+    def run_reddit(self, mode: str = "promo") -> Dict[str, Any]:
+        logger.info(f"🤖 [{self.NAME}] Reddit 글로벌 투자자 스텔스 침투 파이프라인 가동 (모드: {mode})")
+        from brands.stock.stock_reddit_engine import StockRedditEngine
+        engine = StockRedditEngine()
+        if mode == "cycle":
+            return engine.run_safe_cycle()
+        else:
+            count = engine.scan_and_reply(limit_per_sub=10, max_promo=1, auto_post=True)
+            return {"status": "success", "processed_count": count}
+
     # 통합 동적 채널 라우터
     def run_channel(self, channel_name: str, **kwargs) -> Dict[str, Any]:
         c = channel_name.lower().strip()
@@ -133,6 +144,9 @@ class StockPipeline:
             return self.run_threads()
         elif c in ["seo", "advisor", "ping"]:
             return self.run_seo()
+        elif c in ["reddit", "reddit_promo", "reddit_cycle"]:
+            mode = "cycle" if "cycle" in c else "promo"
+            return self.run_reddit(mode=mode)
         else:
             raise ValueError(f"알 수 없는 채널: {channel_name}")
 

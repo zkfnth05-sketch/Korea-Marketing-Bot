@@ -227,9 +227,77 @@ function switchBrand(brand) {
     if (typeof renderEmergencyGuardBanner === "function") renderEmergencyGuardBanner();
 }
 
+// 📱 9:16 모바일 iFrame 실시간 뷰어 브랜드 전환
+function switchBrandFrame(brand, btn) {
+    const iframe = document.getElementById("liveBrandFrame");
+    const openBtn = document.getElementById("btnOpenDedicatedFrame");
+    const btnStock = document.getElementById("btnTabStockFrame");
+    const btnAura = document.getElementById("btnTabAuraFrame");
+    const btnIns = document.getElementById("btnTabInsureFrame");
+
+    const allButtons = [btnStock, btnAura, btnIns];
+    allButtons.forEach(b => {
+        if (b) {
+            b.className = "btn btn-outline";
+            b.style.background = "transparent";
+            b.style.color = "#475569";
+            b.style.borderColor = "#CBD5E1";
+            b.style.boxShadow = "none";
+        }
+    });
+
+    let targetUrl = "https://stockmaster-ai.vercel.app/";
+    let dedicatedUrl = "/stock_frame.html";
+    let dedicatedTitle = "🔗 주식 AI 단독 뷰어로 열기";
+
+    if (brand === "stock") {
+        targetUrl = "https://stockmaster-ai.vercel.app/";
+        dedicatedUrl = "/stock_frame.html";
+        dedicatedTitle = "🔗 주식 AI 단독 뷰어로 열기";
+        if (btnStock) {
+            btnStock.className = "btn btn-primary";
+            btnStock.style.background = "linear-gradient(135deg, #F59E0B, #D97706)";
+            btnStock.style.color = "#FFFFFF";
+            btnStock.style.border = "none";
+            btnStock.style.boxShadow = "0 4px 12px rgba(245,158,11,0.4)";
+        }
+    } else if (brand === "aura") {
+        targetUrl = "https://aura-ai-dating.vercel.app/";
+        dedicatedUrl = "/aura_frame.html";
+        dedicatedTitle = "🔗 Aura 데이팅 단독 뷰어로 열기";
+        if (btnAura) {
+            btnAura.className = "btn btn-primary";
+            btnAura.style.background = "linear-gradient(135deg, #EC4899, #BE185D)";
+            btnAura.style.color = "#FFFFFF";
+            btnAura.style.border = "none";
+            btnAura.style.boxShadow = "0 4px 12px rgba(236,72,153,0.4)";
+        }
+    } else if (brand === "insure" || brand === "insurance") {
+        targetUrl = "https://insure-rebalance.vercel.app/";
+        dedicatedUrl = "https://insure-rebalance.vercel.app/";
+        dedicatedTitle = "🔗 보험 리밸런스 단독 뷰어로 열기";
+        if (btnIns) {
+            btnIns.className = "btn btn-primary";
+            btnIns.style.background = "linear-gradient(135deg, #10B981, #059669)";
+            btnIns.style.color = "#FFFFFF";
+            btnIns.style.border = "none";
+            btnIns.style.boxShadow = "0 4px 12px rgba(16,185,129,0.4)";
+        }
+    }
+
+    if (iframe) iframe.src = targetUrl;
+    if (openBtn) {
+        openBtn.href = dedicatedUrl;
+        openBtn.innerText = dedicatedTitle;
+    }
+
+    showToast(`📱 9:16 모바일 뷰어가 [${brand.toUpperCase()}]로 전환되었습니다!`, "info");
+}
+
 window.showToast = showToast;
 window.appendLog = appendLog;
 window.animateRefreshBtn = animateRefreshBtn;
 window.initTabs = initTabs;
 window.switchTabDirect = switchTabDirect;
 window.switchBrand = switchBrand;
+window.switchBrandFrame = switchBrandFrame;

@@ -51,14 +51,14 @@ class InsuranceOmniCardnewsPilot:
     LANDING_URL = "https://insure-rebalance.vercel.app/"
 
     CARDNEWS_TOPICS = {
-        1: "월 15만 원 줄였다! 불필요 보험 특약 다이어트 4단계",
-        2: "보험설계사도 자기 가족에겐 꼭 넣는 알짜 특약 BEST 4",
-        3: "사회초년생 첫 보험 가입 전 절대 호갱 안 당하는 4원칙",
-        4: "부모님 갱신형 실손보험료 폭탄 피하는 현실적 리모델링",
-        5: "운전자보험 1만원대로 핵심 3대 비용 완벽 보장받는 법",
-        6: "암/뇌/심장 3대 질병 진단비 가성비 있게 맞추는 꿀팁",
-        7: "치아보험 가입 후 바로 치과 가면 보험금 받을 수 있을까?",
-        8: "34개 보험사 동일 보장 최저가 비교 견적 노하우"
+        1: "4세대 실손보험 전환하면 호갱? 월 5만원 아끼는 진실",
+        2: "10년 갱신형 암보험의 함정: 60세에 35만원 폭탄 맞습니다",
+        3: "사회초년생 월급 250만원에 보험료 20만원 내고 있다면?",
+        4: "뇌졸중 왔는데 보험금 0원? '뇌출혈' 특약 가입자의 비극",
+        5: "옛날 운전자보험 그대로 두면 사고 시 형사합의금 못 받습니다",
+        6: "하루 15만원 간병비 파산 막는 '간병인 사용일당'의 비밀",
+        7: "중복 가입으로 10년간 줄줄 샌 내 보험료, 1분 만에 찾기",
+        8: "보험료 부담돼서 해지하려고요? 절대 해지하지 마세요!"
     }
 
     def __init__(self):
@@ -150,13 +150,22 @@ class InsuranceOmniCardnewsPilot:
         """
         🎨 [쏘기 직전 5장 카드뉴스 실시간 100% 신선 제작]
         - 옛날 파일 무단 주워오기 100% 전면 배제!
+        - InsuranceCardnewsProducer를 통해 Wan 2.1 실사 + Playwright 타이포그래피 5장 풀세트 실시간 렌더링
         """
         logger.info("=" * 70)
         logger.info(f"🎨 [보험 카드뉴스 실시간 제작] 쏘기 직전 주제 #{topic_id} 5장 신규 렌더링 시작...")
         logger.info("=" * 70)
 
-        # 보험 카드뉴스 전용 실시간 생산 엔진 연동
-        raise NotImplementedError(f"보험 카드뉴스 주제 #{topic_id} 실시간 렌더링 엔진 구축 준비 중 (과거 파일 무단 송출 원천 차단)")
+        from brands.insurance.insurance_cardnews_producer import InsuranceCardnewsProducer
+        producer = InsuranceCardnewsProducer()
+        res = producer.produce_full_package(topic_id=topic_id)
+        
+        slide_files = res.get("slide_files", [])
+        if not slide_files or len(slide_files) < 5:
+            raise RuntimeError(f"보험 카드뉴스 5장 생성 실패 (생성된 파일 수: {len(slide_files)}장)")
+
+        logger.info(f"✅ [보험 카드뉴스 5장 생성 완료] 슬라이드 목록: {slide_files}")
+        return slide_files
 
     def build_meta_packages(self, topic_id: int) -> Dict[str, Any]:
         """[제미나이 100% 실시간 카피 + 실시간 급상승 트렌드 해시태그 융합] 5장 카드뉴스 Meta 포스팅 패키지"""

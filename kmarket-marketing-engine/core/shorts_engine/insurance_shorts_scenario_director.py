@@ -22,11 +22,11 @@ class InsuranceShortsScenarioDirector:
             "theme_name": "실손의료비 4세대 전환 손익",
             "theme_code": "silbi_gen4",
             "gender": "female",
-            "hook_p1_5s": "병원도 안 가는데 옛날 실비보험 매달 5만 원씩 내시나요?",
-            "hook_p2_5s": "4세대로 바꾸면 월 1만 원대로 바로 줄어듭니다!",
-            "hook_0_10s": "병원도 안 가는데 옛날 실비보험 매달 5만 원씩 내시나요? 4세대로 바꾸면 월 1만 원대로 바로 줄어듭니다!",
+            "hook_p1_5s": "병원도 안 가는데 옛날 실비보험 계속 유지해야 할까요?",
+            "hook_p2_5s": "4세대 전환 시 내 조건별 실시간 손익을 바로 확인해보세요!",
+            "hook_0_10s": "병원도 안 가는데 옛날 실비보험 계속 유지해야 할까요? 4세대 전환 시 내 조건별 실시간 손익을 바로 확인해보세요!",
             "app_10_20s": "보험 리밸런스에서 익명으로 내 4세대 전환 손익을 1초 만에 확인해보세요.",
-            "hero_copy": "병원 안 가면 월 1만원대로 다이어트!",
+            "hero_copy": "비급여 이용량에 맞춘 실손 손익 자가진단!",
             "cta_18_22s": "지금 네이버에 보험 리밸런스 검색해보세요!",
             "s2v_motion_prompt": (
                 "a relatable 42-year-old Korean woman in clean stylish civilian casual clothes sitting comfortably in a bright room, looking directly into camera with genuine friendly expression, "
@@ -42,8 +42,8 @@ class InsuranceShortsScenarioDirector:
             "theme_code": "driver_insurance",
             "gender": "male",
             "hook_p1_5s": "운전자보험 매달 3, 4만 원씩 내시나요?",
-            "hook_p2_5s": "필수 3대 특약만 챙기면 월 1만 원이면 끝납니다!",
-            "hook_0_10s": "운전자보험 매달 3, 4만 원씩 내시나요? 필수 3대 특약만 챙기면 월 1만 원이면 끝납니다!",
+            "hook_p2_5s": "필수 3대 특약만 챙기면 월 1만 원대 설계가 가능합니다!",
+            "hook_0_10s": "운전자보험 매달 3, 4만 원씩 내시나요? 필수 3대 특약만 챙기면 월 1만 원대 설계가 가능합니다!",
             "app_10_20s": "보험 리밸런스에서 증권만 스캔하면 쓸데없이 새는 중복 특약을 1초 만에 싹 정리해 줍니다.",
             "cta_18_22s": "지금 네이버에 보험 리밸런스 검색해보세요!",
             "hero_copy": "필수 3대 특약으로 월 13,000원 완성!",
@@ -59,9 +59,9 @@ class InsuranceShortsScenarioDirector:
             "theme_name": "암보험 일반암 vs 유사암 진실",
             "theme_code": "cancer_coverage",
             "gender": "female",
-            "hook_p1_5s": "암보험 5천만 원 든 줄 알았는데 갑상선암 걸리면 5백만 원만 나온다는 사실 아셨나요?",
-            "hook_p2_5s": "소액암 분류 모르면 보험금 10%밖에 못 받습니다!",
-            "hook_0_10s": "암보험 5천만 원 든 줄 알았는데 갑상선암 걸리면 5백만 원만 나온다는 사실 아셨나요?",
+            "hook_p1_5s": "암보험 5천만 원 든 줄 알았는데 갑상선암은 소액암으로 분류된다는 사실 아셨나요?",
+            "hook_p2_5s": "약관상 보장 비율과 보장 범위를 꼭 점검해보세요!",
+            "hook_0_10s": "암보험 5천만 원 든 줄 알았는데 갑상선암은 소액암으로 분류된다는 사실 아셨나요? 약관상 보장 비율과 보장 범위를 꼭 점검해보세요!",
             "app_10_20s": "보험 리밸런스에서 국내 34개 보험사의 진짜 일반암 보장 범위를 1초 만에 비교해보세요.",
             "cta_18_22s": "지금 네이버에 보험 리밸런스 검색해보세요!",
             "hero_copy": "내가 원하는 진단금으로 34개 암보험 실시간 비교!",
@@ -77,12 +77,12 @@ class InsuranceShortsScenarioDirector:
             "theme_name": "뇌경색 100% 뇌혈관질환 최저가 다이렉트 비교",
             "theme_code": "brain_vascular",
             "gender": "male",
-            "hook_p1_5s": "뇌경색 100% 보장하는 뇌혈관 보험, 아직도 아는 사람 통해서 비싸게 가입하시나요?",
-            "hook_p2_5s": "내 나이만 넣으면 전 보험사 최저가 순위가 바로 나옵니다!",
-            "hook_0_10s": "뇌경색 100% 보장하는 뇌혈관 보험, 아직도 아는 사람 통해서 비싸게 가입하시나요?",
+            "hook_p1_5s": "뇌경색까지 든든하게 보장하는 뇌혈관 보험, 내 증권의 보장 범위는 안전할까요?",
+            "hook_p2_5s": "내 조건만 넣으면 전 보험사 객관적 요율이 바로 나옵니다!",
+            "hook_0_10s": "뇌경색까지 든든하게 보장하는 뇌혈관 보험, 내 증권의 보장 범위는 안전할까요? 내 조건만 넣으면 전 보험사 객관적 요율이 바로 나옵니다!",
             "app_10_20s": "보험 리밸런스에서 나이만 넣으면 국내 33개 보험사 실시간 최저가 순위가 1초 만에 나옵니다.",
             "cta_18_22s": "지금 네이버에 보험 리밸런스 검색해보세요!",
-            "hero_copy": "뇌경색 100% 보장하는 뇌혈관보험 최저가 찾기!",
+            "hero_copy": "뇌경색까지 보장하는 뇌혈관보험 객관적 비교!",
             "s2v_motion_prompt": (
                 "a trustworthy 48-year-old Korean family man in stylish neat casual daily clothes, looking directly into camera with sincere honest eyes, "
                 "speaking clearly with smooth natural lip sync, precise mouth movements and subtle head nods"
@@ -95,12 +95,12 @@ class InsuranceShortsScenarioDirector:
             "theme_name": "아는 사람 부탁으로 가입한 보험 손익 분석",
             "theme_code": "whole_life_vs_term",
             "gender": "male",
-            "hook_p1_5s": "아는 사람 부탁으로 들었던 보험, 매달 돈만 나가고 무슨 보장인지도 모르셨죠?",
-            "hook_p2_5s": "내 나이만 넣으면 얼마를 손해보고 있는지 바로 알려줍니다!",
-            "hook_0_10s": "아는 사람 부탁으로 들었던 보험, 매달 돈만 나가고 무슨 보장인지도 모르셨죠?",
-            "app_10_20s": "보험 리밸런스에서 전화번호 없이 내 나이 기준 매달 새는 불필요한 보험료를 1초 만에 색출하세요.",
+            "hook_p1_5s": "아는 사람 부탁으로 들었던 보험, 내 증권의 실제 보장 범위를 알고 계신가요?",
+            "hook_p2_5s": "불필요한 적립금과 갱신형 특약을 객관적으로 점검해보세요!",
+            "hook_0_10s": "아는 사람 부탁으로 들었던 보험, 내 증권의 실제 보장 범위를 알고 계신가요? 불필요한 적립금과 갱신형 특약을 객관적으로 점검해보세요!",
+            "app_10_20s": "보험 리밸런스에서 전화번호 없이 내 나이 기준 불필요한 중복 특약을 1초 만에 확인하세요.",
             "cta_18_22s": "지금 네이버에 보험 리밸런스 검색해보세요!",
-            "hero_copy": "아는 사람 부탁 보험, 매달 새는 돈 1초 색출!",
+            "hero_copy": "지인 권유 보험, 객관적 약관 팩트 1초 분석!",
             "s2v_motion_prompt": (
                 "a sincere, polite, and handsome 33-year-old Korean male professional in crisp white oxford shirt, looking directly into camera with genuine engaging expression, "
                 "speaking clearly with smooth natural lip sync, articulate facial articulation, subtle posture shifts"
@@ -113,12 +113,12 @@ class InsuranceShortsScenarioDirector:
             "theme_name": "어린이·어른이 100세 만기 리모델링",
             "theme_code": "child_to_adult",
             "gender": "female",
-            "hook_p1_5s": "어릴 때 부모님이 들어준 보험, 서른 살 넘어서 확인해보니 갱신형에 구멍투성이였나요?",
+            "hook_p1_5s": "어릴 때 부모님이 들어준 보험, 성인이 된 지금 보장 범위가 충분할까요?",
             "hook_p2_5s": "비갱신형으로 깔끔하게 리모델링할 수 있습니다!",
-            "hook_0_10s": "어릴 때 부모님이 들어준 보험, 서른 살 넘어서 확인해보니 갱신형에 구멍투성이였나요?",
+            "hook_0_10s": "어릴 때 부모님이 들어준 보험, 성인이 된 지금 보장 범위가 충분할까요? 비갱신형으로 깔끔하게 리모델링할 수 있습니다!",
             "app_10_20s": "보험 리밸런스에서 비갱신형 최저가 상품을 전화번호 없이 1초 만에 무료로 비교해보세요.",
             "cta_18_22s": "지금 네이버에 보험 리밸런스 검색해보세요!",
-            "hero_copy": "갱신형 구멍 찾아내고 비갱신형 리모델링!",
+            "hero_copy": "성인 질환 보장 공백 점검 & 비갱신형 리모델링!",
             "s2v_motion_prompt": (
                 "a bright 32-year-old Korean young mother in cozy ivory sweater, looking directly into camera with relatable friendly demeanor, "
                 "speaking naturally with realistic lip sync and dynamic mouth movements, gentle nodding"
@@ -131,12 +131,12 @@ class InsuranceShortsScenarioDirector:
             "theme_name": "내 보험 정밀 비교 & 새는 보험료 다이어트",
             "theme_code": "duplicate_coverage_diet",
             "gender": "female",
-            "hook_p1_5s": "매달 보험료 20~30만 원씩 내시나요? 보장은 더 크고 가격은 절반인 상품이 많습니다!",
-            "hook_p2_5s": "줄줄 새는 불필요한 보험료부터 다이어트해보세요!",
-            "hook_0_10s": "매달 보험료 20~30만 원씩 내시나요? 보장은 더 크고 가격은 절반인 상품이 많습니다!",
-            "app_10_20s": "보험 리밸런스에서 국내 34개 보험사를 1초 만에 비교하고 매달 줄줄 새는 돈을 싹 다이어트하세요.",
+            "hook_p1_5s": "매달 나가는 내 보험료, 과연 동일 보장 기준 최적의 조건일까요?",
+            "hook_p2_5s": "불필요한 중복 특약부터 스마트하게 다이어트해보세요!",
+            "hook_0_10s": "매달 나가는 내 보험료, 과연 동일 보장 기준 최적의 조건일까요? 불필요한 중복 특약부터 스마트하게 다이어트해보세요!",
+            "app_10_20s": "보험 리밸런스에서 국내 34개 보험사를 1초 만에 비교하고 불필요한 특약을 싹 다이어트하세요.",
             "cta_18_22s": "지금 네이버에 보험 리밸런스 검색해보세요!",
-            "hero_copy": "내 보험보다 더 싸고 든든한 34개사 최저가 정밀 비교!",
+            "hero_copy": "동일 보장 기준 34개사 최저가 정밀 비교!",
             "s2v_motion_prompt": (
                 "a sharp and sensible 37-year-old Korean woman in clean stylish smart-casual daily outfit, looking directly into camera with articulate relatable gaze, "
                 "speaking clearly with smooth natural lip sync and dynamic mouth movements, subtle head gestures, natural confident posture"
@@ -149,12 +149,12 @@ class InsuranceShortsScenarioDirector:
             "theme_name": "AI 보험료 역추정 비교 & 가성비 리모델링",
             "theme_code": "coverage_score_gap_diagnosis",
             "gender": "female",
-            "hook_p1_5s": "매달 내는 보험료, 과연 제값 할까요? 똑같은 보장에 보험료를 절반으로 줄일 수 있습니다!",
+            "hook_p1_5s": "매달 내는 보험료, 과연 내 연령에 꼭 맞게 알뜰하게 설계되었을까요?",
             "hook_p2_5s": "전화번호 없이 최적의 비교 견적을 확인해보세요!",
-            "hook_0_10s": "매달 내는 보험료, 과연 제값 할까요? 똑같은 보장에 보험료를 절반으로 줄일 수 있습니다!",
+            "hook_0_10s": "매달 내는 보험료, 과연 내 연령에 꼭 맞게 알뜰하게 설계되었을까요? 전화번호 없이 최적의 비교 견적을 확인해보세요!",
             "app_10_20s": "보험 리밸런스 AI가 내 보험료를 역추정해서 가장 가성비 높은 최적의 플랜을 1초 만에 찾아줍니다.",
             "cta_18_22s": "지금 네이버에 보험 리밸런스 검색해보세요!",
-            "hero_copy": "같은 가격엔 더 큰 보장, 같은 보장엔 더 싼 보험!",
+            "hero_copy": "같은 가격엔 더 큰 보장, 같은 보장엔 더 알뜰한 보험!",
             "s2v_motion_prompt": (
                 "a poised 39-year-old Korean woman in clean stylish smart-casual daily outfit, looking directly into camera with genuine reassuring expression, "
                 "speaking clearly with smooth natural lip sync, confident head tilts and subtle hand gestures"

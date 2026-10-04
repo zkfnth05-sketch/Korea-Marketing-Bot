@@ -30,76 +30,133 @@ async function loadHealthStatus(btn) {
         const blog = bFeed.blog || {};
         const kin = bFeed.kin || {};
         const shorts = bFeed.shorts || {};
+        const cardnews = bFeed.cardnews || {};
         const channels = blog.channels || {};
+        const shortsPlatforms = shorts.platforms || {};
+        const cardPlatforms = cardnews.platforms || {};
 
-        // 🚨 1. [장애 감지 분석] 세션 만료 및 에러 항목 추출
-        const issues = [];
+        // 🚨 1. [장애 및 미발행 감지 분석]
+        // - criticalIssues: 카카오/네이버 세션 만료 등 사용자의 즉시 조치(배치 실행)가 필요한 치명적 장애
+        // - scheduledPending: 오늘 아직 정기 스케줄 시간이 되지 않은 정상 대기(미발행) 채널
+        const criticalIssues = [];
+        const scheduledPending = [];
+
         Object.keys(liveFeed.brands || {}).forEach(bKey => {
+            // 현재 선택된 브랜드 전담 필터링
+            if (b && b !== "all" && bKey !== b) return;
+
             const bf = liveFeed.brands[bKey];
             const chs = bf.blog?.channels || {};
+            const shs = bf.shorts?.platforms || {};
+            const crds = bf.cardnews?.platforms || {};
             const bTitle = bf.brand_name || bKey;
 
-            // 티스토리 장애 감지 (세션 만료 또는 발행 에러)
+            // 1. 티스토리 블로그
             const batName = bKey === "aura" ? "[1회연동]_Aura_티스토리_영구로그인.bat" 
                           : bKey === "insurance" ? "[1회연동]_보험비교_티스토리_영구로그인.bat" 
                           : "[1회연동]_주식AI_티스토리_영구로그인.bat";
 
             if (chs.tistory?.is_session_expired) {
-                issues.push({
+                criticalIssues.push({
                     brand: bTitle,
                     type: "세션 만료",
                     channel: "티스토리 (Tistory)",
                     cause: "카카오 로그인 세션 쿠키 수명 만료",
                     action: `바탕화면의 [${batName}] 배치 파일을 1회 실행하여 로그인해 주세요.`
                 });
-            } else if (chs.tistory?.status === "error" || (!chs.tistory?.is_success && chs.tistory?.message && !chs.tistory?.message.includes("대기"))) {
-                issues.push({
+            } else if (chs.tistory?.status === "error") {
+                criticalIssues.push({
                     brand: bTitle,
                     type: "발행 오류",
                     channel: "티스토리 (Tistory)",
                     cause: chs.tistory.message || "티스토리 자동 발행 실패",
                     action: `블로그 ID 확인 및 필요 시 바탕화면의 [${batName}] 실행`
                 });
+            } else if (!chs.tistory?.is_today && !chs.tistory?.is_success) {
+                scheduledPending.push({
+                    brand: bTitle,
+                    type: "미발행",
+                    channel: "티스토리 블로그",
+                    cause: `오늘자 미발행 (최근 실제 발행: ${chs.tistory?.published_at || '-'})`,
+                    action: "오늘자 정기 스케줄 대기 또는 1회 수동 발행 트리거"
+                });
             }
 
-            // 네이버 블로그 장애 감지
+            // 2. 네이버 블로그
             const naverBat = bKey === "aura" ? "[1회연동]_Aura_네이버_영구로그인.bat"
                            : bKey === "insurance" ? "[1회연동]_보험비교_네이버_영구로그인.bat"
                            : "[1회연동]_주식AI_네이버_영구로그인.bat";
 
             if (chs.naver_blog?.status === "error") {
-                issues.push({
+                criticalIssues.push({
                     brand: bTitle,
                     type: "발행 에러",
                     channel: "네이버 블로그",
                     cause: chs.naver_blog.message || "네이버 글쓰기 세션 확인 필요",
                     action: `바탕화면의 [${naverBat}] 실행 필요`
                 });
-            } else if (chs.naver_blog?.status === "not_published_today" && chs.naver_blog?.message) {
-                issues.push({
+            } else if (!chs.naver_blog?.is_today) {
+                scheduledPending.push({
                     brand: bTitle,
                     type: "미발행",
                     channel: "네이버 블로그",
-                    cause: chs.naver_blog.message,
-                    action: `오늘자 정기 스케줄 대기 또는 1회 수동 발행 트리거`
+                    cause: chs.naver_blog?.message || `오늘자 미발행 (최근 실제 발행: ${chs.naver_blog?.published_at || bf.blog?.last_run_time || '-'})`,
+                    action: "오늘자 정기 스케줄 대기 또는 1회 수동 발행 트리거"
                 });
             }
+
+            // 3. 4대 숏폼 플랫폼
+            const spCheckList = [
+                { name: "유튜브 쇼츠", data: shs.youtube || {} },
+                { name: "인스타그램 릴스", data: shs.instagram || {} },
+                { name: "페이스북 릴스", data: shs.facebook || {} },
+                { name: "네이버 클립", data: shs.naver_clip || {} }
+            ];
+            spCheckList.forEach(sp => {
+                if (!sp.data.is_today && !sp.data.url) {
+                    scheduledPending.push({
+                        brand: bTitle,
+                        type: "미발행",
+                        channel: `숏폼 (${sp.name})`,
+                        cause: `오늘자 미발행 (최근 실제 발행: ${sp.data.published_at || '-'})`,
+                        action: "오늘자 정기 스케줄 대기 또는 1회 수동 발행 트리거"
+                    });
+                }
+            });
+
+            // 4. 5장 카드뉴스 플랫폼
+            const cardCheckList = [
+                { name: "인스타 캐러셀 (5장)", data: crds.instagram || {} },
+                { name: "페이스북 앨범 (5장)", data: crds.facebook || {} },
+                { name: "1080x1350 카드뉴스 완제품", data: crds.local_slides || {} }
+            ];
+            cardCheckList.forEach(cp => {
+                if (!cp.data.is_today && !cp.data.url && !cp.data.is_success) {
+                    scheduledPending.push({
+                        brand: bTitle,
+                        type: "미발행",
+                        channel: `카드뉴스 (${cp.name})`,
+                        cause: `오늘자 미발행 (최근 실제 발행: ${cp.data.published_at || cp.data.time || '-'})`,
+                        action: "오늘자 정기 스케줄 대기 또는 1회 수동 발행 트리거"
+                    });
+                }
+            });
         });
 
-        // 🧠 2. 최상단: 실시간 장애 & 즉시 조치 센터 렌더링
+        // 🧠 2. 최상단: 실시간 장애 & 정기 스케줄 대기 관제 센터 렌더링
         const brainGrid = document.getElementById("health-brain-grid");
         if (brainGrid) {
-            if (issues.length > 0) {
+            if (criticalIssues.length > 0) {
                 brainGrid.innerHTML = `
                     <div style="grid-column: 1 / -1; background:#FEF2F2; border:2px solid #F87171; border-radius:12px; padding:16px 20px; box-shadow:0 4px 14px rgba(239,68,68,0.15);">
                         <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
                             <span style="font-size:20px;">🚨</span>
                             <h4 style="margin:0; font-size:16px; font-weight:800; color:#991B1B;">
-                                실시간 장애 감지 (${issues.length}건) — 즉시 조치 필요
+                                실시간 장애 감지 (${criticalIssues.length}건) — 즉시 조치 필요
                             </h4>
                         </div>
                         <div style="display:flex; flex-direction:column; gap:10px;">
-                            ${issues.map(iss => `
+                            ${criticalIssues.map(iss => `
                                 <div style="background:#FFFFFF; border:1px solid #FECACA; border-radius:8px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                                     <div>
                                         <div style="display:flex; align-items:center; gap:8px;">
@@ -118,13 +175,48 @@ async function loadHealthStatus(btn) {
                         </div>
                     </div>
                 `;
+            } else if (scheduledPending.length > 0) {
+                brainGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; background:#FFFBEB; border:2px solid #FCD34D; border-radius:12px; padding:16px 20px; box-shadow:0 4px 14px rgba(245,158,11,0.12);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:20px;">⏳</span>
+                                <div>
+                                    <h4 style="margin:0; font-size:16px; font-weight:800; color:#92400E;">
+                                        오늘자 정기 스케줄 대기 & 미발행 관제 (${scheduledPending.length}개 채널 대기 중)
+                                    </h4>
+                                    <span style="font-size:11.5px; color:#B45309;">치명적 장애 0건 — 정해진 시각에 24시간 무인 자동 발행되거나 수동 1회 즉시 실행 가능합니다.</span>
+                                </div>
+                            </div>
+                            <span style="background:#F59E0B; color:#FFFFFF; font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px;">⚪ STANDBY</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:8px; max-height:280px; overflow-y:auto; padding-right:4px;">
+                            ${scheduledPending.map(iss => `
+                                <div style="background:#FFFFFF; border:1px solid #FDE68A; border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                                    <div>
+                                        <div style="display:flex; align-items:center; gap:8px;">
+                                            <span style="background:#F59E0B; color:#FFFFFF; font-size:10.5px; font-weight:800; padding:2px 6px; border-radius:4px;">${iss.brand}</span>
+                                            <strong style="color:#0F172A; font-size:13px;">${iss.channel} - <span style="color:#B45309;">${iss.type}</span></strong>
+                                        </div>
+                                        <div style="color:#64748B; font-size:11.5px; margin-top:3px;">
+                                            원인: <span style="color:#B45309; font-weight:600;">${iss.cause}</span>
+                                        </div>
+                                    </div>
+                                    <div style="background:#FEF3C7; border:1px solid #FDE68A; padding:5px 10px; border-radius:6px; font-size:11.5px; color:#92400E; font-weight:700;">
+                                        👉 ${iss.action}
+                                    </div>
+                                </div>
+                            `).join("")}
+                        </div>
+                    </div>
+                `;
             } else {
                 brainGrid.innerHTML = `
                     <div style="grid-column: 1 / -1; background:#F0FDF4; border:2px solid #86EFAC; border-radius:12px; padding:16px 20px;">
                         <div style="display:flex; align-items:center; gap:8px;">
                             <span style="font-size:20px;">✅</span>
                             <h4 style="margin:0; font-size:15px; font-weight:800; color:#166534;">
-                                현재 감지된 장애 0건 — 3대 브랜드 모든 채널 정상 작동 중
+                                현재 감지된 장애 0건 — 3대 브랜드 모든 채널 100% 정상 작동 중
                             </h4>
                         </div>
                     </div>
@@ -139,7 +231,6 @@ async function loadHealthStatus(btn) {
             const tb = channels.tistory || {};
             const supa = channels.supabase_research || {};
             const kinAnswers = kin.recent_answers || [];
-            const shortsPlatforms = shorts.platforms || {};
 
             // 4대 숏폼 플랫폼 목록 생성
             const spList = [
@@ -150,20 +241,65 @@ async function loadHealthStatus(btn) {
             ];
 
             const shortsHtml = spList.map(sp => {
-                const isPub = sp.data.is_published && sp.data.url;
+                const isPub = sp.data.is_today && sp.data.url;
+                const hasPast = Boolean(sp.data.url);
                 return `
                     <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:10px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                         <div style="display:flex; align-items:center; gap:8px;">
                             <span>${sp.icon}</span>
                             <strong style="font-size:13px; color:#0F172A;">${sp.name}</strong>
                             <span style="font-size:11px; color:#64748B;">⏱️ ${sp.data.published_at || '-'}</span>
+                            ${isPub 
+                                ? `<span style="background:#ECFDF5; color:#059669; font-size:10.5px; font-weight:800; padding:2px 6px; border-radius:4px;">🟢 오늘 발행 완료</span>`
+                                : `<span style="background:#FEF3C7; color:#92400E; font-size:10.5px; font-weight:700; padding:2px 6px; border-radius:4px;">⚪ 오늘자 미발행 (정시 대기)</span>`}
                         </div>
-                        <div>
+                        <div style="display:flex; align-items:center; gap:6px;">
                             ${isPub 
                                 ? `<a href="${sp.data.url}" target="_blank" style="font-size:11px; font-weight:700; color:#DC2626; background:#FEE2E2; border:1px solid #FECACA; padding:3px 8px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:3px;">
                                     <span>🔗 바로가기</span> <span>↗</span>
                                    </a>`
-                                : `<span style="font-size:11px; font-weight:700; color:#94A3B8; background:#F1F5F9; padding:3px 8px; border-radius:6px;">⚪ 정시 대기</span>`}
+                                : hasPast
+                                ? `<a href="${sp.data.url}" target="_blank" style="font-size:11px; font-weight:700; color:#475569; background:#F1F5F9; border:1px solid #E2E8F0; padding:3px 8px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:3px;">
+                                    <span>🎬 최근 영상 ↗</span>
+                                   </a>`
+                                : `<span style="font-size:11px; font-weight:700; color:#92400E; background:#FEF3C7; padding:3px 8px; border-radius:6px;">👉 오늘자 정기 스케줄 대기 또는 1회 수동 발행 트리거</span>`}
+                        </div>
+                    </div>
+                `;
+            }).join("");
+
+            // 5장 카드뉴스 플랫폼 목록 생성
+            const cpList = [
+                { key: "instagram", name: "인스타 캐러셀 (5장)", icon: "📸", data: cardPlatforms.instagram || {} },
+                { key: "facebook", name: "페이스북 앨범 (5장)", icon: "📘", data: cardPlatforms.facebook || {} },
+                { key: "local_slides", name: "1080x1350 카드뉴스 5장 완제품", icon: "📁", data: cardPlatforms.local_slides || {} }
+            ];
+
+            const cardnewsHtml = cpList.map(cp => {
+                const isPub = cp.data.is_today && (cp.data.url || cp.data.is_success);
+                const hasPast = Boolean(cp.data.url || cp.data.is_success);
+                return `
+                    <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:10px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span>${cp.icon}</span>
+                            <strong style="font-size:13px; color:#0F172A;">${cp.name}</strong>
+                            <span style="font-size:11px; color:#64748B;">⏱️ ${cp.data.published_at || cp.data.time || '-'}</span>
+                            ${isPub 
+                                ? `<span style="background:#ECFDF5; color:#059669; font-size:10.5px; font-weight:800; padding:2px 6px; border-radius:4px;">🟢 오늘 발행 완료</span>`
+                                : `<span style="background:#FEF3C7; color:#92400E; font-size:10.5px; font-weight:700; padding:2px 6px; border-radius:4px;">⚪ 오늘자 미발행 (정시 대기)</span>`}
+                        </div>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            ${isPub && cp.data.url
+                                ? `<a href="${cp.data.url}" target="_blank" style="font-size:11px; font-weight:700; color:#E1306C; background:#FCE7F3; border:1px solid #FBCFE8; padding:3px 8px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:3px;">
+                                    <span>📸 카드뉴스 열기</span> <span>↗</span>
+                                   </a>`
+                                : hasPast && cp.data.url
+                                ? `<a href="${cp.data.url}" target="_blank" style="font-size:11px; font-weight:700; color:#475569; background:#F1F5F9; border:1px solid #E2E8F0; padding:3px 8px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:3px;">
+                                    <span>📸 최근 카드뉴스 ↗</span>
+                                   </a>`
+                                : cp.data.is_success
+                                ? `<span style="font-size:11px; font-weight:700; color:#059669; background:#ECFDF5; padding:3px 8px; border-radius:6px;">✅ ${cp.data.slide_count || 5}장 완제품 보관 중</span>`
+                                : `<span style="font-size:11px; font-weight:700; color:#92400E; background:#FEF3C7; padding:3px 8px; border-radius:6px;">👉 오늘자 정기 스케줄 대기 또는 1회 수동 발행 트리거</span>`}
                         </div>
                     </div>
                 `;
@@ -202,14 +338,20 @@ async function loadHealthStatus(btn) {
                         </div>
                         ${nb.is_success && nb.is_today
                             ? `<span style="background:#ECFDF5; color:#059669; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px; border:1px solid #A7F3D0;">🟢 오늘 발행 완료</span>` 
-                            : `<span style="background:#F1F5F9; color:#64748B; font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px;">⚪ 정시 대기 중</span>`}
+                            : `<span style="background:#FEF3C7; color:#92400E; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px; border:1px solid #FDE68A;">⚪ 오늘자 미발행 (정시 대기)</span>`}
                     </div>
                     <div style="font-size:13px; font-weight:700; color:#1E293B; margin-bottom:8px; line-height:1.4;">
                         ${nb.title || blog.last_title_naver || blog.last_title || '오늘 발행 대기 중'}
                     </div>
-                    <div style="font-size:11.5px; color:#64748B; margin-bottom:12px;">
+                    <div style="font-size:11.5px; color:#64748B; margin-bottom:8px;">
                         발행 시각: <strong>${nb.published_at || blog.last_run_time || '-'}</strong>
                     </div>
+                    ${(!nb.is_today) ? `
+                        <div style="background:#FFFBEB; border:1px solid #FDE68A; padding:8px 10px; border-radius:6px; font-size:11.5px; color:#92400E; margin-bottom:10px; line-height:1.4;">
+                            ⚠️ <strong>원인:</strong> 오늘자 미발행 (최근 실제 발행: ${nb.published_at || blog.last_run_time || '-' })<br>
+                            👉 <strong>조치:</strong> 오늘자 정기 스케줄 대기 또는 1회 수동 발행 트리거
+                        </div>
+                    ` : ''}
                     ${nb.url && nb.is_success 
                         ? `<a href="${nb.url}" target="_blank" style="display:inline-flex; align-items:center; gap:6px; padding:7px 12px; background:#03C75A; color:#FFFFFF; border-radius:6px; font-size:12px; font-weight:800; text-decoration:none;">
                             <span>🔗 발행된 네이버 글 열기</span>
@@ -225,21 +367,31 @@ async function loadHealthStatus(btn) {
                             <span style="font-size:18px;">🟠</span>
                             <h4 style="margin:0; font-size:15px; font-weight:800; color:#0F172A;">티스토리 (Tistory)</h4>
                         </div>
-                        ${tb.is_success && tb.is_today
-                            ? `<span style="background:#ECFDF5; color:#059669; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px;">🟢 오늘 발행 완료</span>`
+                        ${tb.is_success
+                            ? (tb.is_today 
+                                ? `<span style="background:#ECFDF5; color:#059669; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px;">🟢 오늘 발행 완료</span>`
+                                : `<span style="background:#ECFDF5; color:#059669; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px;">🟢 정상 연동됨 (최신 글 연결)</span>`)
                             : tb.is_session_expired 
                             ? `<span style="background:#FEE2E2; color:#DC2626; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px; border:1px solid #FECACA;">🔴 세션 만료</span>`
-                            : `<span style="background:#F1F5F9; color:#64748B; font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px;">⚪ 정시 대기 중</span>`}
+                            : `<span style="background:#FEF3C7; color:#92400E; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px; border:1px solid #FDE68A;">⚪ 오늘자 미발행 (정시 대기)</span>`}
                     </div>
                     <div style="font-size:13px; font-weight:700; color:#1E293B; margin-bottom:8px; line-height:1.4;">
                         ${tb.title || blog.last_title_tistory || blog.last_title || '오늘 발행 대기 중'}
                     </div>
+                    <div style="font-size:11.5px; color:#64748B; margin-bottom:8px;">
+                        발행 시각: <strong>${tb.published_at || '-'}</strong>
+                    </div>
                     ${tb.is_session_expired 
-                        ? `<div style="background:#FEF2F2; border:1px solid #FECACA; padding:8px 10px; border-radius:6px; font-size:11.5px; color:#991B1B; margin-bottom:8px;">
+                        ? `<div style="background:#FEF2F2; border:1px solid #FECACA; padding:8px 10px; border-radius:6px; font-size:11.5px; color:#991B1B; margin-bottom:10px;">
                             ⚠️ <strong>원인:</strong> 카카오 세션 만료<br>
                             👉 <strong>조치:</strong> [1회연동] 티스토리 배치 파일 실행 필요
                            </div>` 
-                        : ''}
+                        : (!tb.is_today && !tb.is_success) ? `
+                        <div style="background:#FFFBEB; border:1px solid #FDE68A; padding:8px 10px; border-radius:6px; font-size:11.5px; color:#92400E; margin-bottom:10px; line-height:1.4;">
+                            ⚠️ <strong>원인:</strong> 오늘자 미발행 (최근 실제 발행: ${tb.published_at || '-'})<br>
+                            👉 <strong>조치:</strong> 오늘자 정기 스케줄 대기 또는 1회 수동 발행 트리거
+                        </div>
+                    ` : ''}
                     ${tb.url && tb.is_success 
                         ? `<a href="${tb.url}" target="_blank" style="display:inline-flex; align-items:center; gap:6px; padding:7px 12px; background:#FF5722; color:#FFFFFF; border-radius:6px; font-size:12px; font-weight:800; text-decoration:none;">
                             <span>🔗 발행된 티스토리 글 열기</span>
@@ -273,7 +425,10 @@ async function loadHealthStatus(btn) {
                                 </div>
                             `).join("")}
                            </div>` 
-                        : `<div style="font-size:12px; color:#94A3B8; margin-top:8px;">오늘 등록된 답변이 없습니다. (24시간 무인 레이더 감시 중)</div>`}
+                        : `<div style="font-size:12px; color:#92400E; background:#FFFBEB; border:1px solid #FDE68A; padding:8px 10px; border-radius:6px; margin-top:8px;">
+                            ⚠️ <strong>원인:</strong> 오늘자 미발행 (실시간 질문 낚아채기 대기 중)<br>
+                            👉 <strong>조치:</strong> 오늘자 정기 스케줄 대기 또는 1회 수동 발행 트리거
+                           </div>`}
                 </div>
 
                 <!-- 4. 4대 숏폼 & 릴스 플랫폼별 실시간 상태 -->
@@ -283,23 +438,42 @@ async function loadHealthStatus(btn) {
                             <span style="font-size:18px;">🎬</span>
                             <h4 style="margin:0; font-size:15px; font-weight:800; color:#0F172A;">4대 숏폼 플랫폼 개별 송출 현황 (유튜브 · 인스타 · 페이스북 · 네이버 클립)</h4>
                         </div>
-                        <span style="background:#FEE2E2; color:#DC2626; font-size:11.5px; font-weight:800; padding:3px 8px; border-radius:6px;">
-                            오늘 ${shorts.today_count || 0}건 송출
+                        <span style="background:${shorts.today_count > 0 ? '#ECFDF5' : '#FEF3C7'}; color:${shorts.today_count > 0 ? '#059669' : '#92400E'}; font-size:11.5px; font-weight:800; padding:3px 8px; border-radius:6px;">
+                            오늘 ${shorts.today_count || 0}건 송출 완료
                         </span>
                     </div>
                     ${shortsHtml}
                 </div>
+
+                <!-- 5. 5장 카드뉴스 플랫폼별 실시간 상태 -->
+                <div class="action-card" style="border:1.5px solid #E2E8F0; border-top:4px solid #E1306C; background:#FFFFFF; padding:16px; border-radius:12px; grid-column: 1 / -1;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:18px;">📸</span>
+                            <h4 style="margin:0; font-size:15px; font-weight:800; color:#0F172A;">5장 카드뉴스 플랫폼 개별 송출 현황 (인스타 · 페이스북 · 완제품 파일)</h4>
+                        </div>
+                        <span style="background:${cardnews.today_count > 0 ? '#ECFDF5' : '#FEF3C7'}; color:${cardnews.today_count > 0 ? '#059669' : '#92400E'}; font-size:11.5px; font-weight:800; padding:3px 8px; border-radius:6px;">
+                            오늘 ${cardnews.today_count || 0}건 발행 완료
+                        </span>
+                    </div>
+                    ${cardnewsHtml}
+                </div>
             `;
         }
 
-        // 헤더 뱃지 업데이트 (실제 장애 여부 기준)
+        // 헤더 뱃지 업데이트 (치명적 장애 vs 정시 대기 분리)
         const headerBadge = document.getElementById("header-health-score");
         if (headerBadge) {
-            if (issues.length > 0) {
-                headerBadge.innerText = `장애 ${issues.length}건 감지 🔴`;
+            if (criticalIssues.length > 0) {
+                headerBadge.innerText = `장애 ${criticalIssues.length}건 감지 🔴`;
                 headerBadge.style.background = "#FEF2F2";
                 headerBadge.style.color = "#DC2626";
                 headerBadge.style.borderColor = "#F87171";
+            } else if (scheduledPending.length > 0) {
+                headerBadge.innerText = `정시 대기 중 (${scheduledPending.length}채널) 🟢`;
+                headerBadge.style.background = "#ECFDF5";
+                headerBadge.style.color = "#059669";
+                headerBadge.style.borderColor = "#A7F3D0";
             } else {
                 headerBadge.innerText = "100% 정상 🟢";
                 headerBadge.style.background = "#ECFDF5";
@@ -312,19 +486,29 @@ async function loadHealthStatus(btn) {
     }
 }
 
-async function runFullHealthDiagnostic() {
+async function runFullHealthDiagnostic(btn) {
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spin-icon" style="display:inline-block;animation:rotateSpin 0.6s linear infinite;">🔄</span> 자가진단 중...`;
+    }
     appendLog("[Diagnosis] 전체 시스템 정밀 자가진단 실행 중...", "info");
-    showToast("시스템 전체 자가진단을 시작합니다...");
+    showToast("🔍 시스템 전체 자가진단을 시작합니다...", "info");
     try {
         const res = await fetch("/api/health/run-diagnostic", { method: "POST" });
         const data = await res.json();
         if (data.success) {
             appendLog(`[Success] ${data.message}`, "success");
-            showToast(data.message);
-            loadHealthStatus();
+            showToast(data.message, "success");
+            await loadHealthStatus();
         }
     } catch (e) {
         appendLog(`[Error] 자가진단 요청 통신 실패: ${e}`, "error");
+        showToast("자가진단 통신 오류", "error");
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = `🔍 1초 정밀 자가진단`;
+        }
     }
 }
 

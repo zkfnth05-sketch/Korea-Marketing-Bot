@@ -122,23 +122,25 @@ INSURANCE_TOPIC_SPECS = {
         "gender": "male",
         "age": 33,
         "framing": (
-            "photographed from 1.4 meters directly in front on Apple iPhone 15 Pro, "
-            "clear medium bust shot, showing head, masculine neck, natural shoulders, chest, and upper torso, "
-            "solo 1person male, sitting naturally and upright in a contemporary cafe lounge, perfectly centered in frame, "
-            "perfectly upright head posture with zero tilt, natural balanced headroom occupying upper 8% of frame, "
+            "photographed from 2.5 meters away on Apple iPhone 15 Pro, "
+            "clear medium waist-up upper body shot showing head, masculine neck, broad natural shoulders, white oxford cotton shirt, arms, and torso down to the waistline, "
+            "subtle headroom occupying upper 5% of frame, "
+            "solo 1person male, sitting naturally and upright on a modern wooden chair in a contemporary cafe lounge, perfectly centered in frame, "
+            "perfectly upright head posture with zero tilt, head held straight and level, "
             "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, "
             "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
             "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear focus across entire frame, visible fine skin pores and sharp fabric textures"
         ),
         "char_desc": (
-            "a handsome, smart, and trustworthy 33-year-old Korean male working professional (youthful look in his early 30s), "
-            "clear smooth healthy skin, sharp masculine jawline, warm intelligent engaging eyes, "
+            "an exceptionally handsome and charming 33-year-old Korean male professional (top-tier Korean drama male lead actor look, striking youthful attractive look in his early 30s), "
+            "strictly no glasses, bare clean face with clear smooth healthy skin, authentic handsome Korean male facial features, sharp masculine chiseled jawline, warm charismatic dark eyes, "
             "stylish trendy Korean parted perm hairstyle (soft wavy side-parted comma hair with natural textured fringe, thick rich jet-black healthy hair, strictly ZERO grey hair, strictly NO white hair), "
-            "wearing a crisp modern white oxford cotton shirt, stylish high-end Korean civilian smart casual look, "
-            "looking directly into camera lens with composed trustworthy closed-mouth expression (lips firmly closed together, strictly zero teeth showing)"
+            "wearing a crisp tailored modern white oxford cotton shirt, sophisticated high-end Korean civilian smart casual look, "
+            "looking directly into camera lens with composed trustworthy closed-mouth expression (lips firmly closed together, strictly zero teeth showing), "
+            "modern K-drama handsome relatable lead look"
         ),
         "bg_desc": (
-            "contemporary bright modern cafe lounge with warm Scandinavian wooden interior and soft natural daylight through window, tack sharp f/11 focus"
+            "contemporary bright modern Scandinavian cafe lounge with warm wooden interior and soft natural daylight through window, tack sharp f/11 focus"
         ),
         "vibe": "지인 권유로 들었던 보험의 매달 새는 돈을 1초 만에 확인하고 스마트하게 리모델링한 30대 훈남 가장"
     },

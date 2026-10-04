@@ -218,8 +218,9 @@ function getHubColorTheme(key, index) {
     return palette[(index || 0) % palette.length];
 }
 
-// 1. 대시보드 22대 AI 마케팅 허브 그리드 동적 렌더링 (APP_PIPELINES 모듈 연동)
-function renderHubGrid() {
+// 1. 대시보드 24대 AI 마케팅 허브 그리드 동적 렌더링 (APP_PIPELINES 모듈 연동)
+function renderHubGrid(btn) {
+    if (btn) animateRefreshBtn(btn, "허브 그리드가 새로고침되었습니다! 🔄");
     const container = document.getElementById("hub-grid-container");
     const panelTitle = document.getElementById("hub-panel-title");
     const panelDesc = document.getElementById("hub-panel-desc");
@@ -239,6 +240,7 @@ function renderHubGrid() {
         const isThreads = h.key === "threads";
         const isSeo = h.key === "seo";
         const isKin = h.key === "naver_kin" || h.isKin;
+        const isReddit = h.key === "reddit";
         const runActionText = isShorts 
             ? "🎬 완성 숏폼 원클릭 제작" 
             : isCardnews 
@@ -251,6 +253,8 @@ function renderHubGrid() {
             ? "🌐 구글·네이버 동시 색인 핑"
             : isKin
             ? "💡 지식iN 실시간 1회 낚아채기"
+            : isReddit
+            ? "🤖 레딧 1회 스텔스 침투"
             : "⚡ 즉시 1회 시험 실행";
         const runActionOnClick = isOmniBlog 
             ? `publishOmniBlog('${brand}')`
@@ -272,6 +276,27 @@ function renderHubGrid() {
                 <a href="${h.sitemapUrl || '#'}" target="_blank" rel="noopener noreferrer" style="font-size:10.5px;font-weight:700;color:#7C3AED;background:#F5F3FF;border:1px solid #DDD6FE;padding:3px 6px;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;gap:3px;" title="등록된 XML 사이트맵 보기">
                     <span>📄 사이트맵 ↗</span>
                 </a>
+            </div>
+        ` : '';
+
+        // 🤖 레딧 전용 2단계 족집게 스텔스 위젯
+        const redditWidget = isReddit ? `
+            <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #E5DDD1;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <span style="font-size:11px;font-weight:700;color:#EA580C;">🛡️ 스텔스 쿼터:</span>
+                    <span style="font-size:11px;font-weight:800;color:#1E1B18;background:#FFF7ED;border:1px solid #FED7AA;padding:2px 8px;border-radius:10px;">
+                        홍보 4회 + 비홍보 4회
+                    </span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <span style="font-size:11px;color:#6E665E;">침투 원칙:</span>
+                    <span style="font-size:10.5px;font-weight:700;color:#059669;">Zero URL + 구글 검색 유도</span>
+                </div>
+                <div style="display:flex;gap:4px;">
+                    <a href="${h.redditUrl || 'https://www.reddit.com/r/stocks/'}" target="_blank" rel="noopener noreferrer" style="font-size:10.5px;font-weight:700;color:#EA580C;background:#FFF7ED;border:1px solid #FED7AA;padding:3px 6px;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;gap:3px;" title="레딧 타겟 서브레딧 열기">
+                        <span>🤖 타겟 서브레딧 ↗</span>
+                    </a>
+                </div>
             </div>
         ` : '';
 
@@ -325,6 +350,7 @@ function renderHubGrid() {
                 </div>
                 <p style="font-size:11.5px;color:#6E665E;margin:0 0 10px 0;line-height:1.45;">${h.desc}</p>
                 ${seoConsoleLinks}
+                ${redditWidget}
                 ${blogWidget}
                 ${kinWidget}
 
@@ -892,13 +918,16 @@ function renderTodayLiveFeedBoard(liveFeed, gpuStatus) {
                 </div>
             `;
         } else {
-            const isErr = nb.status === "error" || (nb.status === "not_published_today" && nb.message);
+            const isErr = nb.status === "error";
             naverHtml = `
-                <div style="background:${isErr ? '#FFF1F2' : '#FFFFFF'};border:${isErr ? '1.5px solid #FECDD3' : '1px solid #E2E8F0'};border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
-                    <div style="display:flex;align-items:center;gap:6px;">
-                        <span style="background:${isErr ? '#FFE4E6' : '#F1F5F9'};color:${isErr ? '#E11D48' : '#64748B'};font-size:10.5px;font-weight:700;padding:2px 6px;border-radius:4px;">${isErr ? '❌ 네이버 블로그 미발행' : '⚪ 네이버 블로그'}</span>
-                        <span style="font-size:11px;color:${isErr ? '#9F1239' : '#64748B'};font-weight:${isErr ? '700' : '400'};">${nb.message || '오늘 발행 대기 중'}</span>
+                <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                    <div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span style="background:${isErr ? '#FEE2E2' : '#FEF3C7'};color:${isErr ? '#DC2626' : '#92400E'};font-size:10.5px;font-weight:700;padding:2px 6px;border-radius:4px;">${isErr ? '🔴 네이버 블로그 에러' : '⚪ 네이버 블로그 미발행'}</span>
+                            <span style="font-size:11px;color:${isErr ? '#991B1B' : '#64748B'};font-weight:600;">${nb.message || '오늘자 정기 스케줄 대기 중'}</span>
+                        </div>
                     </div>
+                    <span style="font-size:10.5px;color:#92400E;background:#FEF3C7;padding:2px 6px;border-radius:4px;font-weight:700;">👉 오늘자 정기 스케줄 대기 또는 1회 수동 발행 트리거</span>
                 </div>
             `;
         }
@@ -1237,6 +1266,11 @@ function updateChannelBadges(runningChannels = {}, liveFeed = {}) {
             errBox.innerHTML = `⚠️ <strong>장애 원인:</strong> 카카오 로그인 세션 만료<br>👉 <strong>해결 조치:</strong> 바탕화면의 <code>${batFile}</code> 을 실행해 주세요.`;
         } else if (nb.is_success && nb.is_today) {
             blogBadge.innerHTML = "🟢 네이버 오늘 발행 완료";
+            blogBadge.style.background = "#ECFDF5";
+            blogBadge.style.color = "#059669";
+            blogBadge.style.border = "1px solid #A7F3D0";
+        } else if (tb.is_success && tb.url) {
+            blogBadge.innerHTML = "🟢 티스토리 정상 연동 (발행 완료)";
             blogBadge.style.background = "#ECFDF5";
             blogBadge.style.color = "#059669";
             blogBadge.style.border = "1px solid #A7F3D0";
@@ -1871,6 +1905,7 @@ async function triggerCafeInfiltration(brand, btn) {
 window.publishOmniBlog = publishOmniBlog;
 window.triggerKinCatch = triggerKinCatch;
 window.triggerCafeInfiltration = triggerCafeInfiltration;
+window.renderHubGrid = renderHubGrid;
 window.renderActionGrid = renderHubGrid;
 window.startChannelDaemon = startChannelDaemon;
 window.stopChannelDaemon = stopChannelDaemon;

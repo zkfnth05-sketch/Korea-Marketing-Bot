@@ -52,9 +52,10 @@ const APP_PIPELINES = {
                 id: "reddit",
                 key: "reddit",
                 hubNumber: 3,
-                name: "Reddit 1:1 리드 헌터",
+                name: "🤖 Reddit 글로벌 투자자 2단계 족집게 스텔스 헌터",
                 icon: "🤖",
-                desc: "26개 서브레딧 실시간 감지 (1시간 간격 정기 자율 헌팅)"
+                desc: "<b>🤖 [2단계 족집게 스텔스 헌터]</b> (10대 서브레딧 실시간 스캔 + 1단계 파이썬 100% 심사 + 2단계 제미나이 1회 검증 + 80:20 스텔스 답변)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 타겟 채널: r/stocks, r/investing, r/wallstreetbets, r/algotrading, r/koreanstocks 등 10개<br>➔ ② 안전 쿼터: 홍보 4회 + 비홍보 4회 (하루 5개 분산 세션)<br>➔ ③ 핵심 소구: 외인·기관 쌍끌이 실시간 수급 + AI 퀀트 4대 모달 + Anti-FOMO 리스크 가드<br>➔ ④ 스텔스 원칙: Zero URL + 구글 'StockMaster AI' (또는 '스톡마스터 AI') 검색 유도</div>",
+                redditUrl: "https://www.reddit.com/r/stocks/"
             },
             // #5 [통합] 4대 채널 옴니 블로그 통합 허브
             {

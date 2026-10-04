@@ -359,3 +359,13 @@ function stopStealthInvite() {
 // 10초마다 자동 갱신
 setInterval(loadTelegramCommunityStats, 10000);
 document.addEventListener('DOMContentLoaded', loadTelegramCommunityStats);
+
+window.loadTelegramCommunityStats = loadTelegramCommunityStats;
+window.renderTelegramCommunityPanel = renderTelegramCommunityPanel;
+window.startTelegramAIManager = startTelegramAIManager;
+window.stopTelegramAIManager = stopTelegramAIManager;
+window.triggerTelegramBroadcast = triggerTelegramBroadcast;
+window.runOutreach = runOutreach;
+window.stopOutreach = stopOutreach;
+window.runStealthInvite = runStealthInvite;
+window.stopStealthInvite = stopStealthInvite;

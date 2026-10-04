@@ -233,6 +233,9 @@ class StockLiveTracker:
         tistory_status = "idle"
         tistory_msg = ""
         tistory_published_at = ""
+        session_file = CURRENT_DIR / "tistory_session.json"
+        profile_dir = CURRENT_DIR / "tistory_chrome_profile"
+        has_fresh_session = (session_file.exists() and session_file.stat().st_size > 100) or (profile_dir.exists() and any(profile_dir.iterdir()))
 
         if "tistory" in report_channels:
             tb = report_channels["tistory"]
@@ -244,6 +247,11 @@ class StockLiveTracker:
             tistory_status = tb.get("status", "unknown")
             tistory_url = tb.get("url") or ""
             tistory_msg = tb.get("message") or ""
+
+        # 대표님이 1회 로그인을 완료하여 영구 세션/쿠키가 등록되어 있으면 과거 session_expired 해제
+        if tistory_status == "session_expired" and has_fresh_session:
+            tistory_status = "idle"
+            tistory_msg = ""
 
         # 티스토리 RSS를 통한 오늘자 최신 발행 글 검증
         if tistory_status != "session_expired" and (not tistory_url or "manage" in tistory_url):
