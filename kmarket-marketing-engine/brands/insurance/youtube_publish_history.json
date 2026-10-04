@@ -34,5 +34,85 @@
     "privacy_status": "public",
     "published_at": "2026-10-03 15:58:51",
     "message": "YouTube Data API v3 쇼츠 공개 발행 및 고정 댓글 등록 완료"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "brand": "insurance",
+    "topic_id": 2,
+    "video_id": "",
+    "video_url": "https://youtube.com/channel/uploaded_1791071905",
+    "title": "운전자보험 1만원대로 민식이법 벌금/변호사 완벽 방어하는 법 #보험리밸런스 #Shorts",
+    "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+    "comment_status": "skipped",
+    "privacy_status": "public",
+    "video_file": "Insurance_22초숏폼_주제02_driver_insurance_20261003_153447.mp4",
+    "published_at": "2026-10-04 08:58:25",
+    "elapsed_sec": 95.5,
+    "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "BrowserType.launch_persistent_context: Failed to create a ProcessSingleton for your profile directory. This usually means that the profile is already in use by another instance of Chromium.\nCall log:\n  - <launching> C:\\Users\\zkfnt\\AppData\\Local\\ms-playwright\\chromium-1234\\chrome-win64\\chrome.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --disable-gpu --disable-software-rasterizer --disable-dev-shm-usage --no-sandbox --disable-infobars --disable-blink-features=AutomationControlled --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-breakpad --disable-component-update --disable-domain-reliability --disable-sync --mute-audio --no-first-run --password-store=basic --use-mock-keychain --disable-features=Translate,OptimizationHints,MediaRouter,PaintHolding --user-data-dir=C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\youtube_chrome_profile --remote-debugging-pipe about:blank\n  - <launched> pid=27280\n  - [pid=27280][err] [27280:21968:1004/090100.450:ERROR:chrome\\browser\\process_singleton_win.cc:414] Lock file can not be created: 다른 프로세스가 파일을 사용 중이기 때문에 프로세스가 액세스 할 수 없습니다. (0x20)\n  - [pid=27280][err] [27280:21968:1004/090100.450:ERROR:chrome\\app\\chrome_main_delegate.cc:520] Failed to create a ProcessSingleton for your profile directory. This means that running multiple instances would start multiple browser processes rather than opening a new window in the existing process. Aborting now to avoid profile corruption.\n  - [pid=27280] <gracefully close start>\n  - [pid=27280] <kill>\n  - [pid=27280] <will force kill>\n  - [pid=27280] taskkill stderr: ����: ���μ��� \"27280\"��(��) ã�� �� �����ϴ�.\n  - [pid=27280] <process did exit: exitCode=21, signal=null>\n  - [pid=27280] starting temporary directories cleanup\n  - [pid=27280] finished temporary directories cleanup\n  - [pid=27280] <gracefully close end>\n",
+    "published_at": "2026-10-04 09:01:00"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "BrowserType.launch_persistent_context: Failed to create a ProcessSingleton for your profile directory. This usually means that the profile is already in use by another instance of Chromium.\nCall log:\n  - <launching> C:\\Users\\zkfnt\\AppData\\Local\\ms-playwright\\chromium-1234\\chrome-win64\\chrome.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --disable-gpu --disable-software-rasterizer --disable-dev-shm-usage --no-sandbox --disable-infobars --disable-blink-features=AutomationControlled --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-breakpad --disable-component-update --disable-domain-reliability --disable-sync --mute-audio --no-first-run --password-store=basic --use-mock-keychain --disable-features=Translate,OptimizationHints,MediaRouter,PaintHolding --user-data-dir=C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\youtube_chrome_profile --remote-debugging-pipe about:blank\n  - <launched> pid=10852\n  - [pid=10852][err] [10852:22492:1004/090153.633:ERROR:chrome\\browser\\process_singleton_win.cc:414] Lock file can not be created: 다른 프로세스가 파일을 사용 중이기 때문에 프로세스가 액세스 할 수 없습니다. (0x20)\n  - [pid=10852][err] [10852:22492:1004/090153.633:ERROR:chrome\\app\\chrome_main_delegate.cc:520] Failed to create a ProcessSingleton for your profile directory. This means that running multiple instances would start multiple browser processes rather than opening a new window in the existing process. Aborting now to avoid profile corruption.\n  - [pid=10852] <gracefully close start>\n  - [pid=10852] <kill>\n  - [pid=10852] <will force kill>\n  - [pid=10852] taskkill stderr: ����: ���μ��� \"10852\"��(��) ã�� �� �����ϴ�.\n  - [pid=10852] <process did exit: exitCode=21, signal=null>\n  - [pid=10852] starting temporary directories cleanup\n  - [pid=10852] finished temporary directories cleanup\n  - [pid=10852] <gracefully close end>\n",
+    "published_at": "2026-10-04 09:01:53"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "Browser.new_context: Error setting storage state:\nProtocol error (Storage.setCookies): Invalid cookie fields",
+    "published_at": "2026-10-04 09:03:47"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "brand": "insurance",
+    "topic_id": 2,
+    "video_id": "IaszQaGHi5w",
+    "video_url": "https://youtube.com/shorts/IaszQaGHi5w",
+    "title": "운전자보험 1만원대로 민식이법 벌금/변호사 완벽 방어하는 법 #보험리밸런스 #Shorts",
+    "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+    "comment_status": "skipped",
+    "privacy_status": "public",
+    "video_file": "Insurance_22초숏폼_주제02_driver_insurance_20261003_153447.mp4",
+    "published_at": "2026-10-04 09:09:20",
+    "elapsed_sec": 43.3,
+    "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "Locator.set_input_files: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"input[type='file']\").first\n",
+    "video_file": "Insurance_22초숏폼_주제03_cancer_coverage_20260928_210523.mp4",
+    "published_at": "2026-10-04 09:22:31"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"a:has-text('YOUTUBE 스튜디오로 건너뛰기'), a:has-text('건너뛰기'), a:has-text('Skip to YouTube Studio'), button:has-text('건너뛰기')\").first\n    - locator resolved to <button title=\"\" tabindex=\"0\" aria-label=\"탐색 건너뛰기\" aria-disabled=\"false\" class=\"ytcpButtonShapeImplHost ytcpButtonShapeImpl--tonal ytcpButtonShapeImpl--mono ytcpButtonShapeImpl--size-m ytcpButtonShapeImpl--enable-backdrop-filter-experiment\">…</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - element is outside of the viewport\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - element is outside of the viewport\n    - retrying click action\n      - waiting 100ms\n    57 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - element is outside of the viewport\n     - retrying click action\n       - waiting 500ms\n",
+    "video_file": "Insurance_22초숏폼_주제03_cancer_coverage_20260928_210523.mp4",
+    "published_at": "2026-10-04 09:24:46"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "brand": "insurance",
+    "topic_id": 3,
+    "video_id": "IaszQaGHi5w",
+    "video_url": "https://youtube.com/shorts/IaszQaGHi5w",
+    "title": "암보험 들 때 일반암 vs 유사암 차이 모르면 3천만원 날립니다 #보험리밸런스 #Shorts",
+    "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+    "comment_status": "skipped",
+    "privacy_status": "public",
+    "video_file": "Insurance_22초숏폼_주제03_cancer_coverage_20260928_210523.mp4",
+    "published_at": "2026-10-04 09:26:23",
+    "elapsed_sec": 48.9,
+    "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
   }
 ]

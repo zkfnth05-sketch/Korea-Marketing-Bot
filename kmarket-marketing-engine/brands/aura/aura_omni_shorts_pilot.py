@@ -39,7 +39,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from config import BASE_DIR, get_now_kst_str
 from brands.aura.aura_hashtag_matrix import AuraHashtagMatrix
-from brands.aura.aura_youtube_api_publisher import AuraYouTubeAPIPublisher
+from brands.aura.aura_youtube_bot_publisher import AuraYouTubeBotPublisher
 from brands.aura.aura_naver_clip_publisher import AuraNaverClipPublisher
 from brands.aura.aura_meta_publisher import AuraMetaPublisher
 from brands.aura.aura_mbs_reels_publisher import AuraMBSReelsPublisher
@@ -67,7 +67,7 @@ class AuraOmniShortsPilot:
 
     def __init__(self):
         self.hashtag_matrix = AuraHashtagMatrix()
-        self.youtube_pub = AuraYouTubeAPIPublisher()
+        self.youtube_pub = AuraYouTubeBotPublisher(headless=True)
         self.clip_pub = AuraNaverClipPublisher()
         self.meta_pub = AuraMetaPublisher()
         self.mbs_pub = AuraMBSReelsPublisher()
@@ -227,8 +227,8 @@ class AuraOmniShortsPilot:
             self.save_publish_history(results)
             return results
 
-        # 4. [Channel 1] 유튜브 쇼츠 1회 API 송출
-        logger.info(f"🔴 [1/4 유튜브 쇼츠 API 송출] 주제 #{target_topic} 발사...")
+        # 4. [Channel 1] 유튜브 쇼츠 브라우저 봇 직접 송출
+        logger.info(f"🔴 [1/4 유튜브 쇼츠 브라우저 봇 직접 송출] 주제 #{target_topic} 발사...")
         try:
             yt_res = self.youtube_pub.publish_short(
                 video_path=fresh_video,

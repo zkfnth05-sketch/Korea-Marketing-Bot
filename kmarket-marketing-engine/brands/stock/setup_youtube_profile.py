@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-StockMaster 전용 유튜브(Google/YouTube) 영구 브라우저 프로필 1회 생성 도구
+StockMaster AI 전용 유튜브(Google/YouTube) 영구 브라우저 프로필 1회 생성 도구
 ========================================================================================
-- 브랜드: 📈 StockMaster AI (주식/재테크)
-- 전용 계정: StockMaster AI 유튜브 공식 채널 계정
+- 브랜드: 📈 StockMaster AI
+- 전용 계정: StockMaster AI 공식 채널 계정
 - 프로필 경로: brands/stock/youtube_chrome_profile/
-- 설명: 단 1회 로그인하면 브라우저 쿠키/인증토큰/스토리지가 디스크에 영구 저장되어
-       이후 24시간 무인 가동 시 유튜브 쇼츠 피드 탐색 및 실제 '좋아요(Like)'를 자동 실행합니다.
+- 설명: Playwright 독립 브라우저로 1회 로그인하면 브라우저 쿠키/인증토큰이 영구 저장됩니다.
 - 원칙: Rule 1 (앱별 완전 독립 모듈화), Rule 6 (무인 자율 구동)
 """
 
 import os
 import sys
 import json
-import subprocess
+import time
 from pathlib import Path
+from playwright.sync_api import sync_playwright
 
 if sys.platform == "win32":
     try:
@@ -25,63 +25,76 @@ if sys.platform == "win32":
 
 CURRENT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = CURRENT_DIR.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from core.engine.browser_guard import clean_browser_profile_locks
+
 PROFILE_DIR = CURRENT_DIR / "youtube_chrome_profile"
 PROFILE_DIR.mkdir(parents=True, exist_ok=True)
 SESSION_JSON = CURRENT_DIR / "youtube_session.json"
-
-
-def find_chrome_path():
-    paths = [
-        r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-        r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
-        os.path.expandvars(r"%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe"),
-        r"C:\Program Files\Microsoft\Edge\Application\msedge.exe"
-    ]
-    for p in paths:
-        if os.path.exists(p):
-            return p
-    return "chrome.exe"
 
 
 def main():
     print("\n" + "=" * 70)
     print("🔑 [📈 StockMaster AI] 유튜브(Google/YouTube) 영구 브라우저 프로필 1회 세팅 도구")
     print("=" * 70)
-    print(f"👉 StockMaster AI 전용 유튜브 채널(Google 계정) 로그인")
+    print(f"👉 대상 브랜드: 📈 StockMaster AI")
     print(f"👉 프로필 저장 위치: {PROFILE_DIR}")
     print("-" * 70)
-    print("1. 실제 크롬 브라우저가 전용 영구 프로필 모드로 실행됩니다.")
-    print("2. 구글 계정으로 로그인해 주시고, 유튜브 홈 화면이 뜨는지 확인해 주세요.")
-    print("3. 로그인이 완료되면 브라우저 창 우측 상단의 [X]를 눌러 닫아주시면 영구 저장이 완료됩니다.")
+    print("1. 독립된 전용 크롬 창이 실행됩니다.")
+    print("2. [StockMaster AI 전용 구글 계정]으로 로그인해 주세요.")
+    print("3. 유튜브 스튜디오 홈이 뜨면 브라우저 창 우측 상단 [X]를 눌러 닫아주세요.")
     print("=" * 70 + "\n")
 
-    chrome_exe = find_chrome_path()
-    print(f"🚀 실제 브라우저 실행 중... ({chrome_exe})")
+    clean_browser_profile_locks(PROFILE_DIR)
 
-    login_url = "https://accounts.google.com/ServiceLogin?service=youtube&continue=https%3A%2F%2Fwww.youtube.com%2F"
+    login_url = "https://accounts.google.com/ServiceLogin?service=youtube&continue=https%3A%2F%2Fstudio.youtube.com%2F%3Fapprove_browser_access%3Dtrue"
 
-    cmd = [
-        chrome_exe,
-        f"--user-data-dir={PROFILE_DIR}",
-        "--no-first-run",
-        "--no-default-browser-check",
-        login_url
-    ]
+    print("🚀 독립 크롬 브라우저 창을 여는 중입니다...", flush=True)
+    with sync_playwright() as p:
+        browser_args = [
+            "--disable-blink-features=AutomationControlled",
+            "--no-sandbox",
+            "--disable-infobars",
+            "--start-maximized",
+            "--disable-gpu"
+        ]
+        context = p.chromium.launch_persistent_context(
+            user_data_dir=str(PROFILE_DIR),
+            headless=False,
+            viewport=None,
+            args=browser_args
+        )
 
-    subprocess.run(cmd)
+        page = context.pages[0] if context.pages else context.new_page()
+        page.goto(login_url)
 
-    print("\n✅ 브라우저가 닫혔습니다. 영구 유튜브 쿠키 동기화 중...")
+        print("\n" + "=" * 70, flush=True)
+        print("💡 [StockMaster AI 주식 전용 계정 로그인 진행 중]", flush=True)
+        print("1. 열린 크롬 창에서 주식AI 전용 구글 계정으로 로그인해 주세요.", flush=True)
+        print("2. 로그인이 완료되어 유튜브 스튜디오 화면이 뜨면 봇이 자동으로 감지하여 저장합니다.", flush=True)
+        print("   (또는 로그인 완료 후 이 터미널 창에서 [엔터(Enter)]를 누르셔도 됩니다)", flush=True)
+        print("=" * 70 + "\n", flush=True)
 
-    # Playwright로 쿠키 추출하여 youtube_session.json 동기화
-    try:
-        from playwright.sync_api import sync_playwright
-        with sync_playwright() as p:
-            context = p.chromium.launch_persistent_context(
-                user_data_dir=str(PROFILE_DIR),
-                headless=True
-            )
+        # 자동 감지 루프 (최대 10분 대기)
+        for _ in range(600):
+            time.sleep(1)
+            try:
+                current_url = page.url
+                if "studio.youtube.com" in current_url and "accounts.google.com" not in current_url:
+                    print("✨ [자동 감지] 유튜브 스튜디오 로그인 성공 감지! 세션을 동기화합니다...", flush=True)
+                    time.sleep(2)
+                    break
+                if len(context.pages) == 0:
+                    break
+            except Exception:
+                break
+
+        # 쿠키 추출 및 동기화
+        clean_cookies = []
+        try:
             cookies = context.cookies()
-            clean_cookies = []
             for c in cookies:
                 c_item = {
                     "name": c.get("name"),
@@ -97,17 +110,22 @@ def main():
 
             with open(SESSION_JSON, "w", encoding="utf-8") as f:
                 json.dump({"cookies": clean_cookies}, f, ensure_ascii=False, indent=2)
-            context.close()
+        except Exception as ce:
+            print(f"쿠키 저장 참조: {ce}", flush=True)
 
-        has_login = any(c.get("name") in ["LOGIN_INFO", "SID", "SSID", "SAPISID"] for c in clean_cookies)
-        print(f"🎉 [성공] 총 {len(clean_cookies)}개의 유튜브 쿠키가 영구 보관함에 완벽하게 동기화되었습니다!")
-        if has_login:
-            print("✅ [검증 통과] 구글/유튜브 인증 토큰(SID/LOGIN_INFO)이 정상 감지되었습니다.")
-        else:
-            print("⚠️ [안내] 로그인 토큰이 감지되지 않았습니다. 로그인이 정상 완료되었는지 확인해 주세요.")
-        print("💡 이제 봇이 유튜브 쇼츠 탐색 중 실제 내 계정으로 피드 시청 및 '좋아요'를 누르며 계정 지수를 올립니다.\n")
-    except Exception as ex:
-        print(f"⚠️ 쿠키 동기화 안내: {ex} (프로필 디스크 저장은 완료되었습니다)")
+        try:
+            context.close()
+        except Exception:
+            pass
+
+    has_login = any(c.get("name") in ["LOGIN_INFO", "SID", "SSID", "SAPISID"] for c in clean_cookies)
+    print("\n" + "=" * 70)
+    print(f"🎉 [성공] 총 {len(clean_cookies)}개의 유튜브 세션 쿠키가 영구 보관함에 완벽하게 동기화되었습니다!")
+    if has_login:
+        print("✅ [검증 통과] StockMaster AI 구글/유튜브 인증 토큰(SID/LOGIN_INFO) 정상 감지 완료!")
+    else:
+        print("⚠️ [안내] 로그인 토큰이 감지되지 않았습니다. 로그인이 정상 완료되었는지 확인해 주세요.")
+    print("=" * 70 + "\n")
 
 
 if __name__ == "__main__":

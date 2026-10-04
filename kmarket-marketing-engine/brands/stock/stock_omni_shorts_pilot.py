@@ -39,7 +39,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from config import BASE_DIR, get_now_kst_str
 from brands.stock.stock_hashtag_matrix import StockHashtagMatrix
-from brands.stock.stock_youtube_api_publisher import StockYouTubeAPIPublisher
+from brands.stock.stock_youtube_bot_publisher import StockYouTubeBotPublisher
 from brands.stock.stock_naver_clip_publisher import StockNaverClipPublisher
 from brands.stock.stock_meta_publisher import StockMetaPublisher
 from brands.stock.stock_mbs_reels_publisher import StockMBSReelsPublisher
@@ -67,7 +67,7 @@ class StockOmniShortsPilot:
 
     def __init__(self):
         self.hashtag_matrix = StockHashtagMatrix()
-        self.youtube_pub = StockYouTubeAPIPublisher()
+        self.youtube_pub = StockYouTubeBotPublisher(headless=True)
         self.clip_pub = StockNaverClipPublisher()
         self.meta_pub = StockMetaPublisher()
         self.mbs_pub = StockMBSReelsPublisher()
@@ -228,8 +228,8 @@ class StockOmniShortsPilot:
             self.save_publish_history(results)
             return results
 
-        # 1. 유튜브 쇼츠 1회 API 송출
-        logger.info(f"🔴 [1/4 유튜브 쇼츠 API 송출] 주제 #{target_topic} 발사...")
+        # 1. 유튜브 쇼츠 브라우저 봇 직접 송출
+        logger.info(f"🔴 [1/4 유튜브 쇼츠 브라우저 봇 직접 송출] 주제 #{target_topic} 발사...")
         try:
             yt_res = self.youtube_pub.publish_short(
                 video_path=fresh_video,

@@ -34,17 +34,17 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from config import BASE_DIR, get_now_kst_str
 from brands.insurance.insurance_youtube_stealth_incubator import InsuranceYouTubeStealthIncubator
-from brands.insurance.insurance_youtube_api_publisher import InsuranceYouTubeAPIPublisher
+from brands.insurance.insurance_youtube_bot_publisher import InsuranceYouTubeBotPublisher
 
 logger = logging.getLogger("InsuranceYouTubeHybridPilot")
 
 
 class InsuranceYouTubeHybridPilot:
-    """🚀 보험 리밸런스 유튜브 인간 웜업 & API 배포 통합 관제 엔진"""
+    """🚀 보험 리밸런스 유튜브 인간 웜업 & 브라우저 봇 직접 배포 통합 관제 엔진"""
 
     def __init__(self, headless: bool = True):
         self.incubator = InsuranceYouTubeStealthIncubator(headless=headless)
-        self.publisher = InsuranceYouTubeAPIPublisher()
+        self.publisher = InsuranceYouTubeBotPublisher(headless=headless)
         self.shorts_output_dir = Path(r"C:\Users\zkfnt\Desktop\한국 숏폼_산출물\Insurance")
 
     def find_latest_short_video(self, topic_id: Optional[int] = None) -> Optional[Path]:
@@ -105,10 +105,10 @@ class InsuranceYouTubeHybridPilot:
             logger.info("⏩ [Step 1] 웜업 단계 건너뜀 (요청에 따름)")
             warmup_result = {"status": "skipped", "message": "웜업 스킵됨"}
 
-        # 3. [Step 2] Google Data API v3 0.1초 고속 업로드 & 고정 댓글 등록
+        # 3. [Step 2] YouTube Studio 브라우저 봇 무인 직접 업로드 & 고정 댓글 등록
         publish_result = {}
         if target_video and target_video.exists():
-            logger.info(f"🔴 [Step 2] YouTube Data API v3 숏폼 송출 시작: {target_video.name}")
+            logger.info(f"🔴 [Step 2] YouTube Studio 브라우저 봇 숏폼 송출 시작: {target_video.name}")
             publish_result = self.publisher.publish_short(
                 video_path=str(target_video),
                 topic_id=topic_id,
@@ -130,7 +130,7 @@ class InsuranceYouTubeHybridPilot:
             "warmup": warmup_result,
             "publish": publish_result,
             "total_elapsed_sec": total_elapsed,
-            "summary": "유튜브 웜업 및 API 쇼츠 배포 파이프라인 완결"
+            "summary": "유튜브 웜업 및 브라우저 봇 쇼츠 직접 배포 파이프라인 완결"
         }
 
         logger.info("=" * 70)

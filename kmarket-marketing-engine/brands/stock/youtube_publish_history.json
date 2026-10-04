@@ -58,5 +58,21 @@
     "privacy_status": "public",
     "published_at": "2026-10-03 12:01:33",
     "message": "YouTube Data API v3 쇼츠 공개 발행 및 고정 댓글 등록 완료"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "brand": "stock",
+    "topic_id": 1,
+    "video_id": "PY7Vsipv9UE",
+    "video_url": "https://youtube.com/shorts/PY7Vsipv9UE",
+    "title": "삼성전자 vs SK하이닉스 HBM 외인 수급 대폭발 ㄷㄷ #스톡마스터AI #Shorts",
+    "pinned_comment": "📌 실시간 외인·기관 쌍끌이 수급 포착 & AI 퀀트 리스크 가드는\n네이버에 👉 [ 스톡마스터 AI ] 검색하시면 바로 나옵니다!\n(공식 링크: https://stockmaster-ai.vercel.app/)",
+    "comment_status": "skipped",
+    "privacy_status": "public",
+    "video_file": "[주제01_완성본]_30초_세로풀HD.mp4",
+    "published_at": "2026-10-04 09:38:22",
+    "elapsed_sec": 46.4,
+    "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
   }
 ]

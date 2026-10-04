@@ -39,7 +39,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from config import BASE_DIR, get_now_kst_str
 from brands.insurance.insurance_hashtag_matrix import InsuranceHashtagMatrix
-from brands.insurance.insurance_youtube_api_publisher import InsuranceYouTubeAPIPublisher
+from brands.insurance.insurance_youtube_bot_publisher import InsuranceYouTubeBotPublisher
 from brands.insurance.insurance_naver_clip_publisher import InsuranceNaverClipPublisher
 from brands.insurance.insurance_meta_publisher import InsuranceMetaPublisher
 from brands.insurance.insurance_mbs_reels_publisher import InsuranceMBSReelsPublisher
@@ -67,7 +67,7 @@ class InsuranceOmniShortsPilot:
 
     def __init__(self):
         self.hashtag_matrix = InsuranceHashtagMatrix()
-        self.youtube_pub = InsuranceYouTubeAPIPublisher()
+        self.youtube_pub = InsuranceYouTubeBotPublisher(headless=True)
         self.clip_pub = InsuranceNaverClipPublisher()
         self.meta_pub = InsuranceMetaPublisher()
         self.mbs_pub = InsuranceMBSReelsPublisher()
@@ -227,8 +227,8 @@ class InsuranceOmniShortsPilot:
             self.save_publish_history(results)
             return results
 
-        # 1. 유튜브 쇼츠 1회 API 송출
-        logger.info(f"🔴 [1/4 유튜브 쇼츠 API 송출] 주제 #{target_topic} 발사...")
+        # 1. 유튜브 쇼츠 브라우저 봇 직접 송출
+        logger.info(f"🔴 [1/4 유튜브 쇼츠 브라우저 봇 직접 송출] 주제 #{target_topic} 발사...")
         try:
             yt_res = self.youtube_pub.publish_short(
                 video_path=fresh_video,

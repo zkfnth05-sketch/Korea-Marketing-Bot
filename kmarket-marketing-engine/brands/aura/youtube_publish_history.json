@@ -56,5 +56,28 @@
     "privacy_status": "public",
     "published_at": "2026-10-03 11:29:45",
     "message": "YouTube Data API v3 쇼츠 공개 발행 및 고정 댓글 등록 완료"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "Locator.wait_for: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"ytcp-social-suggestions-textbox#title-textarea #textbox, #title-textarea #textbox, div#textbox[aria-label*='제목'], div#textbox[aria-label*='Title']\").first to be visible\n    58 × locator resolved to hidden <div id=\"textbox\" slot=\"input\" tabindex=\"0\" role=\"textbox\" aria-required=\"true\" aria-invalid=\"false\" aria-disabled=\"false\" contenteditable=\"true\" aria-label=\"동영상을 설명하는 제목을 추가하세요\" class=\"style-scope ytcp-social-suggestions-textbox\">Aura 22초숏폼 주제05 balance match 20260925 203303</div>\n",
+    "video_file": "Aura_22초숏폼_주제05_balance_match_20260925_203303.mp4",
+    "published_at": "2026-10-04 08:38:57"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "brand": "aura",
+    "topic_id": 5,
+    "video_id": "IaszQaGHi5w",
+    "video_url": "https://youtube.com/shorts/IaszQaGHi5w",
+    "title": "2030 남녀가 뽑은 최악의 소개팅 착장 1위는? #아우라AI데이팅 #Shorts",
+    "pinned_comment": "📌 영상에서 나온 50:50 완벽 성비 AI 소개팅 라운지는\n네이버에 👉 [ 아우라AI데이팅 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://aura-ai-dating.vercel.app/)",
+    "comment_status": "skipped",
+    "privacy_status": "public",
+    "video_file": "Aura_22초숏폼_주제05_balance_match_20260925_203303.mp4",
+    "published_at": "2026-10-04 08:55:26",
+    "elapsed_sec": 43.7,
+    "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
   }
 ]
