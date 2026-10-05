@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-InsuranceCTACard - 🏷️ [보험 리밸런스 숏폼 엔딩 댓글 논쟁 및 네이버 공식 검색 CTA 카드]
+InsuranceCTACard - 🏷️ [보험 리밸런스 숏폼 엔딩 다크 에메랄드 그린 글래스모피즘 럭셔리 CTA 카드]
+========================================================================================
 - 1080x1920 세로 풀HD 규격
-- [18초 ~ 22초] 구간 전담 독립 레고 블록
-- 공식 검색어: [보험 리밸런스] (띄어쓰기 100% 필수)
-- 신뢰감 있는 딥 네이비 & 블루/실버 프리미엄 핀테크 에디토리얼 디자인
+- 카드뉴스 5번 CTA와 100% 동일한 럭셔리 글래스모피즘 & 엠비언트 글로우 디자인 룩 이식
+- ⚡ 88% vs 12% 찬반 토론 배틀 (시청자 댓글 참여 유도 극대화)
+- 🛡️ 3대 안심 혜택 (34개사 실시간 비교 / PII-Free / 0.1초 자가진단)
+- 🔍 네이버 공식 규격 검색창 ['보험 리밸런스' (띄어쓰기 100% 필수)]
+- Playwright 1080x1920 초고화질 서브픽셀 렌더링 & ffmpeg 초고속 무손실 MP4 인코딩
 """
 
 import os
@@ -14,7 +17,8 @@ import tempfile
 import logging
 import subprocess
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from typing import Dict, Any, Optional
+from playwright.sync_api import sync_playwright
 import imageio_ffmpeg
 
 if sys.platform == "win32":
@@ -28,222 +32,326 @@ logger = logging.getLogger("InsuranceCTACard")
 
 
 class InsuranceCTACard:
-    """🛡️ 보험 리밸런스 숏폼 엔딩 공식 검색어 CTA 비디오 생성기 (1080x1920)"""
+    """🛡️ 보험 리밸런스 숏폼 엔딩 다크 에메랄드 글래스모피즘 CTA 비디오 생성기 (1080x1920)"""
 
-    # ── 팔레트 (베이지 럭셔리 에디토리얼) ──────────────────────────────────────
-    BG_BEIGE     = (247, 243, 235, 255) # #F7F3EB (Warm Champagne Beige)
-    GLOW_BEIGE   = (255, 255, 255, 160)
-    TEXT_BRAND   = (145, 115, 80, 255)  # Refined Bronze Gold
-    TEXT_SUB     = (120, 115, 105, 255) # Warm Taupe Gray
-    TEXT_HERO    = (18, 24, 38, 255)    # Deep Slate Midnight Navy
-    TEXT_DEBATE  = (35, 45, 60, 255)    # Deep Slate Dark
-    DIV_COLOR    = (215, 198, 180)      # Champagne Gradient Line
-    PILL_BORDER  = (222, 208, 192, 255)
-    PILL_SHADOW  = (195, 180, 160, 75)
-    GLOW_TEXT    = (200, 185, 165, 80)
-    NAVER_GREEN  = (3, 199, 90, 255)
+    BRAND_NAME = "보험 리밸런스"
+    BRAND_SUB = "34개사 실시간 비교"
+    OFFICIAL_SEARCH = "보험 리밸런스"
+    OFFICIAL_URL = "insure-rebalance.vercel.app"
 
     def __init__(self):
         self.ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
         self.w = 1080
         self.h = 1920
 
-    def _get_font(self, size: int, bold: bool = True) -> ImageFont.FreeTypeFont:
-        candidates = [
-            r"C:\Windows\Fonts\malgunbd.ttf" if bold else r"C:\Windows\Fonts\malgun.ttf",
-            r"C:\Windows\Fonts\segoeuib.ttf" if bold else r"C:\Windows\Fonts\segoeui.ttf",
-            r"C:\Windows\Fonts\arialbd.ttf"  if bold else r"C:\Windows\Fonts\arial.ttf",
-        ]
-        for p in candidates:
-            if os.path.exists(p):
-                try:
-                    return ImageFont.truetype(p, size)
-                except Exception:
-                    continue
-        return ImageFont.load_default()
-
-    def _draw_divider(self, draw: ImageDraw.Draw, y: int, color=(215, 198, 180), thickness: int = 2):
-        """중앙에서 양끝으로 페이드아웃되는 샴페인 수평 구분선"""
-        cx = self.w // 2
-        half = 380
-        for dx in range(-half, half + 1):
-            x = cx + dx
-            ratio = abs(dx) / half
-            alpha = int(255 * (1.0 - ratio ** 1.5))
-            for t in range(thickness):
-                draw.point((x, y + t), fill=(color[0], color[1], color[2], alpha))
-
-    def _draw_bg_glow(self, img: Image.Image):
-        """베이지 캔버스 위 중앙 소프트 웜 글로우"""
-        overlay = Image.new("RGBA", (self.w, self.h), (0, 0, 0, 0))
-        od = ImageDraw.Draw(overlay)
-        cx, cy = self.w // 2, self.h // 2
-        for radius in range(480, 0, -2):
-            alpha = int(160 * (1.0 - radius / 480.0) ** 1.8)
-            od.ellipse(
-                [cx - radius * 2, cy - radius, cx + radius * 2, cy + radius],
-                fill=(255, 255, 255, alpha)
-            )
-        img.alpha_composite(overlay)
-
-    def _draw_particles(self, img: Image.Image, seed: int = 101):
-        """웜 샴페인 미세 파티클"""
-        import random
-        rng = random.Random(seed)
-        overlay = Image.new("RGBA", (self.w, self.h), (0, 0, 0, 0))
-        d = ImageDraw.Draw(overlay)
-        for _ in range(50):
-            x = rng.randint(60, self.w - 60)
-            y = rng.randint(60, self.h - 60)
-            r = rng.uniform(1.0, 2.5)
-            alpha = rng.randint(25, 75)
-            d.ellipse([x - r, y - r, x + r, y + r], fill=(210, 180, 140, alpha))
-        img.alpha_composite(overlay)
-
-    def _draw_search_pill(
-        self, img: Image.Image,
-        center_y: int,
-        search_keyword: str = "보험 리밸런스",
-        glow_intensity: float = 1.0
-    ):
-        """네이버 공식 검색창 (고광택 화이트 알약 + 초록 N 배지 + 띄어쓰기 100% 필수)"""
-        bar_y1, bar_y2 = center_y - 67, center_y + 68
-        bar_x1, bar_x2 = 110, 970
-
-        # 1. 섀도우
-        pill_shadow_layer = Image.new("RGBA", (self.w, self.h), (0, 0, 0, 0))
-        psd = ImageDraw.Draw(pill_shadow_layer)
-        psd.rounded_rectangle(
-            [(bar_x1 - 4, bar_y1 + 4), (bar_x2 + 4, bar_y2 + 14)],
-            radius=60, fill=self.PILL_SHADOW
-        )
-        pill_shadow_layer = pill_shadow_layer.filter(ImageFilter.GaussianBlur(radius=16))
-        img.alpha_composite(pill_shadow_layer)
-
-        # 2. 본체
-        draw = ImageDraw.Draw(img)
-        draw.rounded_rectangle(
-            [(bar_x1, bar_y1), (bar_x2, bar_y2)],
-            radius=54, fill=(255, 255, 255, 255), outline=self.PILL_BORDER, width=2
-        )
-
-        # 3. [N] 아이콘
-        n_x1, n_y1 = bar_x1 + 16, bar_y1 + 14
-        n_x2, n_y2 = n_x1 + 110, bar_y2 - 14
-        draw.rounded_rectangle([(n_x1, n_y1), (n_x2, n_y2)], radius=22, fill=self.NAVER_GREEN)
-        f_naver_n = self._get_font(50, bold=True)
-        draw.text(((n_x1 + n_x2) // 2, (n_y1 + n_y2) // 2), "N", font=f_naver_n, fill=(255, 255, 255, 255), anchor="mm")
-
-        # 4. 키워드 ('보험 리밸런스' - 띄어쓰기 필수!)
-        f_search = self._get_font(48, bold=True)
-        draw.text((n_x2 + 28, (bar_y1 + bar_y2) // 2), search_keyword, font=f_search, fill=(15, 23, 42, 255), anchor="lm")
-
-    def render_cta_frame(
+    def render_cta_frame_image(
         self,
-        topic_title: str,
-        debate_question: str,
+        output_png_path: str,
+        topic_title: str = "내 보험 정밀 비교 & 새는 보험료 다이어트",
+        debate_question: str = "보험 리모델링 시, 설계사 권유 가입 vs 34개사 AI 비교?",
         search_keyword: str = "보험 리밸런스",
-        hero_copy: str = "중복·과납 잡는 1건씩 개별 정밀 분석!",
-        t_normalized: float = 0.0,
-        sub_desc: str = ""
-    ) -> Image.Image:
-        """1080x1920 세로 풀HD 베이지 럭셔리 CTA 단일 프레임 렌더링"""
-        img = Image.new("RGBA", (self.w, self.h), self.BG_BEIGE)
-        self._draw_bg_glow(img)
-        self._draw_particles(img, seed=101 + int(t_normalized * 10))
+        hero_copy: str = "내가 내는 보험료 그대로 보장 최대 업그레이드!",
+        debate_opt1_title: str = "🤖 34개사 AI 객관적 비교 선택",
+        debate_opt1_sub: str = "동일 보험료로 보장 가장 큰 상품 자율 선택",
+        debate_opt1_rate: str = "88% (대세)",
+        debate_opt2_title: str = "👤 지인/설계사 추천 상품 유지",
+        debate_opt2_sub: str = "기존 권유받은 패키지 그대로 유지",
+        debate_opt2_rate: str = "12%",
+        benefit_items: Optional[list] = None
+    ) -> str:
+        """Playwright를 활용한 1080x1920 다크 에메랄드 글래스모피즘 CTA 단일 프레임 렌더링"""
+        out_p = Path(output_png_path).resolve()
+        out_p.parent.mkdir(parents=True, exist_ok=True)
 
-        draw = ImageDraw.Draw(img)
+        if not benefit_items:
+            benefit_items = [
+                "34개 보험사 객관적 시뮬레이션 비교",
+                "이름·전화번호 입력 제로 (PII-Free 안심 구조)",
+                "0.1초 만에 동일 보험료 대비 최대 보장 자가진단"
+            ]
 
-        # 1. 상단 장식선
-        self._draw_divider(draw, y=260, color=self.DIV_COLOR, thickness=1)
+        html_content = f"""<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Insurance Shorts Ending CTA (1080x1920)</title>
+  <!-- Pretendard Font -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * {{
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }}
+    body {{
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 25%, #052e1d 0%, #02170e 50%, #010a06 100%);
+      color: #fff;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 70px 52px 65px;
+    }}
 
-        # 2. 브랜드 영문 서브타이틀
-        f_label = self._get_font(30, bold=False)
-        brand_text = "—   I N S U R E   R E B A L A N C E   —"
-        draw.text((self.w // 2, 310), brand_text, font=f_label, fill=self.TEXT_BRAND, anchor="mm")
+    /* 글래스 박스 및 글로우 (Deep Forest & Emerald Green) */
+    .glass-box {{
+      background: rgba(4, 30, 20, 0.88);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1.5px solid rgba(16, 185, 129, 0.40);
+      border-radius: 32px;
+      padding: 40px 44px;
+      box-shadow: 0 0 60px rgba(16, 185, 129, 0.22), 0 25px 60px rgba(0, 0, 0, 0.9);
+    }}
 
-        # 3. 서브 카피
-        actual_topic = sub_desc.strip() if sub_desc.strip() else topic_title
-        f_sub = self._get_font(40, bold=False)
-        draw.text((self.w // 2, 780), actual_topic, font=f_sub, fill=self.TEXT_SUB, anchor="mm")
+    .ambient-glow {{
+      position: absolute;
+      top: 15%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 900px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.35) 0%, rgba(5, 150, 105, 0.15) 50%, rgba(0,0,0,0) 80%);
+      filter: blur(80px);
+      z-index: 1;
+      pointer-events: none;
+    }}
 
-        # 4. 영웅 헤드라인 (대형 타이포그래피 + 엠비언트 섀도우)
-        actual_hero = hero_copy.strip()
-        target_size = 80
-        if len(actual_hero) > 18:
-            target_size = 60
-        elif len(actual_hero) > 14:
-            target_size = 68
-        elif len(actual_hero) > 10:
-            target_size = 76
-        f_hero = self._get_font(target_size, bold=True)
+    .naver-green {{
+      background: #03C75A;
+      color: #FFFFFF;
+    }}
 
-        glow_layer = Image.new("RGBA", (self.w, self.h), (0, 0, 0, 0))
-        gd = ImageDraw.Draw(glow_layer)
-        gd.text((self.w // 2, 902), actual_hero, font=f_hero, fill=self.GLOW_TEXT, anchor="mm")
-        glow_layer = glow_layer.filter(ImageFilter.GaussianBlur(radius=10))
-        img.alpha_composite(glow_layer)
+    .naver-glow {{
+      box-shadow: 0 0 45px rgba(3, 199, 90, 0.50), 0 15px 35px rgba(0, 0, 0, 0.6);
+    }}
 
-        draw = ImageDraw.Draw(img)
-        draw.text((self.w // 2, 900), actual_hero, font=f_hero, fill=self.TEXT_HERO, anchor="mm")
+    .accent-badge {{
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.15) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.6);
+    }}
 
-        # 5. 메인 구분선
-        self._draw_divider(draw, y=1020, color=self.DIV_COLOR, thickness=2)
+    .pulse-opt1 {{
+      border: 2px solid #10B981;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(4, 30, 20, 0.85) 100%);
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.35);
+    }}
+  </style>
+</head>
+<body>
 
-        # 6. 논쟁 / 질문 카피
-        f_cta = self._get_font(42, bold=False)
-        draw.text((self.w // 2, 1085), debate_question, font=f_cta, fill=self.TEXT_DEBATE, anchor="mm")
+  <!-- Ambient Glow -->
+  <div class="ambient-glow"></div>
 
-        # 7. 네이버 공식 규격 검색창
-        self._draw_search_pill(img, center_y=1237, search_keyword=search_keyword)
+  <!-- 1. Top Header -->
+  <div class="flex justify-between items-center z-10 w-full">
+    <div class="inline-flex items-center gap-3 bg-slate-900/90 backdrop-blur-md border border-emerald-500/40 rounded-full py-3.5 px-7 shadow-2xl">
+      <span class="text-2xl">🛡️</span>
+      <span class="text-xl font-black tracking-wider text-white">{self.BRAND_NAME}</span>
+      <span class="text-base font-bold text-emerald-300 pl-3 border-l border-white/20">{self.BRAND_SUB}</span>
+    </div>
 
-        # 8. 검색 유도 안내
-        f_hint = self._get_font(36, bold=False)
-        hint_text = "지금 네이버에서 직접 검색해보세요"
-        draw.text((self.w // 2, 1380), hint_text, font=f_hint, fill=self.TEXT_SUB, anchor="mm")
+    <div class="text-emerald-400 font-black text-lg bg-slate-900/90 backdrop-blur-md px-6 py-3.5 rounded-full border border-emerald-500/40 shadow-2xl tracking-wider">
+      공식 검색 CTA &gt;
+    </div>
+  </div>
 
-        # 9. 하단 장식선
-        self._draw_divider(draw, y=1650, color=self.DIV_COLOR, thickness=1)
+    <!-- 2. Main Debate Card -->
+    <div class="glass-box z-10 w-full max-w-[980px] flex flex-col gap-6 p-8 rounded-[32px] text-left">
+      <!-- Debate Badge -->
+      <div class="flex items-center justify-between">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-sm font-black">
+          <span>⚡</span>
+          <span>보험 리밸런스 현실 토론</span>
+        </div>
+        <span class="text-sm font-semibold text-emerald-300">소비자 공감 1위 🔥</span>
+      </div>
 
-        # 10. 공식 도메인
-        f_dom = self._get_font(28, bold=False)
-        dom_text = "insure-rebalance.vercel.app"
-        draw.text((self.w // 2, 1700), dom_text, font=f_dom, fill=(145, 140, 130, 255), anchor="mm")
+      <!-- Debate Question -->
+      <h2 class="text-3xl font-black text-white leading-snug tracking-tight">
+        "{debate_question.strip('"').strip("'")}"
+      </h2>
 
-        return img.convert("RGB")
+      <!-- Options Box -->
+      <div class="grid grid-cols-2 gap-4 pt-2">
+        <!-- Option 1 (Winner) -->
+        <div class="vote-card rounded-2xl p-5 border-l-4 border-l-emerald-400 bg-emerald-500/10 border-emerald-400/30 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-emerald-300">OPTION 1</span>
+            <span class="text-xs font-black text-emerald-300">{debate_opt1_rate}</span>
+          </div>
+          <p class="text-base font-black text-white leading-snug">{debate_opt1_title}</p>
+          <p class="text-xs text-slate-300 leading-relaxed">{debate_opt1_sub}</p>
+        </div>
+
+        <!-- Option 2 -->
+        <div class="vote-card rounded-2xl p-5 border-l-4 border-l-rose-400 bg-rose-500/10 border-rose-400/30 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-rose-300">OPTION 2</span>
+            <span class="text-xs font-bold text-slate-400">{debate_opt2_rate}</span>
+          </div>
+          <p class="text-base font-black text-white leading-snug">{debate_opt2_title}</p>
+          <p class="text-xs text-slate-300 leading-relaxed">{debate_opt2_sub}</p>
+        </div>
+      </div>
+
+      <!-- Zero Cost Benefits Box (Integrated) -->
+      <div class="benefit-box rounded-2xl p-4.5 text-left">
+        <p class="text-xs font-black text-emerald-300 flex items-center gap-2 mb-2">
+          <span>🎁</span>
+          <span>지금 보험 리밸런스 무료 자가진단 시 즉시 제공 혜택:</span>
+        </p>
+        <div class="grid grid-cols-3 gap-3 text-xs font-bold text-slate-200">
+          <div class="flex items-center gap-1.5">
+            <span class="text-emerald-400 font-black">✔</span>
+            <span>{benefit_items[0] if len(benefit_items) > 0 else '34개 보험사 객관적 비교'}</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-emerald-400 font-black">✔</span>
+            <span>{benefit_items[1] if len(benefit_items) > 1 else '주민번호 0% 안심 구조'}</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-emerald-400 font-black">✔</span>
+            <span>{benefit_items[2] if len(benefit_items) > 2 else '0.1초 숨은 보장 자가진단'}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- 4. Naver Search CTA Box -->
+    <div class="z-10 w-full flex flex-col items-center space-y-3 pt-2">
+      <!-- Official Naver Search Bar -->
+      <div class="w-full bg-white rounded-2xl p-4.5 flex items-center justify-between naver-glow border-2 border-[#03C75A]">
+        <!-- Naver N Logo & Keyword -->
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-[#03C75A] flex items-center justify-center font-black text-white text-2xl shadow-md">
+            N
+          </div>
+          <div class="text-left">
+            <p class="text-xs font-bold text-slate-500">네이버 검색창에 입력하세요</p>
+            <p class="text-3xl font-black text-slate-900 tracking-tight">{search_keyword}</p>
+          </div>
+        </div>
+
+        <!-- Search Button with Magnifier -->
+        <div class="bg-[#03C75A] text-white font-black text-lg px-8 py-3.5 rounded-xl flex items-center gap-2 shadow-lg">
+          <span>검색</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+      </div>
+      
+      <!-- Sub CTA text -->
+      <p class="text-sm text-emerald-300 font-bold tracking-wide pt-1">
+        👉 네이버에 '보험 리밸런스'를 검색하고 내 보험 0.1초 자가진단을 시작하세요!
+      </p>
+    </div>
+
+  </div>
+
+  <!-- 5. Bottom Footer (Official Landing URL & Copyright) -->
+  <div class="flex justify-between items-center z-10 w-full px-6 pt-3 border-t border-white/10 text-xs text-slate-400 font-medium">
+    <div>
+      <span class="text-slate-500">Official Web:</span>
+      <span class="text-emerald-400 font-bold ml-1">https://insure-rebalance.vercel.app/</span>
+    </div>
+    <div class="text-slate-500 text-xs">
+      © 2026 InsureBalance. All rights reserved.
+    </div>
+  </div>
+
+</body>
+</html>"""
+
+
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page(viewport={"width": 1080, "height": 1920})
+            page.set_content(html_content, wait_until="networkidle")
+            page.screenshot(path=str(out_p), type="png")
+            browser.close()
+
+        logger.info(f"✨ [InsuranceCTACard] 다크 에메랄드 글래스모피즘 CTA 프레임 렌더링 완료: {out_p}")
+        return str(out_p)
+
+    def render_cta_image(
+        self,
+        topic_title: str = "내 보험 정밀 비교 & 새는 보험료 다이어트",
+        debate_question: str = "보험 리모델링 시, 설계사 권유 가입 vs 34개사 AI 비교?",
+        search_keyword: str = "보험 리밸런스",
+        hero_copy: str = "내가 내는 보험료 그대로 보장 최대 업그레이드!",
+        **kwargs
+    ):
+        """PIL Image 객체로 반환하는 래퍼 메서드"""
+        from PIL import Image
+        temp_dir = Path(tempfile.mkdtemp(prefix="insure_cta_pil_"))
+        temp_png = temp_dir / "insure_cta_frame.png"
+        try:
+            self.render_cta_frame_image(
+                output_png_path=str(temp_png),
+                topic_title=topic_title,
+                debate_question=debate_question,
+                search_keyword=search_keyword,
+                hero_copy=hero_copy,
+                **kwargs
+            )
+            return Image.open(str(temp_png)).convert("RGB")
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
     def create_cta_segment_mp4(
         self,
         output_path: str,
-        duration_sec: float = 4.0,
+        duration_sec: float = 2.0,
         fps: int = 30,
-        topic_title: str = "내 보험 숨은 중복 보장 & 새는 보험료 색출",
-        debate_question: str = "지금 내는 보험료에서 얼마가 새고 있을까?",
+        topic_title: str = "내 보험 정밀 비교 & 새는 보험료 다이어트",
+        debate_question: str = "보험 리모델링 시, 설계사 권유 가입 vs 34개사 AI 비교?",
         search_keyword: str = "보험 리밸런스",
-        hero_copy: str = "중복·과납 잡는 1건씩 개별 정밀 분석!"
+        hero_copy: str = "내가 내는 보험료 그대로 보장 최대 업그레이드!",
+        **kwargs
     ) -> str:
-        """4.0초 베이지 럭셔리 엔딩 CTA 비디오 MP4 생성"""
+        """
+        초고화질 다크 에메랄드 글래스모피즘 CTA 세그먼트 MP4 초고속 생성
+        """
         out_p = Path(output_path).resolve()
         out_p.parent.mkdir(parents=True, exist_ok=True)
 
-        total_frames = int(duration_sec * fps)
-        temp_dir = Path(tempfile.mkdtemp(prefix="insure_cta_"))
-        try:
-            for f_idx in range(total_frames):
-                t_norm = f_idx / total_frames
-                frame = self.render_cta_frame(
-                    topic_title=topic_title,
-                    debate_question=debate_question,
-                    search_keyword=search_keyword,
-                    hero_copy=hero_copy,
-                    t_normalized=t_norm
-                )
-                frame.save(str(temp_dir / f"frame_{f_idx:04d}.jpg"), "JPEG", quality=95)
+        temp_dir = Path(tempfile.mkdtemp(prefix="insure_cta_glass_"))
+        frame_png = temp_dir / "cta_master_frame.png"
 
+        try:
+            self.render_cta_frame_image(
+                output_png_path=str(frame_png),
+                topic_title=topic_title,
+                debate_question=debate_question,
+                search_keyword=search_keyword,
+                hero_copy=hero_copy,
+                debate_opt1_title=kwargs.get("debate_opt1_title", "🤖 34개사 AI 객관적 비교 선택"),
+                debate_opt1_sub=kwargs.get("debate_opt1_sub", "동일 보험료로 보장 가장 큰 상품 자율 선택"),
+                debate_opt1_rate=kwargs.get("debate_opt1_rate", "88% (대세)"),
+                debate_opt2_title=kwargs.get("debate_opt2_title", "👤 지인/설계사 추천 상품 유지"),
+                debate_opt2_sub=kwargs.get("debate_opt2_sub", "기존 권유받은 패키지 그대로 유지"),
+                debate_opt2_rate=kwargs.get("debate_opt2_rate", "12%"),
+                benefit_items=kwargs.get("benefit_items")
+            )
+
+            # ffmpeg 루프로 초고속 무손실 MP4 인코딩
             cmd = [
                 self.ffmpeg_exe, "-y",
+                "-loop", "1",
+                "-i", str(frame_png),
+                "-t", str(duration_sec),
                 "-r", str(fps),
-                "-i", str(temp_dir / "frame_%04d.jpg"),
                 "-c:v", "libx264",
                 "-pix_fmt", "yuv420p",
                 "-crf", "18",
@@ -251,7 +359,7 @@ class InsuranceCTACard:
                 str(out_p)
             ]
             subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
-            logger.info(f"🏷️ [InsuranceCTACard] CTA 세그먼트 생성 완료: {out_p}")
+            logger.info(f"🎉 [InsuranceCTACard] 숏폼 다크 에메랄드 글래스모피즘 CTA 비디오 완성: {out_p}")
             return str(out_p)
         finally:
             shutil.rmtree(temp_dir, ignore_errors=True)
@@ -259,13 +367,13 @@ class InsuranceCTACard:
 
 if __name__ == "__main__":
     cta = InsuranceCTACard()
-    test_out = r"c:\Users\zkfnt\Desktop\한국 마케팅봇\kmarket-marketing-engine\scratch\test_insurance_cta_beige.mp4"
+    test_out = r"c:\Users\zkfnt\Desktop\한국 마케팅봇\kmarket-marketing-engine\scratch\test_insurance_cta_emerald_1080x1920.mp4"
     cta.create_cta_segment_mp4(
         output_path=test_out,
-        duration_sec=4.0,
-        topic_title="내 보험 숨은 중복 보장 & 새는 보험료 색출",
-        debate_question="지금 내는 보험료에서 얼마가 새고 있을까?",
+        duration_sec=2.0,
+        topic_title="AI 보험료 역추정 비교 & 가성비 리모델링",
+        debate_question="보험 리모델링 시, 설계사 권유 상품 가입 vs 내 보험료 기준 AI 역추정 비교?",
         search_keyword="보험 리밸런스",
-        hero_copy="중복·과납 잡는 1건씩 개별 정밀 분석!"
+        hero_copy="매달 내는 보험료 역추정 분석!"
     )
-    print("✅ [InsuranceCTACard] 베이지 럭셔리 테스트 CTA 비디오 생성 완료:", test_out)
+    print("✅ [InsuranceCTACard] 다크 에메랄드 글래스모피즘 테스트 CTA 비디오 생성 완료:", test_out)

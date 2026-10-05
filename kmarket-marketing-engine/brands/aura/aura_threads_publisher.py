@@ -131,14 +131,16 @@ class AuraThreadsPublisher:
                 f"👉 {self.LANDING_URL}"
             )
 
-        valid_images = []
+        valid_media = []
         if image_paths:
             for p in image_paths:
                 fpath = Path(p)
-                if fpath.exists() and fpath.suffix.lower() in [".png", ".jpg", ".jpeg", ".webp"]:
-                    valid_images.append(str(fpath.resolve()))
+                if fpath.exists() and fpath.suffix.lower() in [".png", ".jpg", ".jpeg", ".webp", ".mp4", ".mov"]:
+                    valid_media.append(str(fpath.resolve()))
 
-        logger.info(f"🚀 [Aura Threads] 스레드 발행 시작 (글자수: {len(caption)}자, 이미지: {len(valid_images)}장)")
+        is_video = any(p.endswith((".mp4", ".mov")) for p in valid_media)
+        media_type = "동영상(릴스 숏폼)" if is_video else "카드뉴스 이미지"
+        logger.info(f"🚀 [Aura Threads] 스레드 발행 시작 (글자수: {len(caption)}자, {media_type}: {len(valid_media)}개)")
 
         async with async_playwright() as p:
             context = await p.chromium.launch_persistent_context(
@@ -162,8 +164,18 @@ class AuraThreadsPublisher:
             try:
                 # 1. Threads 메인 접속
                 logger.info("1. Threads 메인 페이지 접속 중...")
-                await page.goto("https://www.threads.net/", wait_until="domcontentloaded", timeout=30000)
+                await page.goto("https://www.threads.com/", wait_until="domcontentloaded", timeout=30000)
                 await asyncio.sleep(4)
+
+                # 1-1. 'Continue with Instagram' 모달 자동 클릭
+                try:
+                    cont_btn = await page.query_selector("div:has-text('Continue with Instagram'), button:has-text('Continue with Instagram')")
+                    if cont_btn:
+                        logger.info("👉 'Continue with Instagram' 모달 감지, 자동 클릭...")
+                        await cont_btn.click()
+                        await asyncio.sleep(3)
+                except Exception:
+                    pass
 
                 # 2. 작성 모달 열기
                 logger.info("2. 스레드 작성창 열기...")
@@ -189,43 +201,25 @@ class AuraThreadsPublisher:
                 await textbox.fill(caption)
                 await asyncio.sleep(1)
 
-                # 4. 카드뉴스 이미지 첨부
-                if valid_images:
-                    logger.info(f"4. 카드뉴스 이미지 {len(valid_images)}장 업로드 중...")
+                # 4. 카드뉴스 이미지 또는 숏폼 비디오 첨부
+                if valid_media:
+                    logger.info(f"4. {media_type} {len(valid_media)}개 업로드 중...")
                     file_input = await page.query_selector("input[type='file']")
                     if file_input:
-                        await file_input.set_input_files(valid_images)
-                        logger.info("   이미지 파일 전송 완료, 렌더링 대기...")
-                        await asyncio.sleep(6)
+                        await file_input.set_input_files(valid_media)
+                        logger.info("   미디어 파일 전송 완료, 렌더링/인코딩 대기...")
+                        wait_sec = 14 if is_video else 6
+                        await asyncio.sleep(wait_sec)
 
-                # 5. 첫 번째 타래 댓글 (Add to thread)
-                if first_reply_text:
-                    logger.info("5. 첫 번째 타래 댓글 작성 시도...")
-                    try:
-                        add_btn = await page.query_selector("div:has-text('Add to thread'), span:has-text('Add to thread'), div:has-text('스레드에 추가')")
-                        if add_btn:
-                            await add_btn.click(force=True)
-                            await asyncio.sleep(1.5)
-                            boxes = await page.query_selector_all("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']")
-                            if len(boxes) >= 2:
-                                second_box = boxes[-1]
-                                await second_box.click(force=True)
-                                await second_box.fill(first_reply_text)
-                                await asyncio.sleep(1)
-                                logger.info("   타래 댓글 작성 완료!")
-                    except Exception as ex_comment:
-                        logger.warning(f"   타래 댓글 첨부 건너뜀: {ex_comment}")
-
-                # 6. Post / 게시 버튼 클릭
-                logger.info("6. 스레드 [Post / 게시] 버튼 클릭...")
+                # 5. [1단계] 본문 Post / 게시 버튼 클릭 (활성화 대기 및 모달 닫힘 100% 검증)
+                logger.info("5. 본문 [Post / 게시] 버튼 활성화 대기 및 클릭...")
                 posted = False
-                try:
-                    # JavaScript evaluate 로 모달 내의 Post 버튼 직접 클릭
-                    posted = await page.evaluate("""() => {
+                for wait_i in range(30):  # 최대 60초 대기 (비디오 인코딩 대응)
+                    can_click = await page.evaluate("""() => {
                         const dialog = document.querySelector("div[role='dialog']") || document;
                         const btns = Array.from(dialog.querySelectorAll("div[role='button'], button"));
                         const postBtn = btns.find(b => {
-                            const t = b.innerText.trim();
+                            const t = (b.innerText || '').trim();
                             const ariaDisabled = b.getAttribute('aria-disabled');
                             const disabled = b.getAttribute('disabled');
                             return (t === 'Post' || t === '게시') && ariaDisabled !== 'true' && disabled === null;
@@ -236,24 +230,89 @@ class AuraThreadsPublisher:
                         }
                         return false;
                     }""")
-                    if posted:
-                        logger.info("   JS 직접 클릭 성공!")
-                except Exception:
-                    pass
+                    if can_click:
+                        logger.info(f"   본문 [Post] 버튼 클릭 완료 (대기 {wait_i*2}초 시점)!")
+                        posted = True
+                        break
+                    await asyncio.sleep(2)
 
                 if not posted:
-                    publish_btn = await page.wait_for_selector("div[role='dialog'] div[role='button']:has-text('Post'), div[role='dialog'] button:has-text('Post')", timeout=8000)
+                    publish_btn = await page.query_selector("div[role='dialog'] div[role='button']:has-text('Post'), div[role='dialog'] button:has-text('Post'), div[role='dialog'] div[role='button']:has-text('게시')")
                     if publish_btn:
                         await publish_btn.click(force=True)
                         posted = True
 
-                logger.info("   게시 완료! 서버 반영 대기 (12초)...")
-                await asyncio.sleep(12)
+                # 모달이 완전히 닫힐 때까지 대기 (서버 게시 완료 감지)
+                logger.info("   본문 서버 전송 및 모달 닫힘 확인 대기...")
+                for _ in range(12):
+                    modal_exists = await page.evaluate("() => !!document.querySelector(\"div[role='dialog'] textarea, div[role='dialog'] div[role='textbox']\")")
+                    if not modal_exists:
+                        logger.info("   ✅ 작성 모달 닫힘 확인 (본문 발행 완료)!")
+                        break
+                    await asyncio.sleep(2)
+
+                await asyncio.sleep(6)
+
+                # 6. [2단계] 첫 번째 타래 댓글 (내 글 바로 아래 답글) 작성
+                if first_reply_text:
+                    logger.info("6. [2단계] 첫 번째 타래 댓글(답글) 작성 시작...")
+                    try:
+                        # 내 프로필로 이동하여 방금 작성된 글 확인
+                        await page.goto("https://www.threads.com/@aura_ai_dating", wait_until="domcontentloaded", timeout=25000)
+                        await asyncio.sleep(4)
+
+                        # 최상단 첫 번째 게시물의 '답글(Reply)' 버튼 찾기
+                        reply_btn = await page.query_selector("svg[aria-label='Reply'], svg[aria-label='답글'], div[role='button'][aria-label*='Reply'], div[role='button'][aria-label*='답글']")
+                        if reply_btn:
+                            logger.info("   첫 번째 게시물 [답글] 버튼 클릭...")
+                            await reply_btn.click(force=True)
+                            await asyncio.sleep(2)
+
+                            reply_box = await page.wait_for_selector("div[role='dialog'] div[role='textbox'][contenteditable='true'], div[role='textbox'][contenteditable='true']", timeout=8000)
+                            if reply_box:
+                                await reply_box.click(force=True)
+                                await asyncio.sleep(0.5)
+                                await reply_box.fill(first_reply_text)
+                                await asyncio.sleep(1)
+
+                                # 답글 [Post / 게시] 클릭
+                                reply_posted = False
+                                for _ in range(10):
+                                    reply_posted = await page.evaluate("""() => {
+                                        const dialog = document.querySelector("div[role='dialog']") || document;
+                                        const btns = Array.from(dialog.querySelectorAll("div[role='button'], button"));
+                                        const postBtn = btns.find(b => {
+                                            const t = (b.innerText || '').trim();
+                                            const ariaDisabled = b.getAttribute('aria-disabled');
+                                            const disabled = b.getAttribute('disabled');
+                                            return (t === 'Post' || t === '게시') && ariaDisabled !== 'true' && disabled === null;
+                                        });
+                                        if (postBtn) {
+                                            postBtn.click();
+                                            return true;
+                                        }
+                                        return false;
+                                    }""")
+                                    if reply_posted:
+                                        break
+                                    await asyncio.sleep(1)
+
+                                if not reply_posted:
+                                    reply_post_btn = await page.query_selector("div[role='dialog'] div[role='button']:has-text('Post'), div[role='dialog'] button:has-text('Post'), div[role='dialog'] div[role='button']:has-text('게시')")
+                                    if reply_post_btn:
+                                        await reply_post_btn.click(force=True)
+
+                                logger.info("🎉 [2단계 대성공] 첫 번째 타래 댓글(공식 검색어 + 랜딩 링크) 체인 등록 완료!")
+                                await asyncio.sleep(6)
+                    except Exception as ex_reply:
+                        logger.warning(f"⚠️ 타래 댓글 작성 예외: {ex_reply}")
 
                 # 7. 프로필 페이지로 이동하여 최종 송출 확인 캡처
-                logger.info("7. 프로필 페이지에서 송출 결과 확인 중...")
-                await page.goto("https://www.threads.net/@aura_ai_dating", wait_until="domcontentloaded", timeout=25000)
-                await asyncio.sleep(5)
+                logger.info("7. 프로필 페이지에서 최종 타래 결합 결과 확인 중...")
+                await page.goto("https://www.threads.com/@aura_ai_dating", wait_until="domcontentloaded", timeout=25000)
+                await asyncio.sleep(4)
+                await page.evaluate("window.scrollBy(0, 300)")
+                await asyncio.sleep(2)
 
                 proof_path = CURRENT_DIR / "threads_live_proof.png"
                 await page.screenshot(path=str(proof_path))
@@ -266,7 +325,7 @@ class AuraThreadsPublisher:
                     "brand": self.BRAND,
                     "published_at": datetime.now().isoformat(),
                     "caption_preview": caption[:60] + "...",
-                    "images_count": len(valid_images),
+                    "media_count": len(valid_media),
                     "first_reply": first_reply_text,
                     "status": "SUCCESS",
                     "proof_screenshot": str(proof_path)

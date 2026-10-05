@@ -85,78 +85,137 @@ class StockHashtagMatrix:
     }
 
     @classmethod
-    def get_instagram_hashtags(cls, topic_id: int = 1, count: int = 18) -> List[str]:
-        """인스타그램 알고리즘 탐색탭 노출용 18~20개 정밀 4단 해시태그 리스트 반환"""
+    def fetch_live_trend_keywords(cls) -> List[str]:
+        """🌐 구글 실시간 급상승(Google Trends) + 🟢 네이버 실시간 주식/증시 검색 트렌드(Naver Trend) 듀얼 교차 수집"""
+        trends = []
+        import urllib.request
+        import urllib.parse
+        import json
+        import xml.etree.ElementTree as ET
+
+        # 1. 🌐 구글 실시간 급상승 검색어 (Google Trends KR RSS)
+        try:
+            url_google = "https://trends.google.com/trending/rss?geo=KR"
+            req_g = urllib.request.Request(url_google, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
+            with urllib.request.urlopen(req_g, timeout=2.5) as resp:
+                xml_text = resp.read().decode("utf-8", errors="ignore")
+                root = ET.fromstring(xml_text)
+                for item in root.findall("./channel/item"):
+                    title = item.find("title")
+                    if title is not None and title.text:
+                        w = title.text.strip().replace(" ", "").replace("#", "")
+                        if w and len(w) < 12 and f"#{w}" not in trends:
+                            trends.append(f"#{w}")
+                    if len(trends) >= 2:
+                        break
+        except Exception as eg:
+            logger.debug(f"Google Trends 수집 건너뜀: {eg}")
+
+        # 2. 🟢 네이버 실시간 핫이슈 & 주식/증시/수급 실시간 검색어 (Naver AC API)
+        naver_seeds = ["오늘 핫이슈", "코스피 주도주", "오늘 급등주", "주식 수급"]
+        for seed in naver_seeds:
+            try:
+                encoded_q = urllib.parse.quote(seed)
+                url_nv = f"https://ac.search.naver.com/nx/ac?q={encoded_q}&st=100&frm=nv&ans=2&r_format=json"
+                req_nv = urllib.request.Request(url_nv, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
+                with urllib.request.urlopen(req_nv, timeout=2.0) as resp:
+                    data = json.loads(resp.read().decode("utf-8", errors="ignore"))
+                    items = data.get("items", [[]])[0]
+                    for it in items:
+                        if isinstance(it, list) and len(it) > 0:
+                            w = it[0].strip().replace(" ", "").replace("#", "")
+                            if w and len(w) < 12 and f"#{w}" not in trends:
+                                trends.append(f"#{w}")
+                        if len(trends) >= 4:
+                            break
+            except Exception:
+                pass
+            if len(trends) >= 4:
+                break
+
+        fallback = ["#실시간트렌드", "#국내증시", "#주식시황", "#투자트렌드"]
+        for fb in fallback:
+            if fb not in trends and len(trends) < 4:
+                trends.append(fb)
+        return trends[:4]
+
+    @classmethod
+    def get_rich_viral_hashtags(cls, topic_id: int = 1, count: int = 18) -> List[str]:
+        """무광고 오가닉 바이럴 극대화: 브랜드 공식 태그 + 구글/네이버 실시간 급상승(최우선) + 주제별 롱테일 + 증시/메가 태그 결합"""
         norm_id = ((topic_id - 1) % 8) + 1
         tags: List[str] = []
 
-        # 1. 브랜드 공식 태그 (Tier 4)
-        tags.extend(cls.BRAND_TAGS)
+        # 1. 🏷️ 브랜드 공식 핵심 태그 (2개)
+        tags.extend(cls.BRAND_TAGS[:2])
 
-        # 2. 주제별 롱테일 태그 6~8개 (Tier 3)
+        # 2. 🌐 구글 + 🟢 네이버 실시간 급상승 트렌드 키워드 (4개, 최우선 100% 보장!)
+        live_trends = cls.fetch_live_trend_keywords()
+        tags.extend(live_trends)
+
+        # 3. 🎯 주제별 킬러 롱테일 소구점 태그 (5~6개)
         topic_tags = cls.TOPIC_LONGTAIL_TAGS.get(norm_id, cls.TOPIC_LONGTAIL_TAGS[1])
-        tags.extend(topic_tags[:7])
+        tags.extend(topic_tags[:6])
 
-        # 3. 미들 트렌드 태그 4~5개 (Tier 2)
+        # 4. ☕ 국내 대형주 / 배당주 / 수급 미들 태그 (3개)
         tags.extend(cls.MID_TREND_TAGS["korea_stocks"][:2])
-        tags.extend(cls.MID_TREND_TAGS["etf_dividend"][:3])
+        tags.extend(cls.MID_TREND_TAGS["etf_dividend"][:1])
 
-        # 4. 대형 메가 태그 3~4개 (Tier 1)
-        tags.extend(cls.MEGA_TAGS[:4])
+        # 5. 🚀 10만+ 대형 메가 키워드 (3개)
+        tags.extend(cls.MEGA_TAGS[:3])
 
+        # 중복 제거 및 최대 개수 슬라이싱
         seen = set()
         unique_tags = []
         for t in tags:
-            if t not in seen:
-                seen.add(t)
-                unique_tags.append(t)
+            clean_t = t.strip()
+            if not clean_t.startswith("#"):
+                clean_t = f"#{clean_t}"
+            if clean_t not in seen:
+                seen.add(clean_t)
+                unique_tags.append(clean_t)
             if len(unique_tags) >= count:
                 break
 
         return unique_tags
 
     @classmethod
-    def get_threads_hashtags(cls, topic_id: int = 1, count: int = 4) -> List[str]:
-        """스레드(Threads) 텍스트 바이럴용 핵심 3~4개 해시태그 반환"""
-        norm_id = ((topic_id - 1) % 8) + 1
-        topic_tags = cls.TOPIC_LONGTAIL_TAGS.get(norm_id, cls.TOPIC_LONGTAIL_TAGS[1])
-        tags = ["#스톡마스터AI"] + topic_tags[:2] + ["#주식고민"]
-        return tags[:count]
+    def get_instagram_hashtags(cls, topic_id: int = 1, count: int = 18) -> List[str]:
+        """인스타그램 알고리즘 탐색탭 노출용 18~20개 정밀 4단 해시태그 리스트 반환"""
+        return cls.get_rich_viral_hashtags(topic_id=topic_id, count=count)
 
     @classmethod
-    def get_facebook_hashtags(cls, topic_id: int = 1, count: int = 6) -> List[str]:
-        """페이스북(Facebook) 피드용 5~6개 해시태그 반환"""
-        norm_id = ((topic_id - 1) % 8) + 1
-        topic_tags = cls.TOPIC_LONGTAIL_TAGS.get(norm_id, cls.TOPIC_LONGTAIL_TAGS[1])
-        tags = ["#스톡마스터AI", "#StockMasterAI", "#주식투자"] + topic_tags[:3]
-        return tags[:count]
+    def get_threads_hashtags(cls, topic_id: int = 1, count: int = 15) -> List[str]:
+        """스레드(Threads) 알고리즘 노출 폭발 15~18개 실시간 트렌드 융합 해시태그 반환"""
+        return cls.get_rich_viral_hashtags(topic_id=topic_id, count=count)
 
     @classmethod
-    def get_shorts_hashtags(cls, topic_id: int = 1) -> str:
-        """유튜브 쇼츠 / 틱톡 / 릴스용 통합 해시태그 문자열 반환"""
-        norm_id = ((topic_id - 1) % 8) + 1
-        topic_tags = cls.TOPIC_LONGTAIL_TAGS.get(norm_id, cls.TOPIC_LONGTAIL_TAGS[1])
-        tag_list = ["#스톡마스터AI"] + topic_tags[:4] + ["#주식꿀팁", "#Shorts", "#Reels", "#TikTok"]
-        return " ".join(tag_list)
+    def get_facebook_hashtags(cls, topic_id: int = 1, count: int = 12) -> List[str]:
+        """페이스북(Facebook) 피드용 10~12개 해시태그 반환"""
+        return cls.get_rich_viral_hashtags(topic_id=topic_id, count=count)
 
     @classmethod
-    def get_youtube_shorts_hashtags(cls, topic_id: int = 1, count: int = 7) -> List[str]:
-        """유튜브 쇼츠 전용 해시태그 리스트 반환 (호환 래퍼)"""
-        norm_id = ((topic_id - 1) % 8) + 1
-        topic_tags = cls.TOPIC_LONGTAIL_TAGS.get(norm_id, cls.TOPIC_LONGTAIL_TAGS[1])
-        tags = ["#스톡마스터AI"] + topic_tags[:4] + ["#Shorts", "#Reels"]
-        return tags[:count]
+    def get_shorts_hashtags(cls, topic_id: int = 1, count: int = 15) -> str:
+        """유튜브 쇼츠 / 틱톡 / 릴스용 15개 실시간 트렌드 통합 해시태그 문자열 반환"""
+        tags = cls.get_rich_viral_hashtags(topic_id=topic_id, count=count)
+        return " ".join(tags)
+
+    @classmethod
+    def get_youtube_shorts_hashtags(cls, topic_id: int = 1, count: int = 12) -> List[str]:
+        """유튜브 쇼츠 전용 해시태그 리스트 반환"""
+        return cls.get_rich_viral_hashtags(topic_id=topic_id, count=count)
 
     @classmethod
     def get_naver_tags(cls, topic_id: int = 1) -> str:
         """네이버 블로그 / 포스트 / 카페용 검색 태그 문자열 반환"""
         norm_id = ((topic_id - 1) % 8) + 1
         topic_tags = cls.TOPIC_LONGTAIL_TAGS.get(norm_id, cls.TOPIC_LONGTAIL_TAGS[1])
-        tag_list = ["#스톡마스터AI"] + topic_tags[:5] + ["#주식비교", "#퀀트투자", "#미국주식추천"]
+        tag_list = ["#스톡마스터AI"] + topic_tags[:5] + ["#주식비교", "#퀀트투자", "#미국주식추천", "#실시간트렌드"]
         return " ".join(tag_list)
 
 
 if __name__ == "__main__":
     matrix = StockHashtagMatrix()
-    print("=== 인스타그램 4단 해시태그 풀 (주제 #1) ===")
+    print("=== 인스타그램 4단 해시태그 풀 (주제 #1, 18개) ===")
     print(" ".join(matrix.get_instagram_hashtags(1, 18)))
+    print("\n=== 스레드 실시간 트렌드 해시태그 (주제 #1, 15개) ===")
+    print(" ".join(matrix.get_threads_hashtags(1, 15)))

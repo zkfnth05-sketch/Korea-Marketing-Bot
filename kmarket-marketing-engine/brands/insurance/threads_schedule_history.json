@@ -1,0 +1,44 @@
+[
+  {
+    "brand": "insurance",
+    "slot_id": "morning_text",
+    "slot_type": "text",
+    "timestamp": "2026-10-05T11:49:30.281682",
+    "success": true,
+    "result": {
+      "success": true,
+      "brand": "insurance",
+      "mode": "DRY_RUN",
+      "slot": "morning",
+      "content": {
+        "brand": "insurance",
+        "brand_name": "보험 리밸런스",
+        "slot": "morning",
+        "topic": "치과 치료 받기 전에 반드시 확인해야 할 숨은 실손 보장",
+        "caption": "매달 낸 보험료, 치과 치료에 못 쓰면 아깝죠? 100만원 깨지기 전, 내 보험 속 숨은 실손 보장 꼭 확인하세요!\n\n실손보험, 일반 치과 치료(충치, 임플란트 등)는 대부분 제외죠. 하지만 부상 치료나 턱관절 장애, 구강 염증 등 특정 질병은 실손 적용이 가능합니다. 💡 치료 전 의사에게 '실손 청구 가능 여부' 문의, 진단명 확인은 필수!\n\n애매하다면 보험사 콜센터에 직접 문의하세요. 내 돈 지키는 습관, 지금 시작하세요!\n\n#보험리밸런스 #InsureBalance #김승연 #면허 #오늘핫이슈 #생활비절약노하우 #암보험진단비 #일반암유사암 #갑상선암보험 #소액암진단비 #암보험비교추천 #표적항암치료 #보험다이어트 #보험료줄이기 #실비보험",
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "hashtags": [
+          "#보험리밸런스",
+          "#InsureBalance",
+          "#김승연",
+          "#면허",
+          "#오늘핫이슈",
+          "#생활비절약노하우",
+          "#암보험진단비",
+          "#일반암유사암",
+          "#갑상선암보험",
+          "#소액암진단비",
+          "#암보험비교추천",
+          "#표적항암치료",
+          "#보험다이어트",
+          "#보험료줄이기",
+          "#실비보험"
+        ],
+        "created_at": "2026-10-05T11:49:30.279184",
+        "character_count": 361,
+        "has_images": false,
+        "local_file": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\threads_text\\insurance_thread_text_morning_20261005_114930.json"
+      }
+    }
+  }
+]

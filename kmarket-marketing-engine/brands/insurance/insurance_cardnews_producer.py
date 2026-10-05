@@ -184,15 +184,9 @@ class InsuranceCardnewsProducer:
         for slide_num in range(1, len(slides) + 1):
             slide_raw = slides[slide_num - 1]
             slide_copy = copy_data.get(f"slide{slide_num}", slide_raw)
-
-            card_info = {
-                "badge": slide_copy.get("badge", slide_raw.get("badge")),
-                "title": slide_copy.get("title", slide_raw.get("title")),
-                "subtitle": slide_copy.get("subtitle", slide_raw.get("subtitle")),
-                "bullets": slide_copy.get("bullets", slide_raw.get("bullets", [])),
-                "cta_button": slide_copy.get("cta_button", slide_raw.get("cta_button")),
-                "image_prompt": slide_raw.get("image_prompt", "")
-            }
+            card_info = {**slide_raw, **slide_copy}
+            if "image_prompt" not in card_info:
+                card_info["image_prompt"] = slide_raw.get("image_prompt", "")
 
             # 3번, 4번 또는 5번 슬라이드의 경우 전용 빌더 연동
             saved_file = target_dir / f"slide_{slide_num}.png"

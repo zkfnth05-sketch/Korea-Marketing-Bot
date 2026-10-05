@@ -1,0 +1,44 @@
+[
+  {
+    "brand": "aura",
+    "slot_id": "morning_text",
+    "slot_type": "text",
+    "timestamp": "2026-10-05T11:48:59.762198",
+    "success": true,
+    "result": {
+      "success": true,
+      "brand": "aura",
+      "mode": "DRY_RUN",
+      "slot": "morning",
+      "content": {
+        "brand": "aura",
+        "brand_name": "Aura AI 데이팅",
+        "slot": "morning",
+        "topic": "썸녀/썸남 답장 텀으로 알아보는 찐 호감 시그널 3가지",
+        "caption": "솔직히 답장 텀에 너무 의미 부여 마요, 언니 오빠들! ㅠㅠ 카톡 답장 텀 1시간? 5분? 속도보다 중요한 '찐 호감 시그널' 3가지 풀어볼게요. ㅋㅋㅋ\n\n첫째, 답장 속도 느려도 내용이 길고 질문 많으면 찐이에요. 더 대화하고 싶다는 증거거든요! 둘째, 내 사소한 얘기 기억하고 관련 질문까지 해줘요. 나한테 집중하는 거죠. 셋째, 이모티콘이랑 다음 만남/대화 '떡밥'을 먼저 던져줘요.\n\n답장 텀으로 조마조마하기보단, 답장의 '밀도'를 보세요! 그게 진짜 호감 시그널이거든요. 😉\n\n#아우라AI데이팅 #AURA #김승연 #면허 #오늘핫이슈 #2030트렌드 #소개팅탈출 #소개팅긴급탈출 #소개팅매너 #소개팅빌런 #소개팅후기 #소개팅2차 #성수동데이트 #연남동소개팅 #카톡심리",
+        "first_reply": "💖 2030 매력 진단 & AI 매칭 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/",
+        "hashtags": [
+          "#아우라AI데이팅",
+          "#AURA",
+          "#김승연",
+          "#면허",
+          "#오늘핫이슈",
+          "#2030트렌드",
+          "#소개팅탈출",
+          "#소개팅긴급탈출",
+          "#소개팅매너",
+          "#소개팅빌런",
+          "#소개팅후기",
+          "#소개팅2차",
+          "#성수동데이트",
+          "#연남동소개팅",
+          "#카톡심리"
+        ],
+        "created_at": "2026-10-05T11:48:59.758197",
+        "character_count": 378,
+        "has_images": false,
+        "local_file": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\aura\\threads_text\\aura_thread_text_morning_20261005_114859.json"
+      }
+    }
+  }
+]

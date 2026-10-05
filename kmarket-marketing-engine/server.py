@@ -1929,6 +1929,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
             "golden_eight_details": GOLDEN_EIGHT_DETAILS,
             "golden_batch_summary": golden_batch_producer.get_today_production_summary(),
             "today_live_feed": today_live_tracker.get_all_live_feed(),
+            "auth_sentinel": (lambda: __import__('core.platform_auth_sentinel', fromlist=['PlatformAuthSentinel']).PlatformAuthSentinel.get_full_diagnostic_report())(),
             "gpu_status": gpu_lock_manager.get_status(),
             "recent_logs": recent_logs[-50:]
         }

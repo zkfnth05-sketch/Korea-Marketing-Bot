@@ -362,12 +362,13 @@ class AuraShortsProducer(BaseShortsProducer):
             topic_id=topic_id
         )
 
-        # 8. [Step 6] 22초 하이브리드 완제품 컴포징 (단일 통음성 100% 무손실 연속 재생 + Aura 22초 공식 로고 배지)
+        # 8. [Step 6] 22초 하이브리드 완제품 컴포징 (단일 통음성 100% 무손실 연속 재생 + 상단 좌측 공식 브랜드 캡슐 뱃지)
         final_mp4_name = f"Aura_22초숏폼_주제{topic_id:02d}_{scenario.get('theme_code', 'topic')}_{dt_str}.mp4"
         final_mp4_path = str(out_folder / final_mp4_name)
-        aura_logo_overlay = AuraBrandLogo.get_overlay_1080x1920()
+        from .shorts_brand_capsule_badge import ShortsBrandCapsuleBadge
+        aura_logo_overlay = ShortsBrandCapsuleBadge.get_overlay_path("aura")
 
-        logger.info("✨ [Step 6] 1080p 세로 풀HD 22초 하이브리드 비디오 최종 컴포징 (단일 통음성 직결 + 22초 Aura 공식 로고)...")
+        logger.info("✨ [Step 6] 1080p 세로 풀HD 22초 하이브리드 비디오 최종 컴포징 (단일 통음성 직결 + 상단 좌측 Aura 캡슐 뱃지)...")
         self.composer.compose_hybrid_22s_shorts(
             clip_person_path=person_clip_path,
             clip_app_path=app_clip_path,
@@ -385,7 +386,7 @@ class AuraShortsProducer(BaseShortsProducer):
         )
 
 
-        # 9. [순수 100% 인물 클로즈업 원테이크 1080x1920 세로 풀HD 단독 완제품 생성] (Aura 공식 로고 일체형)
+        # 9. [순수 100% 인물 클로즈업 원테이크 1080x1920 세로 풀HD 단독 완제품 생성] (Aura 공식 캡슐 뱃지 일체형)
         pure_one_take_name = f"Aura_10초_순수인물_원테이크_주제{topic_id:02d}_{scenario.get('theme_code', 'topic')}_{dt_str}.mp4"
         pure_one_take_path = str(out_folder / pure_one_take_name)
         cmd_pure = [

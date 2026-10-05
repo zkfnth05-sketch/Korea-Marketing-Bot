@@ -41,6 +41,13 @@ _AURA_MORNING_THEMES = [
     {"topic": "2030 직장인 소개팅 삼프터 성공률 300% 올리는 법", "hook": "애프터까지 잘 가놓고 삼프터에서 까이는 사람들의 공통적인 특징."}
 ]
 
+_AURA_AFTERNOON_THEMES = [
+    {"topic": "오후 나른할 때 생각나는 직장인 사내연애 & 썸 현실", "hook": "사내에서 은근히 호감 표시할 때 쓰는 부담 없는 시그널 3가지."},
+    {"topic": "MBTI F와 T가 연애할 때 가장 크게 부딪히는 지점", "hook": "공감 바라는 F와 해결책 내놓는 T가 평화롭게 연애하는 법."},
+    {"topic": "주말 데이트 코스 짤 때 센스 만점 소리 듣는 법", "hook": "웨이팅 지옥 피하고 분위기 챙기는 2030 성수/연남 데이트 꿀팁."},
+    {"topic": "카톡 프로필 사진 하나로 호감도 200% 올리기", "hook": "소개팅 전 카톡 프사만 바꿔도 첫인상 점수 떡상하는 치트키."}
+]
+
 _AURA_EVENING_THEMES = [
     {"topic": "퇴근길 혼술할 때 유독 생각나는 전애인 카톡 심리", "hook": "퇴근하고 밤 11시에 오는 '자니?' 카톡의 진짜 심리학적 의미."},
     {"topic": "남녀가 생각하는 '연락 빈도'의 치명적인 차이점", "hook": "연인 사이에 연락 문제로 싸우기 전에 알아야 할 남녀 심리 팩트."},
@@ -48,14 +55,16 @@ _AURA_EVENING_THEMES = [
     {"topic": "요즘 2030이 남초 어플 거르고 안심 매칭 찾는 이유", "hook": "남초 데이팅앱에서 허위 프로필과 유령 회원에 지친 솔로들의 현실."}
 ]
 
-# 비상용 고품질 폴백 원고 뱅크
+from brands.aura.aura_hashtag_matrix import AuraHashtagMatrix
+
+# 비상용 고품질 폴백 원고 뱅크 (15개 풍성한 해시태그 풀 탑재)
 _AURA_FALLBACK_BANK = [
     {
-        "caption": "소개팅 끝나고 집 갈 때 '오늘 즐거웠어요 조심히 들어가세요!'만 딱 보내면 90%는 그냥 예의상 인사로 끝납니다 ㅠㅠ\n\n진짜 센스 있는 사람은 오늘 밥 먹으면서 나눴던 사소한 대화 하나를 콕 집어서 언급해요.\n\n'오늘 파스타집 진짜 맛있었어요! 추천해주신 디저트 카페도 담에 꼭 가봐요 ㅎㅎ'\n\n이렇게 다음 만남의 핑계를 자연스럽게 만들어주는 게 애프터 성사율 300% 치트키입니다 ✨\n\n#소개팅 #연애팁 #카톡대화 #Aura #2030연애",
+        "caption": "소개팅 끝나고 집 갈 때 '오늘 즐거웠어요 조심히 들어가세요!'만 딱 보내면 90%는 그냥 예의상 인사로 끝납니다 ㅠㅠ\n\n진짜 센스 있는 사람은 오늘 밥 먹으면서 나눴던 사소한 대화 하나를 콕 집어서 언급해요.\n\n'오늘 파스타집 진짜 맛있었어요! 추천해주신 디저트 카페도 담에 꼭 가봐요 ㅎㅎ'\n\n이렇게 다음 만남의 핑계를 자연스럽게 만들어주는 게 애프터 성사율 300% 치트키입니다 ✨\n\n#아우라AI데이팅 #AURA #소개팅 #연애꿀팁 #소개팅카톡 #애프터신청 #연애심리 #2030연애 #직장인소개팅 #성수동데이트 #연남동소개팅 #카톡스몰토크 #실시간트렌드 #티키타카 #솔로탈출",
         "first_reply": "💖 2030 매력 진단 & AI 대화 코칭 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/"
     },
     {
-        "caption": "썸탈 때 상대방 답장 텀 길어진다고 '바쁘세요?' '오늘 뭐해요?' 재촉하는 건 호감도를 깎아먹는 지름길입니다...\n\n사람 심리는 '왜 연락 안 해?'가 아니라 '내 사소한 말을 기억해 줬네'에서 설레는 법이거든요.\n\n상대방이 며칠 전 지나가듯 말했던 취향이나 맛집 사진을 툭 보내보세요. 99% 바로 칼답 옵니다 ㅋㅋㅋ\n\n#연애심리 #썸 #밀당 #카톡답장 #AuraAI",
+        "caption": "썸탈 때 상대방 답장 텀 길어진다고 '바쁘세요?' '오늘 뭐해요?' 재촉하는 건 호감도를 깎아먹는 지름길입니다...\n\n사람 심리는 '왜 연락 안 해?'가 아니라 '내 사소한 말을 기억해 줬네'에서 설레는 법이거든요.\n\n상대방이 며칠 전 지나가듯 말했던 취향이나 맛집 사진을 툭 보내보세요. 99% 바로 칼답 옵니다 ㅋㅋㅋ\n\n#아우라AI데이팅 #AURA #연애심리 #썸 #밀당 #카톡답장 #소개팅대화 #2030직장인 #연애고민 #읽씹탈출 #대화치트키 #강남역소개팅 #을지로데이트 #실시간트렌드 #심리테스트",
         "first_reply": "💖 나와 딱 맞는 500m 안심 인연 찾기\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/"
     }
 ]
@@ -116,11 +125,20 @@ class AuraThreadsTextWriter:
         raise RuntimeError(f"모든 Gemini 키 호출 실패: {last_err}")
 
     def generate_thread_post(self, slot: str = "morning", custom_theme: Optional[str] = None) -> Dict[str, Any]:
-        """스레드 전용 사진 0장 순수 텍스트 포스팅 + 첫 댓글 자동 생성"""
-        theme_pool = _AURA_MORNING_THEMES if slot == "morning" else _AURA_EVENING_THEMES
+        """스레드 전용 사진 0장 순수 텍스트 포스팅 + 실시간 15개 해시태그 + 첫 댓글 자동 생성"""
+        if slot == "morning":
+            theme_pool = _AURA_MORNING_THEMES
+        elif slot == "afternoon":
+            theme_pool = _AURA_AFTERNOON_THEMES
+        else:
+            theme_pool = _AURA_EVENING_THEMES
         chosen_theme = random.choice(theme_pool)
         topic = custom_theme or chosen_theme["topic"]
         hook = chosen_theme["hook"]
+
+        # 실시간 15개 4-Tier 트렌드 해시태그 풀 생성
+        hashtag_list = AuraHashtagMatrix.get_threads_hashtags(topic_id=random.randint(1, 8), count=15)
+        hashtag_str = " ".join(hashtag_list)
 
         full_prompt = f"""당신은 2030 세대에게 폭발적인 공감을 얻는 감성/트렌드 연애 에디터이자 스레드(Threads) 전문 인플루언서입니다.
 아래 조건에 맞춰 사진 없는 순수 텍스트 스레드 글을 작성해 주세요.
@@ -130,24 +148,23 @@ class AuraThreadsTextWriter:
 
 [작성 규칙]
 1. 사진/이미지는 없습니다. 오직 텍스트만으로 강렬한 공감과 재미를 주어야 합니다.
-2. 글자 수는 공백 포함 250자 ~ 380자 이내로 3~4개 문단으로 줄바꿈을 꼭 넣어 작성하십시오.
+2. 본문 글자 수는 공백 포함 200자 ~ 280자 이내로 2~3개 문단으로 줄바꿈을 넣어 간결하고 흡입력 있게 작성하십시오.
 3. 🚨 [본문 URL 금지]: 본문 안에 링크(http/https)나 '링크는 댓글에' 같은 노골적인 홍보 문구를 절대 넣지 마십시오.
 4. 문체: 친근한 대화체 (~해요, ~거든요, ~더라고요, ㅋㅋㅋ, ㅠㅠ 적절히 활용).
-5. 첫 줄은 시선을 끄는 1줄 후킹, 중간은 현실적인 공감 상황 + 1줄 실전 팁, 끝에는 해시태그 3~4개(#소개팅 #연애팁 #2030 #Aura)를 부착해 주세요.
+5. 첫 줄은 시선을 끄는 1줄 후킹, 중간은 현실적인 공감 상황 + 1줄 실전 팁을 담아주세요.
 6. 문장이 중간에 잘리지 않게 완전한 한국어 문장으로 마무리하십시오."""
 
         caption = ""
         try:
             raw_text = self._call_gemini_chain(full_prompt)
-            caption = raw_text.replace("```json", "").replace("```", "").strip()
-            if len(caption) < 100:
-                raise ValueError(f"생성된 텍스트가 너무 짧음 ({len(caption)}자)")
-            if len(caption) > 420:
-                lines = [l for l in caption.split("\n") if l.strip()]
-                caption = "\n\n".join(lines[:6])
-                if len(caption) > 400:
-                    caption = caption[:380] + "..."
-            logger.info(f"✨ [AuraTextWriter] Gemini 신규 텍스트 집필 완료 ({len(caption)}자)")
+            caption_body = raw_text.replace("```json", "").replace("```", "").strip()
+            # 기존 해시태그 제거 후 정밀 결합
+            lines = [l for l in caption_body.split("\n") if l.strip() and not l.strip().startswith("#")]
+            clean_body = "\n\n".join(lines)
+            if len(clean_body) > 320:
+                clean_body = clean_body[:300] + "..."
+            caption = f"{clean_body}\n\n{hashtag_str}"
+            logger.info(f"✨ [AuraTextWriter] Gemini 신규 텍스트 집필 완료 ({len(caption)}자, 해시태그 {len(hashtag_list)}개)")
         except Exception as ex:
             logger.warning(f"⚠️ [AuraTextWriter] Gemini 생성 실패로 비상 폴백 가동: {ex}")
             fallback = random.choice(_AURA_FALLBACK_BANK)
@@ -166,6 +183,7 @@ class AuraThreadsTextWriter:
             "topic": topic,
             "caption": caption,
             "first_reply": first_reply,
+            "hashtags": hashtag_list,
             "created_at": datetime.now().isoformat(),
             "character_count": len(caption),
             "has_images": False

@@ -183,9 +183,11 @@ class AuraCTACard:
             base_data["theme_name"] = topic_title
         if hero_copy and hero_copy != "남초 제로, 50:50 완벽 성비!":
             base_data["hero_copy"] = hero_copy
-        if debate_question and debate_question != "남녀 50:50 정원제, 찬성 vs 반대?":
-            clean_q = debate_question.strip('"')
-            base_data["debate_question"] = f'"{clean_q}"'
+        if debate_question:
+            clean_q = debate_question.strip('"').strip("'")
+            base_data["debate_question"] = clean_q
+        else:
+            base_data["debate_question"] = base_data.get("debate_question", "").strip('"').strip("'")
 
         return base_data
 
@@ -194,7 +196,7 @@ class AuraCTACard:
         data: Dict[str, Any],
         search_keyword: str = "아우라AI데이팅"
     ) -> str:
-        """1080x1920 숏폼 규격 럭셔리 에디토리얼 엔딩 HTML 생성"""
+        """1080x1920 숏폼 규격 럭셔리 에디토리얼 엔딩 HTML 생성 (카드뉴스 5번 슬라이드와 100% 동일한 완벽 디자인)"""
         return f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -214,163 +216,197 @@ class AuraCTACard:
       width: 1080px;
       height: 1920px;
       overflow: hidden;
-      background: radial-gradient(circle at 50% 28%, #161724 0%, #09090e 55%, #020204 100%);
+      background: radial-gradient(circle at 50% 25%, #1f1429 0%, #0d0915 55%, #040307 100%);
       color: #fff;
       position: relative;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 80px 50px 70px;
+      padding: 60px 48px 50px;
     }}
 
     .gold-divider {{
       height: 1.5px;
-      background: linear-gradient(90deg, rgba(212, 175, 55, 0) 0%, rgba(212, 175, 55, 0.85) 50%, rgba(212, 175, 55, 0) 100%);
+      background: linear-gradient(90deg, rgba(251, 146, 60, 0) 0%, rgba(251, 146, 60, 0.85) 50%, rgba(251, 146, 60, 0) 100%);
     }}
 
     .glass-box {{
-      background: rgba(18, 18, 25, 0.85);
+      background: rgba(22, 16, 32, 0.90);
       backdrop-filter: blur(32px);
       -webkit-backdrop-filter: blur(32px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9);
+      border: 1.5px solid rgba(249, 115, 22, 0.45);
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 0 0 50px rgba(249, 115, 22, 0.25);
     }}
 
     .vote-card {{
       background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(18px);
+    }}
+
+    .benefit-box {{
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.14) 0%, rgba(236, 72, 153, 0.10) 100%);
+      border: 1px solid rgba(249, 115, 22, 0.40);
     }}
 
     .naver-glow {{
-      box-shadow: 0 15px 50px rgba(212, 175, 55, 0.35), 0 0 40px rgba(3, 199, 90, 0.3);
+      box-shadow: 0 15px 50px rgba(3, 199, 90, 0.45), 0 0 40px rgba(249, 115, 22, 0.35);
     }}
   </style>
 </head>
 <body>
 
   <!-- Ambient Glows -->
-  <div class="absolute w-[950px] h-[950px] rounded-full bg-amber-500/10 blur-[180px] top-12 left-1/2 -translate-x-1/2 pointer-events-none"></div>
-  <div class="absolute w-[750px] h-[750px] rounded-full bg-emerald-500/10 blur-[160px] bottom-28 right-10 pointer-events-none"></div>
+  <div class="absolute w-[950px] h-[950px] rounded-full bg-orange-500/10 blur-[180px] top-10 left-1/2 -translate-x-1/2 pointer-events-none"></div>
+  <div class="absolute w-[800px] h-[800px] rounded-full bg-pink-500/10 blur-[160px] bottom-20 right-10 pointer-events-none"></div>
 
   <!-- 1. Top Brand Header Bar -->
-  <div class="flex justify-between items-center z-10 w-full px-4">
+  <div class="flex justify-between items-center z-10 w-full px-2">
     <!-- Brand Badge -->
-    <div class="inline-flex items-center gap-3 bg-slate-900/90 backdrop-blur-md border border-white/20 rounded-full py-3 px-6 shadow-2xl">
-      <span class="text-xl">💖</span>
-      <span class="text-lg font-black tracking-wider text-white">AURA</span>
-      <span class="text-sm font-bold text-pink-400 pl-3 border-l border-white/25">{data['theme_name']}</span>
+    <div class="inline-flex items-center gap-3 bg-slate-900/90 backdrop-blur-md border border-white/25 rounded-full py-3 px-6 shadow-2xl">
+      <span class="text-2xl">💖</span>
+      <span class="text-xl font-black tracking-wider text-white">AURA</span>
+      <span class="text-base font-bold text-pink-400 pl-3 border-l border-white/30">50:50 남녀 황금 성비율</span>
     </div>
 
-    <!-- Official Badge -->
-    <div class="text-amber-400 font-extrabold text-sm bg-slate-900/90 backdrop-blur-md px-5 py-3 rounded-full border border-amber-500/40 shadow-2xl tracking-wider">
-      OFFICIAL CTA
+    <!-- Page Index Badge -->
+    <div class="text-amber-400 font-extrabold text-base bg-slate-900/90 backdrop-blur-md px-6 py-3 rounded-full border border-amber-500/50 shadow-2xl tracking-wider">
+      05 / 05 &gt;
     </div>
   </div>
 
   <!-- 2. Main Content Container (Safe Zone Centered) -->
-  <div class="flex flex-col items-center text-center z-10 space-y-9 my-auto px-4 w-full">
+  <div class="flex flex-col items-center text-center z-10 space-y-7 my-auto px-2 w-full">
     
     <!-- Editorial Brand Subtitle -->
-    <div class="flex flex-col items-center space-y-3">
-      <div class="gold-divider w-80"></div>
-      <p class="text-sm tracking-[0.4em] text-[#D4AF37] font-bold uppercase py-1">
-        — A U R A   D A T I N G —
+    <div class="flex flex-col items-center space-y-2">
+      <div class="gold-divider w-96"></div>
+      <p class="text-xs tracking-[0.4em] text-orange-300 font-bold uppercase py-1">
+        — A U R A   D A T I N G   G U A R D I A N —
       </p>
-      <div class="gold-divider w-80"></div>
+      <div class="gold-divider w-96"></div>
     </div>
 
-    <!-- Topic Subtitle -->
-    <p class="text-2xl text-zinc-400 font-semibold tracking-wide">
-      {data['topic_sub']}
-    </p>
-
-    <!-- Hero Title -->
-    <h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-[#E5A934] to-yellow-500 tracking-tight leading-snug drop-shadow-[0_4px_30px_rgba(229,169,52,0.45)] max-w-4xl">
-      {data['hero_copy']}
-    </h1>
-
-    <!-- Debate Question Box -->
-    <div class="glass-box rounded-[36px] p-9 w-full max-w-3xl border border-white/20 space-y-7">
+    <!-- Main Question & Debate Glass Box -->
+    <div class="glass-box rounded-[32px] p-8 w-full max-w-[980px] text-left space-y-6">
       
-      <!-- Question Badge -->
-      <div class="inline-block px-5 py-2 rounded-full bg-pink-500/20 text-pink-400 font-extrabold text-sm tracking-wider border border-pink-500/30">
-        {data['debate_badge']}
+      <!-- Mini Category Badge -->
+      <div class="flex items-center justify-between">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-500/20 border border-orange-400/40 text-orange-300 text-sm font-black">
+          <span>🚨 ⚡</span>
+          <span>{data.get('debate_badge', '2030 핫이슈 찬반 토론')}</span>
+        </div>
+        <span class="text-sm text-amber-300 font-bold">댓글 참여율 1위 🔥</span>
       </div>
 
-      <h2 class="text-3xl font-black text-white leading-relaxed px-4">
-        {data['debate_question']}
-      </h2>
-      <p class="text-base text-zinc-300 font-medium">
-        {data['callout_text']}
-      </p>
+      <!-- Main Headline Question -->
+      <h1 class="text-3xl font-black leading-snug tracking-tight text-white">
+        "{data['debate_question']}"
+      </h1>
 
-      <!-- Vote Options Grid -->
-      <div class="grid grid-cols-2 gap-5 pt-2">
+      <!-- 2 Options Vote Cards -->
+      <div class="grid grid-cols-2 gap-4 pt-2">
+        
         <!-- Option 1 -->
-        <div class="vote-card rounded-2xl p-6 text-left space-y-3 border-amber-500/40 bg-amber-500/10">
-          <div class="flex items-center gap-3">
-            <span class="text-2xl">{data['opt1_icon']}</span>
-            <span class="text-xl font-black text-amber-300">{data['opt1_title']}</span>
+        <div class="vote-card rounded-2xl p-5 border-l-4 border-l-emerald-400 bg-emerald-500/10 border-emerald-400/30 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-emerald-300">OPTION 1</span>
+            <span class="text-xs font-black text-emerald-300">68% (압도적)</span>
           </div>
-          <p class="text-sm text-zinc-200 font-medium leading-relaxed">
-            {data['opt1_desc']}
+          <p class="text-base font-black text-white leading-snug">
+            "{data.get('opt1_title', '그래도 매너는 지킨다')}"
+          </p>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            {data.get('opt1_desc', '억지로라도 참고 앉아 2차까지 가는 게 사회생활 예의다.')}
           </p>
         </div>
 
         <!-- Option 2 -->
-        <div class="vote-card rounded-2xl p-6 text-left space-y-3 border-zinc-700 bg-white/5">
-          <div class="flex items-center gap-3">
-            <span class="text-2xl">{data['opt2_icon']}</span>
-            <span class="text-xl font-black text-zinc-300">{data['opt2_title']}</span>
+        <div class="vote-card rounded-2xl p-5 border-l-4 border-l-rose-400 bg-rose-500/10 border-rose-400/30 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-rose-300">OPTION 2</span>
+            <span class="text-xs font-bold text-slate-400">32%</span>
           </div>
-          <p class="text-sm text-zinc-400 font-medium leading-relaxed">
-            {data['opt2_desc']}
+          <p class="text-base font-black text-white leading-snug">
+            "{data.get('opt2_title', '내 시간은 소중, 과감히 탈출')}"
           </p>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            {data.get('opt2_desc', '불편한 자리에 소중한 시간 낭비할 바엔 우아하게 탈출!')}
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Member Benefit Box -->
+      <div class="benefit-box rounded-2xl p-4.5 text-left">
+        <p class="text-xs font-black text-orange-300 flex items-center gap-2 mb-2">
+          <span>🎁</span>
+          <span>지금 Aura 무료 가입 시 즉시 지급되는 안심 혜택:</span>
+        </p>
+        <div class="grid grid-cols-3 gap-3 text-xs font-bold text-slate-200">
+          <div class="flex items-center gap-1.5">
+            <span class="text-emerald-400 font-black">✔</span>
+            <span>AI 매칭으로 내 이상형 3초 확인</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-emerald-400 font-black">✔</span>
+            <span>50:50 황금 성비율 매칭 기회</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-emerald-400 font-black">✔</span>
+            <span>실명인증 VIP 라운지 즉시 입장</span>
+          </div>
         </div>
       </div>
 
     </div>
 
-    <!-- 3. Official Naver Search Bar (The Core CTA) -->
-    <div class="w-full max-w-3xl space-y-4 pt-3">
-      <!-- Naver Search Bar -->
-      <div class="w-full h-24 rounded-full bg-white flex items-center px-6 naver-glow border-2 border-amber-300/70">
-        <!-- Green Naver N Badge -->
-        <div class="w-14 h-14 rounded-full bg-[#03C75A] flex items-center justify-center font-black text-white text-3xl tracking-tighter shadow-md">
-          N
+    <!-- 3. Glow Naver Search Bar (The Core CTA) -->
+    <div class="w-full max-w-[980px] flex flex-col items-center space-y-3 pt-2">
+      <div class="w-full bg-white rounded-2xl p-4.5 flex items-center justify-between naver-glow border-2 border-[#03C75A]">
+        <!-- Naver N Logo & Keyword -->
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-[#03C75A] flex items-center justify-center font-black text-white text-2xl shadow-md">
+            N
+          </div>
+          <div class="text-left">
+            <p class="text-xs font-bold text-slate-500">네이버 검색창에 입력하세요</p>
+            <p class="text-3xl font-black text-slate-900 tracking-tight">{search_keyword}</p>
+          </div>
         </div>
-        <!-- Search Keyword Input -->
-        <div class="flex-1 px-6 text-left">
-          <span class="text-xs text-zinc-400 font-bold block uppercase tracking-wider">네이버 공식 검색어</span>
-          <span class="text-3xl font-black text-slate-900 tracking-tight">{search_keyword}</span>
-        </div>
-        <!-- Search Glass Icon Button -->
-        <div class="w-14 h-14 rounded-full bg-slate-950 flex items-center justify-center text-amber-400 shadow-md">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+
+        <!-- Search Button with Magnifier -->
+        <div class="bg-[#03C75A] text-white font-black text-lg px-8 py-3.5 rounded-xl flex items-center gap-2 shadow-lg">
+          <span>검색</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
         </div>
       </div>
-
-      <!-- Search Instruction Text -->
-      <p class="text-lg font-bold text-amber-300 tracking-wide pt-1">
-        🔍 지금 네이버 검색창에 <span class="text-white underline underline-offset-4 decoration-[#03C75A] font-extrabold">'{search_keyword}'</span>을 검색해보세요!
+      
+      <!-- Sub CTA text -->
+      <p class="text-sm text-amber-300 font-bold tracking-wide pt-1">
+        👉 프로필 링크에서 3초 만에 나랑 꼭 맞는 이상형 & 연애 성향 확인하기
       </p>
     </div>
 
   </div>
 
-  <!-- 4. Bottom Footer Info -->
-  <div class="flex flex-col items-center space-y-3 z-10 w-full pt-4">
-    <div class="gold-divider w-full max-w-2xl opacity-60"></div>
-    <div class="flex items-center justify-between w-full max-w-2xl text-sm text-zinc-400 font-semibold px-4">
-      <span>{data['tagline']}</span>
-      <span class="text-amber-400 font-mono tracking-wider">aura-ai-dating.vercel.app</span>
+  <!-- 4. Bottom Footer (Official Landing URL & Copyright) -->
+  <div class="flex justify-between items-center z-10 w-full px-6 pt-3 border-t border-white/10 text-xs text-slate-400 font-medium">
+    <div>
+      <span class="text-slate-500">Official Web:</span>
+      <span class="text-amber-400 font-bold ml-1">https://aura-ai-dating.vercel.app/</span>
+    </div>
+    <div class="text-slate-500 text-xs">
+      © 2026 AURA AI Dating. All rights reserved.
     </div>
   </div>
 
 </body>
 </html>
 """
+
 
     def render_cta_image(
         self,

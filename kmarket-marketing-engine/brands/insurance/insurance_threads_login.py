@@ -103,6 +103,14 @@ async def run_threads_login_flow():
         await context.storage_state(path=str(SESSION_FILE))
         print(f"💾 1. 영구 프로필 및 {SESSION_FILE.name} 세션 동기화 완료")
 
+        try:
+            cookies = await context.cookies()
+            with open(CURRENT_DIR / "threads_cookies.json", "w", encoding="utf-8") as f:
+                json.dump(cookies, f, ensure_ascii=False, indent=2)
+            print("💾 1-1. threads_cookies.json 영구 쿠키 파일 저장 완료")
+        except Exception as ce:
+            logger.warning(f"쿠키 파일 저장 실패: {ce}")
+
         if ACCOUNTS_FILE.exists():
             try:
                 with open(ACCOUNTS_FILE, "r", encoding="utf-8") as f:

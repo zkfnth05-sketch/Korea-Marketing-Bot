@@ -18,6 +18,7 @@ InsuranceMetaScheduler - 🛡️ [보험 리밸런스 전용 하루 2회 인스�
   - 페이스북 및 인스타그램 100% 무인 자동 발행
 """
 
+import re
 import os
 import sys
 import time
@@ -26,7 +27,7 @@ import json
 import logging
 import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 
 if sys.platform == "win32":
     try:
@@ -43,8 +44,14 @@ DATA_DIR = PROJECT_ROOT / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 STATE_FILE = DATA_DIR / "insurance_meta_rotation_state.json"
 
-DESKTOP_CARDNEWS_DIR = Path(r"C:\Users\zkfnt\Desktop\한국 카드뉴스_산출물\Insurance")
-DESKTOP_SHORTS_DIR = Path(r"C:\Users\zkfnt\Desktop\한국 숏폼_산출물\Insurance")
+DESKTOP_CARDNEWS_DIRS = [
+    Path(r"C:\Users\zkfnt\Desktop\한국 카드뉴스_산출물\보험"),
+    Path(r"C:\Users\zkfnt\Desktop\한국 카드뉴스_산출물\Insurance")
+]
+DESKTOP_SHORTS_DIRS = [
+    Path(r"C:\Users\zkfnt\Desktop\한국 숏폼_산출물\보험"),
+    Path(r"C:\Users\zkfnt\Desktop\한국 숏폼_산출물\Insurance")
+]
 
 GOLDEN_TIMES = [
     {"hour": 12, "minute": 0, "label": "점심 재테크 피크"},
@@ -64,14 +71,14 @@ class InsuranceMetaScheduler:
     LANDING_URL = "https://insure-rebalance.vercel.app/"
 
     TOPICS = [
-        {"topic_id": 1, "theme_name": "4세대 실손 전환 손익 계산기"},
-        {"topic_id": 2, "theme_name": "운전자보험 1만원 다이렉트 가입법"},
-        {"topic_id": 3, "theme_name": "중복 가입된 암보험 특약 다이어트"},
-        {"topic_id": 4, "theme_name": "뇌혈관·허혈성 심장질환 필수 보장"},
-        {"topic_id": 5, "theme_name": "종신보험 vs 정기보험 손익 분석"},
-        {"topic_id": 6, "theme_name": "어린이보험 성인 전환 꿀팁"},
-        {"topic_id": 7, "theme_name": "가족 중복보장 정리 30만원 절약"},
-        {"topic_id": 8, "theme_name": "보험 보장 점수 격차 무료 진단"}
+        {"topic_id": 1, "theme_name": "4세대 실손보험 전환 팩트"},
+        {"topic_id": 2, "theme_name": "운전자보험 1만원의 법칙"},
+        {"topic_id": 3, "theme_name": "암보험 일반암 vs 유사암 진실"},
+        {"topic_id": 4, "theme_name": "뇌·심장 질환 뇌출혈 vs 뇌혈관"},
+        {"topic_id": 5, "theme_name": "아는 사람 부탁으로 가입한 보험 손익 분석"},
+        {"topic_id": 6, "theme_name": "어린이·어른이 100세 만기 리모델링"},
+        {"topic_id": 7, "theme_name": "내 보험 정밀 비교 & 새는 보험료 다이어트"},
+        {"topic_id": 8, "theme_name": "AI 보험료 역추정 비교 & 가성비 리모델링"}
     ]
 
     def __init__(self):
@@ -105,23 +112,79 @@ class InsuranceMetaScheduler:
         except Exception as e:
             logger.error(f"❌ 상태 저장 실패: {e}")
 
-    def find_desktop_cardnews(self, topic_id: int) -> List[str]:
-        if not DESKTOP_CARDNEWS_DIR.exists():
-            return []
-        pattern = str(DESKTOP_CARDNEWS_DIR / f"**/*주제{topic_id:02d}*")
-        matched = sorted(glob.glob(pattern, recursive=True))
-        for d in reversed(matched):
+    def find_desktop_cardnews_and_guide(self, topic_id: int) -> Tuple[List[str], str, str]:
+        """
+        바탕화면 카드뉴스 폴더에서 해당 주제의 5장 PNG 슬라이드 및 SNS 가이드 텍스트 추출
+        반환: (slide_paths, ig_caption, fb_caption)
+        """
+        slide_paths = []
+        ig_caption = ""
+        fb_caption = ""
+
+        matched_dirs = []
+        for base_dir in DESKTOP_CARDNEWS_DIRS:
+            if base_dir.exists():
+                patterns = [
+                    str(base_dir / f"보험_{topic_id:02d}_*"),
+                    str(base_dir / f"**/*주제{topic_id:02d}*"),
+                    str(base_dir / f"**/*Topic_{topic_id:02d}*")
+                ]
+                for pat in patterns:
+                    matched_dirs.extend(glob.glob(pat, recursive=True))
+
+        matched_dirs = sorted(list(set(matched_dirs)))
+        for d in reversed(matched_dirs):
             if os.path.isdir(d):
                 slides = sorted(glob.glob(os.path.join(d, "slide_*.png")))
                 if len(slides) >= 4:
-                    return slides
-        return []
+                    slide_paths = slides
+                    # SNS 가이드 파일 탐색 및 파싱
+                    txt_files = glob.glob(os.path.join(d, "*.txt"))
+                    if txt_files:
+                        with open(txt_files[0], "r", encoding="utf-8", errors="replace") as f:
+                            content = f.read()
+
+                        # 1. 인스타그램 가이드 파싱
+                        ig_sec = re.search(r"\[\d+\]\s*📸\s*인스타그램[^\n]*\n-+\n(.*?)(?=\n\[\d+\]|\n={5,}|\Z)", content, re.DOTALL)
+                        if ig_sec:
+                            raw = ig_sec.group(1).strip()
+                            cap_match = re.search(r"📌\s*\[인스타\s*캡션[^\n]*\n(.*?)(?=\n📌|\n🏷️|\Z)", raw, re.DOTALL)
+                            tags_match = re.search(r"📌\s*\[인스타[^\n]*해시태그[^\n]*\n(.*?)(?=\n📌|\n🏷️|\Z)", raw, re.DOTALL)
+                            if cap_match:
+                                ig_caption = cap_match.group(1).strip()
+                                if tags_match:
+                                    ig_caption += "\n\n" + tags_match.group(1).strip()
+                            else:
+                                lines = [l for l in raw.split("\n") if not l.startswith("📌 [추천 캡션")]
+                                ig_caption = "\n".join(lines).strip()
+
+                        # 2. 페이스북 가이드 파싱
+                        fb_sec = re.search(r"\[\d+\]\s*📘\s*페이스북[^\n]*\n-+\n(.*?)(?=\n\[\d+\]|\n={5,}|\Z)", content, re.DOTALL)
+                        if fb_sec:
+                            raw = fb_sec.group(1).strip()
+                            cap_match = re.search(r"📌\s*\[페북[^\n]*\n(.*?)(?=\n💬|\n📌|\Z)", raw, re.DOTALL)
+                            if cap_match:
+                                fb_caption = cap_match.group(1).strip()
+                            else:
+                                lines = [l for l in raw.split("\n") if not l.startswith("📌 [추천 본문")]
+                                fb_caption = "\n".join(lines).strip()
+
+                        logger.info(f"📂 [Insurance 바탕화면 카드뉴스 & SNS가이드 로드 완료] {d} ({len(slide_paths)}장 + 가이드 연동)")
+                        break
+
+        return slide_paths, ig_caption, fb_caption
 
     def find_desktop_shorts(self, topic_id: int) -> Optional[str]:
-        if not DESKTOP_SHORTS_DIR.exists():
-            return None
-        pattern = str(DESKTOP_SHORTS_DIR / f"**/*주제{topic_id:02d}*.mp4")
-        matched = glob.glob(pattern, recursive=True)
+        matched = []
+        for base_dir in DESKTOP_SHORTS_DIRS:
+            if base_dir.exists():
+                patterns = [
+                    str(base_dir / f"**/*주제{topic_id:02d}*.mp4"),
+                    str(base_dir / f"**/*Topic_{topic_id:02d}*.mp4")
+                ]
+                for pat in patterns:
+                    matched.extend(glob.glob(pat, recursive=True))
+
         final_clips = [m for m in matched if ("22초" in m or "완성" in m) and os.path.getsize(m) > 2000000]
         if final_clips:
             return final_clips[0]
@@ -143,17 +206,15 @@ class InsuranceMetaScheduler:
         theme_name = topic_info.get("theme_name", "보험 절약 팁")
         logger.info(f"🛡️ [InsuranceMetaScheduler] 주제 #{topic_id} [{theme_name}] 바탕화면 산출물 배포 가동")
 
-        slide_paths = self.find_desktop_cardnews(topic_id)
+        slide_paths, guide_ig_cap, guide_fb_cap = self.find_desktop_cardnews_and_guide(topic_id)
         shorts_path = self.find_desktop_shorts(topic_id)
 
         insta_tags = " ".join(self.hashtag_matrix.get_instagram_hashtags(topic_id=topic_id, count=18))
         fb_tags = " ".join(self.hashtag_matrix.get_facebook_hashtags(topic_id=topic_id, count=6))
 
-        # 🚀 [코드 분리 원칙] 인간 행동(체류/좋아요)은 InsuranceHumanBehaviorBot이 하루 30분 정시 전담!
-        # API 송출 봇은 0.1초 고속 정시 배포만 깔끔하게 실행합니다.
         results = {}
 
-        fb_caption = (
+        fb_caption = guide_fb_cap or (
             f"🛡️ [보험 리밸런스] {theme_name} 🚗💨\n\n"
             f"매달 빠져나가는 내 보험료, 과연 적정할까요?\n"
             f"불필요한 중복 보장은 줄이고, 꼭 필요한 보장만 쏙쏙 골라 담는 스마트 보험 다이어트!\n"
@@ -163,7 +224,7 @@ class InsuranceMetaScheduler:
             f"{fb_tags}"
         )
 
-        ig_caption = (
+        ig_caption = guide_ig_cap or (
             f"🛡️ [보험 리밸런스] {theme_name}\n\n"
             f"네이버 검색창에 👉 [ {self.OFFICIAL_KEYWORD} ] 검색해보세요!\n"
             f"프로필 링크에서 34개 보험사 무료 진단 ✨\n\n"

@@ -93,6 +93,14 @@ class SystemHealthChecker:
         ok_channels = sum(1 for c in all_channels if c["status"] == "ok")
         health_score = round((ok_channels / max(total_channels, 1)) * 100, 1)
 
+        # 4. 🔐 6대 플랫폼 영구 로그인 실시간 무결성 진단 (PlatformAuthSentinel)
+        auth_sentinel_report = {}
+        try:
+            from core.platform_auth_sentinel import PlatformAuthSentinel
+            auth_sentinel_report = PlatformAuthSentinel.get_full_diagnostic_report()
+        except Exception as ae:
+            logger.warning(f"PlatformAuthSentinel 진단 예외: {ae}")
+
         return {
             "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
             "health_score": health_score,
@@ -105,5 +113,6 @@ class SystemHealthChecker:
             "insurance_channels": brand_channels["insurance"],
             "kmarket_channels": brand_channels["kmarket"],
             "easytax_channels": brand_channels["easytax"],
+            "auth_sentinel": auth_sentinel_report,
             "mission_timeline": sentinel.get("mission_timeline", [])
         }

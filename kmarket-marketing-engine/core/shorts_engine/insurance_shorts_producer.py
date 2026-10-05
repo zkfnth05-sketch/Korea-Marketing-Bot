@@ -342,21 +342,23 @@ class InsuranceShortsProducer(BaseShortsProducer):
             output_mp4_path=app_clip_path
         )
 
-        # 7. [Step 5] 네이버 검색 공식 1초 임팩트 CTA 비디오 준비 (표준 1.0초)
+        # 7. [Step 5] 네이버 검색 공식 4초 럭셔리 에디토리얼 CTA 비디오 준비 (표준 4.0초)
         cta_clip_path = str(out_folder / f"05_cta_debate_insure_{topic_id}.mp4")
-        logger.info(f"🏷️ [Step 5] 네이버 검색 1초 공식 검색어 임팩트 CTA 비디오 준비 (1.00s)...")
+        logger.info(f"🏷️ [Step 5] 네이버 검색 4초 공식 검색어 에디토리얼 CTA 비디오 준비 (4.00s)...")
         self.cta_card.create_cta_segment_mp4(
             output_path=cta_clip_path,
-            duration_sec=1.0,
+            duration_sec=4.0,
             topic_title=theme_name,
             debate_question=scenario.get("debate_question", "내 보험에 뇌출혈만 있다 vs 뇌혈관질환 있다?"),
             search_keyword="보험 리밸런스",
             hero_copy=scenario.get("hero_copy", "객관적 5대 보장 AI 분석!")
         )
 
-        # 8. [Step 6] 22초 하이브리드 완제품 컴포징 (심의 100% 프리패스: 로고 없는 순수 클린 뷰)
+        # 8. [Step 6] 22초 하이브리드 완제품 컴포징 (상단 좌측 다크 에메랄드 캡슐 뱃지 탑재)
         final_mp4_name = f"Insurance_22초숏폼_주제{topic_id:02d}_{scenario.get('theme_code', 'topic')}_{dt_str}.mp4"
         final_mp4_path = str(out_folder / final_mp4_name)
+        from .shorts_brand_capsule_badge import ShortsBrandCapsuleBadge
+        insure_logo_overlay = ShortsBrandCapsuleBadge.get_overlay_path("insurance")
 
         scene_audios = {
             "hook": person_audio_path,
@@ -364,7 +366,7 @@ class InsuranceShortsProducer(BaseShortsProducer):
             "cta": cta_wav_path if (cta_wav_path and os.path.exists(cta_wav_path)) else None
         }
 
-        logger.info("✨ [Step 6] 1080p 세로 풀HD 22초 하이브리드 비디오 최종 컴포징 (씬별 정밀 음성 동기화, 클린 뷰)...")
+        logger.info("✨ [Step 6] 1080p 세로 풀HD 22초 하이브리드 비디오 최종 컴포징 (씬별 정밀 음성 동기화 + 상단 캡슐 뱃지)...")
         self.composer.compose_hybrid_22s_shorts(
             clip_person_path=person_clip_path,
             clip_app_path=app_clip_path,
@@ -374,16 +376,19 @@ class InsuranceShortsProducer(BaseShortsProducer):
             lang=voice_lang,
             scene_audios=scene_audios,
             clip_cta_path=cta_clip_path,
-            logo_overlay_path=None  # 🛡️ 보험은 심의 및 신뢰도 극대화를 위해 로고 없이 순수 클린 뷰 적용
+            logo_overlay_path=insure_logo_overlay
         )
 
-        # 9. [순수 100% 인물 클로즈업 원테이크 1080x1920 세로 풀HD 단독 완제품 생성]
+        # 9. [순수 100% 인물 클로즈업 원테이크 1080x1920 세로 풀HD 단독 완제품 생성] (상단 캡슐 뱃지 일체형)
         pure_one_take_name = f"Insurance_10초_순수인물_원테이크_주제{topic_id:02d}_{scenario.get('theme_code', 'topic')}_{dt_str}.mp4"
         pure_one_take_path = str(out_folder / pure_one_take_name)
         cmd_pure = [
             self.composer.ffmpeg_exe, "-y",
             "-i", person_clip_path,
-            "-vf", "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fps=30",
+            "-i", insure_logo_overlay,
+            "-filter_complex", "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fps=30[bg];[bg][1:v]overlay=0:0[v_out]",
+            "-map", "[v_out]",
+            "-map", "0:a?",
             "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", "-preset", "fast",
             "-c:a", "aac", "-b:a", "192k",
             pure_one_take_path

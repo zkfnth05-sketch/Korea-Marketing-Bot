@@ -51,25 +51,49 @@ class AuraThreadsPipeline:
         """Aura 전용 스레드 자동 송출 실행"""
         logger.info(f"🚀 [{self.BRAND_NAME}] 스레드 독립 파이프라인 가동")
 
-        image_paths = []
+        media_paths = []
         caption = custom_caption or ""
 
         # 1. 특정 카드뉴스 폴더가 지정된 경우
         if cardnews_folder:
             target_dir = Path(cardnews_folder)
             if target_dir.exists():
+                slide_images = []
                 for i in range(1, 10):
                     f = target_dir / f"slide_{i}.png"
                     if f.exists():
-                        image_paths.append(str(f.resolve()))
+                        slide_images.append(str(f.resolve()))
+
+                # 🎬 15.5초 카드뉴스 숏폼 비디오 변환 및 탐색
+                video_candidates = list(target_dir.glob("*_cardnews_reels.mp4")) + list(target_dir.glob("cardnews_reels.mp4"))
+                if video_candidates and video_candidates[0].exists():
+                    media_paths = [str(video_candidates[0].resolve())]
+                    logger.info(f"🎬 [Aura Threads] 기존 카드뉴스 숏폼 영상 감지: {video_candidates[0].name}")
+                elif len(slide_images) >= 4:
+                    try:
+                        from core.cardnews_to_reels_converter import CardnewsToReelsConverter
+                        converter = CardnewsToReelsConverter()
+                        out_reels = str(target_dir / "aura_cardnews_reels.mp4")
+                        conv_res = converter.convert(slide_paths=slide_images, output_path=out_reels, brand="aura")
+                        if conv_res.get("status") == "success" and os.path.exists(out_reels):
+                            media_paths = [out_reels]
+                            logger.info(f"🎬 [Aura Threads] 카드뉴스 5장 ➔ 15.5초 숏폼 비디오 변환 성공: {out_reels}")
+                        else:
+                            media_paths = slide_images
+                    except Exception as ce:
+                        logger.warning(f"⚠️ [Aura Threads] 비디오 변환 예외, 이미지로 대체: {ce}")
+                        media_paths = slide_images
+                else:
+                    media_paths = slide_images
                 
                 # 가이드 텍스트 읽기
                 guide_file = target_dir / "SNS_포스팅_가이드_KO.txt"
                 if guide_file.exists() and not caption:
                     try:
                         with open(guide_file, "r", encoding="utf-8") as gf:
-                            lines = [line.strip() for line in gf.readlines() if line.strip()]
-                            caption = "\n\n".join(lines[:6])
+                            raw_lines = [line.strip() for line in gf.readlines() if line.strip()]
+                            clean_lines = [l for l in raw_lines if not l.startswith("=") and not l.startswith("•") and "주제:" not in l and "의상:" not in l]
+                            caption = "\n\n".join(clean_lines[:5])
                     except Exception as e:
                         logger.warning(f"가이드 파일 로드 경고: {e}")
 
@@ -89,10 +113,10 @@ class AuraThreadsPipeline:
             f"👉 {self.LANDING_URL}"
         )
 
-        # 4. 스레드 독립 퍼블리셔 송출
+        # 4. 스레드 독립 퍼블리셔 송출 (숏폼 비디오 형태)
         result = await self.publisher.publish_thread(
             caption=caption,
-            image_paths=image_paths,
+            image_paths=media_paths,
             first_reply_text=first_reply
         )
         return result

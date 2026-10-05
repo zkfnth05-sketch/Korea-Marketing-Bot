@@ -997,72 +997,89 @@ INSURANCE_8_CARDNEWS_SCENARIOS: Dict[int, Dict[str, Any]] = {
                 "cta_button": "👉 AI 역추정 솔루션 (2/5) >",
                 "image_prompt": (
                     "masterpiece, best quality, ultra-photorealistic portrait, "
-                    "photographed from 2.0 meters away on Apple iPhone 15 Pro, "
-                    "clear medium waist-up shot showing head, upper torso, arms holding a tablet PC showing policy comparison graph, torso down to waistline, "
+                    "photographed from 2.5 meters away on Apple iPhone 15 Pro, "
+                    "clear medium waist-up shot showing head, natural shoulders, upper body seated comfortably at a clean wooden table in front of a sleek modern laptop displaying an insurance comparison table, torso down to waistline, "
                     "subtle headroom occupying upper 5% of frame, "
                     "solo 1person female, the exact same poised, elegant, and intelligent 39-year-old Korean woman from slide 1, "
-                    "strictly no glasses, bare clean face with clear glowing healthy skin, authentic beautiful Korean female facial features, sharp elegant jawline, "
+                    "strictly no glasses, bare clean face with clear glowing healthy skin, authentic beautiful Korean female facial features, sharp elegant jawline, attractive dark eyes, "
                     "neat and stylish natural dark brown wavy hairstyle, "
                     "wearing the exact same chic modern smart-casual daily outfit, "
-                    "sitting at the Scandinavian living room table, looking at the tablet screen with a serious and attentive analytical expression (비교 그래프를 꼼꼼히 점검하는 표정), furrowed brow, lips firmly closed together, strictly zero open mouth, strictly no visible teeth, "
-                    "bright morning natural window daylight, Scandinavian apartment living room background, "
-                    "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and fabric textures"
+                    "sitting at the Scandinavian living room table in front of her open laptop, carefully analyzing and comparing the insurance comparison data on screen, "
+                    "showing a serious, thoughtful, and analytical expression (노트북 앞 보험 비교표를 꼼꼼히 비교 점검하는 표정), subtle furrowed brow, lips firmly closed together, strictly zero open mouth, strictly no visible teeth, "
+                    "bright morning natural window daylight, Scandinavian apartment living room background with cozy indoor plants, "
+                    "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and fabric textures, "
+                    "natural bright crisp daylight lighting, highly realistic 8k resolution, authentic Korean civilian documentary look, master quality"
                 ),
-                "negative_prompt": "ugly, average face, round face, chubby face, plain face, bloated, asymmetrical face, close-up, extreme close-up, cropped face, cropped head, zoomed-in face, male, man, two people, crowd, open mouth, parted lips, visible teeth, showing teeth, laughing, smiling, happy, grinning, cartoon, anime, 3d render, illustration, deformed hands, extra fingers, blurry, low quality, glasses"
+                "negative_prompt": (
+                    "extreme close-up, tight face shot, headshot portrait, cropped torso, cropped chest, cropped waist, big face, zoomed in face, "
+                    "rolled back eyes, rolled eyes, upturned eyes, whites of eyes only, misaligned pupils, crossed eyes, strabismus, lazy eye, dilated pupils, deformed pupils, asymmetrical eyes, weird eyes, creepy eyes, blind eyes, blank stare, "
+                    "cropped forehead, cut off head, "
+                    "grey hair, white hair, greying temples, salt and pepper hair, elderly, old man, aged, wrinkled, sagging skin, old person, 50s, 60s, senior citizen, "
+                    "old fashioned haircut, slicked back hair, middle part ahjussi hair, "
+                    "puffy hair, frizzy hair, wide hair silhouette, mushroom hair, bird nest hair, frizzy curls, expanded hair, messy hair, overly curly hair, perm hair, unkempt hair, "
+                    "arrogant pose, smug look, cocky smile, boastful expression, aggressive posture, awkward stiff pose, robotic posture, "
+                    "showing teeth, open mouth, teeth, grinning, smiling with open mouth, smiling with teeth, parted lips, tooth, dental, toothy smile, big smile, mouth open, laughing with teeth, screaming, "
+                    "glasses, spectacles, eyewear, sunglasses, rimless glasses, "
+                    "chinese style, mainland chinese facial features, douyin aesthetic, heavy square jaw, broad flat nose, round wide face, "
+                    "looking down, face obstructed, phone blocking face, phone covering mouth, "
+                    "tilted head, sideways glance, looking away from camera, angled face, side profile, "
+                    "heavy bokeh, blurry background, shallow depth of field, f/1.4 blur, cinematic bokeh blur, out of focus background, "
+                    "distorted hands, extra fingers, deformed face, unnatural plastic skin, cartoon, anime, illustration, 3d render, watermark"
+                )
             },
             {
                 "page": 3,
-                "badge": "💡 감액완납의 원리",
-                "title": "'감액완납' 신청 시 추가 보험료 없이\n축소된 보장 만기까지 유지",
-                "subtitle": "지금까지 적립된 해약환급금으로 남은 기간의 보험료를 일시불 정산 처리하는 원리",
+                "badge": "📊 34개사 정밀 보장 내역",
+                "title": "같은 15만원으로 암진단 3천만 +\n표적항암 5천만까지 전수 공개",
+                "subtitle": "특약별 추정 보장 금액과 보장 범위를 내 눈으로 직접 투명하게 확인",
                 "bullets": [
-                    "보장 금액은 비율에 따라 일부 축소되지만, 보장 기간은 만기까지 유지",
-                    "신청 다음 달부터 추가 보험료 납입 의무 완전 면제",
-                    "해약에 따른 일시적 손실을 막고 기존 질병 보장 방어막 사수"
+                    "암 진단비 3,000만 + 표적항암 5,000만 + 암주요치료비 1,000만 보장",
+                    "뇌혈관 750만 + 허혈성 750만 + 가족일상생활배상책임 1억원 탑재",
+                    "상해·질병 실손의료비 5,000만원까지 34개 보험사 최적 분산 플랜"
                 ],
-                "cta_button": "👉 감액완납 가능 여부 확인 (3/5) >",
+                "cta_button": "👉 다음 장: 3개 보험 동시 업그레이드 비교 (3/5) >",
                 "use_direct_asset": True,
-                "asset_image": "brands/insurance/assets/slide3_silbi_condition.png"
+                "asset_image": "brands/insurance/assets/slide3_topic8_detail.png"
             },
             {
                 "page": 4,
-                "badge": "📊 3대 합법 유지 제도",
-                "title": "보험료 부담을 줄이는 3대 제도:\n감액완납 / 특약 부분삭제 / 납입유예",
-                "subtitle": "가계 경제 상황에 맞추어 해지 없이 보장을 지키는 실전 제도",
+                "badge": "🤖 AI 동시 업그레이드 분석",
+                "title": "보험료는 15만원 그대로!\n보장만 최대 1억원으로 업그레이드",
+                "subtitle": "내가 내는 월 납입 보험료를 기준으로 암·종합·실손 최적 포트폴리오 역추정",
                 "bullets": [
-                    "1. 감액완납: 보험료 추가 납입 중단 + 조정된 보장 평생 유지",
-                    "2. 특약 부분삭제: 불필요한 특약만 골라 삭제하여 월 납입료 경감",
-                    "3. 납입유예/감액: 일시적 소득 공백 시 일정 기간 납입 정지"
+                    "동일 보험료 유지: 현재 월 납입 합계 150,000원 ➔ 보장 강화 후 150,000원 동일 유지",
+                    "3개 보험 동시 업그레이드: 실속 암진단 + 종합건강 + 실손의료비 빈틈없는 조립",
+                    "0.1초 PII-Free 진단: 이름·전화번호 없이 내 보험 정밀 분석 및 실시간 비교"
                 ],
-                "cta_button": "👉 내 보험 최적 대안 찾기 (4/5) >",
+                "cta_button": "👉 다음 장: 0원 무료 진단 & 찬반 토론 (4/5) >",
                 "use_direct_asset": True,
-                "asset_image": "brands/insurance/assets/slide4_silbi_result.png"
+                "asset_image": "brands/insurance/assets/slide4_topic8_upgrade.png"
             },
             {
                 "page": 5,
-                "badge": "방어 & 진단 CTA",
-                "title": "부담스러운 보험, 해지 버튼 누르기 전에\n먼저 객관적 유지가능 여부를 진단받으세요",
-                "subtitle": "내 증권으로 감액완납 시 예상 보장 금액과 절약 효과를 1분 만에 시뮬레이션",
+                "badge": "⚡ AI 역추정 리모델링 토론",
+                "title": "매달 나가는 보험료가 아깝다면?\n지금 AI 역추정으로 최적 보장을 확인하세요",
+                "subtitle": "내가 내는 금액 그대로 34개 보험사의 최대 보장 플랜을 1분 만에 비교",
                 "bullets": [
-                    "해약 손실 없이 내 합법적 계약 권리를 지키는 스마트 리밸런스",
-                    "34개 보험사 객관적 시뮬레이션 결과 비대면 확인",
+                    "동일 보험료 대비 3대 질병 진단비 및 수술비 최대 보장 역추정",
+                    "불필요한 사업비·중복 특약을 뺀 가성비 극대화 플랜",
                     "👉 지금 네이버 검색창에 '보험 리밸런스'를 검색해보세요!"
                 ],
                 "cta_button": "👉 네이버에 '보험 리밸런스' 검색하기 >",
-                "debate_badge": "⚡ 보험 유지 현실 토론",
-                "debate_question": "보험료가 부담될 때, 전체 해지 후 신규 가입 vs 감액완납/특약삭제로 핵심 보장 유지?",
-                "debate_opt1_title": "🛡️ 감액완납/특약삭제로 유지",
-                "debate_opt1_sub": "해약 손실 없이 기존 핵심 보장과 병력 불이익 방어",
-                "debate_opt1_rate": "86% (대세)",
-                "debate_opt2_title": "🔄 전체 해지 후 신규 가입",
-                "debate_opt2_sub": "해지환급금 수령 후 최신 다이렉트 상품으로 신규 재가입",
-                "debate_opt2_rate": "14%",
+                "debate_badge": "⚡ AI 역추정 리모델링 토론",
+                "debate_question": "보험 리모델링 시, 설계사 권유 상품 가입 vs 내 보험료 기준 AI 역추정 비교?",
+                "debate_opt1_title": "🤖 AI 역추정으로 동일 금액 최대 보장",
+                "debate_opt1_sub": "내가 내는 돈 그대로 34개사 중 보장 가장 큰 상품 객관적 선택",
+                "debate_opt1_rate": "88% (대세)",
+                "debate_opt2_title": "👤 지인/설계사 추천 상품 유지",
+                "debate_opt2_sub": "지인 관계나 권유받은 패키지 그대로 유지",
+                "debate_opt2_rate": "12%",
                 "benefit_items": [
-                    "34개 보험사 객관적 시뮬레이션 비교",
+                    "34개 보험사 객관적 AI 역추정 비교",
                     "이름·전화번호 입력 제로 (PII-Free 안심 구조)",
-                    "0.1초 만에 감액완납 & 특약 부분삭제 가능 여부 자가진단"
+                    "0.1초 만에 동일 보험료 대비 최대 보장 자가진단"
                 ],
-                "cta_subtext": "✨ 스팸 전화 0건 • 지금 조회하고 내 증권 안전하게 지키기"
+                "cta_subtext": "✨ 스팸 전화 0건 • 지금 조회하고 내 증권 스마트하게 업그레이드"
             }
         ]
     }

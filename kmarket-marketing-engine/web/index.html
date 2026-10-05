@@ -659,7 +659,18 @@
                         <!-- loadHealthStatus()로 동적 렌더링 -->
                     </div>
 
-                    <!-- 2. 📡 채널별 실시간 발행 및 세션 상태 -->
+                    <!-- 2. 🔐 6대 플랫폼 영구 로그인 실시간 무결성 관제 센터 -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin:28px 0 12px 0;">
+                        <h4 style="font-size:14px;color:#0F172A;margin:0;display:flex;align-items:center;gap:6px;" id="health-auth-title">
+                            <span>🔐</span> <span>6대 플랫폼 영구 로그인 실시간 관제판 (스레드 · 네이버 · 인스타 · 페북 · 유튜브 · 틱톡)</span>
+                        </h4>
+                        <span style="font-size:11.5px;color:#64748B;font-weight:600;">만료/차단 시 원인 및 1초 해결법 투명 보고</span>
+                    </div>
+                    <div id="health-auth-sentinel-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:14px; margin-bottom:24px;">
+                        <!-- loadHealthStatus()로 동적 렌더링 -->
+                    </div>
+
+                    <!-- 3. 📡 채널별 실시간 발행 및 세션 상태 -->
                     <h4 style="font-size:14px;margin:28px 0 12px 0;" id="health-channels-title">📡 채널별 실시간 발행 및 세션 상태 (실제 링크 검증)</h4>
                     <div class="action-grid" id="health-channels-grid">
                         <!-- loadHealthStatus()로 동적 렌더링 -->

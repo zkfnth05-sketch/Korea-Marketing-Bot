@@ -74,36 +74,65 @@ class InsuranceThreadsPublisher:
         self.profile_dir.mkdir(parents=True, exist_ok=True)
 
     def _prepare_cookies(self) -> List[Dict[str, Any]]:
-        if not COOKIE_FILE.exists():
-            return []
-        try:
-            with open(COOKIE_FILE, "r", encoding="utf-8") as f:
-                raw_cookies = json.load(f)
-            pw_cookies = []
-            for c in raw_cookies:
-                pw_c = {
-                    "name": c["name"],
-                    "value": c["value"],
-                    "domain": c["domain"],
-                    "path": c.get("path", "/"),
-                    "secure": c.get("secure", True),
-                    "httpOnly": c.get("httpOnly", False),
-                }
-                if c.get("sameSite") in ["Strict", "Lax", "None"]:
-                    pw_c["sameSite"] = c["sameSite"]
-                elif c.get("sameSite") == "no_restriction":
-                    pw_c["sameSite"] = "None"
-                elif c.get("sameSite") == "lax":
-                    pw_c["sameSite"] = "Lax"
-                pw_cookies.append(pw_c)
-                for d in [".threads.net", ".instagram.com"]:
-                    dc = dict(pw_c)
-                    dc["domain"] = d
-                    pw_cookies.append(dc)
-            return pw_cookies
-        except Exception as ex:
-            logger.warning(f"쿠키 파싱 오류: {ex}")
-            return []
+        pw_cookies = []
+        # 1. meta_session.json 로드
+        meta_file = CURRENT_DIR / "meta_session.json"
+        if meta_file.exists():
+            try:
+                with open(meta_file, "r", encoding="utf-8") as f:
+                    meta_cookies = json.load(f).get("cookies", [])
+                for c in meta_cookies:
+                    domain = c.get("domain", "")
+                    if "instagram.com" in domain or "facebook.com" in domain:
+                        pw = {
+                            "name": c["name"],
+                            "value": c["value"],
+                            "domain": domain,
+                            "path": c.get("path", "/"),
+                            "secure": c.get("secure", True),
+                            "httpOnly": c.get("httpOnly", False)
+                        }
+                        if c.get("sameSite") in ["Strict", "Lax", "None"]:
+                            pw["sameSite"] = c["sameSite"]
+                        elif c.get("sameSite") == "no_restriction":
+                            pw["sameSite"] = "None"
+                        pw_cookies.append(pw)
+                        if "instagram.com" in domain:
+                            for td in [".threads.com", ".threads.net"]:
+                                tc = dict(pw)
+                                tc["domain"] = td
+                                pw_cookies.append(tc)
+            except Exception as me:
+                logger.warning(f"메타 세션 쿠키 파싱 예외: {me}")
+
+        # 2. threads_cookies.json 로드
+        if COOKIE_FILE.exists():
+            try:
+                with open(COOKIE_FILE, "r", encoding="utf-8") as f:
+                    raw_cookies = json.load(f)
+                for c in raw_cookies:
+                    pw_c = {
+                        "name": c["name"],
+                        "value": c["value"],
+                        "domain": c["domain"],
+                        "path": c.get("path", "/"),
+                        "secure": c.get("secure", True),
+                        "httpOnly": c.get("httpOnly", False),
+                    }
+                    if c.get("sameSite") in ["Strict", "Lax", "None"]:
+                        pw_c["sameSite"] = c["sameSite"]
+                    elif c.get("sameSite") == "no_restriction":
+                        pw_c["sameSite"] = "None"
+                    elif c.get("sameSite") == "lax":
+                        pw_c["sameSite"] = "Lax"
+                    pw_cookies.append(pw_c)
+                    for d in [".threads.net", ".threads.com", ".instagram.com"]:
+                        dc = dict(pw_c)
+                        dc["domain"] = d
+                        pw_cookies.append(dc)
+            except Exception as ex:
+                logger.warning(f"쿠키 파싱 오류: {ex}")
+        return pw_cookies
 
     async def publish_thread(
         self,
@@ -128,14 +157,16 @@ class InsuranceThreadsPublisher:
                 f"👉 {self.LANDING_URL}"
             )
 
-        valid_images = []
+        valid_media = []
         if image_paths:
             for p in image_paths:
                 fpath = Path(p)
-                if fpath.exists() and fpath.suffix.lower() in [".png", ".jpg", ".jpeg", ".webp"]:
-                    valid_images.append(str(fpath.resolve()))
+                if fpath.exists() and fpath.suffix.lower() in [".png", ".jpg", ".jpeg", ".webp", ".mp4", ".mov"]:
+                    valid_media.append(str(fpath.resolve()))
 
-        logger.info(f"🚀 [Insurance Threads] 스레드 발행 시작 (글자수: {len(caption)}자, 이미지: {len(valid_images)}장)")
+        is_video = any(p.endswith((".mp4", ".mov")) for p in valid_media)
+        media_type = "동영상(릴스 숏폼)" if is_video else "카드뉴스 이미지"
+        logger.info(f"🚀 [Insurance Threads] 스레드 발행 시작 (글자수: {len(caption)}자, {media_type}: {len(valid_media)}개)")
 
         async with async_playwright() as p:
             context = await p.chromium.launch_persistent_context(
@@ -143,6 +174,8 @@ class InsuranceThreadsPublisher:
                 headless=self.headless,
                 args=[
                     "--disable-blink-features=AutomationControlled",
+                    "--no-first-run",
+                    "--no-default-browser-check",
                     "--no-sandbox",
                     "--disable-setuid-sandbox"
                 ],
@@ -159,62 +192,114 @@ class InsuranceThreadsPublisher:
             try:
                 # 1. Threads 메인 접속
                 logger.info("1. Threads 메인 페이지 접속 중...")
-                await page.goto("https://www.threads.net/", wait_until="domcontentloaded", timeout=30000)
+                await page.goto("https://www.threads.com/", wait_until="domcontentloaded", timeout=30000)
                 await asyncio.sleep(4)
+
+                # 1-1. Terms 오버레이 배너 제거 및 'Continue with Instagram' 모달 자동 클릭
+                try:
+                    await page.evaluate("""() => {
+                        const fixedOverlays = Array.from(document.querySelectorAll("div")).filter(d => {
+                            const style = window.getComputedStyle(d);
+                            return (style.position === 'fixed' || style.position === 'sticky') && style.bottom === '0px' && d.innerText && d.innerText.includes('Terms');
+                        });
+                        fixedOverlays.forEach(b => b.remove());
+                    }""")
+                    await asyncio.sleep(1)
+
+                    clicked_modal = await page.evaluate("""() => {
+                        const all = Array.from(document.querySelectorAll("button, div[role='button'], a, div"));
+                        const cont = all.find(el => el.innerText && (el.innerText.trim().includes('Continue with Instagram') || el.innerText.trim().includes('Log in with Instagram') || el.innerText.trim().includes('goldmomofficial')));
+                        if (cont) {
+                            const clickable = cont.closest("button, div[role='button'], a") || cont;
+                            clickable.click();
+                            return true;
+                        }
+                        return false;
+                    }""")
+                    if clicked_modal:
+                        logger.info("👉 'Continue with Instagram' 모달 JS 직접 클릭 성공, 세션 연결 대기...")
+                        await asyncio.sleep(6)
+                except Exception as me:
+                    logger.warning(f"모달 클릭 예외: {me}")
 
                 # 2. 작성 모달 열기
                 logger.info("2. 스레드 작성창 열기...")
                 opened = False
-                quick_box = await page.query_selector("div:has-text(\"What's new?\"), div:has-text('새로운 스레드를 시작하세요')")
-                if quick_box:
-                    await quick_box.click()
-                    opened = True
-                    await asyncio.sleep(2)
+
+                # 빠른 작성창 또는 새 스레드 버튼 JS 직접 클릭
+                try:
+                    opened = await page.evaluate("""() => {
+                        const quick = Array.from(document.querySelectorAll("div")).find(d => 
+                            d.innerText && (d.innerText.includes("What's new?") || d.innerText.includes("새로운 스레드를 시작하세요"))
+                        );
+                        if (quick) {
+                            quick.click();
+                            return true;
+                        }
+                        const createBtn = document.querySelector("svg[aria-label='Create'], svg[aria-label='새 스레드'], div[role='button'][aria-label*='새']");
+                        if (createBtn) {
+                            const clickable = createBtn.closest("div[role='button'], a, button") || createBtn;
+                            clickable.click();
+                            return true;
+                        }
+                        return false;
+                    }""")
+                    if opened:
+                        await asyncio.sleep(3)
+                except Exception:
+                    pass
+
+                # 작성창 클릭 후 혹시 'Continue with Instagram' 팝업이 뜨면 자동 재클릭
+                try:
+                    cont_modal = await page.evaluate("""() => {
+                        const all = Array.from(document.querySelectorAll("button, div[role='button'], a, div"));
+                        const cont = all.find(el => el.innerText && el.innerText.trim().includes('Continue with Instagram'));
+                        if (cont) {
+                            cont.click();
+                            return true;
+                        }
+                        return false;
+                    }""")
+                    if cont_modal:
+                        logger.info("👉 작성창 오픈 후 'Continue with Instagram' 팝업 감지 ➔ JS 재클릭 완료...")
+                        await asyncio.sleep(5)
+                except Exception:
+                    pass
+
+                if not opened:
+                    quick_box = await page.query_selector("div:has-text(\"What's new?\"), div:has-text('새로운 스레드를 시작하세요')")
+                    if quick_box:
+                        await quick_box.click(force=True)
+                        opened = True
+                        await asyncio.sleep(2)
                 
                 if not opened:
                     new_thread_btn = await page.query_selector("span:has-text('New thread'), svg[aria-label='Create'], svg[aria-label='새 스레드'], div[role='button'][aria-label*='새']")
                     if new_thread_btn:
-                        await new_thread_btn.click()
+                        await new_thread_btn.click(force=True)
                         opened = True
                         await asyncio.sleep(2)
 
                 # 3. 본문 텍스트 입력
                 logger.info("3. 캡션 텍스트 입력 중...")
-                textbox = await page.wait_for_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']", timeout=10000)
+                textbox = await page.wait_for_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']", timeout=12000)
                 await textbox.click()
                 await asyncio.sleep(0.5)
                 await textbox.fill(caption)
                 await asyncio.sleep(1)
 
-                # 4. 카드뉴스 이미지 첨부
-                if valid_images:
-                    logger.info(f"4. 카드뉴스 이미지 {len(valid_images)}장 업로드 중...")
+                # 4. 카드뉴스 이미지 또는 숏폼 비디오 첨부
+                if valid_media:
+                    logger.info(f"4. {media_type} {len(valid_media)}개 업로드 중...")
                     file_input = await page.query_selector("input[type='file']")
                     if file_input:
-                        await file_input.set_input_files(valid_images)
-                        logger.info("   이미지 파일 전송 완료, 렌더링 대기...")
-                        await asyncio.sleep(6)
+                        await file_input.set_input_files(valid_media)
+                        logger.info("   미디어 파일 전송 완료, 렌더링/인코딩 대기...")
+                        wait_sec = 14 if is_video else 6
+                        await asyncio.sleep(wait_sec)
 
-                # 5. 첫 번째 타래 댓글 (Add to thread)
-                if first_reply_text:
-                    logger.info("5. 첫 번째 타래 댓글 작성 시도...")
-                    try:
-                        add_btn = await page.query_selector("div:has-text('Add to thread'), span:has-text('Add to thread'), div:has-text('스레드에 추가')")
-                        if add_btn:
-                            await add_btn.click(force=True)
-                            await asyncio.sleep(1.5)
-                            boxes = await page.query_selector_all("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']")
-                            if len(boxes) >= 2:
-                                second_box = boxes[-1]
-                                await second_box.click(force=True)
-                                await second_box.fill(first_reply_text)
-                                await asyncio.sleep(1)
-                                logger.info("   타래 댓글 작성 완료!")
-                    except Exception as ex_comment:
-                        logger.warning(f"   타래 댓글 첨부 건너뜀: {ex_comment}")
-
-                # 6. Post / 게시 버튼 클릭
-                logger.info("6. 스레드 [Post / 게시] 버튼 클릭...")
+                # 5. [1단계] 본문 Post / 게시 버튼 클릭
+                logger.info("5. 본문 [Post / 게시] 버튼 클릭...")
                 posted = False
                 try:
                     posted = await page.evaluate("""() => {
@@ -233,23 +318,73 @@ class InsuranceThreadsPublisher:
                         return false;
                     }""")
                     if posted:
-                        logger.info("   JS 직접 클릭 성공!")
+                        logger.info("   본문 JS 직접 클릭 성공!")
                 except Exception:
                     pass
 
                 if not posted:
-                    publish_btn = await page.wait_for_selector("div[role='dialog'] div[role='button']:has-text('Post'), div[role='dialog'] button:has-text('Post')", timeout=8000)
+                    publish_btn = await page.wait_for_selector("div[role='dialog'] div[role='button']:has-text('Post'), div[role='dialog'] button:has-text('Post'), div[role='dialog'] div[role='button']:has-text('게시')", timeout=8000)
                     if publish_btn:
                         await publish_btn.click(force=True)
                         posted = True
 
-                logger.info("   게시 완료! 서버 반영 대기 (12초)...")
-                await asyncio.sleep(12)
+                logger.info("   본문 게시 완료! 서버 반영 대기 (10초)...")
+                await asyncio.sleep(10)
+
+                # 6. [2단계] 첫 번째 타래 댓글 (내 글 바로 아래 답글) 작성
+                if first_reply_text:
+                    logger.info("6. [2단계] 첫 번째 타래 댓글(답글) 작성 시작...")
+                    try:
+                        # 내 프로필로 이동하여 방금 작성된 글 확인
+                        await page.goto("https://www.threads.com/@goldmomofficial", wait_until="domcontentloaded", timeout=25000)
+                        await asyncio.sleep(4)
+
+                        # 최상단 첫 번째 게시물의 '답글(Reply)' 버튼 찾기
+                        reply_btn = await page.query_selector("svg[aria-label='Reply'], svg[aria-label='답글'], div[role='button'][aria-label*='Reply'], div[role='button'][aria-label*='답글']")
+                        if reply_btn:
+                            logger.info("   첫 번째 게시물 [답글] 버튼 클릭...")
+                            await reply_btn.click(force=True)
+                            await asyncio.sleep(2)
+
+                            reply_box = await page.wait_for_selector("div[role='dialog'] div[role='textbox'][contenteditable='true'], div[role='textbox'][contenteditable='true']", timeout=8000)
+                            if reply_box:
+                                await reply_box.click(force=True)
+                                await asyncio.sleep(0.5)
+                                await reply_box.fill(first_reply_text)
+                                await asyncio.sleep(1)
+
+                                # 답글 [Post / 게시] 클릭
+                                reply_posted = await page.evaluate("""() => {
+                                    const dialog = document.querySelector("div[role='dialog']") || document;
+                                    const btns = Array.from(dialog.querySelectorAll("div[role='button'], button"));
+                                    const postBtn = btns.find(b => {
+                                        const t = b.innerText.trim();
+                                        const ariaDisabled = b.getAttribute('aria-disabled');
+                                        const disabled = b.getAttribute('disabled');
+                                        return (t === 'Post' || t === '게시') && ariaDisabled !== 'true' && disabled === null;
+                                    });
+                                    if (postBtn) {
+                                        postBtn.click();
+                                        return true;
+                                    }
+                                    return false;
+                                }""")
+                                if not reply_posted:
+                                    reply_post_btn = await page.query_selector("div[role='dialog'] div[role='button']:has-text('Post'), div[role='dialog'] button:has-text('Post'), div[role='dialog'] div[role='button']:has-text('게시')")
+                                    if reply_post_btn:
+                                        await reply_post_btn.click(force=True)
+
+                                logger.info("🎉 [2단계 대성공] 첫 번째 타래 댓글(공식 검색어 + 랜딩 링크) 체인 등록 완료!")
+                                await asyncio.sleep(6)
+                    except Exception as ex_reply:
+                        logger.warning(f"⚠️ 타래 댓글 작성 예외: {ex_reply}")
 
                 # 7. 프로필 페이지로 이동하여 최종 송출 확인 캡처
-                logger.info("7. 프로필 페이지에서 송출 결과 확인 중...")
-                await page.goto("https://www.threads.net/@goldmomofficial", wait_until="domcontentloaded", timeout=25000)
-                await asyncio.sleep(5)
+                logger.info("7. 프로필 페이지에서 최종 타래 결합 결과 확인 중...")
+                await page.goto("https://www.threads.com/@goldmomofficial", wait_until="domcontentloaded", timeout=25000)
+                await asyncio.sleep(4)
+                await page.evaluate("window.scrollBy(0, 450)")
+                await asyncio.sleep(2)
 
                 proof_path = CURRENT_DIR / "threads_live_proof.png"
                 await page.screenshot(path=str(proof_path))
@@ -261,7 +396,7 @@ class InsuranceThreadsPublisher:
                     "brand": self.BRAND,
                     "published_at": datetime.now().isoformat(),
                     "caption_preview": caption[:60] + "...",
-                    "images_count": len(valid_images),
+                    "media_count": len(valid_media),
                     "first_reply": first_reply_text,
                     "status": "SUCCESS",
                     "proof_screenshot": str(proof_path)

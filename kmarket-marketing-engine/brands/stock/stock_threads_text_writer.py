@@ -48,14 +48,16 @@ _STOCK_EVENING_THEMES = [
     {"topic": "실시간 뉴스 뜨기 전에 차트와 수급에서 먼저 나오는 시그널", "hook": "호재 공시 뜨고 사면 왜 항상 고점일까? 스마트 머니의 매집 흔적 찾는 법."}
 ]
 
-# 비상용 고품질 폴백 원고 뱅크
+from brands.stock.stock_hashtag_matrix import StockHashtagMatrix
+
+# 비상용 고품질 폴백 원고 뱅크 (15개 풍성한 해시태그 풀 탑재)
 _STOCK_FALLBACK_BANK = [
     {
-        "caption": "주식 초보분들이 가장 많이 하는 실수가 '장 시작하자마자 9시 5분에 급등주 추격 매수'하는 겁니다 ㅠㅠ\n\n장초반 30분은 변동성이 가장 심하고 세력들의 물량 털기가 자주 나오는 시간대예요.\n\n진짜 고수들은 9시 30분 이후 거래대금이 꾸준히 유지되면서 지지선 확인하는 종목을 공략합니다. 조급함을 버리는 게 수익의 첫걸음이에요 📈\n\n#주식투자 #주식초보 #매매기법 #단타 #스톡마스터AI",
+        "caption": "주식 초보분들이 가장 많이 하는 실수가 '장 시작하자마자 9시 5분에 급등주 추격 매수'하는 겁니다 ㅠㅠ\n\n장초반 30분은 변동성이 가장 심하고 세력들의 물량 털기가 자주 나오는 시간대예요.\n\n진짜 고수들은 9시 30분 이후 거래대금이 꾸준히 유지되면서 지지선 확인하는 종목을 공략합니다. 조급함을 버리는 게 수익의 첫걸음이에요 📈\n\n#스톡마스터AI #StockMasterAI #주식투자 #주식초보 #매매기법 #단타 #외인수급 #기관수급 #국내주식 #코스피 #삼성전자 #SK하이닉스 #실시간트렌드 #주식공부 #체결강도",
         "first_reply": "📈 AI 실시간 수급 & 급등 테마 분석기\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/"
     },
     {
-        "caption": "하락장에서 계좌 지키는 최고의 무기는 '수급 연속성' 체크입니다 💡\n\n코스피 코스닥이 밀려도 외국인과 기관이 3일 이상 연속으로 순매수하는 종목은 시장 반등할 때 1순위로 튀어 오르거든요.\n\n감이나 소문으로 매매하지 말고, 매일 장마감 후 메이저 수급이 어디로 쏠렸는지 데이터로 확인해보세요!\n\n#주식시황 #외인수급 #기관수급 #주식공부 #StockMaster",
+        "caption": "하락장에서 계좌 지키는 최고의 무기는 '수급 연속성' 체크입니다 💡\n\n코스피 코스닥이 밀려도 외국인과 기관이 3일 이상 연속으로 순매수하는 종목은 시장 반등할 때 1순위로 튀어 오르거든요.\n\n감이나 소문으로 매매하지 말고, 매일 장마감 후 메이저 수급이 어디로 쏠렸는지 데이터로 확인해보세요!\n\n#스톡마스터AI #StockMasterAI #주식시황 #외인수급 #기관수급 #주식공부 #AI퀀트투자 #종목자가진단 #적정주가 #코스피200 #고배당주 #2차전지 #반도체주식 #실시간트렌드 #주식고민",
         "first_reply": "📈 실시간 테마 & 기관 수급 레이더 무료 진단\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/"
     }
 ]
@@ -116,11 +118,15 @@ class StockThreadsTextWriter:
         raise RuntimeError(f"모든 Gemini 키 호출 실패: {last_err}")
 
     def generate_thread_post(self, slot: str = "morning", custom_theme: Optional[str] = None) -> Dict[str, Any]:
-        """스레드 전용 사진 0장 순수 텍스트 포스팅 + 첫 댓글 자동 생성"""
+        """스레드 전용 사진 0장 순수 텍스트 포스팅 + 실시간 15개 해시태그 + 첫 댓글 자동 생성"""
         theme_pool = _STOCK_MORNING_THEMES if slot == "morning" else _STOCK_EVENING_THEMES
         chosen_theme = random.choice(theme_pool)
         topic = custom_theme or chosen_theme["topic"]
         hook = chosen_theme["hook"]
+
+        # 실시간 15개 4-Tier 트렌드 해시태그 풀 생성
+        hashtag_list = StockHashtagMatrix.get_threads_hashtags(topic_id=random.randint(1, 8), count=15)
+        hashtag_str = " ".join(hashtag_list)
 
         full_prompt = f"""당신은 실전 퀀트 트레이더이자 주식 AI 투자 전략 스레드(Threads) 전문 인플루언서입니다.
 아래 조건에 맞춰 사진 없는 순수 텍스트 스레드 글을 작성해 주세요.
@@ -130,24 +136,22 @@ class StockThreadsTextWriter:
 
 [작성 규칙]
 1. 사진/이미지는 없습니다. 오직 텍스트만으로 강력한 인사이트와 실전성을 주어야 합니다.
-2. 글자 수는 공백 포함 250자 ~ 380자 이내로 3~4개 문단으로 줄바꿈을 꼭 넣어 작성하십시오.
+2. 본문 글자 수는 공백 포함 200자 ~ 280자 이내로 2~3개 문단으로 줄바꿈을 넣어 간결하고 흡입력 있게 작성하십시오.
 3. 🚨 [본문 URL 금지]: 본문 안에 링크(http/https)나 '종목 추천 링크' 같은 노골적인 홍보 문구를 절대 넣지 마십시오.
 4. 문체: 전문적이면서도 알기 쉬운 어조 (~합니다, ~해보세요, ~거든요, 📈, 💡 적절히 활용).
-5. 첫 줄은 시장 상황/투자자 실수를 찌르는 1줄 후킹, 중간은 데이터 기반 원인 분석 + 1줄 실전 매매 원칙, 끝에는 해시태그 3~4개(#주식투자 #주식시황 #수급분석 #스톡마스터AI)를 부착해 주세요.
+5. 첫 줄은 시장 상황/투자자 실수를 찌르는 1줄 후킹, 중간은 데이터 기반 원인 분석 + 1줄 실전 매매 원칙을 담아주세요.
 6. 문장이 중간에 잘리지 않게 완전한 한국어 문장으로 마무리하십시오."""
 
         caption = ""
         try:
             raw_text = self._call_gemini_chain(full_prompt)
-            caption = raw_text.replace("```json", "").replace("```", "").strip()
-            if len(caption) < 100:
-                raise ValueError(f"생성된 텍스트가 너무 짧음 ({len(caption)}자)")
-            if len(caption) > 420:
-                lines = [l for l in caption.split("\n") if l.strip()]
-                caption = "\n\n".join(lines[:6])
-                if len(caption) > 400:
-                    caption = caption[:380] + "..."
-            logger.info(f"✨ [StockTextWriter] Gemini 신규 텍스트 집필 완료 ({len(caption)}자)")
+            caption_body = raw_text.replace("```json", "").replace("```", "").strip()
+            lines = [l for l in caption_body.split("\n") if l.strip() and not l.strip().startswith("#")]
+            clean_body = "\n\n".join(lines)
+            if len(clean_body) > 320:
+                clean_body = clean_body[:300] + "..."
+            caption = f"{clean_body}\n\n{hashtag_str}"
+            logger.info(f"✨ [StockTextWriter] Gemini 신규 텍스트 집필 완료 ({len(caption)}자, 해시태그 {len(hashtag_list)}개)")
         except Exception as ex:
             logger.warning(f"⚠️ [StockTextWriter] Gemini 생성 실패로 비상 폴백 가동: {ex}")
             fallback = random.choice(_STOCK_FALLBACK_BANK)
@@ -166,6 +170,7 @@ class StockThreadsTextWriter:
             "topic": topic,
             "caption": caption,
             "first_reply": first_reply,
+            "hashtags": hashtag_list,
             "created_at": datetime.now().isoformat(),
             "character_count": len(caption),
             "has_images": False

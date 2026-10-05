@@ -224,6 +224,78 @@ async function loadHealthStatus(btn) {
             }
         }
 
+        // 🔐 2.5 6대 플랫폼 영구 로그인 실시간 관제 센터 렌더링 (Threads, Naver, Instagram, Facebook, YouTube, TikTok, Tistory, Brunch)
+        const authGrid = document.getElementById("health-auth-sentinel-grid");
+        const authSentinelData = data.auth_sentinel || {};
+        const brandAuth = (authSentinelData.brands && authSentinelData.brands[b]) || {};
+        const platformAuthList = Array.isArray(brandAuth.platforms) 
+            ? brandAuth.platforms 
+            : Object.values(brandAuth.platforms || {});
+
+        if (authGrid) {
+            if (platformAuthList.length === 0) {
+                authGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:10px; padding:14px; text-align:center; color:#64748B; font-size:12.5px;">
+                        선택된 브랜드(${brandName})의 영구 로그인 진단 데이터를 불러오는 중입니다...
+                    </div>
+                `;
+            } else {
+                authGrid.innerHTML = platformAuthList.map(p => {
+                    const isOk = p.status === "active";
+                    const isWarn = p.status === "expiring_soon" || p.status === "missing";
+                    const isErr = p.status === "expired" || p.status === "locked";
+                    
+                    const borderColor = isOk ? "#86EFAC" : isWarn ? "#FCD34D" : "#FCA5A5";
+                    const topBorderColor = isOk ? "#22C55E" : isWarn ? "#F59E0B" : "#EF4444";
+                    const badgeBg = isOk ? "#ECFDF5" : isWarn ? "#FFFBEB" : "#FEF2F2";
+                    const badgeColor = isOk ? "#059669" : isWarn ? "#92400E" : "#DC2626";
+                    const badgeBorder = isOk ? "#A7F3D0" : isWarn ? "#FDE68A" : "#FECACA";
+
+                    return `
+                        <div style="background:#FFFFFF; border:1.5px solid ${borderColor}; border-top:4px solid ${topBorderColor}; border-radius:12px; padding:14px 16px; box-shadow:0 2px 8px rgba(0,0,0,0.04); display:flex; flex-direction:column; justify-content:space-between; gap:10px;">
+                            <div>
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <span style="font-size:20px;">${p.icon || '🔐'}</span>
+                                        <strong style="font-size:14px; color:#0F172A;">${p.platform_name || p.platform}</strong>
+                                    </div>
+                                    <span style="background:${badgeBg}; color:${badgeColor}; border:1px solid ${badgeBorder}; font-size:11px; font-weight:800; padding:2px 7px; border-radius:5px;">
+                                        ${p.status_label || (isOk ? '🟢 정상' : '🔴 점검 필요')}
+                                    </span>
+                                </div>
+                                
+                                <div style="display:flex; flex-direction:column; gap:4px; font-size:12px; color:#475569; background:#F8FAFC; padding:8px 10px; border-radius:6px; border:1px solid #F1F5F9;">
+                                    <div style="display:flex; justify-content:space-between;">
+                                        <span style="color:#64748B;">인증 계정:</span>
+                                        <strong style="color:#0F172A;">${p.account || '-'}</strong>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between;">
+                                        <span style="color:#64748B;">세션 수명:</span>
+                                        <span style="color:${isOk ? '#059669' : '#DC2626'}; font-weight:700;">${p.expires_at || '확인 대기'}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            ${!isOk ? `
+                                <div style="background:#FEF2F2; border:1px solid #FECACA; border-radius:8px; padding:10px 12px; font-size:11.5px; line-height:1.45;">
+                                    <div style="color:#991B1B; margin-bottom:4px;">
+                                        ⚠️ <strong>장애 원인:</strong> <span style="font-weight:600;">${p.cause || '세션 만료 또는 로그인 필요'}</span>
+                                    </div>
+                                    <div style="color:#1E40AF; background:#EFF6FF; border:1px solid #BFDBFE; padding:6px 8px; border-radius:6px; margin-top:6px; font-weight:700;">
+                                        👉 <strong>해결 조치:</strong> ${p.action || '배치 파일 실행으로 1회 로그인'}
+                                    </div>
+                                </div>
+                            ` : `
+                                <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:6px; padding:6px 10px; font-size:11.5px; color:#166534; font-weight:600; display:flex; align-items:center; gap:6px;">
+                                    <span>✨</span> <span>영구 로그인 활성 상태 — 무인 자동 발행 준비 완료</span>
+                                </div>
+                            `}
+                        </div>
+                    `;
+                }).join("");
+            }
+        }
+
         // 📡 3. 채널별 실제 발행 상태 및 바로가기 링크 렌더링
         const channelsGrid = document.getElementById("health-channels-grid");
         if (channelsGrid) {

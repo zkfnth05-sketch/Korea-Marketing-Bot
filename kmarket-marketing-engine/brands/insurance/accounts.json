@@ -19,7 +19,9 @@
     "facebook_page_id": "1358924267302888",
     "facebook_page_name": "Goldmom",
     "facebook_access_token": "EAAZAwxAv0ZAs0BSlgeVDqa0xmye43hoC8qhoZCrBCCLJ8cLRd4Lt7EKm774kjJmZAMhYx32xIcfVNRmxNZAa7pkBBh8DBZBPimV1lSblX6aKZBayZCDv4INROCK9QZCQGlJ7ZAsJUPsFFj118JKldkScdZCF93EZAN50ygMrNjIOyFCOXRua8qdgIrObGpD36Yxox1N661FNjyie",
-    "instagram_username": "goldmomofficial"
+    "instagram_username": "goldmomofficial",
+    "threads_session_connected": true,
+    "threads_username": "goldmomofficial"
   },
   "notes": "보험 비교 InsureBalance 앱 전용 SNS 및 국내 플랫폼 계정/세션 설정 파일. 기존 8대 파이프라인 코드는 건드리지 않고 이 설정만 세팅하면 가동됩니다."
 }
