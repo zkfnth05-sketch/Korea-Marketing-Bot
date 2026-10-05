@@ -16,60 +16,64 @@ STOCK_TOPIC_SPECS = {
     1: {
         "topic_id": 1,
         "title": "삼성전자 vs SK하이닉스 HBM 수급 대결",
-        "gender": "male",
-        "age": 34,
+        "gender": "female",
+        "age": 24,
         "framing": (
-            "photographed from 1.4 meters directly in front on Apple iPhone 15 Pro, "
-            "clear medium bust shot, showing head, masculine neck, broad natural shoulders, chest, and upper torso, "
-            "solo 1person male, sitting upright and comfortably on a stylish modern lounge armchair sofa, perfectly centered in frame, "
-            "perfectly upright head posture with zero tilt, natural balanced headroom occupying upper 8% of frame, "
+            "photographed from 2.5 meters away directly in front on Apple iPhone 15 Pro, "
+            "candid medium cowboy shot showing head, elegant neck, natural shoulders, chest, waist, and sleek modern glass anchor desk clearly, generous balanced headroom occupying upper 10% of frame, "
+            "solo 1person female, sitting upright and comfortably at the news anchor desk, perfectly centered in frame, "
+            "perfectly upright head posture with zero tilt, "
             "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, "
             "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
             "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and sharp clothing fabric textures"
         ),
         "char_desc": (
-            "a handsome and sharp 34-year-old Korean male professional investor, perfect 8-head-high golden ratio tall fit model proportions, "
-            "strictly no glasses, bare clean face with clear glowing healthy skin, authentic handsome Korean male facial features, attractive gentle dark eyes, sharp clean jawline, "
-            "neat and stylish natural side-parted perm hairstyle, "
-            "wearing a stylish, neat, and chic modern Korean smart-casual daily outfit, clean contemporary civilian fashion, "
-            "looking directly into camera lens with composed gentle closed-mouth expression (lips firmly closed together, strictly zero teeth showing), "
-            "modern K-drama relatable civilian investor look"
+            "an exceptionally gorgeous, captivating, and glamorous 24-year-old Korean female financial news anchor, "
+            "perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck, "
+            "breathtakingly stunning K-drama visual beauty, voluminous natural dark silky wavy hair, "
+            "seductive feline cat-like hazel eyes with subtle elegant eyeliner, flawless luminous glass skin with soft natural cheek blush, "
+            "wearing an exceptionally neat, clean, and elegant formal business suit, a tailored slim-fit dark navy blazer suit jacket over a crisp clean white collared shirt, "
+            "minimalist sophisticated Korean television news anchor formal suit fashion, impeccably ironed fabric with zero wrinkles, "
+            "looking directly into camera lens with composed confident closed-mouth expression (lips firmly closed together, strictly zero teeth showing)"
         ),
         "bg_desc": (
-            "bright modern Scandinavian sunlit apartment living room with cozy wooden interior and small green indoor plants, "
-            "warm soft natural morning window daylight streaming in, casting realistic gentle shadows, "
-            "crystal clear edge-to-edge deep focus across the entire living room, vivid authentic Korean indoor realism, zero yellow tint"
+            "state-of-the-art modern Korean broadcast television news studio in Yeouido Seoul, "
+            "sleek high-tech financial newsroom backdrop with sophisticated dark navy and golden-amber glowing LED digital display walls showing subtle abstract financial market charts, "
+            "polished modern broadcast anchor desk, professional studio key lights and soft rim lighting, "
+            "crystal clear f/11 pan-focus, vivid authentic broadcast realism, zero yellow tint"
         ),
-        "vibe": "삼성전자와 하이닉스 수급 분석으로 반도체 타이밍 잡은 30대 훈남 스마트 개미 투자자"
+        "vibe": "여의도 방송국 메인 경제 뉴스룸에서 속보를 전하는 24세 고양이상 초미모 여신 아나운서"
     },
     2: {
         "topic_id": 2,
-        "title": "미국 배당성장 ETF(SCHD·JEPQ) 월 100만원 배당",
-        "gender": "female",
-        "age": 32,
+        "title": "SK하이닉스 HBM 수급 & 퀀트 적정주가 실시간 분석",
+        "gender": "male",
+        "age": 26,
         "framing": (
-            "photographed from 1.4 meters directly in front on Apple iPhone 15 Pro, "
-            "clear medium bust shot, showing head, elegant neck, natural shoulders, chest, and upper torso, "
-            "solo 1person female, sitting upright and comfortably on a stylish modern Scandinavian lounge armchair sofa, perfectly centered in frame, "
-            "perfectly upright head posture with zero tilt, natural balanced headroom occupying upper 8% of frame, "
+            "photographed from 2.5 meters away directly in front on Apple iPhone 15 Pro, "
+            "candid medium cowboy shot showing head, masculine neck, broad natural shoulders, chest, waist, and sleek modern glass anchor desk clearly, generous balanced headroom occupying upper 10% of frame, "
+            "solo 1person male, sitting upright and comfortably at the news anchor desk, perfectly centered in frame, "
+            "perfectly upright head posture with zero tilt, "
             "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, "
             "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
             "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and sharp clothing fabric textures"
         ),
         "char_desc": (
-            "a gorgeous, poised, and intelligent 32-year-old Korean woman, perfect 8-head-high golden ratio tall fit model proportions, "
-            "strictly no glasses, bare clean face with clear glowing fair skin, authentic beautiful Korean female facial features, attractive articulate eyes, "
-            "neat and stylish natural dark brown wavy hairstyle, "
-            "wearing a stylish, neat, and chic modern Korean smart-casual daily outfit, clean contemporary civilian fashion, "
-            "looking directly into camera lens with composed gentle closed-mouth expression (lips firmly closed together, strictly zero teeth showing), "
-            "modern K-drama relatable civilian look"
+            "an exceptionally handsome 26-year-old Korean male financial news anchor (K-drama male lead actor visual, delicate handsome idol-actor appearance, refined aesthetic features), "
+            "perfect 8-head-high golden ratio male model proportions, small refined masculine head and face size, broad masculine shoulders, "
+            "sharp sculpted jawline with natural subtle directional shadow, charismatic warm intelligent dark eyes looking straight into camera, "
+            "neat stylish dark natural dandy haircut with subtle parted fringe, flawless clear healthy skin, "
+            "wearing an exceptionally neat, clean, and elegant formal business suit, a tailored slim-fit dark charcoal navy blazer suit jacket over a crisp clean white collared dress shirt and modern slim tie, "
+            "minimalist sophisticated Korean television news anchor formal suit fashion, impeccably ironed fabric with zero wrinkles, "
+            "looking directly into camera lens with composed confident closed-mouth expression (lips firmly closed together, strictly zero teeth showing)"
         ),
         "bg_desc": (
-            "bright modern Scandinavian sunlit apartment living room with cozy wooden bookshelf and potted indoor greenery, "
-            "warm soft natural morning window daylight streaming in, casting realistic gentle shadows, "
-            "crystal clear edge-to-edge deep focus across the entire living room, vivid authentic Korean indoor realism, zero yellow tint"
+            "state-of-the-art modern Korean broadcast television news studio in Yeouido Seoul, "
+            "sleek high-tech financial newsroom backdrop with sophisticated dark navy and golden-amber glowing LED digital display walls showing subtle abstract financial market charts, "
+            "polished modern broadcast anchor desk, professional studio key lights and soft rim lighting, "
+            "crystal clear f/11 pan-focus, vivid authentic broadcast realism, zero yellow tint"
         ),
-        "vibe": "매달 따박따박 들어오는 미국 배당주로 조기 은퇴 플랜 세우는 30대 똑순이 서학개미"
+        "vibe": "여의도 방송국 메인 경제 뉴스룸에서 SK하이닉스 퀀트 속보를 전하는 26세 K-드라마 남주급 훈남 아나운서"
     },
     3: {
         "topic_id": 3,

@@ -25,7 +25,7 @@ STOCK_CONFIG = {
     "display_name": "StockMaster AI",
     "official_keyword": "스톡마스터 AI",
     "cta_template": "네이버에 스톡마스터 AI 검색해보세요",
-    "forbidden_topics": "보험, 데이팅, 소개팅, 연애, 세금, 매칭, 환급",
+    "forbidden_topics": "배당, 월배당, 배당금, 배당주, 배당수익률, 배당락, 배당 계산기, 저PBR, PBR, 적립식, 복리, 보험, 데이팅, 소개팅, 연애, 세금, 매칭, 환급",
     "forbidden_claims": "한정 무료 이벤트, 선착순 마감, 쿠폰, 사은품, 특가, 캐시백, 원금보장, 100% 급등 보장",
     "duration_sec": 30,
     # Stock 30초 글자수 규격 (코드 전수 조사 확정)

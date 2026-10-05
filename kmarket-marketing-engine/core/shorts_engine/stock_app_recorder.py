@@ -53,23 +53,17 @@ class StockAppRecorder:
         topic_id: int = 1,
         duration_sec: float = 24.0,
         output_mp4_path: str = "stock_app_sim.mp4",
-        force_fresh_record: bool = False
+        force_fresh_record: bool = True
     ) -> str:
         """
-        삼성전자 4대 탭(수급 현황 ➔ 기술 지표 ➔ 리스크 평가 ➔ 기본 정보) 상하단 100% 풀뷰 24초 실물 녹화
+        100% 실시간 웹앱(https://stockmaster-ai.vercel.app/) 브라우저 직접 접속 라이브 녹화
+        - 캐시 사용 0% 전면 배제 (매 실행 시마다 실시간 최신 퀀트 데이터 녹화)
         - 1080x1920 세로 풀HD 고화질 출력
         """
         out_p = Path(output_mp4_path).resolve()
         out_p.parent.mkdir(parents=True, exist_ok=True)
 
-        preset_cache = self.presets_dir / f"stock_app_sim_topic{topic_id}_24s.mp4"
-
-        if preset_cache.exists() and not force_fresh_record and preset_cache.stat().st_size > 100000:
-            logger.info(f"⚡ [StockAppRecorder] 캐시된 24초 고화질 실물 전광판 녹화본 사용 (주제 {topic_id}): {preset_cache}")
-            shutil.copyfile(preset_cache, out_p)
-            return str(out_p)
-
-        logger.info(f"🎬 [StockAppRecorder] 삼성전자 4대 모달 탭 24초 실물 라이브 녹화 시작 (주제 {topic_id}, {self.BASE_URL})")
+        logger.info(f"🎬 [StockAppRecorder] 실시간 스톡마스터 AI 웹앱 브라우저 라이브 녹화 시작 (주제 {topic_id}, {self.BASE_URL})")
 
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_recordings = Path(temp_dir) / "recordings"
@@ -107,14 +101,7 @@ class StockAppRecorder:
                 logger.error(f"❌ FFmpeg 변환 실패: {err_msg}")
                 raise RuntimeError(f"FFmpeg transcode error: {err_msg}")
 
-            # 캐시 저장
-            try:
-                shutil.copyfile(out_p, preset_cache)
-                logger.info(f"💾 [StockAppRecorder] 프리셋 캐시 저장 완료 (주제 {topic_id}): {preset_cache}")
-            except Exception as e:
-                logger.warning(f"⚠️ 캐시 저장 실패: {e}")
-
-        logger.info(f"🎉 [StockAppRecorder] 24초 실물 4대 모달 완벽 시연 클립 완성 (주제 {topic_id}): {out_p} ({out_p.stat().st_size / 1024 / 1024:.2f} MB)")
+        logger.info(f"🎉 [StockAppRecorder] 실시간 웹앱 라이브 시연 클립 완성 (주제 {topic_id}): {out_p} ({out_p.stat().st_size / 1024 / 1024:.2f} MB)")
         return str(out_p)
 
     def _record_browser_flow(self, record_dir: Path, topic_id: int = 1, target_duration: float = 24.0) -> Optional[str]:
@@ -303,9 +290,71 @@ class StockAppRecorder:
                     page.wait_for_timeout(news_dur_ms)
                     page.wait_for_timeout(500)
 
-                elif topic_id in [3, 6]:
+                elif topic_id == 3:
                     # =========================================================================
-                    # 🌟 [주제 3 & 6: 녹화 전체 동안 최상단(y=0)부터 1등주(y=4400)까지 완벽한 균일 속도 스크롤]
+                    # 🌟 [주제 3: 뇌동매매 방지! 실시간 1등 종목 포착 ➔ 4대 모달 '리스크 평가' 탭 라이브 시연]
+                    # =========================================================================
+                    init_dur_ms = int(target_duration * 0.15 * 1000)
+                    remain_ms = max(10000, int(target_duration * 1000 - init_dur_ms))
+
+                    # 10분 계량 전광판으로 스크롤
+                    page.evaluate("() => window.scrollTo(0, 4090)")
+                    page.wait_for_timeout(init_dur_ms)
+
+                    # 당일 1위 종목 자동 감지
+                    detected_top1 = page.evaluate("""() => {
+                        const text = document.body.innerText || '';
+                        const lines = text.split('\\n').map(l => l.trim()).filter(l => l.length > 0);
+                        let boardIdx = -1;
+                        for (let i = 0; i < lines.length; i++) {
+                            if (lines[i].includes('계량 전광판 및 실시간 리스크 센터')) {
+                                boardIdx = i;
+                                break;
+                            }
+                        }
+                        if (boardIdx !== -1) {
+                            for (let i = boardIdx; i < Math.min(boardIdx + 60, lines.length); i++) {
+                                if (lines[i] === '1' && i + 1 < lines.length) {
+                                    return lines[i+1];
+                                }
+                            }
+                        }
+                        return '한온시스템';
+                    }""")
+                    stock_query = detected_top1 or "한온시스템"
+                    logger.info(f"🏆 [StockAppRecorder] 주제 3번 실시간 1위 리스크가드 종목: {stock_query}")
+
+                    inp = page.query_selector('input')
+                    if inp:
+                        inp.click()
+                        inp.fill("")
+                        for char in stock_query:
+                            inp.type(char, delay=50)
+                        page.wait_for_timeout(300)
+
+                    span_target = page.query_selector(f'text="{stock_query}"')
+                    if span_target:
+                        span_target.click()
+                        page.wait_for_timeout(800)
+
+                    # [리스크 평가] 탭 원클릭
+                    tab_risk = page.query_selector('text="리스크 평가"')
+                    if tab_risk:
+                        tab_risk.click()
+                        page.wait_for_timeout(500)
+
+                    # 리스크 평가 상세 지표 & 기계적 손절선 & 아킬레스건 박스 상하 완벽 스크롤
+                    scroll_1_ms = int(remain_ms * 0.45)
+                    scroll_2_ms = int(remain_ms * 0.45)
+                    page.evaluate(f"() => window.smoothScrollModal(380, {scroll_1_ms})")
+                    page.wait_for_timeout(scroll_1_ms)
+                    page.evaluate(f"() => window.smoothScrollModal(0, {scroll_2_ms})")
+                    page.wait_for_timeout(scroll_2_ms)
+                    page.wait_for_timeout(500)
+
+                elif topic_id == 6:
+                    # =========================================================================
+                    # 🌟 [주제 6: 스톡마스터AI 총괄 - 최상단부터 전광판까지 풀스크린 연속 스크롤]
                     # =========================================================================
                     scroll_dur_ms = max(5000, int((target_duration - 0.5) * 1000))
                     page.evaluate(f"() => window.smoothScrollPageLinear(4400, {scroll_dur_ms})")

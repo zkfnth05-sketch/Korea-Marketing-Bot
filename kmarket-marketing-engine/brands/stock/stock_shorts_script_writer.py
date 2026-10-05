@@ -19,58 +19,50 @@ from typing import Dict, Any, Optional
 
 logger = logging.getLogger("StockShortsScriptWriter")
 
-# 8대 주제별 '순수 상황 & 기능 정의' (100% 국내 코스피/코스닥 주도주 전담)
+# 6대 주제별 '스톡마스터 AI 100% 진짜 기능 정의' (국내 코스피/코스닥 350개 우량주 실시간 퀀트)
 STOCK_8_TOPIC_CONCEPTS: Dict[int, Dict[str, str]] = {
     1: {
-        "title": "삼성전자 vs SK하이닉스 HBM 수급 대결",
-        "concept": "삼성전자와 SK하이닉스 중 무엇을 매수할지 고민하는 국내 투자자를 위해, 글로벌 AI 반도체 공급망 수급과 외인/기관 순매수 추이 및 퀀트 적정주가를 1초 만에 객관적으로 비교해주는 기능.",
-        "app_sim_visual": "삼성전자 및 SK하이닉스 실시간 수급 비교 및 AI 퀀트 적정주가 분석표가 1초 만에 뜨는 화면."
+        "title": "삼성전자 실시간 4대 모달 퀀트 수급 분석",
+        "concept": "삼성전자 매수를 고민하는 국내 투자자를 위해, 당일 장중 외국인·기관 실시간 순매수 유입, 퀀트 적정주가, 체결강도 골든크로스를 1초 만에 객관적으로 분석해주는 기능.",
+        "app_sim_visual": "10분 계량 전광판에서 삼성전자 클릭 후 수급현황 탭(외인/기관 대량매집), 기술지표, AI 리스크평가 4대 모달이 1초 만에 렌더링되는 화면."
     },
     2: {
-        "title": "국내 고배당주(금융지주·맥쿼리) 월배당 시뮬레이션",
-        "concept": "매달 통장에 배당금을 받는 제2의 월급을 원하는 국내 투자자를 위해, 국내 대표 고배당주와 배당락 방어 퀀트 점수 및 예상 월 수령액을 1초 만에 시뮬레이션해주는 기능.",
-        "app_sim_visual": "배당 계산기에서 투자금 입력 후 국내 고배당주 월별 배당 예상 수령액 그래프가 1초 만에 시뮬레이션되는 화면."
+        "title": "SK하이닉스 HBM 실시간 퀀트 수급 & AI 리스크 진단",
+        "concept": "HBM 주도주 SK하이닉스의 고점 추격매수와 조정 구간을 고민하는 국내 투자자를 위해, 당일 실시간 외국인·기관 수급 유입과 AI 리스크 센터의 단기 과열 진단 및 안전 진입가를 1초 만에 분석해주는 기능.",
+        "app_sim_visual": "10분 계량 전광판에서 SK하이닉스 클릭 후 3대 주체별 실시간 수급 현황(외인/기관/개인), 거래대금, 신용잔고율, AI 리스크 안전구간이 1초 만에 렌더링되는 화면."
     },
     3: {
-        "title": "코스피·코스닥 세력 체결강도 120% 돌파 유망주",
-        "concept": "당일 장중 메이저 수급이 급격히 유입되는 주도주를 잡고 싶은 국내 투자자를 위해, 실시간 체결강도 120% 돌파 종목과 외인/기관 블록오더를 1초 만에 포착해주는 기능.",
-        "app_sim_visual": "실시간 체결강도 120% 돌파 급등 유망주 레이더와 수급 수치가 1초 만에 렌더링되는 화면."
+        "title": "뇌동매매 방지! AI 기계적 손절매 & 실시간 리스크 가드",
+        "concept": "급등주 추격매수로 고점에 물리거나 감정에 휘둘려 손절 타이밍을 놓치는 개인 투자자를 위해, AI 리스크 센터가 변동성을 감지하여 기계적 손절 라인과 VETO 위험 종목을 1초 만에 걸러주는 기능.",
+        "app_sim_visual": "AI 리스크 센터 화면에서 시장 변동성 지표, 기계적 손절매 가이드라인, VETO 배제 종목 목록이 1초 만에 렌더링되는 화면."
     },
     4: {
-        "title": "저PBR 밸류업 & 고배당 금융주 스크리너",
-        "concept": "정부 밸류업 정책에 맞춰 어떤 저평가 종목을 사야 할지 모르는 국내 투자자를 위해, PBR 1배 미만 알짜 기업과 주주환원율/배당수익률 순위를 1초 만에 필터링해주는 기능.",
-        "app_sim_visual": "저PBR 밸류업 스크리너에서 PBR 1배 미만 알짜 금융/지주사 순위표가 1초 만에 정렬되는 화면."
+        "title": "당일 10분 계량 전광판 실시간 1위 주도주 포착 레이더",
+        "concept": "오늘 장중 메이저 세력의 자금이 가장 강력하게 쏠리는 진짜 1등 주도주를 찾고 싶은 국내 투자자를 위해, 10분마다 국내 350개 우량주의 체결강도와 순매수를 스캔하여 실시간 1위를 포착해주는 기능.",
+        "app_sim_visual": "10분 계량 전광판 상단에서 실시간 1위 급등 주도주가 10분마다 갱신되고, 1위 종목의 퀀트 스코어카드가 1초 만에 열리는 화면."
     },
     5: {
-        "title": "뇌동매매 방지! AI 자동 손절매 & 리스크 가드",
-        "concept": "급등주 추격매수로 고점에 물리거나 손절 타이밍을 놓치는 개인 투자자를 위해, 변동성을 감지하여 최적의 손절 라인과 익절 목표가를 기계적으로 1초 만에 계산해주는 기능.",
-        "app_sim_visual": "종목 변동성 기반 AI 손절선(-3%/-5%) 및 익절 목표가 리스크 매트릭스가 1초 만에 계산되는 화면."
+        "title": "KOSPI 시장 종합 스트레스 센터 & 환율·금리 4대 매크로 리포트",
+        "concept": "국내 증시의 전반적인 하방 압력과 거시경제 위험도를 한눈에 파악하고 싶은 국내 투자자를 위해, 시장 종합 스트레스 지수 10점 척도와 환율/금리/유가 4대 계량 매크로 리포트를 1초 만에 진단해주는 기능.",
+        "app_sim_visual": "메인 상단 글로벌 매크로 패널에서 시장 종합 스트레스 10점 국면 차트와 환율/금리 리스크 리포트가 1초 만에 렌더링되는 화면."
     },
     6: {
-        "title": "코스피200 우량주 vs 코스닥 성장주 직장인 월적립식 복리",
-        "concept": "월급으로 국내 대표 지수 및 우량주에 적립식 투자하려는 직장인을 위해, 월 적립액 입력만으로 코스피200과 코스닥 성장주의 10년 복리 수익 곡선과 미래 예상 자산을 1초 만에 비교해주는 기능.",
-        "app_sim_visual": "월 적립식 복리 시뮬레이터에서 10년 자산 성장 곡선 그래프가 1초 만에 비교 렌더링되는 화면."
-    },
-    7: {
-        "title": "외국인·기관 쌍끌이 순매수 실시간 레이더",
-        "concept": "개미들만 사고 메이저 세력은 매도하는 종목에 물리지 않도록, 장중 외국인과 기관이 3일 연속 동시 순매수하는 진짜 국내 주도주를 1초 만에 포착해주는 기능.",
-        "app_sim_visual": "외국인·기관 쌍끌이 실시간 순매수 상위 종목 레이더 전광판이 1초 만에 실시간 렌더링되는 화면."
-    },
-    8: {
-        "title": "초보 탈출! 원클릭 AI 종목 재무 건전성 진단",
-        "concept": "어려운 재무제표를 보기 힘든 초보 투자자를 위해, 영업이익, 부채비율, 현금흐름 3대 지표를 분석해 상폐 위험을 거르고 100점 만점 점수로 1초 만에 진단해주는 기능.",
-        "app_sim_visual": "종목명 검색 후 재무 건전성 100점 만점 레이더 차트와 위험도 평가표가 1초 만에 분석되는 화면."
+        "title": "국내 최초 24시간 자기학습 AI 퀀트 비서! Stock Master AI 총괄",
+        "concept": "감정 매매에서 벗어나 객관적 데이터 기반의 스마트한 투자를 원하는 모든 개인 투자자를 위해, 10분 퀀트 스캔과 실시간 손절 알림 및 4대 모달 분석을 무료로 제공하는 AI 퀀트 비서 기능.",
+        "app_sim_visual": "10분 계량 전광판 ➔ 1등 주도주 4대 모달 ➔ AI 리스크 센터 ➔ 실시간 수급 레이더가 유기적으로 연동되는 화면."
     }
 }
 
 
 class StockShortsScriptWriter:
-    """📈 StockMaster AI 8대 주제 전용 제미나이 2.5 Flash 실시간 자율 대본 생성 엔진"""
+    """📈 StockMaster AI 6대 주제 전용 제미나이 2.5 Flash 실시간 자율 대본 생성 엔진"""
 
     OFFICIAL_KEYWORD = "스톡마스터 AI"
     FORBIDDEN_WORDS = [
         "한정", "이벤트", "선착순", "마감", "사은품", "쿠폰", "오늘만", 
-        "특가", "캐시백", "당첨", "추천주 100% 급등", "원금보장", "수익률 보장", "보험", "데이팅", "소개팅", "연애"
+        "특가", "캐시백", "당첨", "추천주 100% 급등", "원금보장", "수익률 보장",
+        "배당", "월배당", "배당금", "배당주", "배당수익률", "배당락", "배당 계산기", 
+        "저PBR", "PBR", "적립식", "복리", "세금", "환급", "보험", "데이팅", "소개팅", "연애"
     ]
 
     def __init__(self):
@@ -122,14 +114,63 @@ class StockShortsScriptWriter:
         ref_hero = golden.get("hero_copy", "실시간 퀀트 데이터 객관적 분석!")
         ref_debate = golden.get("debate_question", "지금 시장의 진짜 주도주는?")
 
+        # 📡 [실시간 스톡앱 배포 사이트 100% 라이브 크롤링 데이터 수집]
+        live_data_text = ""
+        try:
+            from brands.stock.stock_realtime_data_fetcher import StockRealtimeDataFetcher
+            fetcher = StockRealtimeDataFetcher()
+            target_stock_map = {
+                1: "삼성전자",
+                2: "SK하이닉스",
+                3: "전광판1위",
+                4: "전광판1위",
+                5: "매크로스트레스",
+                6: "전광판1위"
+            }
+            target_stock = target_stock_map.get(norm_id, "전광판1위")
+            realtime_dict = fetcher.fetch_stock_data(target_stock)
+            if realtime_dict:
+                macro_info = realtime_dict.get("macro", {})
+                top1_info = realtime_dict.get("top1_board", {})
+                modal_info = realtime_dict.get("modal_data", {})
+                board_stocks = realtime_dict.get("board_stocks", [])
+                
+                # 타깃 종목의 전광판 순위 찾기
+                target_rank_str = "순위권 내"
+                target_score_str = ""
+                for s in board_stocks:
+                    if s.get("name") == target_stock:
+                        target_rank_str = f"전광판 {s.get('rank')}위"
+                        target_score_str = f", 계량종합점수 {s.get('totalScore')}"
+                        break
+
+                live_data_text = f"""
+[실제 주식앱(stockmaster-ai.vercel.app) 실시간 라이브 실측 팩트 수치 (Ground Truth - 10분마다 자동 갱신)]
+- 🌐 시장 종합 스트레스 지수: {macro_info.get('stressScore', '20점')} ({macro_info.get('stressPhase', '🟢 안정 국면')}) / {macro_info.get('stressGuide', '')}
+- 💵 원달러 환율: {macro_info.get('usdfx', '1,345.4원')} / 🇺🇸 미국 10년물 국채: {macro_info.get('usBond', '5.277%')}
+- 🔵 코스피 지수: {macro_info.get('kospiZ', '7,003.74pt')} / 🟢 코스닥 지수: {macro_info.get('kosdaqZ', '893.29pt')}
+- 🏆 10분 전광판 당일 실시간 1위 종목: {top1_info.get('name', '한온시스템')} ({top1_info.get('code', '018880')}) (계량종합: {top1_info.get('totalScore', '125점')}, 체결강도: {top1_info.get('chegyeol', '127.16%')}, 외국계 순매수: {top1_info.get('foreignAmt', '+42.0억')}, 손절선: {top1_info.get('exitSL', '3,197원')}, 현재가: {top1_info.get('currPrice', '3,840원')}, 목표선: {top1_info.get('swingTP', '5,126원')})
+- 📈 이번 주제 타깃 종목 '{target_stock}' 실측 퀀트 수치 ({target_rank_str}{target_score_str}):
+  * 현재가: {modal_info.get('currPrice', '')} ({modal_info.get('changeRate', '')})
+  * 당일 거래대금: {modal_info.get('tradeAmt', '')} / 신용잔고율: {modal_info.get('creditRatio', '')}
+  * 당일 체결강도: {modal_info.get('chegyeol', '')} / RSI: {modal_info.get('rsi', '')}
+  * 외국인 수급: {modal_info.get('foreignFlow', '')} / 기관 수급: {modal_info.get('instFlow', '')} / 개인: {modal_info.get('retailFlow', '')}
+  * 정량 리스크 점수: {modal_info.get('riskScore', '')}
+"""
+                logger.info(f"📡 [실시간 웹앱 크롤링 성공] 주제 #{norm_id} ({target_stock}) 실측 팩트 데이터 제미나이 주입 완료!")
+        except Exception as ex_fetch:
+            logger.error(f"❌ 실시간 웹앱 크롤링 실패: {ex_fetch}")
+            raise RuntimeError(f"실시간 웹앱 라이브 크롤링 실패로 대본 생성 중단 (허위 캐시 배제 원칙): {ex_fetch}")
+
         prompt = f"""당신은 신뢰감 있고 명쾌하며 스마트한 대한민국 주식/금융 퀀트 전문 아나운서입니다.
-아래 제공된 [기준 원본 골든 대본]과 앱 기능 정보를 바탕으로, 대한민국 스마트 개미 투자자들이 깊이 공감하고 즉시 행동할 수 있는 22초 숏폼 아나운서 대본을 완성해주세요.
+아래 제공된 [실시간 웹앱 라이브 실측 팩트 수치]와 [기준 원본 골든 대본]을 바탕으로, 대한민국 스마트 개미 투자자들이 깊이 공감하고 즉시 행동할 수 있는 34초 숏폼 아나운서 대본을 완성해주세요.
 
 [★ 핵심 원칙 (절대 불변)]
-1. 아래 [기준 원본 골든 대본]에 담긴 **스토리 라인, 핵심 팩트(외인/기관 수급 분석, 적정주가, 배당 계산, 저PBR 스크리너 등), 실제 기능 플로우를 100% 온전히 계승**하세요.
+1. 아래 제공된 [실시간 웹앱 라이브 실측 팩트 수치]를 대본에 자연스럽고 정확하게 반영하여, 오늘 실제 장중 데이터가 살아있는 신뢰도 100% 대본을 작성하세요.
 2. 🚨 [허위 마케팅 및 거짓말 날조 전면 금지]: 특정 종목 매수/매도 권유나 미확인 정보, '원금보장', '한정 무료 이벤트', '선착순 마감' 등의 거짓말 문구를 절대 지어내지 마세요.
-3. [기준 원본 골든 대본]의 뼈대를 바탕으로, 전문 주식 아나운서 어조와 정확한 글자수 규격(10초 훅 / 12초 앱 시연)에 맞춰 가장 매끄럽고 명쾌한 발화문으로 정밀 다듬기하세요.
-
+3. 🚨 [기능 불일치 금지]: 배당금, 월배당, 세금, 환급 등 우리 앱에 없는 기능은 0% 배제하고, 실시간 외국인/기관 수급, 10분 전광판 1위 주도주, 체결강도, AI 리스크 센터(기계적 손절/VETO) 실제 기능만을 다루세요.
+4. 전문 주식 아나운서 어조와 정확한 글자수 규격(10초 훅 / 20초 앱 시연)에 맞춰 가장 매끄럽고 명쾌한 발화문으로 정밀 다듬기하세요.
+{live_data_text}
 [기준 원본 골든 대본 (Ground Truth Reference)]
 - 기준 훅 1 (0~5초): {ref_hook_p1}
 - 기준 훅 2 (5~10초): {ref_hook_p2}
@@ -143,14 +184,14 @@ class StockShortsScriptWriter:
 - 실제 앱 시연 화면(10~20초): {info['app_sim_visual']}
 - 공식 포털 검색어: {self.OFFICIAL_KEYWORD}
 
-[대본 글자수 절대 규칙 (Wan 2.2 S2V 10초 립싱크 완벽 동기화)]
-1. hook_p1 (0~5초): 시선을 사로잡는 현실 주식 투자 공감 질문 [공백 포함 정확히 25~32자]
-2. hook_p2 (5~10초): 핵심 팩트와 해결책 제시 [공백 포함 정확히 25~32자]
-   ★ 중요: hook_p1과 hook_p2를 합친 전체 훅(0~10초)은 반드시 [공백 포함 55~65자] 내외여야 합니다.
-3. app_speech (10~20초): 실제 앱 화면에서 퀀트 데이터 분석/시뮬레이션이 일어나는 상황 설명 [공백 포함 75~100자 (약 8~9초 발화 분량으로 침묵 없이 꽉 차게)]
-4. cta_speech (20~22초): "네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!" 유도 [공백 포함 18~25자]
+[대본 글자수 절대 규칙 (34초 완제품 풀스피치: 10초 립싱크 + 20초 웹앱 쉼 없는 해설 + 4초 CTA)]
+1. hook_p1 (0~5초): 시선을 사로잡는 현실 주식 투자 공감 질문 [공백 포함 정확히 30~36자]
+2. hook_p2 (5~10초): 핵심 팩트와 해결책 제시 [공백 포함 정확히 30~36자]
+   ★ 중요: hook_p1과 hook_p2를 합친 전체 훅(0~10초)은 반드시 [공백 포함 60~72자] 내외여야 합니다 (Wan 2.2 S2V 10초 립싱크 완벽 동기화).
+3. app_speech (10~30초): 실제 20초 웹앱 화면이 흘러가는 동안, 단 1초의 침묵이나 끊김도 없이 10분 전광판/실시간 수급/체결강도/AI 리스크 센터를 쉼 없이 전문적으로 꽉 채워 해설하는 나레이션 [공백 포함 정확히 145~175자 (20초 동안 끊김 없이 꽉 차게)]
+4. cta_speech (30~34초): "지금 바로 네이버에 '{self.OFFICIAL_KEYWORD}'를 검색하시고, 실시간 외인·기관 수급을 무료로 확인하세요!" [공백 포함 25~35자]
 
-[글자수 합계 엄수: 전체 대본 합계가 공백 포함 정확히 150~185자 내외가 되도록 작성하세요.]
+[글자수 합계 엄수: 전체 대본 합계가 공백 포함 정확히 235~275자 내외로 34초 동안 단 1초의 끊김 없는 풍성한 완성형 스피치로 작성하세요.]
 
 반드시 아래 JSON 포맷으로만 응답하세요:
 {{
@@ -225,32 +266,40 @@ class StockShortsScriptWriter:
 
                     # 공식 검색어 포함 검증 (누락 시 자동 보정)
                     if self.OFFICIAL_KEYWORD not in cta_speech:
-                        cta_speech = f"네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"
+                        cta_speech = f"지금 바로 네이버에 '{self.OFFICIAL_KEYWORD}'를 검색해보세요!"
                         full_speech = f"{hook_full} {app_speech} {cta_speech}".strip()
 
-                    # 🔒 [무결성 게이트 2: 구간별 및 전체 글자수 검증]
-                    # 1) 훅 글자수 검증: 40자 ~ 80자 (Wan 10초 립싱크 안전 마진)
-                    if len(hook_full) < 40 or len(hook_full) > 80:
-                        logger.warning(f"⚠️ 훅 글자수 범위 벗어남({len(hook_full)}자, 목표: 50~70자), 다음 시도")
+                    # 🔒 [무결성 게이트 2: 34초 구간별 및 전체 글자수 정밀 검증]
+                    # 1) 훅 글자수 검증: 40자 ~ 90자 (Wan 10초 립싱크 안전 범위)
+                    if len(hook_full) < 40 or len(hook_full) > 95:
+                        logger.warning(f"⚠️ 훅 글자수 범위 벗어남({len(hook_full)}자, 목표: 50~80자), 다음 시도")
                         continue
 
-                    # 2) 앱 시연 글자수 검증: 65자 ~ 115자 (12초 앱 시연 음성 공백 방지)
-                    if len(app_speech) < 65 or len(app_speech) > 115:
-                        logger.warning(f"⚠️ 앱 시연 글자수 범위 벗어남({len(app_speech)}자, 목표: 75~100자), 다음 시도")
+                    # 2) 앱 시연 글자수 검증: 110자 ~ 190자 (20초 웹앱 화면 꽉 찬 해설)
+                    if len(app_speech) < 110 or len(app_speech) > 200:
+                        logger.warning(f"⚠️ 앱 시연 글자수 범위 벗어남({len(app_speech)}자, 목표: 130~175자), 다음 시도")
                         continue
 
-                    # 3) 전체 글자수 검증: 135자 ~ 195자
-                    if len(full_speech) < 135 or len(full_speech) > 195:
-                        logger.warning(f"⚠️ 전체 글자수 범위 벗어남({len(full_speech)}자, 목표: 150~185자), 다음 시도")
+                    # 3) 전체 글자수 검증: 200자 ~ 300자 (34초 완제품 풀스피치)
+                    if len(full_speech) < 190 or len(full_speech) > 310:
+                        logger.warning(f"⚠️ 전체 글자수 범위 벗어남({len(full_speech)}자, 목표: 220~280자), 다음 시도")
                         continue
 
-                    logger.info(f"✨ [Gemini 주식 자율 대본 성공] 주제 #{norm_id} (훅:{len(hook_full)}자, 전체:{len(full_speech)}자, model={model})")
+                    logger.info(f"✨ [Gemini 주식 34초 논스톱 자율 대본 성공] 주제 #{norm_id} (훅:{len(hook_full)}자, 앱:{len(app_speech)}자, 전체:{len(full_speech)}자, model={model})")
                     return {
+                        "topic_id": norm_id,
+                        "title": info["title"],
+                        "hook_p1": hook_p1,
+                        "hook_p2": hook_p2,
                         "hook_p1_5s": hook_p1,
                         "hook_p2_5s": hook_p2,
                         "hook_0_10s": hook_full,
+                        "app_speech": app_speech,
                         "app_10_20s": app_speech,
+                        "app_10_30s": app_speech,
+                        "cta_speech": cta_speech,
                         "cta_18_22s": cta_speech,
+                        "cta_30_34s": cta_speech,
                         "hero_copy": hero_copy or "실시간 퀀트 데이터 객관적 분석!",
                         "debate_question": debate_q or "지금 시장의 진짜 주도주는?",
                         "full_speech": full_speech,

@@ -120,23 +120,23 @@ class StockQuantShortsBuilder:
         """국내 5대/6대 마스터 주제별 완제품 숏폼 자동 빌드 (대본 길이에 맞춤 100% 자동 동적 동기화)"""
         scenario = self.scenario_director.get_full_scenario(topic_id=topic_id)
         theme_name = scenario["theme_name"]
-        stock_target = scenario.get("stock_target", "전광판1위" if topic_id == 4 else "삼성전자")
+        stock_target = scenario.get("stock_target", "전광판1위" if topic_id in [3, 4, 6] else ("SK하이닉스" if topic_id == 2 else "삼성전자"))
         stock_name = stock_target
-
+        dt_str = datetime.now().strftime("%Y%m%d_%H%M%S")
         topic_folder_names = {
-            1: "[주제01] 삼성전자_실시간_4대모달_퀀트수급_30초",
-            2: "[주제02] SK하이닉스_HBM독주_실시간수급_30초",
-            3: "[주제03] 뇌동매매방지_1위이수페타시스_AI리스크가드_30초",
-            4: "[주제04] 10분계량전광판_당일1위주도주_발굴_30초",
-            5: "[주제05] 코스피_시장종합스트레스_환율금리_30초",
-            6: "[주제06] 스톡마스터AI_국내최초자기학습퀀트_총괄소개_30초"
+            1: f"[주제01] 삼성전자_실시간아이프레임_30초_{dt_str}",
+            2: f"[주제02] SK하이닉스_HBM실시간아이프레임_30초_{dt_str}",
+            3: f"[주제03] 뇌동매매방지_기계적손절매_30초_{dt_str}",
+            4: f"[주제04] 10분전광판_당일1위주도주_30초_{dt_str}",
+            5: f"[주제05] 코스피_시장스트레스4대매크로_30초_{dt_str}",
+            6: f"[주제06] 스톡마스터AI_총괄소개_30초_{dt_str}"
         }
 
-        folder_name = topic_folder_names.get(topic_id, f"[주제{topic_id:02d}] {theme_name}")
+        folder_name = topic_folder_names.get(topic_id, f"[주제{topic_id:02d}] {theme_name}_{dt_str}")
         out_folder = self.output_base / folder_name
         out_folder.mkdir(parents=True, exist_ok=True)
 
-        logger.info(f"🚀 [StockQuantShortsBuilder] {folder_name} 실시간 숏폼 제작 가동!")
+        logger.info(f"🚀 [StockQuantShortsBuilder] 신규 독립 전용 폴더 생성: {folder_name}")
 
         # 1. [Step 1] 주식앱 실제 배포 사이트에서 오늘 실시간 퀀트 & 매크로 데이터 수집
         logger.info(f"📡 [Step 1] stockmaster-ai.vercel.app '{stock_name}' 실시간 데이터 수집 중...")
@@ -224,17 +224,17 @@ class StockQuantShortsBuilder:
         # 7. [Step 7] SNS 5대 플랫폼 업로드 원클릭 가이드 자동 생성
         guide_file = out_folder / "[SNS_업로드_원클릭_복사붙여넣기_가이드].txt"
         topic_titles = {
-            1: "오늘 삼성전자 4.1조원 수급 폭발! 4대 모달 실시간 퀀트 분석",
-            2: "SK하이닉스 HBM 독주와 5.1조원 거래대금 폭발! 실시간 퀀트 지표",
-            3: "급등주 추격 매수로 계좌 녹이지 마세요! 전광판 1위 이수페타시스 142점 & AI 리스크 가드",
+            1: "오늘 삼성전자 실시간 4대 모달 퀀트 수급 분석",
+            2: "SK하이닉스 HBM 실시간 퀀트 수급 & AI 리스크 진단",
+            3: "뇌동매매 방지! AI 기계적 손절매 & 실시간 리스크 가드",
             4: "오늘 장중 국내 350개 우량주 중 진짜 1위 주도주 발굴!",
-            5: "대한민국 증시 시장 종합 스트레스 지수 10점 안정 국면! 글로벌 4대 매크로 리포트",
-            6: "하루 종일 HTS 보지 마세요! 국내 최초 자기학습 AI 퀀트 비서 Stock Master AI 총괄 소개"
+            5: "대한민국 증시 코스피 시장 종합 스트레스 센터 & 환율·금리 리포트",
+            6: "하루 종일 HTS 보지 마세요! 국내 최초 자기학습 AI 퀀트 비서 Stock Master AI 총괄"
         }
         topic_tags = {
             1: "#삼성전자 #주식수급 #외인기관수급 #주식AI #스톡마스터AI #삼성전자주가 #퀀트투자",
             2: "#SK하이닉스 #HBM반도체 #반도체주식 #주식AI #스톡마스터AI #SK하이닉스주가 #수급분석",
-            3: "#이수페타시스 #뇌동매매방지 #주식손절매 #리스크관리 #주식AI #스톡마스터AI #원금보호 #퀀트투자",
+            3: "#뇌동매매방지 #기계적손절매 #주식손절매 #리스크관리 #주식AI #스톡마스터AI #원금보호 #퀀트투자",
             4: "#주도주 #급등주발굴 #10분전광판 #주식수급 #주식AI #스톡마스터AI #세력매집",
             5: "#코스피 #시장스트레스 #미국국채금리 #환율전망 #주식AI #스톡마스터AI #증시시황",
             6: "#스톡마스터AI #주식AI #퀀트투자 #주식어플 #AI트레이딩 #직장인주식 #주식손절알림"
