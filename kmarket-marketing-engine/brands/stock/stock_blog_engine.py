@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-📈 StockMaster 전용 블로그 SEO & 실시간 키워드 합성 엔진 (StockBlogEngine)
+📈 StockMaster 전용 블로그 SEO & 실시간 앱 캡처 엔진 (StockBlogEngine)
 ========================================================================
-- 브랜드: StockMaster AI (주식 AI 분석 & 퀀트 & 뇌동매매 방지)
-- 역할:
-  1. 📚 100대 마스터 주제 풀에서 순환 또는 지정 추출
-  2. 🛡️ 6대 카테고리 전용 시드어 실시간 키워드 수집 및 노이즈 필터링
-  3. 🤖 Gemini 2,000자 전문 칼럼 작성 (비용 0원 무료키 1순위)
-  4. 🎨 글 스토리 맥락에 100% 어울리는 16:9 감성 사진 실시간 생성
-  5. 🌐 3대 블로그(네이버, 티스토리, 브런치) 동시/순차 자동 발행
+- 브랜드: StockMaster AI (주식 AI 분석 & 10분 계량 전광판 & 뇌동매매 방지 VETO)
+- 철칙:
+  1. 📚 100% 대한민국 국내 증시 100대 주제 풀에서 7대 카테고리 인터리빙 교차 순환
+  2. 📸 가짜 AI 사진 생성 전면 배제 ➔ 실제 웹앱(stockmaster-ai.vercel.app)에서 [✨ 변곡점], [🟢 진입유효], [🔴 VETO] 버튼을 직접 클릭한 실시간 전광판 캡처 증거 화면 100% 사용
+  3. 🤖 Gemini 2,000자 실전 계량 투자 칼럼 작성 (실제 캡처 데이터 1:1 인용)
+  4. 🏷️ 100대 주제 1:1 고유 태그 + 구글/네이버 실시간 급상승 트렌드 15개 해시태그 결합
+  5. 🌐 3대 블로그(네이버, 티스토리, 브런치) 동시/순차 무인 자동 배포
 """
 
 import os
@@ -25,23 +25,30 @@ PROJECT_ROOT = CURRENT_DIR.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+# UTF-8 콘솔 출력 지원
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 logger = logging.getLogger("StockBlogEngine")
 
 from brands.stock.stock_100_topics import (
     STOCK_100_TOPICS,
     get_all_topics,
     get_topic_by_id,
-    get_topics_by_category
+    get_topics_by_category,
+    get_interleaved_topic_order
 )
 from brands.stock.stock_keyword_matrix import StockKeywordMatrix
+from brands.stock.stock_hashtag_matrix import StockHashtagMatrix
 
 
 class StockBlogEngine:
     """
-    📈 100대 주제 + 실시간 키워드 결합 주식 AI 블로그 엔진
-    - Gemini 2,000자 전문 투자 칼럼 자동 작성
-    - 16:9 맞춤 실사 사진 1장 실시간 생성
-    - 네이버, 티스토리, 브런치 무인 자동 발행
+    📈 100% 국내 주식 100대 주제 + 실제 앱 실시간 버튼 클릭 캡처 블로그 엔진
     """
     BRAND = "stock"
     NAME = "StockMaster Blog Engine"
@@ -52,9 +59,8 @@ class StockBlogEngine:
         self.topics = STOCK_100_TOPICS
         self.rotation_index = 0
         self._writer = None
-        self._image_gen = None
-        self._publisher = None
         self._capturer = None
+        self._publisher = None
 
     def _get_capturer(self):
         if self._capturer is None:
@@ -68,12 +74,6 @@ class StockBlogEngine:
             self._writer = StockGeminiWriter()
         return self._writer
 
-    def _get_image_gen(self):
-        if self._image_gen is None:
-            from brands.stock.stock_image_generator import StockImageGenerator
-            self._image_gen = StockImageGenerator()
-        return self._image_gen
-
     def _get_publisher(self):
         if self._publisher is None:
             from brands.stock.stock_multi_publisher import StockMultiPublisher
@@ -81,7 +81,7 @@ class StockBlogEngine:
         return self._publisher
 
     def get_next_topic(self) -> Dict[str, Any]:
-        """100대 주제를 파일 기반으로 1개씩 순환 반환 (중복 발행 100% 원천 차단)"""
+        """7대 카테고리 교차 순환(인터리빙) 방식으로 1개씩 순환 반환 (특정 분야 쏠림 100% 차단)"""
         state_file = PROJECT_ROOT / "data" / "stock_blog_rotation_state.json"
         state = {}
         if state_file.exists():
@@ -91,10 +91,12 @@ class StockBlogEngine:
             except Exception:
                 state = {}
 
+        interleaved_order = get_interleaved_topic_order()
         idx = state.get("current_topic_index", 0)
-        topic = self.topics[idx % len(self.topics)]
+        target_id = interleaved_order[idx % len(interleaved_order)]
+        topic = get_topic_by_id(target_id)
 
-        state["current_topic_index"] = (idx + 1) % len(self.topics)
+        state["current_topic_index"] = (idx + 1) % len(interleaved_order)
         state["last_topic_id"] = topic["id"]
         state["last_title"] = topic["title"]
         try:
@@ -106,23 +108,93 @@ class StockBlogEngine:
 
         return topic
 
-    def get_random_topic(self, category: Optional[str] = None) -> Dict[str, Any]:
-        """랜덤 주제 반환"""
-        if category:
-            pool = get_topics_by_category(category)
-            if pool:
-                return random.choice(pool)
-        return random.choice(self.topics)
+    @staticmethod
+    def clean_markdown_body(raw_md: str) -> str:
+        """본문에서 [이미지:...], [사진:...], 불필요한 특수문자 선을 100% 제거하고 깔끔한 줄바꿈 유지"""
+        import re
+        text = re.sub(r'\[.*?이미지.*?\]', '', raw_md)
+        text = re.sub(r'\[.*?사진.*?\]', '', text)
+        text = re.sub(r'\[.*?16:9.*?\]', '', text, flags=re.IGNORECASE)
+        text = re.sub(r'🖼️\s*\[.*?\]', '', text)
+        text = re.sub(r'━{3,}', '', text)
+        text = re.sub(r'-{4,}', '', text)
+        text = re.sub(r'={4,}', '', text)
+
+        lines = text.split("\n")
+        cleaned = []
+        for line in lines:
+            l = line.strip()
+            if not l:
+                cleaned.append("")
+                continue
+            cleaned.append(l)
+
+        res = "\n".join(cleaned)
+        res = re.sub(r'\n{3,}', '\n\n', res).strip()
+        return res
+
+    @staticmethod
+    def render_clean_html_body(clean_md: str, landing_url: str, image_path: Optional[str] = None) -> str:
+        """티스토리/웹 전용 고품질 여백 및 비주얼 박스 카드 HTML 렌더링 (실제 앱 캡처 이미지 상단 직결)"""
+        import re
+        import base64
+
+        img_html = ""
+        if image_path and Path(image_path).exists():
+            try:
+                with open(image_path, "rb") as img_f:
+                    b64_str = base64.b64encode(img_f.read()).decode("utf-8")
+                img_html = f"""
+<div style="text-align: center; margin: 24px 0 32px 0;">
+  <img src="data:image/png;base64,{b64_str}" alt="StockMaster AI 실시간 퀀트 전광판" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.15), 0 4px 6px -2px rgba(0,0,0,0.05); border: 1px solid #cbd5e1;" />
+  <p style="color: #64748b; font-size: 13px; margin-top: 10px; font-weight: 500;">▲ StockMaster AI 실시간 10분 계량 전광판 및 수급 레이더 캡처 화면</p>
+</div>
+"""
+            except Exception as e:
+                logger.warning(f"이미지 HTML 변환 통과: {e}")
+
+        blocks = clean_md.split("\n\n")
+        html_parts = [img_html] if img_html else []
+
+        for block in blocks:
+            b = block.strip()
+            if not b:
+                continue
+
+            if b.startswith(">"):
+                b_lines = [line.lstrip(">").strip() for line in b.split("\n")]
+                inner_text = "<br/>".join([l for l in b_lines if l])
+                inner_text = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', inner_text)
+                card_html = f"""<blockquote style="margin: 26px 0; padding: 18px 22px; background-color: #0f172a; border-left: 4px solid #10b981; border-radius: 8px; font-size: 15px; color: #f8fafc; line-height: 1.8;">{inner_text}</blockquote>"""
+                html_parts.append(card_html)
+            elif b.startswith("# "):
+                title_text = b[2:].strip()
+                html_parts.append(f"""<h2 style="font-size: 22px; font-weight: bold; margin: 30px 0 16px 0; color: #0f172a;">{title_text}</h2>""")
+            elif b.startswith("## ") or b.startswith("### "):
+                sub_text = re.sub(r'^#+\s*', '', b).strip()
+                html_parts.append(f"""<h3 style="font-size: 18px; font-weight: bold; margin: 26px 0 12px 0; color: #0f172a;">{sub_text}</h3>""")
+            else:
+                p_text = b.replace("\n", "<br/>")
+                p_text = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', p_text)
+                html_parts.append(f"""<p style="margin-bottom: 22px; line-height: 1.85; font-size: 16px; color: #334155;">{p_text}</p>""")
+
+        cta_html = f"""
+<div style="margin-top: 36px; padding: 22px; background-color: #0f172a; border-left: 5px solid #10b981; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+  <p style="font-weight: bold; font-size: 17px; margin: 0 0 8px 0; color: #ffffff;">📈 내 보유 종목 실시간 퀀트 점수 확인하기</p>
+  <p style="font-size: 14px; color: #94a3b8; margin: 0 0 16px 0; line-height: 1.6;">10분마다 350개 주도주 체결강도 스캔 & -5% 실시간 손절 알림 (100% 무료)</p>
+  <p style="margin: 0;"><a href="{landing_url}" target="_blank" style="display: inline-block; padding: 12px 24px; background-color: #10b981; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px;">StockMaster AI 실시간 전광판 바로가기 👉</a></p>
+</div>
+"""
+        return "".join(html_parts) + cta_html
 
     def build_article_package(
         self,
         topic_id: Optional[int] = None,
         use_gemini: bool = True,
-        generate_photo: bool = True,
-        use_live_trend: bool = True
+        force_recapture: bool = True
     ) -> Dict[str, Any]:
         """
-        🔥 [3박자 퀀트 결합] 당일 실시간 핫 우량주 트렌드 + 100대 주제 ➔ Gemini 2,000자 칼럼 ➔ 맞춤 사진 1장 생성
+        주제 선택 ➔ 실제 앱 버튼 클릭 고화질 캡처 ➔ 실시간 캡처 데이터 주입 Gemini 2,000자 칼럼 ➔ 15개 해시태그 결합
         """
         # 1. 주제 선택
         if topic_id is not None:
@@ -132,174 +204,66 @@ class StockBlogEngine:
 
         cat_key = topic["category"]
         seed_topic = topic["title"]
-        app_feature = topic.get("app_feature", "StockMaster AI 10분 계량 전광판")
+        app_action_mode = topic.get("app_action_mode", "rank1")
 
-        # 2. 실시간 증시 수급 트렌드 또는 고검색량 키워드 추출
-        if use_live_trend:
-            seo_brief = self.keyword_matrix.build_live_trend_brief()
-            logger.info(f"🔥 [StockBlog] 실시간 핫 종목 매트릭스 결합: {seo_brief.get('live_stock', {}).get('name', '우량주')}")
-        else:
-            seo_brief = self.keyword_matrix.build_seo_article_brief(
-                seed_topic=seed_topic,
-                category=cat_key
-            )
+        logger.info(f"🚀 [StockBlog] 주제 #{topic['id']} 패키지 빌드 시작: '{seed_topic}' (액션 모드: {app_action_mode})")
 
-        # 3. Gemini 실시간 본문 작성
+        # 2. 📸 [핵심] 실제 StockMaster AI 웹앱에서 버튼 직접 클릭하여 실시간 전광판 캡처!
+        capturer = self._get_capturer()
+        capture_result = capturer.capture_dashboard(mode=app_action_mode)
+        image_path = capture_result.get("image_path", "")
+        metrics = capture_result.get("metrics", {})
+
+        logger.info(f"📸 [StockBlog] 실제 앱 버튼 클릭 캡처 완료: {Path(image_path).name if image_path else '없음'}")
+        logger.info(f"📊 [StockBlog] 실시간 1위 종목 파싱: {metrics.get('stock_name')} ({metrics.get('chegyul_strength')}, 손절:{metrics.get('exit_sl')}, 목표:{metrics.get('swing_tp')})")
+
+        # 3. 🤖 Gemini 실시간 본문 작성 (실제 캡처 데이터 주입)
         gemini_result = None
         if use_gemini:
             try:
                 writer = self._get_writer()
-                gemini_result = writer.write_magazine_article(topic, seo_brief)
-                logger.info(f"✅ [StockBlog] Gemini 2,000자 칼럼 작성 완료: '{gemini_result.get('title_naver', gemini_result.get('title'))}'")
+                # 캡처된 실제 수치를 주입한 바이블 원고 생성
+                gemini_result = writer.write_captured_article(capture_result, article_type="rank1")
+                logger.info(f"✅ [StockBlog] Gemini 2,000자 실전 칼럼 작성 완료: '{gemini_result.get('title_naver', seed_topic)}'")
             except Exception as e:
-                logger.warning(f"⚠️ [StockBlog] Gemini 작성 실패: {e}")
+                logger.warning(f"⚠️ [StockBlog] Gemini 작성 예외: {e}")
 
-        # 4. 🔥 [실시간 100% 실측] 실제 10분 계량 전광판 1600x1600 고화질 캡처 1순위 바인딩
-        image_path = ""
-        metrics = {}
-        if generate_photo:
-            try:
-                capturer = self._get_capturer()
-                c_mode = "semiconductor" if ("반도체" in seed_topic or "삼성" in seed_topic or "하이닉스" in seed_topic) else "rank1"
-                capture_res = capturer.capture_dashboard(mode=c_mode)
-                if capture_res.get("status") == "success" and capture_res.get("image_path"):
-                    image_path = capture_res["image_path"]
-                    metrics = capture_res.get("metrics", {})
-                    logger.info(f"✅ [StockBlog] 실제 10분 계량 전광판 1600x1600 캡처 바인딩 성공: {Path(image_path).name}")
-            except Exception as e:
-                logger.warning(f"⚠️ [StockBlog] 실시간 전광판 캡처 실패 ({e}), 보조 생성기 시도")
+        # 4. 본문 조립 및 마크다운/HTML 정제
+        title_naver = gemini_result.get("title_naver", seed_topic) if gemini_result else seed_topic
+        title_tistory = gemini_result.get("title_tistory", seed_topic) if gemini_result else seed_topic
+        title_brunch = gemini_result.get("title_brunch", seed_topic) if gemini_result else seed_topic
+        main_title = title_naver
 
-        # 캡처 실패 시에만 최후의 보조 생성기 동작
-        if not image_path and generate_photo:
-            try:
-                img_gen = self._get_image_gen()
-                custom_p = gemini_result.get("visual_prompt") if gemini_result else None
-                photo_info = img_gen.generate_article_photo(
-                    topic_id=topic["id"],
-                    category=cat_key,
-                    topic_title=seed_topic,
-                    custom_visual_prompt=custom_p
-                )
-                image_path = photo_info.get("image_path", "")
-            except Exception as e:
-                logger.warning(f"⚠️ [StockBlog] 보조 사진 생성 실패: {e}")
+        raw_body_md = gemini_result.get("body_markdown", "") if gemini_result else f"## {seed_topic}\n\n내용 준비 중..."
+        clean_body_md = self.clean_markdown_body(raw_body_md)
+        full_html = self.render_clean_html_body(clean_body_md, self.LANDING_URL, image_path=image_path)
 
-        # 5. 완성형 본문 조립
-        title = gemini_result.get("title", seed_topic) if gemini_result else seed_topic
-        title_naver = gemini_result.get("title_naver", title) if gemini_result else title
-        title_tistory = gemini_result.get("title_tistory", title) if gemini_result else title
-        title_brunch = gemini_result.get("title_brunch", title) if gemini_result else title
-
-        body_md = gemini_result.get("body_markdown", "") if gemini_result else f"## {seed_topic}\n\n내용 준비 중..."
-        body_html = markdown.markdown(body_md)
-
-        # CTA 추가
-        cta_html = f"""
-<div style="margin-top: 30px; padding: 20px; background-color: #09090b; border-left: 4px solid #10b981; border-radius: 8px; color: #ffffff;">
-  <p style="font-weight: bold; font-size: 16px; margin-bottom: 8px; color: #10b981;">📈 뇌동매매 끝! 10분마다 350개 주도주를 스캔하는 AI 퀀트 시스템</p>
-  <p style="font-size: 14px; color: #a1a1aa; margin-bottom: 12px;">외국인·기관 수급, 체결강도, 블록오더, 그리고 -5% 실시간 문자 손절 알림을 100% 무료로 확인하세요.</p>
-  <a href="{self.LANDING_URL}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #10b981; color: #000000; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px;">StockMaster AI 10분 전광판 바로가기 👉</a>
-</div>
-
-<!-- 🌟 티스토리/웹 공식 규격 10분 350개 주도주 오픈그래프 카드 -->
-<figure data-ke-type="opengraph" data-ke-align="alignCenter" data-og-type="website" data-og-title="Stock Master AI - 10분 퀀트 스캔 &amp; 실시간 -5% 손절 알림" data-og-description="10분마다 국내 350개 주도주를 스캔하는 AI 퀀트 시스템. 체결강도, 블록오더, 수급 분석을 무료로 경험하세요." data-og-host="stockmaster-ai.vercel.app" data-og-source-url="https://stockmaster-ai.vercel.app/" data-og-url="https://stockmaster-ai.vercel.app/" data-og-image="https://stockmaster-ai.vercel.app/og-image.png" style="margin: 20px 0; border: 1px solid #27272a; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.25); text-align: left;">
-  <a href="{self.LANDING_URL}" target="_blank" rel="noopener" style="text-decoration: none; display: flex; align-items: center; background: #18181b; color: inherit;">
-    <div class="og-image" style="width: 140px; height: 100px; flex-shrink: 0; background: url('https://stockmaster-ai.vercel.app/og-image.png') no-repeat center center / cover; border-right: 1px solid #27272a;"></div>
-    <div class="og-text" style="padding: 14px 18px; flex-grow: 1;">
-      <p class="og-title" style="margin: 0 0 6px 0; font-size: 15px; font-weight: bold; color: #ffffff; line-height: 1.4;">Stock Master AI - 10분 퀀트 스캔 &amp; 실시간 -5% 손절 알림</p>
-      <p class="og-desc" style="margin: 0 0 6px 0; font-size: 12.5px; color: #a1a1aa; line-height: 1.5;">10분마다 350개 국내 주도주를 스캔하는 실시간 AI 퀀트 전광판</p>
-      <p class="og-host" style="margin: 0; font-size: 11.5px; color: #10b981; font-weight: 600;">stockmaster-ai.vercel.app</p>
-    </div>
-  </a>
-</figure>
-"""
-        full_html = body_html + cta_html
+        # 5. 🏷️ 100대 주제 1:1 고유 태그 + 구글/네이버 실시간 급상승 15개 해시태그 결합
+        live_tags = StockHashtagMatrix.get_rich_viral_hashtags(topic_id=topic["id"], count=15)
+        clean_tags = [t.replace("#", "").strip() for t in live_tags]
 
         return {
             "topic_id": topic["id"],
-            "title": title,
+            "title": main_title,
             "title_naver": title_naver,
             "title_tistory": title_tistory,
             "title_brunch": title_brunch,
             "category": cat_key,
-            "body_markdown": body_md,
-            "content_text": body_md,
+            "app_action_mode": app_action_mode,
+            "body_markdown": clean_body_md,
+            "content_text": clean_body_md,
             "content_html": full_html,
             "summary": gemini_result.get("summary", "") if gemini_result else "",
-            "tags": gemini_result.get("tags", topic.get("tags", ["주식투자", "StockMaster"])) if gemini_result else topic.get("tags", []),
+            "tags": clean_tags,
             "image_path": image_path,
-            "image_url": "",
+            "image_url": image_path,
             "metrics": metrics,
-            "landing_url": self.LANDING_URL
-        }
-
-    def build_captured_article_package(self, article_type: str = "rank1") -> Dict[str, Any]:
-        """
-        주식 웹앱 실시간 화면(1600x1600 고화질) 캡처 + 대표님 성공 바이블 기반 2,000자 칼럼 패키지 생성
-        article_type: 'rank1' (전광판 1위 주도주 편) 또는 'semiconductor' (반도체 주도주 편)
-        """
-        logger.info(f"🚀 [StockBlog] 실시간 캡처 기반 패키지 생성 시작 (유형: {article_type})")
-
-        # 1. 실시간 주식 앱 캡처 및 메트릭스 추출
-        capturer = self._get_capturer()
-        capture_res = capturer.capture_dashboard(mode=article_type)
-        image_path = capture_res.get("image_path", "")
-        metrics = capture_res.get("metrics", {})
-
-        # 2. Gemini 황금 바이블 칼럼 생성
-        writer = self._get_writer()
-        article = writer.write_captured_article(capture_res, article_type=article_type)
-
-        title_naver = article.get("title_naver", article.get("title", ""))
-        title_tistory = article.get("title_tistory", title_naver)
-        title_brunch = article.get("title_brunch", title_naver)
-        body_md = article.get("body_markdown", "")
-        body_html = markdown.markdown(body_md)
-
-        # 3. 고품격 CTA 카드 바인딩
-        cta_html = f"""
-<div style="margin-top: 30px; padding: 20px; background-color: #09090b; border-left: 4px solid #10b981; border-radius: 8px; color: #ffffff;">
-  <p style="font-weight: bold; font-size: 16px; margin-bottom: 8px; color: #10b981;">📈 뇌동매매 끝! 10분마다 350개 주도주를 스캔하는 AI 퀀트 시스템</p>
-  <p style="font-size: 14px; color: #a1a1aa; margin-bottom: 12px;">실시간 계량 전광판, 체결강도, 블록오더, 그리고 -5% 실시간 문자 손절 알림을 100% 무료로 경험해보세요.</p>
-  <a href="{self.LANDING_URL}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #10b981; color: #000000; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px;">StockMaster AI 실시간 전광판 바로가기 👉</a>
-</div>
-
-<!-- 🌟 티스토리/웹 공식 규격 10분 350개 주도주 오픈그래프 카드 -->
-<figure data-ke-type="opengraph" data-ke-align="alignCenter" data-og-type="website" data-og-title="Stock Master AI - 10분 퀀트 스캔 &amp; 실시간 -5% 손절 알림" data-og-description="10분마다 국내 350개 주도주를 스캔하는 AI 퀀트 시스템. 체결강도, 블록오더, 수급 분석을 무료로 경험하세요." data-og-host="stockmaster-ai.vercel.app" data-og-source-url="https://stockmaster-ai.vercel.app/" data-og-url="https://stockmaster-ai.vercel.app/" data-og-image="https://stockmaster-ai.vercel.app/og-image.png" style="margin: 20px 0; border: 1px solid #27272a; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.25); text-align: left;">
-  <a href="{self.LANDING_URL}" target="_blank" rel="noopener" style="text-decoration: none; display: flex; align-items: center; background: #18181b; color: inherit;">
-    <div class="og-image" style="width: 140px; height: 100px; flex-shrink: 0; background: url('https://stockmaster-ai.vercel.app/og-image.png') no-repeat center center / cover; border-right: 1px solid #27272a;"></div>
-    <div class="og-text" style="padding: 14px 18px; flex-grow: 1;">
-      <p class="og-title" style="margin: 0 0 6px 0; font-size: 15px; font-weight: bold; color: #ffffff; line-height: 1.4;">Stock Master AI - 10분 퀀트 스캔 &amp; 실시간 -5% 손절 알림</p>
-      <p class="og-desc" style="margin: 0 0 6px 0; font-size: 12.5px; color: #a1a1aa; line-height: 1.5;">10분마다 350개 국내 주도주를 스캔하는 실시간 AI 퀀트 전광판</p>
-      <p class="og-host" style="margin: 0; font-size: 11.5px; color: #10b981; font-weight: 600;">stockmaster-ai.vercel.app</p>
-    </div>
-  </a>
-</figure>
-"""
-        full_html = body_html + cta_html
-
-        return {
-            "topic_id": 999 if article_type == "rank1" else 998,
-            "title": title_naver,
-            "title_naver": title_naver,
-            "title_tistory": title_tistory,
-            "title_brunch": title_brunch,
-            "category": "live_quant" if article_type == "rank1" else "semiconductor",
-            "body_markdown": body_md,
-            "content_text": body_md,
-            "content_html": full_html,
-            "summary": article.get("summary", ""),
-            "tags": article.get("tags", ["주식투자", "체결강도", "블록오더", "스톡마스터AI"]),
-            "image_path": image_path,
-            "image_url": "",
-            "metrics": metrics,
-            "article_type": article_type,
             "landing_url": self.LANDING_URL
         }
 
     def publish_now(self, topic_id: Optional[int] = None) -> Dict[str, Any]:
-        """제미나이 1회 호출 + 이미지 1회 생성 ➔ 4대 채널(본진, 네이버, 티스토리, 브런치) 동시 배포"""
-        logger.info("🎬 [StockBlog] 1회 원고/이미지 생성 ➔ 4대 채널 동시 옴니 배포 시작")
+        """실제 앱 캡처 ➔ 4대 채널(네이버, 티스토리, 브런치 등) 동시 배포"""
+        logger.info("🎬 [StockBlog] 실제 앱 캡처 결합 ➔ 3대 채널 옴니 배포 가동")
         pkg = self.build_article_package(topic_id=topic_id)
         publisher = self._get_publisher()
         pub_results = publisher.publish_all(pkg, landing_url=self.LANDING_URL)
@@ -308,9 +272,21 @@ class StockBlogEngine:
             "status": "success",
             "article_title": pkg["title"],
             "topic_id": pkg["topic_id"],
+            "image_used": pkg["image_path"],
             "publishing_results": pub_results
         }
 
-    def publish_omni(self, topic_id: Optional[int] = None) -> Dict[str, Any]:
-        """4대 채널 옴니 배포 별칭"""
-        return self.publish_now(topic_id=topic_id)
+
+if __name__ == "__main__":
+    engine = StockBlogEngine()
+    print("🚀 [StockBlogEngine] #046 (변곡점 탭 연동 주제) 패키지 빌드 테스트 시작...")
+    pkg = engine.build_article_package(topic_id=46)
+    print("\n=========================================")
+    print(f"📌 주제 ID: {pkg['topic_id']}")
+    print(f"📌 네이버 제목: {pkg['title_naver']}")
+    print(f"📌 티스토리 제목: {pkg['title_tistory']}")
+    print(f"📌 사용된 실제 앱 캡처 이미지: {pkg['image_path']}")
+    print(f"📌 캡처된 1위 종목: {pkg['metrics'].get('stock_name')} ({pkg['metrics'].get('current_price')})")
+    print(f"📌 해시태그 ({len(pkg['tags'])}개): {' '.join(['#' + t for t in pkg['tags']])}")
+    print(f"📌 본문 길이: {len(pkg['body_markdown'])}자")
+    print("=========================================\n")

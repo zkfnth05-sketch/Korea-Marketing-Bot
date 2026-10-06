@@ -468,7 +468,8 @@ async function loadKinStats(brand = "aura") {
             const recentEl = document.getElementById(`kin-recent-${brand}`);
             if (recentEl && data.history && data.history.length > 0) {
                 const latest = data.history[0];
-                recentEl.innerHTML = `<span style="color:#64748B;font-size:10.5px;">[${latest.created_at || '-'}]</span> <a href="${latest.url}" target="_blank" style="color:#0284C7;text-decoration:underline;font-weight:700;" title="${latest.title}">${latest.title}</a>`;
+                const liveUrl = latest.published_url || latest.url || "#";
+                recentEl.innerHTML = `<span style="color:#64748B;font-size:10.5px;">[${latest.created_at || '-'}]</span> <a href="${liveUrl}" target="_blank" style="color:#0284C7;text-decoration:underline;font-weight:700;" title="${latest.title}">${latest.title}</a>`;
             }
         }
     } catch (e) {
@@ -1228,7 +1229,7 @@ function renderTodayLiveFeedBoard(liveFeed, gpuStatus) {
     `;
 }
 
-function updateChannelBadges(runningChannels = {}, liveFeed = {}) {
+function updateChannelBadges(runningChannels = {}, liveFeed = {}, channelErrors = {}) {
     const brand = currentBrand || "aura";
     const bFeed = (liveFeed && liveFeed.brands && liveFeed.brands[brand]) || {};
     const blog = bFeed.blog || {};
@@ -1243,9 +1244,26 @@ function updateChannelBadges(runningChannels = {}, liveFeed = {}) {
     const tb = channels.tistory || {};
     const nb = channels.naver_blog || {};
     const supa = channels.supabase_research || {};
+    const blogErr = channelErrors && (channelErrors[`${brand}_omni_blog`] || channelErrors[`${brand}_blog`]);
 
     if (blogBadge && blogCard) {
-        if (tb.is_session_expired) {
+        if (blogErr) {
+            blogBadge.innerHTML = "🚨 오류 발생";
+            blogBadge.style.background = "#FEF2F2";
+            blogBadge.style.color = "#DC2626";
+            blogBadge.style.border = "1.5px solid #F87171";
+            blogCard.style.border = "2px solid #EF4444";
+            blogCard.style.boxShadow = "0 4px 14px rgba(239, 68, 68, 0.25)";
+
+            let errBox = document.getElementById(`err-box-${brand}-omni_blog`);
+            if (!errBox) {
+                errBox = document.createElement("div");
+                errBox.id = `err-box-${brand}-omni_blog`;
+                errBox.style.cssText = "background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;padding:8px 10px;border-radius:8px;font-size:11.5px;margin-top:8px;line-height:1.4;";
+                blogBadge.parentElement.after(errBox);
+            }
+            errBox.innerHTML = `🚨 <strong>오류 원인:</strong> ${blogErr.error || '블로그 발행 오류'}<br><span style="color:#6B7280;font-size:10.5px;">발생시각: ${blogErr.occurred_at || ''}</span>`;
+        } else if (tb.is_session_expired) {
             blogBadge.innerHTML = "🔴 티스토리 세션 만료";
             blogBadge.style.background = "#FEF2F2";
             blogBadge.style.color = "#DC2626";
@@ -1269,6 +1287,9 @@ function updateChannelBadges(runningChannels = {}, liveFeed = {}) {
             blogBadge.style.background = "#ECFDF5";
             blogBadge.style.color = "#059669";
             blogBadge.style.border = "1px solid #A7F3D0";
+            blogCard.style.border = "1px solid #E5DDD1";
+            const errBox = document.getElementById(`err-box-${brand}-omni_blog`);
+            if (errBox) errBox.remove();
         } else if (tb.is_success && tb.url) {
             blogBadge.innerHTML = "🟢 티스토리 정상 연동 (발행 완료)";
             blogBadge.style.background = "#ECFDF5";
@@ -1304,38 +1325,93 @@ function updateChannelBadges(runningChannels = {}, liveFeed = {}) {
 
     // 2. 지식iN 허브 카드
     const kinBadge = document.getElementById(`badge-status-${brand}-naver_kin`);
+    const kinCard = document.getElementById(`card-${brand}-naver_kin`);
     const kinCountEl = document.getElementById(`kin-count-${brand}`);
     const kinRecentEl = document.getElementById(`kin-recent-${brand}`);
+    const kinErr = channelErrors && (channelErrors[`${brand}_naver_kin`] || channelErrors[`${brand}_kin`]);
+
     if (kinCountEl) kinCountEl.innerText = `${kin.today_count || 0}`;
     if (kinRecentEl && kin.recent_answers && kin.recent_answers.length > 0) {
         const ka = kin.recent_answers[0];
-        kinRecentEl.innerHTML = `<span style="color:#64748B;font-size:10.5px;">[${ka.created_at || '-'}]</span> <a href="${ka.url}" target="_blank" style="color:#0284C7;text-decoration:underline;font-weight:700;">${ka.title}</a>`;
+        const liveUrl = ka.published_url || ka.url || "#";
+        kinRecentEl.innerHTML = `<span style="color:#64748B;font-size:10.5px;">[${ka.created_at || '-'}]</span> <a href="${liveUrl}" target="_blank" style="color:#0284C7;text-decoration:underline;font-weight:700;" title="${ka.title}">${ka.title}</a>`;
     }
     if (kinBadge) {
-        kinBadge.innerHTML = `🟢 감시 중 (오늘 ${kin.today_count || 0}/10건)`;
-        kinBadge.style.background = "#ECFDF5";
-        kinBadge.style.color = "#059669";
-        kinBadge.style.border = "1px solid #A7F3D0";
+        if (kinErr) {
+            kinBadge.innerHTML = "🚨 오류 발생";
+            kinBadge.style.background = "#FEF2F2";
+            kinBadge.style.color = "#DC2626";
+            kinBadge.style.border = "1.5px solid #F87171";
+            if (kinCard) kinCard.style.border = "2px solid #EF4444";
+        } else {
+            kinBadge.innerHTML = `🟢 감시 중 (오늘 ${kin.today_count || 0}/10건)`;
+            kinBadge.style.background = "#ECFDF5";
+            kinBadge.style.color = "#059669";
+            kinBadge.style.border = "1px solid #A7F3D0";
+            if (kinCard) kinCard.style.border = "1px solid #E5DDD1";
+        }
     }
 
     // 3. 숏폼 허브 카드
     const shortsBadge = document.getElementById(`badge-status-${brand}-shorts`);
+    const shortsCard = document.getElementById(`card-${brand}-shorts`);
+    const shortsErr = channelErrors && (channelErrors[`${brand}_shorts`] || channelErrors[`${brand}_omni_shorts`]);
+
     if (shortsBadge) {
-        const isDaemonOn = runningChannels[`${brand}_shorts`];
-        const yt = shortsPlatforms.youtube || {};
-        shortsBadge.innerHTML = yt.published_at ? `🟢 최신: ${yt.published_at}` : isDaemonOn ? "🟢 24시간 무인 가동 중" : "⚪ 정시 스케줄 대기";
-        shortsBadge.style.background = isDaemonOn ? "#ECFDF5" : "#F6F1EA";
-        shortsBadge.style.color = isDaemonOn ? "#059669" : "#6E665E";
-        shortsBadge.style.border = isDaemonOn ? "1px solid #A7F3D0" : "1px solid #E5DDD1";
+        if (shortsErr) {
+            shortsBadge.innerHTML = "🚨 오류 발생";
+            shortsBadge.style.background = "#FEF2F2";
+            shortsBadge.style.color = "#DC2626";
+            shortsBadge.style.border = "1.5px solid #F87171";
+            if (shortsCard) shortsCard.style.border = "2px solid #EF4444";
+        } else {
+            const isDaemonOn = runningChannels[`${brand}_shorts`];
+            const yt = shortsPlatforms.youtube || {};
+            shortsBadge.innerHTML = yt.published_at ? `🟢 최신: ${yt.published_at}` : isDaemonOn ? "🟢 24시간 무인 가동 중" : "⚪ 정시 스케줄 대기";
+            shortsBadge.style.background = isDaemonOn ? "#ECFDF5" : "#F6F1EA";
+            shortsBadge.style.color = isDaemonOn ? "#059669" : "#6E665E";
+            shortsBadge.style.border = isDaemonOn ? "1px solid #A7F3D0" : "1px solid #E5DDD1";
+            if (shortsCard) shortsCard.style.border = "1px solid #E5DDD1";
+        }
     }
 
-    // 4. 나머지 20대 허브 채널 뱃지 동기화
-    Object.keys(runningChannels || {}).forEach(chKey => {
-        if (chKey.startsWith(`${brand}_`)) {
-            const pureKey = chKey.replace(`${brand}_`, "");
-            const badge = document.getElementById(`badge-status-${brand}-${pureKey}`);
-            if (badge && pureKey !== "omni_blog" && pureKey !== "naver_kin" && pureKey !== "shorts") {
-                const isRunning = runningChannels[chKey];
+    // 4. 나머지 20대 허브 채널 뱃지 & 실시간 에러 동기화
+    const allHubKeys = ["omni_cardnews", "threads", "omni_threads", "reddit", "naver_cafe", "cafe", "seo", "google_ping", "search_advisor", "dcinside", "ppomppu", "nate_pann", "kakao_channel", "briefing", "tiktok", "youtube"];
+    
+    // running_channels 및 등록된 모든 허브 카드 순회
+    allHubKeys.forEach(pureKey => {
+        const fullKey = `${brand}_${pureKey}`;
+        const badge = document.getElementById(`badge-status-${brand}-${pureKey}`) || document.getElementById(`badge-status-${brand}-${pureKey.replace('omni_', '')}`);
+        const card = document.getElementById(`card-${brand}-${pureKey}`) || document.getElementById(`card-${brand}-${pureKey.replace('omni_', '')}`);
+        const chErr = channelErrors && (channelErrors[fullKey] || channelErrors[pureKey] || channelErrors[`${brand}_${pureKey.replace('omni_', '')}`]);
+
+        if (badge) {
+            let errBox = document.getElementById(`err-box-${brand}-${pureKey}`);
+            if (chErr) {
+                badge.innerHTML = "🚨 오류 발생";
+                badge.style.background = "#FEF2F2";
+                badge.style.color = "#DC2626";
+                badge.style.border = "1.5px solid #F87171";
+                if (card) {
+                    card.style.border = "2px solid #EF4444";
+                    card.style.boxShadow = "0 4px 14px rgba(239, 68, 68, 0.25)";
+                }
+                if (!errBox && card) {
+                    errBox = document.createElement("div");
+                    errBox.id = `err-box-${brand}-${pureKey}`;
+                    errBox.style.cssText = "background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;padding:8px 10px;border-radius:8px;font-size:11.5px;margin-top:8px;line-height:1.4;";
+                    badge.parentElement.after(errBox);
+                }
+                if (errBox) {
+                    errBox.innerHTML = `🚨 <strong>오류 원인:</strong> ${chErr.error || '실행 실패'}<br><span style="color:#6B7280;font-size:10.5px;">발생시각: ${chErr.occurred_at || ''}</span>`;
+                }
+            } else {
+                if (errBox) errBox.remove();
+                if (card) {
+                    card.style.border = "1px solid #E5DDD1";
+                    card.style.boxShadow = "var(--shadow-md)";
+                }
+                const isRunning = runningChannels[fullKey] || runningChannels[pureKey] || runningChannels[`${brand}_${pureKey.replace('omni_', '')}`];
                 badge.innerHTML = isRunning ? "🟢 24시간 무인 가동 중" : "⚪ 대기 중";
                 badge.style.background = isRunning ? "#ECFDF5" : "#F6F1EA";
                 badge.style.color = isRunning ? "#059669" : "#6E665E";
@@ -1447,7 +1523,7 @@ async function fetchStatus() {
         }
 
         // 22대 허브 실시간 뱃지 & 실시간 장애(빨간불) 동기화
-        updateChannelBadges(data.running_channels, data.today_live_feed);
+        updateChannelBadges(data.running_channels, data.today_live_feed, data.channel_errors);
         if (data.golden_targets) {
             updateGoldenTargetIndicators(data.golden_targets);
         }
@@ -1484,6 +1560,11 @@ async function fetchStatus() {
         }
         if (googleCountEl) {
             googleCountEl.innerText = `22개 채널 연결됨`;
+        }
+        const antibanEl = document.getElementById("stat-antiban-status");
+        if (antibanEl && data.human_routines && data.human_routines[brand]) {
+            const hr = data.human_routines[brand];
+            antibanEl.innerText = `${hr.total_minutes || 0}분 스텔스 (${hr.total_likes || 0}❤️)`;
         }
 
         // 최신 로그 콘솔 (중복 방지: 새 로그만 딱 1번 출력)

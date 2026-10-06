@@ -134,6 +134,31 @@ def main():
         scheduler.run_continuous_daemon(check_interval_seconds=20)
         return
 
+    # ── [레딧(Reddit) 글로벌 투자자 타겟 스텔스 마케팅 옵션] ──
+    if "--reddit" in sys.argv or "-rd" in sys.argv:
+        is_live = "--live" in sys.argv
+        from brands.stock.stock_reddit_engine import StockRedditEngine
+        print("\n==============================================")
+        print(f"📈 [StockMaster AI] 레딧 10대 서브레딧 스텔스 마케팅 1회 실행 (Mode: {'LIVE' if is_live else 'DRY-RUN/SIMULATION'})")
+        print("==============================================\n")
+        engine = StockRedditEngine()
+        res_count = engine.scan_and_reply(limit_per_sub=10, max_promo=1, auto_post=is_live)
+        print(f"\n[주식 레딧 실행 결과]: {res_count}건 처리 완료")
+        return
+
+    if "--reddit-cycle" in sys.argv or "-rc" in sys.argv:
+        from brands.stock.stock_reddit_engine import StockRedditEngine
+        print("\n==============================================")
+        print("📈 [StockMaster AI] 레딧 안전 종합 사이클 1회 가동 (업보트+스크롤+비홍보+스텔스홍보)")
+        print("==============================================\n")
+        engine = StockRedditEngine()
+        cycle_res = engine.run_safe_cycle()
+        print(json.dumps(cycle_res, ensure_ascii=False, indent=2))
+        return
+
+    is_live = "--live" in sys.argv
+    dry_run = not is_live
+
     if "--daemon" in sys.argv or "-d" in sys.argv:
         print("\n==============================================")
         print("📈 [StockMaster AI] 24시간 365일 무인 자율 백그라운드 스케줄러 데몬 시작")

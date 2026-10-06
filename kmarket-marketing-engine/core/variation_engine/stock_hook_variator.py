@@ -27,15 +27,14 @@ STOCK_CONFIG = {
     "cta_template": "네이버에 스톡마스터 AI 검색해보세요",
     "forbidden_topics": "배당, 월배당, 배당금, 배당주, 배당수익률, 배당락, 배당 계산기, 저PBR, PBR, 적립식, 복리, 보험, 데이팅, 소개팅, 연애, 세금, 매칭, 환급",
     "forbidden_claims": "한정 무료 이벤트, 선착순 마감, 쿠폰, 사은품, 특가, 캐시백, 원금보장, 100% 급등 보장",
-    "duration_sec": 30,
-    # Stock 30초 글자수 규격 (코드 전수 조사 확정)
-    # - stock_gemini_30s_script_writer.py 기준
-    # - 제미나이 목표: 210~230자 (발화속도 +10%)
-    # - 무결성 게이트: 200 ≤ len ≤ 245
-    "char_target_min": 210,
-    "char_target_max": 230,
-    "char_gate_min": 200,
-    "char_gate_max": 245,
+    "duration_sec": 32,
+    # Stock 32초 글자수 규격 (코드 전수 조사 확정)
+    # - 제미나이 목표: 160~185자 (30~32초 완독 규격)
+    # - 무결성 게이트: 145 ≤ len ≤ 195
+    "char_target_min": 160,
+    "char_target_max": 185,
+    "char_gate_min": 145,
+    "char_gate_max": 195,
     # 공식 검색어 필수 포함 검증
     "keyword_check": "스톡마스터 AI",
 }

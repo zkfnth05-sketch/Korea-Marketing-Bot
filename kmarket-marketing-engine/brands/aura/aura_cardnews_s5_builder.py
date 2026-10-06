@@ -5,7 +5,7 @@ AuraCardnewsS5Builder - 🏷️ [Aura 카드뉴스 5번 전용 숏폼 계승 럭
 • 역할:
   - 숏폼 5번 엔딩 CTA 카드(AuraCTACard)의 럭셔리 에디토리얼 디자인을 100% 계승
   - 1080x1350 카드뉴스 규격에 맞춰 찬반 토론(1번 vs 2번)과 네이버 검색창['아우라AI데이팅']을 완벽 융합
-  - 상단 브랜드 배지['💖 AURA | 50:50 남녀 황금 성비율', '05 / 05 >'] 및 공식 URL 일체형 렌더링
+  - 상단 브랜드 배지['💖 아우라 AI 데이팅 | 현재 100% 무료 남녀 황금 성비율', '05 / 05 >'] 및 공식 URL 일체형 렌더링
   - 산출물: 바탕화면 타겟 폴더의 slide_5.png
 """
 
@@ -94,13 +94,13 @@ class AuraCardnewsS5Builder:
   <div class="absolute w-[800px] h-[800px] rounded-full bg-amber-500/10 blur-[150px] top-0 left-1/2 -translate-x-1/2 pointer-events-none"></div>
   <div class="absolute w-[600px] h-[600px] rounded-full bg-emerald-500/10 blur-[130px] bottom-10 right-10 pointer-events-none"></div>
 
-  <!-- 1. Top Header Bar (Aura 50:50 남녀 황금 성비율 + 05/05) -->
+  <!-- 1. Top Header Bar (Aura 현재 100% 무료 + 05/05) -->
   <div class="flex justify-between items-center z-10 w-full px-2">
     <!-- Brand Badge -->
     <div class="inline-flex items-center gap-2.5 bg-slate-900/85 backdrop-blur-md border border-white/20 rounded-full py-2 px-4 shadow-xl">
       <span class="text-sm">💖</span>
-      <span class="text-sm font-black tracking-wider text-white">AURA</span>
-      <span class="text-xs font-bold text-pink-400 pl-2 border-l border-white/25">50:50 남녀 황금 성비율</span>
+      <span class="text-sm font-black tracking-wider text-white">아우라 AI 데이팅</span>
+      <span class="text-xs font-bold text-pink-400 pl-2 border-l border-white/25">현재 100% 무료</span>
     </div>
 
     <!-- Page Index -->
@@ -191,9 +191,12 @@ class AuraCardnewsS5Builder:
         </div>
       </div>
 
-      <!-- Search Instruction Text -->
-      <p class="text-base font-bold text-amber-300 tracking-wide pt-1">
-        👉 프로필 링크에서 3초 이상형 확인 또는 네이버에 <span class="text-white underline underline-offset-4 decoration-[#03C75A] font-extrabold">'아우라AI데이팅'</span> 검색!
+      <!-- Search Instruction Text (Instagram Profile Link & Naver Search) -->
+      <div class="w-full bg-pink-500/20 border border-pink-400/50 rounded-2xl py-2 px-4 flex items-center justify-center gap-2 shadow-lg mt-1">
+        <span class="text-pink-300 text-[15px] font-black tracking-tight">👉 상단 프로필(@aura_ai_dating) 링크 클릭 시 3초 이상형 확인!</span>
+      </div>
+      <p class="text-xs font-semibold text-zinc-300 tracking-wide pt-0.5">
+        네이버 검색창: <span class="text-white font-black underline underline-offset-2 decoration-[#03C75A]">'아우라AI데이팅'</span> (붙여쓰기)
       </p>
     </div>
 

@@ -5,7 +5,7 @@ AuraCardnewsS5Topic7Builder - 🏷️ [Aura 카드뉴스 7번 주제 5번 전용
 • 역할:
   - 7번 주제('AI 매력상 & 관상/궁합 진단')의 5번 엔딩을 1080x1350 카드뉴스 규격으로 100% 렌더링
   - 매력상 진단 찬반 토론(1번 객관적 데이터다 vs 2번 재미로만 본다)과 'Aura 무료 회원가입 & 3대 혜택' 완벽 융합
-  - 네이버 검색창['아우라AI데이팅'] 및 상단 브랜드 배지['💖 AURA | 50:50 남녀 황금 성비율', '05 / 05 >'] 일체형
+  - 네이버 검색창['아우라AI데이팅'] 및 상단 브랜드 배지['💖 아우라 AI 데이팅 | 현재 100% 무료 남녀 황금 성비율', '05 / 05 >'] 일체형
   - 산출물: 타겟 폴더의 slide_5.png
 """
 
@@ -112,8 +112,8 @@ class AuraCardnewsS5Topic7Builder:
     <!-- Brand Badge -->
     <div class="inline-flex items-center gap-3 bg-slate-900/90 backdrop-blur-md border border-white/25 rounded-full py-2.5 px-5 shadow-2xl">
       <span class="text-lg">💖</span>
-      <span class="text-base font-black tracking-wider text-white">AURA</span>
-      <span class="text-sm font-bold text-pink-400 pl-3 border-l border-white/30">50:50 남녀 황금 성비율</span>
+      <span class="text-base font-black tracking-wider text-white">아우라 AI 데이팅</span>
+      <span class="text-sm font-bold text-pink-400 pl-3 border-l border-white/30">현재 100% 무료</span>
     </div>
 
     <!-- Page Indicator -->

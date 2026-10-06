@@ -1,0 +1,30 @@
+[
+  {
+    "timestamp": "2026-10-06 13:09:54",
+    "slot_id": "quick_test",
+    "slot_name": "⚡ 실시간 라이브 퀵 검증 세션",
+    "target_min": 0.4,
+    "target_likes": 3,
+    "actual_sec": 57,
+    "likes_given": 1,
+    "actions": [
+      {
+        "posts_viewed": 0,
+        "likes": 0,
+        "platform": "instagram"
+      },
+      {
+        "posts_viewed": 0,
+        "platform": "threads"
+      },
+      {
+        "shorts_watched": 1,
+        "likes": 1,
+        "platform": "youtube"
+      }
+    ],
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "stock"
+  }
+]

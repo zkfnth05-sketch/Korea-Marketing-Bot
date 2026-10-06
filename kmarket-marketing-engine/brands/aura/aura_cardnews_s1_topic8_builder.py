@@ -5,7 +5,7 @@ AuraCardnewsS1Topic8Builder - 📱 [Aura 카드뉴스 8번 주제 '500m 안심 �
 • 역할:
   - 8번 전용 10벌 룩북(OOTD)과 3.5M 거리 8등신 아이폰 15 Pro 무필터 실사 생성
   - 제미나이 실시간 창작 카피 주입 및 1080x1350 초고화질 서브픽셀 렌더링
-  - 상단 공식 헤더['💖 AURA | 50:50 남녀 황금 성비율', '01 / 05 >']
+  - 상단 공식 헤더['💖 아우라 AI 데이팅 | 현재 100% 무료 남녀 황금 성비율', '01 / 05 >']
 """
 
 import os
@@ -206,8 +206,8 @@ class AuraCardnewsS1Topic8Builder:
   <div class="absolute top-8 left-8 right-8 flex justify-between items-center z-10">
     <div class="inline-flex items-center gap-3 bg-slate-900/90 backdrop-blur-md border border-white/25 rounded-full py-2.5 px-5 shadow-2xl">
       <span class="text-lg">💖</span>
-      <span class="text-base font-black tracking-wider text-white">AURA</span>
-      <span class="text-sm font-bold text-pink-400 pl-3 border-l border-white/30">50:50 남녀 황금 성비율</span>
+      <span class="text-base font-black tracking-wider text-white">아우라 AI 데이팅</span>
+      <span class="text-sm font-bold text-pink-400 pl-3 border-l border-white/30">현재 100% 무료</span>
     </div>
 
     <div class="text-amber-400 font-black text-base bg-slate-900/90 backdrop-blur-md px-5 py-2.5 rounded-full border border-amber-500/50 shadow-2xl tracking-wider">

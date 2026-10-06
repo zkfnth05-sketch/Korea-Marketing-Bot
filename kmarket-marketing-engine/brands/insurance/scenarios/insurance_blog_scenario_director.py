@@ -202,7 +202,7 @@ class InsuranceBlogScenarioDirector:
   "body_markdown": "2단 비주얼 박스와 모바일 1~2줄 호흡이 완벽히 구현된 1,300~1,500자 완성형 본문 (이미지 안내문 일절 없음)",
   "summary": "1줄 요약 메타 디스크립션",
   "tags": ["태그1", "태그2", "태그3", "태그4", "태그5"],
-  "visual_prompt": "A stylish 16:9 editorial photograph of a modern Korean lifestyle scene matching the topic, sunny warm natural daylight, clean minimalist aesthetic 8k"
+  "visual_prompt": "당신이 집필한 본문 스토리의 가장 결정적이고 생생한 핵심 장면을 포착한 16:9 실사 영문 프롬프트 (🚨 절대 천편일률적인 서류/스마트폰 책상 사진 금지! 본문 스토리의 실제 상황과 인물에 100% 일치해야 함: 운전자/자동차보험이면 도로 위 안전하게 운전하며 미소 짓는 2030 한국인 운전자와 차량 내부, 치아보험이면 환한 미소로 치과 상담을 받거나 자신 있게 웃는 한국인, 누수/화재면 아늑한 거실과 주택 환경, 연금/절세면 햇살 드는 거실에서 가계 재무를 정리하며 안도하는 젊은 부부, 보험금 청구면 병원 진료 후 안도하는 표정, 보험료 다이어트면 가계 지출을 줄이고 밝게 웃는 2030 직장인 등 본문 이야기와 완벽히 일치하는 배경/인물/행동 상세 묘사. realistic Korean people, modern clean Seoul lifestyle, cinematic natural lighting, photorealistic, 16:9 포함)"
 }}
 """
 

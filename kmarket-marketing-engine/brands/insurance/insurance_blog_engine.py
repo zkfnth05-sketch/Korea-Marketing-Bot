@@ -74,7 +74,7 @@ class InsuranceBlogEngine:
         return self._publisher
 
     def get_next_topic(self) -> Dict[str, Any]:
-        """100대 주제를 파일 기반으로 1개씩 순환 반환 (중복 발행 100% 원천 차단)"""
+        """6대 카테고리 교차 순환(인터리빙) 방식으로 1개씩 순환 반환 (중복 발행 100% 원천 차단)"""
         state_file = PROJECT_ROOT / "data" / "insurance_blog_rotation_state.json"
         state = {}
         if state_file.exists():
@@ -84,10 +84,13 @@ class InsuranceBlogEngine:
             except Exception:
                 state = {}
 
+        from brands.insurance.insurance_100_topics import get_interleaved_topic_order, get_topic_by_id
+        interleaved_order = get_interleaved_topic_order()
         idx = state.get("current_topic_index", 0)
-        topic = self.topics[idx % len(self.topics)]
+        target_id = interleaved_order[idx % len(interleaved_order)]
+        topic = get_topic_by_id(target_id)
 
-        state["current_topic_index"] = (idx + 1) % len(self.topics)
+        state["current_topic_index"] = (idx + 1) % len(interleaved_order)
         state["last_topic_id"] = topic["id"]
         state["last_title"] = topic["title"]
         try:
@@ -106,62 +109,6 @@ class InsuranceBlogEngine:
             if pool:
                 return random.choice(pool)
         return random.choice(self.topics)
-
-    def build_article_package(
-        self,
-        topic_id: Optional[int] = None,
-        use_gemini: bool = True,
-        generate_photo: bool = True
-    ) -> Dict[str, Any]:
-        """
-        100대 주제 중 1개를 선택하여 실시간 키워드 결합 ➔ Gemini 2,000자 칼럼 ➔ 맞춤 사진 1장 생성
-        """
-        # 1. 주제 선택
-        if topic_id is not None:
-            topic = get_topic_by_id(topic_id)
-        else:
-            topic = self.get_next_topic()
-
-        cat_key = topic["category"]
-        seed_topic = topic["title"]
-        app_feature = topic.get("app_feature", "보험리밸런스 AI 보장 분석")
-
-        # 2. 실시간 키워드 추출
-        seo_brief = self.keyword_matrix.build_seo_article_brief(
-            seed_topic=seed_topic,
-            category=cat_key
-        )
-
-        # 3. Gemini 실시간 본문 작성
-        gemini_result = None
-        if use_gemini:
-            try:
-                writer = self._get_writer()
-                gemini_result = writer.write_magazine_article(topic, seo_brief)
-                logger.info(f"✅ [InsuranceBlog] Gemini 2,000자 칼럼 작성 완료: '{gemini_result['title']}'")
-            except Exception as e:
-                logger.warning(f"⚠️ [InsuranceBlog] Gemini 작성 실패: {e}")
-
-        # 4. 맞춤 실사 사진 1장 생성
-        photo_info = {
-            "image_path": "",
-            "web_url": "https://images.unsplash.com/photo-1450133064473-71024230f91b?w=1200&auto=format&fit=crop&q=80",
-            "is_fallback": True,
-            "prompt_used": ""
-        }
-        if generate_photo:
-            try:
-                img_gen = self._get_image_gen()
-                custom_p = gemini_result.get("visual_prompt") if gemini_result else None
-                photo_info = img_gen.generate_article_photo(
-                    topic_id=topic["id"],
-                    category=cat_key,
-                    topic_title=seed_topic,
-                    custom_visual_prompt=custom_p
-                )
-                logger.info(f"✅ [InsuranceBlog] 맞춤 사진 1장 생성 완료 ({photo_info['web_url']})")
-            except Exception as e:
-                logger.warning(f"⚠️ [InsuranceBlog] 사진 생성 실패: {e}")
 
     @staticmethod
     def clean_markdown_body(raw_md: str) -> str:
@@ -233,7 +180,8 @@ class InsuranceBlogEngine:
         self,
         topic_id: Optional[int] = None,
         use_gemini: bool = True,
-        generate_photo: bool = True
+        generate_photo: bool = True,
+        force_regenerate_photo: bool = False
     ) -> Dict[str, Any]:
         """
         100대 주제 중 1개를 선택하여 실시간 키워드 결합 ➔ Gemini 2,000자 칼럼 ➔ 맞춤 사진 1장 생성
@@ -248,11 +196,14 @@ class InsuranceBlogEngine:
         seed_topic = topic["title"]
         app_feature = topic.get("app_feature", "보험리밸런스 AI 보장 분석")
 
-        # 2. 실시간 키워드 추출
+        # 2. 실시간 키워드 추출 및 최신 트렌드 결합
         seo_brief = self.keyword_matrix.build_seo_article_brief(
             seed_topic=seed_topic,
             category=cat_key
         )
+        from brands.insurance.insurance_hashtag_matrix import InsuranceHashtagMatrix
+        live_trends = InsuranceHashtagMatrix.fetch_live_trend_keywords()
+        seo_brief["live_trends"] = live_trends
 
         # 3. Gemini 실시간 본문 작성
         gemini_result = None
@@ -279,7 +230,8 @@ class InsuranceBlogEngine:
                     topic_id=topic["id"],
                     category=cat_key,
                     topic_title=seed_topic,
-                    custom_visual_prompt=custom_p
+                    custom_visual_prompt=custom_p,
+                    force_regenerate=force_regenerate_photo
                 )
                 logger.info(f"✅ [InsuranceBlog] 맞춤 사진 1장 생성 완료 ({photo_info['web_url']})")
             except Exception as e:
@@ -295,6 +247,11 @@ class InsuranceBlogEngine:
         clean_body_md = self.clean_markdown_body(raw_body_md)
         full_html = self.render_clean_html_body(clean_body_md, self.LANDING_URL)
 
+        # 🌟 [실시간 구글 + 네이버 실시간 트렌드 해시태그 100% 결합]
+        from brands.insurance.insurance_hashtag_matrix import InsuranceHashtagMatrix
+        live_tags = InsuranceHashtagMatrix.get_rich_viral_hashtags(topic_id=topic["id"], count=15)
+        clean_tags = [t.replace("#", "").strip() for t in live_tags]
+
         return {
             "topic_id": topic["id"],
             "title": title,
@@ -306,7 +263,7 @@ class InsuranceBlogEngine:
             "content_text": clean_body_md,
             "content_html": full_html,
             "summary": gemini_result.get("summary", "") if gemini_result else "",
-            "tags": gemini_result.get("tags", topic.get("tags", ["보험비교", "InsureBalance"])) if gemini_result else topic.get("tags", []),
+            "tags": clean_tags,
             "image_path": photo_info.get("image_path", ""),
             "image_url": photo_info.get("web_url", ""),
             "landing_url": self.LANDING_URL

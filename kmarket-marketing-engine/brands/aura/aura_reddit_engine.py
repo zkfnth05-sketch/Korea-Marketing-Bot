@@ -121,7 +121,17 @@ class AuraRedditEngine:
                 comment_res = self.driver.post_comment_humanlike(post_url=post_url, comment_text=reply_content)
                 post_success = comment_res.get("success", False)
                 if not post_success:
-                    logger.warning(f"댓글 게시 실패: {comment_res.get('error')}")
+                    err_msg = comment_res.get('error', 'unknown_error')
+                    logger.warning(f"댓글 게시 실패: {err_msg}")
+                    self.db_mgr.record_history(
+                        content_type="reddit_skipped",
+                        service_id=self.SERVICE_ID,
+                        target_lang="en",
+                        title=f"[SKIPPED:{err_msg}] {title}",
+                        content_text=str(err_msg),
+                        target_url=post_url,
+                        external_id=post_id
+                    )
                     continue
 
                 # 가시성 검증 (10초 후 섀도우밴/삭제 여부 확인)

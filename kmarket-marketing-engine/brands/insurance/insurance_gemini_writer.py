@@ -120,9 +120,11 @@ class InsuranceGeminiWriter:
   "body_markdown": "2단 비주얼 박스와 이미지 앵커, 모바일 1~2줄 호흡이 완벽히 구현된 1,200~1,500자 완성형 본문",
   "summary": "1줄 요약 메타 디스크립션",
   "tags": ["태그1", "태그2", "태그3", "태그4", "태그5"],
-  "visual_prompt": "A stylish 16:9 editorial photograph of a smartphone showing a colorful financial rating chart, placed on a modern clean wooden table next to a cup of iced coffee, sunny daylight, aesthetic 8k"
+  "visual_prompt": "당신이 집필한 본문 스토리의 가장 결정적이고 생생한 핵심 장면을 포착한 16:9 실사 영문 프롬프트 (🚨 절대 천편일률적인 서류/스마트폰 책상 사진 금지! 본문 스토리의 실제 상황과 인물에 100% 일치해야 함: 운전자/자동차보험이면 도로 위 안전하게 운전하며 미소 짓는 2030 한국인 운전자와 차량 내부, 치아보험이면 환한 미소로 치과 상담을 받거나 자신 있게 웃는 한국인, 누수/화재면 아늑한 거실과 주택 환경, 연금/절세면 햇살 드는 거실에서 가계 재무를 정리하며 안도하는 젊은 부부, 보험금 청구면 병원 진료 후 안도하는 표정, 보험료 다이어트면 가계 지출을 줄이고 밝게 웃는 2030 직장인 등 본문 이야기와 완벽히 일치하는 배경/인물/행동 상세 묘사. realistic Korean people, modern clean Seoul lifestyle, cinematic natural lighting, photorealistic, 16:9 포함)"
 }}
 """
+
+        live_trends = seo_brief.get("live_trends", []) if seo_brief else []
 
         user_prompt = f"""
 [오늘의 칼럼 주제]
@@ -130,9 +132,14 @@ class InsuranceGeminiWriter:
 - 세부 기획의도: {intent}
 - 카테고리: {category}
 - 연계 솔루션: {app_feature} (포털 검색어: [보험리밸런스])
+- 🌐 당일 대한민국 실시간 핫이슈 & 트렌드 키워드: {', '.join(live_trends)}
 - SEO 권장 키워드: {', '.join(seeds)}
 
-위 주제로 모바일 스크롤을 훑어보는 사람도 100% 사로잡아 네이버에 [보험리밸런스]를 검색하게 만드는 비주얼 침투형 블로그 원고를 작성해주세요.
+[필수 지침 - 매일 완전히 새로운 관점의 최신 칼럼 집필]
+1. 🚨 [절대 금기: 매일 똑같은 진부한 전개 배제]: 위 실시간 트렌드 키워드({', '.join(live_trends[:3])})와 최근 건강검진/의료비/물가 이슈를 오프닝 썰에 생생하게 결합하여, 매일 완전히 새롭고 흥미진진한 칼럼으로 집필하십시오.
+2. 위 주제로 모바일 스크롤을 훑어보는 사람도 100% 사로잡아 네이버에 [보험리밸런스]를 검색하게 만드는 비주얼 침투형 블로그 원고를 작성해주세요.
+3. 🚨 [스토리 맞춤형 실사 사진 프롬프트(visual_prompt) 필수 수칙]:
+   - 반드시 본문에서 다룬 스토리의 실제 배경 장소와 상황(운전자, 치아 치료, 아파트 누수, 연금 재무 계획, 보험금 청구 등)에 어울리게, 2030 한국인이 등장하는 생생한 16:9 실사 영문 프롬프트를 1문장으로 작성하십시오. (매번 똑같은 서류/책상/스마트폰 사진 금지)
 """
 
         from google import genai

@@ -109,18 +109,19 @@ class InsuranceBlogScheduler:
             return {"status": "BLOCKED_DAILY_CAP", "message": reason}
 
         from brands.insurance.insurance_blog_engine import InsuranceBlogEngine
-        from brands.insurance.insurance_100_topics import INSURANCE_100_TOPICS
+        from brands.insurance.insurance_100_topics import INSURANCE_100_TOPICS, get_interleaved_topic_order
         from brands.insurance.insurance_multi_publisher import InsuranceMultiPublisher
 
         engine = InsuranceBlogEngine()
-        total_topics = len(INSURANCE_100_TOPICS)
+        interleaved_order = get_interleaved_topic_order()
+        total_topics = len(interleaved_order)
 
-        # 다음 순환 주제 결정
+        # 다음 순환 주제 결정 (6대 카테고리 교차 순환)
         if force_topic_id is not None:
             topic_id = force_topic_id
         else:
             cur_idx = self.state.get("current_topic_index", 0)
-            topic_id = (cur_idx % total_topics) + 1
+            topic_id = interleaved_order[cur_idx % total_topics]
 
         logger.info(f"🚀 [InsuranceScheduler] 주제 #{topic_id} 정기 포스팅 사이클 시작...")
         package = engine.build_article_package(topic_id=topic_id, use_gemini=True, generate_photo=True)

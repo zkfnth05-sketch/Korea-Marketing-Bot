@@ -254,8 +254,11 @@ class InsuranceCardnewsS5Builder:
         </div>
       </div>
       
-      <!-- Sub CTA text -->
-      <p class="text-xs text-slate-300 font-bold tracking-wide pt-0.5">
+      <!-- Sub CTA text (Instagram Profile Link & PII-Free) -->
+      <div class="w-full bg-emerald-500/20 border border-emerald-400/50 rounded-2xl py-2.5 px-4 flex items-center justify-center gap-2 shadow-lg">
+        <span class="text-emerald-300 text-[15px] font-black tracking-tight">👉 상단 프로필(@goldmomofficial) 링크 클릭 시 0.1초 자가진단!</span>
+      </div>
+      <p class="text-[11px] text-slate-300 font-medium tracking-wide">
         ✨ 스팸 전화 0건 • 지금 조회하고 내 통장에서 매달 새는 보험료 막기
       </p>
     </div>

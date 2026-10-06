@@ -90,23 +90,22 @@ class StockKinPublisher:
                 await page.goto(question_url, wait_until="domcontentloaded", timeout=25000)
                 await page.wait_for_timeout(2000)
 
-                # 🛑 [핵심 중복 방어 킬스위치]: 이미 내 계정 또는 스톡마스터 답변이 존재하는지 실시간 DOM 전수 스캔
+                # 🛑 [핵심 중복 방어]: 이미 실제 답변 영역에 동일 브랜드 키워드가 존재하는지만 정밀 검사 (헤더 로그인 정보 검사 배제)
                 try:
-                    page_content = await page.content()
-                    answer_elements = await page.query_selector_all(".answer-content__list, .c-heading__title, div.answer-content, a.c-user-outline__link, .c-user-outline__name, div._answerList")
+                    answer_elements = await page.query_selector_all(".answer-content__list, div.answer-content, div._answerList")
                     answers_text = ""
                     for el in answer_elements:
                         answers_text += (await el.inner_text()) + " "
 
-                    full_check_text = (page_content + " " + answers_text).lower()
-                    if "zkfn" in full_check_text or "스톡마스터" in full_check_text or "스톡마스터 ai" in full_check_text or "stockmaster-ai" in full_check_text:
-                        logger.warning(f"🛑 [중복 답변 방어 킬스위치 작동] 이미 질문({question_url})에 내 계정/StockMaster 답변이 등록되어 있습니다! 추가 작성을 원천 차단하고 영구 완료 처리합니다.")
+                    full_check_text = answers_text.lower()
+                    if "스톡마스터" in full_check_text or "스톡마스터 ai" in full_check_text or "stockmaster-ai" in full_check_text:
+                        logger.warning(f"🛑 [중복 답변 방어] 이미 질문({question_url})에 StockMaster 답변이 등록되어 있어 중복을 차단합니다.")
                         await context.close()
                         return {
-                            "success": True,
+                            "success": False,
                             "status": "already_answered",
                             "published_url": question_url,
-                            "message": "이미 내 계정/StockMaster 답변이 등록되어 있어 중복 답변을 원천 차단함",
+                            "message": "이미 StockMaster 답변이 등록되어 있어 다른 질문으로 이동합니다.",
                             "question_url": question_url
                         }
                 except Exception as dup_ex:

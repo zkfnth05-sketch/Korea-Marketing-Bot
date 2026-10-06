@@ -35,7 +35,7 @@ logger = logging.getLogger("StockShorts34sTopic2")
 
 from core.shorts_engine.stock_shorts_producer import StockShortsProducer
 from core.shorts_engine.s2v_clip_stitcher import S2VClipStitcher
-from brands.insurance.insurance_voice_cloner import InsuranceVoiceCloner
+from brands.stock.stock_voice_cloner import StockVoiceCloner
 from brands.stock.ui_templates.stock_cta_card import StockCTACard
 from core.shorts_engine.shorts_brand_capsule_badge import ShortsBrandCapsuleBadge
 from core.shorts_engine.shorts_video_composer import ShortsVideoComposer
@@ -50,22 +50,21 @@ def produce_stock_34s_shorts_topic2():
     work_dir = out_base / f"[주제02] SK하이닉스_20대남성아나운서_{dt_str}"
     work_dir.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"🚀 [StockMaster AI] 34초 완제품 숏폼 (주제 2번: SK하이닉스) 생산 시작 -> {work_dir}")
+    logger.info(f"🚀 [StockMaster AI] 30초 완제품 숏폼 (주제 2번: SK하이닉스) 생산 시작 -> {work_dir}")
 
-    # 1. 🎙️ [Step 1] 제미나이 34초 단일 통짜 대본 생성 (250자 완결형 스피치 - 100% 진짜 팩트)
-    logger.info("🤖 [Step 1] Google Gemini 2.5 Flash 34초 단일 통짜 대본 집필 중...")
+    # 1. 🎙️ [Step 1] 제미나이 30초 단일 통짜 대본 생성 (140~170자 완결형 스피치 - 100% 진짜 팩트)
+    logger.info("🤖 [Step 1] Google Gemini 2.5 Flash 30초 단일 통짜 대본 집필 중...")
 
     full_speech = (
-        "SK하이닉스 HBM, 고점 추격매수 망설이시죠? "
-        "외인·기관 수급, AI 리스크 진단으로 현명한 투자! "
-        "지금 보시는 건 스톡마스터 AI의 10분 전광판입니다. "
-        "SK하이닉스 클릭 시 실시간 외인·기관 수급, 거래대금, 신용잔고율, "
-        "AI 리스크 안전 구간이 1초 만에 분석되죠. 단기 과열 진단과 안전 진입가까지 바로 확인하며 현명하게 대응하세요. "
+        "SK하이닉스 HBM, 지금 고점 추격매수 망설이시나요? "
+        "외인·기관 실시간 수급을 보면 안전 구간이 1초 만에 나옵니다! "
+        "스톡마스터 AI는 SK하이닉스의 장중 메이저 순매수와 퀀트 거래대금을 분석하여 "
+        "단기 과열 여부와 안전 진입가를 명쾌하게 제시합니다. "
         "지금 바로 네이버에 '스톡마스터 AI'를 검색하고 무료로 확인하세요!"
     )
-    hook_text = "SK하이닉스 HBM, 고점 추격매수 망설이시죠? 외인·기관 수급, AI 리스크 진단으로 현명한 투자!"
-    hook_p1 = "SK하이닉스 HBM, 고점 추격매수 망설이시죠?"
-    hook_p2 = "외인·기관 수급, AI 리스크 진단으로 현명한 투자!"
+    hook_text = "SK하이닉스 HBM, 지금 고점 추격매수 망설이시나요? 외인·기관 실시간 수급을 보면 안전 구간이 1초 만에 나옵니다!"
+    hook_p1 = "SK하이닉스 HBM, 지금 고점 추격매수 망설이시나요?"
+    hook_p2 = "외인·기관 실시간 수급을 보면 안전 구간이 1초 만에 나옵니다!"
     hero_copy = "HBM 주도주, 퀀트 분석!"
     debate_q = "SK하이닉스 HBM 독주 지속 vs 고점 차익 실현?"
 
@@ -80,19 +79,20 @@ def produce_stock_34s_shorts_topic2():
             hook_p2 = dyn.get("hook_p2_5s", hook_p2)
             hero_copy = dyn.get("hero_copy", hero_copy)
             debate_q = dyn.get("debate_question", debate_q)
-            logger.info("✨ 제미나이 34초 단일 통짜 대본 적용 성공 (100% 진짜 팩트)!")
+            logger.info("✨ 제미나이 30초 단일 통짜 대본 적용 성공 (100% 진짜 팩트)!")
     except Exception as e:
         logger.warning(f"제미나이 대본 생성 폴백: {e}")
 
-    logger.info(f"📝 34초 전체 통짜 대본 ({len(full_speech)}자):\n{full_speech}")
+    logger.info(f"📝 30초 전체 통짜 대본 ({len(full_speech)}자):\n{full_speech}")
 
-    # 2. 🎙️ [Step 2] 알리바바 CosyVoice 남성 앵커(진우) 34초 단일 통음성 합성 -> 전용 폴더에 저장
-    logger.info("🎙️ [Step 2] 알리바바 CosyVoice 남성 앵커(진우) 34초 단일 1개 통음성 합성 중...")
-    voice_cloner = InsuranceVoiceCloner(output_dir=str(work_dir))
+    # 2. 🎙️ [Step 2] 남성 앵커(진우) 30초 단일 통음성 합성 -> 전용 폴더에 저장
+    logger.info("🎙️ [Step 2] 남성 앵커(진우) 30초 단일 1개 통음성 합성 중...")
+    voice_cloner = StockVoiceCloner(output_dir=str(work_dir))
     
     full_audio_wav = voice_cloner.generate_speech_wav(
         text=full_speech,
         gender="male",
+        rate="+2%",
         filename_prefix="02_full_speech_audio"
     )
     logger.info(f"🔊 단일 통음성 합성 완료: {full_audio_wav}")
@@ -192,19 +192,15 @@ def produce_stock_34s_shorts_topic2():
     bgm_path = bgm_mgr.get_random_upbeat_bgm(service_id="stock")
     has_bgm = bool(bgm_path and os.path.exists(bgm_path))
 
-    # 🎯 [음성 길이 실측 기반 동적 비디오 완결: 말끝 절단 0% 영구 보장]
+    # 🎯 [음성 완독과 동시에 비디오 100% 동기화 완결: 불필요한 패딩 0% 원천 차단]
     dur_full_audio = producer.composer._get_video_duration(full_audio_wav)
-    dur_total_target = max(20.0, dur_full_audio + 0.50) if dur_full_audio > 0 else 34.0
+    dur_total_target = max(20.0, dur_full_audio + 0.30) if dur_full_audio > 0 else 32.0
 
-    dur_v0 = 10.00
-    dur_v1 = 20.00
-    dur_v2 = max(2.0, dur_total_target - (dur_v0 + dur_v1))
+    dur_v0 = 10.00   # 10초 인물 실사 립싱크
+    dur_v2 = 3.50    # 3.5초 럭셔리 다크 네이비 CTA 카드
+    dur_v1 = max(5.0, dur_total_target - (dur_v0 + dur_v2))  # 웹앱 시연 구간 음성 길이에 맞춰 동적 결정
 
-    logger.info(f"⏱️ [음성 동기화] 통음성 실측={dur_full_audio:.2f}s ➔ 최종 영상={dur_total_target:.2f}s (인물={dur_v0:.2f}s, 앱={dur_v1:.2f}s, CTA={dur_v2:.2f}s)")
-
-    pad_v2 = max(0.0, dur_v2 - 4.0)
-    v2_pad_filter = f",tpad=stop_mode=clone:stop_duration={pad_v2:.3f}" if pad_v2 > 0.05 else ""
-
+    logger.info(f"⏱️ [음성 완독 동기화] 통음성 실측={dur_full_audio:.2f}s ➔ 최종 완제품 영상={dur_total_target:.2f}s (인물={dur_v0:.2f}s, 앱={dur_v1:.2f}s, CTA={dur_v2:.2f}s)")
     logger.info(f"🎬 [Step 6] 완제품 조립 -> {final_mp4_path}")
 
     # FFmpeg 복합 필터 구성 (비디오 3단 Concat + 상단 뱃지 + 단일 통음성 100% 매핑)
@@ -231,10 +227,10 @@ def produce_stock_34s_shorts_topic2():
 
     v_concat_tag = "v_concat" if has_badge else "v_out"
     filter_complex = [
-        # 비디오 3단 스케일 및 Concat (총 dur_total_target초 영상)
+        # 비디오 3단 스케일 및 Concat (총 dur_total_target초 영상: 음성 완독과 동시 종료)
         f"[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1,fps=30,trim=0:{dur_v0:.2f},setpts=PTS-STARTPTS[v0]",
         f"[1:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1,fps=30,trim=0:{dur_v1:.2f},setpts=PTS-STARTPTS[v1]",
-        f"[2:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1,fps=30{v2_pad_filter},trim=0:{dur_v2:.2f},setpts=PTS-STARTPTS[v2]",
+        f"[2:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1,fps=30,trim=0:{dur_v2:.2f},setpts=PTS-STARTPTS[v2]",
         f"[v0][v1][v2]concat=n=3:v=1:a=0[{v_concat_tag}]"
     ]
 

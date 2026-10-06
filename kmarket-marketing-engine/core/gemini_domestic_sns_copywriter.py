@@ -37,7 +37,10 @@ BRAND_SPECS = {
         "name": "💖 Aura AI 데이팅",
         "official_keyword": "아우라AI데이팅",
         "url": "https://aura-ai-dating.vercel.app/",
-        "core_value": "유령회원 없는 50:50 황금 성비 청정 라운지, 소개팅 긴급 탈출 전화, 실시간 AI 자막/번역 통화, AI 대화 비서",
+        "naver_blog_url": "https://blog.naver.com/zkfnth01",
+        "cta_label": "공식 라운지(체험)",
+        "ig_handle": "@aura_ai_dating",
+        "core_value": "유령회원 없는 50:50 황금 성비 청정 라운지, Aura의 모든 기능(AI 화보, 매칭, 쪽지, 번개) 현재 100% 무료 지원 중",
         "target": "2030 직장인 및 대학생 싱글 남녀",
         "search_phrase": "네이버에 [아우라AI데이팅] 한번 검색해보세요"
     },
@@ -45,6 +48,9 @@ BRAND_SPECS = {
         "name": "🛡️ 보험 리밸런스",
         "official_keyword": "보험 리밸런스",
         "url": "https://insure-rebalance.vercel.app/",
+        "naver_blog_url": "https://blog.naver.com/thefirst-life",
+        "cta_label": "0.1초 비교(진단)",
+        "ig_handle": "@goldmomofficial",
         "core_value": "34개 보험사 실시간 비교 견적, 숨은 중복 특약 정리, 월 15만원 보험료 다이어트 자가진단",
         "target": "2040 직장인 및 가계부 고정지출 절약이 필요한 금융 소비자",
         "search_phrase": "네이버에 [보험 리밸런스] 검색해보세요"
@@ -53,6 +59,9 @@ BRAND_SPECS = {
         "name": "📈 StockMaster AI",
         "official_keyword": "스톡마스터 AI",
         "url": "https://stockmaster-ai.vercel.app/",
+        "naver_blog_url": "https://blog.naver.com/stockmaster_ai",
+        "cta_label": "AI 수급 분석(체험)",
+        "ig_handle": "@stockmaster_ai",
         "core_value": "세력 체결강도 120% 수급 포착, 외인/기관 실시간 순매수 레이더, AI 자동 리스크가드 손절 공식",
         "target": "스마트한 퀀트 데이터 기반 국내/해외 주식 투자자",
         "search_phrase": "네이버에 [스톡마스터 AI] 검색해보세요"
@@ -229,16 +238,16 @@ class GeminiDomesticSNSCopywriter:
                             "hashtags": hashtags,
                             "youtube": {
                                 "title": f"{topic_title} #{self.spec['official_keyword'].replace(' ', '')} #Shorts",
-                                "desc": f"{yt_d}\n\n🔍 {self.spec['search_phrase']}\n공식 라운지: {self.spec['url']}\n\n{short_hashtag_str}",
-                                "pinned": yt_p or f"📌 {self.spec['search_phrase']} (공식: {self.spec['url']})"
+                                "desc": f"{yt_d}\n\n🔍 {self.spec['search_phrase']}\n공식 웹: {self.spec['url']}\n\n{short_hashtag_str}",
+                                "pinned": yt_p or f"👇 3초 무료 진단 바로가기: [채널 홈 상단 링크] 클릭!\n🔍 네이버 검색: [{self.spec['official_keyword']}] (공식: {self.spec['url']})"
                             },
                             "naver_clip": {
                                 "title": topic_title,
-                                "desc": f"{cl_d}\n\n🔍 {self.spec['search_phrase']}\n{short_hashtag_str}"[:290]
+                                "desc": f"{cl_d}\n\n📝 상세 칼럼(블로그): {self.spec['naver_blog_url']}\n🚀 {self.spec['cta_label']}: {self.spec['url']}\n🔍 네이버 검색창: [{self.spec['official_keyword']}]\n\n{short_hashtag_str}"[:295]
                             },
                             "meta": {
-                                "ig_caption": f"{ig_c}\n\n🔍 {self.spec['search_phrase']}\n\n{hashtag_str}",
-                                "fb_caption": f"{fb_c}\n\n🔍 {self.spec['search_phrase']}\n\n{hashtag_str}",
+                                "ig_caption": f"{ig_c}\n\n👇 3초 무료 자가진단 바로가기\n👉 상단 프로필({self.spec['ig_handle']}) 링크를 터치하세요!\n🔍 {self.spec['search_phrase']}\n\n{hashtag_str}",
+                                "fb_caption": f"{fb_c}\n\n👉 3초 자가진단 바로가기: {self.spec['url']}\n🔍 {self.spec['search_phrase']}\n\n{hashtag_str}",
                                 "fb_comment": fb_cm or f"👉 {self.spec['name']} 공식 바로가기: {self.spec['url']}\n네이버에 [{self.spec['official_keyword']}] 검색하셔도 바로 나옵니다!"
                             }
                         }
@@ -269,7 +278,9 @@ class GeminiDomesticSNSCopywriter:
                 f"2. 상대방 자존심 안 상하게 정중히 빠져나오는 '긴급 업무 호출' 명분\n"
                 f"3. 유령회원 제로! 50:50 남녀 황금 성비 청정 라운지 활용법\n\n"
                 f"외모보다 통하는 대화와 자연스러운 매력 어필로 솔로 탈출 성공하세요 ✨\n\n"
-                f"🔍 네이버 검색창에 👉 [{self.spec['official_keyword']}] 한번 검색해보세요!\n\n"
+                f"👉 {topic_title.split(' ')[0]}은 물론! Aura의 모든 기능(AI 화보, 매칭, 쪽지, 번개)을 현재 100% 무료 지원 중!\n"
+                f"👉 상단 프로필({self.spec['ig_handle']}) 링크를 터치하세요!\n"
+                f"🔍 네이버 검색: [{self.spec['official_keyword']}]\n\n"
                 f"{hashtag_str}"
             )
             fb_c = (
@@ -278,21 +289,29 @@ class GeminiDomesticSNSCopywriter:
                 f"마음에도 없는 밥값 내고 어색함에 고통받는 솔로들을 위한 세련된 매너 탈출 꿀팁 📖\n\n"
                 f"✔️ 소개팅 어색함 깨는 실전 대화 치트키\n"
                 f"✔️ 50:50 황금 성비 청정 라운지에서 진짜 통하는 인연 찾기\n\n"
-                f"상세 링크 및 자가진단은 첫 번째 댓글에서 확인하세요!\n\n"
-                f"🔍 네이버 검색창에 👉 [{self.spec['official_keyword']}] 검색!\n\n"
+                f"👉 {topic_title.split(' ')[0]}은 물론! Aura의 모든 기능(AI 화보, 매칭, 쪽지, 번개)을 현재 100% 무료 지원 중!\n"
+                f"👉 공식 라운지 바로가기: {self.spec['url']}\n"
+                f"🔍 네이버 검색: [{self.spec['official_keyword']}]\n\n"
                 f"{hashtag_str}"
             )
-            fb_cm = f"👉 50:50 황금 성비 클린 라운지 바로가기: {self.spec['url']}\n네이버에 [{self.spec['official_keyword']}] 검색하셔도 바로 나옵니다!"
+            fb_cm = f"👉 Aura의 모든 기능(AI 화보, 매칭, 쪽지, 번개) 현재 100% 무료 지원 중! 공식: {self.spec['url']}\n네이버에 [{self.spec['official_keyword']}] 검색하셔도 바로 나옵니다!"
             yt_d = (
                 f"{topic_title}\n\n"
                 f"2030 솔로 남녀를 위한 현실 연애 & 소개팅 실전 치트키 🎬\n"
-                f"어색한 소개팅 3초 탈출부터 50:50 황금 성비 라운지까지!\n\n"
+                f"{topic_title.split(' ')[0]}은 물론! Aura의 모든 기능(AI 화보, 매칭, 쪽지, 번개)을 현재 100% 무료 지원 중!\n\n"
                 f"🔍 네이버에 👉 [{self.spec['official_keyword']}] 검색해보세요!\n"
                 f"공식 라운지: {self.spec['url']}\n\n"
                 f"{short_hashtag_str}"
             )
-            yt_p = f"📌 영상에서 나온 50:50 황금 성비 AI 소개팅 라운지는 네이버에 [{self.spec['official_keyword']}] 검색해보세요! (링크: {self.spec['url']})"
-            cl_d = f"💖 {topic_title}\n소개팅 어색할 때 3초 만에 탈출하는 실전 치트키!\n50:50 황금 성비 라운지에서 확인하세요.\n네이버에 [{self.spec['official_keyword']}] 검색!"
+            yt_p = f"📌 {topic_title.split(' ')[0]}은 물론! Aura의 모든 기능(AI 화보, 매칭, 쪽지, 번개)을 현재 100% 무료 지원 중! 네이버에 [{self.spec['official_keyword']}] 검색해보세요! (공식: {self.spec['url']})"
+            cl_d = (
+                f"💖 {topic_title}\n\n"
+                f"{topic_title.split(' ')[0]}은 물론! Aura의 모든 기능(AI 화보, 매칭, 쪽지, 번개)을 현재 100% 무료 지원 중!\n\n"
+                f"📝 상세 칼럼(블로그): {self.spec['naver_blog_url']}\n"
+                f"🚀 {self.spec['cta_label']}: {self.spec['url']}\n"
+                f"🔍 네이버 검색창: [{self.spec['official_keyword']}]\n\n"
+                f"{short_hashtag_str}"
+            )[:295]
 
         elif self.brand == "insurance":
             ig_c = (
@@ -304,7 +323,9 @@ class GeminiDomesticSNSCopywriter:
                 f"1. 4세대 실손 전환 손익 분석 및 비급여 특약 실속 체크\n"
                 f"2. 운전자보험 1만원대로 민식이법/변호사 선임비용 완벽 대비\n"
                 f"3. 34개 국내 전 보험사 실시간 비교 견적으로 월 15만원 다이어트\n\n"
-                f"🔍 네이버 검색창에 👉 [{self.spec['official_keyword']}] 검색해보세요!\n\n"
+                f"👇 34개 보험사 실시간 최저가 비교 & 새는 돈 계산기\n"
+                f"👉 상단 프로필({self.spec['ig_handle']}) 링크를 터치하세요! (스팸전화 0건)\n"
+                f"🔍 네이버 검색: [{self.spec['official_keyword']}]\n\n"
                 f"{hashtag_str}"
             )
             fb_c = (
@@ -313,7 +334,8 @@ class GeminiDomesticSNSCopywriter:
                 f"중복 가입된 특약만 깔끔하게 정리해도 매달 10~15만 원의 여유 자금이 생깁니다.\n\n"
                 f"✔️ 34개 전 보험사 실시간 객관적 비교 견적\n"
                 f"✔️ 불필요한 거품 싹 뺀 가성비 실손/운전자/암보험 설계\n\n"
-                f"🔍 네이버에 👉 [{self.spec['official_keyword']}] 검색!\n\n"
+                f"👉 34개사 실시간 가격표 바로가기: {self.spec['url']}\n"
+                f"🔍 네이버 검색: [{self.spec['official_keyword']}]\n\n"
                 f"{hashtag_str}"
             )
             fb_cm = f"👉 34개 보험사 실시간 최저가 비교견적: {self.spec['url']}\n네이버에 [{self.spec['official_keyword']}] 검색해보세요!"
@@ -326,7 +348,13 @@ class GeminiDomesticSNSCopywriter:
                 f"{short_hashtag_str}"
             )
             yt_p = f"📌 34개 보험사 실시간 비교 견적 데이터는 네이버에 [{self.spec['official_keyword']}] 검색하시면 바로 확인하실 수 있습니다."
-            cl_d = f"🛡️ {topic_title}\n매달 새는 중복 보험료 싹 정리하고 월 15만원 아끼는 법!\n네이버에 [{self.spec['official_keyword']}] 검색해보세요."
+            cl_d = (
+                f"🛡️ {topic_title}\n\n"
+                f"📝 상세 칼럼(블로그): {self.spec['naver_blog_url']}\n"
+                f"🚀 {self.spec['cta_label']}: {self.spec['url']}\n"
+                f"🔍 네이버 검색창: [{self.spec['official_keyword']}]\n\n"
+                f"{short_hashtag_str}"
+            )[:295]
 
         else:  # stock
             ig_c = (
@@ -338,7 +366,9 @@ class GeminiDomesticSNSCopywriter:
                 f"1. 코스피/코스닥 실시간 외인·기관 자금 유입 레이더 분석\n"
                 f"2. 물타기 금지! AI 리스크 가드 자동 손절매 공식 확립\n"
                 f"3. 저PBR 밸류업 & 고배당 금융주 실시간 스크리닝\n\n"
-                f"🔍 네이버 검색창에 👉 [{self.spec['official_keyword']}] 검색해보세요!\n\n"
+                f"👇 당일 실시간 퀀트 1위 종목 무료 확인\n"
+                f"👉 상단 프로필({self.spec['ig_handle']}) 링크를 터치하세요!\n"
+                f"🔍 네이버 검색: [{self.spec['official_keyword']}]\n\n"
                 f"{hashtag_str}"
             )
             fb_c = (
@@ -347,7 +377,8 @@ class GeminiDomesticSNSCopywriter:
                 f"빅데이터 퀀트 알고리즘이 분석하는 실시간 수급 포착과 리스크 관리 치트키 🚀\n\n"
                 f"✔️ 체결강도 120% 돌파 급등 유망주 포착\n"
                 f"✔️ 하락장에서도 계좌를 지키는 AI 자동 손절 공식\n\n"
-                f"🔍 네이버에 👉 [{self.spec['official_keyword']}] 검색!\n\n"
+                f"👉 실시간 퀀트 전광판 바로가기: {self.spec['url']}\n"
+                f"🔍 네이버 검색: [{self.spec['official_keyword']}]\n\n"
                 f"{hashtag_str}"
             )
             fb_cm = f"👉 StockMaster AI 실시간 수급 레이더 바로가기: {self.spec['url']}\n네이버에 [{self.spec['official_keyword']}] 검색해보세요!"
@@ -360,7 +391,13 @@ class GeminiDomesticSNSCopywriter:
                 f"{short_hashtag_str}"
             )
             yt_p = f"📌 실시간 외인/기관 수급 레이더 및 퀀트 종목 분석은 네이버에 [{self.spec['official_keyword']}] 검색해보세요!"
-            cl_d = f"📈 {topic_title}\n세력 체결강도 120% 돌파 및 외인/기관 실시간 수급 포착!\n네이버에 [{self.spec['official_keyword']}] 검색해보세요."
+            cl_d = (
+                f"📈 {topic_title}\n\n"
+                f"📝 상세 칼럼(블로그): {self.spec['naver_blog_url']}\n"
+                f"🚀 {self.spec['cta_label']}: {self.spec['url']}\n"
+                f"🔍 네이버 검색창: [{self.spec['official_keyword']}]\n\n"
+                f"{short_hashtag_str}"
+            )[:295]
 
         return {
             "main_title": topic_title,

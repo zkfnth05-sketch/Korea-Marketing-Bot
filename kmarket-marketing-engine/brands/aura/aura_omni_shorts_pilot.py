@@ -247,7 +247,8 @@ class AuraOmniShortsPilot:
             clip_res = self.clip_pub.publish_clip(
                 video_path=fresh_video,
                 topic_id=target_topic,
-                title=pkg["naver_clip"]["title"]
+                title=pkg["naver_clip"]["title"],
+                description=pkg["naver_clip"]["desc"]
             )
             results["channels"]["naver_clip"] = clip_res
         except Exception as ce:

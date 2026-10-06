@@ -80,10 +80,13 @@ class AuraBlogEngine:
             except Exception:
                 state = {}
 
+        from brands.aura.aura_100_topics import get_interleaved_topic_order, get_topic_by_id
+        interleaved_order = get_interleaved_topic_order()
         idx = state.get("current_topic_index", 0)
-        topic = self.topics[idx % len(self.topics)]
+        target_id = interleaved_order[idx % len(interleaved_order)]
+        topic = get_topic_by_id(target_id)
 
-        state["current_topic_index"] = (idx + 1) % len(self.topics)
+        state["current_topic_index"] = (idx + 1) % len(interleaved_order)
         state["last_topic_id"] = topic["id"]
         state["last_title"] = topic["title"]
         try:
@@ -132,8 +135,15 @@ class AuraBlogEngine:
 
         naver_keys = seo_brief.get("seo_title_keywords", [])
         google_keys = seo_brief.get("h2_h3_subheading_keywords", [])
-        hashtags = seo_brief.get("viral_hashtags", [])
-        clean_tags = [t.replace("#", "") for t in hashtags]
+
+        # 🌟 [실시간 구글 + 네이버 실시간 트렌드 해시태그 100% 결합]
+        from brands.aura.aura_hashtag_matrix import AuraHashtagMatrix
+        live_trends = AuraHashtagMatrix.fetch_live_trend_keywords()
+        hashtags = AuraHashtagMatrix.get_rich_viral_hashtags(topic_id=topic["id"], count=15)
+        clean_tags = [t.replace("#", "").strip() for t in hashtags]
+
+        seo_brief["live_trends"] = live_trends
+        seo_brief["viral_hashtags"] = hashtags
 
         # 3. Gemini 실시간 본문 작성 (무료키 1순위)
         gemini_result = None
@@ -217,15 +227,16 @@ class AuraBlogEngine:
                 {body_html}
             </div>
 
-            <!-- 🎁 Aura 앱 공식 전환 CTA 배너 (50:50 남녀 성비 매칭 보장) -->
+            <!-- 🎁 Aura 앱 공식 전환 CTA 배너 (현재 100% 무료 지원 중) -->
             <div style="background:linear-gradient(135deg, #FFF1F2 0%, #FDF2F8 100%); border:1px solid #FECDD3; border-radius:16px; padding:22px; margin:32px 0; text-align:center; box-shadow:0 6px 20px rgba(236,72,153,0.08);">
                 <span style="font-size:26px;">💑</span>
                 <h4 style="margin:8px 0 6px 0; font-size:16px; font-weight:800; color:#BE123C;">
-                    유령회원 ZERO! 남녀 50:50 황금 성비로 진짜 만나는 AI 소개팅
+                    Aura의 모든 기능(AI 화보, 매칭, 쪽지, 번개) 현재 100% 무료 지원 중!
                 </h4>
                 <p style="font-size:13.5px; color:#4C0519; margin:0 0 16px 0; line-height:1.5;">
-                    남초 어플의 끝없는 읽씹과 유령회원에 지치셨나요?<br/>
-                    <strong>Aura는 철저한 1:1 남녀 50:50 성비 보장</strong>과 AI 매력 분석([{aura_feature}])으로 진짜 이어지는 설레는 만남을 선물합니다.
+                    하트 과금과 유령회원에 지치셨나요?<br/>
+                    <strong>남녀 50:50 황금 성비 보장</strong>과 AI 인생 화보, 매칭, 쪽지, 번개까지 전 기능을 지금 100% 무료로 경험해보세요.<br/>
+                    <span style="font-weight:700; color:#BE123C;">🔍 네이버 검색창: [아우라AI데이팅]</span>
                 </p>
                 <a href="{self.LANDING_URL}" target="_blank" style="display:inline-block; background:linear-gradient(135deg, #EC4899 0%, #DB2777 100%); color:#FFFFFF; font-weight:700; font-size:13.5px; padding:11px 26px; border-radius:30px; text-decoration:none; box-shadow:0 4px 14px rgba(236,72,153,0.35);">
                     👉 AURA 프라이빗 라운지 둘러보기

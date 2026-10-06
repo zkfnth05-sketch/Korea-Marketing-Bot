@@ -237,11 +237,12 @@ class InsuranceRedditScanner:
     def scan_target_subreddits(
         self,
         subreddits: Optional[List[str]] = None,
-        limit_per_sub: int = 15
+        limit_per_sub: int = 15,
+        max_final_leads: int = 3
     ) -> List[Dict[str, Any]]:
         """
         12대 서브레딧을 스캔하여 1단계 파이썬 필터를 통과하고
-        2단계 제미나이 검증까지 완료한 최상위 진성 리드 1건 반환
+        2단계 제미나이/파이썬 인텐트 검증까지 완료한 최상위 진성 리드 반환
         """
         targets = subreddits or INSURANCE_TARGET_SUBREDDITS
         all_candidates = []
@@ -286,25 +287,25 @@ class InsuranceRedditScanner:
             logger.info("ℹ️ [Insurance Reddit] 1단계 필터를 통과한 신규 질문글이 없습니다.")
             return []
 
-        # 점수 기준 내림차순 정렬 -> 최상위 1등 선별
+        # 점수 기준 내림차순 정렬 -> 상위 후보 선별
         all_candidates.sort(key=lambda x: x["score"], reverse=True)
-        top_candidate = all_candidates[0]
-        logger.info(
-            f"🏆 [1단계 파이썬 1등 선별] r/{top_candidate['subreddit']}: '{top_candidate['title'][:40]}' "
-            f"(점수: {top_candidate['score']:.1f}점, 클러스터: {top_candidate['cluster']})"
-        )
+        top_candidates = all_candidates[:max_final_leads]
+        logger.info(f"🏆 [1단계 파이썬 심사] 총 {len(all_candidates)}개 합격 글 중 상위 {len(top_candidates)}개 선별")
 
         # 3. [2단계: 파이썬 인텐트 심층 정밀 검증 (제미나이 0회 호출)]
-        intent = self.copywriter.verify_lead_intent(
-            post_title=top_candidate["title"],
-            post_body=top_candidate["body"],
-            subreddit=top_candidate["subreddit"]
-        )
+        qualified_leads = []
+        for cand in top_candidates:
+            intent = self.copywriter.verify_lead_intent(
+                post_title=cand["title"],
+                post_body=cand["body"],
+                subreddit=cand["subreddit"]
+            )
+            if not intent.get("is_relevant", False):
+                logger.info(f"🛡️ [파이썬 인텐트 심사 탈락] '{cand['title'][:30]}' 사유: {intent.get('reason')}")
+                continue
 
-        if not intent.get("is_relevant", False):
-            logger.info(f"🛡️ [파이썬 인텐트 심사 탈락] 사유: {intent.get('reason')}")
-            return []
+            cand["intent"] = intent
+            logger.info(f"✨ [파이썬 최종 승인 리드] r/{cand['subreddit']}: '{cand['title'][:35]}' ({intent.get('reason')})")
+            qualified_leads.append(cand)
 
-        top_candidate["intent"] = intent
-        logger.info(f"✨ [파이썬 최종 승인 1등 글] 신뢰도: {intent.get('confidence_score')}% ({intent.get('reason')})")
-        return [top_candidate]
+        return qualified_leads

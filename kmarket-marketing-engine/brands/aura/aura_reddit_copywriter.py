@@ -192,12 +192,14 @@ class AuraRedditCopywriter:
 4. Keep it casual, empathetic, and 100% non-commercial."""
         else:
             promo_instruction = f"""### TYPE 2 — NATURAL STEALTH GOOGLE SEARCH RECOMMENDATION (NO URLS):
-1. Provide 80% genuinely empathetic, helpful advice tailored to OP's question first.
-2. At the very end of your response, add ONE casual, friendly recommendation to search on Google:
-   - "You don't need a Korean phone number or ARC. Just search '{self.OFFICIAL_SEARCH_KEYWORD}' on Google to try their web platform with real-time auto-translation!"
-   - "If you want to practice with polite verified locals, search '{self.OFFICIAL_SEARCH_KEYWORD}' (or '{self.OFFICIAL_KOREAN_KEYWORD}') on Google — it has built-in live translation chat and voice subtitles."
-3. 🚨 STRICT RULE: NEVER post any raw clickable URLs, links (http/https/www/dot-com), or Markdown links.
-4. ONLY suggest searching the exact brand keyword '{self.OFFICIAL_SEARCH_KEYWORD}' (or '{self.OFFICIAL_KOREAN_KEYWORD}') on Google."""
+1. Provide 70% genuinely empathetic, helpful advice tailored to OP's question first.
+2. At the very end of your response, add ONE casual, friendly recommendation to search on Google, emphasizing that it is currently 100% FREE with NO paywalls or subscription fees:
+   - "You don't need a Korean phone number or ARC, and literally all features are currently 100% free right now (unlimited matches, AI profile photos, and real-time auto-translation chat with zero coins). Just search '{self.OFFICIAL_SEARCH_KEYWORD}' on Google to try their web platform!"
+   - "If you want to chat with polite verified locals, search '{self.OFFICIAL_SEARCH_KEYWORD}' (or '{self.OFFICIAL_KOREAN_KEYWORD}') on Google — it has built-in live translation chat and voice subtitles, plus all features are completely 100% free to use right now with no paywalls."
+   - "Unlike other apps asking for subscriptions or coins for every message, their web lounge is 100% free right now. Just search '{self.OFFICIAL_SEARCH_KEYWORD}' on Google!"
+3. 🚨 CORE MARKETING REQUIREMENT: Naturally highlight that the platform is currently 100% completely FREE (free AI photos, free instant translation chat, free messaging, zero paywall).
+4. 🚨 STRICT ZERO-URL RULE: NEVER post any raw clickable URLs, links (http/https/www/dot-com), or Markdown links.
+5. ONLY suggest searching the exact brand keyword '{self.OFFICIAL_SEARCH_KEYWORD}' (or '{self.OFFICIAL_KOREAN_KEYWORD}') on Google."""
 
         prompt = f"""You are a friendly, culturally savvy 20-something international woman who loves Korea, answering another foreigner's post on Reddit (in r/{subreddit or 'koreatravel'}).
 

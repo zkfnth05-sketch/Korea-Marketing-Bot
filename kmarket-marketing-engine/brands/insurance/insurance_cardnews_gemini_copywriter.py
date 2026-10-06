@@ -393,8 +393,9 @@ class InsuranceCardnewsGeminiCopywriter:
             f"1️⃣ {topic_info['key_facts'][0]}\n"
             f"2️⃣ {topic_info['key_facts'][1]}\n"
             f"3️⃣ {topic_info['key_facts'][2]}\n\n"
-            f"👉 지금 네이버에 '{self.OFFICIAL_KEYWORD}'을 검색해보세요!\n"
-            f"🔗 공식 0.1초 자가진단: {self.OFFICIAL_URL}\n\n"
+            f"👇 34개 보험사 실시간 최저가 비교 & 새는 돈 계산기\n"
+            f"👉 상단 프로필(@goldmomofficial) 링크를 터치하시면 0.1초 만에 확인 가능합니다! (스팸 0건)\n"
+            f"🔍 네이버 검색: [{self.OFFICIAL_KEYWORD}]\n\n"
             f"※ 본 콘텐츠는 금융소비자의 이해를 돕기 위한 정보 제공 목적이며, 개별 약관 및 가입 조건에 따라 달라질 수 있습니다.\n\n"
             f"{hashtags_str}"
         )

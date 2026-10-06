@@ -150,20 +150,10 @@ class InsuranceCTACard:
   <!-- Ambient Glow -->
   <div class="ambient-glow"></div>
 
-  <!-- 1. Top Header -->
-  <div class="flex justify-between items-center z-10 w-full">
-    <div class="inline-flex items-center gap-3 bg-slate-900/90 backdrop-blur-md border border-emerald-500/40 rounded-full py-3.5 px-7 shadow-2xl">
-      <span class="text-2xl">🛡️</span>
-      <span class="text-xl font-black tracking-wider text-white">{self.BRAND_NAME}</span>
-      <span class="text-base font-bold text-emerald-300 pl-3 border-l border-white/20">{self.BRAND_SUB}</span>
-    </div>
+  <!-- 1. Top Header - Removed for clean single capsule badge overlay -->
+  <div class="h-20 w-full"></div>
 
-    <div class="text-emerald-400 font-black text-lg bg-slate-900/90 backdrop-blur-md px-6 py-3.5 rounded-full border border-emerald-500/40 shadow-2xl tracking-wider">
-      공식 검색 CTA &gt;
-    </div>
-  </div>
-
-    <!-- 2. Main Debate Card -->
+  <!-- 2. Main Debate Card -->
     <div class="glass-box z-10 w-full max-w-[980px] flex flex-col gap-6 p-8 rounded-[32px] text-left">
       <!-- Debate Badge -->
       <div class="flex items-center justify-between">

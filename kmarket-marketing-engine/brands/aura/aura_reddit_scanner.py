@@ -233,7 +233,7 @@ class AuraRedditScanner:
         self,
         subreddits: Optional[List[str]] = None,
         limit_per_sub: int = 15,
-        max_final_leads: int = 1
+        max_final_leads: int = 3
     ) -> List[Dict[str, Any]]:
         """
         타겟 서브레딧 스캔 ➔ 1단계 순수 파이썬 제목+본문 심층 심사(비용 0원) ➔ 상위 1등 글에만 2단계 제미나이 정밀 검증

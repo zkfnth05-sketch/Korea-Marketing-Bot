@@ -60,15 +60,15 @@ class AuraPromptDirector:
         <p>남초 어플의 읽씹과 허위 프로필에 지치셨나요? Aura(아우라)는 1:1 남녀 50:50 성비 보장과 AI 매력 분석을 통해 진짜 인연을 안전하게 연결해 드립니다.</p>
         <hr/>
         <div style="margin-top:20px; padding:15px; background:linear-gradient(135deg, #FFF1F2 0%, #FDF2F8 100%); border:1px solid #FECDD3; border-radius:10px; color:#4C0519;">
-          <strong>💑 [Aura Dating] 유령회원 ZERO! 남녀 50:50 황금 성비 보장 매칭</strong><br/>
-          성비 불균형 없는 진짜 1:1 AI 소개팅을 지금 무료로 경험해보세요.<br/>
-          <a href="{cls.LANDING_URL}" target="_blank" style="color:#DB2777; font-weight:bold;">👉 Aura 50:50 성비 매칭 바로가기: {cls.LANDING_URL}</a>
+          <strong>💑 [Aura Dating] Aura의 모든 기능(AI 화보, 매칭, 쪽지, 번개) 현재 100% 무료 지원 중!</strong><br/>
+          성비 불균형 없는 진짜 1:1 AI 소개팅, 네이버 검색창에 [아우라AI데이팅]을 검색해 보세요.<br/>
+          <a href="{cls.LANDING_URL}" target="_blank" style="color:#DB2777; font-weight:bold;">👉 Aura 공식 라운지 바로가기: {cls.LANDING_URL}</a>
         </div>
         """
         return {
             "title": title,
             "content_html": content_html,
-            "tags": ["소개팅어플", "50:50성비", "연애팁", "소개팅대화법", "Aura", "AI소개팅"]
+            "tags": ["아우라AI데이팅", "소개팅어플", "50:50성비", "연애팁", "소개팅대화법", "Aura", "AI소개팅"]
         }
 
     @classmethod
@@ -77,13 +77,13 @@ class AuraPromptDirector:
         scripts = [
             {
                 "hook": "소개팅에서 이 카톡 보내면 99% 읽씹 당합니다.",
-                "body": "절대 '오늘 뭐하세요?' 하나만 띡 보내지 마세요. 상대방 인스타나 프로필 취향을 딱 하나 짚어서 가벼운 질문을 던져보세요. AI 아우라가 알려주는 대화 치트키, 지금 프로필 링크에서 확인!",
-                "cta": "댓글에 링크 확인하고 내 매력 리포트 무료로 받아보세요."
+                "body": "절대 '오늘 뭐하세요?' 하나만 띡 보내지 마세요. 상대방 취향을 짚어서 센스 있는 첫마디를 던져보세요. AI 화보, 매칭, 쪽지, 번개까지 Aura의 모든 기능이 현재 100% 무료 지원 중입니다.",
+                "cta": "댓글 링크 또는 네이버 검색창에 [아우라AI데이팅] 검색해 보세요!"
             },
             {
                 "hook": "AI가 평가해 준 내 얼굴 매력 점수가 충격적인 이유...",
-                "body": "친구가 추천해 줘서 아우라 AI 매력 리포트 돌려봤는데, 내가 몰랐던 내 눈매 장점이랑 추천 헤어스타일까지 다 짚어주네요. 2030 싱글 필독!",
-                "cta": "프로필 링크에서 3초 만에 무료 진단 받기."
+                "body": "친구가 추천해 줘서 아우라 돌려봤는데, 내 실물 매력 살린 AI 화보부터 찰떡 궁합 매칭까지 다 해주네요. Aura의 모든 기능(AI 화보, 매칭, 쪽지, 번개)이 현재 100% 무료 지원 중!",
+                "cta": "프로필 링크 터치 또는 네이버에 [아우라AI데이팅] 검색해 보세요!"
             }
         ]
         return random.choice(scripts)

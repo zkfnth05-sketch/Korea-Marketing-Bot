@@ -137,6 +137,7 @@ class InsuranceHumanBehaviorBot:
                     await asyncio.sleep(0.015)
 
                 dwell = random.uniform(4.0, 8.5)
+                logger.info(f"📸 [Insurance InstagramBot] 탐색 피드 스크롤({scroll_amount}px) 후 게시물 #{result['posts_viewed']} 정독 체류 ({dwell:.1f}초)...")
                 await asyncio.sleep(dwell)
 
                 if result["likes"] < target_likes and (time.time() - start_t) > 12:
@@ -369,6 +370,27 @@ class InsuranceHumanBehaviorBot:
         except Exception as e:
             logger.error(f"❌ 루틴 실행 실패: {e}")
             return {"status": "error", "message": str(e), "brand": self.brand}
+
+    def execute_single_session(self, duration_sec: int = 30, target_likes: int = 1) -> Dict[str, Any]:
+        """대시보드 1회 즉시 실행용 퀵 세션"""
+        quick_slot = {
+            "id": "quick_single",
+            "time": "now",
+            "name": "⚡ 대시보드 1회 즉시 인간 세션",
+            "target_min": max(0.5, duration_sec / 60)
+        }
+        try:
+            res = asyncio.run(self.execute_slot_session_async(quick_slot))
+            return {
+                "status": "success",
+                "duration_sec": res.get("actual_sec", duration_sec),
+                "posts_viewed": sum(a.get("posts_viewed", 0) for a in res.get("actions", [])),
+                "likes_given": res.get("likes_given", 0),
+                "brand": self.brand
+            }
+        except Exception as e:
+            logger.error(f"❌ 1회 세션 실패: {e}")
+            return {"status": "error", "message": str(e), "duration_sec": 0, "posts_viewed": 0, "likes_given": 0}
 
     def _record_history(self, entry: Dict[str, Any]):
         history = []

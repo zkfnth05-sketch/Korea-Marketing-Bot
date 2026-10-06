@@ -192,8 +192,8 @@ class InsuranceThreadsPublisher:
             try:
                 # 1. Threads 메인 접속
                 logger.info("1. Threads 메인 페이지 접속 중...")
-                await page.goto("https://www.threads.com/", wait_until="domcontentloaded", timeout=30000)
-                await asyncio.sleep(4)
+                await page.goto("https://www.threads.net/", wait_until="domcontentloaded", timeout=25000)
+                await asyncio.sleep(3)
 
                 # 1-1. Terms 오버레이 배너 제거 및 'Continue with Instagram' 모달 자동 클릭
                 try:
@@ -222,71 +222,70 @@ class InsuranceThreadsPublisher:
                 except Exception as me:
                     logger.warning(f"모달 클릭 예외: {me}")
 
-                # 2. 작성 모달 열기
+                # 2. 작성 모달 열기 (4중 Fallback 전략)
                 logger.info("2. 스레드 작성창 열기...")
                 opened = False
+                for attempt in range(6):
+                    # 1) 상단 빠른 작성창 클릭 ("새로운 소식을 공유해보세요" 또는 "What's new?")
+                    try:
+                        quick = await page.query_selector("div:has-text('새로운 소식을 공유해보세요'), div:has-text('새로운 스레드를 시작하세요'), div:has-text('What\\'s new?')")
+                        if quick and await quick.is_visible():
+                            await quick.click()
+                            await asyncio.sleep(2)
+                    except Exception:
+                        pass
 
-                # 빠른 작성창 또는 새 스레드 버튼 JS 직접 클릭
-                try:
-                    opened = await page.evaluate("""() => {
-                        const quick = Array.from(document.querySelectorAll("div")).find(d => 
-                            d.innerText && (d.innerText.includes("What's new?") || d.innerText.includes("새로운 스레드를 시작하세요"))
-                        );
-                        if (quick) {
-                            quick.click();
-                            return true;
-                        }
-                        const createBtn = document.querySelector("svg[aria-label='Create'], svg[aria-label='새 스레드'], div[role='button'][aria-label*='새']");
-                        if (createBtn) {
-                            const clickable = createBtn.closest("div[role='button'], a, button") || createBtn;
-                            clickable.click();
-                            return true;
-                        }
-                        return false;
-                    }""")
-                    if opened:
-                        await asyncio.sleep(3)
-                except Exception:
-                    pass
+                    # 2) 좌측 메뉴 "새로운 스레드" 또는 플로팅 '+' 버튼 클릭
+                    if not await page.query_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']"):
+                        try:
+                            await page.evaluate("""() => {
+                                const btns = Array.from(document.querySelectorAll("div[role='button'], button, a"));
+                                const createBtn = btns.find(b => {
+                                    const t = (b.innerText || '').trim();
+                                    const aria = b.getAttribute('aria-label') || '';
+                                    return t.includes('새로운 스레드') || t.includes('New thread') || aria.includes('새로운 스레드') || aria.includes('Create');
+                                });
+                                if (createBtn) {
+                                    createBtn.click();
+                                    return;
+                                }
+                                const allBtns = Array.from(document.querySelectorAll("div[role='button']"));
+                                if (allBtns.length > 0) {
+                                    allBtns[allBtns.length - 1].click();
+                                }
+                            }""")
+                            await asyncio.sleep(2)
+                        except Exception:
+                            pass
 
-                # 작성창 클릭 후 혹시 'Continue with Instagram' 팝업이 뜨면 자동 재클릭
-                try:
-                    cont_modal = await page.evaluate("""() => {
-                        const all = Array.from(document.querySelectorAll("button, div[role='button'], a, div"));
-                        const cont = all.find(el => el.innerText && el.innerText.trim().includes('Continue with Instagram'));
-                        if (cont) {
-                            cont.click();
-                            return true;
-                        }
-                        return false;
-                    }""")
-                    if cont_modal:
-                        logger.info("👉 작성창 오픈 후 'Continue with Instagram' 팝업 감지 ➔ JS 재클릭 완료...")
-                        await asyncio.sleep(5)
-                except Exception:
-                    pass
+                    # 3) 단축키 fallback ('c')
+                    if not await page.query_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']"):
+                        try:
+                            await page.keyboard.press("c")
+                            await asyncio.sleep(2)
+                        except Exception:
+                            pass
+
+                    tb_check = await page.query_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']")
+                    if tb_check and await tb_check.is_visible():
+                        logger.info("✅ 작성창(textbox) 활성화 확인!")
+                        opened = True
+                        break
+                    await asyncio.sleep(1.5)
 
                 if not opened:
-                    quick_box = await page.query_selector("div:has-text(\"What's new?\"), div:has-text('새로운 스레드를 시작하세요')")
-                    if quick_box:
-                        await quick_box.click(force=True)
-                        opened = True
-                        await asyncio.sleep(2)
-                
-                if not opened:
-                    new_thread_btn = await page.query_selector("span:has-text('New thread'), svg[aria-label='Create'], svg[aria-label='새 스레드'], div[role='button'][aria-label*='새']")
-                    if new_thread_btn:
-                        await new_thread_btn.click(force=True)
-                        opened = True
-                        await asyncio.sleep(2)
+                    raise RuntimeError("스레드 작성창(textbox)을 활성화하지 못했습니다.")
 
-                # 3. 본문 텍스트 입력
+                # 3. 본문 텍스트 입력 (Lexical 에디터 완벽 호환 keyboard.insert_text)
                 logger.info("3. 캡션 텍스트 입력 중...")
                 textbox = await page.wait_for_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']", timeout=12000)
                 await textbox.click()
                 await asyncio.sleep(0.5)
-                await textbox.fill(caption)
-                await asyncio.sleep(1)
+                await page.keyboard.press("Control+A")
+                await page.keyboard.press("Backspace")
+                await asyncio.sleep(0.3)
+                await page.keyboard.insert_text(caption)
+                await asyncio.sleep(1.5)
 
                 # 4. 카드뉴스 이미지 또는 숏폼 비디오 첨부
                 if valid_media:
@@ -298,15 +297,15 @@ class InsuranceThreadsPublisher:
                         wait_sec = 14 if is_video else 6
                         await asyncio.sleep(wait_sec)
 
-                # 5. [1단계] 본문 Post / 게시 버튼 클릭
+                # 5. [1단계] 본문 Post / 게시 버튼 클릭 및 모달 닫힘 대기
                 logger.info("5. 본문 [Post / 게시] 버튼 클릭...")
                 posted = False
-                try:
+                for _ in range(5):
                     posted = await page.evaluate("""() => {
                         const dialog = document.querySelector("div[role='dialog']") || document;
                         const btns = Array.from(dialog.querySelectorAll("div[role='button'], button"));
                         const postBtn = btns.find(b => {
-                            const t = b.innerText.trim();
+                            const t = (b.innerText || '').trim();
                             const ariaDisabled = b.getAttribute('aria-disabled');
                             const disabled = b.getAttribute('disabled');
                             return (t === 'Post' || t === '게시') && ariaDisabled !== 'true' && disabled === null;
@@ -318,76 +317,115 @@ class InsuranceThreadsPublisher:
                         return false;
                     }""")
                     if posted:
-                        logger.info("   본문 JS 직접 클릭 성공!")
-                except Exception:
-                    pass
+                        break
+                    await asyncio.sleep(1)
 
                 if not posted:
-                    publish_btn = await page.wait_for_selector("div[role='dialog'] div[role='button']:has-text('Post'), div[role='dialog'] button:has-text('Post'), div[role='dialog'] div[role='button']:has-text('게시')", timeout=8000)
+                    publish_btn = await page.query_selector("div[role='dialog'] div[role='button']:has-text('Post'), div[role='dialog'] button:has-text('Post'), div[role='dialog'] div[role='button']:has-text('게시')")
                     if publish_btn:
                         await publish_btn.click(force=True)
                         posted = True
 
-                logger.info("   본문 게시 완료! 서버 반영 대기 (10초)...")
-                await asyncio.sleep(10)
+                logger.info("   본문 게시 요청 전송 완료! 모달 닫힘 및 서버 반영 대기 (12초)...")
+                await asyncio.sleep(12)
 
-                # 6. [2단계] 첫 번째 타래 댓글 (내 글 바로 아래 답글) 작성
+                # 6. [2단계] 첫 번째 타래 댓글 (방금 올린 본문 글의 고유 상세 페이지로 직접 이동하여 답글 체인 작성)
                 if first_reply_text:
                     logger.info("6. [2단계] 첫 번째 타래 댓글(답글) 작성 시작...")
                     try:
-                        # 내 프로필로 이동하여 방금 작성된 글 확인
-                        await page.goto("https://www.threads.com/@goldmomofficial", wait_until="domcontentloaded", timeout=25000)
+                        # 6-1. 내 프로필로 이동하여 방금 올린 본문 글의 URL 링크 추출
+                        await page.goto("https://www.threads.net/@goldmomofficial", wait_until="domcontentloaded", timeout=25000)
                         await asyncio.sleep(4)
 
-                        # 최상단 첫 번째 게시물의 '답글(Reply)' 버튼 찾기
-                        reply_btn = await page.query_selector("svg[aria-label='Reply'], svg[aria-label='답글'], div[role='button'][aria-label*='Reply'], div[role='button'][aria-label*='답글']")
-                        if reply_btn:
-                            logger.info("   첫 번째 게시물 [답글] 버튼 클릭...")
-                            await reply_btn.click(force=True)
-                            await asyncio.sleep(2)
+                        # Terms 제거
+                        await page.evaluate("""() => {
+                            const fixedOverlays = Array.from(document.querySelectorAll("div")).filter(d => {
+                                const style = window.getComputedStyle(d);
+                                return (style.position === 'fixed' || style.position === 'sticky') && style.bottom === '0px' && d.innerText && d.innerText.includes('Terms');
+                            });
+                            fixedOverlays.forEach(b => b.remove());
+                        }""")
 
-                            reply_box = await page.wait_for_selector("div[role='dialog'] div[role='textbox'][contenteditable='true'], div[role='textbox'][contenteditable='true']", timeout=8000)
+                        post_href = await page.evaluate("""() => {
+                            const links = Array.from(document.querySelectorAll("a[href*='/post/']"));
+                            if (links.length > 0) return links[0].getAttribute('href');
+                            return null;
+                        }""")
+                        logger.info(f"   방금 올린 본문 글 링크: {post_href}")
+
+                        if post_href:
+                            post_url = f"https://www.threads.net{post_href}" if post_href.startswith("/") else post_href
+                            logger.info(f"   본문 글 고유 상세 페이지 직접 이동: {post_url}")
+                            await page.goto(post_url, wait_until="domcontentloaded", timeout=25000)
+                            await asyncio.sleep(4)
+
+                            # 상세 페이지 내 답글 입력창 클릭 ("Reply to goldmomofficial..." / "골드맘님에게 답글 달기...")
+                            reply_box = await page.wait_for_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true'], div:has-text('Reply to'), div:has-text('답글')", timeout=10000)
                             if reply_box:
                                 await reply_box.click(force=True)
-                                await asyncio.sleep(0.5)
-                                await reply_box.fill(first_reply_text)
                                 await asyncio.sleep(1)
 
-                                # 답글 [Post / 게시] 클릭
-                                reply_posted = await page.evaluate("""() => {
-                                    const dialog = document.querySelector("div[role='dialog']") || document;
-                                    const btns = Array.from(dialog.querySelectorAll("div[role='button'], button"));
-                                    const postBtn = btns.find(b => {
-                                        const t = b.innerText.trim();
-                                        const ariaDisabled = b.getAttribute('aria-disabled');
-                                        const disabled = b.getAttribute('disabled');
-                                        return (t === 'Post' || t === '게시') && ariaDisabled !== 'true' && disabled === null;
-                                    });
-                                    if (postBtn) {
-                                        postBtn.click();
-                                        return true;
-                                    }
-                                    return false;
-                                }""")
-                                if not reply_posted:
-                                    reply_post_btn = await page.query_selector("div[role='dialog'] div[role='button']:has-text('Post'), div[role='dialog'] button:has-text('Post'), div[role='dialog'] div[role='button']:has-text('게시')")
-                                    if reply_post_btn:
-                                        await reply_post_btn.click(force=True)
+                                active_tb = await page.query_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']")
+                                if active_tb:
+                                    await active_tb.click()
+                                    await asyncio.sleep(0.5)
+                                    await page.keyboard.press("Control+A")
+                                    await page.keyboard.press("Backspace")
+                                    await asyncio.sleep(0.3)
+                                    await page.keyboard.insert_text(first_reply_text)
+                                    await asyncio.sleep(2.5)  # OpenGraph 미리보기 렌더링 대기
 
-                                logger.info("🎉 [2단계 대성공] 첫 번째 타래 댓글(공식 검색어 + 랜딩 링크) 체인 등록 완료!")
-                                await asyncio.sleep(6)
+                                    # 답글 전송 (Control+Enter 단축키 및 전송 버튼 안전 클릭)
+                                    reply_posted = False
+                                    try:
+                                        await page.keyboard.press("Control+Enter")
+                                        await asyncio.sleep(1.5)
+                                    except Exception:
+                                        pass
+
+                                    for _ in range(8):
+                                        reply_posted = await page.evaluate("""() => {
+                                            const btns = Array.from(document.querySelectorAll("button, div[role='button']"));
+                                            const postBtn = btns.find(b => {
+                                                const t = (b.innerText || '').trim();
+                                                const ariaDisabled = b.getAttribute('aria-disabled');
+                                                const disabled = b.getAttribute('disabled');
+                                                return (t === 'Post' || t === '게시') && ariaDisabled !== 'true' && disabled === null;
+                                            });
+                                            if (postBtn && typeof postBtn.click === 'function') {
+                                                postBtn.click();
+                                                return true;
+                                            }
+                                            return false;
+                                        }""")
+                                        if reply_posted:
+                                            break
+                                        await asyncio.sleep(1)
+
+                                    if not reply_posted:
+                                        reply_post_btn = await page.query_selector("div[role='dialog'] div[role='button']:has-text('Post'), div[role='dialog'] button:has-text('Post'), div[role='button']:has-text('Post'), button:has-text('Post')")
+                                        if reply_post_btn:
+                                            await reply_post_btn.click(force=True)
+
+                                    logger.info("🎉 [2단계 대성공] 본문 글 고유 상세 페이지에서 1번 타래 댓글 체인 등록 완료!")
+                                    await asyncio.sleep(10)
                     except Exception as ex_reply:
                         logger.warning(f"⚠️ 타래 댓글 작성 예외: {ex_reply}")
 
-                # 7. 프로필 페이지로 이동하여 최종 송출 확인 캡처
-                logger.info("7. 프로필 페이지에서 최종 타래 결합 결과 확인 중...")
-                await page.goto("https://www.threads.com/@goldmomofficial", wait_until="domcontentloaded", timeout=25000)
-                await asyncio.sleep(4)
-                await page.evaluate("window.scrollBy(0, 450)")
-                await asyncio.sleep(2)
-
+                # 7. 상세 페이지 및 프로필에서 최종 타래 결합 결과 확인 캡처
+                logger.info("7. 본문 + 1번 타래 결합 최종 증빙 캡처 중...")
                 proof_path = CURRENT_DIR / "threads_live_proof.png"
-                await page.screenshot(path=str(proof_path))
+                try:
+                    await page.reload(wait_until="domcontentloaded")
+                    await asyncio.sleep(4)
+                    await page.evaluate("window.scrollBy(0, 300)")
+                    await asyncio.sleep(2)
+                    await page.screenshot(path=str(proof_path), full_page=True)
+                    logger.info(f"📸 게시 완료 라이브 상세 결합 증빙 캡처: {proof_path}")
+                except Exception:
+                    await page.goto("https://www.threads.net/@goldmomofficial", wait_until="domcontentloaded", timeout=25000)
+                    await asyncio.sleep(4)
+                    await page.screenshot(path=str(proof_path))
                 logger.info(f"📸 게시 완료 라이브 증빙 캡처: {proof_path}")
 
                 await context.storage_state(path=str(SESSION_FILE))

@@ -86,82 +86,123 @@ class InsuranceHashtagMatrix:
 
     @classmethod
     def fetch_live_trend_keywords(cls) -> List[str]:
-        """🌐 구글 실시간 급상승(Google Trends) + 🟢 네이버 실시간 절약/재테크 검색 트렌드(Naver Trend) 듀얼 교차 수집"""
+        """🌐 구글 실시간 급상승(Google Trends) + 🟢 네이버 실시간 건강/보험/절약 검색 트렌드(Naver Trend) 듀얼 교차 수집"""
         trends = []
         import urllib.request
         import urllib.parse
         import json
         import xml.etree.ElementTree as ET
 
-        # 1. 🌐 구글 실시간 급상승 검색어 (Google Trends KR RSS)
+        # 1. 🌐 구글 대한민국 실시간 급상승 검색어 (Google Trends KR RSS)
         try:
             url_google = "https://trends.google.com/trending/rss?geo=KR"
             req_g = urllib.request.Request(url_google, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
-            with urllib.request.urlopen(req_g, timeout=2.5) as resp:
+            with urllib.request.urlopen(req_g, timeout=3.0) as resp:
                 xml_text = resp.read().decode("utf-8", errors="ignore")
                 root = ET.fromstring(xml_text)
                 for item in root.findall("./channel/item"):
                     title = item.find("title")
                     if title is not None and title.text:
                         w = title.text.strip().replace(" ", "").replace("#", "")
-                        if w and len(w) < 12 and f"#{w}" not in trends:
+                        if w and len(w) < 14 and f"#{w}" not in trends:
                             trends.append(f"#{w}")
-                    if len(trends) >= 2:
+                    if len(trends) >= 5:
                         break
         except Exception as eg:
             logger.debug(f"Google Trends 수집 건너뜀: {eg}")
 
-        # 2. 🟢 네이버 실시간 핫이슈 & 가계부/절약/재테크 실시간 검색어 (Naver AC API)
-        naver_seeds = ["오늘 핫이슈", "생활비 절약", "가계부 다이어트", "고정지출 줄이기"]
+    @classmethod
+    def fetch_live_trend_keywords(cls, category: str = "") -> List[str]:
+        """🌐 구글 실시간 급상승(Google Trends) + 🟢 카테고리별 네이버 실시간 검색어(Naver AC API) 결합 수집"""
+        trends = []
+        import urllib.request
+        import urllib.parse
+        import json
+        import xml.etree.ElementTree as ET
+
+        # 1. 🌐 구글 대한민국 실시간 급상승 검색어 (Google Trends KR RSS)
+        try:
+            url_google = "https://trends.google.com/trending/rss?geo=KR"
+            req_g = urllib.request.Request(url_google, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
+            with urllib.request.urlopen(req_g, timeout=3.0) as resp:
+                xml_text = resp.read().decode("utf-8", errors="ignore")
+                root = ET.fromstring(xml_text)
+                for item in root.findall("./channel/item"):
+                    title = item.find("title")
+                    if title is not None and title.text:
+                        w = title.text.strip().replace(" ", "").replace("#", "")
+                        if w and len(w) < 14 and f"#{w}" not in trends:
+                            trends.append(f"#{w}")
+                    if len(trends) >= 5:
+                        break
+        except Exception as eg:
+            logger.debug(f"Google Trends 수집 건너뜀: {eg}")
+
+        # 2. 🟢 카테고리별 네이버 실시간 검색어 시드 동적 선택
+        category_seeds = {
+            "auto_driver": ["운전자보험", "자동차보험 다이렉트", "교통사고 합의"],
+            "life_dental_pet": ["치아보험", "펫보험", "아파트 누수", "일상생활배상책임"],
+            "savings_annuity": ["연금저축 세액공제", "IRP", "비과세 연금"],
+            "claims_knowhow": ["보험금 청구 서류", "실비보험 청구", "숨은보험금 찾기"],
+            "remodeling_savings": ["보험 리모델링", "보험료 줄이기", "비갱신형 암보험"],
+            "health_medical": ["실비보험", "건강검진", "암보험", "보험비교"]
+        }
+        naver_seeds = category_seeds.get(category, ["보험비교", "실비보험", "생활비 절약"])
+
         for seed in naver_seeds:
             try:
                 encoded_q = urllib.parse.quote(seed)
                 url_nv = f"https://ac.search.naver.com/nx/ac?q={encoded_q}&st=100&frm=nv&ans=2&r_format=json"
                 req_nv = urllib.request.Request(url_nv, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
-                with urllib.request.urlopen(req_nv, timeout=2.0) as resp:
+                with urllib.request.urlopen(req_nv, timeout=2.5) as resp:
                     data = json.loads(resp.read().decode("utf-8", errors="ignore"))
                     items = data.get("items", [[]])[0]
                     for it in items:
                         if isinstance(it, list) and len(it) > 0:
                             w = it[0].strip().replace(" ", "").replace("#", "")
-                            if w and len(w) < 12 and f"#{w}" not in trends:
+                            if w and len(w) < 14 and f"#{w}" not in trends:
                                 trends.append(f"#{w}")
-                        if len(trends) >= 4:
+                        if len(trends) >= 10:
                             break
             except Exception:
                 pass
-            if len(trends) >= 4:
+            if len(trends) >= 10:
                 break
 
-        fallback = ["#실시간트렌드", "#고정지출절약", "#재테크꿀팁", "#생활비절약"]
+        fallback = ["#실시간트렌드", "#고정지출절약", "#재테크꿀팁", "#생활비절약", "#보험료다이어트"]
         for fb in fallback:
-            if fb not in trends and len(trends) < 4:
+            if fb not in trends and len(trends) < 6:
                 trends.append(fb)
-        return trends[:4]
+        return trends[:8]
 
     @classmethod
-    def get_rich_viral_hashtags(cls, topic_id: int = 1, count: int = 18) -> List[str]:
-        """무광고 오가닉 바이럴 극대화: 브랜드 공식 태그 + 구글/네이버 실시간 급상승(최우선) + 주제별 롱테일 + 가계부/메가 태그 결합"""
-        norm_id = ((topic_id - 1) % 8) + 1
+    def get_rich_viral_hashtags(cls, topic_id: int = 1, count: int = 15) -> List[str]:
+        """무광고 오가닉 바이럴 극대화: 브랜드 공식 태그 + 주제별 1:1 고유 태그 + 구글/네이버 실시간 급상승 + 메가 태그 결합"""
+        from brands.insurance.insurance_100_topics import get_topic_by_id
+        topic = get_topic_by_id(topic_id)
+        cat_key = topic.get("category", "")
+        raw_topic_tags = topic.get("tags", [])
+
         tags: List[str] = []
 
         # 1. 🏷️ 브랜드 공식 핵심 태그 (2개)
         tags.extend(cls.BRAND_TAGS[:2])
 
-        # 2. 🌐 구글 + 🟢 네이버 실시간 급상승 트렌드 키워드 (4개, 최우선 100% 보장!)
-        live_trends = cls.fetch_live_trend_keywords()
+        # 2. 🎯 주제별 1:1 정밀 고유 태그 (4~5개, %8 왜곡 완전 제거!)
+        for tt in raw_topic_tags:
+            clean_tt = tt.strip().replace(" ", "").replace("#", "")
+            if clean_tt:
+                tags.append(f"#{clean_tt}")
+
+        # 3. 🌐 구글 실시간 급상승 + 🟢 카테고리별 네이버 실시간 트렌드 (최우선 결합!)
+        live_trends = cls.fetch_live_trend_keywords(category=cat_key)
         tags.extend(live_trends)
 
-        # 3. 🎯 주제별 킬러 롱테일 소구점 태그 (5~6개)
-        topic_tags = cls.TOPIC_LONGTAIL_TAGS.get(norm_id, cls.TOPIC_LONGTAIL_TAGS[1])
-        tags.extend(topic_tags[:6])
-
-        # 4. ☕ 가계부 / 절약 / 주부 살림 미들 태그 (3개)
+        # 4. ☕ 가계부 / 절약 / 주부 살림 미들 태그 (2개)
         tags.extend(cls.MID_TREND_TAGS["savings"][:2])
-        tags.extend(cls.MID_TREND_TAGS["main_insurance"][:1])
 
-        # 5. 🚀 10만+ 대형 메가 키워드 (3개)
-        tags.extend(cls.MEGA_TAGS[:3])
+        # 5. 🚀 10만+ 대형 메가 키워드 (2개)
+        tags.extend(cls.MEGA_TAGS[:2])
 
         # 중복 제거 및 최대 개수 슬라이싱
         seen = set()

@@ -85,9 +85,29 @@ class GlobalGPULock:
             "queue_count": self._queue_count
         }
 
-    def acquire(self, task_name: str, timeout_sec: int = 3600) -> bool:
+    @staticmethod
+    def _check_comfyui_remote_busy(host: str = "http://127.0.0.1:8188") -> tuple[bool, str]:
         """
-        GPU 독점 점유권 획득. 이미 다른 작업이 돌고 있으면 차분히 대기.
+        🌐 ComfyUI 실시간 큐 조회: 외부 네트워크(KTRS 마케팅봇 등) 또는 다른 컴퓨터 작업이 돌고 있는지 검사
+        반환: (is_busy: bool, reason: str)
+        """
+        try:
+            import urllib.request
+            req = urllib.request.Request(f"{host}/queue", headers={"User-Agent": "GlobalGPULock"})
+            with urllib.request.urlopen(req, timeout=2) as resp:
+                qdata = json.loads(resp.read().decode("utf-8"))
+                running = qdata.get("queue_running", [])
+                pending = qdata.get("queue_pending", [])
+                if len(running) > 0 or len(pending) > 0:
+                    return True, f"ComfyUI 큐 점유 중 (실행 중: {len(running)}건, 대기 중: {len(pending)}건 - 원격 KTRS 봇 또는 선행 렌더링)"
+        except Exception:
+            # ComfyUI가 꺼져있거나 통신 에러 시는 큐 없음으로 간주
+            pass
+        return False, ""
+
+    def acquire(self, task_name: str, timeout_sec: int = 3600, host: str = "http://127.0.0.1:8188") -> bool:
+        """
+        GPU 독점 점유권 획득. 이미 다른 작업(로컬 프로세스 또는 원격 KTRS 봇)이 돌고 있으면 차분히 대기.
         (동일 프로세스 내 중첩 호출 시 재진입 Re-entrancy 100% 보장)
         """
         start_wait = time.time()
@@ -105,12 +125,11 @@ class GlobalGPULock:
                 # 1. 스레드 락 획득 시도 (non-blocking)
                 acquired = self._thread_lock.acquire(blocking=False)
                 if acquired:
-                    # 파일 락 검사 (기존 락 파일이 존재하고 다른 프로세스가 실행 중인지)
+                    # 2. 파일 락 검사 (기존 락 파일이 존재하고 다른 프로세스가 실행 중인지)
                     file_locked = False
                     if LOCK_FILE.exists():
                         try:
                             content = LOCK_FILE.read_text(encoding="utf-8", errors="ignore").strip()
-                            # 1. 락을 소유한 프로세스 PID 검사
                             is_pid_alive = False
                             owner_pid = None
                             if "pid=" in content:
@@ -124,7 +143,6 @@ class GlobalGPULock:
                                     pass
                             
                             if owner_pid == os.getpid():
-                                # 현재 자신의 프로세스가 소유 중인 파일 락 -> 통과!
                                 file_locked = False
                             elif not is_pid_alive or (time.time() - LOCK_FILE.stat().st_mtime > 3600):
                                 logger.warning(f"⚠️ [GPU Lock] 비정상 종료된 고아 락 파일 감지 -> 자동 정리: {LOCK_FILE}")
@@ -135,8 +153,11 @@ class GlobalGPULock:
                         except Exception:
                             file_locked = False
 
-                    if not file_locked:
-                        # 완벽하게 락 획득 성공!
+                    # 3. 🌐 [핵심 네트워크 분산 안전 가드] ComfyUI 실시간 큐 상태 전수 검사
+                    comfy_busy, busy_reason = self._check_comfyui_remote_busy(host=host)
+
+                    if not file_locked and not comfy_busy:
+                        # 완벽하게 로컬 및 네트워크 GPU 모두 점유 성공!
                         try:
                             LOCK_FILE.write_text(f"{task_name} (pid={os.getpid()})", encoding="utf-8")
                         except Exception:
@@ -154,7 +175,7 @@ class GlobalGPULock:
                             logger.info(f"🚀 [GPU 점유권 획득] '{task_name}' 작업이 즉시 GPU 단독 실행에 진입합니다.")
                         return True
                     else:
-                        # 파일 락이 걸려있으므로 스레드 락 반환 후 대기
+                        # 파일 락이 걸려있거나 ComfyUI 큐에 다른 작업(원격 KTRS 봇 등)이 돌고 있으므로 스레드 락 반환 후 대기
                         self._thread_lock.release()
 
                 # 아직 다른 작업이 돌고 있는 경우 -> 대기 로깅
@@ -165,8 +186,8 @@ class GlobalGPULock:
 
                 if not logged_wait or int(elapsed) % 15 == 0:
                     status_info = self.get_status()
-                    cur = status_info.get("current_task") or self._current_task or "선행 렌더링 작업"
-                    logger.info(f"⏳ [GPU 대기열 순차 대기] 현재 '{cur}' 작업이 GPU를 독점 사용 중입니다. '{task_name}'은(는) 안전하게 대기열에서 차례를 기다립니다... (대기: {int(elapsed)}초 경과 / 대기열: {self._queue_count}개)")
+                    cur = status_info.get("current_task") or self._current_task or "선행 작업 (원격 KTRS 봇 또는 로컬 렌더링)"
+                    logger.info(f"⏳ [GPU 대기열 순차 대기] 현재 '{cur}'이(가) GPU를 사용 중입니다. '{task_name}'은(는) 안전하게 대기열에서 차례를 기다립니다... (대기: {int(elapsed)}초 경과 / 대기열: {self._queue_count}개)")
                     logged_wait = True
 
                 time.sleep(3)
@@ -221,13 +242,13 @@ gpu_lock_manager = GlobalGPULock()
 
 
 @contextmanager
-def gpu_lock(task_name: str, timeout_sec: int = 3600):
+def gpu_lock(task_name: str, timeout_sec: int = 3600, host: str = "http://127.0.0.1:8188"):
     """
-    편리한 컨텍스트 매니저:
+    편리한 컨텍스트 매니저 (원격 KTRS 봇 큐 및 로컬 프로세스 상호 공존 100% 보장):
     with gpu_lock("Aura 숏폼 #3"):
         # 렌더링 코드
     """
-    acquired = gpu_lock_manager.acquire(task_name=task_name, timeout_sec=timeout_sec)
+    acquired = gpu_lock_manager.acquire(task_name=task_name, timeout_sec=timeout_sec, host=host)
     if not acquired:
         raise TimeoutError(f"GPU 락 획득 타임아웃 ({timeout_sec}초 경과): {task_name}")
     try:

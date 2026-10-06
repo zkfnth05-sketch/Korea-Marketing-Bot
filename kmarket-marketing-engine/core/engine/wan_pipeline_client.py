@@ -93,7 +93,7 @@ class WanPipelineClient:
             else:
                 task_label = f"🎮 GPU 그래픽카드 연산 가동 중 ({prefix})"
 
-        with gpu_lock(task_name=task_label, timeout_sec=timeout_sec):
+        with gpu_lock(task_name=task_label, timeout_sec=timeout_sec, host=self.host):
             self.free_vram()
 
             # 🛡️ [VRAM 안전 가드레일 1단계: 사전 진입 게이트]

@@ -7,7 +7,7 @@ AuraCardnewsS3FemaleProfileBuilder - 📱 [Aura 카드뉴스 3번 전용 고양�
   - 8등신 소두 모델 비율, 완벽한 턱선, 입 다문 미소, 치아 노출 0%
   - 대표님 지시대로 여성용 프로필 정보(서아 26, '주말에 분위기 좋은 와인바 갈래요? 🍷', [와인][필라테스][전시회][드라이브])로 전면 개편
   - 상단 뱃지: [98% 일치] [취향 저격 💖]
-  - 상단 공식 카드뉴스 인덱스 ('💖 AURA | 50:50 남녀 황금 성비율' + '03 / 05 >') 결합
+  - 상단 공식 카드뉴스 인덱스 ('💖 아우라 AI 데이팅 | 현재 100% 무료 남녀 황금 성비율' + '03 / 05 >') 결합
   - 바탕화면 타겟 폴더의 slide_3.png로 영구 저장
 """
 
@@ -216,7 +216,7 @@ class AuraCardnewsS3FemaleProfileBuilder:
         paste_x = (1080 - scaled_w) // 2
         final_canvas.paste(resized_template, (paste_x, 0), mask=resized_template)
 
-        # 6. 상단 브랜드 헤더 배지 ('💖 AURA | 50:50 남녀 황금 성비율' + '03 / 05 >')
+        # 6. 상단 브랜드 헤더 배지 ('💖 아우라 AI 데이팅 | 현재 100% 무료 남녀 황금 성비율' + '03 / 05 >')
         html_header = """<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -235,7 +235,7 @@ class AuraCardnewsS3FemaleProfileBuilder:
       <span class="text-rose-400 text-sm">💖</span>
       <span class="text-white font-extrabold text-sm tracking-wider">AURA</span>
       <span class="w-1.5 h-1.5 rounded-full bg-white/40"></span>
-      <span class="text-amber-300 font-bold text-xs tracking-wide">50:50 남녀 황금 성비율</span>
+      <span class="text-amber-300 font-bold text-xs tracking-wide">현재 100% 무료</span>
     </div>
 
     <!-- Page Index -->

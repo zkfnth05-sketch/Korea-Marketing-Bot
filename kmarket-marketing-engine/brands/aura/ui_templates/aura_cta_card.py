@@ -260,20 +260,8 @@ class AuraCTACard:
   <div class="absolute w-[950px] h-[950px] rounded-full bg-orange-500/10 blur-[180px] top-10 left-1/2 -translate-x-1/2 pointer-events-none"></div>
   <div class="absolute w-[800px] h-[800px] rounded-full bg-pink-500/10 blur-[160px] bottom-20 right-10 pointer-events-none"></div>
 
-  <!-- 1. Top Brand Header Bar -->
-  <div class="flex justify-between items-center z-10 w-full px-2">
-    <!-- Brand Badge -->
-    <div class="inline-flex items-center gap-3 bg-slate-900/90 backdrop-blur-md border border-white/25 rounded-full py-3 px-6 shadow-2xl">
-      <span class="text-2xl">💖</span>
-      <span class="text-xl font-black tracking-wider text-white">AURA</span>
-      <span class="text-base font-bold text-pink-400 pl-3 border-l border-white/30">50:50 남녀 황금 성비율</span>
-    </div>
-
-    <!-- Page Index Badge -->
-    <div class="text-amber-400 font-extrabold text-base bg-slate-900/90 backdrop-blur-md px-6 py-3 rounded-full border border-amber-500/50 shadow-2xl tracking-wider">
-      05 / 05 &gt;
-    </div>
-  </div>
+  <!-- 1. Top Brand Header Bar - Removed for clean single capsule badge overlay -->
+  <div class="h-20 w-full"></div>
 
   <!-- 2. Main Content Container (Safe Zone Centered) -->
   <div class="flex flex-col items-center text-center z-10 space-y-7 my-auto px-2 w-full">

@@ -26,8 +26,8 @@ class AuraCardnewsTypography:
 
     OFFICIAL_KEYWORD = "아우라AI데이팅"
     OFFICIAL_URL = "https://aura-ai-dating.vercel.app/"
-    BRAND_NAME = "AURA"
-    BRAND_SUB = "50:50 남녀 황금 성비율"
+    BRAND_NAME = "아우라 AI 데이팅"
+    BRAND_SUB = "현재 100% 무료"
 
     def __init__(self):
         self.viewport_w = 540

@@ -123,15 +123,15 @@ class StockBlogScheduler:
         engine = StockBlogEngine()
         total_topics = len(STOCK_100_TOPICS)
 
-        # 다음 순환 주제 결정
+        # 다음 포스팅 패키지 생성 (실시간 앱 1위 퀀트 캡처 1순위 결합)
         if force_topic_id is not None:
             topic_id = force_topic_id
+            logger.info(f"🚀 [StockScheduler] 지정 주제 #{topic_id} 포스팅 사이클 시작...")
+            package = engine.build_article_package(topic_id=topic_id, use_gemini=True, generate_photo=True)
         else:
-            cur_idx = self.state.get("current_topic_index", 0)
-            topic_id = (cur_idx % total_topics) + 1
-
-        logger.info(f"🚀 [StockScheduler] 주제 #{topic_id} 정기 포스팅 사이클 시작...")
-        package = engine.build_article_package(topic_id=topic_id, use_gemini=True, generate_photo=True)
+            logger.info("🔥 [StockScheduler] 실시간 주식 웹앱 1위 종목(한온시스템 등) + 1600x1600 전광판 캡처 기반 정기 포스팅 사이클 시작...")
+            package = engine.build_captured_article_package(article_type="rank1")
+            topic_id = package.get("topic_id", 999)
 
         # 3대 채널(네이버, 티스토리, 브런치) 동시 무인 자동 배포!
         publisher = StockMultiPublisher()

@@ -1,10 +1,67 @@
 {
-  "current_topic_index": 27,
-  "last_topic_id": 27,
-  "last_run_time": "2026-10-03 09:46:09",
-  "last_title": "연남동 소개팅 맛집 고민 끝! 퇴근 후 실패 없는 성공률 200% 데이트 코스 5",
-  "published_count": 25,
+  "current_topic_index": 1,
+  "last_topic_id": 37,
+  "last_run_time": "2026-10-06 10:57:33",
+  "last_title": "소개팅 첫 만남 10분, 어색한 침묵을 깨는 스몰토크 질문법",
+  "published_count": 26,
   "history": [
+    {
+      "topic_id": 28,
+      "title": "연남동 소개팅 맛집 4곳, 실패 없는 퓨전 한식 다이닝 리스트",
+      "title_naver": "연남동 소개팅 맛집 4곳, 실패 없는 퓨전 한식 다이닝 리스트",
+      "title_tistory": "연남동 소개팅 코스 완벽 가이드: 분위기 좋은 퓨전 한식 맛집 4선",
+      "title_kakao": "성공률 200% 보장, 홍대 연남동에서 가장 설레는 퓨전 한식 데이트",
+      "category": "date_spots",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_028_date_spots_20261006_105647.webp",
+      "published_at": "2026-10-06 10:57:33",
+      "publish_results": {
+        "topic_id": 28,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-028",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "연남동 소개팅 맛집 4곳, 실패 없는 퓨전 한식 다이닝 리스트",
+            "url": "https://blog.naver.com/PostView.naver?blogId=zkfnth01&Redirect=View&logNo=224432725806&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=17280",
+            "tags": [
+              "연남동소개팅",
+              "연남동소개팅맛집",
+              "연남동소개팅장소",
+              "연남동소개팅카페",
+              "연남동소개팅술집",
+              "연남동소개팅추천",
+              "연남동소개팅코스",
+              "연남동소개팅디시"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "aura-magazine",
+            "title": "연남동 소개팅 코스 완벽 가이드: 분위기 좋은 퓨전 한식 맛집 4선",
+            "url": "https://aura-magazine.tistory.com/12",
+            "tags": [
+              "연남동소개팅",
+              "연남동소개팅맛집",
+              "연남동소개팅장소",
+              "연남동소개팅카페",
+              "연남동소개팅술집",
+              "연남동소개팅추천",
+              "연남동소개팅코스",
+              "아우라AI데이팅"
+            ]
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 (1회 로그인 스크립트 실행 필요)"
+          }
+        }
+      }
+    },
     {
       "topic_id": 27,
       "title": "연남동 소개팅 맛집 고민 끝! 퇴근 후 실패 없는 성공률 200% 데이트 코스 5",

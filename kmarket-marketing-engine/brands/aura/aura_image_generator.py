@@ -43,28 +43,27 @@ AURA_CATEGORY_PRESETS: Dict[str, Dict[str, Any]] = {
     "kakaotalk_signals": {
         "name": "카톡 밀당 & 시그널",
         "default_prompt": (
-            "A cozy aesthetic Seoul cafe interior, warm natural sunlight through glass window, "
-            "a stylish Korean young adult in their 20s looking gently at a smartphone screen on a wooden table, "
-            "soft blurred cafe background, minimalist coffee cup and notebook nearby, "
-            "authentic candid snapshot, photorealistic, cinematic 16:9, warm mood, 8k"
+            "Two attractive Korean young adults (a handsome man and a beautiful woman) enjoying a cozy romantic date in Seoul, "
+            "warm natural sunlight, genuine candid smiles, soft cinematic background, "
+            "photorealistic, cinematic 16:9, warm mood, 8k"
         ),
         "fallback_url": "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=1200&auto=format&fit=crop&q=80"
     },
     "date_spots": {
         "name": "실전 소개팅 핫플",
         "default_prompt": (
-            "Romantic intimate Seongsu-dong wine bar in Seoul, warm dim candle light on dark wood table, "
-            "two glasses of red wine and elegant tapas dish, cozy atmosphere for a private date, "
-            "stylish Seoul evening mood, photorealistic, cinematic lighting, 16:9, bokeh background, 8k"
+            "Two attractive Korean young adults (a man and a woman) having a romantic dinner date in a stylish Seoul venue, "
+            "warm ambient lighting, romantic atmosphere, elegant table setting, "
+            "stylish Seoul evening mood, photorealistic, cinematic lighting, 16:9, 8k"
         ),
         "fallback_url": "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1200&auto=format&fit=crop&q=80"
     },
     "conversation_skills": {
         "name": "대화 치트키 & 스몰토크",
         "default_prompt": (
-            "Two attractive Korean young adults sitting opposite each other at an outdoor terrace cafe in Yeonnam-dong, "
-            "engaged in a cheerful and genuine conversation, warm pleasant smiles, spring afternoon sunlight, "
-            "candid lifestyle photography, photorealistic, shallow depth of field, 16:9, high resolution"
+            "Two attractive Korean young adults, a handsome man and a beautiful woman, laughing and having a genuine conversation on a romantic date, "
+            "cheerful pleasant smiles, natural afternoon light, authentic candid lifestyle photography, "
+            "photorealistic, shallow depth of field, 16:9, high resolution"
         ),
         "fallback_url": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&auto=format&fit=crop&q=80"
     },
@@ -133,23 +132,35 @@ class AuraImageGenerator:
         api_key = self.paid_keys[self._current_key_idx % len(self.paid_keys)]
         return genai.Client(api_key=api_key)
 
-    def _build_full_prompt(self, category: str, custom_visual_prompt: Optional[str] = None) -> str:
-        """카테고리 가드레일 + Gemini 커스텀 비주얼 프롬프트 결합"""
-        preset = AURA_CATEGORY_PRESETS.get(category, AURA_CATEGORY_PRESETS["kakaotalk_signals"])
-        base_prompt = preset["default_prompt"]
+    def _build_full_prompt(self, category: str, topic_title: str = "", custom_visual_prompt: Optional[str] = None) -> str:
+        """Gemini가 칼럼 스토리에 맞춰 직접 생성한 visual_prompt 100% 최우선 반영"""
+        if custom_visual_prompt and len(custom_visual_prompt.strip()) > 20:
+            prompt = custom_visual_prompt.strip()
+            # 🌟 [필수 원칙: 남녀 2인 데이트 구도 100% 보장]
+            if "couple" not in prompt.lower() and ("man" not in prompt.lower() or "woman" not in prompt.lower()):
+                prompt = f"Two attractive Korean young adults, a handsome man and a beautiful woman on a romantic date, {prompt}"
+            if "photorealistic" not in prompt.lower():
+                prompt += ", photorealistic, cinematic natural lighting, authentic mood, 16:9, 8k"
+            if "seoul" not in prompt.lower() and "korean" not in prompt.lower():
+                prompt += ", contemporary Seoul aesthetic"
+            if "head" not in prompt.lower() and "upright" not in prompt.lower():
+                prompt += ", upright head posture looking straight ahead with zero tilt"
+            return prompt
 
-        if custom_visual_prompt and custom_visual_prompt.strip():
-            user_p = custom_visual_prompt.strip()
-            # 필수 2030 감성 가드레일 추가
-            if "photorealistic" not in user_p.lower():
-                user_p += ", photorealistic, cinematic natural lighting, authentic mood, 16:9, 8k"
-            if "seoul" not in user_p.lower() and "korean" not in user_p.lower():
-                user_p += ", contemporary Seoul aesthetic"
-            if "head" not in user_p.lower() and "upright" not in user_p.lower():
-                user_p += ", upright head posture looking straight ahead with zero tilt"
-            return user_p
-
-        return base_prompt
+        # 🌟 Gemini 프롬프트가 누락된 극단적 예외 상황에서도 하드코딩 카페 대신 topic_title에서 장소/데이트 동적 추출
+        t = (topic_title or "").lower()
+        if "와인" in t or "bar" in t or "술" in t or "다이닝" in t:
+            return "Romantic intimate modern wine bar in Seoul, dim cozy candlelight, two attractive Korean young adults (a handsome man and a beautiful woman) toasting with glasses of red wine on a date, authentic candid lifestyle photography, photorealistic, cinematic 16:9, 8k"
+        elif "성수" in t:
+            return "Two attractive Korean young adults, a stylish man and woman smiling and strolling side by side on a romantic date along a trendy Seongsu-dong red brick street in Seoul, boutique cafes and pop-up stores in soft background, natural afternoon sunlight, photorealistic, cinematic 16:9, 8k"
+        elif "남산" in t or "야경" in t or "밤" in t:
+            return "Romantic Seoul night city view from Namsan park trail, two attractive Korean young adults (a man and a woman) holding hands while walking on a romantic date, warm street lamps and sparkling city lights in distance, cinematic twilight mood, photorealistic, 16:9"
+        elif "한강" in t or "산책" in t or "피크닉" in t:
+            return "Golden hour sunset walk along Han River park in Seoul, two attractive Korean young adults (a man and a woman) enjoying a romantic date with peaceful riverside breeze, warm glowing backlight, natural candid photography, photorealistic, 16:9"
+        elif "룩" in t or "패션" in t or "스타일" in t or "옷" in t:
+            return "Modern chic Seoul street style fashion look, clean minimalist neutral-toned casual date outfit, two stylish Korean young adults (a man and a woman) walking on a trendy Seoul street, lookbook photography, photorealistic, 16:9"
+        else:
+            return f"Two attractive Korean young adults (a handsome man and a beautiful woman) enjoying a heart-fluttering romantic date in Seoul, inspired by '{topic_title}', cozy Seoul street aesthetic, natural cinematic lighting, photorealistic, 16:9, 8k"
 
     def _compress_to_webp(self, raw_bytes: bytes, max_width: int = 1200, quality: int = 82) -> bytes:
         """PNG 이미지 ➔ WebP 고압축 변환 및 16:9 리사이즈"""
@@ -171,7 +182,8 @@ class AuraImageGenerator:
         topic_id: int,
         category: str,
         topic_title: str,
-        custom_visual_prompt: Optional[str] = None
+        custom_visual_prompt: Optional[str] = None,
+        force_regenerate: bool = False
     ) -> Dict[str, Any]:
         """
         주제 맥락에 100% 어울리는 16:9 사진 1장 생성
@@ -183,17 +195,16 @@ class AuraImageGenerator:
             "prompt_used": str
         }
         """
-        prompt = self._build_full_prompt(category, custom_visual_prompt)
+        prompt = self._build_full_prompt(category, topic_title, custom_visual_prompt)
         preset = AURA_CATEGORY_PRESETS.get(category, AURA_CATEGORY_PRESETS["kakaotalk_signals"])
         fallback_url = preset["fallback_url"]
 
-        # ⚡ [비용 0원 원칙] 해당 주제에 대해 이미 생성된 이미지가 존재하면 재사용 (API 중복 호출 원천 차단)
+        # ⚡ [비용 0원 원칙] force_regenerate가 False이고 캐시 이미지가 유효하면 재사용
         existing_images = sorted(list(OUTPUTS_DIR.glob(f"aura_topic_{topic_id:03d}_*.webp")), reverse=True)
-        if existing_images and existing_images[0].stat().st_size > 1024:
+        if not force_regenerate and existing_images and existing_images[0].stat().st_size > 1024:
             cached_file = existing_images[0]
             logger.info(f"⚡ [AuraImage] 주제 #{topic_id} 기존 고화질 이미지 캐시 즉시 재사용 (비용 0원!): {cached_file.name}")
             
-            # Supabase Storage 영구 URL 획득 (필요 시 1회 업로드)
             final_web_url = fallback_url
             try:
                 from brands.aura.aura_supabase_manager import AuraSupabaseManager
@@ -216,10 +227,10 @@ class AuraImageGenerator:
         filename = f"aura_topic_{topic_id:03d}_{category}_{timestamp}.webp"
         output_file = OUTPUTS_DIR / filename
 
-        logger.info(f"🎨 [AuraImage] 주제 #{topic_id} 신규 사진 1회 생성 착수 (카테고리: {category})")
-        logger.info(f"🎨 [AuraImage] 프롬프트: {prompt[:90]}...")
+        logger.info(f"🎨 [AuraImage] 주제 #{topic_id} 스토리 맞춤 사진 생성 착수 (카테고리: {category})")
+        logger.info(f"🎨 [AuraImage] 제미나이 맞춤 프롬프트: {prompt[:120]}...")
 
-        # 유료키 2개 순차 롤오버 시도
+        # 유료키 2개 순차 롤오버 시도 (gemini-3.1-flash-lite-image 초저가 고화질 모델)
         raw_bytes = None
         for attempt in range(len(self.paid_keys)):
             try:
@@ -227,19 +238,15 @@ class AuraImageGenerator:
                 if not client:
                     break
 
-                from google.genai import types as genai_types
-                # 1순위: 초저가 고품질 모델
+                # 🌟 [공식 검증 완료] gemini-3.1-flash-lite-image로 실사 이미지 직접 생성
                 response = client.models.generate_content(
                     model="gemini-3.1-flash-lite-image",
-                    contents=prompt,
-                    config=genai_types.GenerateContentConfig(
-                        response_modalities=["IMAGE", "TEXT"]
-                    )
+                    contents=prompt
                 )
 
                 if response and response.candidates and response.candidates[0].content:
                     for part in response.candidates[0].content.parts:
-                        if part.inline_data and part.inline_data.data:
+                        if hasattr(part, "inline_data") and part.inline_data and part.inline_data.data:
                             raw = part.inline_data.data
                             if isinstance(raw, str):
                                 raw = base64.b64decode(raw)

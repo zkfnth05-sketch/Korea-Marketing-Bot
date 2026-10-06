@@ -116,22 +116,43 @@ class RedditBrowserDriver:
 
     def _create_persistent_context(self, playwright_instance, headless: bool = True):
         """영구 프로필 기반 브라우저 컨텍스트 생성 (세션/쿠키 영구 보존)"""
-        context = playwright_instance.chromium.launch_persistent_context(
-            user_data_dir=str(self.profile_dir),
-            headless=headless,
-            args=[
+        launch_kwargs = {
+            "user_data_dir": str(self.profile_dir),
+            "headless": headless,
+            "args": [
                 "--disable-blink-features=AutomationControlled",
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
                 "--disable-infobars",
                 "--disable-dev-shm-usage",
             ],
-            ignore_default_args=["--enable-automation"],
-            user_agent=self._session_ua,
-            viewport=self._viewport,
-            locale="en-US",
-            timezone_id="Asia/Seoul",
-        )
+            "ignore_default_args": ["--enable-automation"],
+            "user_agent": self._session_ua,
+            "viewport": self._viewport,
+            "locale": "en-US",
+            "timezone_id": "Asia/Seoul",
+        }
+        try:
+            context = playwright_instance.chromium.launch_persistent_context(
+                channel="chrome",
+                **launch_kwargs
+            )
+        except Exception:
+            context = playwright_instance.chromium.launch_persistent_context(
+                **launch_kwargs
+            )
+        # 저장된 쿠키 주입
+        cookie_file = DATA_DIR / "reddit_profiles" / f"{self.service_id}_cookies.json"
+        if cookie_file.exists():
+            try:
+                with open(cookie_file, "r", encoding="utf-8") as cf:
+                    c_data = json.load(cf)
+                if isinstance(c_data, list) and c_data:
+                    context.add_cookies(c_data)
+                    logger.info(f"🍪 [Reddit Driver] {self.service_id} 쿠키 {len(c_data)}개 주입 완료")
+            except Exception as ce:
+                logger.warning(f"레딧 쿠키 주입 통과: {ce}")
+
         # 모든 새 페이지에 anti-fingerprint 스크립트 자동 주입
         for page in context.pages:
             page.add_init_script(self._get_anti_fingerprint_scripts())
@@ -145,12 +166,12 @@ class RedditBrowserDriver:
     def _human_mouse_move(self, page, target_x: int, target_y: int):
         """베지어 곡선 기반 자연스러운 마우스 이동"""
         try:
-            # 현재 마우스 위치 추정 (뷰포트 중앙에서 시작)
             current = (self._viewport["width"] // 2, self._viewport["height"] // 2)
             points = _bezier_points(current, (target_x, target_y), steps=random.randint(12, 25))
             for px, py in points:
                 page.mouse.move(px, py)
                 time.sleep(random.uniform(0.005, 0.02))
+            logger.info("🖱️ [Reddit 스텔스] 베지어 곡선 기반 마우스 자연 이동 완료")
         except Exception:
             pass  # 마우스 이동 실패해도 계속 진행
 
@@ -158,6 +179,7 @@ class RedditBrowserDriver:
         """관성이 있는 자연스러운 스크롤 (가속 → 감속)"""
         steps = random.randint(4, 8)
         total = 0
+        logger.info(f"📜 [Reddit 스텔스] 관성 가속·감속 피드 스크롤 중 ({amount}px {direction})...")
         for i in range(steps):
             # 가속-감속 커브 (사인파)
             progress = i / steps
@@ -172,6 +194,7 @@ class RedditBrowserDriver:
 
     def _human_type(self, page, text: str):
         """사람처럼 타이핑 (가변 속도 + 구두점 슬로우 + 오타 시뮬레이션)"""
+        logger.info(f"⌨️ [Reddit 스텔스] 사람처럼 실시간 키보드 타이핑 시작 ({len(text)}자, 가변 지연/오타 자동 교정)...")
         paragraphs = text.split("\n\n")
         for p_idx, para in enumerate(paragraphs):
             words = para.split(" ")
@@ -235,10 +258,31 @@ class RedditBrowserDriver:
                             self._human_scroll(page, "down", random.randint(300, 600))
                             page.wait_for_timeout(random.randint(1000, 1800))
 
-                        # Modern Reddit shreddit-post 제목 + 본문 텍스트 완벽 추출
+                        # Modern Reddit shreddit-post 제목 + 본문 텍스트 완벽 추출 (잠긴 글 + 오래된 글 + 고정글 100% 원천 배제)
                         posts_data = page.evaluate("""() => {
                             const els = Array.from(document.querySelectorAll('shreddit-post'));
+                            const maxAgeHours = 168; // 7일 (7 * 24 = 168시간 엄격 제한)
+                            const now = new Date();
                             return els.map(el => {
+                                // 1. 잠긴 게시물(Locked post) 조기 배제 (hidden 클래스가 없는 실제 자물쇠 아이콘만 체크)
+                                const isLocked = el.hasAttribute('locked') || 
+                                                 !!el.querySelector('svg.lock-status:not(.hidden), svg[icon-name="lock-fill"]:not(.hidden)');
+                                if (isLocked) return null;
+
+                                // 2. 상단 고정 공지글(Pinned/Stickied) 배제 (hidden 클래스가 없는 실제 고정 아이콘만 체크)
+                                const isPinned = el.hasAttribute('pinned') || 
+                                                 el.hasAttribute('stickied') || 
+                                                 !!el.querySelector('svg.stickied-status:not(.hidden), svg[icon-name="pin-fill"]:not(.hidden)');
+                                if (isPinned) return null;
+
+                                // 3. 🚨 [신선도 게이트] 7일(168시간) 이내 작성된 신선한 글만 수집
+                                const tsAttr = el.getAttribute('created-timestamp');
+                                if (tsAttr) {
+                                    const postDate = new Date(tsAttr);
+                                    const ageHours = (now - postDate) / (1000 * 60 * 60);
+                                    if (ageHours > maxAgeHours) return null; // 7일 초과 오래된 글 원천 탈락
+                                }
+
                                 let bodyText = '';
                                 const bodyEl = el.querySelector('div[slot="text-body"], div[id*="-post-rtjson-content"], div.md, faceplate-expandable-section, div[data-click-id="text"]');
                                 if (bodyEl) {
@@ -255,9 +299,10 @@ class RedditBrowserDriver:
                                     body: bodyText,
                                     permalink: el.getAttribute('permalink') || '',
                                     author: el.getAttribute('author') || '',
-                                    content_type: el.getAttribute('content-type') || 'text'
+                                    content_type: el.getAttribute('content-type') || 'text',
+                                    created_at: tsAttr || ''
                                 };
-                            });
+                            }).filter(Boolean);
                         }""")
 
                         for p_data in posts_data[:limit_per_sub]:
@@ -498,17 +543,26 @@ class RedditBrowserDriver:
                 self._human_scroll(page, "down", random.randint(200, 400))
                 time.sleep(random.uniform(3.0, 6.0))
 
-                # 0. 계정 로그인 세션 상태 사전 검증 (로그아웃/익명 게스트 조기 방어)
+                # 0. 계정 로그인 세션 상태 및 잠긴 글(Locked Post) 사전 검증
                 auth_check = page.evaluate("""() => {
+                    const isLocked = !!document.querySelector('shreddit-post[locked], svg.lock-status:not(.hidden), svg[icon-name="lock-fill"]:not(.hidden)');
                     const loginBtn = document.querySelector('a[href*="/login"], [aria-label*="Log In"], [aria-label*="log in"]');
                     const userDrawer = document.querySelector('#user-drawer-button, button[aria-label*="User"], [aria-label*="Account"]');
                     const hasComposer = !!document.querySelector('shreddit-composer, div[role="textbox"][contenteditable="true"], div[slot="rte"]');
                     return {
+                        is_locked: isLocked,
                         has_login_btn: !!loginBtn,
                         has_user_drawer: !!userDrawer,
                         has_composer: hasComposer
                     };
                 }""")
+                if auth_check.get("is_locked"):
+                    logger.warning(f"🔒 [{self.service_id.upper()}] 해당 게시글은 잠긴 게시물(Locked Post)입니다. 댓글 작성을 건너뜁니다.")
+                    result["error"] = "locked_post"
+                    result["is_locked"] = True
+                    context.close()
+                    return result
+
                 if auth_check.get("has_login_btn") and not auth_check.get("has_user_drawer") and not auth_check.get("has_composer"):
                     logger.error(f"🚨 [{self.service_id.upper()}] 레딧 브라우저 세션이 만료되었습니다. (익명 게스트 상태)")
                     logger.error(f"👉 터미널에서 'python login_{self.service_id}_session.py' 를 실행하여 1회 재로그인해 주세요.")
@@ -517,7 +571,16 @@ class RedditBrowserDriver:
                     context.close()
                     return result
 
-                # 1. 댓글창 활성화 시도
+                # 1. 댓글창 활성화 시도 (Modern Reddit comment-composer-host 및 trigger 우선 활성화)
+                try:
+                    host_loc = page.locator("comment-composer-host, [data-testid='trigger-button'], [noun='add_comment_placeholder']").first
+                    if host_loc.count() > 0:
+                        host_loc.scroll_into_view_if_needed()
+                        host_loc.click()
+                        page.wait_for_timeout(1500)
+                except Exception:
+                    pass
+
                 reply_activated = page.evaluate("""() => {
                     // 1. shreddit-composer 및 shadow/slot 탐색
                     const composer = document.querySelector('shreddit-composer, faceplate-textarea-input');
@@ -530,13 +593,6 @@ class RedditBrowserDriver:
                         if (rte) {
                             rte.focus();
                             rte.click();
-                            // 캐럿을 에디터 안으로 명시적 배치
-                            const sel = window.getSelection();
-                            const range = document.createRange();
-                            range.selectNodeContents(rte);
-                            range.collapse(false);
-                            sel.removeAllRanges();
-                            sel.addRange(range);
                             return { success: true, method: 'composer' };
                         }
                     }
@@ -551,7 +607,7 @@ class RedditBrowserDriver:
                     // 3. Add a comment 버튼 클릭
                     const addBtns = Array.from(document.querySelectorAll('button, faceplate-tracker')).filter(el => {
                         const txt = (el.innerText || el.getAttribute('aria-label') || '').toLowerCase();
-                        return txt.includes('add a comment') || txt.includes('join the conversation');
+                        return txt.includes('add a comment') || txt.includes('join the conversation') || txt.includes('대화에 참여');
                     });
                     if (addBtns.length > 0) {
                         addBtns[0].click();
@@ -562,7 +618,7 @@ class RedditBrowserDriver:
 
                 if not reply_activated.get("success"):
                     # Reply 버튼 클릭 시도
-                    reply_btn = page.locator("button:has-text('Add a comment'), button:has-text('Reply'), button[aria-label*='Reply'], button[aria-label*='Comment']").first
+                    reply_btn = page.locator("button:has-text('Add a comment'), button:has-text('Reply'), button[aria-label*='Reply'], button[aria-label*='Comment'], button:has-text('댓글')").first
                     try:
                         if reply_btn.is_visible(timeout=3000):
                             reply_btn.click()
@@ -581,8 +637,8 @@ class RedditBrowserDriver:
 
                 # 에디터 내부의 실제 contenteditable / p 태그에 직접 물리적 클릭하여 포커스 보장
                 try:
-                    editor_loc = page.locator("shreddit-composer div[contenteditable='true'], shreddit-composer p, div[role='textbox'][contenteditable='true'], div[slot='rte']").first
-                    if editor_loc.is_visible(timeout=2000):
+                    editor_loc = page.locator("div[slot='rte'], shreddit-composer div[contenteditable='true'], shreddit-composer p").first
+                    if editor_loc.is_visible(timeout=3000):
                         editor_loc.click()
                         page.wait_for_timeout(500)
                 except Exception:
@@ -594,9 +650,9 @@ class RedditBrowserDriver:
 
                 # 🔍 [텍스트 무결성 검증 & 글자 잘림 방어]
                 actual_text = page.evaluate("""() => {
-                    const el = document.querySelector('shreddit-composer div[contenteditable="true"], div[role="textbox"][contenteditable="true"], div[slot="rte"], shreddit-composer textarea');
+                    const el = document.querySelector('div[slot="rte"], shreddit-composer div[contenteditable="true"], div[role="textbox"][contenteditable="true"], shreddit-composer textarea');
                     if (el) {
-                        return (el.value || el.innerText || el.textContent || '').trim();
+                        return (el.innerText || el.textContent || el.value || '').trim();
                     }
                     return '';
                 }""")
@@ -635,7 +691,9 @@ class RedditBrowserDriver:
 
                     page.wait_for_timeout(1000)
 
-                # 3. 등록 버튼 클릭
+                # 3. 등록 버튼 클릭 (자연스러운 최종 검토 체류)
+                logger.info("⏳ [Reddit 스텔스] 등록 전 사람처럼 작성 내용 2~4초 최종 검토 체류 중...")
+                page.wait_for_timeout(random.randint(2000, 3800))
                 submit_success = False
                 submit_err = None
 
@@ -679,6 +737,7 @@ class RedditBrowserDriver:
                     context.close()
                     return result
 
+                logger.info(f"🎉 [Reddit 스텔스] r/{subreddit} 타겟 글에 맞춤형 스텔스 댓글 등록 완료!")
                 page.wait_for_timeout(random.randint(3000, 5000))
                 result["success"] = True
                 context.close()

@@ -180,9 +180,11 @@ class AuraPipeline:
         logger.info("=" * 60)
         logger.info(f"🤖 [{self.NAME}] 24시간 365일 무인 자율 백그라운드 데몬 가동")
         logger.info(f"   • 공식 검색어: '{self.KEYWORD}'")
-        logger.info(f"   • 숏폼: 18:30 KST (쏘기 전 1편 생산 -> 4대 플랫폼 1회 송출)")
-        logger.info(f"   • 카드뉴스: 11:30 KST (쏘기 전 5장 렌더링 -> Meta 1회 송출)")
-        logger.info(f"   • 휴먼 웜업: 08:30 / 12:30 / 15:30 / 21:30 KST")
+        logger.info(f"   • ☀️ 오전 08:30: 동영상 숏츠 ① (4대 플랫폼: 유튜브+클립+인스타+페북)")
+        logger.info(f"   • 🍱 오후 12:30: 카드뉴스형 콘텐츠 (4대 플랫폼: 유튜브+클립+인스타+페북)")
+        logger.info(f"   • 🌙 저녁 19:30: 동영상 숏츠 ② (4대 플랫폼: 유튜브+클립+인스타+페북)")
+        logger.info(f"   • ✍️ 블로그: 10:00 / 15:00 / 20:00 KST")
+        logger.info(f"   • 🤖 휴먼 웜업: 08:30 / 12:30 / 15:30 / 21:30 KST")
         logger.info("=" * 60)
 
         # 1. 휴먼 비헤이비어 백그라운드 스레드
@@ -198,20 +200,28 @@ class AuraPipeline:
                 hour = now.hour
                 minute = now.minute
 
-                # 카드뉴스 슬롯 (11:30 KST)
-                if hour == 11 and minute == 30:
-                    slot_key = f"{today_str}_cardnews_1130"
+                # 1차 동영상 숏츠 슬롯 (08:30 KST)
+                if hour == 8 and minute == 30:
+                    slot_key = f"{today_str}_shorts_0830"
                     if slot_key not in executed_slots:
                         executed_slots.add(slot_key)
-                        logger.info(f"⏰ [{self.NAME}] 점심 피크(11:30) 카드뉴스 정시 송출 시작...")
+                        logger.info(f"⏰ [{self.NAME}] ☀️ 출근길(08:30) 동영상 숏츠 ① 4대 플랫폼 정시 송출 시작...")
+                        self.run_shorts()
+
+                # 2차 카드뉴스형 슬롯 (12:30 KST)
+                if hour == 12 and minute == 30:
+                    slot_key = f"{today_str}_cardnews_1230"
+                    if slot_key not in executed_slots:
+                        executed_slots.add(slot_key)
+                        logger.info(f"⏰ [{self.NAME}] 🍱 점심시간(12:30) 카드뉴스형 콘텐츠 4대 플랫폼 정시 송출 시작...")
                         self.run_cardnews()
 
-                # 숏폼 슬롯 (18:30 KST)
-                if hour == 18 and minute == 30:
-                    slot_key = f"{today_str}_shorts_1830"
+                # 3차 동영상 숏츠 슬롯 (19:30 KST)
+                if hour == 19 and minute == 30:
+                    slot_key = f"{today_str}_shorts_1930"
                     if slot_key not in executed_slots:
                         executed_slots.add(slot_key)
-                        logger.info(f"⏰ [{self.NAME}] 퇴근 골든타임(18:30) 숏폼 정시 송출 시작...")
+                        logger.info(f"⏰ [{self.NAME}] 🌙 저녁 골든타임(19:30) 동영상 숏츠 ② 4대 플랫폼 정시 송출 시작...")
                         self.run_shorts()
 
                 # 블로그 슬롯 (하루 3회: 10:00, 15:00, 20:00 KST)

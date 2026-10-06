@@ -54,11 +54,11 @@ from brands.stock.stock_hashtag_matrix import StockHashtagMatrix
 _STOCK_FALLBACK_BANK = [
     {
         "caption": "주식 초보분들이 가장 많이 하는 실수가 '장 시작하자마자 9시 5분에 급등주 추격 매수'하는 겁니다 ㅠㅠ\n\n장초반 30분은 변동성이 가장 심하고 세력들의 물량 털기가 자주 나오는 시간대예요.\n\n진짜 고수들은 9시 30분 이후 거래대금이 꾸준히 유지되면서 지지선 확인하는 종목을 공략합니다. 조급함을 버리는 게 수익의 첫걸음이에요 📈\n\n#스톡마스터AI #StockMasterAI #주식투자 #주식초보 #매매기법 #단타 #외인수급 #기관수급 #국내주식 #코스피 #삼성전자 #SK하이닉스 #실시간트렌드 #주식공부 #체결강도",
-        "first_reply": "📈 AI 실시간 수급 & 급등 테마 분석기\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/"
+        "first_reply": "📈 AI 실시간 수급 & 급등 테마 1분 무료 분석기\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/"
     },
     {
         "caption": "하락장에서 계좌 지키는 최고의 무기는 '수급 연속성' 체크입니다 💡\n\n코스피 코스닥이 밀려도 외국인과 기관이 3일 이상 연속으로 순매수하는 종목은 시장 반등할 때 1순위로 튀어 오르거든요.\n\n감이나 소문으로 매매하지 말고, 매일 장마감 후 메이저 수급이 어디로 쏠렸는지 데이터로 확인해보세요!\n\n#스톡마스터AI #StockMasterAI #주식시황 #외인수급 #기관수급 #주식공부 #AI퀀트투자 #종목자가진단 #적정주가 #코스피200 #고배당주 #2차전지 #반도체주식 #실시간트렌드 #주식고민",
-        "first_reply": "📈 실시간 테마 & 기관 수급 레이더 무료 진단\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/"
+        "first_reply": "📈 실시간 테마 & 기관 수급 레이더 1분 무료 진단\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/"
     }
 ]
 
@@ -158,7 +158,7 @@ class StockThreadsTextWriter:
             caption = fallback["caption"]
 
         first_reply = (
-            f"📈 AI 실시간 수급 & 급등 테마 분석기\n"
+            f"📈 AI 실시간 수급 & 급등 테마 1분 무료 진단\n"
             f"네이버에 '{self.OFFICIAL_SEARCH_KEYWORD}' 한번 검색해보세요!\n"
             f"👉 {self.LANDING_URL}"
         )

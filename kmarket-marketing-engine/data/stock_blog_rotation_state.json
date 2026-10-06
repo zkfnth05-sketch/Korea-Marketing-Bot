@@ -1,10 +1,63 @@
 {
-  "current_topic_index": 16,
-  "last_topic_id": 16,
-  "last_run_time": "2026-10-03 10:16:48",
-  "last_title": "[현대차] 자동차/밸류업 주가 전망: 20일선 지지선과 10분 전광판 지표 분석",
-  "published_count": 24,
+  "current_topic_index": 17,
+  "last_topic_id": 17,
+  "last_run_time": "2026-10-06 11:00:57",
+  "last_title": "오늘 수급 1위 [한화에어로스페이스] 급등 배경과 10분 계량 전광판 긴급 진단",
+  "published_count": 25,
   "history": [
+    {
+      "topic_id": 17,
+      "title": "오늘 수급 1위 [한화에어로스페이스] 급등 배경과 10분 계량 전광판 긴급 진단",
+      "title_naver": "오늘 수급 1위 [한화에어로스페이스] 급등 배경과 10분 계량 전광판 긴급 진단",
+      "title_tistory": "실시간 검색 1위 [한화에어로스페이스] 과열일까 기회일까? AI 퀀트 전광판 검증",
+      "title_brunch": "[한화에어로스페이스] K-방산 주가 전망: 20일선 지지선과 10분 전광판 지표 분석",
+      "category": "us_dividend_tech",
+      "image_url": "",
+      "published_at": "2026-10-06 11:00:57",
+      "publish_results": {
+        "topic_id": 17,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "오늘 수급 1위 [한화에어로스페이스] 급등 배경과 10분 계량 전광판 긴급 진단",
+            "url": "https://blog.naver.com/stockmaster_ai/224432728797?fromRss=true&trackingCode=rss",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224432728797?fromRss=true&trackingCode=rss",
+            "tags": [
+              "한화에어로스페이스",
+              "한화에어로스페이스 K9자주포",
+              "한화에어로스페이스 수주잔고",
+              "한화에어로스페이스 폴란드",
+              "StockMasterAI"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "stockmaster-ai",
+            "title": "실시간 검색 1위 [한화에어로스페이스] 과열일까 기회일까? AI 퀀트 전광판 검증",
+            "url": "https://stockmaster-ai.tistory.com/22",
+            "post_url": "https://stockmaster-ai.tistory.com/22",
+            "tags": [
+              "한화에어로스페이스",
+              "한화에어로스페이스 K9자주포",
+              "한화에어로스페이스 수주잔고",
+              "한화에어로스페이스 폴란드",
+              "StockMasterAI"
+            ]
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 29,
+            "title": "오늘 수급 1위 [한화에어로스페이스] 급등 배경과 10분 계량 전광판 긴급 진단",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
     {
       "topic_id": 16,
       "title": "[현대차] 자동차/밸류업 주가 전망: 20일선 지지선과 10분 전광판 지표 분석",

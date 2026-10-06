@@ -64,7 +64,7 @@ class AuraCardnewsS2EquilibriumBuilder:
       <span class="text-rose-400 text-sm">💖</span>
       <span class="text-white font-extrabold text-sm tracking-wider">AURA</span>
       <span class="w-1.5 h-1.5 rounded-full bg-white/40"></span>
-      <span class="text-amber-300 font-bold text-xs tracking-wide">50:50 남녀 황금 성비율</span>
+      <span class="text-amber-300 font-bold text-xs tracking-wide">현재 100% 무료</span>
     </div>
 
     <!-- Page Index -->

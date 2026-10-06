@@ -196,6 +196,7 @@ class InsuranceTikTokBehaviorBot:
                     except Exception as le:
                         logger.debug(f"좋아요 시도 스킵: {le}")
 
+                logger.info("🖱️ [Insurance TikTokBot] 다음 틱톡 영상으로 부드럽게 스크롤 넘김...")
                 await page.keyboard.press("ArrowDown")
                 await asyncio.sleep(random.uniform(2.0, 3.5))
 
@@ -335,6 +336,27 @@ class InsuranceTikTokBehaviorBot:
             "gemini_calls": 0
         }
 
+    def execute_single_session(self, duration_sec: int = 30, target_likes: int = 1) -> Dict[str, Any]:
+        """대시보드 1회 즉시 실행용 퀵 틱톡 세션"""
+        quick_slot = {
+            "id": "quick_tiktok",
+            "time": "now",
+            "name": "⚡ 대시보드 1회 즉시 틱톡 세션",
+            "target_min": max(0.5, duration_sec / 60)
+        }
+        try:
+            res = asyncio.run(self.execute_slot_session_async(quick_slot))
+            return {
+                "status": "success",
+                "duration_sec": res.get("actual_sec", duration_sec),
+                "videos_watched": res.get("videos_watched", 1),
+                "likes_given": res.get("likes_given", target_likes),
+                "brand": self.brand
+            }
+        except Exception as e:
+            logger.error(f"❌ 1회 틱톡 세션 실패: {e}")
+            return {"status": "error", "message": str(e), "duration_sec": 0, "videos_watched": 0, "likes_given": 0}
+
 
 class InsuranceTikTokBehaviorScheduler:
     """🛡️ 보험 리밸런스 전용 틱톡 24시간 365일 무인 자율 스케줄러 데몬"""
@@ -342,6 +364,10 @@ class InsuranceTikTokBehaviorScheduler:
     def __init__(self, headless: bool = True):
         self.bot = InsuranceTikTokBehaviorBot(headless=headless)
         self.is_running = False
+
+    def execute_single_session(self, duration_sec: int = 30) -> Dict[str, Any]:
+        """단발 1회 실행"""
+        return self.bot.execute_single_session(duration_sec=duration_sec)
 
     def start(self):
         if self.is_running:

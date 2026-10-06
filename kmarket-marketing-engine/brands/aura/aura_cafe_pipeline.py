@@ -69,6 +69,7 @@ class AuraCafePipeline:
         candidate_posts = []
 
         # 3. 브라우저 구동하여 대상 카페 스캔
+        session_file = ROOT / "brands" / "aura" / "naver_session.json"
         async with async_playwright() as p:
             context = await p.chromium.launch_persistent_context(
                 user_data_dir=str(self.profile_dir),
@@ -76,6 +77,18 @@ class AuraCafePipeline:
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
                 viewport={"width": 1280, "height": 800}
             )
+            if session_file.exists():
+                try:
+                    import json
+                    with open(session_file, "r", encoding="utf-8") as sf:
+                        s_data = json.load(sf)
+                        cookies = s_data.get("cookies", [])
+                        if cookies:
+                            await context.add_cookies(cookies)
+                            logger.info(f"🍪 [Aura Cafe] 네이버 세션 쿠키 {len(cookies)}개 주입 완료")
+                except Exception as ce:
+                    logger.warning(f"쿠키 주입 통과: {ce}")
+
             page = await context.new_page()
 
             for cafe_info in today_cafes:

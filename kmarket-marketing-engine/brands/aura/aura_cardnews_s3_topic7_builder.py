@@ -4,7 +4,7 @@ AuraCardnewsS3Topic7Builder - 📱 [Aura 카드뉴스 7번 주제 'AI 매력상 
 ====================================================================================================================
 • 역할:
   - 숏폼 7번 엔진의 실제 3D 스마트폰 진단 화면 (04_app_sim_aura_7.mp4 / 0.2s '고요한 오후의 뮤즈') 100% 무손실 매립
-  - 상단 공식 헤더['💖 AURA | 50:50 남녀 황금 성비율', '03 / 05 >']
+  - 상단 공식 헤더['💖 아우라 AI 데이팅 | 현재 100% 무료 남녀 황금 성비율', '03 / 05 >']
   - 상단 텍스트 카피: [✨ AI 공인 매력 리포트] + '사진 1장으로 1초 만에 완성! AI가 분석한 나의 독보적 매력상' + '아우라 지수, 분위기 키워드부터 인스타 공유 화보까지 원스톱 도출'
   - 하단 넘김 CTA 바
   - 1080x1350 초고화질 서브픽셀 렌더링
@@ -136,8 +136,8 @@ class AuraCardnewsS3Topic7Builder:
   <div class="flex justify-between items-center z-10 w-full pt-1">
     <div class="inline-flex items-center gap-3 bg-slate-900/90 backdrop-blur-md border border-white/25 rounded-full py-2.5 px-5 shadow-2xl">
       <span class="text-lg">💖</span>
-      <span class="text-base font-black tracking-wider text-white">AURA</span>
-      <span class="text-sm font-bold text-pink-400 pl-3 border-l border-white/30">50:50 남녀 황금 성비율</span>
+      <span class="text-base font-black tracking-wider text-white">아우라 AI 데이팅</span>
+      <span class="text-sm font-bold text-pink-400 pl-3 border-l border-white/30">현재 100% 무료</span>
     </div>
 
     <div class="text-amber-400 font-black text-base bg-slate-900/90 backdrop-blur-md px-5 py-2.5 rounded-full border border-amber-500/50 shadow-2xl tracking-wider">

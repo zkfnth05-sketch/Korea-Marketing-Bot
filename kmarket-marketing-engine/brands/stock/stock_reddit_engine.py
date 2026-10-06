@@ -127,7 +127,17 @@ class StockRedditEngine:
                 comment_res = self.driver.post_comment_humanlike(post_url=post_url, comment_text=reply_content)
                 post_success = comment_res.get("success", False)
                 if not post_success:
-                    logger.warning(f"댓글 게시 실패: {comment_res.get('error')}")
+                    err_msg = comment_res.get('error', 'unknown_error')
+                    logger.warning(f"댓글 게시 실패: {err_msg}")
+                    self.db_mgr.record_history(
+                        content_type="reddit_skipped",
+                        service_id=self.SERVICE_ID,
+                        target_lang="en",
+                        title=f"[SKIPPED:{err_msg}] {title}",
+                        content_text=str(err_msg),
+                        target_url=post_url,
+                        external_id=post_id
+                    )
                     continue
 
                 # 가시성 검증 (10초 후 섀도우밴/삭제 여부 확인)
@@ -140,17 +150,18 @@ class StockRedditEngine:
                 logger.info(f"🧪 [시뮬레이션 모드 댓글 생성]\n{reply_content}")
                 post_success = True
 
-            # DB 기록 및 헬스 모니터 갱신
-            self.db_mgr.record_history(
-                content_type="reddit_reply",
-                service_id=self.SERVICE_ID,
-                target_lang="en",
-                title=f"[{intent.get('category')}] {title}",
-                content_text=reply_content,
-                target_url=self.OFFICIAL_LANDING_URL,
-                external_id=post_id
-            )
-            self.health.record_promo_comment()
+            # DB 기록 및 헬스 모니터 갱신 (실제 라이브 등록 시에만 저장)
+            if auto_post:
+                self.db_mgr.record_history(
+                    content_type="reddit_reply",
+                    service_id=self.SERVICE_ID,
+                    target_lang="en",
+                    title=f"[{intent.get('category')}] {title}",
+                    content_text=reply_content,
+                    target_url=self.OFFICIAL_LANDING_URL,
+                    external_id=post_id
+                )
+                self.health.record_promo_comment()
             processed_count += 1
             logger.info(f"✅ [Stock Reddit] 성공 처리 완료 (누적 {processed_count}건)")
 

@@ -69,7 +69,8 @@ class StockVoiceCloner:
         text: str,
         output_wav_path: str,
         gender: str = "male",
-        sample_rate: int = 24000
+        sample_rate: int = 24000,
+        rate: Optional[str] = None
     ) -> str:
         """
         주식 전용 대본을 진우(남성) 또는 서연(여성) 목소리로 복제 합성 (4단계 자율 페일오버)
@@ -79,6 +80,7 @@ class StockVoiceCloner:
 
         is_female = str(gender).lower() in ["female", "f", "woman", "여", "여성"]
         persona_name = "서연(Seoyeon - 여성)" if is_female else "진우(Jinwoo - 남성)"
+        effective_rate = rate if rate is not None else ("-5%" if is_female else "+3%")
 
         if not text or not text.strip():
             with wave.open(str(out_p), "wb") as wf:
@@ -89,7 +91,7 @@ class StockVoiceCloner:
             logger.info(f"🔇 [StockVoiceCloner] 빈 텍스트 무음 처리 완료 -> {out_p.name}")
             return str(out_p)
 
-        logger.info(f"📈 [StockVoiceCloner] {persona_name} 음성 복제 시작: \"{text[:30]}...\"")
+        logger.info(f"📈 [StockVoiceCloner] {persona_name} 음성 복제 시작 (rate={effective_rate}): \"{text[:30]}...\"")
 
         # [1단계] Alibaba DashScope CosyVoice 시도
         if self.dashscope_api_key:
@@ -102,17 +104,18 @@ class StockVoiceCloner:
                 logger.warning(f"⚠️ [주식 CosyVoice API 예외] {e} ➔ 2단계 Typecast로 전환")
 
         # [2단계] Typecast 보이스 폴백 (남/여 맞춤)
-        try:
-            res = self._synthesize_typecast(text, str(out_p), gender=gender, sample_rate=sample_rate)
-            if res and out_p.exists() and out_p.stat().st_size > 1000:
-                logger.info(f"🎉 [주식 Typecast 성공] {persona_name} 음성 합성 완료: {out_p.name}")
-                return str(out_p)
-        except Exception as e:
-            logger.warning(f"⚠️ [주식 Typecast 예외] {e} ➔ 3단계 Edge-TTS로 전환")
+        if self.typecast_api_key:
+            try:
+                res = self._synthesize_typecast(text, str(out_p), gender=gender, sample_rate=sample_rate)
+                if res and out_p.exists() and out_p.stat().st_size > 1000:
+                    logger.info(f"🎉 [주식 Typecast 성공] {persona_name} 음성 합성 완료: {out_p.name}")
+                    return str(out_p)
+            except Exception as e:
+                logger.warning(f"⚠️ [주식 Typecast 예외] {e} ➔ 3단계 Edge-TTS로 전환")
 
         # [3단계] Edge-TTS 무결점 최종 보증 로컬 폴백 (남성: InJoon / 여성: SunHi)
-        res = self._synthesize_edge_tts(text, str(out_p), gender=gender, sample_rate=sample_rate)
-        logger.info(f"🎉 [주식 Edge-TTS 성공] {persona_name} 음성 합성 완료: {out_p.name}")
+        res = self._synthesize_edge_tts(text, str(out_p), gender=gender, sample_rate=sample_rate, rate=effective_rate)
+        logger.info(f"🎉 [주식 Edge-TTS 성공] {persona_name} 음성 합성 완료 (rate={effective_rate}): {out_p.name}")
         return str(out_p)
 
     def _synthesize_cosyvoice(self, text: str, output_wav_path: str, gender: str, sample_rate: int) -> bool:
@@ -153,7 +156,7 @@ class StockVoiceCloner:
         synth.synthesize(text, output_wav_path, sample_rate=sample_rate)
         return True
 
-    def _synthesize_edge_tts(self, text: str, output_wav_path: str, gender: str, sample_rate: int) -> bool:
+    def _synthesize_edge_tts(self, text: str, output_wav_path: str, gender: str, sample_rate: int, rate: Optional[str] = None) -> bool:
         """Edge-TTS 연동 (남성: InJoon / 여성: SunHi)"""
         import asyncio
         import edge_tts
@@ -162,8 +165,10 @@ class StockVoiceCloner:
         voice = "ko-KR-SunHiNeural" if is_female else "ko-KR-InJoonNeural"
         temp_mp3 = self.output_dir / f"temp_stock_edge_{os.getpid()}.mp3"
 
+        effective_rate = rate if (rate and (rate.startswith("+") or rate.startswith("-"))) else ("-5%" if is_female else "+3%")
+
         async def _run():
-            comm = edge_tts.Communicate(text, voice)
+            comm = edge_tts.Communicate(text, voice, rate=effective_rate)
             await comm.save(str(temp_mp3))
 
         asyncio.run(_run())
@@ -185,7 +190,7 @@ class StockVoiceCloner:
         text: str,
         lang: str = "ko",
         gender: str = "male",
-        rate: str = "+0%",
+        rate: Optional[str] = None,
         pitch: Optional[str] = None,
         target_duration: Optional[float] = None,
         filename_prefix: str = "speech",
@@ -201,8 +206,8 @@ class StockVoiceCloner:
         out_wav_path = os.path.join(str(eff_dir), f"{filename_prefix}_{lang}.wav")
         temp_wav_path = os.path.join(str(eff_dir), f"{filename_prefix}_{lang}_raw24k.wav")
 
-        # 1. 24kHz 원본 합성
-        self.synthesize(text=text, output_wav_path=temp_wav_path, gender=gender, sample_rate=24000)
+        # 1. 24kHz 원본 합성 (속도 rate 전달)
+        self.synthesize(text=text, output_wav_path=temp_wav_path, gender=gender, sample_rate=24000, rate=rate)
 
         # 2. FFmpeg 16kHz Mono 변환 (Wan 2.2 S2V 완벽 동기화)
         cmd = [

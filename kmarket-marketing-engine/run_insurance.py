@@ -162,6 +162,28 @@ def main():
         scheduler.run_continuous_daemon(check_interval_seconds=300)
         return
 
+    # ── [레딧(Reddit) 외국인·유학생 타겟 스텔스 마케팅 옵션] ──
+    if "--reddit" in sys.argv or "-rd" in sys.argv:
+        is_live = "--live" in sys.argv
+        from brands.insurance.insurance_reddit_engine import InsuranceRedditEngine
+        print("\n==============================================")
+        print(f"🛡️ [보험 리밸런스] 레딧 10대 서브레딧 스텔스 마케팅 1회 실행 (Mode: {'LIVE' if is_live else 'DRY-RUN/SIMULATION'})")
+        print("==============================================\n")
+        engine = InsuranceRedditEngine()
+        res_count = engine.scan_and_reply(limit_per_sub=10, max_promo=1, auto_post=is_live)
+        print(f"\n[보험 레딧 실행 결과]: {res_count}건 처리 완료")
+        return
+
+    if "--reddit-cycle" in sys.argv or "-rc" in sys.argv:
+        from brands.insurance.insurance_reddit_engine import InsuranceRedditEngine
+        print("\n==============================================")
+        print("🛡️ [보험 리밸런스] 레딧 안전 종합 사이클 1회 가동 (업보트+스크롤+비홍보+스텔스홍보)")
+        print("==============================================\n")
+        engine = InsuranceRedditEngine()
+        cycle_res = engine.run_safe_cycle()
+        print(json.dumps(cycle_res, ensure_ascii=False, indent=2))
+        return
+
     if "--daemon" in sys.argv or "-d" in sys.argv:
         print("\n==============================================")
         print("🛡️ [보험 리밸런스] 24시간 365일 무인 자율 백그라운드 스케줄러 데몬 시작")

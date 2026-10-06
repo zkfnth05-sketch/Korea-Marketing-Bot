@@ -6,7 +6,7 @@ AuraCardnewsS2Topic8Builder - 📱 [Aura 카드뉴스 8번 주제 2번 핸드폰
   - 1번 표지의 24세 포니테일 미녀 모델 + 화이트 윈드브레이커 + 성수동 테라스 배경 100% 동일 계승
   - 3.5M 거리 와이드 카우보이 화각으로 스마트폰을 손에 쥐고 안심 지도를 확인하는 자연스러운 포즈 포착
   - 회색 박스 없는 투명 시네마틱 스크림 & 플로팅 타이포그래피 렌더링
-  - 상단 공식 헤더['💖 AURA | 50:50 남녀 황금 성비율', '02 / 05 >'] + 1080x1350 초고화질 렌더링
+  - 상단 공식 헤더['💖 아우라 AI 데이팅 | 현재 100% 무료 남녀 황금 성비율', '02 / 05 >'] + 1080x1350 초고화질 렌더링
 """
 
 import os
@@ -201,8 +201,8 @@ class AuraCardnewsS2Topic8Builder:
     <!-- Brand Badge -->
     <div class="inline-flex items-center gap-3 bg-slate-900/90 backdrop-blur-md border border-white/25 rounded-full py-2.5 px-5 shadow-2xl">
       <span class="text-lg">💖</span>
-      <span class="text-base font-black tracking-wider text-white">AURA</span>
-      <span class="text-sm font-bold text-pink-400 pl-3 border-l border-white/30">50:50 남녀 황금 성비율</span>
+      <span class="text-base font-black tracking-wider text-white">아우라 AI 데이팅</span>
+      <span class="text-sm font-bold text-pink-400 pl-3 border-l border-white/30">현재 100% 무료</span>
     </div>
 
     <!-- Page Index -->

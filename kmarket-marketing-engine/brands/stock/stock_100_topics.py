@@ -1,831 +1,942 @@
 # -*- coding: utf-8 -*-
 """
-📈 StockMaster 100대 마스터 토픽 풀 (100 Master Topics Pool)
-============================================================
-- 브랜드: StockMaster AI (주식 AI 분석 & 퀀트 & 포트폴리오 & 뇌동매매 방지)
-- 타깃: 2040 스마트 서학개미·동학개미, 직장인 적립식 투자자, AI 퀀트 관심자
-- 6대 핵심 카테고리:
-  1. korea_market     : 국내 대형주 / 반도체(삼성전자·SK하이닉스) / 밸류업 저PBR / 2차전지
-  2. korea_dividend_growth : 국내 고배당주(금융지주·맥쿼리·통신주) / 배당성장 / ISA 절세
-  3. korea_theme_leaders   : 코스피·코스닥 주도주(2차전지·바이오·로봇·방산) / 체결강도 120% / 수급 유입
-  4. macro_economy    : 미국 연준(Fed) FOMC 금리 / 원달러 환율 / CPI 물가지표 / 경기침체
-  5. chart_financials : 초보 재무제표(PER·PBR·ROE) / 이동평균선 / 지지·저항선 / DART 공시
-  6. quant_risk       : 뇌동매매 방지 멘탈 / 손절매 기준 / AI 퀀트 알고리즘 / 자산배분
+📈 StockMaster AI 100대 마스터 토픽 풀 (100 Master Topics Pool - 100% 대한민국 국내 증시 전담)
+=============================================================================================
+- 브랜드: StockMaster AI (주식 AI 계량 분석 & 10분 전광판 & 뇌동매매 방지 VETO & 손절선)
+- 타깃: 2050 스마트 개미, 직장인 적립식·스윙 투자자, 뇌동매매 탈출 희망자
+- 100% 대한민국 국내 증시(코스피/코스닥) & 우리 웹앱(stockmaster-ai.vercel.app) 365일 상시 고정 7대 영역 1:1 연동:
+  1. realtime_rank1  (15개): 🏆 [실시간 1위 TOP PICK] 체결강도 120% 돌파 & 당일 주도주 수급 해석
+  2. valid_entry     (15개): 🟢 [진입유효 탭] 외국인 순매수 & 큰손 블록오더 70%+ 수급 유입 종목
+  3. veto_risk       (15개): 🔴 [배제(VETO) 탭] 이격과열 경고 & 역배열 물타기 금지 뇌동매매 차단
+  4. turning_point   (15개): ✨ [변곡점·신고가 탭] 골든크로스 & 거래량 급증 바닥 탈출 종목
+  5. macro_stress    (10개): 📊 [매크로 스트레스 지수] 환율(USD/KRW)·유가 연동 외인 수급 예측
+  6. price_boundary  (15개): 🎯 [손절선(SL)·목표선(TP)] ATR 기반 과학적 가격 타점 계산기
+  7. quant_guide     (15개): 💡 [8대 퀀트 리스크 가이드] ROE/PBR 밸류업 & DART 공시 건전성 진단
 """
 
+import sys
 from typing import List, Dict, Any, Optional
 
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 STOCK_100_TOPICS: List[Dict[str, Any]] = [
-    # ── [카테고리 1: korea_market (국내 대형주 / 반도체 / 밸류업 / 섹터)] ──
+    # ── [1. realtime_rank1 : 🏆 실시간 1위 TOP PICK & 당일 주도주 수급 (15개)] ──
     {
         "id": 1,
-        "category": "korea_market",
-        "title": "삼성전자 vs SK하이닉스: HBM(고대역폭 메모리) 승부처와 AI 반도체 수혜주",
-        "intent": "HBM3E 납품 경쟁과 글로벌 AI 반도체 밸류체인 속 두 기업의 실적 및 밸류에이션 비교",
-        "app_feature": "StockMaster AI 반도체 수급 레이더",
-        "tags": ["삼성전자주가", "SK하이닉스HBM", "AI반도체주", "국내주식전망"]
+        "category": "realtime_rank1",
+        "title": "오늘 AI 전광판 실시간 1위 주도주와 체결강도 120% 돌파의 숨은 의미",
+        "intent": "코스피·코스닥 350개 종목 중 실시간 계량 1위 종목의 수급 폭발과 장중 진입 타점 분석",
+        "app_feature": "StockMaster AI 실시간 10분 계량 전광판 1위 카드",
+        "app_action_mode": "rank1",
+        "tags": ["실시간주도주", "체결강도120", "외국인순매수", "StockMasterAI"]
     },
     {
         "id": 2,
-        "category": "korea_market",
-        "title": "정부 밸류업 프로그램 저PBR 수혜주: 금융지주·지주사 배당 확대 분석",
-        "intent": "PBR 1배 미만 기업들의 자사주 소각 및 주주환원율 상향이 주가에 미치는 영향",
-        "app_feature": "StockMaster 저PBR 밸류업 스크리너",
-        "tags": ["기업밸류업", "저PBR관련주", "금융주배당", "주주환원율"]
+        "category": "realtime_rank1",
+        "title": "전광판 1위 종목의 외국계 순매수액 급증: 큰손들의 장중 매집 시그널 포착법",
+        "intent": "외국계 증권사 창구로 쏟아지는 억 단위 순매수액을 실시간으로 추적하는 기술",
+        "app_feature": "StockMaster AI 외국계 순매수 실시간 트래커",
+        "app_action_mode": "rank1",
+        "tags": ["외국인순매수", "수급매매기법", "외국계창구", "주식수급분석"]
     },
     {
         "id": 3,
-        "category": "korea_market",
-        "title": "2차전지 양극재 기업 주가 반등 조건: 전기차 캐즘(Chasm) 탈출 시점은 언제?",
-        "intent": "에코프로, 포스코퓨처엠 등 양극재 기업의 리튬 가격 연동 실적 턴어라운드 전망",
-        "app_feature": "StockMaster 2차전지 밸류체인 진단",
-        "tags": ["2차전지주가", "에코프로전망", "전기차캐즘", "리튬가격"]
+        "category": "realtime_rank1",
+        "title": "대량 체결 블록오더 비중 70% 돌파: 개미가 절대 만들 수 없는 세력 매수세",
+        "intent": "1억 원 이상 뭉칫돈 주문인 블록오더 비중이 주가 단기 폭발에 미치는 영향",
+        "app_feature": "StockMaster AI 블록오더 실시간 비중 분석",
+        "app_action_mode": "rank1",
+        "tags": ["블록오더", "세력매집", "대량체결", "장중급등주"]
     },
     {
         "id": 4,
-        "category": "korea_market",
-        "title": "K-방산 빅4(한화에어로·현대로템·KAI·LIG넥스원) 수주 잔고 100조의 의미",
-        "intent": "유럽 및 중동 수출 계약과 글로벌 지정학적 리스크 속 방산주의 실적 지속성",
-        "app_feature": "StockMaster 방산 섹터 모멘텀 리포트",
-        "tags": ["방산주추천", "한화에어로스페이스", "현대로템수주", "K방산전망"]
+        "category": "realtime_rank1",
+        "title": "체결 가속도(+%p) 급증 시그널: 정체되던 호가창이 갑자기 불타오르는 순간",
+        "intent": "체결강도의 단순 수치가 아닌 가속도(+2.5%p 이상) 변화를 통한 급등 초입 포착",
+        "app_feature": "StockMaster AI 체결 가속도 감지기",
+        "app_action_mode": "rank1",
+        "tags": ["체결가속도", "호가창매매", "급등초입", "단타타점"]
     },
     {
         "id": 5,
-        "category": "korea_market",
-        "title": "바이오/제약 임상 성공과 주가 폭등의 명암: 유한양행 레이저티닙 FDA 승인 교훈",
-        "intent": "신약 개발 기술수출(L/O) 계약 구조와 임상 3상 데이터 해석하는 노하우",
-        "app_feature": "StockMaster 바이오 파이프라인 분석기",
-        "tags": ["바이오주투자", "유한양행렉라자", "신약임상성공", "제약바이오전망"]
+        "category": "realtime_rank1",
+        "title": "전광판 1위 종목의 스윙 목표선(SWING TP) 도달 시 분할 익절하는 정석 원칙",
+        "intent": "AI가 산출한 1차 목표선 도달 시 욕심부리지 않고 50% 수익 실현하는 룰",
+        "app_feature": "StockMaster AI 스윙 목표선 계산 카드",
+        "app_action_mode": "rank1",
+        "tags": ["스윙목표가", "분할익절", "수익실현원칙", "주식매도타이밍"]
     },
     {
         "id": 6,
-        "category": "korea_market",
-        "title": "조선주 슈퍼사이클 도래: 친환경 LNG선 수주와 카타르 프로젝트 수혜",
-        "intent": "HD현대중공업, 삼성중공업, 한화오션 3사의 신조선가 지수 상승 및 흑자 전환",
-        "app_feature": "StockMaster 조선 업황 트래커",
-        "tags": ["조선주슈퍼사이클", "HD현대중공업", "신조선가지수", "LNG선수주"]
+        "category": "realtime_rank1",
+        "title": "청산 손절선(EXIT SL) 이탈 시 칼손절의 미학: 내 계좌 원금을 지키는 방탄 룰",
+        "intent": "1위 주도주라 해도 시장 급락 시 손절선을 건드리면 기계적으로 잘라내는 생존법",
+        "app_feature": "StockMaster AI 청산 손절선 경보",
+        "app_action_mode": "rank1",
+        "tags": ["손절선설정", "원금보호", "기계적손절", "스탑로스"]
     },
     {
         "id": 7,
-        "category": "korea_market",
-        "title": "자동차 현대차·기아 호실적에도 주가 저평가된 이유: 하이브리드 vs EV 전략",
-        "intent": "역대 최대 영업이익 달성 배경과 글로벌 완성차 밸류에이션 리레이팅 가능성",
-        "app_feature": "StockMaster 현대차 기아 적정주가 계산기",
-        "tags": ["현대차주가", "기아배당", "하이브리드차수혜", "자동차주전망"]
+        "category": "realtime_rank1",
+        "title": "장 시작 10분(09:10) 전광판 1위 vs 오후 2시(14:00) 1위의 결정적 차이",
+        "intent": "시초가 가짜 펌핑에 속지 않고 오후장까지 힘이 유지되는 진짜 주도주 판별법",
+        "app_feature": "StockMaster AI 시간대별 전광판 추이",
+        "app_action_mode": "rank1",
+        "tags": ["시초가매매", "오후장주도주", "종가베팅", "가짜급등구별"]
     },
     {
         "id": 8,
-        "category": "korea_market",
-        "title": "공모주 청약(IPO) 상장 첫날 따따블(400%) 매도 전략: 기관 의무보유확약 비율 확인",
-        "intent": "수요예측 결과표에서 경쟁률과 확약 비율을 분석해 첫날 차익 실현하는 방법",
-        "app_feature": "StockMaster 공모주 청약 알림 & 분석",
-        "tags": ["공모주청약", "IPO따따블", "기관의무보유확약", "공모주매도타이밍"]
+        "category": "realtime_rank1",
+        "title": "거래대금 1,000억 이상 터진 전광판 1위: 시장의 모든 돈이 몰리는 대장주 매매",
+        "intent": "풍부한 유동성으로 슬리피지 없이 안전하게 큰 금액을 운용하는 대형 주도주 공략법",
+        "app_feature": "StockMaster AI 거래대금 상위 레이더",
+        "app_action_mode": "rank1",
+        "tags": ["거래대금상위", "시장대장주", "안전한단타", "유동성매매"]
     },
     {
         "id": 9,
-        "category": "korea_market",
-        "title": "외국인·기관 순매수 수급 추종 매매법: 검은 머리 외국인 거르는 필터링 팁",
-        "intent": "프로그램 매매와 대차잔고 추이, 연기금 연속 순매수 종목 포착 공식",
-        "app_feature": "StockMaster 실시간 수급 포착기",
-        "tags": ["외국인순매수", "기관수급주", "연기금매수종목", "수급매매기법"]
+        "category": "realtime_rank1",
+        "title": "코스피 대형주 vs 코스닥 중소형주: 전광판 1위 종목별 변동성 대응 전략",
+        "intent": "지수 대형주의 묵직한 추세 추종과 코스닥 급등주의 빠른 손절선 관리법 비교",
+        "app_feature": "StockMaster AI 시장별 랭킹 분리 필터",
+        "app_action_mode": "rank1",
+        "tags": ["코스피대형주", "코스닥급등주", "변동성관리", "투자전략비교"]
     },
     {
         "id": 10,
-        "category": "korea_market",
-        "title": "금투세(금융투자소득세) 폐지 논란과 연말 대주주 양도세 50억원 회피 물량",
-        "intent": "12월 결산법인 배당락일 전후 큰손들의 매도 패턴과 1월 효과(January Effect)",
-        "app_feature": "StockMaster 연말 세금 이벤트 대응 캘린더",
-        "tags": ["금투세폐지", "대주주양도세", "1월효과", "배당락일매매"]
+        "category": "realtime_rank1",
+        "title": "전광판 1위 종목의 퀀트 총점 140점 만점 구조: 수급·차트·재무 가중치 해부",
+        "intent": "체결강도(40점), 외인기관(45점), 정배열(15점), 저PBR(15점) 등 AI 종합 배점표",
+        "app_feature": "StockMaster AI 계량 가중치 분석표",
+        "app_action_mode": "rank1",
+        "tags": ["퀀트점수", "종합계량분석", "AI종목진단", "수급가중치"]
     },
     {
         "id": 11,
-        "category": "korea_market",
-        "title": "원자력 발전(K-원전) 체코 수주 잭팟: 두산에너빌리티와 한전기술 수혜 분석",
-        "intent": "SMR(소형 모듈 원자로) 시장 개화와 글로벌 탈탄소 원전 르네상스 투자",
-        "app_feature": "StockMaster 원전 섹터 밸류체인 지도",
-        "tags": ["체코원전수주", "두산에너빌리티", "SMR관련주", "원자력테마주"]
+        "category": "realtime_rank1",
+        "title": "전광판 1위 종목의 '⚡ 수급 가속 특례' 배지가 떴을 때 장중 상한가 확률",
+        "intent": "단순 거래량이 아닌 장중 호가 공백을 메우며 수급이 가속되는 특례 조건 분석",
+        "app_feature": "StockMaster AI 수급 가속 특례 배지",
+        "app_action_mode": "rank1",
+        "tags": ["수급가속특례", "상한가포착", "급등주패턴", "세력주포착"]
     },
     {
         "id": 12,
-        "category": "korea_market",
-        "title": "전력기기·변압기(HD현대일렉트릭, 효성중공업) 미국 AI 데이터센터 전력망 특수",
-        "intent": "AI 데이터센터 전력 소비 폭증으로 인한 노후 전력망 교체 슈퍼사이클",
-        "app_feature": "StockMaster AI 전력망 인프라 분석",
-        "tags": ["전력기기대장주", "HD현대일렉트릭", "변압기수출", "AI데이터센터전력"]
+        "category": "realtime_rank1",
+        "title": "전광판 1~3위 종목의 업종(섹터) 쏠림 현상으로 당일 주도 테마 1초 만에 읽기",
+        "intent": "상위권에 반도체나 2차전지, 바이오가 몰릴 때 섹터 전체로 확산되는 순환매 매매",
+        "app_feature": "StockMaster AI 실시간 섹터 쏠림 분석",
+        "app_action_mode": "rank1",
+        "tags": ["주도섹터", "테마순환매", "업종대장주", "섹터트렌드"]
     },
     {
         "id": 13,
-        "category": "korea_market",
-        "title": "엔터주(하이브, SM, JYP) 실적 바닥 찍었을까? 신인 아이돌 데뷔와 음원 IP 가치",
-        "intent": "멀티레이블 리스크 극복과 글로벌 팬덤 플랫폼(위버스 등) 수익 다각화 점검",
-        "app_feature": "StockMaster K-엔터 IP 모멘텀 진단",
-        "tags": ["엔터주투자", "하이브주가", "JYP실적", "KPOP관련주"]
+        "category": "realtime_rank1",
+        "title": "전일 대비 갭상승(Gap-Up)한 전광판 1위: 시초가 추격 매수 vs 1차 눌림목 대기",
+        "intent": "갭을 메우러 내려오는 5분봉 지지 확인 후 진입하여 승률 80% 만드는 법",
+        "app_feature": "StockMaster AI 갭상승 눌림목 판독기",
+        "app_action_mode": "rank1",
+        "tags": ["갭상승매매", "눌림목매수", "시초가전략", "단기반등"]
     },
     {
         "id": 14,
-        "category": "korea_market",
-        "title": "게임주 신작 모멘텀 매매법: 출시 1달 전 매도해야 수익 나는 공식",
-        "intent": "사전 예약자 수와 출시 당일 앱스토어 매출 순위가 주가에 미치는 전형적 패턴",
-        "app_feature": "StockMaster 게임 신작 캘린더 분석",
-        "tags": ["게임주매매전략", "신작모멘텀", "게임대장주", "크래프톤엔씨소프트"]
+        "category": "realtime_rank1",
+        "title": "전광판 TOP 3 분산 투자 공식: 몰빵 투자 끝내고 계좌 우상향 만드는 법",
+        "intent": "1위, 2위, 3위 주도주에 33%씩 비중을 분산하여 하방 리스크를 줄이는 포트폴리오",
+        "app_feature": "StockMaster AI TOP3 포트폴리오 빌더",
+        "app_action_mode": "rank1",
+        "tags": ["분산투자", "포트폴리오구성", "몰빵금지", "계좌우상향"]
     },
     {
         "id": 15,
-        "category": "korea_market",
-        "title": "화장품 OEM/ODM(한국콜마, 코스맥스) 미국 아마존 인디 브랜드 열풍 수혜",
-        "intent": "올리브영 및 북미 수출 급증으로 사상 최대 실적 행진을 이어가는 화장품주",
-        "app_feature": "StockMaster K-뷰티 수출 데이터 분석",
-        "tags": ["화장품관련주", "한국콜마", "코스맥스", "인디뷰티수출"]
-    },
-    {
-        "id": 16,
-        "category": "korea_market",
-        "title": "음식료주 불닭볶음면 삼양식품 주가 10배 폭등의 비결: 글로벌 K-푸드 수출 분석",
-        "intent": "내수 중심 산업에서 해외 매출 비중 70% 돌파 기업으로 탈바꿈한 밸류에이션 재평가",
-        "app_feature": "StockMaster K-푸드 수출액 트래커",
-        "tags": ["삼양식품불닭", "K푸드수출", "음식료주식", "해외수출성장주"]
+        "category": "realtime_rank1",
+        "title": "직장인을 위한 장 마감 후 전광판 1위 분석법: 퇴근 후 내일 시초가 예약 매수 세팅",
+        "intent": "장중 HTS를 볼 수 없는 직장인이 당일 1위 수급 종목으로 다음 날 수익 내는 루틴",
+        "app_feature": "StockMaster AI 직장인 퇴근 리포트",
+        "app_action_mode": "rank1",
+        "tags": ["직장인주식루틴", "예약매매", "퇴근후주식", "내일시초가"]
     },
 
-    # ── [카테고리 2: us_dividend_tech (미국 배당주 / 빅테크 M7 / 절세)] ──
+    # ── [2. valid_entry : 🟢 진입유효 탭 & 큰손 블록오더 순매수 (15개)] ──
+    {
+        "id": 16,
+        "category": "valid_entry",
+        "title": "[🟢 진입유효] 필터의 절대 원칙: AI가 350개 종목 중 안전한 종목만 남기는 법",
+        "intent": "수급 가속, 정배열 추세, 재무 건전성 3박자를 통과한 종목만 필터링하는 원리",
+        "app_feature": "StockMaster AI [🟢 진입유효] 실시간 필터 버튼",
+        "app_action_mode": "valid_entry",
+        "tags": ["진입유효", "종목스크리닝", "안전한종목", "AI종목선정"]
+    },
     {
         "id": 17,
-        "category": "us_dividend_tech",
-        "title": "SCHD(슈드) vs JEPI(제피) 배당 ETF 비교: 월배당 파이프라인 누구를 담아야 할까?",
-        "intent": "배당 성장률 중심의 SCHD와 고배당 커버드콜 JEPI의 연령대별 최적 포트폴리오",
-        "app_feature": "StockMaster 배당 ETF 백테스팅 계산기",
-        "tags": ["SCHD배당금", "JEPI월배당", "미국배당ETF", "배당성장주"]
+        "category": "valid_entry",
+        "title": "외국인·기관 쌍끌이 순매수 종목만 쏙쏙 골라내는 [🟢 진입유효] 탭 활용법",
+        "intent": "개미들의 매도세를 받아내며 큰손들이 주가를 밀어 올리는 쌍끌이 종목 발굴",
+        "app_feature": "StockMaster AI 쌍끌이 수급 자동 추출",
+        "app_action_mode": "valid_entry",
+        "tags": ["쌍끌이순매수", "기관외인매집", "주도주포착", "수급유입"]
     },
     {
         "id": 18,
-        "category": "korea_market",
-        "title": "코스피·코스닥 AI 반도체 공급망 대장주: HBM·CXL·유리기판 관련주 실시간 수급 진단",
-        "intent": "국내 AI 반도체 소부장 대장주 외국인/기관 수급 및 퀀트 적정주가 분석",
-        "app_feature": "StockMaster 국내 반도체 수급 생태계 분석",
-        "tags": ["AI반도체관련주", "HBM소부장", "CXL관련주", "코스피수급"]
+        "category": "valid_entry",
+        "title": "이동평균선 20일선 황금 정배열에서 뜬 [🟢 진입유효]: 추세 매매의 정석",
+        "intent": "역배열 하락 위험 없이 20일선 지지를 받으며 우상향하는 종목 공략 기법",
+        "app_feature": "StockMaster AI 이평선 정배열 감지기",
+        "app_action_mode": "valid_entry",
+        "tags": ["정배열차트", "20일선지지", "추세추종매매", "골든크로스"]
     },
     {
         "id": 19,
-        "category": "us_dividend_tech",
-        "title": "미국주식 양도소득세 250만원 공제 100% 활용법: 손실 종목 손익통산과 양도세 절세",
-        "intent": "연말 마이너스 수익률 종목을 매도 후 재매수하여 양도세 22% 합법적으로 줄이기",
-        "app_feature": "StockMaster 미국주식 양도세 절세 시뮬레이터",
-        "tags": ["미국주식양도세", "250만원공제", "손익통산절세", "해외주식세금"]
+        "category": "valid_entry",
+        "title": "거래대금 500억 이상 터진 [🟢 진입유효] 우량주: 거래량 없는 잡주 거르기",
+        "intent": "호가창이 얇아 매도하기 힘든 부실주를 거르고 환금성 높은 대형 우량주만 매매",
+        "app_feature": "StockMaster AI 거래대금 필터링",
+        "app_action_mode": "valid_entry",
+        "tags": ["거래대금우량주", "잡주필터링", "환금성", "대형주매매"]
     },
     {
         "id": 20,
-        "category": "us_dividend_tech",
-        "title": "마이크로소프트(MSFT)와 오픈AI: B2B 클라우드 애저(Azure) 수익화 가속도",
-        "intent": "코파일럿(Copilot) 유료 구독 모델 안착과 엔터프라이즈 AI 시장 점유율 분석",
-        "app_feature": "StockMaster 빅테크 B2B AI 진단",
-        "tags": ["마이크로소프트주가", "오픈AI수혜주", "애저클라우드", "코파일럿수익"]
+        "category": "valid_entry",
+        "title": "[🟢 진입유효] 리스트 중 체결강도 130% 초과 종목: 당일 장중 시세 분출 1순위",
+        "intent": "진입유효 종목 중에서도 매수세가 매도세를 압도하는 초강세 종목 선별 공식",
+        "app_feature": "StockMaster AI 체결강도 상위 정렬",
+        "app_action_mode": "valid_entry",
+        "tags": ["체결강도130", "초강세종목", "당일급등", "매수우위"]
     },
     {
         "id": 21,
-        "category": "us_dividend_tech",
-        "title": "애플(AAPL) 애플 인텔리전스(Apple Intelligence) 출시와 아이폰 교체 슈퍼사이클",
-        "intent": "온디바이스 AI 탑재 신형 기기 출시가 서비스 부문 및 하드웨어 매출에 미치는 파급력",
-        "app_feature": "StockMaster 애플 온디바이스 AI 리포트",
-        "tags": ["애플주가전망", "애플인텔리전스", "아이폰교체주기", "온디바이스AI"]
+        "category": "valid_entry",
+        "title": "바닥권에서 첫 번째로 뜬 [🟢 진입유효]: 3분할 매수로 안전하게 평단가 맞추기",
+        "intent": "기나긴 조정을 끝내고 최초로 AI 진입 신호가 뜬 종목의 1차, 2차 분할 매수법",
+        "app_feature": "StockMaster AI 바닥권 최초 진입 시그널",
+        "app_action_mode": "valid_entry",
+        "tags": ["바닥권매수", "3분할매수", "평단가관리", "안전투자"]
     },
     {
         "id": 22,
-        "category": "us_dividend_tech",
-        "title": "리얼티인컴(O) 월배당 리츠(REITs): 미국 상업용 부동산 위기에도 든든한 이유",
-        "intent": "월마트, 세븐일레븐 등 트리플 넷 리스(NNN) 구조와 금리 인하기 리츠 주가 탄력성",
-        "app_feature": "StockMaster 미국 리츠 배당 진단",
-        "tags": ["리얼티인컴배당", "미국월배당주", "상업용부동산리츠", "배당귀족주"]
+        "category": "valid_entry",
+        "title": "[🟢 진입유효] 종목의 스윙 목표 수익률: 5~10% 안정적 차익 실현 설계법",
+        "intent": "단타의 피로감을 줄이고 3~5일 스윙으로 계좌를 꾸준히 불려 나가는 노하우",
+        "app_feature": "StockMaster AI 스윙 목표선 자동 제시",
+        "app_action_mode": "valid_entry",
+        "tags": ["스윙투자", "목표수익률", "차익실현", "단기스윙"]
     },
     {
         "id": 23,
-        "category": "us_dividend_tech",
-        "title": "테슬라(TSLA) 로보택시와 FSD(완전자율주행): 단순 자동차 회사가 아닌 AI 로봇 기업",
-        "intent": "옵티머스 휴머노이드 로봇 상용화 로드맵과 자율주행 소프트웨어 구독 매출 비중",
-        "app_feature": "StockMaster 테슬라 AI 밸류에이션",
-        "tags": ["테슬라로보택시", "FSD완전자율주행", "옵티머스로봇", "TSLA주가전망"]
+        "category": "valid_entry",
+        "title": "상승장에서 [🟢 진입유효] 종목을 끝까지 쥐고 가는 트레일링 스탑의 마법",
+        "intent": "일찍 팔아서 배 아픈 실수를 방지하고 최고점 대비 -3% 하락 시 익절하는 기술",
+        "app_feature": "StockMaster AI 트레일링 스탑 가이드",
+        "app_action_mode": "valid_entry",
+        "tags": ["트레일링스탑", "수익극대화", "추세홀딩", "익절관리"]
     },
     {
         "id": 24,
-        "category": "us_dividend_tech",
-        "title": "알파벳(구글 GOOGL) 검색 독점 반독점 소송 리스크와 제미나이(Gemini) AI 역습",
-        "intent": "미 법무부 크롬/안드로이드 분할 요구 리스크와 유튜브 쇼츠 및 클라우드 실적 성장",
-        "app_feature": "StockMaster 구글 반독점 리스크 진단",
-        "tags": ["구글주가전망", "알파벳반독점", "제미나이AI", "유튜브광고수익"]
+        "category": "valid_entry",
+        "title": "코스피 지수 폭락장에서도 [🟢 진입유효]를 유지하는 방어주의 숨은 비밀",
+        "intent": "시장 하락 시 기관과 외국인의 피난처가 되는 경기방어주·고배당주 포착법",
+        "app_feature": "StockMaster AI 시장 역행 방어주 레이더",
+        "app_action_mode": "valid_entry",
+        "tags": ["폭락장방어주", "시장역행주", "배당방어주", "하락장대응"]
     },
     {
         "id": 25,
-        "category": "us_dividend_tech",
-        "title": "메타(META) 라마(Llama) 오픈소스 AI 전략과 맞춤형 디지털 광고 회복",
-        "intent": "스마트 안경(레이밴 메타)의 폭발적 반응과 메타버스 투자 적자 폭 축소",
-        "app_feature": "StockMaster 메타 AI 광고 수익성 분석",
-        "tags": ["메타플랫폼스주가", "라마오픈소스", "스마트글래스", "디지털광고수혜"]
+        "category": "valid_entry",
+        "title": "[🟢 진입유효] 종목 중 ROE(자기자본이익률) 10% 이상 알짜배기 기업 검증법",
+        "intent": "단순 차트 테마주가 아닌 진짜 돈을 잘 버는 펀더멘털 우량 기업 2중 필터링",
+        "app_feature": "StockMaster AI ROE 펀더멘털 검증",
+        "app_action_mode": "valid_entry",
+        "tags": ["ROE우량주", "펀더멘털검증", "진짜우량주", "가치성장주"]
     },
     {
         "id": 26,
-        "category": "us_dividend_tech",
-        "title": "아마존(AMZN) AWS 클라우드 성장 재가속과 프라임 리테일 물류 효율화",
-        "intent": "자체 AI 가속기 칩 트레이니엄(Trainium) 도입과 클라우드 영업이익률 개선",
-        "app_feature": "StockMaster 아마존 클라우드 리포트",
-        "tags": ["아마존주가", "AWS클라우드실적", "트레이니엄칩", "이커머스마진"]
+        "category": "valid_entry",
+        "title": "[🟢 진입유효] 탭에서 PBR 1배 미만 밸류업 저평가 우량주 골라내기",
+        "intent": "주가가 청산가치보다 저렴하면서 수급까지 붙어 올라가는 저PBR 수혜주 매매",
+        "app_feature": "StockMaster AI 저PBR 밸류업 정렬",
+        "app_action_mode": "valid_entry",
+        "tags": ["저PBR관련주", "기업밸류업", "저평가우량주", "가치투자"]
     },
     {
         "id": 27,
-        "category": "us_dividend_tech",
-        "title": "배당 귀족주(50년 연속 배당 인상): 코카콜라(KO), 존슨앤존슨(JNJ), 프록터앤갬블(PG)",
-        "intent": "경기 침체에도 끄떡없는 필수소비재 글로벌 1위 기업들의 인플레이션 방어력",
-        "app_feature": "StockMaster 배당 귀족주 포트폴리오",
-        "tags": ["배당귀족주", "코카콜라배당금", "존슨앤존슨", "필수소비재투자"]
+        "category": "valid_entry",
+        "title": "시가총액 1조 이상 대형주 중 [🟢 진입유효] 뜬 종목: 직장인 월급 적립식 투자",
+        "intent": "매달 월급날 안정적으로 모아갈 수 있는 코스피 대표 대형주 스크리닝",
+        "app_feature": "StockMaster AI 대형주 진입유효 필터",
+        "app_action_mode": "valid_entry",
+        "tags": ["직장인적립식", "대형주투자", "월급재테크", "우량주적립"]
     },
     {
         "id": 28,
-        "category": "us_dividend_tech",
-        "title": "JEPQ(나스닥 고배당 커버드콜): 연 9~11% 월배당 받으며 원금 깎아먹지 않는 전략",
-        "intent": "커버드콜 옵션 프리미엄 원리와 나스닥 횡보장·상승장에서의 실질 수익률 비교",
-        "app_feature": "StockMaster 커버드콜 옵션 위험 진단",
-        "tags": ["JEPQ배당금", "커버드콜원리", "고배당월배당", "나스닥배당ETF"]
+        "category": "valid_entry",
+        "title": "코스닥 기술성장주 중 [🟢 진입유효] 포착: 단기 탄력 20% 모멘텀 매매",
+        "intent": "바이오, 로봇, AI 팹리스 등 끼 있는 코스닥 성장주의 안전 진입 타이밍",
+        "app_feature": "StockMaster AI 코스닥 모멘텀 레이더",
+        "app_action_mode": "valid_entry",
+        "tags": ["코스닥성장주", "모멘텀매매", "기술성장기업", "단기탄력"]
     },
     {
         "id": 29,
-        "category": "us_dividend_tech",
-        "title": "미국 배당소득세(15.4%) 원천징수와 종합소득세 금융소득종합과세(2,000만원) 기준",
-        "intent": "배당금 연 2,000만원 초과 시 다른 소득과 합산 과세되는 세금 함정 피하기",
-        "app_feature": "StockMaster 금융소득종합과세 계산기",
-        "tags": ["배당소득세15.4", "금융소득종합과세", "배당금2천만원", "절세계좌활용"]
+        "category": "valid_entry",
+        "title": "[🟢 진입유효] 상태가 3일 연속 유지되는 종목의 중기 스윙 승률 분석",
+        "intent": "단발성 수급이 아닌 며칠에 걸쳐 매집이 이어지는 진짜 주도주의 홀딩 전략",
+        "app_feature": "StockMaster AI 연속 수급 유지 트래커",
+        "app_action_mode": "valid_entry",
+        "tags": ["연속수급", "중기스윙", "세력지속매집", "홀딩전략"]
     },
     {
         "id": 30,
-        "category": "us_dividend_tech",
-        "title": "일라이릴리(LLY) 비만치료제(마운자로/젭바운드) 제약업계 최초 시총 1조 달러 도전",
-        "intent": "노보노디스크(위고비)와의 비만약 패권 경쟁과 심혈관·수면무호흡증 적응증 확대",
-        "app_feature": "StockMaster 비만치료제 파이프라인 진단",
-        "tags": ["일라이릴리주가", "비만치료제수혜주", "마운자로위고비", "GLP1관련주"]
+        "category": "valid_entry",
+        "title": "주린이를 위한 [🟢 진입유효] 원클릭 종목 자가진단 3분 루틴",
+        "intent": "아침 9시 30분, 점심 12시 30분 하루 2번 [🟢 진입유효] 버튼 눌러 시장 점검하기",
+        "app_feature": "StockMaster AI 원클릭 자가진단 가이드",
+        "app_action_mode": "valid_entry",
+        "tags": ["주린이루틴", "원클릭진단", "자가진단법", "초보주식공부"]
     },
+
+    # ── [3. veto_risk : 🔴 배제(VETO) 탭 & 뇌동매매 방지 (15개)] ──
     {
         "id": 31,
-        "category": "us_dividend_tech",
-        "title": "버크셔 해서웨이(워런 버핏) 현금 보유액 사상 최대 3,000억 달러: 대폭락 전조?",
-        "intent": "버핏이 애플과 뱅크오브아메리카 주식을 대량 매도하고 단기 국채에 묻어둔 이유",
-        "app_feature": "StockMaster 버크셔 해서웨이 포트폴리오 추적",
-        "tags": ["워런버핏포트폴리오", "버크셔해서웨이", "현금보유액사상최대", "버핏지수"]
+        "category": "veto_risk",
+        "title": "[🔴 배제(VETO)] 필터란 무엇인가? AI가 손실 위험 종목을 원천 차단하는 4대 룰",
+        "intent": "이격과열, 역배열 하락, 공매도 과다, 신용 폭탄 종목에 진입 금지 경보를 때리는 원리",
+        "app_feature": "StockMaster AI [🔴 배제(VETO)] 실시간 필터 버튼",
+        "app_action_mode": "veto_risk",
+        "tags": ["VETO필터", "진입금지경보", "리스크관리", "손실차단"]
     },
     {
         "id": 32,
-        "category": "us_dividend_tech",
-        "title": "미국 대선과 수혜주: 공화당 vs 민주당 정책에 따른 에너지·방산·빅테크 섹터 대응",
-        "intent": "화석연료 규제 완화 vs 신재생에너지 보조금, 법인세율 변화가 S&P500에 미치는 영향",
-        "app_feature": "StockMaster 미국 대선 정책 수혜주 맵",
-        "tags": ["미국대선관련주", "공화당민주당수혜주", "법인세율변화", "IRA보조금"]
+        "category": "veto_risk",
+        "title": "5일선/20일선 이격도 115% 초과 '이격과열 경고': 상투 잡는 고점 매수 피하기",
+        "intent": "주가가 단기 급등하여 단기 이평선과 너무 벌어졌을 때 발생하는 급락 폭탄 방지",
+        "app_feature": "StockMaster AI 이격과열 자동 경보",
+        "app_action_mode": "veto_risk",
+        "tags": ["이격과열", "고점상투피하기", "이격도분석", "추격매수금지"]
     },
-
-    # ── [카테고리 3: etf_index (지수 추종 ETF / 채권 / 월적립식 복리)] ──
     {
         "id": 33,
-        "category": "etf_index",
-        "title": "S&P 500 ETF 삼총사(SPY vs IVV vs VOO): 수수료 0.03%의 복리 마법",
-        "intent": "운용 보수 차이와 유동성, 장기 적립식 투자자가 VOO나 SPLG를 골라야 하는 이유",
-        "app_feature": "StockMaster S&P 500 ETF 수수료 비교기",
-        "tags": ["SPY비교", "VOO수수료", "IVV비교", "SP500적립식투자"]
+        "category": "veto_risk",
+        "title": "역배열 하락 추세 종목에 '물타기 금지' 🔴 VETO가 뜨는 냉정한 이유",
+        "intent": "떨어지는 칼날을 잡으며 평단가를 낮추려다 계좌가 반토막 나는 물타기 함정 탈출",
+        "app_feature": "StockMaster AI 물타기 금지 VETO 감지",
+        "app_action_mode": "veto_risk",
+        "tags": ["물타기금지", "역배열추세", "떨어지는칼날", "계좌원금보호"]
     },
     {
         "id": 34,
-        "category": "etf_index",
-        "title": "QQQ vs QQM: 나스닥 100 지수 추종 ETF 소액 적립식 투자자를 위한 최선의 선택",
-        "intent": "동일한 나스닥 100 지수를 추종하면서 보수가 더 저렴한 QQM 활용 가이드",
-        "app_feature": "StockMaster 나스닥 적립식 시뮬레이터",
-        "tags": ["QQQ주가", "QQM수수료", "나스닥100ETF", "빅테크지수투자"]
+        "category": "veto_risk",
+        "title": "공매도 비중 10% 이상 과다 종목의 🔴 VETO 경보: 기관 숏 타깃 피하는 법",
+        "intent": "주가 상방이 꽉 막혀 있고 작은 악재에도 투매가 나오는 공매도 집중 종목 회피",
+        "app_feature": "StockMaster AI 공매도 과다 경고",
+        "app_action_mode": "veto_risk",
+        "tags": ["공매도과다", "기관숏포지션", "대차잔고리스크", "투매방지"]
     },
     {
         "id": 35,
-        "category": "etf_index",
-        "title": "월 50만원씩 S&P 500에 20년 복리 투자하면 통장에 얼마가 찍힐까? (과거 30년 백테스트)",
-        "intent": "연평균 수익률 10% 가정 시 원금 1억 2천만원이 3억 8천만원으로 불어나는 수학적 원리",
-        "app_feature": "StockMaster 복리 은퇴자산 계산기",
-        "tags": ["월50만원적립식", "SP500복리수익", "20년장기투자", "경제적자유"]
+        "category": "veto_risk",
+        "title": "신용잔고율 5% 초과 '반대매매 폭탄' 위험 종목: 개미 빚투가 부르는 참사",
+        "intent": "지수 하락 시 아침 8시 40분 하한가 반대매매 매물이 쏟아질 고위험 종목 거르기",
+        "app_feature": "StockMaster AI 신용잔고율 위험 경보",
+        "app_action_mode": "veto_risk",
+        "tags": ["신용잔고율", "반대매매경보", "빚투위험", "하한가폭탄피하기"]
     },
     {
         "id": 36,
-        "category": "etf_index",
-        "title": "미국 장기채 ETF(TLT): 금리 인하기 주가 상승 폭과 월배당 이자 수익 동시 잡기",
-        "intent": "20년물 미국 국채 듀레이션(Duration) 효과와 금리 1%p 하락 시 기대 자본 차익",
-        "app_feature": "StockMaster 채권 금리 듀레이션 계산기",
-        "tags": ["TLT장기채", "미국국채투자", "금리인하채권수혜", "채권월배당"]
+        "category": "veto_risk",
+        "title": "실적 발표 어닝쇼크 발생 시 즉시 🔴 VETO로 전환되는 메커니즘",
+        "intent": "영업이익이 컨센서스 대비 -20% 이상 미달했을 때 AI가 즉시 매수 금지를 내리는 룰",
+        "app_feature": "StockMaster AI 실적 충격 VETO 전환",
+        "app_action_mode": "veto_risk",
+        "tags": ["어닝쇼크", "실적악화", "즉시배제", "컨센서스미달"]
     },
     {
         "id": 37,
-        "category": "etf_index",
-        "title": "레버리지 ETF(TQQQ, SOXL) 장기 보유하면 계좌 녹아내리는 이유: 음의 복리(Vol Drag)",
-        "intent": "3배 레버리지 상품의 횡보장 계좌 침식 원리와 단기 스윙 트레이딩 원칙",
-        "app_feature": "StockMaster 레버리지 음의 복리 시뮬레이터",
-        "tags": ["TQQQ장기투자위험", "SOXL음의복리", "3배레버리지함정", "변동성침식"]
+        "category": "veto_risk",
+        "title": "DART 전자공시 전환사채(CB)·유상증자 폭탄 터진 종목의 🔴 VETO 필터링",
+        "intent": "주식 수가 수천만 주 늘어나 기존 주주 가치가 희석되는 부실 한계기업 회피",
+        "app_feature": "StockMaster AI DART 악재 자동 감지",
+        "app_action_mode": "veto_risk",
+        "tags": ["전환사채CB", "유상증자폭탄", "주주가치희석", "부실기업회피"]
     },
     {
         "id": 38,
-        "category": "etf_index",
-        "title": "국내 상장 미국 ETF(TIGER 미국S&P500, ACE 미국나스닥100): ISA·연금저축 절세 꿀팁",
-        "intent": "직접 환전해 미국 주식 사는 것보다 연금계좌에서 국내 상장 해외 ETF 담는 이유",
-        "app_feature": "StockMaster 절세 계좌 ETF 최적 배분",
-        "tags": ["TIGER미국S&P500", "ACE나스닥100", "연금저축해외ETF", "ISA계좌절세"]
+        "category": "veto_risk",
+        "title": "급등 테마주 불기둥에 뇌동매매(FOMO) 오려 할 때 [🔴 배제] 탭 확인하는 습관",
+        "intent": "빨간 불기둥을 보고 충동적으로 매수 버튼에 손이 갈 때 VETO 사유를 확인하고 참기",
+        "app_feature": "StockMaster AI 뇌동매매 방지 리스크 확인",
+        "app_action_mode": "veto_risk",
+        "tags": ["뇌동매매방지", "FOMO탈출", "충동매수금지", "멘탈관리"]
     },
     {
         "id": 39,
-        "category": "etf_index",
-        "title": "배당 다우존스(한국판 SCHD): TIGER vs SOL vs ACE 배당성장 ETF 삼파전",
-        "intent": "월배당 지급일, 총보수율(기타비용 포함), 추적오차율을 종합 비교한 1위 상품",
-        "app_feature": "StockMaster 한국판 SCHD 3사 실부담비용 비교",
-        "tags": ["한국판SCHD", "TIGER미국배당다우존스", "SOL미국배당", "월배당ETF추천"]
+        "category": "veto_risk",
+        "title": "내가 보유한 종목이 🟢에서 🔴 VETO로 바뀌었을 때 즉시 대처하는 3단계 매뉴얼",
+        "intent": "수급이 이탈하고 지지선이 무너질 때 비중 축소 및 손절매를 실행하는 가이드",
+        "app_feature": "StockMaster AI 보유 종목 상태 변화 알림",
+        "app_action_mode": "veto_risk",
+        "tags": ["상태변화대응", "비중축소", "손절매뉴얼", "계좌방어"]
     },
     {
         "id": 40,
-        "category": "etf_index",
-        "title": "국내 반도체 ETF(KODEX 반도체 vs TIGER Fn반도체TOP10): 삼성전자와 SK하이닉스 비중별 수익률 비교",
-        "intent": "국내 대표 반도체 ETF 구성 종목 및 외국인 수급 비교 분석",
-        "app_feature": "StockMaster 국내 반도체 ETF 수급 분석",
-        "tags": ["KODEX반도체", "TIGER반도체", "국내반도체ETF", "삼성전자SK하이닉스"]
+        "category": "veto_risk",
+        "title": "🔴 VETO(조기 청산 권고)가 떴을 때 수익 보존 익절하는 타이밍 잡기",
+        "intent": "수익 중인 종목이라도 VETO 시그널이 발생하면 미련 없이 차익을 챙기는 원칙",
+        "app_feature": "StockMaster AI 조기 청산 권고 카드",
+        "app_action_mode": "veto_risk",
+        "tags": ["조기청산권고", "수익보존익절", "차익실현", "미련버리기"]
     },
     {
         "id": 41,
-        "category": "etf_index",
-        "title": "금(Gold) 투자 ETF(GLD, IAU)와 은(Silver): 인플레이션과 지정학적 위기 속 안전자산",
-        "intent": "중앙은행들의 금 매집 열풍과 달러 패권 약화 헤지 수단으로서의 금 포트폴리오",
-        "app_feature": "StockMaster 금 은 원자재 트래커",
-        "tags": ["금투자ETF", "GLD주가", "골드바투자비교", "안전자산헤지"]
+        "category": "veto_risk",
+        "title": "깡통 차는 지름길: 🔴 VETO 뜬 동전주·관리종목에 한 방 역전 노리다 상폐당하는 이유",
+        "intent": "주가 1,000원 미만 잡주의 감자·상장폐지 위험을 AI로 사전 차단하는 법",
+        "app_feature": "StockMaster AI 동전주 관리종목 경보",
+        "app_action_mode": "veto_risk",
+        "tags": ["동전주상폐", "관리종목지정", "깡통방지", "상장폐지위험"]
     },
     {
         "id": 42,
-        "category": "etf_index",
-        "title": "인도 니프티 50 ETF(TIGER 인도니프티50): 글로벌 공급망 대체 1순위 인도의 성장성",
-        "intent": "중국을 제치고 세계 1위 인구 대국으로 부상한 인도의 인프라 및 소비재 투자",
-        "app_feature": "StockMaster 신흥국 인도 ETF 리포트",
-        "tags": ["인도니프티50", "인도주식투자", "신흥국ETF", "포스트차이나인도"]
+        "category": "veto_risk",
+        "title": "부채비율 200% 초과 한계기업의 🔴 VETO 경보: 고금리 시대 흑자도산 방지",
+        "intent": "영업이익으로 이자도 못 갚는 좀비기업을 걸러내어 내 소중한 투자금 지키기",
+        "app_feature": "StockMaster AI 한계기업 흑자도산 감지",
+        "app_action_mode": "veto_risk",
+        "tags": ["부채비율과다", "좀비기업", "이자보상배율", "흑자도산방지"]
     },
     {
         "id": 43,
-        "category": "etf_index",
-        "title": "비트코인 현물 ETF(IBIT) 제도권 편입: 주식 계좌에서 디지털 금 담는 법",
-        "intent": "블랙록 IBIT 승인 이후 기관 자금 유입과 4년 반감기 사이클 속 자산 배분 비중",
-        "app_feature": "StockMaster 비트코인 현물 ETF 자금 유출입 추적",
-        "tags": ["비트코인현물ETF", "IBIT블랙록", "가상자산제도권", "암호화폐자산배분"]
+        "category": "veto_risk",
+        "title": "기관 연속 순매도(블록딜/차익실현) 종목의 🔴 VETO 판독법",
+        "intent": "연기금과 투신이 대량으로 물량을 털어내며 개미에게 물량을 넘기는 구간 회피",
+        "app_feature": "StockMaster AI 기관 이탈 감지기",
+        "app_action_mode": "veto_risk",
+        "tags": ["기관이탈", "블록딜", "설거지매물", "외인기관매도"]
     },
     {
         "id": 44,
-        "category": "etf_index",
-        "title": "단기 채권 파킹통장형 ETF(CD금리, KOFR, SOFR): 하루만 넣어도 연 3.5% 이자",
-        "intent": "주식 예수금을 놀리지 않고 매일 복리로 이자가 쌓이는 초단기 금리형 ETF",
-        "app_feature": "StockMaster 파킹형 ETF 금리 비교기",
-        "tags": ["CD금리ETF", "KOFR파킹통장", "SOFR미국달러파킹", "예수금이자늘리기"]
+        "category": "veto_risk",
+        "title": "손실을 눈덩이처럼 키우는 '본전 심리' 치료: 🔴 VETO 종목 과감히 쳐내기",
+        "intent": "원금 회복에 집착하여 더 좋은 주도주로 갈아탈 기회비용을 날리지 않는 멘탈",
+        "app_feature": "StockMaster AI 본전 심리 탈출 계산기",
+        "app_action_mode": "veto_risk",
+        "tags": ["본전심리극복", "기회비용", "종목교체", "과감한손절"]
     },
     {
         "id": 45,
-        "category": "etf_index",
-        "title": "인버스(곱버스) ETF로 하락장에 베팅했다가 망하는 이유: 시장의 장기 우상향 법칙",
-        "intent": "지수 하락에 베팅하는 역방향 ETF의 시간 가치 손실과 리스크 관리 원칙",
-        "app_feature": "StockMaster 인버스 위험도 분석기",
-        "tags": ["인버스ETF위험", "곱버스함정", "하락장베팅주의", "지수우상향원칙"]
+        "category": "veto_risk",
+        "title": "AI VETO 필터로 1년간 계좌 MDD(최대 낙폭)를 반토막 줄이는 원리",
+        "intent": "대박 수익보다 더 중요한 큰 손실을 피함으로써 복리의 마법을 지키는 퀀트 철학",
+        "app_feature": "StockMaster AI MDD 방어 백테스팅",
+        "app_action_mode": "veto_risk",
+        "tags": ["MDD방어", "최대낙폭축소", "복리의마법", "손실통제"]
     },
+
+    # ── [4. turning_point : ✨ 변곡점·신고가 탭 & 골든크로스 (15개)] ──
     {
         "id": 46,
-        "category": "etf_index",
-        "title": "고배당 인프라 펀드(맥쿼리인프라): 도로·항만 통행료로 연 6~7% 배당받는 법",
-        "intent": "인플레이션 연동 통행료 인상과 정부 최소운영수입보장(MRG) 구조의 안전성",
-        "app_feature": "StockMaster 맥쿼리인프라 배당 분석",
-        "tags": ["맥쿼리인프라배당", "고배당주추천", "인프라펀드", "국내월배당주"]
+        "category": "turning_point",
+        "title": "[✨ 변곡점] 탭의 비밀: 기나긴 하락 추세를 끝내고 턴어라운드하는 순간 포착",
+        "intent": "바닥권에서 수급과 차트가 상승으로 방향을 트는 최초의 변곡점 신호 분석",
+        "app_feature": "StockMaster AI [✨ 변곡점] 실시간 필터 버튼",
+        "app_action_mode": "turning_point",
+        "tags": ["변곡점포착", "턴어라운드", "바닥탈출", "추세반전"]
     },
     {
         "id": 47,
-        "category": "etf_index",
-        "title": "원자재 원유(WTI) ETF 롤오버 비용의 함정: 유가가 올라도 계좌가 손실인 까닭",
-        "intent": "콘탱고(Contango)와 백워데이션(Backwardation) 월물 교체 비용의 수학적 구조",
-        "app_feature": "StockMaster 원유 선물 롤오버 손익 분석",
-        "tags": ["원유ETF롤오버", "WTI유가투자", "콘탱고비용", "선물ETF주의점"]
+        "category": "turning_point",
+        "title": "5일선이 20일선을 뚫고 올라서는 골든크로스(Golden Cross) 실시간 포착법",
+        "intent": "단기 이동평균선이 중기선을 돌파하며 강력한 매수세가 유입되는 타이밍",
+        "app_feature": "StockMaster AI 실시간 골든크로스 알림",
+        "app_action_mode": "turning_point",
+        "tags": ["골든크로스", "이평선돌파", "매수타이밍", "골든크로스종목"]
     },
     {
         "id": 48,
-        "category": "etf_index",
-        "title": "올웨더 포트폴리오(레이 달리오) ETF 구성: 주식 30 + 채권 55 + 금/원자재 15",
-        "intent": "어떤 경제 위기나 인플레이션에도 MDD(최대 낙폭) 10% 이내로 방어하는 자산배분",
-        "app_feature": "StockMaster 올웨더 자동 리밸런싱 포트폴리오",
-        "tags": ["올웨더포트폴리오", "레이달리오자산배분", "사계절포트폴리오", "MDD최소화"]
+        "category": "turning_point",
+        "title": "평소 거래량의 500% 폭발한 '거래량 급증' 장대양봉: 세력 매집의 결정적 증거",
+        "intent": "바닥권에서 거래량이 터지며 긴 양봉이 출현할 때 세력의 진입 흔적 읽기",
+        "app_feature": "StockMaster AI 거래량 급증 테스터",
+        "app_action_mode": "turning_point",
+        "tags": ["거래량급증", "장대양봉", "세력매집흔적", "바닥거래량"]
     },
-
-    # ── [카테고리 4: macro_economy (거시경제 / 환율 / 금리 / 물가)] ──
     {
         "id": 49,
-        "category": "macro_economy",
-        "title": "미국 연준(Fed) 기준금리 인하 사이클 시작: 주식, 채권, 부동산 자산별 희비",
-        "intent": "빅컷(0.5%p) vs 베이비컷(0.25%p)과 점도표(Dot Plot)가 예고하는 향후 2년 유동성",
-        "app_feature": "StockMaster FOMC 점도표 시각화",
-        "tags": ["미국기준금리인하", "연준FOMC회의", "점도표해석", "유동성장세"]
+        "category": "turning_point",
+        "title": "52주 신고가 돌파 종목의 매물대 공백: 위가 뻥 뚫려 거침없이 날아가는 원리",
+        "intent": "과거 물려있는 악성 매물이 없어 작은 거래량으로도 신고가를 경신하는 주도주",
+        "app_feature": "StockMaster AI 52주 신고가 필터",
+        "app_action_mode": "turning_point",
+        "tags": ["52주신고가", "매물대공백", "신고가돌파", "주도주매매"]
     },
     {
         "id": 50,
-        "category": "macro_economy",
-        "title": "원/달러 환율 1,350원대 고착화: 환차익 노리는 달러 예금 vs 미국주식 환노출(UH)",
-        "intent": "환노출(UH)과 환헤지(H) ETF의 차이점 및 원화 약세 국면에서의 미국 주식 방어력",
-        "app_feature": "StockMaster 환노출 vs 환헤지 수익률 비교",
-        "tags": ["원달러환율전망", "환노출환헤지차이", "달러투자방법", "환차익비과세"]
+        "category": "turning_point",
+        "title": "쌍바닥(이중 바닥 W자) 완성 후 [✨ 변곡점] 뜬 종목: 승률 85% 반등 매매",
+        "intent": "직전 저점을 깨지 않고 두 번째 바닥을 찍고 올라서는 신뢰도 높은 차트 패턴",
+        "app_feature": "StockMaster AI W자 쌍바닥 감지",
+        "app_action_mode": "turning_point",
+        "tags": ["이중바닥", "쌍바닥패턴", "반등매매", "차트패턴"]
     },
     {
         "id": 51,
-        "category": "macro_economy",
-        "title": "CPI(소비자물가지수)와 PPI(생산자물가지수) 발표 날 미국 증시가 요동치는 이유",
-        "intent": "근원 CPI(Core CPI)와 헤드라인 CPI의 차이 및 인플레이션 고착화 우려 분석",
-        "app_feature": "StockMaster 실시간 거시지표 브리핑",
-        "tags": ["미국CPI발표", "소비자물가지수", "근원CPI", "인플레이션헤지"]
+        "category": "turning_point",
+        "title": "박스권 상단 저항선을 대량 거래량으로 뚫어내는 돌파 매매의 정석",
+        "intent": "수개월간 갇혀 있던 박스권을 뚫고 새로운 시세 영역으로 진입하는 종목 공략",
+        "app_feature": "StockMaster AI 박스권 돌파 감지기",
+        "app_action_mode": "turning_point",
+        "tags": ["박스권돌파", "저항선돌파", "돌파매매", "시세분출"]
     },
     {
         "id": 52,
-        "category": "macro_economy",
-        "title": "장단기 금리차 역전(10년물 - 2년물) 해소: 과거 50년 경기침체(R의 공포) 공식",
-        "intent": "금리 역전 자체가 아니라 역전이 해소되는 순간 주식 시장이 폭락했던 역사적 교훈",
-        "app_feature": "StockMaster 장단기 금리차 실시간 트래커",
-        "tags": ["장단기금리차역전", "R의공포경기침체", "10년물국채금리", "미국증시폭락전조"]
+        "category": "turning_point",
+        "title": "120일선(경기선) 바닥권 돌파 변곡점: 대형 우량주의 6개월 중장기 추세 전환",
+        "intent": "경기 침체를 딛고 실적 개선과 함께 120일선을 상향 돌파하는 우량주 매수 타점",
+        "app_feature": "StockMaster AI 120일선 돌파 추적기",
+        "app_action_mode": "turning_point",
+        "tags": ["120일선돌파", "경기선돌파", "중장기스윙", "실적턴어라운드"]
     },
     {
         "id": 53,
-        "category": "macro_economy",
-        "title": "엔 캐리 트레이드(Yen Carry Trade) 청산 공포: 일본은행(BOJ) 금리 인상의 파장",
-        "intent": "초저금리 엔화 빌려 글로벌 자산에 투자하던 거대 자금의 회수가 촉발한 블랙 먼데이",
-        "app_feature": "StockMaster 글로벌 유동성 리스크 감지기",
-        "tags": ["엔캐리트레이드청산", "일본은행금리인상", "엔화환율전망", "블랙먼데이원인"]
+        "category": "turning_point",
+        "title": "[✨ 변곡점] 뜬 종목 중 큰손 블록오더 유입 비중이 높은 알짜주 선별법",
+        "intent": "개미들의 찔끔찔끔 매수가 아닌 기관·외인의 대량 뭉칫돈이 들어온 변곡점 종목",
+        "app_feature": "StockMaster AI 블록오더 결합 변곡점",
+        "app_action_mode": "turning_point",
+        "tags": ["블록오더변곡점", "큰손매집", "알짜우량주", "수급변곡점"]
     },
     {
         "id": 54,
-        "category": "macro_economy",
-        "title": "미국 고용지표(비농업 고용 NFP, 실업률 삼의 법칙 Sahm Rule) 경기침체 판독법",
-        "intent": "실업률 3개월 이동평균이 최근 1년 최저치 대비 0.5%p 상승 시 침체 진입 공식",
-        "app_feature": "StockMaster 삼의 법칙 침체 확률 판독기",
-        "tags": ["비농업고용지표", "미국실업률", "삼의법칙", "경기침체시그널"]
+        "category": "turning_point",
+        "title": "52주 신고가 돌파 종목의 -3% 트레일링 스탑 익절: 달리는 말에서 안전하게 내리기",
+        "intent": "신고가 행진 중 주가가 고점 대비 3% 꺾이면 자동으로 이익을 챙기는 기법",
+        "app_feature": "StockMaster AI 신고가 트레일링 스탑",
+        "app_action_mode": "turning_point",
+        "tags": ["신고가익절", "트레일링스탑", "달리는말", "수익보존"]
     },
     {
         "id": 55,
-        "category": "macro_economy",
-        "title": "국제 유가(WTI, 브렌트유) 100달러 돌파 시 한국 경제와 주가에 미치는 충격",
-        "intent": "에너지 수입 의존도가 높은 한국 무역수지 적자와 정유주 vs 항공주 수혜/피해",
-        "app_feature": "StockMaster 유가 변동 수혜주 분석",
-        "tags": ["국제유가전망", "WTI유가상승", "정유주주가", "항공주피해"]
+        "category": "turning_point",
+        "title": "거래량 급증 후 거래량 마르며 3일선 지지받는 '1차 눌림목' 매수 타점",
+        "intent": "급등 당일 따라붙지 않고 거래량이 급감하며 숨고르기할 때 매수하는 안전 기술",
+        "app_feature": "StockMaster AI 1차 눌림목 포착",
+        "app_action_mode": "turning_point",
+        "tags": ["눌림목매수타점", "숨고르기", "안전한매수", "거래량급감"]
     },
     {
         "id": 56,
-        "category": "macro_economy",
-        "title": "중국 경제 디플레이션과 부동산 부도 위기: 대중국 수출 비중 높은 한국 기업 리스크",
-        "intent": "헝다·비구이위안 사태 이후 중국 소비 둔화와 한국 화학·철강·화장품 섹터 영향",
-        "app_feature": "StockMaster 대중국 익스포저 위험 진단",
-        "tags": ["중국디플레이션", "중국부동산위기", "대중국수출주", "철강화학주전망"]
+        "category": "turning_point",
+        "title": "악재 뉴스가 쏟아진 후 첫 번째 양봉 변곡점: 역발상 매수의 승패",
+        "intent": "더 이상 나빠질 게 없는 악재 소멸 구간에서 첫 양봉과 함께 수급이 도는 타이밍",
+        "app_feature": "StockMaster AI 악재 소멸 변곡점",
+        "app_action_mode": "turning_point",
+        "tags": ["악재소멸", "역발상매수", "첫양봉", "바닥탈출"]
     },
     {
         "id": 57,
-        "category": "macro_economy",
-        "title": "공포와 탐욕 지수(Fear & Greed Index): 극단적 공포(Extreme Fear)에서 분할 매수하기",
-        "intent": "CNN 공포탐욕 지수 20 이하 구간에서 주식을 쓸어 담았을 때 1년 뒤 수익률 통계",
-        "app_feature": "StockMaster 공포탐욕지수 알림봇",
-        "tags": ["공포와탐욕지수", "CNN피어앤그리드", "바닥매수타이밍", "역발상투자"]
+        "category": "turning_point",
+        "title": "중소형 테마 대장주의 첫 52주 신고가 돌파: 2등주 버리고 대장주만 타는 법",
+        "intent": "테마가 형성될 때 굼뜬 2등주, 3등주를 버리고 가장 탄력 있는 대장주를 잡는 룰",
+        "app_feature": "StockMaster AI 테마 대장주 판독기",
+        "app_action_mode": "turning_point",
+        "tags": ["테마대장주", "52주신고가", "대장주매매", "테마주원칙"]
     },
     {
         "id": 58,
-        "category": "macro_economy",
-        "title": "VIX 지수(변동성 지수, 공포 지수) 40 돌파: 옵션 만기일과 시장 폭락 대응법",
-        "intent": "S&P 500 지수 옵션 변동성을 기반으로 한 시장 변동성 지표의 급등 시 대처 요령",
-        "app_feature": "StockMaster VIX 변동성 경보 시스템",
-        "tags": ["VIX지수급등", "공포지수해석", "변동성완화장치", "폭락장대응법"]
+        "category": "turning_point",
+        "title": "변곡점 시그널과 함께 외국인 순매수가 플러스로 전환된 종목의 파괴력",
+        "intent": "연속 매도를 멈추고 외국인이 사자로 돌아서며 차트 변곡점을 만든 종목",
+        "app_feature": "StockMaster AI 외인 수급 전환 변곡점",
+        "app_action_mode": "turning_point",
+        "tags": ["수급전환", "외인순매수전환", "변곡점시그널", "추세상승"]
     },
     {
         "id": 59,
-        "category": "macro_economy",
-        "title": "달러 인덱스(DXY) 105 돌파 강달러 현상: 신흥국 자금 유출과 코스피 외인 이탈",
-        "intent": "유로, 엔, 파운드 등 6개 주요국 통화 대비 달러 가치가 한국 증시에 미치는 매커니즘",
-        "app_feature": "StockMaster 달러 인덱스 상관관계 분석",
-        "tags": ["달러인덱스DXY", "킹달러수혜주", "외국인자금이탈", "신흥국증시전망"]
+        "category": "turning_point",
+        "title": "헤드앤숄더 하락 패턴을 무력화하고 위로 솟구치는 '속임수 변곡점' 공략",
+        "intent": "차트상 개미 털기 구간을 지나 직전 고점을 재돌파하는 강력한 반등 파동",
+        "app_feature": "StockMaster AI 패턴 실패 반등 감지",
+        "app_action_mode": "turning_point",
+        "tags": ["개미털기", "속임수패턴", "강력반등", "차트속임수"]
     },
     {
         "id": 60,
-        "category": "macro_economy",
-        "title": "한국은행 금융통화위원회 기준금리 동결 vs 인하: 가계부채와 부동산 PF의 딜레마",
-        "intent": "한미 금리차 2.0%p 역대 최대 역전 상황에서 한은 총재의 통화정책 고심 분석",
-        "app_feature": "StockMaster 한은 금통위 전망 리포트",
-        "tags": ["한국은행기준금리", "금통위금리인하", "한미금리차", "가계부채부동산PF"]
+        "category": "turning_point",
+        "title": "매일 아침 9시 30분 [✨ 변곡점] 탭 3분 스캔으로 당일 급등주 찾는 직장인 루틴",
+        "intent": "장 초반 30분 변동성이 잦아든 후 진짜 방향성을 잡는 변곡점 종목 3분 체크법",
+        "app_feature": "StockMaster AI 아침 3분 변곡점 스캐너",
+        "app_action_mode": "turning_point",
+        "tags": ["아침3분루틴", "변곡점스캔", "직장인주식공부", "실시간체크"]
     },
+
+    # ── [5. macro_stress : 📊 상단 매크로 스트레스 & 환율/원자재 연동 (10개)] ──
     {
         "id": 61,
-        "category": "macro_economy",
-        "title": "글로벌 공급망 재편(프렌드쇼어링)과 미국의 리쇼어링 정책: 멕시코·베트남 수혜",
-        "intent": "중국 중심의 서플라이 체인 분절화 속 미국 인접국 제조 시설 투자 기업",
-        "app_feature": "StockMaster 글로벌 니어쇼어링 수혜주 맵",
-        "tags": ["프렌드쇼어링", "리쇼어링정책", "글로벌공급망", "해외생산기지"]
+        "category": "macro_stress",
+        "title": "상단 [USD/KRW 환율] 실시간 연동: 환율 1,350원 돌파 시 코스피 외인 수급 공식",
+        "intent": "원화 약세 시 외국인의 환차손 우려와 대형 수출주(자동차, 반도체) 수혜 명암",
+        "app_feature": "StockMaster AI 상단 USD/KRW 환율 티커",
+        "app_action_mode": "macro_stress",
+        "tags": ["원달러환율", "외인수급영향", "수출주수혜", "환율변동성"]
     },
     {
         "id": 62,
-        "category": "macro_economy",
-        "title": "스태그플레이션(경기침체 속 물가상승): 1970년대 오일쇼크에서 배우는 포트폴리오",
-        "intent": "주식과 채권이 동시에 폭락하는 최악의 경제 시나리오에서 살아남는 원자재와 현금 비중",
-        "app_feature": "StockMaster 스태그플레이션 방어 포트폴리오",
-        "tags": ["스태그플레이션대비", "오일쇼크교훈", "원자재투자비중", "인플레방어주"]
+        "category": "macro_stress",
+        "title": "상단 [DXY 달러 인덱스] 105 돌파 강달러: 신흥국 증시와 한국 주가 반응",
+        "intent": "글로벌 기축통화 달러 강세 시 코스피 지수의 변동성과 안전자산 쏠림 해석",
+        "app_feature": "StockMaster AI DXY 달러 인덱스 티커",
+        "app_action_mode": "macro_stress",
+        "tags": ["달러인덱스", "강달러현상", "신흥국증시", "코스피전망"]
     },
     {
         "id": 63,
-        "category": "macro_economy",
-        "title": "미국 재무부 국채 발행 계획(QRA): 채권 공급 폭탄이 시중 유동성을 흡수할 때",
-        "intent": "재닛 옐런 재무장관의 단기채 vs 장기채 발행 비중 조절이 주식 시장을 살린 원리",
-        "app_feature": "StockMaster 미국 재무부 유동성 지표 추적",
-        "tags": ["미국국채발행QRA", "시중유동성추이", "재무부채권발행", "증시유동성영향"]
+        "category": "macro_stress",
+        "title": "상단 [WTI 국제 유가] 급등락: 국내 화학·정유·항공주의 실시간 실적 연동",
+        "intent": "유가 상승 시 정유주 정제마진 확대와 항공·해운주의 유류비 원가 부담 분석",
+        "app_feature": "StockMaster AI WTI 국제유가 티커",
+        "app_action_mode": "macro_stress",
+        "tags": ["국제유가WTI", "정유주수혜", "항공주리스크", "원자재주식"]
     },
     {
         "id": 64,
-        "category": "macro_economy",
-        "title": "구리(Dr. Copper) 가격 급등: 경기 회복의 신호탄인가, 친환경 인프라 쇼티지인가?",
-        "intent": "산업 전반에 쓰여 경기 바로미터로 불리는 구리 가격과 AI 데이터센터 전력선 수요",
-        "app_feature": "StockMaster 닥터 코퍼 경기 선행 지표",
-        "tags": ["구리가격급등", "닥터코퍼경기선행", "구리관련주", "전력선원자재"]
+        "category": "macro_stress",
+        "title": "상단 [GOLD 금 시세] 최고가 랠리: 인플레이션과 지정학적 위기 속 주식 비중 조절",
+        "intent": "금 가격 폭등 시 주식 시장의 경계 심리와 안전자산 포트폴리오 밸런싱",
+        "app_feature": "StockMaster AI GOLD 금 시세 티커",
+        "app_action_mode": "macro_stress",
+        "tags": ["금시세최고가", "안전자산선호", "인플레이션헤지", "자산배분"]
     },
-
-    # ── [카테고리 5: chart_financials (차트 / 재무제표 / 수급 / 공시)] ──
     {
         "id": 65,
-        "category": "chart_financials",
-        "title": "주식 초보도 3분 만에 마스터하는 재무제표 3대 지표: PER, PBR, ROE 보는 법",
-        "intent": "동일 업종 내 저평가 우량주를 1초 만에 골라내는 기본적 분석 핵심 공식",
-        "app_feature": "StockMaster 원클릭 재무제표 진단표",
-        "tags": ["PER보는법", "PBR해석", "ROE우량주", "주식재무제표초보"]
+        "category": "macro_stress",
+        "title": "[시장 매크로 스트레스 지수] 5점(안정) vs 80점(위험): 구간별 내 현금 비중 세팅법",
+        "intent": "AI가 산출하는 매크로 스트레스 점수에 따라 주식 100% vs 현금 50% 유동적 배분",
+        "app_feature": "StockMaster AI 시장 매크로 스트레스 게이지",
+        "app_action_mode": "macro_stress",
+        "tags": ["매크로스트레스", "현금비중조절", "시장위험도", "계좌자산배분"]
     },
     {
         "id": 66,
-        "category": "chart_financials",
-        "title": "이동평균선 골든크로스(Golden Cross)와 데드크로스: 20일선과 60일선 매매 기법",
-        "intent": "단기 이평선이 장기 이평선을 상향 돌파할 때의 신뢰도와 가짜 신호(속임수) 판별법",
-        "app_feature": "StockMaster AI 골든크로스 자동 포착기",
-        "tags": ["골든크로스매매", "데드크로스손절", "이동평균선매매법", "20일선돌파"]
+        "category": "macro_stress",
+        "title": "매크로 스트레스 지수가 '극단적 공포(80점+)'일 때 역발상 분할 매수의 기술",
+        "intent": "모두가 패닉에 빠져 투매할 때 우량 대형주를 헐값에 주워 담는 워런 버핏식 매수",
+        "app_feature": "StockMaster AI 극단적 공포 역발상 알림",
+        "app_action_mode": "macro_stress",
+        "tags": ["극단적공포", "역발상투자", "패닉셀매수", "바닥줍기"]
     },
     {
         "id": 67,
-        "category": "chart_financials",
-        "title": "지지선과 저항선 긋기: 바닥 매수와 천장 매도 타이밍을 잡아내는 마법의 선",
-        "intent": "전고점과 전저점, 매물대 차트를 활용한 최적의 손익비(Risk/Reward) 진입 자리",
-        "app_feature": "StockMaster AI 자동 지지저항선 차트",
-        "tags": ["지지선저항선", "매물대차트보는법", "전고점돌파", "손익비좋은자리"]
+        "category": "macro_stress",
+        "title": "환율 급등기에 주가 방어력이 가장 높은 국내 고배당주·인프라주 선별법",
+        "intent": "원화 가치 하락에도 안정적인 내수 현금 흐름과 고배당을 주는 맥쿼리인프라 등 분석",
+        "app_feature": "StockMaster AI 고배당 방어주 스크리너",
+        "app_action_mode": "macro_stress",
+        "tags": ["환율급등방어주", "고배당인프라", "맥쿼리인프라", "현금흐름주"]
     },
     {
         "id": 68,
-        "category": "chart_financials",
-        "title": "DART 전자공시 시스템 필수 확인 공시 3가지: 유상증자, 전환사채(CB), 무상증자",
-        "intent": "주주가치를 희석시키는 악성 공시(CB/BW 발행)와 주가 급등 호재 구별법",
-        "app_feature": "StockMaster DART 악성 공시 필터링봇",
-        "tags": ["DART전자공시", "유상증자악재", "전환사채CB함정", "무상증자호재"]
+        "category": "macro_stress",
+        "title": "코스피 NOW vs 코스닥 NOW 등락률 비교: 대형주 장세인가 개별 테마주 장세인가?",
+        "intent": "두 지수의 상대 강도를 비교하여 오늘은 대형주를 탈지 중소형주를 탈지 결정하는 법",
+        "app_feature": "StockMaster AI 양대 지수 실시간 비교표",
+        "app_action_mode": "macro_stress",
+        "tags": ["코스피NOW", "코스닥NOW", "장세판단", "대형주vs중소형주"]
     },
     {
         "id": 69,
-        "category": "chart_financials",
-        "title": "거래량 없는 상승 vs 대량 거래량 장대양봉: 주포(세력)의 매집 흔적 찾는 법",
-        "intent": "바닥권에서 터진 평소 500% 이상의 대량 거래량이 의미하는 강력한 추세 전환",
-        "app_feature": "StockMaster 대량 거래량 급등주 알림",
-        "tags": ["거래량매매법", "장대양봉의의미", "세력매집차트", "바닥거래량급증"]
+        "category": "macro_stress",
+        "title": "한국은행 금융통화위원회 기준금리 인하 시 국내 증시와 바이오·성장주 수혜",
+        "intent": "시중 유동성 공급과 할인율 하락으로 탄력을 받는 코스닥 성장주 매매 전략",
+        "app_feature": "StockMaster AI 금리 인하 수혜주 분석",
+        "app_action_mode": "macro_stress",
+        "tags": ["한국은행금통위", "기준금리인하", "바이오수혜주", "성장주투자"]
     },
     {
         "id": 70,
-        "category": "chart_financials",
-        "title": "RSI(상대강도지수) 과매수(70 이상) 과매도(30 이하): 역추세 매매의 정석",
-        "intent": "다이버전스(Divergence, 주가와 지표의 불일치)를 이용한 고점 매도와 저점 매수",
-        "app_feature": "StockMaster RSI 다이버전스 자동 스캐너",
-        "tags": ["RSI지표보는법", "과매도30이하", "RSI다이버전스", "보조지표매매"]
+        "category": "macro_stress",
+        "title": "장 시작 전 5개 매크로 지표로 오늘 코스피 시초가 방향성 1분 만에 예측하기",
+        "intent": "환율, 유가, 야간선물, 달러지수를 종합하여 갭상승/갭하락 사전 대비하기",
+        "app_feature": "StockMaster AI 모닝 매크로 요약",
+        "app_action_mode": "macro_stress",
+        "tags": ["시초가예측", "모닝브리핑", "야간선물지수", "장전체크"]
     },
+
+    # ── [6. price_boundary : 🎯 손절선(SL)·목표선(TP) 가격 타점 (15개)] ──
     {
         "id": 71,
-        "category": "chart_financials",
-        "title": "영업이익 vs 당기순이익 차이: 일회성 부동산 매각 이익에 속지 않는 법",
-        "intent": "본업에서 번 돈(영업이익)과 금융수익/일회성 이익이 섞인 당기순이익의 실체",
-        "app_feature": "StockMaster 본업 영업이익 성장률 분석",
-        "tags": ["영업이익당기순이익차이", "영업이익률비교", "영업외수익함정", "진짜돈버는기업"]
+        "category": "price_boundary",
+        "title": "주관적 감정을 100% 배제한 ATR(변동성) 기반 과학적 청산 손절선(EXIT SL) 산출법",
+        "intent": "종목의 최근 14일 일일 변동 폭을 수학적으로 계산하여 최적의 손절가를 잡는 룰",
+        "app_feature": "StockMaster AI ATR 기반 청산 손절선 카드",
+        "app_action_mode": "price_boundary",
+        "tags": ["ATR손절선", "과학적손절", "변동성계산", "기계적매매"]
     },
     {
         "id": 72,
-        "category": "chart_financials",
-        "title": "볼린저 밴드(Bollinger Bands) 하단 터치 매수 기법: 밴드 수축 후 확장(스퀴즈) 폭발",
-        "intent": "표준편차 2σ를 이용한 변동성 돌파 매매와 밴드 상단 이탈 시 익절 기준",
-        "app_feature": "StockMaster 볼린저밴드 스퀴즈 감지기",
-        "tags": ["볼린저밴드매매법", "밴드하단매수", "볼린저스퀴즈", "변동성돌파"]
+        "category": "price_boundary",
+        "title": "현재가 기준 스윙 목표선(SWING TP) 달성 확률: 욕심부리지 않고 파는 수학적 목표가",
+        "intent": "상단 저항 매물대와 평균 상승 파동 폭을 반영한 1차 스윙 목표 가격 제시",
+        "app_feature": "StockMaster AI 스윙 목표선(SWING TP)",
+        "app_action_mode": "price_boundary",
+        "tags": ["스윙목표선", "목표가산출", "적정목표수익", "수익실현"]
     },
     {
         "id": 73,
-        "category": "chart_financials",
-        "title": "부채비율 100% 미만 & 유보율 1,000% 이상: 상장폐지 당하지 않는 안전지대 종목",
-        "intent": "이자보상배율 1 미만(좀비 기업) 거르고 현금성 자산이 빵빵한 알짜 품절주 발굴",
-        "app_feature": "StockMaster 재무 건전성 100점 스크리너",
-        "tags": ["부채비율유보율", "상장폐지피하는법", "이자보상배율", "현금부자기업"]
+        "category": "price_boundary",
+        "title": "손익비 1:2 원칙: -3% 잃을 때 +6% 이상 버는 자리에서만 베팅하는 법",
+        "intent": "승률이 50%에 불과해도 계좌가 우상향하는 손익비(Risk-Reward Ratio) 세팅 기술",
+        "app_feature": "StockMaster AI 손익비 시뮬레이터",
+        "app_action_mode": "price_boundary",
+        "tags": ["손익비1대2", "리스크리워드", "승률보다손익비", "계좌우상향"]
     },
     {
         "id": 74,
-        "category": "chart_financials",
-        "title": "이중 바닥(W자 쌍바닥) vs 헤드앤숄더(Head & Shoulders): 차트 패턴 완성 조건",
-        "intent": "넥라인(Neckline) 돌파 확인 후 진입하는 정석 패턴 매매와 손절 라인 잡기",
-        "app_feature": "StockMaster 차트 패턴 AI 인식기",
-        "tags": ["쌍바닥W패턴", "헤드앤숄더패턴", "넥라인돌파", "차트패턴매매"]
+        "category": "price_boundary",
+        "title": "주요 지지선 바로 1호가 아래 청산 손절선을 걸어두는 실전 기술",
+        "intent": "지지선이 깨지면 투매가 쏟아지는 지점을 파악하여 최소 손실로 빠져나오는 법",
+        "app_feature": "StockMaster AI 주요 지지선 분석",
+        "app_action_mode": "price_boundary",
+        "tags": ["지지선손절", "손실최소화", "호가창손절", "스탑로스주문"]
     },
     {
         "id": 75,
-        "category": "chart_financials",
-        "title": "공매도 잔고와 숏스퀴즈(Short Squeeze): 에코프로처럼 주가 폭등하는 원리",
-        "intent": "기관 공매도 세력이 손실을 줄이기 위해 주식을 되사는 숏커버링 유입 시그널",
-        "app_feature": "StockMaster 공매도 잔고 급감 추적기",
-        "tags": ["공매도잔고조회", "숏스퀴즈원리", "숏커버링매수", "공매도비율"]
+        "category": "price_boundary",
+        "title": "전고점 돌파 종목의 1차 목표선과 2차 마디가 목표선 설정법",
+        "intent": "전고점을 뚫은 후 라운드 피겨(1만 원, 5만 원, 10만 원) 마디가에서 분할 익절",
+        "app_feature": "StockMaster AI 라운드피겨 목표선",
+        "app_action_mode": "price_boundary",
+        "tags": ["라운드피겨", "전고점돌파목표가", "마디가익절", "분할매도"]
     },
     {
         "id": 76,
-        "category": "chart_financials",
-        "title": "잉여현금흐름(FCF, Free Cash Flow): 워런 버핏이 가장 사랑하는 진짜 돈의 흐름",
-        "intent": "회계상 장부 이익이 아닌 설비투자(CAPEX)를 빼고 회사에 순수하게 남는 현금",
-        "app_feature": "StockMaster FCF 잉여현금흐름 상위 기업",
-        "tags": ["잉여현금흐름FCF", "워런버핏지표", "진짜현금창출능력", "CAPEX설비투자"]
+        "category": "price_boundary",
+        "title": "분할 매수 3단계 진입 시 최종 평단가에 맞춘 손절선 재조정 공식",
+        "intent": "1차 30%, 2차 30%, 3차 40% 매수 후 최종 평단가 대비 -3% 라인 재설정",
+        "app_feature": "StockMaster AI 분할 매수 평단가 계산기",
+        "app_action_mode": "price_boundary",
+        "tags": ["분할매수손절선", "평단가재조정", "비중조절", "체계적매매"]
     },
     {
         "id": 77,
-        "category": "chart_financials",
-        "title": "갭(Gap) 상승과 갭 하락: 갭은 반드시 메워진다는 주식 격언의 진실과 돌파 갭",
-        "intent": "일반 갭과 강력한 호재로 발생한 돌파 갭(Breakaway Gap)의 구별 및 매매 전략",
-        "app_feature": "StockMaster 갭상승 지지선 분석기",
-        "tags": ["갭상승갭하락", "갭메우기법칙", "돌파갭매매", "차트갭해석"]
+        "category": "price_boundary",
+        "title": "장중 돌발 악재로 손절선 터치 시 망설임 없이 '시장가 매도'를 치는 마인드셋",
+        "intent": "'조금만 반등하면 팔아야지' 하다가 -20% 물리는 뇌의 인지 부조화 극복법",
+        "app_feature": "StockMaster AI 손절 마인드셋 가이드",
+        "app_action_mode": "price_boundary",
+        "tags": ["시장가매도", "망설임없는손절", "인지부조화극복", "원칙매매"]
     },
     {
         "id": 78,
-        "category": "chart_financials",
-        "title": "피보나치 되돌림(Fibonacci Retracement): 0.382와 0.618 반등 타점 잡기",
-        "intent": "상승 파동 후 조정 국면에서 가장 강력하게 지지가 나오는 황금 비율 매수법",
-        "app_feature": "StockMaster 피보나치 자동 되돌림 차트",
-        "tags": ["피보나치되돌림", "황금비율0.618", "눌림목매수타점", "조정파동반등"]
+        "category": "price_boundary",
+        "title": "스윙 목표선 근처에서 대량 거래량 터질 때: 전량 매도 vs 절반 익절 후 홀딩",
+        "intent": "목표가 부근에서 거래량이 폭발할 때 세력의 털기인지 추가 돌파인지 판별하는 법",
+        "app_feature": "StockMaster AI 목표가 거래량 판독기",
+        "app_action_mode": "price_boundary",
+        "tags": ["목표가거래량", "전량매도vs절반익절", "세력털기구별", "수익보존"]
     },
     {
         "id": 79,
-        "category": "chart_financials",
-        "title": "내부자 거래(Insider Trading) 공시: CEO와 임원이 자사주를 장내 매수할 때",
-        "intent": "누구보다 회사 사정을 잘 아는 경영진의 자기 돈 매수는 가장 확실한 바닥 신호",
-        "app_feature": "StockMaster 임원 자사주 매수 알림",
-        "tags": ["내부자거래공시", "대표이사자사주매수", "경영진장내매수", "바닥신호공시"]
+        "category": "price_boundary",
+        "title": "주가가 올라갈 때마다 손절선을 끌어올리는 '수익 보존 손절선(Trailing SL)' 세팅",
+        "intent": "매수가 위에 손절선을 올려두어 어떤 경우에도 손실을 보지 않는 방탄 매매법",
+        "app_feature": "StockMaster AI 트레일링 손절선 가이드",
+        "app_action_mode": "price_boundary",
+        "tags": ["트레일링손절선", "노리스크매매", "수익보존", "원금보장전략"]
     },
     {
         "id": 80,
-        "category": "chart_financials",
-        "title": "잠정 실적 공시(어닝 서프라이즈 vs 어닝 쇼크): 컨센서스 대비 괴리율 매매",
-        "intent": "실적이 잘 나와도 컨센서스를 밑돌면 폭락하는 이유와 선반영의 매커니즘",
-        "app_feature": "StockMaster 실적 컨센서스 괴리율 분석",
-        "tags": ["어닝서프라이즈", "어닝쇼크주가", "컨센서스선반영", "실적발표매매"]
+        "category": "price_boundary",
+        "title": "단기 단타(3% 손절) vs 중기 스윙(7% 손절): 내 투자 성향에 맞는 손절폭 최적화",
+        "intent": "보유 기간과 종목 변동성에 따라 손절폭을 차등 적용하여 억울한 털림 방지",
+        "app_feature": "StockMaster AI 투자 성향별 손절폭 추천",
+        "app_action_mode": "price_boundary",
+        "tags": ["단타손절3%", "스윙손절7%", "손절폭최적화", "투자성향매매"]
     },
-
-    # ── [카테고리 6: quant_risk (AI 퀀트 / 뇌동매매 방지 / 리스크 관리)] ──
     {
         "id": 81,
-        "category": "quant_risk",
-        "title": "뇌동매매(FOMO) 고치는 3대 원칙: 급등하는 불기둥에 올라타지 않는 멘탈 관리법",
-        "intent": "남들이 돈 벌었다는 소리에 조급해져 고점에 물리는 심리적 편향 극복 노하우",
-        "app_feature": "StockMaster FOMO 방지 심리 체크리스트",
-        "tags": ["뇌동매매극복", "FOMO증후군방지", "주식멘탈관리", "불기둥추격매수금지"]
+        "category": "price_boundary",
+        "title": "코스피 대형 우량주에 맞는 넉넉한 손절선과 현실적인 스윙 목표가(3~5%)",
+        "intent": "삼성전자, 현대차 등 대형주는 변동 폭이 작으므로 잔파동에 털리지 않는 타점",
+        "app_feature": "StockMaster AI 대형주 전용 타점 가이드",
+        "app_action_mode": "price_boundary",
+        "tags": ["대형주타점", "삼성전자목표가", "대형주손절선", "안정적스윙"]
     },
     {
         "id": 82,
-        "category": "quant_risk",
-        "title": "기계적인 손절매(Stop-Loss) 설정 기준: -5% 또는 전저점 이탈 시 무조건 자르기",
-        "intent": "손실 -50%를 복구하려면 +100% 수익이 필요하다는 손실 복구의 비대칭성 원리",
-        "app_feature": "StockMaster 자동 스탑로스 설정 가이드",
-        "tags": ["손절매기준", "스탑로스설정", "손실복구수익률", "원금보존원칙"]
+        "category": "price_boundary",
+        "title": "코스닥 급등 테마주에 맞는 타이트한 -2~3% 칼손절선 절대 규칙",
+        "intent": "변동성이 큰 테마주는 손절 타이밍을 놓치면 하루 만에 -15% 물리므로 칼손절 필수",
+        "app_feature": "StockMaster AI 테마주 칼손절 알림",
+        "app_action_mode": "price_boundary",
+        "tags": ["코스닥칼손절", "테마주손절선", "단타생존법", "빠른손절"]
     },
     {
         "id": 83,
-        "category": "quant_risk",
-        "title": "분할 매수(Scale-in)와 분할 매도(Scale-out): 3분할 3분할 공식으로 평단가 관리",
-        "intent": "몰빵 투자의 공포를 없애고 심리적 우위를 점하는 스마트 분할 진입·청산법",
-        "app_feature": "StockMaster 3분할 매수매도 계산기",
-        "tags": ["분할매수원칙", "분할매도익절", "평단가관리법", "몰빵금지투자"]
+        "category": "price_boundary",
+        "title": "손절 후 주가가 다시 지지선을 회복할 때 억울해하지 않고 '재진입'하는 기술",
+        "intent": "손절은 보험료일 뿐, 추세가 다시 살아나면 감정을 버리고 다시 매수하는 프로의 자세",
+        "app_feature": "StockMaster AI 재진입 시그널 감지",
+        "app_action_mode": "price_boundary",
+        "tags": ["재진입기술", "감정배제매매", "손절은보험", "프로의매매"]
     },
     {
         "id": 84,
-        "category": "quant_risk",
-        "title": "AI 퀀트 알고리즘 투자란 무엇인가? 감정을 배제한 백테스팅 기반 룰 세팅",
-        "intent": "모멘텀 지표, 밸류 지표, 퀄리티 지표를 조합한 팩터(Factor) 투자의 기본 원리",
-        "app_feature": "StockMaster AI 퀀트 팩터 엔진 소개",
-        "tags": ["AI퀀트투자", "팩터투자원리", "백테스팅기반", "감정배제매매"]
+        "category": "price_boundary",
+        "title": "물타기로 계좌 묶이지 말고 손절 후 새로운 전광판 1위로 갈아타는 기회비용 계산",
+        "intent": "6개월간 -30% 물려있는 돈을 빼서 5%씩 6번 회전시켜 계좌를 복구하는 수학",
+        "app_feature": "StockMaster AI 기회비용 복구 시뮬레이션",
+        "app_action_mode": "price_boundary",
+        "tags": ["기회비용복구", "종목교체매매", "계좌회전율", "물타기탈출"]
     },
     {
         "id": 85,
-        "category": "quant_risk",
-        "title": "MDD(Maximum Drawdown, 최대 낙폭): 수익률보다 MDD가 낮은 전략을 골라야 하는 이유",
-        "intent": "고점 대비 계좌가 박살 나는 최대 하락률을 관리해야 복리 투자가 중단되지 않는다",
-        "app_feature": "StockMaster 포트폴리오 MDD 측정기",
-        "tags": ["MDD최대낙폭", "계좌원금보호", "복리투자유지", "샤프지수해석"]
+        "category": "price_boundary",
+        "title": "AI가 제시하는 손절선·목표선으로 증권사 HTS '자동 감시 주문(스탑로스)' 걸기",
+        "intent": "장중에 컴퓨터를 보지 않아도 목표가에 자동 익절, 손절가에 자동 매도되는 세팅",
+        "app_feature": "StockMaster AI HTS 자동감시주문 가이드",
+        "app_action_mode": "price_boundary",
+        "tags": ["자동감시주문", "HTS스탑로스세팅", "무인자동매매", "직장인주식자동화"]
     },
+
+    # ── [7. quant_guide : 💡 8대 퀀트 리스크 가이드 & 건전성 진단 (15개)] ──
     {
         "id": 86,
-        "category": "quant_risk",
-        "title": "물타기(Averaging Down)의 함정: 끝없이 추락하는 잡주에 물타기하다 깡통 차는 이유",
-        "intent": "우량주와 잡주의 물타기 구분법 및 상승 추세에서 비중을 늘리는 불타기 전략",
-        "app_feature": "StockMaster 물타기 vs 불타기 판단기",
-        "tags": ["물타기함정", "잡주물타기금지", "불타기전략", "평단가낮추기주의"]
+        "category": "quant_guide",
+        "title": "8대 지표 ① [체결강도 120%]와 [체결가속도 +%p]의 완벽한 구분과 실전 활용",
+        "intent": "단순 체결강도와 속도 변화를 결합해 장중 진짜 힘이 붙는 종목 판별",
+        "app_feature": "StockMaster AI 8대 퀀트 가이드 모달",
+        "app_action_mode": "quant_guide",
+        "tags": ["체결강도원리", "체결가속도차이", "8대지표가이드", "계량지표공부"]
     },
     {
         "id": 87,
-        "category": "quant_risk",
-        "title": "켈리 공식(Kelly Criterion): 수학적으로 입증된 최적의 배팅(투자 비중) 비율",
-        "intent": "승률과 손익비를 계산하여 한 종목에 전체 자산의 몇 %를 넣어야 파산하지 않는가",
-        "app_feature": "StockMaster 켈리 공식 투자 비중 계산기",
-        "tags": ["켈리공식", "최적투자비중", "파산확률0퍼센트", "자금관리원칙"]
+        "category": "quant_guide",
+        "title": "8대 지표 ② [블록오더(큰손 대량 체결) 비중]: 70%를 넘어야 진짜 세력주인 이유",
+        "intent": "개미들의 소액 주문을 발라내고 기관·외인의 대량 묶음 주문 비중 계산법",
+        "app_feature": "StockMaster AI 블록오더 가이드",
+        "app_action_mode": "quant_guide",
+        "tags": ["블록오더비중", "세력주판별", "대형체결분석", "수급지표"]
     },
     {
         "id": 88,
-        "category": "quant_risk",
-        "title": "주식 투자 일지(매매 일지) 작성법: 나의 뇌동매매 패턴을 발견하고 교정하기",
-        "intent": "매수 이유, 매도 이유, 감정 상태를 기록하여 승률을 2배 끌어올리는 복기 습관",
-        "app_feature": "StockMaster AI 자동 매매 일지 템플릿",
-        "tags": ["매매일지작성법", "투자일지복기", "오답노트주식", "투자습관개선"]
+        "category": "quant_guide",
+        "title": "8대 지표 ③ [외국계 순매수액]: 검은 머리 외국인 거르고 진짜 메이저 외인 읽기",
+        "intent": "외국계 증권사 창구 매매와 프로그램 비차익 순매수의 진성 수급 검증",
+        "app_feature": "StockMaster AI 진성 외인 수급 판별",
+        "app_action_mode": "quant_guide",
+        "tags": ["외국계순매수", "진성외인수급", "프로그램비차익", "창구분석"]
     },
     {
         "id": 89,
-        "category": "quant_risk",
-        "title": "현금 비중 20~30% 유지가 주는 마법: 폭락장에서 웃을 수 있는 유일한 무기",
-        "intent": "풀매수 상태에서는 패닉셀을 부르고, 현금이 있어야 저가 매수 기회를 잡는다",
-        "app_feature": "StockMaster 자산별 현금 비중 리밸런서",
-        "tags": ["현금비중유지", "폭락장저가매수", "패닉셀방지", "심리적안정감"]
+        "category": "quant_guide",
+        "title": "8대 지표 ④ [공매도 비중]과 숏스퀴즈(Short Squeeze): 공매도 상환 폭등주",
+        "intent": "공매도 잔고가 많은 종목에서 호재가 터졌을 때 기관이 숏을 청산하며 폭등하는 원리",
+        "app_feature": "StockMaster AI 공매도 숏스퀴즈 감지",
+        "app_action_mode": "quant_guide",
+        "tags": ["공매도비중", "숏스퀴즈", "숏커버링폭등", "공매도잔고"]
     },
     {
         "id": 90,
-        "category": "quant_risk",
-        "title": "미수·신용·영끌 투자의 파멸: 반대매매(Forced Liquidation)가 폭락을 부르는 매커니즘",
-        "intent": "담보유지비율 140% 미달 시 개장 직후 하한가로 강제 처분되는 빚투의 끔찍한 결말",
-        "app_feature": "StockMaster 신용잔고 리스크 경보",
-        "tags": ["반대매매공포", "신용미수금지", "빚투의결말", "담보유지비율140"]
+        "category": "quant_guide",
+        "title": "8대 지표 ⑤ [신용잔고율]: 개미 빚투가 5% 넘는 종목이 무거운 이유",
+        "intent": "신용 매수 물량이 많으면 상단 매물대가 두터워 주가가 탄력을 받지 못하는 매커니즘",
+        "app_feature": "StockMaster AI 신용잔고율 분석",
+        "app_action_mode": "quant_guide",
+        "tags": ["신용잔고율분석", "빚투종목회피", "매물대부담", "가벼운종목"]
     },
     {
         "id": 91,
-        "category": "quant_risk",
-        "title": "상승장에서는 누구나 천재다: 워런 버핏의 '썰물이 빠져야 누가 발가벗고 헤엄쳤는지 안다'",
-        "intent": "유동성 파티가 끝난 후 실적과 펀더멘털이 없는 거품 주식이 폭락하는 냉정한 현실",
-        "app_feature": "StockMaster 기업 펀더멘털 점수 진단",
-        "tags": ["워런버핏명언", "상승장착각", "하락장검증", "진짜우량주구별"]
+        "category": "quant_guide",
+        "title": "8대 지표 ⑥ [ROE(자기자본이익률) 15% 룰]: 워런 버핏이 극찬한 돈 잘 버는 기업",
+        "intent": "자본 대비 매년 15% 이상 순이익을 내며 복리로 성장하는 대한민국 우량주",
+        "app_feature": "StockMaster AI ROE 15% 스크리너",
+        "app_action_mode": "quant_guide",
+        "tags": ["ROE15퍼센트", "워런버핏투자법", "복리성장주", "우량기업발굴"]
     },
     {
         "id": 92,
-        "category": "quant_risk",
-        "title": "확증 편향(Confirmation Bias) 탈출: 내가 산 주식의 호재 뉴스만 찾아보는 뇌의 착각",
-        "intent": "매수 후 객관성을 잃지 않기 위해 비판적 리포트와 하방 리스크를 먼저 읽는 습관",
-        "app_feature": "StockMaster 종목별 하방 리스크 AI 요약",
-        "tags": ["확증편향극복", "객관적투자", "호재뉴스중독", "리스크체크습관"]
+        "category": "quant_guide",
+        "title": "8대 지표 ⑦ [PBR 1배 미만]: 정부 기업 밸류업 프로그램 인증 저평가주",
+        "intent": "순자산 대비 저평가되어 자사주 소각 및 배당 확대 시 주가 리레이팅되는 종목",
+        "app_feature": "StockMaster AI 저PBR 밸류업 진단",
+        "app_action_mode": "quant_guide",
+        "tags": ["저PBR밸류업", "자사주소각", "주주환원율", "기업가치제고"]
     },
     {
         "id": 93,
-        "category": "quant_risk",
-        "title": "손실 회피 편향(Loss Aversion): 본전 심리 때문에 쓰레기 주식을 평생 안고 가는 이유",
-        "intent": "원금 회복에 집착하여 더 좋은 주식으로 갈아탈 기회비용을 날리는 심리 치료",
-        "app_feature": "StockMaster 본전 심리 탈출 갈아타기 진단",
-        "tags": ["본전심리극복", "손실회피편향", "기회비용계산", "종목교체매매"]
+        "category": "quant_guide",
+        "title": "8대 지표 ⑧ [부채비율 100% 미만 & 유보율 1,000%]: 상장폐지 걱정 없는 무차입 경영",
+        "intent": "사내 현금이 넘쳐나 고금리 위기에도 끄떡없는 무차입 초우량 기업 선별법",
+        "app_feature": "StockMaster AI 무차입 경영 우량주",
+        "app_action_mode": "quant_guide",
+        "tags": ["부채비율100미만", "유보율1000", "무차입경영", "상폐위험제로"]
     },
     {
         "id": 94,
-        "category": "quant_risk",
-        "title": "수익 보존 익절(Trailing Stop): 수익 중인 주식을 끝까지 끌고 가며 이익 극대화하기",
-        "intent": "고점 대비 3% 또는 5% 하락 시 자동으로 이익 실현하는 트레일링 스탑의 마법",
-        "app_feature": "StockMaster 트레일링 스탑 계산기",
-        "tags": ["트레일링스탑", "익절라인관리", "수익극대화", "추세추종매매"]
+        "category": "quant_guide",
+        "title": "DART 전자공시 전환사채(CB) 3단 폭탄: 리픽싱(행사가액 조정)으로 개미 털어먹는 구조",
+        "intent": "사채업자와 대주주가 주가를 억누르며 주식으로 전환하는 부실 작전주 피하기",
+        "app_feature": "StockMaster AI DART CB 리픽싱 감지",
+        "app_action_mode": "quant_guide",
+        "tags": ["전환사채CB", "리픽싱함정", "작전주회피", "DART공시분석"]
     },
     {
         "id": 95,
-        "category": "quant_risk",
-        "title": "월급쟁이 직장인에게 최적화된 주식 투자 루틴: 장중 HTS 안 보고 퇴근 후 10분 점검",
-        "intent": "업무 집중도를 지키면서 자동 예약 매수·매도 기능을 활용한 스트레스 제로 투자",
-        "app_feature": "StockMaster 직장인 10분 퇴근 루틴봇",
-        "tags": ["직장인주식루틴", "HTS중독탈출", "예약매매활용", "스트레스없는주식"]
+        "category": "quant_guide",
+        "title": "유상증자 공시 판독법: 주주배정(악재 폭탄) vs 제3자배정 대기업 투자(호재 잭팟)",
+        "intent": "공시 제목만 보고 던질지 살지 3초 만에 판단하는 실전 공시 독해법",
+        "app_feature": "StockMaster AI 유상증자 호악재 판독",
+        "app_action_mode": "quant_guide",
+        "tags": ["유상증자공시", "주주배정유증", "제3자배정유증", "공시독해법"]
     },
     {
         "id": 96,
-        "category": "quant_risk",
-        "title": "테마주(정치테마, 초전도체, 양자컴퓨터) 롤러코스터에서 살아남는 불문율",
-        "intent": "실체 없는 테마주는 대장주만 단기 매매하고 이슈 소멸 전 전량 털고 나오는 법칙",
-        "app_feature": "StockMaster 실시간 테마주 대장주 판독기",
-        "tags": ["테마주매매원칙", "정치테마주위험", "초전도체테마", "대장주매매"]
+        "category": "quant_guide",
+        "title": "배당수익률 연 6% 이상 국내 고배당주의 배당락일 전후 퀀트 점수 변화",
+        "intent": "금융지주·맥쿼리인프라 등 고배당주의 배당금 확보와 주가 회복 기간 시뮬레이션",
+        "app_feature": "StockMaster AI 고배당 퀀트 시뮬레이터",
+        "app_action_mode": "quant_guide",
+        "tags": ["고배당수익률", "배당락일시뮬레이션", "금융지주배당", "배당재투자"]
     },
     {
         "id": 97,
-        "category": "quant_risk",
-        "title": "상관관계(Correlation) 분산 투자: 서로 반대로 움직이는 자산을 묶어 계좌 변동성 죽이기",
-        "intent": "미국 주식과 달러 현금, 금과 채권의 음의 상관관계를 이용한 방탄 포트폴리오",
-        "app_feature": "StockMaster 자산 간 상관관계 매트릭스",
-        "tags": ["상관관계분산투자", "방탄포트폴리오", "자산배분효과", "계좌변동성축소"]
+        "category": "quant_guide",
+        "title": "잉여현금흐름(FCF, Free Cash Flow) 플러스 기업: 가짜 장부상 이익에 속지 않는 법",
+        "intent": "영업활동으로 실제 통장에 현금이 꽂히는 진짜 흑자 기업을 찾는 퀀트 비법",
+        "app_feature": "StockMaster AI FCF 현금흐름 스크리너",
+        "app_action_mode": "quant_guide",
+        "tags": ["잉여현금흐름FCF", "진짜흑자기업", "현금흐름표", "장부상이익구별"]
     },
     {
         "id": 98,
-        "category": "quant_risk",
-        "title": "동전주(페니 스톡) 대박 꿈꾸다 상장폐지 정리매매 당하는 이유: 감자·유증의 굴레",
-        "intent": "주가 1,000원 미만 관리종목의 자본잠식과 회계감사 거절 폭탄 피하기",
-        "app_feature": "StockMaster 관리종목 위험 자동 경보",
-        "tags": ["동전주위험", "페니스톡상장폐지", "자본잠식거절", "정리매매함정"]
+        "category": "quant_guide",
+        "title": "대표이사 및 임원 자사주 장내 매수 공시 시 AI 퀀트 점수 대폭 상향 원리",
+        "intent": "회사 내부 사정을 가장 잘 아는 CEO가 자기 돈으로 주식을 살 때의 강력한 바닥 신호",
+        "app_feature": "StockMaster AI 임원 자사주 매수 감지",
+        "app_action_mode": "quant_guide",
+        "tags": ["자사주장내매수", "내부자거래공시", "바닥신호", "CEO매수"]
     },
     {
         "id": 99,
-        "category": "quant_risk",
-        "title": "투자 대가 피터 린치의 명언: '당신이 아는 것에 투자하라'의 현대적 재해석",
-        "intent": "일상에서 소비하는 제품(아이폰, 스타벅스, 나이키) 속에서 10루타(Tenbagger) 종목 찾기",
-        "app_feature": "StockMaster 피터 린치형 생활 속 종목 발굴기",
-        "tags": ["피터린치명언", "10루타종목발굴", "생활속주식투자", "텐배거찾기"]
+        "category": "quant_guide",
+        "title": "퇴근 후 10분, 8대 퀀트 지표로 내 보유 종목 종합 건강검진 하기",
+        "intent": "내가 가진 종목이 진입유효인지, VETO 위험에 처했는지 매일 밤 10분 셀프 체크",
+        "app_feature": "StockMaster AI 10분 종합 종목 건강검진",
+        "app_action_mode": "quant_guide",
+        "tags": ["종목건강검진", "퇴근후10분", "포트폴리오점검", "보유종목진단"]
     },
     {
         "id": 100,
-        "category": "quant_risk",
-        "title": "StockMaster AI와 함께하는 스마트 데이터 투자: 뇌동매매 끝, 데이터로 증명하는 승리",
-        "intent": "국내외 수만 개 종목의 수급, 재무, 모멘텀을 AI가 실시간 분석하여 최적의 타점 제공",
-        "app_feature": "StockMaster AI 종합 시그널 대시보드",
-        "tags": ["StockMaster", "주식AI추천", "스마트퀀트투자", "데이터기반주식"]
+        "category": "quant_guide",
+        "title": "StockMaster AI 4단계 파이프라인 총정리: 감정 매매 끝, 데이터로 증명하는 승리",
+        "intent": "스크리닝 ➔ RAG 백테스트 오답노트 ➔ VETO 필터 ➔ 최적 타점 도출의 풀 파이프라인",
+        "app_feature": "StockMaster AI 전체 퀀트 파이프라인",
+        "app_action_mode": "quant_guide",
+        "tags": ["StockMasterAI", "4단계파이프라인", "퀀트투자원칙", "데이터기반주식"]
     }
 ]
 
@@ -843,3 +954,40 @@ def get_topic_by_id(topic_id: int) -> Dict[str, Any]:
 
 def get_topics_by_category(category: str) -> List[Dict[str, Any]]:
     return [t for t in STOCK_100_TOPICS if t["category"] == category]
+
+
+def get_interleaved_topic_order() -> List[int]:
+    """
+    7대 카테고리를 골고루 1개씩 교차 순환(인터리빙)하는 100개 토픽 ID 리스트 반환
+    - [realtime_rank1, valid_entry, veto_risk, turning_point, macro_stress, price_boundary, quant_guide] 순환
+    - 특정 카테고리가 며칠 연속으로 쏠리는 현상 100% 원천 차단
+    """
+    categories = [
+        "realtime_rank1",
+        "valid_entry",
+        "veto_risk",
+        "turning_point",
+        "macro_stress",
+        "price_boundary",
+        "quant_guide"
+    ]
+    pools: Dict[str, List[int]] = {cat: [] for cat in categories}
+    for t in STOCK_100_TOPICS:
+        cat = t["category"]
+        if cat in pools:
+            pools[cat].append(t["id"])
+
+    interleaved = []
+    max_len = max(len(p) for p in pools.values())
+    for i in range(max_len):
+        for cat in categories:
+            if i < len(pools[cat]):
+                interleaved.append(pools[cat][i])
+
+    return interleaved
+
+
+if __name__ == "__main__":
+    print(f"📈 [StockMaster 100대 주제 풀 로드] 총 {len(STOCK_100_TOPICS)}개")
+    order = get_interleaved_topic_order()
+    print(f"🔄 인터리빙 순환 순서 (총 {len(order)}개): {order[:14]}...")

@@ -490,22 +490,38 @@ def _brand_daemon_loop(brand: str):
 
     # 8. 🤖 [24시간 무인 레딧 전담 스텔스 안전 침투 데몬 (08:00, 10:00, 13:00, 16:00, 20:00 ±30분 무작위 시프트)]
     def _reddit_daemon_worker():
+        channel_key = f"{brand}_reddit"
+        log_event(f"🤖 [{brand_kr}] 레딧 24시간 스텔스 안전 침투 데몬 상주 시작 (08:00/10:00/13:00/16:00/20:00 ±30분)", "success")
         while brand_daemons_running.get(brand, False):
             try:
+                res = {}
                 if brand == "aura":
                     from brands.aura.aura_reddit_engine import AuraRedditEngine
                     aura_reddit = AuraRedditEngine()
-                    aura_reddit.orchestrator.run_scheduled_session()
+                    res = aura_reddit.orchestrator.run_scheduled_session()
                 elif brand == "insurance":
                     from brands.insurance.insurance_reddit_engine import InsuranceRedditEngine
                     ins_reddit = InsuranceRedditEngine()
-                    ins_reddit.orchestrator.run_scheduled_session()
+                    res = ins_reddit.orchestrator.run_scheduled_session()
                 elif brand == "stock":
                     from brands.stock.stock_reddit_engine import StockRedditEngine
                     stock_reddit = StockRedditEngine()
-                    stock_reddit.orchestrator.run_scheduled_session()
+                    res = stock_reddit.orchestrator.run_scheduled_session()
+
+                if res.get("status") == "executed":
+                    clear_channel_error(channel_key)
+                    slot_name = res.get("executed_slot", "세션")
+                    up = res.get("upvotes", 0)
+                    org = res.get("organic_comments", 0)
+                    pro = res.get("promo_comments", 0)
+                    log_event(f"🎉 [{brand_kr} 레딧 정시 세션 완료] {slot_name} | 업보트: {up}건 | 비홍보댓글: {org}건 | 스텔스홍보: {pro}건", "success")
+                elif res.get("status") == "cooldown":
+                    log_event(f"🛡️ [{brand_kr} 레딧] 안전 쿨다운 상태로 이번 시간대 대기", "info")
             except Exception as re:
-                log_event(f"⚠️ [{brand_kr} 레딧 세션 예외] {re}", "warning")
+                import traceback
+                err_detail = traceback.format_exc()
+                record_channel_error(channel_key, str(re))
+                log_event(f"❌ [{brand_kr} 레딧 세션 오류] {re}\n{err_detail}", "error")
             time.sleep(60)
     threading.Thread(target=_reddit_daemon_worker, daemon=True).start()
 
@@ -692,6 +708,27 @@ running_channels = {
 from core.ab_evolution_engine import ABEvolutionEngine
 
 recent_logs = []
+channel_errors: Dict[str, Dict[str, Any]] = {}
+
+def record_channel_error(channel_key: str, error_msg: str):
+    """🚨 특정 채널 먹통/에러 발생 시 대시보드 실시간 알림 큐에 등록"""
+    global channel_errors
+    now_kst = get_now_kst()
+    clean_err = str(error_msg).replace("\n", " ")[:150]
+    channel_errors[channel_key] = {
+        "channel": channel_key,
+        "error": clean_err,
+        "time": now_kst.strftime("%H:%M:%S"),
+        "timestamp": now_kst.strftime("%Y-%m-%d %H:%M:%S"),
+        "status": "ERROR"
+    }
+    log_event(f"🚨 [{channel_key}] 채널 장애/먹통 감지! {clean_err}", "error")
+
+def clear_channel_error(channel_key: str):
+    """✅ 채널 정상 작동 시 장애 상태 자동 해제"""
+    global channel_errors
+    if channel_key in channel_errors:
+        channel_errors.pop(channel_key, None)
 
 ab_evolution_engine = ABEvolutionEngine()
 MEDIA_ENGINE_SETTINGS_FILE = DATA_DIR / "media_engine_settings.json"
@@ -771,7 +808,9 @@ for _name in [
     "AuraSupabaseManager", "AuraPipeline", "InsurancePipeline", "StockPipeline",
     "AuraRedditEngine", "AuraRedditScanner", "AuraRedditCopywriter",
     "InsuranceRedditEngine", "InsuranceRedditScanner", "InsuranceRedditCopywriter",
-    "RedditSafetyOrchestrator", "ChannelScheduler",
+    "StockRedditEngine", "StockRedditScanner", "StockRedditCopywriter",
+    "RedditBrowserDriver", "RedditSafetyOrchestrator", "RedditOrganicEngine", "AccountHealthMonitor",
+    "ChannelScheduler",
     "AuraYouTubeScheduler", "AuraYouTubeAPIPublisher", "AuraYouTubeBotPublisher", "AuraYouTubeHybridPilot",
     "AuraMetaScheduler", "AuraMetaPublisher",
     "InsuranceYouTubeScheduler", "InsuranceYouTubeAPIPublisher", "InsuranceYouTubeBotPublisher", "InsuranceYouTubeHybridPilot",
@@ -779,11 +818,27 @@ for _name in [
     "StockShortsScheduler", "StockQuantShortsBuilder", "StockYouTubeAPIPublisher", "StockYouTubeBotPublisher", 
     "StockMetaScheduler", "StockMetaPublisher",
     "AuraKinScanner", "InsuranceKinScanner", "StockKinScanner",
-    "AuraYouTubeBehaviorBot", "InsuranceYouTubeBehaviorBot", "StockYouTubeBehaviorBot"
+    "AuraHumanBehaviorBot", "InsuranceHumanBehaviorBot", "StockHumanBehaviorBot",
+    "AuraMetaStealthIncubator", "InsuranceMetaStealthIncubator", "StockMetaStealthIncubator",
+    "AuraYouTubeBehaviorBot", "InsuranceYouTubeBehaviorBot", "StockYouTubeBehaviorBot",
+    "AuraYouTubeBehaviorScheduler", "InsuranceYouTubeBehaviorScheduler", "StockYouTubeBehaviorScheduler",
+    "AuraYouTubeIncubator", "InsuranceYouTubeIncubator", "StockYouTubeIncubator",
+    "AuraTikTokBehaviorBot", "InsuranceTikTokBehaviorBot", "StockTikTokBehaviorBot",
+    "AuraTikTokBehaviorScheduler", "InsuranceTikTokBehaviorScheduler", "StockTikTokBehaviorScheduler",
+    "AuraThreadsHumanBot", "InsuranceThreadsHumanBot", "StockThreadsHumanBot",
+    "AuraThreadsPublisher", "InsuranceThreadsPublisher", "StockThreadsPublisher",
+    "AuraThreadsTextPipeline", "InsuranceThreadsTextPipeline", "StockThreadsTextPipeline",
+    "AuraCafePipeline", "InsuranceCafePipeline", "StockCafePipeline",
+    "AuraCafeScanner", "InsuranceCafeScanner", "StockCafeScanner",
+    "AuraCafeIncubator", "StockCafeIncubator"
 ]:
     _t_log = logging.getLogger(_name)
     _t_log.addHandler(_dash_handler)
     _t_log.setLevel(logging.INFO)
+    _t_log.propagate = False
+
+# 루트 로거에도 등록하여 임의의 미지정 하위 모듈 로그도 100% 직결
+logging.getLogger().addHandler(_dash_handler)
 
 def init_verified_live_logs():
     """서버 부팅 시 3대 브랜드 무인 관제 센터 정상 가동 안내만 깔끔하게 출력"""
@@ -1019,11 +1074,17 @@ def execute_single_channel_task(module_name: str) -> str:
         elif module_name in ["aura_threads", "aura_omni_threads"]:
             import asyncio
             from brands.aura.aura_threads_text_pipeline import AuraThreadsTextPipeline
+            log_event("🧵 [Aura 스레드] Gemini 순수 텍스트 1회 자율 집필 및 라이브 송출 가동...", "info")
             res = asyncio.run(AuraThreadsTextPipeline(headless=True).execute_slot(slot="morning", dry_run=False))
             if res.get("success"):
+                clear_channel_error("aura_threads")
                 pub = res.get("publish_result", {})
+                log_event(f"🎉 [Aura 스레드 발행 성공] 본문 + 1번 타래글(공식 검색어 '아우라AI데이팅' & 랜딩 URL) 체인 완료", "success")
                 return f"💖 [Aura 스레드 텍스트 발행 완료]\n  • 결과: 성공 (사진 0장 + 공식 검색어 & 첫댓글 링크 체인)\n  • 증빙 캡처: {pub.get('screenshot_path', '-')}"
-            return f"💖 [Aura 스레드] {res.get('publish_result', {}).get('message', res.get('error', '실패'))}"
+            err_msg = res.get("publish_result", {}).get("message") or res.get("error", "스레드 세션 접속 또는 버튼 탐색 실패")
+            record_channel_error("aura_threads", err_msg)
+            log_event(f"❌ [Aura 스레드 송출 실패] {err_msg}", "error")
+            return f"💖 [Aura 스레드 실패] {err_msg}"
         elif module_name in ["aura_nate_pann", "aura_dcinside", "aura_ppomppu"]:
             from brands.aura.aura_pipeline import AuraPipeline
             res = AuraPipeline(dry_run=False).run_viral_community_cycle()
@@ -1042,13 +1103,47 @@ def execute_single_channel_task(module_name: str) -> str:
             return res.get("message", "🌐 Aura 2대 포털 검색엔진 동시 색인 핑 전송 완료")
         elif module_name in ["aura_reddit", "aura_reddit_cycle", "aura_reddit_promo"]:
             from brands.aura.aura_reddit_engine import AuraRedditEngine
+            log_event("🔍 [Aura 레딧] 12대 글로벌 서브레딧 실시간 스캔 & 파이썬 심사 시작...", "info")
             engine = AuraRedditEngine()
             if module_name == "aura_reddit_cycle":
                 cycle_res = engine.run_safe_cycle()
+                log_event(f"💖 [Aura 레딧 안전 사이클 완료] 업보트 {cycle_res.get('upvotes', 0)}건, 체류 피드 탐색, 비홍보 {cycle_res.get('organic_comments', 0)}건, 스텔스홍보 {cycle_res.get('promo_comments', 0)}건", "success")
                 return f"💖 [Aura 레딧 안전 사이클 완료] 업보트 {cycle_res.get('upvotes', 0)}건, 비홍보 {cycle_res.get('organic_comments', 0)}건, 스텔스홍보 {cycle_res.get('promo_comments', 0)}건"
             else:
-                p_cnt = engine.scan_and_reply(limit_per_sub=10, max_promo=1, auto_post=True)
-                return f"💖 [Aura 레딧 스텔스 마케팅 완료] 12대 서브레딧 스캔 ➔ {p_cnt}건 처리 완료"
+                log_event("🚀 [Aura 레딧] 12대 서브레딧 스캔 및 실시간 스텔스 댓글 게시 가동...", "info")
+                processed = engine.scan_and_reply(limit_per_sub=10, max_promo=1, auto_post=True)
+                clear_channel_error("aura_reddit")
+                if processed > 0:
+                    log_event("🎉 [Aura 레딧 스텔스 마케팅 성공] 실시간 타겟 글에 '아우라AI데이팅' 검색 유도 댓글 등록 완료!", "success")
+                    return f"💖 [Aura 레딧 스텔스 마케팅 1회 완료] 댓글 {processed}건 게시 성공 (검색어: '아우라AI데이팅' 포함)"
+                else:
+                    log_event("ℹ️ [Aura 레딧] 조건 부합 신규 글 부재 또는 안전 한도/세션 대기 중", "info")
+                    return "💖 [Aura 레딧 스캔 완료] 조건 부합 글 부재 또는 안전 대기"
+        elif module_name in ["aura_human_bot", "aura_instagram_stealth", "aura_meta_stealth"]:
+            from brands.aura.aura_human_behavior_bot import AuraHumanBehaviorBot
+            log_event("🤖 [Aura 인스타 스텔스] 사람처럼 탐색 탭 체류 및 좋아요 가동...", "info")
+            bot = AuraHumanBehaviorBot(headless=True)
+            res = bot.execute_single_session()
+            log_event(f"🎉 [Aura 인스타 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, 피드 {res.get('posts_viewed', 0)}개 정독, 좋아요 {res.get('likes_given', 0)}회 성공", "success")
+            return f"💖 [Aura 인스타 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, 피드 {res.get('posts_viewed', 0)}개, 좋아요 {res.get('likes_given', 0)}회"
+        elif module_name in ["aura_youtube_bot", "aura_youtube_stealth"]:
+            from brands.aura.aura_youtube_behavior_bot import AuraYouTubeBehaviorScheduler
+            log_event("🎬 [Aura 유튜브 스텔스] 사람처럼 쇼츠 완시청 및 좋아요 가동...", "info")
+            res = AuraYouTubeBehaviorScheduler().execute_single_session()
+            log_event(f"🎉 [Aura 유튜브 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, 쇼츠 {res.get('shorts_watched', 0)}편 완시청, 좋아요 {res.get('likes_given', 0)}회 성공", "success")
+            return f"💖 [Aura 유튜브 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, 쇼츠 {res.get('shorts_watched', 0)}편, 좋아요 {res.get('likes_given', 0)}회"
+        elif module_name in ["aura_tiktok_bot", "aura_tiktok_stealth"]:
+            from brands.aura.aura_tiktok_behavior_bot import AuraTikTokBehaviorScheduler
+            log_event("🎵 [Aura 틱톡 스텔스] 사람처럼 FYP 피드 탐색 및 댓글창 열람 가동...", "info")
+            res = AuraTikTokBehaviorScheduler().execute_single_session()
+            log_event(f"🎉 [Aura 틱톡 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, FYP 영상 {res.get('videos_watched', 0)}개 시청, 좋아요 {res.get('likes_given', 0)}회 성공", "success")
+            return f"💖 [Aura 틱톡 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, FYP 영상 {res.get('videos_watched', 0)}개, 좋아요 {res.get('likes_given', 0)}회"
+        elif module_name in ["aura_threads_bot", "aura_threads_stealth"]:
+            from brands.aura.aura_threads_human_bot import AuraThreadsHumanBot
+            log_event("🧵 [Aura 스레드 스텔스] 사람처럼 타임라인 정독 및 하트 탐색 가동...", "info")
+            res = AuraThreadsHumanBot(headless=True).execute_single_session()
+            log_event(f"🎉 [Aura 스레드 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, 글 {res.get('posts_read', 0)}개 정독, 좋아요 {res.get('likes_given', 0)}회 성공", "success")
+            return f"💖 [Aura 스레드 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, 글 {res.get('posts_read', 0)}개, 좋아요 {res.get('likes_given', 0)}회"
         elif module_name in ["aura_naver_cafe", "aura_daum_cafe"]:
             import asyncio
             from brands.aura.aura_cafe_pipeline import AuraCafePipeline
@@ -1115,23 +1210,64 @@ def execute_single_channel_task(module_name: str) -> str:
         elif module_name in ["insurance_threads", "insurance_omni_threads"]:
             import asyncio
             from brands.insurance.insurance_threads_text_pipeline import InsuranceThreadsTextPipeline
+            log_event("🧵 [보험비교 스레드] Gemini 순수 텍스트 1회 자율 집필 및 라이브 송출 가동...", "info")
             res = asyncio.run(InsuranceThreadsTextPipeline(headless=True).execute_slot(slot="morning", dry_run=False))
             if res.get("success"):
+                clear_channel_error("insurance_threads")
                 pub = res.get("publish_result", {})
+                log_event(f"🎉 [보험비교 스레드 발행 성공] 본문 + 1번 타래글(공식 검색어 '보험 리밸런스' & 랜딩 URL) 체인 완료", "success")
                 return f"🛡️ [보험비교 스레드 텍스트 발행 완료]\n  • 결과: 성공 (사진 0장 + 공식 검색어 & 첫댓글 링크 체인)\n  • 증빙 캡처: {pub.get('screenshot_path', '-')}"
-            return f"🛡️ [보험비교 스레드] {res.get('publish_result', {}).get('message', res.get('error', '실패'))}"
+            err_msg = res.get("publish_result", {}).get("message") or res.get("error", "스레드 세션 접속 실패")
+            record_channel_error("insurance_threads", err_msg)
+            log_event(f"❌ [보험비교 스레드 송출 실패] {err_msg}", "error")
+            return f"🛡️ [보험비교 스레드 실패] {err_msg}"
         elif module_name in ["insurance_seo", "insurance_search_advisor", "insurance_omni_seo", "insurance_google_ping"]:
             from brands.insurance.insurance_search_indexing_hub import InsuranceSearchIndexingHub
             res = InsuranceSearchIndexingHub().ping_all_engines()
+            return res.get("message", "🌐 보험비교 2대 포털 검색엔진 동시 색인 핑 전송 완료")
         elif module_name in ["insurance_reddit", "insurance_reddit_cycle", "insurance_reddit_promo"]:
             from brands.insurance.insurance_reddit_engine import InsuranceRedditEngine
+            log_event("🔍 [보험비교 레딧] 10대 글로벌 서브레딧 실시간 스캔 & 파이썬 심사 시작...", "info")
             engine = InsuranceRedditEngine()
             if module_name == "insurance_reddit_cycle":
                 cycle_res = engine.run_safe_cycle()
+                log_event(f"🛡️ [보험 레딧 안전 사이클 완료] 업보트 {cycle_res.get('upvotes', 0)}건, 체류 피드 탐색, 비홍보 {cycle_res.get('organic_comments', 0)}건, 스텔스홍보 {cycle_res.get('promo_comments', 0)}건", "success")
                 return f"🛡️ [보험 레딧 안전 사이클 완료] 업보트 {cycle_res.get('upvotes', 0)}건, 비홍보 {cycle_res.get('organic_comments', 0)}건, 스텔스홍보 {cycle_res.get('promo_comments', 0)}건"
             else:
-                p_cnt = engine.scan_and_reply(limit_per_sub=10, max_promo=1, auto_post=True)
-                return f"🛡️ [보험 레딧 스텔스 마케팅 완료] 10대 서브레딧 스캔 ➔ {p_cnt}건 처리 완료"
+                log_event("🚀 [보험비교 레딧] 10대 서브레딧 스캔 및 실시간 스텔스 댓글 게시 가동...", "info")
+                processed = engine.scan_and_reply(limit_per_sub=10, max_promo=1, auto_post=True)
+                clear_channel_error("insurance_reddit")
+                if processed > 0:
+                    log_event("🎉 [보험 레딧 스텔스 마케팅 성공] 실시간 타겟 글에 '보험 리밸런스' 검색 유도 댓글 등록 완료!", "success")
+                    return f"🛡️ [보험 레딧 스텔스 마케팅 1회 완료] 댓글 {processed}건 게시 성공 (검색어: '보험 리밸런스' 포함)"
+                else:
+                    log_event("ℹ️ [보험 레딧] 조건 부합 신규 글 부재 또는 안전 한도/세션 대기 중", "info")
+                    return "🛡️ [보험 레딧 스캔 완료] 조건 부합 글 부재 또는 안전 대기"
+        elif module_name in ["insurance_human_bot", "insurance_instagram_stealth", "insurance_meta_stealth"]:
+            from brands.insurance.insurance_human_behavior_bot import InsuranceHumanBehaviorBot
+            log_event("🤖 [보험 인스타 스텔스] 사람처럼 탐색 탭 체류 및 좋아요 가동...", "info")
+            bot = InsuranceHumanBehaviorBot(headless=True)
+            res = bot.execute_single_session()
+            log_event(f"🎉 [보험 인스타 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, 피드 {res.get('posts_viewed', 0)}개 정독, 좋아요 {res.get('likes_given', 0)}회 성공", "success")
+            return f"🛡️ [보험 인스타 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, 피드 {res.get('posts_viewed', 0)}개, 좋아요 {res.get('likes_given', 0)}회"
+        elif module_name in ["insurance_youtube_bot", "insurance_youtube_stealth"]:
+            from brands.insurance.insurance_youtube_behavior_bot import InsuranceYouTubeBehaviorScheduler
+            log_event("🎬 [보험 유튜브 스텔스] 사람처럼 쇼츠 완시청 및 좋아요 가동...", "info")
+            res = InsuranceYouTubeBehaviorScheduler().execute_single_session()
+            log_event(f"🎉 [보험 유튜브 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, 쇼츠 {res.get('shorts_watched', 0)}편 완시청, 좋아요 {res.get('likes_given', 0)}회 성공", "success")
+            return f"🛡️ [보험 유튜브 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, 쇼츠 {res.get('shorts_watched', 0)}편, 좋아요 {res.get('likes_given', 0)}회"
+        elif module_name in ["insurance_tiktok_bot", "insurance_tiktok_stealth"]:
+            from brands.insurance.insurance_tiktok_behavior_bot import InsuranceTikTokBehaviorScheduler
+            log_event("🎵 [보험 틱톡 스텔스] 사람처럼 FYP 피드 탐색 및 댓글창 열람 가동...", "info")
+            res = InsuranceTikTokBehaviorScheduler().execute_single_session()
+            log_event(f"🎉 [보험 틱톡 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, FYP 영상 {res.get('videos_watched', 0)}개 시청, 좋아요 {res.get('likes_given', 0)}회 성공", "success")
+            return f"🛡️ [보험 틱톡 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, FYP 영상 {res.get('videos_watched', 0)}개, 좋아요 {res.get('likes_given', 0)}회"
+        elif module_name in ["insurance_threads_bot", "insurance_threads_stealth"]:
+            from brands.insurance.insurance_threads_human_bot import InsuranceThreadsHumanBot
+            log_event("🧵 [보험 스레드 스텔스] 사람처럼 타임라인 정독 및 하트 탐색 가동...", "info")
+            res = InsuranceThreadsHumanBot(headless=True).execute_single_session()
+            log_event(f"🎉 [보험 스레드 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, 글 {res.get('posts_read', 0)}개 정독, 좋아요 {res.get('likes_given', 0)}회 성공", "success")
+            return f"🛡️ [보험 스레드 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, 글 {res.get('posts_read', 0)}개, 좋아요 {res.get('likes_given', 0)}회"
         elif module_name in ["insurance_naver_cafe", "insurance_daum_cafe", "insurance_cafe"]:
             import asyncio
             from brands.insurance.insurance_cafe_pipeline import InsuranceCafePipeline
@@ -1194,24 +1330,64 @@ def execute_single_channel_task(module_name: str) -> str:
         elif module_name in ["stock_threads", "stock_omni_threads"]:
             import asyncio
             from brands.stock.stock_threads_text_pipeline import StockThreadsTextPipeline
+            log_event("🧵 [주식AI 스레드] Gemini 순수 텍스트 1회 자율 집필 및 라이브 송출 가동...", "info")
             res = asyncio.run(StockThreadsTextPipeline(headless=True).execute_slot(slot="morning", dry_run=False))
             if res.get("success"):
+                clear_channel_error("stock_threads")
                 pub = res.get("publish_result", {})
+                log_event(f"🎉 [주식AI 스레드 발행 성공] 본문 + 1번 타래글(공식 검색어 '스톡마스터 AI' & 랜딩 URL) 체인 완료", "success")
                 return f"📈 [주식AI 스레드 텍스트 발행 완료]\n  • 결과: 성공 (사진 0장 + 공식 검색어 & 첫댓글 링크 체인)\n  • 증빙 캡처: {pub.get('screenshot_path', '-')}"
-            return f"📈 [주식AI 스레드] {res.get('publish_result', {}).get('message', res.get('error', '실패'))}"
+            err_msg = res.get("publish_result", {}).get("message") or res.get("error", "스레드 세션 접속 실패")
+            record_channel_error("stock_threads", err_msg)
+            log_event(f"❌ [주식AI 스레드 송출 실패] {err_msg}", "error")
+            return f"📈 [주식AI 스레드 실패] {err_msg}"
         elif module_name in ["stock_seo", "stock_search_advisor", "stock_omni_seo", "stock_google_ping"]:
             from brands.stock.stock_search_indexing_hub import StockSearchIndexingHub
             res = StockSearchIndexingHub().ping_all_engines()
             return res.get("message", "🌐 주식AI 2대 포털 검색엔진 동시 색인 핑 전송 완료")
         elif module_name in ["stock_reddit", "stock_reddit_cycle", "stock_reddit_promo"]:
             from brands.stock.stock_reddit_engine import StockRedditEngine
+            log_event("🔍 [주식AI 레딧] 10대 글로벌 서브레딧 실시간 스캔 & 파이썬 심사 시작...", "info")
             engine = StockRedditEngine()
             if module_name == "stock_reddit_cycle":
                 cycle_res = engine.run_safe_cycle()
+                log_event(f"📈 [주식 레딧 안전 사이클 완료] 업보트 {cycle_res.get('upvotes', 0)}건, 체류 피드 탐색, 비홍보 {cycle_res.get('organic_comments', 0)}건, 스텔스홍보 {cycle_res.get('promo_comments', 0)}건", "success")
                 return f"📈 [주식AI 레딧 안전 사이클 완료] 업보트 {cycle_res.get('upvotes', 0)}건, 비홍보 {cycle_res.get('organic_comments', 0)}건, 스텔스홍보 {cycle_res.get('promo_comments', 0)}건"
             else:
-                p_cnt = engine.scan_and_reply(limit_per_sub=10, max_promo=1, auto_post=True)
-                return f"📈 [주식AI 레딧 스텔스 마케팅 완료] 10대 서브레딧 스캔 ➔ {p_cnt}건 처리 완료"
+                log_event("🚀 [주식AI 레딧] 10대 서브레딧 스캔 및 실시간 스텔스 댓글 게시 가동...", "info")
+                processed = engine.scan_and_reply(limit_per_sub=10, max_promo=1, auto_post=True)
+                clear_channel_error("stock_reddit")
+                if processed > 0:
+                    log_event("🎉 [주식 레딧 스텔스 마케팅 성공] 실시간 타겟 글에 '스톡마스터 AI' 검색 유도 댓글 등록 완료!", "success")
+                    return f"📈 [주식AI 레딧 스텔스 마케팅 1회 완료] 댓글 {processed}건 게시 성공 (검색어: '스톡마스터 AI' 포함)"
+                else:
+                    log_event("ℹ️ [주식AI 레딧] 조건 부합 신규 글 부재 또는 안전 한도/세션 대기 중", "info")
+                    return "📈 [주식AI 레딧 스캔 완료] 조건 부합 글 부재 또는 안전 대기"
+        elif module_name in ["stock_human_bot", "stock_instagram_stealth", "stock_meta_stealth"]:
+            from brands.stock.stock_human_behavior_bot import StockHumanBehaviorBot
+            log_event("🤖 [주식 인스타 스텔스] 사람처럼 탐색 탭 체류 및 좋아요 가동...", "info")
+            bot = StockHumanBehaviorBot(headless=True)
+            res = bot.execute_single_session()
+            log_event(f"🎉 [주식 인스타 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, 피드 {res.get('posts_viewed', 0)}개 정독, 좋아요 {res.get('likes_given', 0)}회 성공", "success")
+            return f"📈 [주식 인스타 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, 피드 {res.get('posts_viewed', 0)}개, 좋아요 {res.get('likes_given', 0)}회"
+        elif module_name in ["stock_youtube_bot", "stock_youtube_stealth"]:
+            from brands.stock.stock_youtube_behavior_bot import StockYouTubeBehaviorScheduler
+            log_event("🎬 [주식 유튜브 스텔스] 사람처럼 쇼츠 완시청 및 좋아요 가동...", "info")
+            res = StockYouTubeBehaviorScheduler().execute_single_session()
+            log_event(f"🎉 [주식 유튜브 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, 쇼츠 {res.get('shorts_watched', 0)}편 완시청, 좋아요 {res.get('likes_given', 0)}회 성공", "success")
+            return f"📈 [주식 유튜브 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, 쇼츠 {res.get('shorts_watched', 0)}편, 좋아요 {res.get('likes_given', 0)}회"
+        elif module_name in ["stock_tiktok_bot", "stock_tiktok_stealth"]:
+            from brands.stock.stock_tiktok_behavior_bot import StockTikTokBehaviorScheduler
+            log_event("🎵 [주식 틱톡 스텔스] 사람처럼 FYP 피드 탐색 및 댓글창 열람 가동...", "info")
+            res = StockTikTokBehaviorScheduler().execute_single_session()
+            log_event(f"🎉 [주식 틱톡 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, FYP 영상 {res.get('videos_watched', 0)}개 시청, 좋아요 {res.get('likes_given', 0)}회 성공", "success")
+            return f"📈 [주식 틱톡 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, FYP 영상 {res.get('videos_watched', 0)}개, 좋아요 {res.get('likes_given', 0)}회"
+        elif module_name in ["stock_threads_bot", "stock_threads_stealth"]:
+            from brands.stock.stock_threads_human_bot import StockThreadsHumanBot
+            log_event("🧵 [주식 스레드 스텔스] 사람처럼 타임라인 정독 및 하트 탐색 가동...", "info")
+            res = StockThreadsHumanBot(headless=True).execute_single_session()
+            log_event(f"🎉 [주식 스레드 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, 글 {res.get('posts_read', 0)}개 정독, 좋아요 {res.get('likes_given', 0)}회 성공", "success")
+            return f"📈 [주식 스레드 스텔스 완료] 체류 {res.get('duration_sec', 0)}초, 글 {res.get('posts_read', 0)}개, 좋아요 {res.get('likes_given', 0)}회"
         elif module_name in ["stock_naver_cafe", "stock_daum_cafe", "stock_cafe"]:
             import asyncio
             from brands.stock.stock_cafe_pipeline import StockCafePipeline
@@ -1375,10 +1551,12 @@ def channel_continuous_worker(module_name: str):
         cycle += 1
         try:
             msg = execute_single_channel_task(module_name)
+            clear_channel_error(module_name)
             log_event(f"⚡ [{module_name} #{cycle}] {msg}", "success")
         except Exception as e:
             import traceback
             err_detail = traceback.format_exc()
+            record_channel_error(module_name, str(e))
             log_event(f"❌ [{module_name} 예외 발생] {e}\n{err_detail}", "error")
         
         # 60초 대기 후 다음 사이클 자율 반복 (5초마다 정지 신호 체크)
@@ -1931,6 +2109,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
             "today_live_feed": today_live_tracker.get_all_live_feed(),
             "auth_sentinel": (lambda: __import__('core.platform_auth_sentinel', fromlist=['PlatformAuthSentinel']).PlatformAuthSentinel.get_full_diagnostic_report())(),
             "gpu_status": gpu_lock_manager.get_status(),
+            "channel_errors": channel_errors,
             "recent_logs": recent_logs[-50:]
         }
         self._set_headers("application/json")
@@ -2156,14 +2335,16 @@ class DashboardHandler(BaseHTTPRequestHandler):
         def _worker():
             name_map = {"aura": "💖 Aura", "insurance": "🛡️ 보험비교", "stock": "📈 주식AI", "kmarket": "🛒 K-Market", "easytax": "💰 EasyTax"}
             brand_kr = name_map.get(brand, brand.upper())
+            module_name = f"{brand}_{hub_key}"
             log_event(f"⚡ [{brand_kr} #{hub_key}] 채널 원클릭 즉시 실행 중...", "info")
             try:
-                module_name = f"{brand}_{hub_key}"
                 res = execute_single_channel_task(module_name)
+                clear_channel_error(module_name)
                 log_event(f"🎉 [{brand_kr} #{hub_key}] 채널 즉시 실행 완료: {res}", "success")
             except Exception as ex:
                 import traceback
                 err_detail = traceback.format_exc()
+                record_channel_error(module_name, str(ex))
                 log_event(f"❌ [{brand_kr} #{hub_key}] 실행 중 오류 발생: {ex}\n{err_detail}", "error")
 
         threading.Thread(target=_worker, daemon=True).start()
@@ -2304,12 +2485,18 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 scheduler = AuraKinScheduler()
 
             state = scheduler._load_state()
-            slot = scheduler.get_current_slot()
+            if hasattr(scheduler, "get_current_slot"):
+                slot = scheduler.get_current_slot()
+            else:
+                slot = {"name": "24시간 실시간 레이더 감시", "target": scheduler.DAILY_TARGET}
             history = scheduler.pipeline._load_history()
+            today_str = datetime.now().strftime("%Y-%m-%d")
+            actual_today = sum(1 for h in history if str(h.get("created_at", "")).startswith(today_str) and h.get("status") == "published")
+            daily_total = max(state.get("daily_total", 0), actual_today)
             data = {
                 "success": True,
                 "brand": brand,
-                "daily_total": state.get("daily_total", 0),
+                "daily_total": daily_total,
                 "daily_target": scheduler.DAILY_TARGET,
                 "current_slot": slot,
                 "slots_breakdown": state.get("slots", {}),
@@ -2411,10 +2598,12 @@ class DashboardHandler(BaseHTTPRequestHandler):
             try:
                 log_event(f"⚡ [{module_name}] 즉시 1회 시험 실행 시작...", "info")
                 res = execute_single_channel_task(module_name)
+                clear_channel_error(module_name)
                 log_event(f"✅ [{module_name}] 즉시 1회 실행 완료: {res}", "success")
             except Exception as e:
                 import traceback
                 err_detail = traceback.format_exc()
+                record_channel_error(module_name, str(e))
                 log_event(f"❌ [{module_name} 1회 실행 실패] {e}\n{err_detail}", "error")
 
         threading.Thread(target=_worker, daemon=True).start()
@@ -3638,60 +3827,6 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self._set_headers("application/json")
         self.wfile.write(json.dumps({"success": res.get("success", False), "message": msg, "detail": res}, ensure_ascii=False).encode("utf-8"))
 
-    # ── [지식iN] 네이버 지식iN 실시간 낚아채기 핸들러 ─────────────────
-    def _handle_get_kin_history(self, brand="aura"):
-        """지식iN 최근 낚아챈 질문 히스토리 및 24시간 일일 쿼터 통계 반환"""
-        if brand == "stock":
-            from brands.stock.stock_kin_scheduler import StockKinScheduler
-            scheduler = StockKinScheduler()
-        elif brand == "insurance":
-            from brands.insurance.insurance_kin_scheduler import InsuranceKinScheduler
-            scheduler = InsuranceKinScheduler()
-        else:
-            from brands.aura.aura_kin_scheduler import AuraKinScheduler
-            scheduler = AuraKinScheduler()
-
-        state = scheduler._load_state()
-        history = scheduler.pipeline._load_history()
-        today_str = datetime.now().strftime("%Y-%m-%d")
-        actual_today_count = sum(1 for h in history if str(h.get("created_at", "")).startswith(today_str))
-        daily_total = max(state.get("daily_total", 0), actual_today_count)
-
-        res_data = {
-            "success": True,
-            "brand": brand,
-            "daily_total": daily_total,
-            "daily_target": scheduler.DAILY_TARGET,
-            "mode": "24/7 Realtime Radar",
-            "last_run_at": state.get("last_run_at", "대기 중"),
-            "history": history[:20]
-        }
-        self._set_headers("application/json")
-        self.wfile.write(json.dumps(res_data, ensure_ascii=False).encode("utf-8"))
-
-    def _handle_post_kin_run(self, brand="aura"):
-        """지식iN 실시간 1회 즉시 낚아채기 트리거"""
-        if brand == "stock":
-            from brands.stock.stock_kin_pipeline import StockKinPipeline
-            pipeline = StockKinPipeline()
-            brand_name = "Stock Master"
-        elif brand == "insurance":
-            from brands.insurance.insurance_kin_pipeline import InsuranceKinPipeline
-            pipeline = InsuranceKinPipeline()
-            brand_name = "InsureBalance"
-        else:
-            from brands.aura.aura_kin_pipeline import AuraKinPipeline
-            pipeline = AuraKinPipeline()
-            brand_name = "Aura"
-
-        res = pipeline.run_catch_cycle(max_catch=1)
-        if res.get("success"):
-            rec = res.get("record", {})
-            log_event(f"🎯 [{brand_name} 지식iN] '{rec.get('title','')}' 낚아채기 완료! (적합도 {rec.get('score',90)}점)", "success")
-        else:
-            log_event(f"ℹ️ [{brand_name} 지식iN] {res.get('message', '새 질문 탐색 완료')}", "info")
-        self._set_headers("application/json")
-        self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
 
     # ── [카페] 네이버 8대/5대 정예 카페 스텔스 침투 핸들러 ─────────
     def _handle_get_cafe_history(self, brand="aura"):

@@ -6,7 +6,7 @@ AuraCardnewsS2MaleProfileBuilder - 📱 [Aura 카드뉴스 2번 전용 숏폼 6�
   - 숏폼 6번("AI 첫대화 비서")의 검증된 [K-드라마 남주인공 / 아이돌 배우급 골든 락]으로 Wan 2.1 T2I 실사 훈남 생성
   - 대표님께서 지정하신 Aura 실제 프로필 탐색 화면의 카드 영역(437x655)에 서브픽셀 정밀 매립
   - 훈남 실사 사진의 상반신(어깨, 자켓, 가슴)이 자연스럽게 이어지도록 그라데이션 스크림 + 텍스트(도윤, 29 / 태그들) 고화질 결합
-  - 상단 뱃지(45% 일치, 공통점 3개) 및 카드뉴스 정규 헤더(💖 AURA | 50:50 남녀 황금 성비율 + '02 / 05 >') 결합
+  - 상단 뱃지(45% 일치, 공통점 3개) 및 카드뉴스 정규 헤더(💖 아우라 AI 데이팅 | 현재 100% 무료 남녀 황금 성비율 + '02 / 05 >') 결합
 """
 
 import os
@@ -217,7 +217,7 @@ class AuraCardnewsS2MaleProfileBuilder:
         paste_x = (1080 - scaled_w) // 2
         final_canvas.paste(resized_template, (paste_x, 0), mask=resized_template)
 
-        # 6. 상단 브랜드 헤더 배지 ('💖 AURA | 50:50 남녀 황금 성비율' + '02 / 05 >')
+        # 6. 상단 브랜드 헤더 배지 ('💖 아우라 AI 데이팅 | 현재 100% 무료 남녀 황금 성비율' + '02 / 05 >')
         html_header = """<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -236,7 +236,7 @@ class AuraCardnewsS2MaleProfileBuilder:
       <span class="text-rose-400 text-sm">💖</span>
       <span class="text-white font-extrabold text-sm tracking-wider">AURA</span>
       <span class="w-1.5 h-1.5 rounded-full bg-white/40"></span>
-      <span class="text-amber-300 font-bold text-xs tracking-wide">50:50 남녀 황금 성비율</span>
+      <span class="text-amber-300 font-bold text-xs tracking-wide">현재 100% 무료</span>
     </div>
 
     <!-- Page Index -->

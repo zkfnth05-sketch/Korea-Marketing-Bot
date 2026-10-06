@@ -291,8 +291,8 @@ class AuraCardnewsS2S4LookbookBuilder:
     <div class="top-header">
         <div class="brand-badge">
             <span class="brand-icon">💖</span>
-            <span class="brand-text">AURA</span>
-            <span class="brand-sub">50:50 남녀 황금 성비율</span>
+            <span class="brand-text">아우라 AI 데이팅</span>
+            <span class="brand-sub">현재 100% 무료</span>
         </div>
         <div class="page-badge">
             {page_str}

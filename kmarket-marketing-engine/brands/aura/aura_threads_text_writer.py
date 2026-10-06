@@ -61,11 +61,11 @@ from brands.aura.aura_hashtag_matrix import AuraHashtagMatrix
 _AURA_FALLBACK_BANK = [
     {
         "caption": "소개팅 끝나고 집 갈 때 '오늘 즐거웠어요 조심히 들어가세요!'만 딱 보내면 90%는 그냥 예의상 인사로 끝납니다 ㅠㅠ\n\n진짜 센스 있는 사람은 오늘 밥 먹으면서 나눴던 사소한 대화 하나를 콕 집어서 언급해요.\n\n'오늘 파스타집 진짜 맛있었어요! 추천해주신 디저트 카페도 담에 꼭 가봐요 ㅎㅎ'\n\n이렇게 다음 만남의 핑계를 자연스럽게 만들어주는 게 애프터 성사율 300% 치트키입니다 ✨\n\n#아우라AI데이팅 #AURA #소개팅 #연애꿀팁 #소개팅카톡 #애프터신청 #연애심리 #2030연애 #직장인소개팅 #성수동데이트 #연남동소개팅 #카톡스몰토크 #실시간트렌드 #티키타카 #솔로탈출",
-        "first_reply": "💖 2030 매력 진단 & AI 대화 코칭 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/"
+        "first_reply": "💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/"
     },
     {
         "caption": "썸탈 때 상대방 답장 텀 길어진다고 '바쁘세요?' '오늘 뭐해요?' 재촉하는 건 호감도를 깎아먹는 지름길입니다...\n\n사람 심리는 '왜 연락 안 해?'가 아니라 '내 사소한 말을 기억해 줬네'에서 설레는 법이거든요.\n\n상대방이 며칠 전 지나가듯 말했던 취향이나 맛집 사진을 툭 보내보세요. 99% 바로 칼답 옵니다 ㅋㅋㅋ\n\n#아우라AI데이팅 #AURA #연애심리 #썸 #밀당 #카톡답장 #소개팅대화 #2030직장인 #연애고민 #읽씹탈출 #대화치트키 #강남역소개팅 #을지로데이트 #실시간트렌드 #심리테스트",
-        "first_reply": "💖 나와 딱 맞는 500m 안심 인연 찾기\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/"
+        "first_reply": "💖 나와 딱 맞는 500m 안심 인연 1분 무료 진단\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/"
     }
 ]
 
@@ -171,7 +171,7 @@ class AuraThreadsTextWriter:
             caption = fallback["caption"]
 
         first_reply = (
-            f"💖 2030 매력 진단 & AI 매칭 리포트\n"
+            f"💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n"
             f"네이버에 '{self.OFFICIAL_SEARCH_KEYWORD}' 한번 검색해보세요!\n"
             f"👉 {self.LANDING_URL}"
         )

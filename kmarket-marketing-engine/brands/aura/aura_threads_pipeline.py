@@ -108,7 +108,7 @@ class AuraThreadsPipeline:
 
         # 3. 첫 번째 댓글 체인 (공식 검색어 & 랜딩 URL)
         first_reply = (
-            f"💖 2030 매력 리포트 & AI 이상형 매칭\n"
+            f"💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n"
             f"네이버에 '{self.OFFICIAL_SEARCH_KEYWORD}' 한번 검색해보세요!\n"
             f"👉 {self.LANDING_URL}"
         )

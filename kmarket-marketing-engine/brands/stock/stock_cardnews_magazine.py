@@ -40,8 +40,10 @@ OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
 class StockCardnewsMagazine:
     """📈 Stock Master 주식 AI 4대 옴니 카드뉴스 매거진 통합 엔진"""
 
-    LANDING_URL = "https://t.me/stockmaster_vip"
-    BRAND_NAME = "Stock Master (주식 AI)"
+    LANDING_URL = "https://stockmaster-ai.vercel.app/"
+    BRAND_NAME = "StockMaster AI (스톡마스터 AI)"
+    OFFICIAL_SEARCH = "스톡마스터 AI"
+    IG_HANDLE = "@stockmaster_ai"
 
     # 4장 카드뉴스 주제 템플릿
     TOPICS = [
@@ -53,9 +55,9 @@ class StockCardnewsMagazine:
                 {"page": 1, "card_title": "1. 고대역폭메모리(HBM)", "text": "글로벌 빅테크 AI 서버 증설에 따른 소부장 핵심 밸류체인 수급 집중"},
                 {"page": 2, "card_title": "2. K-방산 수출 모멘텀", "text": "유럽 및 중동 수주 파이프라인 가시화로 기관 5일 연속 순매수 지속"},
                 {"page": 3, "card_title": "3. 전력기기 & 변압기", "text": "북미 노후 전력망 교체 및 AI 데이터센터 전력 수요 폭증 수혜"},
-                {"page": 4, "card_title": "4. 실시간 수급 VIP 채널", "text": "Stock Master VIP 텔레그램에서 장중 실시간 포착 알림 받기!"}
+                {"page": 4, "card_title": "4. 실시간 퀀트 전광판", "text": "StockMaster AI에서 당일 10분 계량 1위 주도주 실시간 확인!"}
             ],
-            "tags": ["주식AI", "외인수급", "기관순매수", "HBM수혜주", "StockMaster"]
+            "tags": ["스톡마스터AI", "외인수급", "기관순매수", "HBM수혜주", "StockMasterAI"]
         },
         {
             "topic_id": "chart_breakout_02",
@@ -119,8 +121,10 @@ class StockCardnewsMagazine:
             caption_lines.append(f"  👉 {s['text']}")
             caption_lines.append("")
 
-        caption_lines.append(f"📊 실시간 외인/기관 수급 분석 및 장전 브리핑은 텔레그램에서!")
-        caption_lines.append(f"🔗 {self.LANDING_URL}")
+        caption_lines.append("👇 당일 실시간 퀀트 1위 종목 무료 확인")
+        caption_lines.append(f"👉 상단 프로필({self.IG_HANDLE}) 링크를 터치하세요!")
+        caption_lines.append(f"🔍 네이버 검색: [{self.OFFICIAL_SEARCH}]")
+        caption_lines.append(f"🔗 공식 웹: {self.LANDING_URL}")
         caption_lines.append("")
         caption_lines.append(" ".join([f"#{t}" for t in selected["tags"]]))
 
@@ -162,7 +166,7 @@ class StockCardnewsMagazine:
         fb_result = {
             "platform": "facebook",
             "status": "published_simulated",
-            "first_comment": f"👉 Stock Master VIP 시황방 입장: {self.LANDING_URL}",
+            "first_comment": f"👉 StockMaster AI 실시간 수급 전광판 바로가기: {self.LANDING_URL}\n네이버에 [{self.OFFICIAL_SEARCH}] 검색하셔도 바로 나옵니다!",
             "stealth_link": True
         }
 

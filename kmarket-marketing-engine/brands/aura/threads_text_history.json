@@ -64,5 +64,61 @@
       }
     },
     "success": true
+  },
+  {
+    "brand": "aura",
+    "slot": "morning",
+    "topic": "썸녀/썸남 답장 텀으로 알아보는 찐 호감 시그널 3가지",
+    "caption_preview": "카톡 답장 텀 1시간? 5분? 그거보다 중요한 진짜 호감 시그널 3가지! 😤 다들 답장 속도에 목매는데, 사...",
+    "published_at": "2026-10-06T11:08:05.562822",
+    "publish_result": {
+      "success": false,
+      "brand": "aura",
+      "error": "ElementHandle.click: Timeout 30000ms exceeded.\nCall log:\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n      - waiting 100ms\n    55 × waiting for element to be visible, enabled and stable\n       - element is not visible\n     - retrying click action\n       - waiting 500ms\n",
+      "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_error_screenshot.png"
+    },
+    "success": false
+  },
+  {
+    "brand": "aura",
+    "slot": "morning",
+    "topic": "첫 소개팅 어색한 침묵 3초 만에 깨는 마법의 스몰토크",
+    "caption_preview": "소개팅 밥 먹다 숨 막히는 정적, 다들 경험해봤죠? ㅠㅠ 딱 3초 만에 분위기 살리는 마법의 스몰토크 제가 ...",
+    "published_at": "2026-10-06T14:09:27.787833",
+    "publish_result": {
+      "success": false,
+      "brand": "aura",
+      "error": "Page.wait_for_selector: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']\") to be visible\n",
+      "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_error_screenshot.png"
+    },
+    "success": false
+  },
+  {
+    "brand": "aura",
+    "slot": "morning",
+    "topic": "2030 직장인 소개팅 삼프터 성공률 300% 올리는 법",
+    "caption_preview": "삼프터까지 잘 가놓고 까이는 사람? 당신이 혹시 그 사람? ㅠㅠ\n\n의외로 매력 발산에만 집중하느라 상대의 '...",
+    "published_at": "2026-10-06T14:17:26.556218",
+    "publish_result": {
+      "success": false,
+      "brand": "aura",
+      "error": "Page.wait_for_selector: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']\") to be visible\n",
+      "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_error_screenshot.png"
+    },
+    "success": false
+  },
+  {
+    "brand": "aura",
+    "slot": "morning",
+    "topic": "썸녀/썸남 답장 텀으로 알아보는 찐 호감 시그널 3가지",
+    "caption_preview": "썸남썸녀 답장 텀, 맨날 재고 있나요? ㅠㅠ 칼답보다 중요한 진짜 호감 시그널 3가지는 따로 있어요!\n\n첫째...",
+    "published_at": "2026-10-06T14:20:34.871103",
+    "publish_result": {
+      "success": false,
+      "brand": "aura",
+      "error": "Page.wait_for_selector: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']\") to be visible\n",
+      "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_error_screenshot.png"
+    },
+    "success": false
   }
 ]

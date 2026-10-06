@@ -70,6 +70,7 @@ class StockNaverClipPublisher:
         video_path: Optional[str] = None,
         topic_id: int = 1,
         title: Optional[str] = None,
+        description: Optional[str] = None,
         timeout_sec: int = 60
     ) -> Dict[str, Any]:
         """동기 호출 인터페이스"""
@@ -78,6 +79,7 @@ class StockNaverClipPublisher:
                 video_path=video_path,
                 topic_id=topic_id,
                 title=title,
+                description=description,
                 timeout_sec=timeout_sec
             ))
         except Exception as e:
@@ -89,6 +91,7 @@ class StockNaverClipPublisher:
         video_path: Optional[str] = None,
         topic_id: int = 1,
         title: Optional[str] = None,
+        description: Optional[str] = None,
         timeout_sec: int = 60
     ) -> Dict[str, Any]:
         """Playwright를 통한 실제 Clip Creators 웹 네이버 클립 숏폼 발행 실행"""
@@ -112,13 +115,15 @@ class StockNaverClipPublisher:
         }
         main_title = title or hook_titles.get(topic_id, "주식 AI 퀀트 분석")
         
-        # 네이버 클립 300자 이내 설명문 구성
-        clip_desc = (
+        # 네이버 클립 300자 이내 설명문 구성 (블로그 + 공식 Vercel 2개 링크 동시 탑재)
+        fallback_desc = (
             f"{main_title}\n\n"
-            f"🔍 네이버 검색창에 👉 [ 스톡마스터 AI ] 검색해보세요!\n"
-            f"공식 진단: https://stockmaster-ai.vercel.app/\n\n"
+            f"📝 상세 칼럼(블로그): https://blog.naver.com/stockmaster_ai\n"
+            f"🚀 AI 수급 분석(체험): https://stockmaster-ai.vercel.app/\n"
+            f"🔍 네이버 검색창: [스톡마스터 AI]\n\n"
             f"#스톡마스터AI #주식AI #주식투자 #적정주가 #수급분석"
         )
+        clip_desc = description or fallback_desc
 
         upload_url = "https://clipcreators.naver.com/web/upload"
         logger.info(f"🚀 [Naver-Stock Real Clip] 숏폼 발행 시작: '{main_title}' (영상: {target_video.name})")

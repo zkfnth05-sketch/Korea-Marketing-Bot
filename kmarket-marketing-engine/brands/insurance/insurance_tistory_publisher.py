@@ -98,6 +98,43 @@ class InsuranceTistoryPublisher:
             except Exception as ex:
                 logger.warning(f"카카오 자동 SSO 브릿지 시도: {ex}")
 
+    async def _auto_recover_sso(self, page, context, target_write_url: str) -> bool:
+        """카카오 SSO 및 간편로그인 화면에서 원클릭으로 세션을 실시간 자동 복구"""
+        try:
+            logger.info("🔄 [Tistory-Insurance SSO 복구] 카카오 간편로그인 브릿지 가동...")
+            cur_url = page.url
+            if "auth/login" in cur_url or "login" in cur_url:
+                kakao_btn = await page.query_selector("a.btn_login.link_kakao_id, .link_kakao, a[href*='accounts.kakao.com']")
+                if kakao_btn:
+                    await kakao_btn.click(force=True)
+                    await asyncio.sleep(2.5)
+
+            # 간편로그인 등록 계정 버튼 탐색 (.wrap_profile, a.link_profile, .item_account a, .link_name)
+            prof_btn = await page.query_selector(".wrap_profile, a.link_profile, .item_account a, .link_name, [data-type='account']")
+            if prof_btn:
+                logger.info("👉 [Tistory-Insurance SSO 복구] 등록된 간편 카카오 프로필 원클릭 선택...")
+                await prof_btn.click(force=True)
+                await asyncio.sleep(3.5)
+
+            # 글쓰기 페이지로 재진입
+            await page.goto(target_write_url, wait_until="domcontentloaded", timeout=20000)
+            await asyncio.sleep(2.0)
+
+            cur_url = page.url
+            if "manage/newpost" in cur_url and "auth/login" not in cur_url and "accounts.kakao.com" not in cur_url:
+                logger.info("🎉 [Tistory-Insurance SSO 복구 성공] 티스토리 글쓰기 페이지에 정상 복구 진입했습니다!")
+                try:
+                    await context.storage_state(path=str(self.session_file))
+                except Exception:
+                    pass
+                return True
+            else:
+                logger.warning(f"⚠️ [Tistory-Insurance SSO 복구 미완료] 현재 URL: {cur_url}")
+                return False
+        except Exception as e:
+            logger.warning(f"⚠️ [Tistory-Insurance SSO 복구 예외] {e}")
+            return False
+
     async def _keep_alive_async(self) -> Dict[str, Any]:
         async with async_playwright() as p:
             context = await p.chromium.launch_persistent_context(
@@ -207,6 +244,19 @@ class InsuranceTistoryPublisher:
                 await page.goto(write_url, wait_until="domcontentloaded", timeout=timeout_sec * 1000)
                 await asyncio.sleep(2)
 
+                # 🛡️ 세션 만료 즉각 감지 및 실시간 SSO 자동 복구
+                cur_url = page.url
+                if "auth" in cur_url or "login" in cur_url or "accounts.kakao.com" in cur_url:
+                    logger.info("🔄 [Tistory-Insurance] 로그인/인증 페이지 감지 -> 카카오 간편 SSO 실시간 자동 복구 시도...")
+                    recovered = await self._auto_recover_sso(page, context, write_url)
+                    if not recovered:
+                        logger.warning("⚠️ [Tistory-Insurance] 티스토리 세션 만료 감지 (1회 연동 로그인 필요)")
+                        return {
+                            "status": "session_expired",
+                            "message": "티스토리 카카오 세션 만료. [1회연동]_보험비교_티스토리_영구로그인.bat 실행 필요",
+                            "blog_name": self.blog_name
+                        }
+
                 # 2. 제목 입력기 대기 (유연한 선택자 지원)
                 title_el = None
                 try:
@@ -217,13 +267,11 @@ class InsuranceTistoryPublisher:
                 if not title_el:
                     cur_url = page.url
                     if "auth" in cur_url or "login" in cur_url or "accounts.kakao.com" in cur_url:
-                        logger.warning("⚠️ [Tistory-Insurance] 티스토리 세션 만료 감지 (1회 연동 로그인 필요)")
-                        return {
-                            "status": "session_expired",
-                            "message": "티스토리 카카오 세션 만료. [1회연동]_보험비교_티스토리_영구로그인.bat 실행 필요",
-                            "blog_name": self.blog_name
-                        }
-                    raise RuntimeError("티스토리 제목 입력 필드를 찾을 수 없습니다.")
+                        recovered = await self._auto_recover_sso(page, context, write_url)
+                        if recovered:
+                            title_el = await page.wait_for_selector("#post-title-inp, textarea[id*='title'], input[name='title']", timeout=15000)
+                    if not title_el:
+                        raise RuntimeError("티스토리 제목 입력 필드를 찾을 수 없습니다.")
 
                 await title_el.fill(title)
 

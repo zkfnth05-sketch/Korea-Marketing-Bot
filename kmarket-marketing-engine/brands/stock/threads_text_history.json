@@ -1,0 +1,80 @@
+[
+  {
+    "brand": "stock",
+    "slot": "morning",
+    "topic": "단타 칠 때 거래량 터지는 양봉 캔들 제대로 해석하는 법",
+    "caption_preview": "거래대금 1,000억 터진 양봉? 무조건 진입하면 안 되는 이유입니다. 📈 많은 개인 투자자들이 거래량만 보...",
+    "published_at": "2026-10-06T11:11:17.555628",
+    "publish_result": {
+      "success": false,
+      "brand": "stock",
+      "error": "ElementHandle.click: Timeout 30000ms exceeded.\nCall log:\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"__fb-light-mode x1qjc9v5 x9f619 x78zum5 xdt5ytf x1iyjqo2 xl56j7k\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"__fb-light-mode x1qjc9v5 x9f619 x78zum5 xdt5ytf x1iyjqo2 xl56j7k\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    55 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <div class=\"__fb-light-mode x1qjc9v5 x9f619 x78zum5 xdt5ytf x1iyjqo2 xl56j7k\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n",
+      "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_error_screenshot.png"
+    },
+    "success": false
+  },
+  {
+    "brand": "stock",
+    "slot": "morning",
+    "topic": "장 시작 전 반드시 체크해야 할 외인/기관 수급 쏠림 섹터",
+    "caption_preview": "장 시작 전 방향 못 잡고 헤매다 FOMO 매매에 갇히셨나요?\n\n개장 30분 전, 미 증시 마감 보고서에서 ...",
+    "published_at": "2026-10-06T14:18:50.507853",
+    "publish_result": {
+      "success": false,
+      "brand": "stock",
+      "error": "Page.wait_for_selector: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']\") to be visible\n",
+      "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_error_screenshot.png"
+    },
+    "success": false
+  },
+  {
+    "brand": "stock",
+    "slot": "morning",
+    "topic": "오늘 주목해야 할 반도체 & 2차전지 밸류체인 핵심 맥락",
+    "caption_preview": "삼성전자/SK하이닉스만 보다가 진짜 기회를 놓치고 있진 않으세요?\n\n대형주 수급이 들어올 때, 그 돈은 밸류...",
+    "published_at": "2026-10-06T14:22:10.865085",
+    "publish_result": {
+      "success": false,
+      "brand": "stock",
+      "error": "Page.wait_for_selector: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']\") to be visible\n",
+      "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_error_screenshot.png"
+    },
+    "success": false
+  },
+  {
+    "brand": "stock",
+    "slot": "evening",
+    "topic": "장마감 후 외인·기관이 몰래 쌍끌이 매수한 종목 분석법",
+    "caption_preview": "오늘 하락장, 개미들은 손절에 지쳤죠. 하지만 기관과 외인은 달랐습니다. 📉\n\n하락장 속 기관의 3일 연속 ...",
+    "published_at": "2026-10-06T20:50:50.081808",
+    "publish_result": {
+      "success": false,
+      "brand": "stock",
+      "error": "Page.wait_for_selector: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']\") to be visible\n",
+      "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_error_screenshot.png"
+    },
+    "success": false
+  },
+  {
+    "brand": "stock",
+    "slot": "evening",
+    "topic": "뇌동매매와 추격매수 끊어내는 AI 퀀트 분할 매매 원칙",
+    "caption_preview": "폭등하는 종목을 보며 심장이 두근거리시나요? 그게 바로 뇌동매매와 추격매수의 덫입니다.\n\n데이터는 급등주 추...",
+    "published_at": "2026-10-06T20:52:41.993484",
+    "publish_result": {
+      "success": true,
+      "brand": "stock",
+      "message": "🎉 [스레드 발행 성공] StockMaster AI 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "stock",
+        "published_at": "2026-10-06T20:52:41.920952",
+        "caption_preview": "폭등하는 종목을 보며 심장이 두근거리시나요? 그게 바로 뇌동매매와 추격매수의 덫입니다.\n\n데이터는 급등주 추...",
+        "media_count": 0,
+        "first_reply": "📈 AI 실시간 수급 & 급등 테마 1분 무료 진단\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  }
+]

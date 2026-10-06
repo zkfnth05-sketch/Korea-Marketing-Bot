@@ -30,8 +30,8 @@ class ShortsBrandCapsuleBadge:
     BADGE_CONFIGS = {
         "aura": {
             "icon": "💖",
-            "brand_name": "AURA",
-            "sub_text": "50:50 남녀 황금 성비율",
+            "brand_name": "아우라 AI 데이팅",
+            "sub_text": "현재 100% 무료",
             "sub_color_class": "text-pink-400",
             "filename": "aura_capsule_overlay_1080x1920.png"
         },

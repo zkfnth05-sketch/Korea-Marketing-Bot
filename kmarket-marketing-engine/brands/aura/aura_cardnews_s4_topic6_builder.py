@@ -4,7 +4,7 @@ AuraCardnewsS4Topic6Builder - 📱 [Aura 카드뉴스 6번 주제 'AI 첫대화 
 =================================================================================================================
 • 역할:
   - 1080x1350 카드뉴스 규격 초고화질 서브픽셀 렌더링
-  - 상단 공식 헤더['💖 AURA | 50:50 남녀 황금 성비율', '04 / 05 >']
+  - 상단 공식 헤더['💖 아우라 AI 데이팅 | 현재 100% 무료 남녀 황금 성비율', '04 / 05 >']
   - 상단 텍스트 카피: [🎉 대화 성공률 98%] + 'AI 추천 언어로 전송하자마자 읽씹 없이 밤새 이어지는 티키타카!' + '취향 저격 첫마디로 상대방이 먼저 신나서 답장하고 약속까지 성사!'
   - 중앙 숏폼 엔진 3D 스마트폰 실물 화면(04_app_sim_aura_6.mp4 / 7.0s 티키타카 대화 UI) 100% 무손실 매립
   - 하단 넘김 CTA 바
@@ -136,8 +136,8 @@ class AuraCardnewsS4Topic6Builder:
   <div class="flex justify-between items-center z-10 w-full pt-1">
     <div class="inline-flex items-center gap-3 bg-slate-900/90 backdrop-blur-md border border-white/25 rounded-full py-2.5 px-5 shadow-2xl">
       <span class="text-lg">💖</span>
-      <span class="text-base font-black tracking-wider text-white">AURA</span>
-      <span class="text-sm font-bold text-pink-400 pl-3 border-l border-white/30">50:50 남녀 황금 성비율</span>
+      <span class="text-base font-black tracking-wider text-white">아우라 AI 데이팅</span>
+      <span class="text-sm font-bold text-pink-400 pl-3 border-l border-white/30">현재 100% 무료</span>
     </div>
 
     <div class="text-amber-400 font-black text-base bg-slate-900/90 backdrop-blur-md px-5 py-2.5 rounded-full border border-amber-500/50 shadow-2xl tracking-wider">

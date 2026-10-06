@@ -753,6 +753,32 @@ def get_topics_by_category(category: str) -> List[Dict[str, Any]]:
     return [t for t in AURA_100_TOPICS if t["category"] == category]
 
 
+def get_interleaved_topic_order() -> List[int]:
+    """
+    🌟 [6대 카테고리 골고루 교차 순환]
+    대화스킬 ➔ 연애MBTI ➔ 스타일룩북 ➔ 애프터고백 ➔ 카톡심리 ➔ 데이트스팟 순으로
+    매일 카테고리가 완벽히 번갈아가며 순환하도록 100대 주제 ID 리스트 생성
+    (동일 카테고리 연속 도배 100% 원천 차단)
+    """
+    category_order = [
+        "conversation_skills",
+        "psychology_mbti",
+        "lookbook_style",
+        "after_dating",
+        "kakaotalk_signals",
+        "date_spots"
+    ]
+    cat_pools = {c: [t["id"] for t in get_topics_by_category(c)] for c in category_order}
+    
+    interleaved_ids: List[int] = []
+    max_len = max(len(p) for p in cat_pools.values())
+    for i in range(max_len):
+        for c in category_order:
+            if i < len(cat_pools[c]):
+                interleaved_ids.append(cat_pools[c][i])
+    return interleaved_ids
+
+
 if __name__ == "__main__":
     print(f"💖 [Aura] 100대 마스터 주제 로드 완료: 총 {len(AURA_100_TOPICS)}개")
     cats = {}

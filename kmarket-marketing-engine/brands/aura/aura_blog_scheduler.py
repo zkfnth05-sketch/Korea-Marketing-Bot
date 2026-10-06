@@ -125,17 +125,18 @@ class AuraBlogScheduler:
             return {"status": "BLOCKED_DAILY_CAP", "message": reason}
 
         from brands.aura.aura_blog_engine import AuraBlogEngine
-        from brands.aura.aura_100_topics import AURA_100_TOPICS
+        from brands.aura.aura_100_topics import AURA_100_TOPICS, get_interleaved_topic_order
 
         engine = AuraBlogEngine()
-        total_topics = len(AURA_100_TOPICS)
+        interleaved_order = get_interleaved_topic_order()
+        total_topics = len(interleaved_order)
 
-        # 다음 순환 주제 결정
+        # 🌟 다음 교차 순환 주제 결정 (6대 카테고리 매일 균등 교차)
         if force_topic_id is not None:
             topic_id = force_topic_id
         else:
             cur_idx = self.state.get("current_topic_index", 0)
-            topic_id = (cur_idx % total_topics) + 1
+            topic_id = interleaved_order[cur_idx % total_topics]
 
         logger.info(f"🚀 [AuraScheduler] 주제 #{topic_id} 정기 포스팅 사이클 시작...")
         package = engine.build_article_package(topic_id=topic_id, use_gemini=True, generate_photo=True)

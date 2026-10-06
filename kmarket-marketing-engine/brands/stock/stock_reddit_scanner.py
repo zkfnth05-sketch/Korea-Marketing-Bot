@@ -35,14 +35,13 @@ from brands.stock.stock_reddit_copywriter import StockRedditCopywriter
 
 logger = logging.getLogger("StockRedditScanner")
 
-# 주식/퀀트 타겟 핵심 서브레딧 목록
+# 주식/퀀트 타겟 핵심 초활성 서브레딧 목록 (비활성/유령 커뮤니티 제외)
 STOCK_TARGET_SUBREDDITS = [
     "stocks",
     "investing",
     "StockMarket",
     "wallstreetbets",
     "algotrading",
-    "koreanstocks",
     "Daytrading",
     "dividends",
     "options",
@@ -240,7 +239,7 @@ class StockRedditScanner:
         self,
         subreddits: Optional[List[str]] = None,
         limit_per_sub: int = 15,
-        max_final_leads: int = 1
+        max_final_leads: int = 3
     ) -> List[Dict[str, Any]]:
         """
         타겟 서브레딧 스캔 ➔ 1단계 순수 파이썬 제목+본문 심층 심사(비용 0원) ➔ 상위 1등 글 선별

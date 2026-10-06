@@ -843,3 +843,28 @@ def get_topic_by_id(topic_id: int) -> Dict[str, Any]:
 
 def get_topics_by_category(category: str) -> List[Dict[str, Any]]:
     return [t for t in INSURANCE_100_TOPICS if t["category"] == category]
+
+
+def get_interleaved_topic_order() -> List[int]:
+    """
+    6대 카테고리(health_medical, auto_driver, life_dental_pet, savings_annuity, claims_knowhow, remodeling_savings)를
+    매일 골고루 1개씩 교차 순환(인터리빙)하는 100개 토픽 ID 리스트를 반환합니다.
+    순서: #001 실손 ➔ #017 자동차 ➔ #033 치아 ➔ #049 연금 ➔ #065 청구 ➔ #081 리모델링 ➔ #002 암 ...
+    """
+    categories = [
+        "health_medical",
+        "auto_driver",
+        "life_dental_pet",
+        "savings_annuity",
+        "claims_knowhow",
+        "remodeling_savings"
+    ]
+    by_cat = {c: [t["id"] for t in INSURANCE_100_TOPICS if t["category"] == c] for c in categories}
+    interleaved = []
+    max_len = max(len(ids) for ids in by_cat.values())
+    for i in range(max_len):
+        for c in categories:
+            if i < len(by_cat[c]):
+                interleaved.append(by_cat[c][i])
+    return interleaved
+

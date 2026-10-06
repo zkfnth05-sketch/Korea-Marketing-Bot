@@ -5,7 +5,7 @@ AuraCardnewsS5Topic5Builder - 🏷️ [Aura 카드뉴스 5번 주제 5번 전용
 • 역할:
   - 숏폼 5번 엔딩 CTA 카드의 럭셔리 에디토리얼 디자인을 1080x1350 카드뉴스 규격으로 100% 계승
   - 가치관 밸런스 찬반 토론(1번 칼반띵 vs 2번 번갈아 내기)과 네이버 검색창['아우라AI데이팅'] 완벽 융합
-  - 상단 브랜드 배지['💖 AURA | 50:50 남녀 황금 성비율', '05 / 05 >'] 및 공식 URL 일체형 렌더링
+  - 상단 브랜드 배지['💖 아우라 AI 데이팅 | 현재 100% 무료 남녀 황금 성비율', '05 / 05 >'] 및 공식 URL 일체형 렌더링
   - 산출물: 바탕화면 타겟 폴더의 slide_5.png
 """
 
@@ -106,13 +106,13 @@ class AuraCardnewsS5Topic5Builder:
   <div class="absolute w-[800px] h-[800px] rounded-full bg-rose-500/10 blur-[150px] top-0 left-1/2 -translate-x-1/2 pointer-events-none"></div>
   <div class="absolute w-[600px] h-[600px] rounded-full bg-amber-500/10 blur-[130px] bottom-10 right-10 pointer-events-none"></div>
 
-  <!-- 1. Top Header Bar (Aura 50:50 남녀 황금 성비율 + 05/05) -->
+  <!-- 1. Top Header Bar (Aura 현재 100% 무료 + 05/05) -->
   <div class="flex justify-between items-center z-10 w-full px-2">
     <!-- Brand Badge -->
     <div class="inline-flex items-center gap-2.5 bg-slate-900/90 backdrop-blur-md border border-white/20 rounded-full py-2.5 px-5 shadow-xl">
       <span class="text-base">💖</span>
-      <span class="text-base font-black tracking-wider text-white">AURA</span>
-      <span class="text-xs font-bold text-pink-400 pl-2.5 border-l border-white/25">50:50 남녀 황금 성비율</span>
+      <span class="text-base font-black tracking-wider text-white">아우라 AI 데이팅</span>
+      <span class="text-xs font-bold text-pink-400 pl-2.5 border-l border-white/25">현재 100% 무료</span>
     </div>
 
     <!-- Page Index -->

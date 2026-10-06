@@ -6,7 +6,7 @@ AuraCardnewsS1Topic7Builder - 📱 [Aura 카드뉴스 7번 주제 'AI 매력상 
   - 숏폼 7번의 인물(24세 매혹적인 여우/고양이상 미녀), 의상(블랙 골지 니트), 배경(따뜻한 갤러리 카페) 스펙 100% 계승
   - 카드뉴스 생성 시마다 Wan 2.1 T2I를 호출하여 매번 새롭고 독창적인 초고화질 실사 인물 사진을 자율 생성
   - 1080x1350 카드뉴스 규격 초고화질 서브픽셀 렌더링
-  - 상단 공식 헤더['💖 AURA | 50:50 남녀 황금 성비율', '01 / 05 >'] + 카테고리 배지 + 옐로우 헤드라인 + 3대 불릿 + 하단 넘김 CTA 바 일체형 렌더링
+  - 상단 공식 헤더['💖 아우라 AI 데이팅 | 현재 100% 무료 남녀 황금 성비율', '01 / 05 >'] + 카테고리 배지 + 옐로우 헤드라인 + 3대 불릿 + 하단 넘김 CTA 바 일체형 렌더링
 """
 
 import os
@@ -197,8 +197,8 @@ class AuraCardnewsS1Topic7Builder:
     <!-- Brand Badge -->
     <div class="inline-flex items-center gap-3 bg-slate-900/90 backdrop-blur-md border border-white/25 rounded-full py-2.5 px-5 shadow-2xl">
       <span class="text-lg">💖</span>
-      <span class="text-base font-black tracking-wider text-white">AURA</span>
-      <span class="text-sm font-bold text-pink-400 pl-3 border-l border-white/30">50:50 남녀 황금 성비율</span>
+      <span class="text-base font-black tracking-wider text-white">아우라 AI 데이팅</span>
+      <span class="text-sm font-bold text-pink-400 pl-3 border-l border-white/30">현재 100% 무료</span>
     </div>
 
     <!-- Page Index -->

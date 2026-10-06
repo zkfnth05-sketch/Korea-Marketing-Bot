@@ -39,6 +39,8 @@ from config import BASE_DIR, get_now_kst_str
 from brands.insurance.insurance_hashtag_matrix import InsuranceHashtagMatrix
 from brands.insurance.insurance_meta_publisher import InsuranceMetaPublisher
 from brands.insurance.insurance_mbs_reels_publisher import InsuranceMBSReelsPublisher
+from brands.insurance.insurance_youtube_bot_publisher import InsuranceYouTubeBotPublisher
+from brands.insurance.insurance_naver_clip_publisher import InsuranceNaverClipPublisher
 
 logger = logging.getLogger("InsuranceOmniCardnewsPilot")
 
@@ -65,6 +67,8 @@ class InsuranceOmniCardnewsPilot:
         self.hashtag_matrix = InsuranceHashtagMatrix()
         self.meta_pub = InsuranceMetaPublisher()
         self.mbs_pub = InsuranceMBSReelsPublisher()
+        self.youtube_pub = InsuranceYouTubeBotPublisher(headless=True)
+        self.clip_pub = InsuranceNaverClipPublisher()
         self.history_file = CURRENT_DIR / "omni_cardnews_publish_history.json"
         self.state_file = CURRENT_DIR / "omni_cardnews_schedule_state.json"
 
@@ -168,21 +172,23 @@ class InsuranceOmniCardnewsPilot:
         return slide_files
 
     def build_meta_packages(self, topic_id: int) -> Dict[str, Any]:
-        """[제미나이 100% 실시간 카피 + 실시간 급상승 트렌드 해시태그 융합] 5장 카드뉴스 Meta 포스팅 패키지"""
+        """[제미나이 100% 실시간 카피 + 실시간 급상승 트렌드 해시태그 융합] 5장 카드뉴스 및 4대 채널 포스팅 패키지"""
         main_title = self.CARDNEWS_TOPICS.get(topic_id, f"보험 리모델링 카드뉴스 #{topic_id}")
         from core.gemini_domestic_sns_copywriter import GeminiDomesticSNSCopywriter
         copywriter = GeminiDomesticSNSCopywriter(brand="insurance")
-        pkg = copywriter.generate_full_package(topic_id=topic_id, topic_title=main_title, media_type="cardnews")
+        pkg = copywriter.generate_full_package(topic_id=topic_id, topic_title=main_title, media_type="shorts")
         return {
             "title": main_title,
-            "ig_caption": pkg["meta"]["ig_caption"],
-            "fb_caption": pkg["meta"]["fb_caption"],
-            "fb_comment": pkg["meta"]["fb_comment"]
+            "youtube": pkg.get("youtube", {}),
+            "naver_clip": pkg.get("naver_clip", {}),
+            "ig_caption": pkg.get("meta", {}).get("ig_caption", ""),
+            "fb_caption": pkg.get("meta", {}).get("fb_caption", ""),
+            "fb_comment": pkg.get("meta", {}).get("fb_comment", "")
         }
 
     def execute_single_slot(self, topic_id: Optional[int] = None, force: bool = False) -> Dict[str, Any]:
         """
-        🚀 [정시 1회 단발 실행] 쏘기 직전 5장 제작 ➔ Meta 즉시 1회 발사 ➔ 중복 락
+        🚀 [정시 1회 단발 실행] 쏘기 직전 5장 제작 ➔ 4대 플랫폼 즉시 1회 발사 ➔ 중복 락
         """
         target_topic = topic_id or self.get_next_topic_id()
         today_str = datetime.now().strftime("%Y-%m-%d")
@@ -203,7 +209,7 @@ class InsuranceOmniCardnewsPilot:
         if not is_valid:
             logger.critical(f"🛑 [파이썬 완제품 검증 탈락] 바탕화면 카드뉴스 실물 검증 실패: {verify_msg} -> 외부 API(Meta) 송출 원천 차단!")
             return {"status": "verification_failed", "error": f"바탕화면 실물 검증 실패: {verify_msg}"}
-        logger.info(f"✅ [3단계 파이썬 완제품 검증 100% 합격] {verify_msg} -> 4단계 외부 API(Meta) 발사(쏘기) 개시!")
+        logger.info(f"✅ [3단계 파이썬 완제품 검증 100% 합격] {verify_msg} -> 4단계 외부 4대 플랫폼 발사(쏘기) 개시!")
 
         # 4. 메타데이터 패키징 & 외부 API 발사
         pkg = self.build_meta_packages(target_topic)
@@ -226,7 +232,7 @@ class InsuranceOmniCardnewsPilot:
             self.save_publish_history(results)
             return results
 
-        # 4. [Channel 1 & 2] Meta 릴스 (MBS 웹 자동화: 인스타그램 + 페이스북 동시 송출)
+        # 4-1. 카드뉴스 슬라이드 ➔ 15.5초 세로 릴스/숏폼 MP4 자동 변환
         cardnews_reels_path = None
         try:
             from core.cardnews_to_reels_converter import CardnewsToReelsConverter
@@ -242,6 +248,7 @@ class InsuranceOmniCardnewsPilot:
         except Exception as ce:
             logger.error(f"❌ [CardnewsToReels 예외] {ce}")
 
+        # 4-2. [Channel 1 & 2] Meta 릴스 (인스타그램 + 페이스북 릴스)
         if self.mbs_pub.is_available() and cardnews_reels_path and os.path.exists(cardnews_reels_path):
             logger.info(f"🌐 [Meta Business Suite] 보험 카드뉴스 릴스({os.path.basename(cardnews_reels_path)}) 인스타+페북 웹 무인 발행 개시...")
             try:
@@ -254,8 +261,10 @@ class InsuranceOmniCardnewsPilot:
             except Exception as mbse:
                 logger.error(f"❌ [MBS 릴스 발행 예외] {mbse}")
                 results["channels"]["meta_business_suite_reels"] = {"status": "error", "error": str(mbse)}
-        elif self.meta_pub.is_available():
-            logger.info(f"📘 [대체 Graph API] 페이스북 5장 카드뉴스 앨범 송출...")
+
+        # 4-3. [Channel 2-1] 페이스북 5장 카드뉴스 앨범 피드 송출
+        if self.meta_pub.is_available():
+            logger.info(f"📘 [Meta Graph API] 페이스북 5장 카드뉴스 앨범 송출...")
             try:
                 fb_res = self.meta_pub.publish_facebook_cardnews_album(
                     image_paths=slides,
@@ -265,9 +274,39 @@ class InsuranceOmniCardnewsPilot:
                 results["channels"]["facebook_cardnews"] = fb_res
             except Exception as fbe:
                 results["channels"]["facebook_cardnews"] = {"status": "error", "error": str(fbe)}
-        else:
-            logger.warning("⚠️ [Meta] MBS 프로필 및 API 점검 요망 (산출물 5장 완제품 패키징 완료)")
-            results["channels"]["meta"] = {"status": "ready_staged", "message": "발행 대기 완료"}
+
+        # 4-4. [Channel 3] 유튜브 쇼츠에 카드뉴스 릴스 영상 송출
+        if cardnews_reels_path and os.path.exists(cardnews_reels_path) and self.youtube_pub.is_available():
+            logger.info(f"🔴 [3/4 유튜브 쇼츠 카드뉴스 릴스 송출] 주제 #{target_topic} 발사...")
+            try:
+                yt_title = pkg.get("youtube", {}).get("title") or f"{pkg['title']} #Shorts"
+                yt_res = self.youtube_pub.publish_short(
+                    video_path=cardnews_reels_path,
+                    topic_id=target_topic,
+                    title=yt_title,
+                    description=pkg.get("youtube", {}).get("desc"),
+                    privacy_status="public"
+                )
+                results["channels"]["youtube_shorts"] = yt_res
+            except Exception as ye:
+                logger.error(f"❌ 유튜브 카드뉴스 숏츠 송출 실패: {ye}")
+                results["channels"]["youtube_shorts"] = {"status": "error", "error": str(ye)}
+
+        # 4-5. [Channel 4] 네이버 클립에 카드뉴스 릴스 영상 송출
+        if cardnews_reels_path and os.path.exists(cardnews_reels_path) and self.clip_pub.is_available():
+            logger.info(f"🟢 [4/4 네이버 클립 카드뉴스 릴스 송출] 주제 #{target_topic} 발사...")
+            try:
+                clip_title = pkg.get("naver_clip", {}).get("title") or pkg["title"]
+                clip_res = self.clip_pub.publish_clip(
+                    video_path=cardnews_reels_path,
+                    topic_id=target_topic,
+                    title=clip_title,
+                    description=pkg.get("naver_clip", {}).get("desc")
+                )
+                results["channels"]["naver_clip"] = clip_res
+            except Exception as ce:
+                logger.error(f"❌ 네이버 클립 카드뉴스 숏츠 송출 실패: {ce}")
+                results["channels"]["naver_clip"] = {"status": "error", "error": str(ce)}
 
         self._record_history(results)
         logger.info("=" * 70)

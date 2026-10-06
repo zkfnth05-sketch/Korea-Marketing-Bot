@@ -74,10 +74,10 @@ class InsuranceKinPipeline:
         # 과거에 1번이라도 처리/시도되었거나 성공한 모든 질문 ID를 영구 중복 방어에 포함
         done_ids = {h.get("doc_id") for h in history if h.get("doc_id")}
 
-        # 1. 질문 스캔 — 전체 100개 키워드 전수 탐색 (이미 처리된 done_ids는 스캔 단계에서 사전 제외)
+        # 1. 질문 스캔 — 골든 키워드 샘플링 탐색 (이미 처리된 done_ids는 스캔 단계에서 사전 제외)
         scanned_questions = self.scanner.scan_recent_questions(
-            sample_keywords_count=100,
-            max_questions=100,
+            sample_keywords_count=15,
+            max_questions=15,
             exclude_doc_ids=done_ids
         )
         if not scanned_questions:

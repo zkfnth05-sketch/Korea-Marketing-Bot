@@ -200,6 +200,7 @@ class StockThreadsHumanBot:
 
                     # 3. 실제 글 정독 체류 시간 (5 ~ 14초)
                     dwell = random.uniform(5.0, 14.0)
+                    logger.info(f"🧵 [Stock ThreadsBot] 피드 스크롤({scroll_px}px) 후 글 #{result['posts_read']} 정독 체류 ({dwell:.1f}초)...")
                     await asyncio.sleep(dwell)
 
                     # 4. 자연스러운 좋아요(Like) 액션 (안전 간격 준수)
@@ -243,6 +244,14 @@ class StockThreadsHumanBot:
                 result["duration_sec"] = int(time.time() - start_time)
                 await context.close()
                 return result
+
+    def execute_single_session(self, duration_sec: int = 30, target_likes: int = 1) -> Dict[str, Any]:
+        """대시보드 1회 즉시 실행용 동기 세션"""
+        try:
+            return asyncio.run(self.run_session(duration_sec=duration_sec, target_likes=target_likes))
+        except Exception as e:
+            logger.error(f"❌ 스레드 1회 세션 실패: {e}")
+            return {"status": "error", "message": str(e), "duration_sec": 0, "posts_read": 0, "likes_given": 0}
 
     def _save_history(self, record: Dict[str, Any]):
         history = []

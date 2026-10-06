@@ -174,6 +174,7 @@ class AuraGeminiWriter:
 
         naver_keywords = seo_brief.get("seo_title_keywords", [])
         google_keywords = seo_brief.get("h2_h3_subheading_keywords", [])
+        live_trends = seo_brief.get("live_trends", [])
         hashtags = seo_brief.get("viral_hashtags", [])
 
         system_instruction = f"""
@@ -194,7 +195,7 @@ class AuraGeminiWriter:
   "title_tistory": "구글 검색(SEO) 및 Daum 검색 최적화용 가이드/총정리형 고신뢰도 제목",
   "title_kakao": "카카오/브런치스토리 및 소셜 피드용 감성 에세이 및 강력한 훅(Hook) 제목",
   "excerpt": "독자의 호기심을 자극하고 본문 핵심을꿰뚫는 1~2줄 요약문 (120자 내외)",
-  "visual_prompt": "이 글의 장면과 분위기에 100% 부합하는 Imagen 3 전용 영문 사진 프롬프트 1문장 (반드시 realistic Korean young adult, upright straight head posture looking directly forward with zero head tilt, cozy Seoul aesthetic, cinematic natural lighting, photorealistic, 16:9 포함)",
+  "visual_prompt": "당신이 집필한 본문 스토리의 가장 결정적이고 로맨틱한 핵심 장면을 포착한 Imagen 3 전용 영문 프롬프트 (🚨 절대 천편일률적인 카페 테이블 마주앉기 금지! 🌟 반드시 매력적인 2030 한국인 남녀 커플 두 명이 본문 스토리의 배경 장소에 맞게 자연스럽게 데이트하는 모습이 필수 포함되어야 함: 와인바면 바 카운터에서 은은한 촛불 아래 와인잔을 기울이며 대화하는 남녀 커플, 성수동이면 트렌디한 붉은 벽돌 거리/플래그십 스토어 앞을 나란히 미소 지으며 걷는 남녀 커플, 남산이면 반짝이는 서울 야경을 배경으로 산책로에서 손을 잡고 걷는 남녀 커플, 한강이면 노을빛 수변 잔디밭을 함께 거니는 남녀 커플, 룩북이면 세련된 서울 도심 횡단보도를 걷는 감각적인 남녀 등 본문 스토리의 배경 장소와 데이트 상황에 100% 완벽히 일치하는 배경/의상/데이트 동작 상세 묘사. Two attractive Korean young adults, a handsome man and a beautiful woman on a romantic date, upright head posture looking straight ahead with zero head tilt, cozy Seoul aesthetic, photorealistic, cinematic natural lighting, 16:9 포함)",
   "discussion_prompt": "아우라 싱글 유저들이 글을 다 읽고 아래 댓글창에서 활발하게 의견을 나누고 티키타카 소통할 수 있도록 유도하는 매력적인 1~2문장의 질문 (예: 'Aura 여러분은 소개팅 첫 카톡에서 상대방 프로필 사진 칭찬 vs 솔직한 인사 중 어떤 멘트를 가장 선호하시나요? 아래 댓글로 여러분만의 꿀팁을 들려주세요!')",
   "content_md": "마크다운 전문 (공백 포함 약 1,800~2,200자, 공백 제외 1,400자 이상의 꽉 찬 전문)"
 }}
@@ -206,23 +207,29 @@ class AuraGeminiWriter:
 - 카테고리: {category_name} ({category_key})
 - 기획 의도: {intent}
 - 연계할 Aura AI 기능: {aura_feature}
+- 🌐 당일 대한민국 실시간 핫이슈 & 트렌드 키워드: {', '.join(live_trends)}
 - 네이버 실시간 고노출 키워드: {', '.join(naver_keywords)}
 - 구글 Suggest 질문형 키워드: {', '.join(google_keywords)}
 - 바이럴 해시태그: {' '.join(hashtags)}
 - 공식 검색어: 아우라AI데이팅
 
-[글자수 및 구성 절대 수칙]
+[글자수 및 구성 절대 수칙 - 매일 완전히 새로운 최신 트렌드 칼럼 집필]
 1. 제목 3종(title_naver, title_tistory, title_kakao)은 서로 다른 매력적인 스타일로 각각 작성하십시오.
-2. 본문(content_md) 총 글자 수는 반드시 공백 포함 1,800자 ~ 2,200자 분량으로 풍성하고 깊이 있게 집필하십시오.
-3. 본문 구성:
+2. 🚨 [지역명 및 주제 고유성 100% 보존 절대 규칙]: 메인 주제('{topic_title}')에 명시된 고유 지역(성수동, 한남동, 을지로, 잠실, 강남역 등)이나 핵심 주제(스몰토크, MBTI, 룩북, 애프터 등)를 임의로 다른 지역(연남동 등)이나 다른 카테고리로 절대 바꾸거나 왜곡하지 마십시오! 반드시 원본 기획 주제의 고유 지역과 테마를 제목과 본문 전체의 중심축으로 집필하십시오.
+3. 🚨 [절대 금기: 매일 똑같은 진부한 전개 배제]: 위 실시간 트렌드 키워드({', '.join(live_trends[:3])}) 및 요즘 2030 세대의 최신 라이프스타일/핫플 트렌드를 오프닝과 본문 예시에 생생하게 녹여내어, 어제와 전혀 다른 독창적이고 흥미진진한 칼럼으로 집필하십시오.
+4. 본문(content_md) 총 글자 수는 반드시 공백 포함 1,800자 ~ 2,200자 분량으로 풍성하고 깊이 있게 집필하십시오.
+5. 본문 구성:
    - 감성적이면서도 2030 독자의 공감을 100% 자극하는 오프닝 (300~350자)
    - 주제에 부합하는 실전 핵심 공략법/멘트/팁 3~5개 항목 (각 항목마다 세련된 소제목 부여, 1,000자 이상)
    - Aura의 '{aura_feature}'를 자연스럽게 소개하는 스마트 솔루션 제안 (300자)
    - 💡 Aura 에디터 실전 치트키 (Tip Box, 150자)
    - 맺음말: 남녀 50:50 황금 성비 AI 매칭 혜택 안내 및 공식 검색어 유도("네이버에 '아우라AI데이팅'을 검색해보세요")
-4. 절대 `[본론 1]`, `도입부` 같은 메타 지침 문구를 쓰지 마십시오! 독자가 읽는 매거진 잡지처럼 세련되게 작성하십시오.
-5. 🚨 본문 텍스트 내에 직접적인 URL 주소(http/https)를 적지 마십시오! 링크는 시스템이 본문 끝에 공식 카드로 자동 생성합니다.
-6. 독자 소통용 댓글 유도 질문(discussion_prompt)을 반드시 매력적으로 작성하십시오.
+6. 절대 `[본론 1]`, `도입부` 같은 메타 지침 문구를 쓰지 마십시오! 독자가 읽는 매거진 잡지처럼 세련되게 작성하십시오.
+7. 🚨 본문 텍스트 내에 직접적인 URL 주소(http/https)를 적지 마십시오! 링크는 시스템이 본문 끝에 공식 카드로 자동 생성합니다.
+8. 독자 소통용 댓글 유도 질문(discussion_prompt)을 반드시 매력적으로 작성하십시오.
+9. 🚨 [스토리 맞춤형 실사 사진 프롬프트(visual_prompt) 필수 수칙]:
+   - 반드시 본문에서 다룬 스토리의 실제 배경 장소(와인바, 성수동 골목길, 남산 야경 산책로, 한강 등)에 어울리게, **한국인 남녀 2명이 함께 데이트하는 모습(Two attractive Korean young adults, a man and a woman on a romantic date)**이 장면에 100% 포함되어야 합니다.
+   - 와인바면 바 카운터 데이트, 성수동이면 거리 산책 데이트, 남산이면 야경 산책 데이트 등 본문 스토리에 완벽히 부합하는 영문 프롬프트 1문장을 작성하십시오. (매번 똑같은 카페 테이블 마주앉기 금지)
 """
 
         logger.info(f"📝 [AuraGeminiWriter] 주제 #{topic.get('id')} Gemini 2,000자 칼럼 & 3종 맞춤 제목 생성 시작...")

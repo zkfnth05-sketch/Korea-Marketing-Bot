@@ -301,11 +301,28 @@ class AuraMetaPublisher:
             with urllib.request.urlopen(req_pub, timeout=30) as resp_pub:
                 res_pub = json.loads(resp_pub.read().decode("utf-8"))
                 media_id = res_pub.get("id")
-                logger.info(f"✅ [Meta-Aura] 인스타그램 {len(child_ids)}장 카드뉴스 캐러셀 발행 성공! Media ID: {media_id}")
-                self._record_history("instagram_carousel", media_id, caption)
+                # 5. 인스타그램 첫 댓글 자동 등록 (상단 프로필 링크 유도)
+                comment_id = None
+                if media_id:
+                    try:
+                        comm_url = f"{GRAPH_URL}/{media_id}/comments"
+                        comm_payload = {
+                            "message": f"📌 3초 무료 테스트 링크는 상단 프로필(@{self.ig_username})에 등록되어 있습니다! ✨",
+                            "access_token": self.user_token
+                        }
+                        comm_data = urllib.parse.urlencode(comm_payload).encode("utf-8")
+                        comm_req = urllib.request.Request(comm_url, data=comm_data, method="POST")
+                        with urllib.request.urlopen(comm_req, timeout=15) as comm_resp:
+                            comm_res = json.loads(comm_resp.read().decode("utf-8"))
+                            comment_id = comm_res.get("id")
+                            logger.info(f"✅ [Meta-Aura] 인스타그램 캐러셀 첫 댓글 등록 완료! Comment ID: {comment_id}")
+                    except Exception as ce:
+                        logger.warning(f"인스타그램 첫 댓글 등록 경고: {ce}")
+
                 return {
                     "status": "success",
                     "media_id": media_id,
+                    "comment_id": comment_id,
                     "slides_count": len(child_ids),
                     "platform": "instagram_carousel",
                     "brand": self.brand

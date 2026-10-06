@@ -124,7 +124,7 @@ class StockGeminiWriter:
         for attempt in range(3):
             try:
                 client = genai.Client(api_key=api_key)
-                for m_name in ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]:
+                for m_name in ["gemini-2.5-flash", "gemini-flash-latest"]:
                     try:
                         response = client.models.generate_content(
                             model=m_name,
@@ -310,7 +310,7 @@ class StockGeminiWriter:
         for attempt in range(3):
             try:
                 client = genai.Client(api_key=api_key)
-                for m_name in ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]:
+                for m_name in ["gemini-2.0-flash", "gemini-flash-latest", "gemini-1.5-flash"]:
                     try:
                         response = client.models.generate_content(
                             model=m_name,

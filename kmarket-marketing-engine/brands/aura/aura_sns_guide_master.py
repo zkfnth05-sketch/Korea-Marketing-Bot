@@ -224,7 +224,7 @@ class AuraSNSGuideMaster:
 💖 {s1_title}
 
 {s1_sub}
-• 50:50 남녀 황금 성비율 보장
+• 현재 100% 무료 보장
 • 실명 인증 2030 클린 라운지
 
 🔗 공식 웹 바로가기: {cls.OFFICIAL_URL}

@@ -291,3 +291,8 @@ class AccountHealthMonitor:
             "total_posted": self.state.get("total_comments_posted", 0),
             "total_deleted": self.state.get("deleted_comments_count", 0),
         }
+
+    def get_status(self) -> Dict[str, Any]:
+        """get_status_summary 별칭"""
+        return self.get_status_summary()
+

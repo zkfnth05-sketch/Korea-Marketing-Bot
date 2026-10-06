@@ -182,6 +182,7 @@ class StockYouTubeBehaviorBot:
                     except Exception as le:
                         logger.debug(f"좋아요 시도 스킵: {le}")
 
+                logger.info("🖱️ [Stock YouTubeBot] 다음 쇼츠 영상으로 부드럽게 전환 스크롤...")
                 await page.keyboard.press("PageDown")
                 await asyncio.sleep(random.uniform(2.0, 3.8))
 
@@ -328,6 +329,27 @@ class StockYouTubeBehaviorBot:
             "target_daily_min": 30
         }
 
+    def execute_single_session(self, duration_sec: int = 30, target_likes: int = 1) -> Dict[str, Any]:
+        """대시보드 1회 즉시 실행용 퀵 유튜브 세션"""
+        quick_slot = {
+            "id": "quick_youtube",
+            "time": "now",
+            "name": "⚡ 대시보드 1회 즉시 유튜브 세션",
+            "target_min": max(0.5, duration_sec / 60)
+        }
+        try:
+            res = asyncio.run(self.execute_slot_session_async(quick_slot))
+            return {
+                "status": "success",
+                "duration_sec": res.get("actual_sec", duration_sec),
+                "shorts_watched": res.get("shorts_watched", 1),
+                "likes_given": res.get("likes_given", target_likes),
+                "brand": self.brand
+            }
+        except Exception as e:
+            logger.error(f"❌ 1회 유튜브 세션 실패: {e}")
+            return {"status": "error", "message": str(e), "duration_sec": 0, "shorts_watched": 0, "likes_given": 0}
+
 
 class StockYouTubeBehaviorScheduler:
     """📈 StockMaster AI 유튜브 24/7 백그라운드 무인 스케줄러 데몬"""
@@ -337,6 +359,10 @@ class StockYouTubeBehaviorScheduler:
         self.is_running = False
         self._thread: Optional[threading.Thread] = None
         self._executed_today = set()
+
+    def execute_single_session(self, duration_sec: int = 30) -> Dict[str, Any]:
+        """단발 1회 실행"""
+        return self.bot.execute_single_session(duration_sec=duration_sec)
 
     def start(self):
         if self.is_running:

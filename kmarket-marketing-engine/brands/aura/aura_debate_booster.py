@@ -53,7 +53,7 @@ class AuraDebateBooster:
             f"💬 [긴급 찬반 투표] {question}\n"
             f"👉 1번 찬성 (이유는?) vs 2번 반대 (이유는?)\n"
             f"여러분의 솔직한 생각을 댓글로 남겨주세요! 👇\n\n"
-            f"✨ 50:50 안심 데이팅은 네이버에 '{cls.OFFICIAL_KEYWORD}' 검색!"
+            f"✨ 현재 100% 무료! 네이버에 네이버에 '{cls.OFFICIAL_KEYWORD}' 검색!"
         )
 
         reels_comment = (

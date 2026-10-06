@@ -69,6 +69,9 @@ class StockCafePipeline:
         candidate_posts = []
 
         # 3. 브라우저 구동하여 대상 카페 스캔
+        session_file = ROOT / "brands" / "stock" / "naver_session.json"
+        fallback_session = ROOT / "brands" / "aura" / "naver_session.json"
+        target_sess = session_file if session_file.exists() else fallback_session
         async with async_playwright() as p:
             context = await p.chromium.launch_persistent_context(
                 user_data_dir=str(self.profile_dir),
@@ -76,6 +79,18 @@ class StockCafePipeline:
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
                 viewport={"width": 1280, "height": 800}
             )
+            if target_sess.exists():
+                try:
+                    import json
+                    with open(target_sess, "r", encoding="utf-8") as sf:
+                        s_data = json.load(sf)
+                        cookies = s_data.get("cookies", [])
+                        if cookies:
+                            await context.add_cookies(cookies)
+                            logger.info(f"🍪 [Stock Cafe] 네이버 세션 쿠키 {len(cookies)}개 주입 완료")
+                except Exception as ce:
+                    logger.warning(f"쿠키 주입 통과: {ce}")
+
             page = await context.new_page()
 
             for cafe_info in today_cafes:

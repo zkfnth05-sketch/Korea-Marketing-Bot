@@ -309,11 +309,23 @@ class AuraKeywordMatrix:
         hashtags = cat_info.get("viral_hashtags", ["#Aura", "#소개팅", "#연애팁"])[:8]
         aura_feature = cat_info.get("aura_feature", "Aura AI 매력 리포트")
 
+        # 🌟 [지역/주제 왜곡 원천 차단] seed_topic의 고유 지역과 핵심 키워드를 최우선 네이버 키워드로 동적 바인딩
+        detected_locs = ["성수동", "한남동", "이태원", "을지로", "힙지로", "송리단길", "잠실", "석촌호수", "강남역", "신논현역", "여의도", "압구정", "신용산", "연남동", "홍대", "실내 데이트", "비 오는 날", "더치페이", "MBTI", "룩북", "남친룩", "여친룩", "애프터", "삼프터"]
+        custom_naver_keys = []
+        for loc in detected_locs:
+            if loc in seed_topic:
+                clean_loc = loc.replace(" ", "")
+                custom_naver_keys.extend([f"{clean_loc} 소개팅", f"{clean_loc} 데이트", f"{clean_loc} 맛집"])
+                break
+
+        if custom_naver_keys:
+            naver_keys = custom_naver_keys + [k for k in naver_keys if k not in custom_naver_keys]
+
         return {
             "seed_topic": seed_topic,
             "category_name": cat_info.get("name", "2030 연애 트렌드"),
             "target_audience": "2030 미혼/싱글 남녀 (소개팅 및 썸 진행 중인 고관여 독자)",
-            "seo_title_keywords": naver_keys[:2],
+            "seo_title_keywords": naver_keys[:3],
             "h2_h3_subheading_keywords": google_keys[:3],
             "viral_hashtags": hashtags,
             "aura_cta_bridge": f"💡 이 글을 읽은 독자가 '내 상황은 어떨까?' 궁금해할 때 자연스럽게 [{aura_feature}]를 체험하도록 연결할 것.",

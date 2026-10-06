@@ -83,8 +83,8 @@ class StockThreadsPipeline:
 
         # 3. 첫 번째 댓글 체인 (공식 검색어 & 랜딩 URL)
         first_reply = (
-            f"📈 3초 실시간 테마주 & 수급 브리핑\n"
-            f"네이버에 '{self.OFFICIAL_SEARCH_KEYWORD}' 검색해보세요!\n"
+            f"📈 AI 실시간 수급 & 급등 테마 1분 무료 진단\n"
+            f"네이버에 '{self.OFFICIAL_SEARCH_KEYWORD}' 한번 검색해보세요!\n"
             f"👉 {self.LANDING_URL}"
         )
 

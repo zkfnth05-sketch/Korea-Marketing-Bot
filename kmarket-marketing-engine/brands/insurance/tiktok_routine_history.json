@@ -82,5 +82,19 @@
     "status": "success",
     "gemini_calls": 0,
     "brand": "insurance"
+  },
+  {
+    "timestamp": "2026-10-06 13:11:25",
+    "slot_id": "quick_tk",
+    "slot_name": "⚡ 틱톡 퀵 테스트",
+    "target_min": 0.4,
+    "target_likes": 3,
+    "actual_sec": 39,
+    "likes_given": 0,
+    "videos_watched": 1,
+    "comments_inspected": 0,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "insurance"
   }
 ]
