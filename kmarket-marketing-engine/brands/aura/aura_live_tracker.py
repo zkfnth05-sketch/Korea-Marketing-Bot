@@ -63,6 +63,13 @@ class AuraLiveTracker:
         shorts_info = self._get_shorts_info(today_str)
         cafe_info = self._get_cafe_info(today_str)
         cardnews_info = self._get_cardnews_info(today_str)
+        
+        # 📸 12대 채널 실시간 육안 증빙 데이터 연동
+        try:
+            from core.verification.live_proof_verifier import live_proof_verifier
+            proofs_data = live_proof_verifier.get_brand_proofs(self.BRAND_KEY)
+        except Exception:
+            proofs_data = {}
 
         return {
             "brand": self.BRAND_KEY,
@@ -79,7 +86,8 @@ class AuraLiveTracker:
             "kin": kin_info,
             "shorts": shorts_info,
             "cardnews": cardnews_info,
-            "cafe": cafe_info
+            "cafe": cafe_info,
+            "live_proofs": proofs_data
         }
 
     def _get_cafe_info(self, today_str: str) -> Dict[str, Any]:
@@ -349,6 +357,16 @@ class AuraLiveTracker:
                 "published_at": "-",
                 "is_today": False
             },
+            "tiktok": {
+                "name": "TikTok (틱톡 숏폼)",
+                "icon": "📱",
+                "status": "idle",
+                "is_success": False,
+                "url": f"https://www.tiktok.com/@{self.ig_username}",
+                "title": "오늘 발행 대기 중",
+                "published_at": "-",
+                "is_today": False
+            },
             "naver_clip": {
                 "name": "Naver Clip (네이버 클립)",
                 "icon": "🟢",
@@ -425,7 +443,32 @@ class AuraLiveTracker:
             except Exception as e:
                 logger.warning(f"Failed to read aura meta history: {e}")
 
-        # 3. Naver Clip 스캔
+        # 3. TikTok 스캔
+        tt_history = OUTPUTS_DIR / "tiktok_publish_history.json"
+        if not tt_history.exists():
+            tt_history = DATA_DIR / "aura_tiktok_history.json"
+        if tt_history.exists():
+            try:
+                with open(tt_history, "r", encoding="utf-8") as f:
+                    tdata = json.load(f)
+                    if tdata and isinstance(tdata, list) and len(tdata) > 0:
+                        t_sorted = sorted(tdata, key=lambda x: x.get("published_at", "") or x.get("timestamp", ""), reverse=True)
+                        latest_t = t_sorted[0]
+                        p_at = latest_t.get("published_at") or latest_t.get("timestamp", "-")
+                        platforms["tiktok"] = {
+                            "name": "TikTok (틱톡 숏폼)",
+                            "icon": "📱",
+                            "status": latest_t.get("status", "success"),
+                            "is_success": latest_t.get("status") == "success" or bool(latest_t.get("url")),
+                            "url": latest_t.get("url") or f"https://www.tiktok.com/@{self.ig_username}",
+                            "title": latest_t.get("title", "Aura 2030 틱톡 숏폼"),
+                            "published_at": p_at,
+                            "is_today": str(p_at).startswith(today_str)
+                        }
+            except Exception:
+                pass
+
+        # 4. Naver Clip 스캔
         clip_history = OUTPUTS_DIR / "naver_clip_history.json"
         if clip_history.exists():
             try:
@@ -456,7 +499,7 @@ class AuraLiveTracker:
         }
 
     def _get_cardnews_info(self, today_str: str) -> Dict[str, Any]:
-        """📸 4대 옴니 카드뉴스 (1080x1350 완제품 및 인스타/페북 배포) 100% 독립 집계"""
+        """📸 5대 옴니 카드뉴스 & 타래 (인스타/페북/스레드/완제품) 100% 독립 집계"""
         platforms = {
             "instagram": {
                 "name": "Instagram Carousel (인스타 5장 캐러셀)",
@@ -474,6 +517,16 @@ class AuraLiveTracker:
                 "status": "idle",
                 "is_success": False,
                 "url": f"https://www.facebook.com/{self.page_id}",
+                "title": "오늘 발행 대기 중",
+                "published_at": "-",
+                "is_today": False
+            },
+            "threads": {
+                "name": "Threads (스레드 바이럴 타래/카드뉴스)",
+                "icon": "🧵",
+                "status": "idle",
+                "is_success": False,
+                "url": f"https://www.threads.net/@{self.ig_username}",
                 "title": "오늘 발행 대기 중",
                 "published_at": "-",
                 "is_today": False
@@ -542,7 +595,37 @@ class AuraLiveTracker:
             except Exception as e:
                 logger.warning(f"Failed to read aura cardnews meta history: {e}")
 
-        # 2. 로컬 1080x1350 카드뉴스 완제품 디렉터리 스캔
+        # 2. Threads (스레드 바이럴 타래/카드뉴스) 스캔
+        threads_files = [
+            CURRENT_DIR / "threads_publish_history.json",
+            DATA_DIR / "aura_threads_history.json",
+            PROJECT_ROOT / "scratch" / "threads_aura_history.json"
+        ]
+        for tf in threads_files:
+            if tf.exists():
+                try:
+                    with open(tf, "r", encoding="utf-8") as f:
+                        th_data = json.load(f)
+                        if th_data and isinstance(th_data, list) and len(th_data) > 0:
+                            th_sorted = sorted(th_data, key=lambda x: x.get("published_at", "") or x.get("timestamp", ""), reverse=True)
+                            latest_th = th_sorted[0]
+                            p_at = latest_th.get("published_at") or latest_th.get("timestamp", "-")
+                            th_url = latest_th.get("url") or latest_th.get("thread_url") or f"https://www.threads.net/@{self.ig_username}"
+                            platforms["threads"] = {
+                                "name": "Threads (스레드 바이럴 타래/카드뉴스)",
+                                "icon": "🧵",
+                                "status": "success",
+                                "is_success": True,
+                                "url": th_url,
+                                "title": latest_th.get("title", "Aura 바이럴 스레드 타래"),
+                                "published_at": p_at,
+                                "is_today": str(p_at).startswith(today_str)
+                            }
+                            break
+                except Exception:
+                    pass
+
+        # 3. 로컬 1080x1350 카드뉴스 완제품 디렉터리 스캔
         card_dirs = [
             Path("C:/Users/zkfnt/Desktop/한국 카드뉴스_산출물/아우라"),
             Path("C:/Users/zkfnt/Desktop/한국 카드뉴스_산출물/Aura"),

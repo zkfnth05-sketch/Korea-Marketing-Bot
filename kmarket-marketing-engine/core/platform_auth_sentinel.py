@@ -37,6 +37,7 @@ class PlatformAuthSentinel:
         {"key": "facebook", "name": "페이스북 (Facebook 릴스/그룹)", "icon": "📘"},
         {"key": "youtube", "name": "유튜브 (YouTube 쇼츠)", "icon": "🔴"},
         {"key": "tiktok", "name": "틱톡 (TikTok)", "icon": "📱"},
+        {"key": "reddit", "name": "레딧 (Reddit 글로벌 투자자)", "icon": "🤖"},
         {"key": "tistory", "name": "티스토리 (Tistory 블로그)", "icon": "🟠"},
         {"key": "brunch", "name": "브런치스토리 (Brunch)", "icon": "🟡"}
     ]
@@ -378,7 +379,40 @@ class PlatformAuthSentinel:
                 "days_remaining": 60
             }
 
-        # 7. 🟡 브런치스토리 (Brunch)
+        # 7. 🤖 레딧 (Reddit)
+        elif platform_key == "reddit":
+            reddit_session = b_dir / "reddit_session.json"
+            reddit_profile = b_dir / "reddit_chrome_profile"
+
+            has_profile = reddit_profile.exists() and any(reddit_profile.iterdir()) if reddit_profile.exists() else False
+            has_session = reddit_session.exists() and reddit_session.stat().st_size > 50
+
+            if not has_profile and not has_session:
+                return {
+                    "platform": "reddit",
+                    "status": "missing",
+                    "status_label": "⚪ 레딧 미연동",
+                    "is_authenticated": False,
+                    "cause": "Reddit 스텔스 헌터 전용 브라우저 세션이 등록되지 않았습니다.",
+                    "action": f"바탕화면의 [1회연동]_{brand_key.upper()}_레딧_영구로그인.bat을 실행해 주세요.",
+                    "account": "Reddit 글로벌 투자자 전담 계정",
+                    "expires_at": None,
+                    "days_remaining": None
+                }
+
+            return {
+                "platform": "reddit",
+                "status": "authenticated",
+                "status_label": "🟢 영구 로그인 정상",
+                "is_authenticated": True,
+                "cause": "Reddit 10대 서브레딧 스텔스 침투 및 업보트 세션이 정상 작동 중입니다.",
+                "action": "정상 작동 중 (추가 조치 불필요)",
+                "account": "Reddit 글로벌 전담 계정",
+                "expires_at": "영구 프로필 유지",
+                "days_remaining": 180
+            }
+
+        # 8. 🟡 브런치스토리 (Brunch)
         elif platform_key == "brunch":
             brunch_session = b_dir / "brunch_session.json"
             brunch_profile = b_dir / "brunch_chrome_profile"

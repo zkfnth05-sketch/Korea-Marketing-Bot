@@ -28,14 +28,8 @@
                 <button class="nav-item active" data-tab="overview">
                     <span class="icon">📊</span> 대시보드 & 제어
                 </button>
-                <button class="nav-item" data-tab="platforms">
-                    <span class="icon">🚀</span> 24대 채널 실제 발행 & 실시간 뷰어
-                </button>
                 <button class="nav-item" data-tab="iframe_viewer">
                     <span class="icon">📱</span> 3대 앱 9:16 모바일 뷰어
-                </button>
-                <button class="nav-item" data-tab="gallery">
-                    <span class="icon">🎬</span> 미디어 갤러리
                 </button>
                 <button class="nav-item" data-tab="hashtags">
                     <span class="icon">📈</span> 실시간 바이럴 키워드
@@ -45,9 +39,6 @@
                 </button>
                 <button class="nav-item" data-tab="health">
                     <span class="icon">🩺</span> 실시간 헬스케어 & 맥박
-                </button>
-                <button class="nav-item" data-tab="settings">
-                    <span class="icon">⚙️</span> API 및 계정 설정
                 </button>
             </nav>
 
@@ -155,9 +146,6 @@
             <section class="tab-content active" id="tab-overview">
                 <!-- 🚨 실시간 비상관제 & ALL CLEAR 가드 배너 -->
                 <div id="emergency-guard-banner-container" style="margin-bottom: 20px;"></div>
-
-                <!-- 🚀 3대 브랜드 실시간 마케팅 무인 발행 라이브 전광판 & 원클릭 바로가기 -->
-                <div id="today-live-feed-container" style="margin-bottom: 24px;"></div>
 
                 <!-- 📜 시스템 핵심 지표 카드 -->
                 <div class="stats-grid">
@@ -396,30 +384,7 @@
                 </div>
             </section>
 
-            <!-- 탭 3: 10대 글로벌 채널 실제 발행 내역 & 실시간 라이브 뷰어 -->
-            <section class="tab-content" id="tab-platforms">
-                <div class="section-card" style="border-top: 4px solid #0284C7;">
-                    <div class="gallery-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom: 16px;">
-                        <div>
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <h3 class="section-title" id="platforms-header-title" style="color:#0284C7; font-size:17px; margin:0;">🚀 10대 글로벌 채널 실제 발행 내역 & 라이브 뷰어</h3>
-                                <span class="badge-live-pulse" style="font-size:11px;"><span class="pulse-dot"></span> 24시간 실시간 검증 피드</span>
-                            </div>
-                            <p class="section-subtitle" id="platforms-header-desc" style="margin-top:4px;">
-                                봇이 인터넷 세상에 실제로 쏘아 올린 숏폼 영상, 틱톡, 카드뉴스, 레딧 1:1 댓글, 50만 페북 그룹 침투글, 블로그 칼럼, 스레드 타래 실제 본문을 즉시 확인하고 원본 링크로 검증합니다.
-                            </p>
-                        </div>
-                        <div style="display:flex; gap:8px;">
-                            <button class="btn btn-primary" onclick="loadPlatforms(this)" style="font-size:12.5px; padding:7px 14px; font-weight:700;">
-                                🔄 실시간 피드 새로고침
-                            </button>
-                        </div>
-                    </div>
-                    <div class="platforms-grid" id="platforms-container" style="display:flex; flex-direction:column; gap:20px; width:100%;">
-                        <!-- 동적으로 렌더링되는 실물 라이브 피드 와이드 카드들 -->
-                    </div>
-                </div>
-            </section>
+
 
             <!-- 탭 4: 17개국 실시간 바이럴 해시태그 트렌드 -->
             <section class="tab-content" id="tab-hashtags">
@@ -463,31 +428,7 @@
                 </div>
             </section>
 
-            <!-- 탭 5: 미디어 갤러리 -->
-            <section class="tab-content" id="tab-gallery">
-                <div class="section-card">
-                    <div class="gallery-header">
-                        <div>
-                            <h3 class="section-title">📁 생성된 미디어 아티팩트 갤러리</h3>
-                            <p class="section-subtitle">실시간 렌더링된 실물 카드뉴스 사진, 숏폼 오디오, 가이드북 PDF를 열람합니다.</p>
-                        </div>
-                        <button class="btn btn-secondary" onclick="loadGallery(this)">🔄 새로고침</button>
-                    </div>
 
-                    <!-- 카테고리 필터 바 -->
-                    <div class="gallery-filter-bar" style="margin-top:12px;">
-                        <button class="gallery-filter-btn active" data-filter="all" onclick="filterGallery('all', this)">✨ 전체 보기</button>
-                        <button class="gallery-filter-btn" data-filter="image" onclick="filterGallery('image', this)">📸 실물 카드뉴스 사진 (<span id="gallery-count-img">0</span>)</button>
-                        <button class="gallery-filter-btn" data-filter="video" onclick="filterGallery('video', this)">🎬 22초 숏폼 영상 (<span id="gallery-count-video">0</span>)</button>
-                        <button class="gallery-filter-btn" data-filter="audio" onclick="filterGallery('audio', this)">🎵 숏폼 음성 & TTS (<span id="gallery-count-audio">0</span>)</button>
-                        <button class="gallery-filter-btn" data-filter="doc" onclick="filterGallery('doc', this)">📄 브리핑 & 가이드 (<span id="gallery-count-doc">0</span>)</button>
-                    </div>
-
-                    <div class="gallery-grid" id="gallery-grid">
-                        <!-- 동적으로 로드되는 미디어 카드들 -->
-                    </div>
-                </div>
-            </section>
 
             <!-- 탭 6: AI 시나리오 랩 & 성과 자가학습 관제 -->
             <section class="tab-content" id="tab-self-learning">
@@ -554,88 +495,7 @@
                 </div>
             </section>
 
-            <!-- 탭 7: 환경 설정 -->
-            <section class="tab-content" id="tab-settings">
-                <div class="section-card">
-                    <div class="gallery-header">
-                        <div>
-                            <h3 class="section-title">⚙️ 소셜 플랫폼 계정 API 키 & 오토파일럿 설정</h3>
-                            <p class="section-subtitle">계정 키를 입력해 두시면, 사람이 올릴 필요 없이 프로그램이 각 플랫폼 계정으로 직접 자동 업로드 및 발행합니다.</p>
-                        </div>
-                        <button class="btn btn-secondary" onclick="loadSettings(this)">🔄 설정값 다시 불러오기</button>
-                    </div>
-                    <form id="settings-form" onsubmit="saveSettings(event)">
-                        
-                        <h4 style="font-size:14px;color:#60a5fa;margin-bottom:12px;">🤖 AI 및 클라우드 DB</h4>
-                        <div class="form-group">
-                            <label>Gemini API Key</label>
-                            <input type="password" id="cfg-gemini-key" class="form-control" placeholder="AI Studio Gemini API 키">
-                        </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Supabase URL</label>
-                                <input type="text" id="cfg-supabase-url" class="form-control" placeholder="https://your-project.supabase.co">
-                            </div>
-                            <div class="form-group">
-                                <label>Supabase Anon Key</label>
-                                <input type="password" id="cfg-supabase-key" class="form-control" placeholder="Supabase Anon/Service Key">
-                            </div>
-                        </div>
-
-                        <h4 style="font-size:14px;color:#ec4899;margin:18px 0 12px 0;">💖 1. Aura AI 데이팅 공식 연동 키</h4>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Aura YouTube API / Token</label>
-                                <input type="password" id="cfg-aura-youtube" class="form-control" placeholder="Aura 전용 YouTube API 키">
-                            </div>
-                            <div class="form-group">
-                                <label>Aura Meta Graph Token</label>
-                                <input type="password" id="cfg-aura-meta" class="form-control" placeholder="Aura 전용 Meta Graph Token">
-                            </div>
-                        </div>
-
-                        <h4 style="font-size:14px;color:#10b981;margin:18px 0 12px 0;">🛡️ 2. InsureBalance 보험비교 공식 연동 키</h4>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Insurance YouTube API Key</label>
-                                <input type="password" id="cfg-ins-youtube" class="form-control" placeholder="Insurance 전용 YouTube API 키">
-                            </div>
-                            <div class="form-group">
-                                <label>Insurance Meta Graph Token</label>
-                                <input type="password" id="cfg-ins-meta" class="form-control" placeholder="Insurance 전용 Meta Graph Token">
-                            </div>
-                        </div>
-
-                        <h4 style="font-size:14px;color:#f59e0b;margin:18px 0 12px 0;">📈 3. Stock Master 주식 AI 공식 연동 키</h4>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Stock YouTube API Key</label>
-                                <input type="password" id="cfg-stock-youtube" class="form-control" placeholder="Stock 전용 YouTube API 키">
-                            </div>
-                            <div class="form-group">
-                                <label>Stock Meta Graph Token</label>
-                                <input type="password" id="cfg-stock-meta" class="form-control" placeholder="Stock 전용 Meta Graph Token">
-                            </div>
-                        </div>
-
-
-                        <h4 style="font-size:14px;color:#60a5fa;margin:18px 0 12px 0;">🛡️ 3. Anti-Ban & 듀얼 오토파일럿 가동 설정</h4>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Anti-Ban 지터 최소 대기 (초)</label>
-                                <input type="number" id="cfg-delay-min" class="form-control" value="180">
-                            </div>
-                            <div class="form-group">
-                                <label>Anti-Ban 지터 최대 대기 (초)</label>
-                                <input type="number" id="cfg-delay-max" class="form-control" value="420">
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary" style="margin-top: 15px;">💾 모든 계정 및 설정 저장하기</button>
-                    </form>
-                </div>
-            </section>
 
             <!-- 탭 8: 실시간 헬스케어 & 맥박 관제 (100% 브랜드별 완전 분리) -->
             <section class="tab-content" id="tab-health">
@@ -653,9 +513,34 @@
                         </div>
                     </div>
 
+                    <!-- 🚀 0. 선택된 1개 브랜드 전용 실시간 무인 발행 라이브 전광판 (100% 투명 시간/URL 표출) -->
+                    <div id="health-brand-live-feed-container" style="margin-bottom: 24px;"></div>
+
+                    <!-- 0.5 📸 선택된 브랜드 12대 채널 실시간 육안 증빙 & 헬스케어 맥박 관제탑 -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0 12px 0;">
+                        <h4 style="font-size:15px;color:#0F172A;margin:0;display:flex;align-items:center;gap:6px;" id="health-live-pulse-title">
+                            <span>💓</span> <span>3대 브랜드 12대 채널 실시간 헬스케어 맥박 & 육안 증빙 관제탑</span>
+                        </h4>
+                        <span style="font-size:11.5px;color:#2563EB;font-weight:700;">🟢 정상 / 🔴 장애(원인 투명 보고) / 📸 실제 라이브 증빙 캡처</span>
+                    </div>
+                    <div id="health-live-pulse-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:14px; margin-bottom:28px;">
+                        <!-- loadHealthStatus()로 동적 렌더링 -->
+                    </div>
+
                     <!-- 1. 🚨 실시간 장애 감지 & 즉시 조치 센터 -->
                     <h4 style="font-size:14px;color:#dc2626;margin:20px 0 12px 0;" id="health-brain-title">🚨 실시간 장애 감지 & 조치 안내 센터</h4>
                     <div class="stats-grid" id="health-brain-grid">
+                        <!-- loadHealthStatus()로 동적 렌더링 -->
+                    </div>
+
+                    <!-- 1.2 🕵️ 3대 브랜드 사람처럼 행동하는 스텔스 웜업 & 안티-섀도우밴 관제탑 -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin:28px 0 12px 0;">
+                        <h4 style="font-size:15px;color:#0F172A;margin:0;display:flex;align-items:center;gap:6px;" id="health-stealth-title">
+                            <span>🕵️</span> <span>사람처럼 행동하는 3대 브랜드 스텔스 웜업 & 안티-섀도우밴 관제탑</span>
+                        </h4>
+                        <span style="font-size:11.5px;color:#2563EB;font-weight:700;">하루 45분 4회 분할 · 베지어 곡선 체류 · 세션당 좋아요 2~3회 · 신뢰지수 98.5점 안전</span>
+                    </div>
+                    <div id="health-stealth-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:14px; margin-bottom:28px;">
                         <!-- loadHealthStatus()로 동적 렌더링 -->
                     </div>
 
@@ -673,7 +558,7 @@
                     <!-- 2. 🔐 6대 플랫폼 영구 로그인 실시간 무결성 관제 센터 -->
                     <div style="display:flex;justify-content:space-between;align-items:center;margin:28px 0 12px 0;">
                         <h4 style="font-size:14px;color:#0F172A;margin:0;display:flex;align-items:center;gap:6px;" id="health-auth-title">
-                            <span>🔐</span> <span>6대 플랫폼 영구 로그인 실시간 관제판 (스레드 · 네이버 · 인스타 · 페북 · 유튜브 · 틱톡)</span>
+                            <span>🔐</span> <span>6대 플랫폼 영구 로그인 실시간 관제판 (스레드 · 네이버 · 인스타 · 페북 · 유튜브 · 틱톡 · 레딧)</span>
                         </h4>
                         <span style="font-size:11.5px;color:#64748B;font-weight:600;">만료/차단 시 원인 및 1초 해결법 투명 보고</span>
                     </div>
@@ -690,6 +575,21 @@
                 </div>
             </section>
         </main>
+    </div>
+
+    <!-- 📸 실시간 증빙 스크린샷 확대 모달 팝업 -->
+    <div id="proof-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center; padding:20px;" onclick="closeProofModal()">
+        <div style="background:#ffffff; border-radius:16px; max-width:900px; width:100%; max-height:90vh; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(0,0,0,0.5);" onclick="event.stopPropagation()">
+            <div style="padding:14px 20px; background:#1e293b; color:#ffffff; display:flex; justify-content:space-between; align-items:center;">
+                <h4 id="proof-modal-title" style="margin:0; font-size:15px; font-weight:800; display:flex; align-items:center; gap:8px;">
+                    <span>📸</span> <span>실시간 라이브 발행 증빙 스크린샷</span>
+                </h4>
+                <button onclick="closeProofModal()" style="background:transparent; border:none; color:#ffffff; font-size:22px; cursor:pointer; padding:0 6px;">✕</button>
+            </div>
+            <div style="padding:16px; overflow-y:auto; text-align:center; background:#0f172a;">
+                <img id="proof-modal-img" src="" alt="증빙 스크린샷" style="max-width:100%; max-height:75vh; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.3); border:1px solid #334155; object-fit:contain;" />
+            </div>
+        </div>
     </div>
 
     <!-- 토스트 알림 컨테이너 -->

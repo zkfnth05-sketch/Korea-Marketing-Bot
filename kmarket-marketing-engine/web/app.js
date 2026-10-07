@@ -19,10 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeof loadTelegramCommunityStats === "function") loadTelegramCommunityStats();
 
     // 6. 각 탭별 초기 데이터 로드
-    if (typeof loadPlatforms === "function") loadPlatforms();
-    if (typeof loadGallery === "function") loadGallery();
     if (typeof loadGoldenCopies === "function") loadGoldenCopies();
-    if (typeof loadSettings === "function") loadSettings();
 
     // 7. 3초 주기 실시간 상태 자동 폴링
     setInterval(() => {

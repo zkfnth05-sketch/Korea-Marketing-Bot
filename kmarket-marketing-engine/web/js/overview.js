@@ -816,8 +816,8 @@ function renderTodayLiveFeedBoard(liveFeed, gpuStatus) {
                     <span class="badge" style="background:#ECFDF5;color:#059669;border:1px solid #A7F3D0;font-weight:700;font-size:11.5px;">
                         🟢 렌더링 완료 시 자동 동기화
                     </span>
-                    <button class="btn btn-secondary" onclick="switchTabDirect('gallery')" style="font-size:11.5px;padding:6px 12px;">
-                        📸 갤러리/사진 확인 →
+                    <button class="btn btn-secondary" onclick="switchTabDirect('health')" style="font-size:11.5px;padding:6px 12px;">
+                        🩺 실시간 맥박/증빙 확인 →
                     </button>
                 </div>
             </div>

@@ -1763,6 +1763,12 @@ class DashboardHandler(BaseHTTPRequestHandler):
         elif path == "/api/health":
             self._handle_get_health()
             return
+        elif path == "/api/live-pulse-health" or path.startswith("/api/live-pulse-health"):
+            self._handle_get_live_pulse_health(parsed)
+            return
+        elif path.startswith("/api/live_proof_image"):
+            self._handle_get_live_proof_image(parsed)
+            return
         elif path == "/api/scenarios" or path.startswith("/api/scenarios"):
             self._handle_get_scenarios(parsed)
             return
@@ -3010,6 +3016,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
     def _handle_get_health(self):
         from core.health_checker import SystemHealthChecker
+        from core.verification.live_proof_verifier import live_proof_verifier
         db = DBManager()
         checker = SystemHealthChecker(db)
         res = checker.run_full_diagnosis(
@@ -3019,8 +3026,50 @@ class DashboardHandler(BaseHTTPRequestHandler):
             is_km_running=kmarket_running,
             is_tax_running=easytax_running
         )
+        # 📸 3대 브랜드 12대 채널 실시간 육안 증빙 & 헬스케어 맥박 데이터 주입
+        try:
+            res["live_pulse"] = live_proof_verifier.get_all_health_pulse()
+        except Exception as e:
+            res["live_pulse"] = {"error": str(e)}
+
         self._set_headers("application/json")
         self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_get_live_pulse_health(self, parsed_url):
+        """📸 3대 브랜드 12대 채널 실시간 증빙 & 헬스 맥박 전용 API"""
+        from core.verification.live_proof_verifier import live_proof_verifier
+        query_params = urllib.parse.parse_qs(parsed_url.query)
+        brand = query_params.get("brand", ["all"])[0].lower()
+
+        if brand in ["aura", "insurance", "stock"]:
+            data = live_proof_verifier.get_brand_health_pulse(brand)
+        else:
+            data = live_proof_verifier.get_all_health_pulse()
+
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_get_live_proof_image(self, parsed_url):
+        """📸 실시간 증빙 스크린샷 이미지 서빙 API"""
+        query_params = urllib.parse.parse_qs(parsed_url.query)
+        brand = query_params.get("brand", ["stock"])[0].lower()
+        file_name = query_params.get("file", [""])[0]
+
+        if not file_name:
+            self._set_headers("text/plain", 400)
+            self.wfile.write(b"Missing file parameter")
+            return
+
+        # 보안: 상위 경로 이동 방지
+        safe_file_name = Path(file_name).name
+        proof_path = PROJECT_ROOT / "outputs" / brand / "live_proofs" / safe_file_name
+
+        if not proof_path.exists():
+            self._set_headers("text/plain", 404)
+            self.wfile.write(b"Proof image not found")
+            return
+
+        self._serve_file(proof_path, "image/png")
 
     def _handle_get_ir_analytics(self, parsed_url):
         import importlib
