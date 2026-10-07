@@ -135,61 +135,61 @@ STOCK_TOPIC_SPECS = {
     },
     5: {
         "topic_id": 5,
-        "title": "뇌동매매 방지! AI 자동 손절매 & 리스크 가드",
-        "gender": "male",
-        "age": 31,
+        "title": "KOSPI 시장 종합 스트레스 센터 & 환율/금리 리포트",
+        "gender": "female",
+        "age": 28,
         "framing": (
-            "photographed from 1.4 meters directly in front on Apple iPhone 15 Pro, "
-            "clear medium bust shot, showing head, masculine neck, broad natural shoulders, chest, and upper torso, "
-            "solo 1person male, sitting upright and comfortably on a stylish modern Scandinavian lounge armchair sofa, perfectly centered in frame, "
-            "perfectly upright head posture with zero tilt, natural balanced headroom occupying upper 8% of frame, "
+            "photographed from 2.0 meters directly in front sitting at a modern corporate office desk on Apple iPhone 15 Pro, "
+            "solo 1person female, sitting upright and comfortably at her office work desk, perfectly centered in the middle of frame, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned slender neck and graceful shoulders, "
             "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, "
             "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
-            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and sharp clothing fabric textures"
+            "candid medium cowboy shot showing head, chest, waist, and sleek modern office desk clearly, generous balanced headroom occupying upper 10% of frame, "
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, visible real skin pores and sharp clothing fabric textures"
         ),
         "char_desc": (
-            "a handsome, disciplined 31-year-old Korean retail investor, perfect 8-head-high golden ratio tall fit model proportions, "
-            "strictly no glasses, bare clean face with clear glowing healthy skin, authentic handsome Korean male facial features, attractive honest dark eyes, "
-            "neat and stylish natural comma perm hairstyle, "
-            "wearing a stylish, neat, and chic modern Korean smart-casual daily outfit, clean contemporary civilian fashion, "
-            "looking directly into camera lens with composed gentle closed-mouth expression (lips firmly closed together, strictly zero teeth showing), "
-            "modern K-drama relatable civilian look"
+            "a beautiful 28-year-old Korean career woman and smart retail investor, perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck, "
+            "calm low ponytail hairstyle, flawless luminous fair skin with soft natural cheek blush, strictly no glasses, "
+            "charming articulate dark eyes looking directly into the camera lens with warm engaging eye contact, "
+            "wearing a stylish, neat, and chic modern Korean office smart-casual outfit, a tailored crisp white collared shirt under a minimalist dark navy office blazer, clean contemporary civilian fashion with zero wrinkles, "
+            "composed confident closed-mouth expression (lips firmly closed together, strictly zero teeth showing)"
         ),
         "bg_desc": (
-            "bright modern Scandinavian sunlit apartment living room with cozy wooden interior and lush indoor green plants, "
-            "warm soft natural morning window daylight streaming in, casting realistic gentle shadows, "
-            "crystal clear edge-to-edge deep focus across the entire living room, vivid authentic Korean indoor realism, zero yellow tint"
+            "bright, sleek, modern corporate office environment in Teheran-ro Gangnam, polished contemporary office desk with subtle laptop and neat workspace, "
+            "sophisticated 3D volumetric studio lighting setup, professional soft key light and subtle 3D rim lighting creating rich depth, authentic realistic gentle shadows, "
+            "large sunlit glass office windows in the background, crystal clear edge-to-edge f/11 deep pan-focus, vivid authentic Korean indoor realism, zero yellow tint"
         ),
-        "vibe": "급등주 추격매수로 물렸다가 AI 기계적 손절매 원칙으로 계좌 살려낸 30대 훈남 직장인"
+        "vibe": "강남 테헤란로 세련된 오피스에서 3D 입체 조명을 받으며 시장 종합 스트레스와 매크로를 분석하는 28세 8등신 커리어우먼 투자자"
     },
     6: {
         "topic_id": 6,
-        "title": "코스피200 우량주 vs 코스닥 성장주 직장인 월적립식 복리",
-        "gender": "female",
-        "age": 29,
+        "title": "국내 최초 자기학습 AI 퀀트 비서! Stock Master AI 총괄 소개",
+        "gender": "male",
+        "age": 26,
         "framing": (
-            "photographed from 1.4 meters directly in front on Apple iPhone 15 Pro, "
-            "clear medium bust shot, showing head, elegant neck, natural shoulders, chest, and upper torso, "
-            "solo 1person female, sitting upright and comfortably on a stylish modern Scandinavian lounge armchair sofa, perfectly centered in frame, "
-            "perfectly upright head posture with zero tilt, natural balanced headroom occupying upper 8% of frame, "
+            "photographed from 2.0 meters directly in front sitting at a modern corporate office desk on Apple iPhone 15 Pro, "
+            "solo 1person male, sitting upright and comfortably at his office work desk, perfectly centered in the middle of frame, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and broad masculine shoulders, "
             "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, "
             "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
-            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and sharp clothing fabric textures"
+            "candid medium cowboy shot showing head, chest, waist, broad shoulders, and sleek modern office desk clearly, generous balanced headroom occupying upper 10% of frame, "
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, visible real skin pores and sharp clothing fabric textures"
         ),
         "char_desc": (
-            "a gorgeous, energetic 29-year-old Korean working woman, perfect 8-head-high golden ratio tall fit model proportions, "
-            "strictly no glasses, bare clean face with clear glowing fair skin, authentic beautiful Korean female facial features, attractive cheerful brown eyes, "
-            "neat and stylish natural long wavy hairstyle, "
-            "wearing a stylish, neat, and chic modern Korean smart-casual daily outfit, clean contemporary civilian fashion, "
-            "looking directly into camera lens with composed gentle closed-mouth expression (lips firmly closed together, strictly zero teeth showing), "
-            "modern K-drama relatable civilian look"
+            "an exceptionally handsome 26-year-old Korean adult man (K-drama male lead actor visual, delicate handsome idol-actor appearance, refined aesthetic features), perfect 8-head-high golden ratio male model proportions, small refined masculine head and face size, slender athletic male physique with broad masculine shoulders, "
+            "soft gentle smile with lips closed together, refined handsome features, sharp sculpted jawline with natural subtle directional shadow, charismatic warm romantic gaze, strictly no teeth showing, "
+            "neat stylish dark brown natural dandy haircut with subtle parted fringe framing his face, "
+            "authentic real human skin texture with visible fine pores and natural skin tone, "
+            "wearing a stylish, trendy modern casual jacket outfit, sophisticated 2030 Seoul dating fashion with diverse contemporary colors and textures, clean minimalist innerwear, effortless charismatic boyfriend-material date look, "
+            "arms resting naturally straight down at sides, hands visible outside pockets, strictly no hands in pockets, "
+            "authentic candid mobile phone snapshot on Apple iPhone 15 Pro, looking directly into camera lens"
         ),
         "bg_desc": (
-            "bright modern Scandinavian sunlit apartment living room with cozy wooden interior and lush indoor green plants, "
-            "warm soft natural morning window daylight streaming in, casting realistic gentle shadows, "
-            "crystal clear edge-to-edge deep focus across the entire living room, vivid authentic Korean indoor realism, zero yellow tint"
+            "bright, sleek, modern corporate office environment in Teheran-ro Gangnam, polished contemporary office desk with subtle laptop and neat workspace, "
+            "sophisticated 3D volumetric studio lighting setup, professional soft key light and subtle 3D rim lighting creating rich depth, authentic realistic gentle shadows, "
+            "large sunlit glass office windows in the background, crystal clear edge-to-edge f/11 deep pan-focus, vivid authentic Korean indoor realism, zero yellow tint"
         ),
-        "vibe": "월급 50만원씩 10년 적립식 복리 투자로 은퇴 자산 굴리는 20대 후반 사회초년생"
+        "vibe": "강남 테헤란로 세련된 오피스에서 3D 입체 조명을 받으며 StockMaster AI 퀀트 비서를 총괄 소개하는 26세 8등신 K-드라마 남주급 훈남 투자자"
     },
     7: {
         "topic_id": 7,

@@ -99,10 +99,13 @@ brand_pipelines = {
     "stock": stock_pipeline
 }
 
+from core.daemon_state_manager import DaemonStateManager
+_persisted_states = DaemonStateManager.load_states()
+
 brand_daemons_running = {
-    "aura": False,
-    "insurance": False,
-    "stock": False
+    "aura": _persisted_states.get("aura", False),
+    "insurance": _persisted_states.get("insurance", False),
+    "stock": _persisted_states.get("stock", False)
 }
 
 brand_stats = {
@@ -2247,6 +2250,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
             kmarket_thread = threading.Thread(target=kmarket_worker, daemon=True)
             kmarket_thread.start()
         
+        DaemonStateManager.set_daemon_state("kmarket", True)
         # 10대 채널 전체를 24시간 연속 무인 공장 루프로 가동
         for ch in ["kmarket_shorts", "kmarket_tiktok", "kmarket_cardnews", "kmarket_reddit", "kmarket_briefing", "kmarket_fb_groups", "kmarket_seo", "kmarket_pdf", "kmarket_blog", "kmarket_threads"]:
             if not running_channels.get(ch, False):
@@ -2260,6 +2264,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
     def _handle_kmarket_stop(self):
         global kmarket_running, running_channels
         kmarket_running = False
+        DaemonStateManager.set_daemon_state("kmarket", False)
         for ch in ["kmarket_shorts", "kmarket_tiktok", "kmarket_cardnews", "kmarket_reddit", "kmarket_briefing", "kmarket_fb_groups", "kmarket_seo", "kmarket_pdf", "kmarket_blog", "kmarket_threads"]:
             running_channels[ch] = False
         if "kmarket" in telegram_ai_managers:
@@ -2271,6 +2276,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
     def _handle_easytax_start(self):
         global easytax_thread, easytax_running, running_channels
         easytax_running = True
+        DaemonStateManager.set_daemon_state("easytax", True)
         if not easytax_thread or not easytax_thread.is_alive():
             easytax_thread = threading.Thread(target=easytax_worker, daemon=True)
             easytax_thread.start()
@@ -2288,6 +2294,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
     def _handle_easytax_stop(self):
         global easytax_running, running_channels
         easytax_running = False
+        DaemonStateManager.set_daemon_state("easytax", False)
         for ch in ["easytax_shorts", "easytax_tiktok", "easytax_cardnews", "easytax_reddit", "easytax_briefing", "easytax_fb_groups", "easytax_seo", "easytax_pdf", "easytax_blog", "easytax_threads"]:
             running_channels[ch] = False
         if "easytax" in telegram_ai_managers:
@@ -2299,6 +2306,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
     def _handle_brand_start(self, brand: str):
         global brand_daemons_running, running_channels
         brand_daemons_running[brand] = True
+        DaemonStateManager.set_daemon_state(brand, True)
         
         # 3대 슈퍼앱 24대 마케팅 허브 전체 채널 일괄 가동
         brand_modules = [
@@ -2321,6 +2329,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
     def _handle_brand_stop(self, brand: str):
         global brand_daemons_running, running_channels
         brand_daemons_running[brand] = False
+        DaemonStateManager.set_daemon_state(brand, False)
         prefix = f"{brand}_"
         for ch in list(running_channels.keys()):
             if ch.startswith(prefix):
@@ -3537,9 +3546,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
         db = DBManager()
         checker = SystemHealthChecker(db)
         res = checker.run_full_diagnosis(
-            is_aura_running=aura_running,
-            is_ins_running=insurance_running,
-            is_stock_running=stock_running,
+            is_aura_running=brand_daemons_running.get("aura", False),
+            is_ins_running=brand_daemons_running.get("insurance", False),
+            is_stock_running=brand_daemons_running.get("stock", False),
             is_km_running=False,
             is_tax_running=False
         )
@@ -3999,9 +4008,51 @@ def run_server(port: int = 8080):
 
     # 🛡️ [대시보드 UI 스위치 연동 안전 대기 모드]
     # 서버 기동 시 임의 자동 가동을 방지하고 기본 OFF(대기) 상태 유지.
-    # 사용자가 대시보드 화면(http://localhost:8080)에서 [가동/ON] 스위치를 켰을 때만 정시 스케줄러가 활성화됩니다.
-    print("🛡️ [대시보드 제어 대기 모드] 3대 브랜드(Aura, 보험, 주식) 무인 스케줄러가 대기 모드로 시작되었습니다.")
-    print("  • 웹 대시보드(http://localhost:8080)에서 [24/7 가동 ON] 스위치를 누르면 정시 스케줄러가 자율 가동됩니다.\n")
+    # 🔄 [DaemonStateManager 기반 Auto-Resume (무인 데몬 자동 부활 로직)]
+    def _auto_resume_daemons():
+        time.sleep(1.0)
+        states = DaemonStateManager.load_states()
+        name_map = {"aura": "💖 Aura 데이팅", "insurance": "🛡️ InsureBalance 보험비교", "stock": "📈 Stock Master 주식AI"}
+        for brand in ["aura", "insurance", "stock"]:
+            if states.get(brand, False):
+                brand_daemons_running[brand] = True
+                brand_modules = [
+                    "shorts", "cardnews", "reddit", "omni_blog", "blog", "seo", "threads",
+                    "naver_kin", "naver_cafe", "daum_cafe", "ppomppu", "dcinside",
+                    "nate_pann", "bobaedream", "fmkorea", "kakao_channel"
+                ]
+                for m in brand_modules:
+                    running_channels[f"{brand}_{m}"] = True
+                threading.Thread(target=_brand_daemon_loop, args=(brand,), daemon=True).start()
+                b_name = name_map.get(brand, brand.upper())
+                print(f"🔄 [Auto-Resume] 이전 가동 상태에 따라 {b_name} 24개 옴니채널 무인 데몬이 자동 부활 가동되었습니다.")
+                log_event(f"🔄 [Auto-Resume] 이전 가동 상태에 따라 {b_name} 무인 데몬이 자동 부활 가동되었습니다.", "success")
+        
+        if states.get("kmarket", False):
+            global kmarket_thread, kmarket_running
+            kmarket_running = True
+            if not kmarket_thread or not kmarket_thread.is_alive():
+                kmarket_thread = threading.Thread(target=kmarket_worker, daemon=True)
+                kmarket_thread.start()
+            for ch in ["kmarket_shorts", "kmarket_tiktok", "kmarket_cardnews", "kmarket_reddit", "kmarket_briefing", "kmarket_fb_groups", "kmarket_seo", "kmarket_pdf", "kmarket_blog", "kmarket_threads"]:
+                if not running_channels.get(ch, False):
+                    running_channels[ch] = True
+                    threading.Thread(target=channel_continuous_worker, args=(ch,), daemon=True).start()
+            print("🔄 [Auto-Resume] K-Market 무인 공장이 자동 부활 가동되었습니다.")
+
+        if states.get("easytax", False):
+            global easytax_thread, easytax_running
+            easytax_running = True
+            if not easytax_thread or not easytax_thread.is_alive():
+                easytax_thread = threading.Thread(target=easytax_worker, daemon=True)
+                easytax_thread.start()
+            for ch in ["easytax_shorts", "easytax_tiktok", "easytax_cardnews", "easytax_reddit", "easytax_briefing", "easytax_fb_groups", "easytax_seo", "easytax_pdf", "easytax_blog", "easytax_threads"]:
+                if not running_channels.get(ch, False):
+                    running_channels[ch] = True
+                    threading.Thread(target=channel_continuous_worker, args=(ch,), daemon=True).start()
+            print("🔄 [Auto-Resume] EasyTax 무인 공장이 자동 부활 가동되었습니다.")
+
+    threading.Thread(target=_auto_resume_daemons, daemon=True).start()
 
     # 🌐 서버 준비 완료 직후 브라우저 자동 오픈 (에러 없는 1초 컷 즉시 실행)
     def _open_browser():

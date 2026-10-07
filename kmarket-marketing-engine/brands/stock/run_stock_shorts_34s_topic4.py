@@ -75,24 +75,26 @@ def produce_stock_34s_shorts_topic4():
     hero_copy = "당일 10분 계량 전광판 실시간 1위 주도주 포착 레이더!"
     debate_q = "오늘 전광판 1위 주도주, 눌림목 분할매수 vs 고점 돌파매매?"
 
+    target_stock_name = "삼성전자"
     try:
         from brands.stock.stock_shorts_script_writer import StockShortsScriptWriter
         writer = StockShortsScriptWriter()
         dyn = writer.generate_dynamic_script(topic_id=4)
         if dyn and dyn.get("full_speech"):
             full_speech = dyn["full_speech"]
+            target_stock_name = dyn.get("target_stock_name", "삼성전자")
             hook_text = dyn.get("hook_0_10s", hook_text)
             hook_p1 = dyn.get("hook_p1_5s", hook_p1)
             hook_p2 = dyn.get("hook_p2_5s", hook_p2)
             hero_copy = dyn.get("hero_copy", hero_copy)
             debate_q = dyn.get("debate_question", debate_q)
-            logger.info("✨ 제미나이 30초 단일 통짜 대본 적용 성공 (실제 주식앱 라이브 데이터 100% 반영)!")
+            logger.info(f"✨ 제미나이 30초 단일 통짜 대본 적용 성공 (타깃 1위 종목: {target_stock_name})!")
     except Exception as e:
         logger.warning(f"제미나이 대본 생성 폴백: {e}")
 
-    logger.info(f"📝 30초 전체 통짜 대본 ({len(full_speech)}자):\n{full_speech}")
+    logger.info(f"📝 30초 전체 통짜 대본 ({len(full_speech)}자, 종목: {target_stock_name}):\n{full_speech}")
 
-    # 2. 🎙️ [Step 2] 30대 스마트 남성 금융 보이스 단일 통음성 합성 (자연스러운 표준 템포 +2%) -> 전용 폴더에 저장
+    # 2. 🎙️ [Step 2] 30대 스마트 남성 금융 보이스 단일 통음성 합성 (자연스럽고 편안한 표준 템포 +2%) -> 전용 폴더에 저장
     logger.info("🎙️ [Step 2] 30대 스마트 남성 전문 금융 보이스 단일 1개 통음성 합성 중...")
     voice_cloner = StockVoiceCloner(output_dir=str(work_dir))
     
@@ -105,9 +107,20 @@ def produce_stock_34s_shorts_topic4():
     )
     logger.info(f"🔊 단일 통음성 합성 완료: {full_audio_wav}")
 
+    producer = StockShortsProducer()
+
+    # 🎯 [음성 완독과 동시에 비디오 100% 동기화 완결: 불필요한 패딩 0% 원천 차단]
+    dur_full_audio = producer.composer._get_video_duration(full_audio_wav)
+    dur_total_target = max(20.0, dur_full_audio + 0.30) if dur_full_audio > 0 else 32.0
+
+    dur_v0 = 10.00   # 10초 인물 실사 립싱크
+    dur_v2 = 3.50    # 3.5초 럭셔리 다크 네이비 CTA 카드
+    dur_v1 = max(5.0, dur_total_target - (dur_v0 + dur_v2))  # 웹앱 시연 구간 음성 길이에 맞춰 동적 결정
+
+    logger.info(f"⏱️ [음성 완독 동기화] 통음성 실측={dur_full_audio:.2f}s ➔ 웹앱 녹화 타깃={dur_v1:.2f}s (인물={dur_v0:.2f}s, CTA={dur_v2:.2f}s, 최종영상={dur_total_target:.2f}s)")
+
     # 3. 📸 [Step 3] 마스터 인물 사진 준비 -> 전용 폴더에 01_master_photo_t2i.png로 보관
     master_photo_path = work_dir / "01_master_photo_t2i.png"
-    producer = StockShortsProducer()
     
     # 방금 생성된 최신 아우라 스타일 훈남 마스터 사진 우선 연결
     candidate_masters = list(out_base.glob("**/stock_topic04_아우라스타일_훈남_*.png"))
@@ -172,23 +185,24 @@ def produce_stock_34s_shorts_topic4():
         ]
         subprocess.run(cmd_still, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
 
-    # 4. 📱 [Step 4] 실물 웹앱 라이브 20.0초 압축 클립 준비 -> 전용 폴더에 04_app_live_sim_20s.mp4 저장
-    app_clip_20s = str(work_dir / "04_app_live_sim_20s.mp4")
-    logger.info("📱 [Step 4] 실물 웹앱 10분 계량 전광판 당일 1위 주도주 20초 라이브 시연 실시간 100% 신규 녹화 중...")
+    # 4. 📱 [Step 4] 실물 웹앱 라이브 dur_v1초 녹화 (대본 1위 종목과 1:1 동기화) -> 전용 폴더에 저장
+    app_clip_path = str(work_dir / "04_app_live_sim.mp4")
+    logger.info(f"📱 [Step 4] 실물 웹앱 10분 계량 전광판 당일 1위({target_stock_name}) {dur_v1:.2f}초 라이브 시연 실시간 100% 신규 녹화 중...")
     producer.app_simulator.record_simulation_clip(
         topic_id=4,
-        duration_sec=20.0,
-        output_mp4_path=app_clip_20s,
-        force_fresh_record=True
+        duration_sec=dur_v1,
+        output_mp4_path=app_clip_path,
+        force_fresh_record=True,
+        target_stock_name=target_stock_name
     )
 
-    # 5. 🏷️ [Step 5] 럭셔리 다크 네이비 CTA 카드 (4.0초) -> 전용 폴더에 05_cta_card_4s.mp4 저장
+    # 5. 🏷️ [Step 5] 럭셔리 다크 네이비 CTA 카드 (3.5초) -> 전용 폴더에 05_cta_card_4s.mp4 저장
     cta_clip_path = str(work_dir / "05_cta_card_4s.mp4")
-    logger.info("🏷️ [Step 5] 럭셔리 다크 네이비 엔딩 CTA 비디오 생성 중 (4.00s)...")
+    logger.info(f"🏷️ [Step 5] 럭셔리 다크 네이비 엔딩 CTA 비디오 생성 중 ({dur_v2:.2f}s)...")
     stock_cta = StockCTACard()
     stock_cta.create_cta_segment_mp4(
         output_path=cta_clip_path,
-        duration_sec=4.0,
+        duration_sec=dur_v2,
         topic_title="당일 10분 계량 전광판 실시간 1위 주도주 포착 레이더",
         debate_question=debate_q,
         search_keyword="스톡마스터 AI",
@@ -207,22 +221,13 @@ def produce_stock_34s_shorts_topic4():
     bgm_path = bgm_mgr.get_random_upbeat_bgm(service_id="stock")
     has_bgm = bool(bgm_path and os.path.exists(bgm_path))
 
-    # 🎯 [음성 완독과 동시에 비디오 100% 동기화 완결: 불필요한 패딩 0% 원천 차단]
-    dur_full_audio = producer.composer._get_video_duration(full_audio_wav)
-    dur_total_target = max(20.0, dur_full_audio + 0.30) if dur_full_audio > 0 else 32.0
-
-    dur_v0 = 10.00   # 10초 인물 실사 립싱크
-    dur_v2 = 3.50    # 3.5초 럭셔리 다크 네이비 CTA 카드
-    dur_v1 = max(5.0, dur_total_target - (dur_v0 + dur_v2))  # 웹앱 시연 구간 음성 길이에 맞춰 동적 결정
-
-    logger.info(f"⏱️ [음성 완독 동기화] 통음성 실측={dur_full_audio:.2f}s ➔ 최종 완제품 영상={dur_total_target:.2f}s (인물={dur_v0:.2f}s, 앱={dur_v1:.2f}s, CTA={dur_v2:.2f}s)")
     logger.info(f"🎬 [Step 6] 완제품 조립 -> {final_mp4_path}")
 
     # FFmpeg 복합 필터 구성 (비디오 3단 Concat + 상단 뱃지 + 단일 통음성 100% 매핑)
     cmd_inputs = [
         producer.composer.ffmpeg_exe, "-y",
         "-i", person_clip_path,  # 0
-        "-i", app_clip_20s,       # 1
+        "-i", app_clip_path,      # 1
         "-i", cta_clip_path,      # 2
         "-i", full_audio_wav,     # 3
     ]

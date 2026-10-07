@@ -71,14 +71,18 @@ class StockShortsScriptWriter:
                 GEMINI_FREE_API_KEY_AURA_1,
                 GEMINI_FREE_API_KEY_AURA_2,
                 GEMINI_FREE_API_KEY_AURA_3,
+                GEMINI_FREE_API_KEY_AURA_4,
                 GEMINI_PAID_API_KEY_AURA_1,
+                GEMINI_PAID_API_KEY_AURA_2,
                 GEMINI_API_KEY
             )
             candidates = [
                 {"name": "FREE_1", "key": GEMINI_FREE_API_KEY_AURA_1},
                 {"name": "FREE_2", "key": GEMINI_FREE_API_KEY_AURA_2},
                 {"name": "FREE_3", "key": GEMINI_FREE_API_KEY_AURA_3},
+                {"name": "FREE_4", "key": GEMINI_FREE_API_KEY_AURA_4},
                 {"name": "PAID_1", "key": GEMINI_PAID_API_KEY_AURA_1},
+                {"name": "PAID_2", "key": GEMINI_PAID_API_KEY_AURA_2},
                 {"name": "DEFAULT", "key": GEMINI_API_KEY or os.environ.get("GEMINI_API_KEY")}
             ]
         except Exception:
@@ -129,11 +133,13 @@ class StockShortsScriptWriter:
             }
             target_stock = target_stock_map.get(norm_id, "전광판1위")
             realtime_dict = fetcher.fetch_stock_data(target_stock)
+            actual_target_stock_name = "삼성전자"
             if realtime_dict:
                 macro_info = realtime_dict.get("macro", {})
                 top1_info = realtime_dict.get("top1_board", {})
                 modal_info = realtime_dict.get("modal_data", {})
                 board_stocks = realtime_dict.get("board_stocks", [])
+                actual_target_stock_name = top1_info.get("name", "삼성전자") if target_stock in ["전광판1위", "매크로스트레스"] else target_stock
                 
                 # 타깃 종목의 전광판 순위 찾기
                 target_rank_str = "순위권 내"
@@ -177,14 +183,14 @@ class StockShortsScriptWriter:
 - 실제 앱 시연 화면: {info['app_sim_visual']}
 - 공식 포털 검색어: {self.OFFICIAL_KEYWORD}
 
-[대본 글자수 절대 규칙 (정확히 30~32초 완독: 총 155~175자 내외 - 초과 시 기각)]
-1. hook_p1 (0~5초): 시선을 끄는 강렬한 1문장 [공백 포함 정확히 20~25자]
-2. hook_p2 (5~10초): 팩트 및 궁금증 해결 [공백 포함 정확히 22~27자]
-   ★ 중요: hook_p1 + hook_p2 합친 전체 훅은 [공백 포함 45~52자] (10초 립싱크 완벽 일치)
-3. app_speech (10~27초): 핵심 실시간 데이터 1~2개만 임팩트 있게 전달하는 간결한 2문장 [공백 포함 반드시 70~85자 이내]
-4. cta_speech (27~32초): "지금 바로 네이버에 '{self.OFFICIAL_KEYWORD}'를 검색하고 무료로 확인하세요!" [공백 포함 25~30자]
+[대본 글자수 절대 규칙 (음성속도 +2% 기준 정확히 30~32초 완독: 총 190~215자 내외 - 초과 시 기각)]
+1. hook_p1 (0~5초): 시선을 끄는 강렬한 1문장 [공백 포함 정확히 25~30자]
+2. hook_p2 (5~10초): 팩트 및 궁금증 해결 [공백 포함 정확히 28~35자]
+   ★ 중요: hook_p1 + hook_p2 합친 전체 훅은 [공백 포함 55~65자] (10초 립싱크 완벽 일치)
+3. app_speech (10~27초): 핵심 실시간 데이터와 퀀트 수치를 알기 쉽게 전달하는 2문장 [공백 포함 반드시 105~125자]
+4. cta_speech (27~32초): "지금 바로 네이버에 '{self.OFFICIAL_KEYWORD}'를 검색하고 무료로 확인하세요!" [공백 포함 28~32자]
 
-[★ 글자수 총합 엄수: 전체 대본(훅+앱+CTA) 합계는 공백 포함 반드시 150~175자 범위로 짧고 강력하게 압축하세요. 185자 초과 시 자동 기각됩니다.]
+[★ 글자수 총합 엄수: 전체 대본(훅+앱+CTA) 합계는 공백 포함 반드시 190~215자 범위로 맞추세요. 220자 초과 또는 180자 미달 시 자동 기각됩니다.]
 
 반드시 아래 JSON 포맷으로만 응답하세요:
 {{
@@ -216,10 +222,10 @@ class StockShortsScriptWriter:
         from google import genai
         from google.genai import types
 
-        models = ["gemini-2.5-flash", "gemini-flash-latest"]
+        models = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"]
         for key in self.key_chain:
             try:
-                client = genai.Client(api_key=key)
+                client = genai.Client(api_key=key, http_options=types.HttpOptions(timeout=10000))
             except Exception:
                 continue
 
@@ -262,19 +268,19 @@ class StockShortsScriptWriter:
                         cta_speech = f"지금 바로 네이버에 '{self.OFFICIAL_KEYWORD}'를 검색해보세요!"
                         full_speech = f"{hook_full} {app_speech} {cta_speech}".strip()
 
-                    # 🔒 [무결성 게이트 2: 32초 구간별 및 전체 글자수 정밀 검증 (135~205자)]
-                    # 1) 훅 글자수 검증: 35자 ~ 80자 (Wan 10초 립싱크 안전 범위)
-                    if len(hook_full) < 35 or len(hook_full) > 80:
+                    # 🔒 [무결성 게이트 2: +2% 발화 템포 32초 완독 구간별 및 전체 글자수 정밀 검증 (170~220자 엄수)]
+                    # 1) 훅 글자수 검증: 45자 ~ 70자 (Wan 10초 립싱크 완벽 일치)
+                    if len(hook_full) < 45 or len(hook_full) > 70:
                         logger.warning(f"⚠️ 훅 글자수 범위 벗어남({len(hook_full)}자), 다음 시도")
                         continue
 
-                    # 2) 앱 시연 글자수 검증: 55자 ~ 130자 (17초 웹앱 화면)
-                    if len(app_speech) < 55 or len(app_speech) > 130:
+                    # 2) 앱 시연 글자수 검증: 80자 ~ 135자 (18초 웹앱 화면)
+                    if len(app_speech) < 80 or len(app_speech) > 135:
                         logger.warning(f"⚠️ 앱 시연 글자수 범위 벗어남({len(app_speech)}자), 다음 시도")
                         continue
 
-                    # 3) 전체 글자수 검증: 135자 ~ 205자 (30~33초 완독 규격)
-                    if len(full_speech) < 135 or len(full_speech) > 205:
+                    # 3) 전체 글자수 검증: 170자 ~ 220자 (+2% 속도 기준 정확히 28~31초 완독 규격)
+                    if len(full_speech) < 170 or len(full_speech) > 220:
                         logger.warning(f"⚠️ 전체 글자수 범위 벗어남({len(full_speech)}자), 다음 시도")
                         continue
 
@@ -282,6 +288,7 @@ class StockShortsScriptWriter:
                     return {
                         "topic_id": norm_id,
                         "title": info["title"],
+                        "target_stock_name": actual_target_stock_name,
                         "hook_p1": hook_p1,
                         "hook_p2": hook_p2,
                         "hook_p1_5s": hook_p1,

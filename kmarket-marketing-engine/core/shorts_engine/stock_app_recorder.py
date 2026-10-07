@@ -53,23 +53,30 @@ class StockAppRecorder:
         topic_id: int = 1,
         duration_sec: float = 24.0,
         output_mp4_path: str = "stock_app_sim.mp4",
-        force_fresh_record: bool = True
+        force_fresh_record: bool = True,
+        target_stock_name: Optional[str] = None
     ) -> str:
         """
         100% 실시간 웹앱(https://stockmaster-ai.vercel.app/) 브라우저 직접 접속 라이브 녹화
         - 캐시 사용 0% 전면 배제 (매 실행 시마다 실시간 최신 퀀트 데이터 녹화)
+        - 대본과 100% 동일한 타깃 종목(target_stock_name)을 화면에 띄워 완벽 일치 보장
         - 1080x1920 세로 풀HD 고화질 출력
         """
         out_p = Path(output_mp4_path).resolve()
         out_p.parent.mkdir(parents=True, exist_ok=True)
 
-        logger.info(f"🎬 [StockAppRecorder] 실시간 스톡마스터 AI 웹앱 브라우저 라이브 녹화 시작 (주제 {topic_id}, {self.BASE_URL})")
+        logger.info(f"🎬 [StockAppRecorder] 실시간 스톡마스터 AI 웹앱 브라우저 라이브 녹화 시작 (주제 {topic_id}, 타깃: {target_stock_name or '자동'}, {self.BASE_URL})")
 
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_recordings = Path(temp_dir) / "recordings"
             temp_recordings.mkdir(parents=True, exist_ok=True)
 
-            raw_webm = self._record_browser_flow(temp_recordings, topic_id=topic_id, target_duration=duration_sec)
+            raw_webm = self._record_browser_flow(
+                temp_recordings,
+                topic_id=topic_id,
+                target_duration=duration_sec,
+                target_stock_name=target_stock_name
+            )
 
             if not raw_webm or not Path(raw_webm).exists():
                 raise RuntimeError("❌ [StockAppRecorder] 브라우저 녹화 파일 생성 실패")
@@ -104,7 +111,13 @@ class StockAppRecorder:
         logger.info(f"🎉 [StockAppRecorder] 실시간 웹앱 라이브 시연 클립 완성 (주제 {topic_id}): {out_p} ({out_p.stat().st_size / 1024 / 1024:.2f} MB)")
         return str(out_p)
 
-    def _record_browser_flow(self, record_dir: Path, topic_id: int = 1, target_duration: float = 24.0) -> Optional[str]:
+    def _record_browser_flow(
+        self,
+        record_dir: Path,
+        topic_id: int = 1,
+        target_duration: float = 24.0,
+        target_stock_name: Optional[str] = None
+    ) -> Optional[str]:
         """Playwright 브라우저에서 인스타 릴스처럼 부드러운 스크롤 애니메이션으로 4대 탭의 상하단 내용을 완벽하게 녹화"""
 
         with sync_playwright() as p:
@@ -393,8 +406,8 @@ class StockAppRecorder:
                         }
                         return '후성';
                     }""")
-                    stock_query = detected_top1 or "후성"
-                    logger.info(f"🏆 [StockAppRecorder] 주제 4번 1위 종목 모달 오픈: {stock_query}")
+                    stock_query = target_stock_name or detected_top1 or "삼성전자"
+                    logger.info(f"🏆 [StockAppRecorder] 주제 4번 대본-화면 100% 동기화 1위 종목 모달 오픈: {stock_query}")
 
                     page.evaluate("() => window.scrollTo(0, 4090)")
                     page.wait_for_timeout(300)

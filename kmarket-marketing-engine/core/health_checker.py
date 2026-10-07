@@ -101,6 +101,14 @@ class SystemHealthChecker:
         except Exception as ae:
             logger.warning(f"PlatformAuthSentinel 진단 예외: {ae}")
 
+        # 5. 🤖 3대 브랜드 전천후 마케팅 감시 & 산출물 무결성 가디언 (MarketingWatchdogGuardian)
+        watchdog_report = {}
+        try:
+            from core.marketing_watchdog_guardian import MarketingWatchdogGuardian
+            watchdog_report = MarketingWatchdogGuardian().run_full_diagnostic()
+        except Exception as we:
+            logger.warning(f"MarketingWatchdogGuardian 진단 예외: {we}")
+
         return {
             "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
             "health_score": health_score,
@@ -114,5 +122,7 @@ class SystemHealthChecker:
             "kmarket_channels": brand_channels["kmarket"],
             "easytax_channels": brand_channels["easytax"],
             "auth_sentinel": auth_sentinel_report,
+            "marketing_watchdog": watchdog_report,
             "mission_timeline": sentinel.get("mission_timeline", [])
         }
+

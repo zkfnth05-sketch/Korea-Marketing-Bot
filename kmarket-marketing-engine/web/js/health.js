@@ -224,6 +224,83 @@ async function loadHealthStatus(btn) {
             }
         }
 
+        // 🤖 2.2 3대 브랜드 카드뉴스 & 숏폼 완제품 무결성 가디언 렌더링 (MarketingWatchdogGuardian)
+        const watchdogGrid = document.getElementById("health-watchdog-grid");
+        const watchdogData = data.marketing_watchdog || {};
+        const brandWatchdog = (watchdogData.brands && watchdogData.brands[b]) || {};
+
+        if (watchdogGrid) {
+            if (!brandWatchdog.brand) {
+                watchdogGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:10px; padding:14px; text-align:center; color:#64748B; font-size:12.5px;">
+                        선택된 브랜드(${brandName})의 산출물 무결성 진단 데이터를 불러오는 중입니다...
+                    </div>
+                `;
+            } else {
+                const cn = brandWatchdog.cardnews || {};
+                const sh = brandWatchdog.shorts || {};
+
+                const cnHealthy = cn.healthy;
+                const shHealthy = sh.healthy;
+
+                const cnBorder = cnHealthy ? "#86EFAC" : "#FCA5A5";
+                const cnTopBorder = cnHealthy ? "#22C55E" : "#EF4444";
+                const cnBadgeBg = cnHealthy ? "#ECFDF5" : "#FEF2F2";
+                const cnBadgeColor = cnHealthy ? "#059669" : "#DC2626";
+
+                const shBorder = shHealthy ? "#86EFAC" : "#FCA5A5";
+                const shTopBorder = shHealthy ? "#22C55E" : "#EF4444";
+                const shBadgeBg = shHealthy ? "#ECFDF5" : "#FEF2F2";
+                const shBadgeColor = shHealthy ? "#059669" : "#DC2626";
+
+                watchdogGrid.innerHTML = `
+                    <!-- 1. 🖼️ 카드뉴스 5장 슬라이드 무결성 카드 -->
+                    <div style="background:#FFFFFF; border:1.5px solid ${cnBorder}; border-top:4px solid ${cnTopBorder}; border-radius:12px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04); display:flex; flex-direction:column; justify-content:space-between; gap:12px;">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="font-size:22px;">🖼️</span>
+                                    <strong style="font-size:14.5px; color:#0F172A;">1080x1350 카드뉴스 (5장)</strong>
+                                </div>
+                                <span style="background:${cnBadgeBg}; color:${cnBadgeColor}; font-size:11px; font-weight:800; padding:3px 8px; border-radius:5px; border:1px solid ${cnBorder};">
+                                    ${cnHealthy ? (cn.today_count > 0 ? `🟢 오늘 ${cn.today_count}세트 완비` : '🟢 정상 (대기 중)') : '🔴 점검 필요'}
+                                </span>
+                            </div>
+                            <div style="font-size:12px; color:#475569; background:#F8FAFC; padding:10px 12px; border-radius:8px; border:1px solid #F1F5F9; line-height:1.5;">
+                                <div style="margin-bottom:4px;"><strong>상태:</strong> ${cn.message || '검증 완료'}</div>
+                                <div><strong>최근 완제품:</strong> <span style="color:#0284C7; font-weight:600;">${cn.latest_folder || '없음'}</span></div>
+                            </div>
+                        </div>
+                        <div style="font-size:11.5px; color:${cnHealthy ? '#166534' : '#991B1B'}; background:${cnHealthy ? '#F0FDF4' : '#FEF2F2'}; border:1px solid ${cnHealthy ? '#BBF7D0' : '#FECACA'}; padding:6px 10px; border-radius:6px; font-weight:600;">
+                            ${cnHealthy ? '✨ 0 byte 빈 파일 및 글자 깨짐 없는 무결성 검증 통과' : '⚠️ 슬라이드 손상 또는 누락 감지'}
+                        </div>
+                    </div>
+
+                    <!-- 2. 🎬 숏폼 풀HD 완제품 MP4 무결성 카드 -->
+                    <div style="background:#FFFFFF; border:1.5px solid ${shBorder}; border-top:4px solid ${shTopBorder}; border-radius:12px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04); display:flex; flex-direction:column; justify-content:space-between; gap:12px;">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="font-size:22px;">🎬</span>
+                                    <strong style="font-size:14.5px; color:#0F172A;">1080x1920 숏폼 완제품 (MP4)</strong>
+                                </div>
+                                <span style="background:${shBadgeBg}; color:${shBadgeColor}; font-size:11px; font-weight:800; padding:3px 8px; border-radius:5px; border:1px solid ${shBorder};">
+                                    ${shHealthy ? (sh.today_count > 0 ? `🟢 오늘 ${sh.today_count}편 렌더링 완료` : '🟢 정상 (대기 중)') : '🔴 영상 손상'}
+                                </span>
+                            </div>
+                            <div style="font-size:12px; color:#475569; background:#F8FAFC; padding:10px 12px; border-radius:8px; border:1px solid #F1F5F9; line-height:1.5;">
+                                <div style="margin-bottom:4px;"><strong>상태:</strong> ${sh.message || '검증 완료'}</div>
+                                <div><strong>최근 완제품:</strong> <span style="color:#0284C7; font-weight:600;">${sh.latest_file || '없음'}</span></div>
+                            </div>
+                        </div>
+                        <div style="font-size:11.5px; color:${shHealthy ? '#166534' : '#991B1B'}; background:${shHealthy ? '#F0FDF4' : '#FEF2F2'}; border:1px solid ${shHealthy ? '#BBF7D0' : '#FECACA'}; padding:6px 10px; border-radius:6px; font-weight:600;">
+                            ${shHealthy ? '✨ 완제품 정상 용량(>4MB) 및 프레임 결합 무결성 검증 통과' : '⚠️ 비디오 파일 누락 또는 비정상 용량 감지'}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
         // 🔐 2.5 6대 플랫폼 영구 로그인 실시간 관제 센터 렌더링 (Threads, Naver, Instagram, Facebook, YouTube, TikTok, Tistory, Brunch)
         const authGrid = document.getElementById("health-auth-sentinel-grid");
         const authSentinelData = data.auth_sentinel || {};
@@ -304,12 +381,13 @@ async function loadHealthStatus(btn) {
             const supa = channels.supabase_research || {};
             const kinAnswers = kin.recent_answers || [];
 
-            // 4대 숏폼 플랫폼 목록 생성
+            // 5대 숏폼 플랫폼 목록 생성 (유튜브, 인스타그램, 페이스북, 네이버 클립, 틱톡)
             const spList = [
                 { key: "youtube", name: "유튜브 쇼츠", icon: "🔴", data: shortsPlatforms.youtube || {} },
                 { key: "instagram", name: "인스타그램 릴스", icon: "📸", data: shortsPlatforms.instagram || {} },
                 { key: "facebook", name: "페이스북 릴스", icon: "👥", data: shortsPlatforms.facebook || {} },
-                { key: "naver_clip", name: "네이버 클립", icon: "🟢", data: shortsPlatforms.naver_clip || {} }
+                { key: "naver_clip", name: "네이버 클립", icon: "🟢", data: shortsPlatforms.naver_clip || {} },
+                { key: "tiktok", name: "틱톡 (TikTok)", icon: "📱", data: shortsPlatforms.tiktok || {} }
             ];
 
             const shortsHtml = spList.map(sp => {
