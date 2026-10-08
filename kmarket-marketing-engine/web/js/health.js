@@ -19,6 +19,13 @@ async function loadHealthStatus(btn) {
         const panelTitle = document.getElementById("health-panel-title");
         const panelDesc = document.getElementById("health-panel-desc");
         
+        // 💓 3초 실시간 맥박 타임스탬프 갱신
+        const pulseText = document.getElementById("health-pulse-text");
+        if (pulseText) {
+            const nowTimeStr = new Date().toLocaleTimeString("ko-KR", { hour12: false });
+            pulseText.innerText = `💓 3초 실시간 맥박 감지 중 (${nowTimeStr} 갱신)`;
+        }
+        
         if (panelTitle) {
             panelTitle.innerText = `🩺 [${brandName} 전담] 실시간 채널 무결성 & 장애 관제 센터`;
         }
@@ -39,10 +46,21 @@ async function loadHealthStatus(btn) {
         const cardPlatforms = cardnews.platforms || {};
 
         // 🚨 1. [장애 및 미발행 감지 분석]
-        // - criticalIssues: 카카오/네이버 세션 만료 등 사용자의 즉시 조치(배치 실행)가 필요한 치명적 장애
-        // - scheduledPending: 오늘 아직 정기 스케줄 시간이 되지 않은 정상 대기(미발행) 채널
         const criticalIssues = [];
         const scheduledPending = [];
+
+        // 🔐 1.1 9대 플랫폼 영구 로그인 실시간 만료 감지 연동 (PlatformAuthSentinel)
+        const authSentinelData = data.auth_sentinel || {};
+        const brandAuthIssues = (authSentinelData.critical_issues || []).filter(iss => !b || b === "all" || iss.brand_key === b);
+        brandAuthIssues.forEach(iss => {
+            criticalIssues.push({
+                brand: iss.brand,
+                type: iss.status_label || "세션 만료",
+                channel: `${iss.icon || '🔐'} ${iss.platform}`,
+                cause: iss.cause,
+                action: iss.action
+            });
+        });
 
         Object.keys(liveFeed.brands || {}).forEach(bKey => {
             // 현재 선택된 브랜드 전담 필터링
@@ -326,9 +344,9 @@ async function loadHealthStatus(btn) {
                 `;
             } else {
                 authGrid.innerHTML = platformAuthList.map(p => {
-                    const isOk = p.status === "active";
+                    const isOk = p.is_authenticated === true || p.status === "authenticated" || p.status === "active";
                     const isWarn = p.status === "expiring_soon" || p.status === "missing";
-                    const isErr = p.status === "expired" || p.status === "locked";
+                    const isErr = !isOk;
                     
                     const borderColor = isOk ? "#86EFAC" : isWarn ? "#FCD34D" : "#FCA5A5";
                     const topBorderColor = isOk ? "#22C55E" : isWarn ? "#F59E0B" : "#EF4444";
@@ -342,7 +360,7 @@ async function loadHealthStatus(btn) {
                                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                                     <div style="display:flex; align-items:center; gap:8px;">
                                         <span style="font-size:20px;">${p.icon || '🔐'}</span>
-                                        <strong style="font-size:14px; color:#0F172A;">${p.platform_name || p.platform}</strong>
+                                        <strong style="font-size:14px; color:#0F172A;">${p.name || p.platform_name || p.platform}</strong>
                                     </div>
                                     <span style="background:${badgeBg}; color:${badgeColor}; border:1px solid ${badgeBorder}; font-size:11px; font-weight:800; padding:2px 7px; border-radius:5px;">
                                         ${p.status_label || (isOk ? '🟢 정상' : '🔴 점검 필요')}

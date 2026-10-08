@@ -13,10 +13,16 @@ import traceback
 from typing import Dict, Any, Optional, Callable, Union
 from pathlib import Path
 
-from brands.easytax.easytax_cardnews_pipeline import EasyTaxCardNewsPipeline
-from brands.easytax.easytax_shorts_pipeline import EasyTaxShortsPipeline
-from brands.kmarket.kmarket_cardnews_pipeline import KMarketCardNewsPipeline
-from brands.kmarket.kmarket_shorts_pipeline import KMarketShortsPipeline
+try:
+    from brands.easytax.easytax_cardnews_pipeline import EasyTaxCardNewsPipeline
+    from brands.easytax.easytax_shorts_pipeline import EasyTaxShortsPipeline
+    from brands.kmarket.kmarket_cardnews_pipeline import KMarketCardNewsPipeline
+    from brands.kmarket.kmarket_shorts_pipeline import KMarketShortsPipeline
+except Exception:
+    EasyTaxCardNewsPipeline = None
+    EasyTaxShortsPipeline = None
+    KMarketCardNewsPipeline = None
+    KMarketShortsPipeline = None
 
 
 class FactoryService:

@@ -137,29 +137,32 @@ STOCK_TOPIC_SPECS = {
         "topic_id": 5,
         "title": "KOSPI 시장 종합 스트레스 센터 & 환율/금리 리포트",
         "gender": "female",
-        "age": 28,
+        "age": 24,
         "framing": (
-            "photographed from 2.0 meters directly in front sitting at a modern corporate office desk on Apple iPhone 15 Pro, "
-            "solo 1person female, sitting upright and comfortably at her office work desk, perfectly centered in the middle of frame, "
-            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned slender neck and graceful shoulders, "
+            "photographed from 2.0 meters away directly in front sitting at a sleek modern glass broadcast news anchor desk on Apple iPhone 15 Pro, "
+            "candid medium cowboy shot showing head, elegant neck, natural shoulders, chest, waist, and desk clearly, generous balanced headroom occupying upper 10% of frame, "
+            "solo 1person female, sitting upright and comfortably at the news anchor desk, perfectly centered in frame, "
+            "perfectly upright head posture with zero tilt, "
             "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, "
             "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
-            "candid medium cowboy shot showing head, chest, waist, and sleek modern office desk clearly, generous balanced headroom occupying upper 10% of frame, "
-            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, visible real skin pores and sharp clothing fabric textures"
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, visible fine skin pores and sharp clothing fabric textures"
         ),
         "char_desc": (
-            "a beautiful 28-year-old Korean career woman and smart retail investor, perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck, "
-            "calm low ponytail hairstyle, flawless luminous fair skin with soft natural cheek blush, strictly no glasses, "
-            "charming articulate dark eyes looking directly into the camera lens with warm engaging eye contact, "
-            "wearing a stylish, neat, and chic modern Korean office smart-casual outfit, a tailored crisp white collared shirt under a minimalist dark navy office blazer, clean contemporary civilian fashion with zero wrinkles, "
-            "composed confident closed-mouth expression (lips firmly closed together, strictly zero teeth showing)"
+            "an exceptionally gorgeous, captivating, and glamorous 24-year-old Korean female financial news anchor / senior macro analyst, "
+            "perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck, "
+            "breathtakingly stunning K-drama visual beauty, voluminous natural dark silky wavy hair, "
+            "seductive feline cat-like hazel eyes with subtle elegant eyeliner, flawless luminous glass skin with soft natural cheek blush, "
+            "wearing an exceptionally neat, clean, and elegant formal business suit, a tailored formal suit jacket over a crisp clean white collared shirt, "
+            "minimalist sophisticated Korean television news anchor formal suit fashion, impeccably ironed fabric with zero wrinkles, "
+            "looking directly into camera lens with composed confident closed-mouth expression (lips firmly closed together, strictly zero teeth showing)"
         ),
         "bg_desc": (
-            "bright, sleek, modern corporate office environment in Teheran-ro Gangnam, polished contemporary office desk with subtle laptop and neat workspace, "
-            "sophisticated 3D volumetric studio lighting setup, professional soft key light and subtle 3D rim lighting creating rich depth, authentic realistic gentle shadows, "
-            "large sunlit glass office windows in the background, crystal clear edge-to-edge f/11 deep pan-focus, vivid authentic Korean indoor realism, zero yellow tint"
+            "state-of-the-art modern financial television broadcast studio like Bloomberg or 3ProTV newsroom backdrop in Yeouido Seoul, "
+            "sophisticated dark navy and amber-gold glowing LED digital display walls showing subtle global macro charts including USD/KRW exchange rate, oil prices, bond yields, and KOSPI index heatmap, "
+            "sleek glass anchor desk, dramatic 3D volumetric fill lighting, professional studio key lights and soft rim lighting highlighting shoulders and silhouette, "
+            "crystal clear f/11 pan-focus, vivid authentic broadcast realism, zero yellow tint"
         ),
-        "vibe": "강남 테헤란로 세련된 오피스에서 3D 입체 조명을 받으며 시장 종합 스트레스와 매크로를 분석하는 28세 8등신 커리어우먼 투자자"
+        "vibe": "블룸버그·삼프로TV급 고급 뉴스 스튜디오에서 3D 입체 조명을 받으며 글로벌 매크로와 시장 종합 스트레스를 분석하는 24세 8등신 고양이상 미모 앵커"
     },
     6: {
         "topic_id": 6,
@@ -167,29 +170,30 @@ STOCK_TOPIC_SPECS = {
         "gender": "male",
         "age": 26,
         "framing": (
-            "photographed from 2.0 meters directly in front sitting at a modern corporate office desk on Apple iPhone 15 Pro, "
-            "solo 1person male, sitting upright and comfortably at his office work desk, perfectly centered in the middle of frame, "
-            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and broad masculine shoulders, "
+            "photographed from 2.0 meters away directly in front sitting at a sleek modern glass broadcast news anchor desk on Apple iPhone 15 Pro, "
+            "candid medium cowboy shot showing head, masculine neck, broad natural shoulders, chest, waist, and desk clearly, generous balanced headroom occupying upper 10% of frame, "
+            "solo 1person male, sitting upright and comfortably at the news anchor desk, perfectly centered in frame, "
+            "perfectly upright head posture with zero tilt, "
             "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, "
             "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
-            "candid medium cowboy shot showing head, chest, waist, broad shoulders, and sleek modern office desk clearly, generous balanced headroom occupying upper 10% of frame, "
-            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, visible real skin pores and sharp clothing fabric textures"
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, visible fine skin pores and sharp clothing fabric textures"
         ),
         "char_desc": (
-            "an exceptionally handsome 26-year-old Korean adult man (K-drama male lead actor visual, delicate handsome idol-actor appearance, refined aesthetic features), perfect 8-head-high golden ratio male model proportions, small refined masculine head and face size, slender athletic male physique with broad masculine shoulders, "
-            "soft gentle smile with lips closed together, refined handsome features, sharp sculpted jawline with natural subtle directional shadow, charismatic warm romantic gaze, strictly no teeth showing, "
-            "neat stylish dark brown natural dandy haircut with subtle parted fringe framing his face, "
-            "authentic real human skin texture with visible fine pores and natural skin tone, "
-            "wearing a stylish, trendy modern casual jacket outfit, sophisticated 2030 Seoul dating fashion with diverse contemporary colors and textures, clean minimalist innerwear, effortless charismatic boyfriend-material date look, "
-            "arms resting naturally straight down at sides, hands visible outside pockets, strictly no hands in pockets, "
-            "authentic candid mobile phone snapshot on Apple iPhone 15 Pro, looking directly into camera lens"
+            "an exceptionally handsome 26-year-old Korean male financial news anchor / AI quant lead presenter (K-drama male lead actor visual, delicate handsome idol-actor appearance, refined aesthetic features), "
+            "perfect 8-head-high golden ratio male model proportions, small refined masculine head and face size, broad masculine shoulders, "
+            "sharp sculpted jawline with natural subtle directional shadow, charismatic warm intelligent dark eyes looking straight into camera, "
+            "neat stylish dark natural dandy haircut with subtle parted fringe, flawless clear healthy skin, "
+            "wearing an exceptionally neat, clean, and elegant formal business suit, a tailored formal suit jacket over a crisp clean white collared shirt and modern slim tie, "
+            "minimalist sophisticated Korean television news anchor formal suit fashion, impeccably ironed fabric with zero wrinkles, "
+            "looking directly into camera lens with composed confident closed-mouth expression (lips firmly closed together, strictly zero teeth showing)"
         ),
         "bg_desc": (
-            "bright, sleek, modern corporate office environment in Teheran-ro Gangnam, polished contemporary office desk with subtle laptop and neat workspace, "
-            "sophisticated 3D volumetric studio lighting setup, professional soft key light and subtle 3D rim lighting creating rich depth, authentic realistic gentle shadows, "
-            "large sunlit glass office windows in the background, crystal clear edge-to-edge f/11 deep pan-focus, vivid authentic Korean indoor realism, zero yellow tint"
+            "state-of-the-art modern financial television broadcast studio like Bloomberg or 3ProTV newsroom backdrop in Yeouido Seoul, "
+            "sophisticated dark navy and amber-gold glowing LED digital display walls showing subtle StockMaster AI quant dashboard charts and algorithmic analytics, "
+            "sleek glass anchor desk, dramatic 3D volumetric fill lighting, professional studio key lights and soft rim lighting highlighting shoulders and silhouette, "
+            "crystal clear f/11 pan-focus, vivid authentic broadcast realism, zero yellow tint"
         ),
-        "vibe": "강남 테헤란로 세련된 오피스에서 3D 입체 조명을 받으며 StockMaster AI 퀀트 비서를 총괄 소개하는 26세 8등신 K-드라마 남주급 훈남 투자자"
+        "vibe": "블룸버그·삼프로TV급 고급 뉴스 스튜디오에서 3D 입체 조명을 받으며 StockMaster AI 퀀트 비서를 총괄 소개하는 26세 8등신 K-드라마 남주급 훈남 앵커"
     },
     7: {
         "topic_id": 7,

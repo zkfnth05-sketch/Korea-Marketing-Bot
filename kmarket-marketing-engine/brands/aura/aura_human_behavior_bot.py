@@ -113,7 +113,7 @@ class AuraHumanBehaviorBot:
 
     async def _simulate_instagram_activity(self, page, duration_sec: int, target_likes: int = 1) -> Dict[str, Any]:
         """인스타그램 탐색 탭 / 릴스 피드 인간 체류 & 좋아요 (일상+연애 혼합)"""
-        result = {"posts_viewed": 0, "likes": 0, "platform": "instagram"}
+        result = {"posts_viewed": 0, "likes": 0, "platform": "instagram", "status": "success"}
         start_t = time.time()
 
         try:
@@ -121,7 +121,18 @@ class AuraHumanBehaviorBot:
             await page.goto("https://www.instagram.com/explore/", wait_until="domcontentloaded", timeout=40000)
             await asyncio.sleep(random.uniform(3.5, 6.0))
 
-            # 팝업 및 로그인 유도 모달 닫기 시도
+            # 🚨 [로그인 실물 전수 검증 - 비로그인 헛바퀴 100% 원천 차단]
+            curr_url = page.url.lower()
+            login_form = await page.query_selector('input[name="username"], button[type="submit"]:has-text("로그인"), a[href*="/accounts/login/"]')
+            nav_profile = await page.query_selector('svg[aria-label="프로필"], svg[aria-label="Profile"], svg[aria-label="홈"], svg[aria-label="Home"], a[href*="/direct/t/"]')
+
+            if "accounts/login" in curr_url or (login_form and not nav_profile):
+                logger.error("🛑 [Aura HumanBot] 인스타그램 비로그인/세션 만료 감지! 비로그인 상태로 헛돌지 않고 스텔스 작업을 즉시 중단합니다. (바탕화면 [1회연동]_AURA_메타_인스타_영구로그인.bat 실행 필요)")
+                result["status"] = "unauthenticated"
+                result["error"] = "Instagram session expired - please login"
+                return result
+
+            # 팝업 및 모달 닫기 시도
             try:
                 await page.keyboard.press("Escape")
                 close_btn = await page.query_selector('button:has-text("나중에 하기"), button:has-text("Not Now"), svg[aria-label="닫기"], svg[aria-label="Close"]')
@@ -172,12 +183,13 @@ class AuraHumanBehaviorBot:
 
         except Exception as e:
             logger.warning(f"인스타그램 루틴 예외: {e}")
+            result["status"] = f"error: {e}"
 
         return result
 
     async def _simulate_threads_activity(self, page, duration_sec: int) -> Dict[str, Any]:
         """스레드(Threads) 피드 인간 체류 및 스크롤"""
-        result = {"posts_viewed": 0, "platform": "threads"}
+        result = {"posts_viewed": 0, "platform": "threads", "status": "success"}
         start_t = time.time()
         try:
             logger.info("🧵 [Aura HumanBot] 스레드(https://www.threads.net) 피드 둘러보기...")
@@ -190,11 +202,12 @@ class AuraHumanBehaviorBot:
                 await asyncio.sleep(random.uniform(3.0, 6.0))
         except Exception as e:
             logger.debug(f"스레드 루틴 스킵/예외: {e}")
+            result["status"] = f"error: {e}"
         return result
 
     async def _simulate_youtube_activity(self, page, duration_sec: int, target_likes: int = 1) -> Dict[str, Any]:
         """유튜브 쇼츠 탐색, 완시청 및 좋아요 (일상 50% + 브랜드 50% 혼합)"""
-        result = {"shorts_watched": 0, "likes": 0, "platform": "youtube"}
+        result = {"shorts_watched": 0, "likes": 0, "platform": "youtube", "status": "success"}
         start_t = time.time()
         pool = _GENERAL_HUMAN_KEYWORDS if random.random() < 0.5 else _AURA_KEYWORDS
         kw = random.choice(pool)
@@ -205,6 +218,11 @@ class AuraHumanBehaviorBot:
             await page.goto(search_url, wait_until="domcontentloaded", timeout=45000)
             await asyncio.sleep(random.uniform(3.0, 5.0))
 
+            # 🚨 [유튜브 로그인 실물 검증]
+            avatar_btn = await page.query_selector('button#avatar-btn, button[aria-label*="계정"], yt-img-shadow#avatar')
+            login_btn = await page.query_selector('a[aria-label*="로그인"], a[href*="accounts.google.com"]')
+            is_yt_logged_in = bool(avatar_btn and not login_btn)
+
             await page.goto("https://www.youtube.com/shorts", wait_until="domcontentloaded", timeout=45000)
             await asyncio.sleep(random.uniform(2.5, 4.5))
 
@@ -214,24 +232,27 @@ class AuraHumanBehaviorBot:
                 await asyncio.sleep(watch_time)
                 result["shorts_watched"] += 1
 
-                # 좋아요 시도
-                if result["likes"] < target_likes:
+                # 로그인 상태일 때만 실제 '좋아요' 클릭 시도
+                if is_yt_logged_in and result["likes"] < target_likes:
                     try:
                         like_btn = await page.query_selector("button[aria-label*='좋아요'], button[aria-label*='like this']")
                         if like_btn:
                             await asyncio.sleep(random.uniform(0.6, 1.3))
                             await like_btn.click()
                             result["likes"] += 1
-                            logger.info(f"💖 [Aura HumanBot] 유튜브 쇼츠 '좋아요' 클릭 완료! (유튜브 누적: {result['likes']}회)")
+                            logger.info(f"💖 [Aura HumanBot] 유튜브 쇼츠 실제 '좋아요' 클릭 완료! (유튜브 누적: {result['likes']}회)")
                             await asyncio.sleep(random.uniform(2.0, 4.0))
                     except Exception as le:
                         logger.debug(f"유튜브 좋아요 시도 스킵: {le}")
+                elif not is_yt_logged_in:
+                    logger.debug("유튜브 비로그인 상태이므로 좋아요 팝업 방지를 위해 좋아요 클릭 스킵 (완시청 체류만 정상 진행)")
 
                 await page.keyboard.press("PageDown")
                 await asyncio.sleep(random.uniform(2.0, 3.5))
 
         except Exception as e:
             logger.warning(f"유튜브 루틴 예외: {e}")
+            result["status"] = f"error: {e}"
 
         return result
 

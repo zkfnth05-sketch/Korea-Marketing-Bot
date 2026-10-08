@@ -9,14 +9,29 @@ Shorts Engine - 🎬 [이지텍스 & 케이마켓 독립형 AI 숏폼 영상 제
 
 from .base_shorts_producer import BaseShortsProducer
 from .shorts_video_composer import ShortsVideoComposer
-from .easytax_shorts_producer import EasyTaxShortsProducer
-from .kmarket_shorts_producer import KMarketShortsProducer
-from .aura_shorts_producer import AuraShortsProducer
 
-__all__ = [
-    "BaseShortsProducer",
-    "ShortsVideoComposer",
-    "EasyTaxShortsProducer",
-    "KMarketShortsProducer",
-    "AuraShortsProducer",
-]
+try:
+    from .aura_shorts_producer import AuraShortsProducer
+except Exception:
+    pass
+
+try:
+    from .stock_shorts_producer import StockShortsProducer
+except Exception:
+    pass
+
+try:
+    from .insurance_shorts_producer import InsuranceShortsProducer
+except Exception:
+    pass
+
+try:
+    from .easytax_shorts_producer import EasyTaxShortsProducer
+except Exception:
+    pass
+
+try:
+    from .kmarket_shorts_producer import KMarketShortsProducer
+except Exception:
+    pass
+

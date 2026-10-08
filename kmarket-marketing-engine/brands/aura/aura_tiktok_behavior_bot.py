@@ -152,6 +152,11 @@ class AuraTikTokBehaviorBot:
         start_time = time.time()
         video_index = 0
 
+        # 🚨 [틱톡 로그인 실물 전수 검증]
+        login_btn = await page.query_selector("button[data-e2e='top-login-button'], button:has-text('로그인'), a[href*='/login']")
+        profile_avatar = await page.query_selector("img[data-e2e='profile-icon'], div[data-e2e='profile-icon'], span[class*='Avatar']")
+        is_tt_logged_in = bool(profile_avatar and not login_btn)
+
         try:
             while (time.time() - start_time) < target_seconds:
                 video_index += 1
@@ -187,8 +192,8 @@ class AuraTikTokBehaviorBot:
                     except Exception:
                         pass
 
-                # 3. 목표 좋아요 도달할 때까지 자연스러운 좋아요 클릭
-                if result["likes"] < target_likes and (time.time() - start_t) > 12:
+                # 3. 목표 좋아요 도달할 때까지 자연스러운 좋아요 클릭 (실제 로그인 상태에서만)
+                if is_tt_logged_in and result["likes"] < target_likes and (time.time() - start_t) > 12:
                     try:
                         like_buttons = await page.query_selector_all("button[data-e2e='like-icon'], span[data-e2e='like-icon'], button[aria-label*='좋아요'], button[aria-label*='Like']")
                         for l_btn in like_buttons:
@@ -208,6 +213,8 @@ class AuraTikTokBehaviorBot:
                                 break
                     except Exception as le:
                         logger.debug(f"좋아요 시도 스킵: {le}")
+                elif not is_tt_logged_in:
+                    logger.debug("틱톡 비로그인 상태 감지 — 좋아요 팝업 방지를 위해 좋아요 스킵 (완시청 체류 정상 유지)")
 
                 # 4. 다음 틱톡 영상으로 스크롤 (PageDown 또는 ArrowDown)
                 logger.info("🖱️ [Aura TikTokBot] 다음 틱톡 영상으로 부드럽게 스크롤 넘김...")

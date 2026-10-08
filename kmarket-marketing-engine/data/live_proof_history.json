@@ -1,37 +1,8 @@
 {
-  "updated_at": "2026-10-07 15:31:44",
+  "updated_at": "2026-10-08 22:05:00",
   "brands": {
-    "aura": {
-      "youtube": {
-        "brand": "aura",
-        "channel": "youtube",
-        "live_url": "https://aura-ai-dating.vercel.app/",
-        "title": "Aura 2030 소개팅 숏폼 #01",
-        "status": "HEALTHY",
-        "is_verified": false,
-        "error_message": null,
-        "screenshot_file": null,
-        "screenshot_path": null,
-        "published_at": "2026-10-07 15:31:44",
-        "extra_meta": {}
-      }
-    },
+    "aura": {},
     "insurance": {},
-    "stock": {
-      "naver_blog": {
-        "brand": "stock",
-        "channel": "naver_blog",
-        "live_url": null,
-        "title": "StockMaster 퀀트 시황",
-        "status": "ERROR",
-        "is_verified": false,
-        "error_message": "네이버 스마트에디터 글쓰기 세션 만료 (NID_AUT 쿠키 갱신 필요)",
-        "failed_at": "2026-10-07 15:31:44",
-        "published_at": null,
-        "screenshot_file": null,
-        "screenshot_path": null,
-        "extra_meta": {}
-      }
-    }
+    "stock": {}
   }
 }

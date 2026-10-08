@@ -37,15 +37,21 @@ from core.season_tuner import SeasonTuner
 from core.gemini_engine import GeminiEngine
 from core.tts_engine import TTSEngine
 from core.notifier import Notifier
-from core.kmarket_bot import KMarketGrowthBot
-from core.easytax_bot import EasyTaxRefundBot
 from core.blog_scheduler import BlogScheduler
 from core.engine.gpu_lock import gpu_lock_manager
 
 from modules.reddit_lead_hunter import RedditLeadHunter
-from modules.shorts_video_factory import ShortsVideoFactory
+try:
+    from modules.shorts_video_factory import ShortsVideoFactory
+except Exception:
+    ShortsVideoFactory = None
+
 from modules.programmatic_seo import ProgrammaticSEO
-from modules.cardnews_generator import CardnewsGenerator
+try:
+    from modules.cardnews_generator import CardnewsGenerator
+except Exception:
+    CardnewsGenerator = None
+
 from modules.free_stuff_notifier import FreeStuffNotifier
 from modules.guide_pdf_generator import GuidePDFGenerator
 from core.direct_uploader import DirectUploader
@@ -54,14 +60,18 @@ from core.telegram_member_scraper import TelegramMemberScraper
 from core.telegram_outreach_poster import TelegramOutreachPoster
 from core.telegram_stealth_inviter import TelegramStealthInviter
 from modules.telegram_community_publisher import TelegramCommunityPublisher
-from core.golden_batch_producer import GoldenBatchProducer
+
+try:
+    from core.golden_batch_producer import GoldenBatchProducer
+    golden_batch_producer = GoldenBatchProducer()
+except Exception:
+    GoldenBatchProducer = None
+    golden_batch_producer = None
+
 from core.today_live_tracker import TodayLiveTracker
 
 # 🚀 3대 브랜드 실시간 마케팅 무인 발행 라이브 피드 추적기
 today_live_tracker = TodayLiveTracker()
-
-# 🌟 8대 황금 타깃 듀얼 브랜드 대량 생산 배치 프로듀서
-golden_batch_producer = GoldenBatchProducer()
 
 # 🌟 8대 황금 타깃 무단 자동 실행 전면 차단 (수동 클릭 전용)
 golden_batch_daemon_running = {
@@ -2116,7 +2126,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
             "golden_eight_details": GOLDEN_EIGHT_DETAILS,
             "golden_batch_summary": golden_batch_producer.get_today_production_summary(),
             "today_live_feed": today_live_tracker.get_all_live_feed(),
-            "auth_sentinel": (lambda: __import__('core.platform_auth_sentinel', fromlist=['PlatformAuthSentinel']).PlatformAuthSentinel.get_full_diagnostic_report())(),
+            "auth_sentinel": (lambda: (lambda mod: (__import__('importlib').reload(mod).PlatformAuthSentinel.get_full_diagnostic_report()))(__import__('core.platform_auth_sentinel', fromlist=['PlatformAuthSentinel'])))(),
             "gpu_status": gpu_lock_manager.get_status(),
             "channel_errors": channel_errors,
             "recent_logs": recent_logs[-50:]

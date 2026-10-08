@@ -21,9 +21,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // 6. 각 탭별 초기 데이터 로드
     if (typeof loadGoldenCopies === "function") loadGoldenCopies();
 
-    // 7. 3초 주기 실시간 상태 자동 폴링
+    // 7. 3초 주기 실시간 상태 자동 폴링 (헬스케어 탭 활성화 시 맥박도 3초 자동 갱신)
     setInterval(() => {
         if (typeof fetchStatus === "function") fetchStatus();
+        const healthTab = document.getElementById("tab-health");
+        if (healthTab && healthTab.classList.contains("active") && typeof loadHealthStatus === "function") {
+            loadHealthStatus();
+        }
     }, 3000);
 
     console.log("🚀 3대 슈퍼앱 마케팅 사령부가 성공적으로 초기화되었습니다.");
