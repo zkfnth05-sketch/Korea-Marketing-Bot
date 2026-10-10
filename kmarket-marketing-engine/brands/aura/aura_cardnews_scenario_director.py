@@ -177,7 +177,7 @@ AURA_8_CARDNEWS_SCENARIOS: Dict[int, Dict[str, Any]] = {
                     "she has a subtle gentle polite smile, charming restrained smile with lips naturally closed together, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
                     "wearing clean stylish civilian casual clothes, a neat comfortable soft knit daily outfit, "
                     "she is holding her sleek smartphone in both hands, looking down affectionately at the glowing smartphone screen in a warm video call and messaging moment, "
-                    "sitting in a warm cozy Tokyo apartment living room with authentic dark oak wooden bookshelves filled with books, vibrant lush green indoor potted plants, "
+                    "sitting in a sunlit trendy glasshouse boutique cafe in Seongsu-dong with clean polished white marble table, warm soft natural sunlight streaming through floor-to-ceiling glass windows, "
                     "warm directional room ambient lighting creating natural depth and rich realistic shadows, "
                     "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, realistic skin subsurface scattering, Apple iPhone 15 Pro Smart HDR photo."
                 ),
@@ -413,17 +413,16 @@ AURA_8_CARDNEWS_SCENARIOS: Dict[int, Dict[str, Any]] = {
                 "cta_button": "👉 옆으로 넘겨서 화보 비결 보기 (1/5) >",
                 "image_prompt": (
                     "masterpiece, best quality, ultra-photorealistic portrait, authentic candid mobile snapshot shot on iPhone 15 Pro, "
-                    "photographed from 2.5 meters away from the photographer's direct eye-level perspective inside a luxury Cheongdam studio on iPhone 15 Pro, "
-                    "solo 1person female, perfectly centered in frame, medium chest-up seated photoshoot portrait, "
-                    "seated gracefully in the single designer white lounge armchair with the chair's curved backrest and armrests framing her naturally, "
-                    "eye-level strictly anchored at the upper 35% golden ratio line of the frame, "
-                    "tight balanced 15% headroom margin above head, "
-                    "perfectly frontal portrait view looking directly into the camera lens with captivating gentle eye contact, "
+                    "close-up bust shot portrait inside a luxury Cheongdam studio on iPhone 15 Pro, "
+                    "solo 1person female, perfectly centered in frame, close-up portrait with face prominently filling upper frame, "
+                    "seated gracefully in the single designer white lounge armchair with the chair's curved backrest framing her naturally, "
+                    "eye-level strictly anchored high in frame, "
+                    "perfectly frontal portrait view looking directly into the camera lens with captivating gentle eye contact, face clearly visible and prominent, "
                     "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, slender elegant long neck, collarbone and graceful shoulders visible, "
                     "gently closed mouth, natural lips closed together, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
                     "an exceptionally gorgeous glamorous 25-year-old Korean young woman with a breathtakingly seductive feline cat-like facial aesthetic, "
                     "captivating alluring cat-like almond hazel eyes with subtle sharp winged eyeliner, sharp high cheekbones, delicate cute button nose, sculpted elegant jawline, "
-                    "perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck, graceful collarbone, "
+                    "delicate small petite head and face size, slender elegant long neck, graceful collarbone, "
                     "flawless luminous glass skin with soft natural peach blush, realistic skin pores and authentic fine skin texture, "
                     "natural full lips gently closed together with a subtle alluring confident smile, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
                     "voluminous silky dark wavy hair falling gracefully over shoulders, "
@@ -433,6 +432,7 @@ AURA_8_CARDNEWS_SCENARIOS: Dict[int, Dict[str, Any]] = {
                     "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, realistic skin subsurface scattering, Apple iPhone 15 Pro Smart HDR photo."
                 ),
                 "negative_prompt": (
+                    "distant shot, far away, wide shot, tiny face, face covered, face obscured, "
                     "open mouth, parted lips, visible teeth, showing teeth, laughing, wide grin, smiling wide, smiling, "
                     "two people, man, male, crowd, "
                     "cleavage, deep neckline, exposed chest, bustier, low cut, exposed collarbone, bare shoulders, revealing clothes, nightlife, hostess, "
@@ -883,7 +883,7 @@ class AuraCardnewsScenarioDirector:
                         "she has a subtle gentle polite smile, charming restrained smile with lips naturally closed together, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
                         f"{outfit}, "
                         "she is holding her sleek smartphone in both hands, looking down affectionately at the glowing smartphone screen in a warm video call and messaging moment, "
-                        "sitting in a warm cozy Tokyo apartment living room with authentic dark oak wooden bookshelves filled with books, vibrant lush green indoor potted plants, "
+                        "sitting in a sunlit trendy glasshouse boutique cafe in Seongsu-dong with clean polished white marble table, warm soft natural sunlight streaming through floor-to-ceiling glass windows, "
                         "warm directional room ambient lighting creating natural depth and rich realistic shadows, "
                         "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, realistic skin subsurface scattering, Apple iPhone 15 Pro Smart HDR photo."
                     )

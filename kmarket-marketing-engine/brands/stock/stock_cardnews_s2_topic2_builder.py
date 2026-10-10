@@ -16,6 +16,8 @@ import sys
 import base64
 import logging
 from pathlib import Path
+from core.engine.naver_search_bar_component import render_naver_search_bar_html
+
 from typing import Dict, Any, Optional
 from playwright.sync_api import sync_playwright
 
@@ -69,6 +71,7 @@ class StockCardnewsS2Topic2Builder:
         h1_line2 = copy_data.get("headline_line2", "SK하이닉스 실시간 퀀트 정밀 진단") if copy_data else "SK하이닉스 실시간 퀀트 정밀 진단"
         subtitle = copy_data.get("subtitle", "HBM 독점 밸류 & 외국계 폭풍 순매수 유입! 객관적 진입 점수 0.1초 확인") if copy_data else "HBM 독점 밸류 & 외국계 폭풍 순매수 유입! 객관적 진입 점수 0.1초 확인"
         cta_text = copy_data.get("cta_text", "👉 옆으로 넘겨서 기업 펀더멘털 실적 보기 (2/5) >") if copy_data else "👉 옆으로 넘겨서 기업 펀더멘털 실적 보기 (2/5) >"
+        naver_search_html = render_naver_search_bar_html(brand="stock")
 
         html_content = f"""<!DOCTYPE html>
 <html lang="ko">
@@ -172,13 +175,8 @@ class StockCardnewsS2Topic2Builder:
   </div>
 
   <!-- [4. 하단 스와이프 CTA 배너] -->
-  <div class="w-full px-4 mb-2">
-    <div class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#F59E0B] shadow-xl shadow-orange-500/20 flex items-center justify-center border border-white/20">
-      <span class="text-white text-xl font-black tracking-wide flex items-center gap-2">
-        {cta_text}
-      </span>
-    </div>
-  </div>
+    <!-- 하단 네이버 공식 검색창 UI 바 (숏폼 일체형) -->
+    {naver_search_html}
 
 </body>
 </html>

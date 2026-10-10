@@ -274,7 +274,7 @@ class StockHumanBehaviorBot:
             "brand": self.brand
         }
 
-        from core.engine.browser_guard import async_browser_lock, clean_browser_profile_locks, get_safe_browser_args
+        from core.engine.browser_guard import is_yield_requested, async_browser_lock, clean_browser_profile_locks, get_safe_browser_args
 
         clean_browser_profile_locks(self.meta_profile_dir)
         clean_browser_profile_locks(self.youtube_profile_dir)

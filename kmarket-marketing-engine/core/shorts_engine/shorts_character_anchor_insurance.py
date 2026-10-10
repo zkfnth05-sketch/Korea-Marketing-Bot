@@ -17,26 +17,29 @@ INSURANCE_TOPIC_SPECS = {
         "topic_id": 1,
         "title": "실손의료비 4세대 전환 손익",
         "gender": "female",
-        "age": 42,
+        "age": 34,
         "framing": (
             "photographed from 1.4 meters directly in front on Apple iPhone 15 Pro, "
             "clear medium bust shot, showing head, graceful neck, natural shoulders, chest, and upper torso, "
-            "solo 1person female, comfortably sitting upright on a modern living room sofa, perfectly centered in frame, "
+            "solo 1person female, comfortably sitting upright on a modern luxury living room sofa, perfectly centered in frame, "
             "perfectly upright head posture with zero tilt, natural balanced headroom occupying upper 8% of frame, "
             "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, "
             "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
             "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine skin pores and sharp fabric textures"
         ),
         "char_desc": (
-            "an authentic relatable 42-year-old Korean woman (homemaker and working professional), healthy glowing skin, neat natural elegant hairstyle, "
-            "wearing clean stylish civilian casual clothes, a chic modern daily outfit, "
-            "approachable civilian consumer persona, looking directly into camera with genuine composed closed-mouth expression (lips fully closed together, zero teeth)"
+            "an exceptionally gorgeous and glamorous 34-year-old Korean woman (top-tier Korean actress and luxury financial influencer look, stunning 8-head-high golden ratio model proportions), "
+            "strictly no glasses, bare clean face with flawless glowing porcelain glass skin, authentic captivating Korean female facial features (doe-eyed and cat-like features, delicate high nose bridge, sharp elegant V-line jawline, warm engaging dark brown eyes), "
+            "elegant layered soft wavy hairstyle with natural volume, "
+            "wearing a sophisticated pastel beige square-neck silk knit top with delicate gold necklace, pristine upscale Gangnam civilian fashion, "
+            "looking directly into camera with composed confident gentle closed-mouth expression (lips fully closed together, strictly zero teeth showing), "
+            "modern K-drama wealthy relatable female lead look"
         ),
         "bg_desc": (
-            "modern bright sunlit apartment living room with cozy neutral fabric sofa, stylish clean bookshelf and fresh green indoor plants in background, "
-            "crisp clear natural window daylight, vivid vibrant realistic color balance, tack sharp f/11 deep pan-focus, zero yellow tint"
+            "bright upscale modern penthouse living room with soft morning sunlight streaming through floor-to-ceiling windows, minimalist marble coffee table and lush indoor green plants, "
+            "crystal clear edge-to-edge deep focus across the entire room, vivid authentic Korean luxury indoor realism, zero yellow tint"
         ),
-        "vibe": "병원도 안 가는데 매달 11만원 내던 실비 1만2천원으로 줄이고 속 시원해진 40대 똑순이 주부/직장인"
+        "vibe": "병원도 안 가는데 매달 11만원 내던 실손보험 34개사와 정밀 비교해서 1만2천원으로 줄인 30대 중반 청담동 럭셔리 재테크 여신"
     },
     2: {
         "topic_id": 2,
@@ -71,24 +74,28 @@ INSURANCE_TOPIC_SPECS = {
         "topic_id": 3,
         "title": "암보험 일반암 vs 유사암 진실",
         "gender": "female",
-        "age": 45,
+        "age": 36,
         "framing": (
             "photographed from 1.4 meters directly in front on Apple iPhone 15 Pro, "
             "clear medium bust shot, showing head, elegant neck, natural shoulders, chest, and upper torso, "
-            "solo 1person female, sitting upright in a modern home study library, perfectly centered in frame, "
+            "solo 1person female, sitting upright in a high-end modern private study lounge, perfectly centered in frame, "
             "perfectly upright head posture with zero tilt, natural balanced headroom occupying upper 8% of frame, "
             "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, "
             "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
             "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear focus across entire frame, visible fine skin pores and fabric textures"
         ),
         "char_desc": (
-            "a poised and sensible 45-year-old Korean career woman, clear fair skin, neat graceful short bob hairstyle, "
-            "wearing an elegant, neat, and sophisticated luxury knit sweater, articulate and trustworthy closed-mouth expression looking directly into camera (lips completely closed, zero teeth)"
+            "an exceptionally elegant, intelligent, and gorgeous 36-year-old Korean female financial broadcaster (top-tier Korean news anchor and actress look, perfect 8-head-high golden ratio tall model proportions), "
+            "strictly no glasses, bare clean face with flawless radiant porcelain skin, authentic beautiful Korean female facial features (sharp articulate dark eyes, refined nose bridge, sleek graceful jawline), "
+            "neat and stylish modern Korean c-curl shoulder-length bob hairstyle with natural air-volume, "
+            "wearing a tailored luxury dusty-rose silk collared blouse, chic upscale Korean professional look, "
+            "looking directly into camera with articulate trustworthy closed-mouth expression (lips completely closed together, strictly zero teeth showing), "
+            "modern high-end Korean financial expert look"
         ),
         "bg_desc": (
-            "warm modern home study library with dark oak bookshelves filled with books, warm ambient lighting, crisp deep focus"
+            "bright high-end modern private study lounge with warm ambient lighting, tasteful minimalist dark oak bookshelf, soft natural daylight entering through large side window, tack sharp f/11 deep pan-focus, vivid authentic Korean interior realism, zero yellow tint"
         ),
-        "vibe": "건강검진 앞두고 증권 열어봤다가 갑상선암 500만원 보고 깜짝 놀라 팩트체크한 40대 여성"
+        "vibe": "건강검진 앞두고 증권 열어봤다가 일반암 vs 유사암 팩트체크하고 완벽 세팅한 30대 중반 지적인 경제방송 아나운서급 여신"
     },
     4: {
         "topic_id": 4,

@@ -114,15 +114,16 @@ class AuraBlogScheduler:
 
         return True, "발행 가능"
 
-    def run_one_cycle(self, force_topic_id: Optional[int] = None) -> Dict[str, Any]:
+    def run_one_cycle(self, force_topic_id: Optional[int] = None, force: bool = False) -> Dict[str, Any]:
         """
         주제 1개에 대해 안전 검증 후 수동 1회 발행
-        (하루 최대 3건 엄격 제한 & 도배 원천 차단)
+        (하루 최대 3건 엄격 제한 & 도배 원천 차단, force=True 시 강제 즉시 실행)
         """
-        can_pub, reason = self.can_publish_today(max_daily_posts=3)
-        if not can_pub and force_topic_id is None:
-            logger.warning(reason)
-            return {"status": "BLOCKED_DAILY_CAP", "message": reason}
+        if not force and force_topic_id is None:
+            can_pub, reason = self.can_publish_today(max_daily_posts=3)
+            if not can_pub:
+                logger.warning(reason)
+                return {"status": "BLOCKED_DAILY_CAP", "message": reason}
 
         from brands.aura.aura_blog_engine import AuraBlogEngine
         from brands.aura.aura_100_topics import AURA_100_TOPICS, get_interleaved_topic_order

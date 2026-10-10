@@ -118,19 +118,13 @@ def produce_stock_34s_shorts_topic6():
 
     # 3. 📸 [Step 3] 20대 훈남 앵커 마스터 인물 사진 연결
     master_photo_path = work_dir / "01_master_photo_t2i.png"
+    producer = StockShortsProducer()
     
-    # 카드뉴스 6번 표지에서 생성한 20대 훈남 앵커 실사 사진 우선 연결
-    cover_candidates = list(Path(r"C:\Users\zkfnt\Desktop\한국 카드뉴스_산출물\주식\[주제06] AI퀀트비서_총괄소개_20대훈남").glob("slide_1.png")) + \
-                       list(Path(_engine_root / "brands/stock/assets").glob("stock_topic6_cover_*.png")) + \
-                       list(Path(r"D:\ComfyUI_Wan_Engine\ComfyUI\output").glob("stock_topic6_*.png"))
-    
-    if cover_candidates and cover_candidates[0].exists():
-        shutil.copy2(cover_candidates[0], master_photo_path)
-        logger.info(f"📸 6번 주제 20대 훈남 앵커 마스터 사진 연결: {master_photo_path}")
-    else:
-        res_photo = producer.produce_master_photo(topic_id=6, gender="male")
-        shutil.copy2(res_photo["photo_path"], master_photo_path)
-        logger.info(f"📸 마스터 사진 신규 생성: {master_photo_path}")
+    # 🎨 [100% 텍스트 기반 Wan 2.1 T2I 실사 신규 렌더링 - 캐시 재탕 0% 원천 배제]
+    logger.info("🎨 [Step 3] 26세 훈남 남성 메인 앵커 실사 마스터컷 Wan 2.1 T2I 신규 렌더링 시작 (Text-to-Image)...")
+    res_photo = producer.produce_master_photo(topic_id=6, gender="male")
+    shutil.copy2(res_photo["photo_path"], master_photo_path)
+    logger.info(f"📸 마스터 인물 사진 신규 Wan T2I 100% 실사 생성 완료: {master_photo_path}")
 
     master_img = Image.open(str(master_photo_path))
     wan_ready = producer.ensure_engine_ready()

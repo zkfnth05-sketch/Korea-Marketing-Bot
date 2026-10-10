@@ -8,5 +8,55 @@
     "duration_sec": 31,
     "status": "COMPLETED",
     "ended_at": "2026-10-06T19:44:00.568121"
+  },
+  {
+    "brand": "insurance",
+    "started_at": "2026-10-09T16:00:15.907955",
+    "posts_read": 47,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 603,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-09T16:10:19.558958"
+  },
+  {
+    "brand": "insurance",
+    "started_at": "2026-10-09T16:21:10.171159",
+    "posts_read": 51,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 600,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-09T16:31:10.692445"
+  },
+  {
+    "brand": "insurance",
+    "started_at": "2026-10-09T22:00:25.571788",
+    "posts_read": 76,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 900,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-09T22:15:26.320853"
+  },
+  {
+    "brand": "insurance",
+    "started_at": "2026-10-09T22:19:24.153273",
+    "posts_read": 77,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 908,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-09T22:34:32.870885"
+  },
+  {
+    "brand": "insurance",
+    "started_at": "2026-10-10T16:00:08.387300",
+    "posts_read": 53,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 603,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-10T16:10:12.385682"
   }
 ]

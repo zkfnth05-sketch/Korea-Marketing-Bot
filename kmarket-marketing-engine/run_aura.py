@@ -33,9 +33,12 @@ def main():
                     pass
 
         scheduler = AuraBlogScheduler()
-        res = scheduler.run_one_cycle(force_topic_id=force_topic)
+        res = scheduler.run_one_cycle(force_topic_id=force_topic, force=True)
+        if res.get("status") == "BLOCKED_DAILY_CAP":
+            print(f"\n⚠️ {res.get('message')}")
+            return
         print("\n[발행 결과 요약]:")
-        print(f"  - 📚 주제 ID: #{res['topic_id']}")
+        print(f"  - 📚 주제 ID: #{res.get('topic_id', '-')}")
         print(f"  - 🟢 네이버 블로그 제목: {res.get('title_naver', res['title'])}")
         print(f"  - 🟠 티스토리 제목: {res.get('title_tistory', res['title'])}")
         print(f"  - 🟡 카카오/브런치 제목: {res.get('title_kakao', res['title'])}")
@@ -65,7 +68,7 @@ def main():
 
     # ── [카드뉴스 5장 메타 (인스타+페북) 무인 자동 배포 옵션] ──
     if "--cardnews-meta" in sys.argv or "-cm" in sys.argv:
-        from brands.aura.aura_meta_scheduler import AuraMetaScheduler
+        from brands.aura.aura_omni_cardnews_pilot import AuraOmniCardnewsPilot
         topic_id = None
         for i, arg in enumerate(sys.argv):
             if arg in ["--topic", "--topic-id", "-t"] and i + 1 < len(sys.argv):
@@ -79,16 +82,17 @@ def main():
         print(f"📌 대상 주제: #{topic_id if topic_id else '자동 롤링'}")
         print("==============================================\n")
 
-        scheduler = AuraMetaScheduler()
-        res = scheduler.run_one_cycle(force_topic_id=topic_id)
+        pilot = AuraOmniCardnewsPilot()
+        res = pilot.execute_single_slot(topic_id=topic_id, force=True)
         print("\n[메타 배포 결과 요약]:")
         print(json.dumps(res, ensure_ascii=False, indent=2))
         return
 
     if "--meta-daemon" in sys.argv or "-md" in sys.argv:
-        from brands.aura.aura_meta_scheduler import AuraMetaScheduler
-        scheduler = AuraMetaScheduler()
-        scheduler.start_daemon()
+        from brands.aura.aura_omni_cardnews_pilot import AuraOmniCardnewsPilot
+        pilot = AuraOmniCardnewsPilot()
+        # 0-API Pure Browser Omni Cardnews Pilot
+        pilot.execute_single_slot(topic_id=topic_id, force=True)
         return
 
     # ── [숏폼 마스터 사진 단독 생성 옵션] ──

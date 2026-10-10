@@ -1,10 +1,11 @@
+from core.gemini_unified_keys import get_unified_gemini_key_dicts, get_unified_gemini_keys, format_gemini_error
 # -*- coding: utf-8 -*-
 """
 Aura Gemini Writer (💖 Aura 2030 매거진 전문 AI 원고 & 비주얼 프롬프트 작성기)
 =============================================================================
 - 브랜드: Aura (2030 AI 데이팅 / 매칭 라운지 / 소개팅 코칭)
 - 역할:
-  1. 100대 주제 풀 + 실시간 네이버/구글 키워드를 입력받아 2,000자 고품질 전문 칼럼 작성
+  1. 100대 주제 풀 + 실시간 네이버/구글 키워드를 입력받아 3,000자 고품질 전문 칼럼 작성
   2. 4대 키 체인 중 무료키 2개(GEMINI_FREE_API_KEY_KMARKET, GEMINI_FREE_API_KEY_EASYTAX) 100% 우선 활용 (비용 0원)
   3. 무료키 429 한도 초과 시 ➔ 유료키 2개로 0.1초 만에 자동 무중단 롤오버
   4. 글 본문 스토리 맥락에 100% 부합하는 맞춤형 16:9 영문 visual_prompt 동시 기획
@@ -55,25 +56,7 @@ class AuraGeminiWriter:
         )
 
         # 💖 Aura 5단 스마트 키 체인: 전용 무료키 3개 우선 (0원) ➔ 전용 유료키 2개 (비상) ➔ 백업키
-        candidates = [
-            {"name": "AURA_FREE_1 (전용 무료키 #1)", "key": GEMINI_FREE_API_KEY_AURA_1},
-            {"name": "AURA_FREE_2 (전용 무료키 #2)", "key": GEMINI_FREE_API_KEY_AURA_2},
-            {"name": "AURA_FREE_3 (전용 무료키 #3)", "key": GEMINI_FREE_API_KEY_AURA_3},
-            {"name": "AURA_PAID_1 (전용 유료키 #1)", "key": GEMINI_PAID_API_KEY_AURA_1},
-            {"name": "AURA_PAID_2 (전용 유료키 #2)", "key": GEMINI_PAID_API_KEY_AURA_2},
-            {"name": "BACKUP_FREE_KM (KMarket 무료키)", "key": GEMINI_FREE_API_KEY_KMARKET},
-            {"name": "BACKUP_FREE_ET (EasyTax 무료키)", "key": GEMINI_FREE_API_KEY_EASYTAX},
-            {"name": "DEFAULT_KEY (기본키)", "key": GEMINI_API_KEY},
-        ]
-
-        seen = set()
-        self.key_chain = []
-        for c in candidates:
-            k = (c.get("key") or "").strip()
-            if k and k not in seen and len(k) > 10:
-                seen.add(k)
-                self.key_chain.append({"name": c["name"], "key": k})
-
+        self.key_chain = get_unified_gemini_key_dicts()
         self._active_key_index = 0
         names = [k["name"] for k in self.key_chain]
         logger.info(f"💖 [AuraGeminiWriter] 4단 키 체인 활성화 완료: {' ➔ '.join(names)}")
@@ -99,15 +82,17 @@ class AuraGeminiWriter:
             try:
                 client = self._get_genai_client(api_key)
                 from google.genai import types as genai_types
+                types = genai_types
 
-                for model_name in ["gemini-3.1-flash-lite", "gemini-2.0-flash", "gemini-flash-latest"]:
+                for model_name in ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"]:
                     try:
                         response = client.models.generate_content(
                             model=model_name,
                             contents=prompt,
                             config=genai_types.GenerateContentConfig(
-                                system_instruction=system_instruction,
+                                automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True), system_instruction=system_instruction,
                                 temperature=0.75,
+                                max_output_tokens=4096,
                                 response_mime_type="application/json"
                             )
                         )
@@ -131,7 +116,7 @@ class AuraGeminiWriter:
         self,
         topic: Dict[str, Any],
         seo_brief: Dict[str, Any],
-        use_cache: bool = True
+        use_cache: bool = False
     ) -> Dict[str, Any]:
         """
         100대 주제 1개와 실시간 키워드를 조합하여 2,000자 칼럼과 맞춤 사진 프롬프트 생성
@@ -144,33 +129,8 @@ class AuraGeminiWriter:
         aura_feature = topic.get("aura_feature", "Aura AI 매력 리포트")
         intent = topic.get("intent", "2030 연애 꿀팁")
 
-        # ⚡ [비용 0원 원칙] 기존 로컬에 작성된 고품질 원고가 있으면 즉시 재사용 (Gemini 호출 차단)
-        if use_cache:
-            blog_dir = PROJECT_ROOT / "outputs" / "aura" / "blogs"
-            if blog_dir.exists():
-                existing = sorted(list(blog_dir.glob(f"aura_blog_topic_{topic_id:03d}_*.json")), reverse=True)
-                if existing:
-                    try:
-                        with open(existing[0], "r", encoding="utf-8") as fp:
-                            cached_data = json.load(fp)
-                        if cached_data.get("title") and cached_data.get("content_md"):
-                            logger.info(f"⚡ [AuraGeminiWriter] 주제 #{topic_id} 기존 칼럼 원고 캐시 즉시 재사용 (비용 0원!): {existing[0].name}")
-                            return {
-                                "topic_id": topic_id,
-                                "category": category_key,
-                                "category_name": category_name,
-                                "title": cached_data.get("title", ""),
-                                "title_naver": cached_data.get("title_naver", cached_data.get("title", "")),
-                                "title_tistory": cached_data.get("title_tistory", cached_data.get("title", "")),
-                                "title_kakao": cached_data.get("title_kakao", cached_data.get("title", "")),
-                                "excerpt": cached_data.get("excerpt", ""),
-                                "visual_prompt": cached_data.get("visual_prompt", ""),
-                                "discussion_prompt": cached_data.get("discussion_prompt", "Aura 싱글 여러분의 생각은 어떠신가요? 아래 댓글로 여러분만의 솔직한 생각과 꿀팁을 남겨주세요!"),
-                                "content_md": cached_data.get("content_md", ""),
-                                "is_cached": True
-                            }
-                    except Exception as ce:
-                        logger.debug(f"캐시 원고 로드 예외: {ce}")
+        # 🚀 [100% 실시간 신규 작성 원칙] 매회 Gemini AI가 새로운 칼럼 원고를 실시간 집필합니다.
+        pass
 
         naver_keywords = seo_brief.get("seo_title_keywords", [])
         google_keywords = seo_brief.get("h2_h3_subheading_keywords", [])
@@ -180,10 +140,11 @@ class AuraGeminiWriter:
         system_instruction = f"""
 당신은 대한민국 2030 트렌드 매거진 '💖 Aura 2030 매거진'의 수석 에디터이자 네이버 스마트블록 & 구글 SEO 1위 상위노출 전문 카피라이터입니다.
 독자는 2030 세대 직장인과 대학생, 소개팅과 썸, 연애에 진심인 솔로 남녀입니다.
-친근하면서도 세련되고 신뢰감 있는 매거진 에디터 톤앤매너로, 과도한 광고 느낌 없이 실전에서 바로 써먹을 수 있는 유려하고 전문적인 2,000자 한국어 마스터 칼럼을 집필해 주십시오.
+친근하면서도 세련되고 신뢰감 있는 매거진 에디터 톤앤매너로, 과도한 광고 느낌 없이 실전에서 바로 써먹을 수 있는 유려하고 전문적인 3,000자(3,000~3,500자) 한국어 마스터 칼럼을 집필해 주십시오.
 
 [필수 작성 규칙]
 1. 절대 '[본론 1]', '도입부', '심리 분석' 같은 개발/기획 지시어 용어를 본문이나 소제목에 그대로 적지 마십시오.
+2. 🚨 [따옴표 규칙]: JSON 구문 오류를 방지하기 위해, 본문(content_md) 내 강조 표현이나 대화 멘트에는 큰따옴표(") 대신 반드시 작은따옴표(')만 사용하십시오.
 2. 소제목은 독자가 읽고 싶어지는 매력적이고 세련된 에디토리얼 소제목(예: '✨ 1. 뻔한 질문 대신 상대방의 프로필에서 단서 찾기', '💡 2. 답장 간격보다 중요한 '대화의 텐션' 맞추기')으로 작성하십시오.
 3. 제목에 특정 개수(예: '5가지 멘트', '3대 시그널')가 있다면, 본문 소제목이나 불릿포인트에서도 반드시 그 개수에 맞게 구체적인 실전 팁을 하나하나 명확히 다루십시오.
 4. 본문(content_md) 안에 `![...](...)` 같은 로컬 이미지 마크다운 코드를 절대 넣지 마십시오. 이미지는 시스템이 에디터 상단에 별도로 업로드합니다.
@@ -197,7 +158,7 @@ class AuraGeminiWriter:
   "excerpt": "독자의 호기심을 자극하고 본문 핵심을꿰뚫는 1~2줄 요약문 (120자 내외)",
   "visual_prompt": "당신이 집필한 본문 스토리의 가장 결정적이고 로맨틱한 핵심 장면을 포착한 Imagen 3 전용 영문 프롬프트 (🚨 절대 천편일률적인 카페 테이블 마주앉기 금지! 🌟 반드시 매력적인 2030 한국인 남녀 커플 두 명이 본문 스토리의 배경 장소에 맞게 자연스럽게 데이트하는 모습이 필수 포함되어야 함: 와인바면 바 카운터에서 은은한 촛불 아래 와인잔을 기울이며 대화하는 남녀 커플, 성수동이면 트렌디한 붉은 벽돌 거리/플래그십 스토어 앞을 나란히 미소 지으며 걷는 남녀 커플, 남산이면 반짝이는 서울 야경을 배경으로 산책로에서 손을 잡고 걷는 남녀 커플, 한강이면 노을빛 수변 잔디밭을 함께 거니는 남녀 커플, 룩북이면 세련된 서울 도심 횡단보도를 걷는 감각적인 남녀 등 본문 스토리의 배경 장소와 데이트 상황에 100% 완벽히 일치하는 배경/의상/데이트 동작 상세 묘사. Two attractive Korean young adults, a handsome man and a beautiful woman on a romantic date, upright head posture looking straight ahead with zero head tilt, cozy Seoul aesthetic, photorealistic, cinematic natural lighting, 16:9 포함)",
   "discussion_prompt": "아우라 싱글 유저들이 글을 다 읽고 아래 댓글창에서 활발하게 의견을 나누고 티키타카 소통할 수 있도록 유도하는 매력적인 1~2문장의 질문 (예: 'Aura 여러분은 소개팅 첫 카톡에서 상대방 프로필 사진 칭찬 vs 솔직한 인사 중 어떤 멘트를 가장 선호하시나요? 아래 댓글로 여러분만의 꿀팁을 들려주세요!')",
-  "content_md": "마크다운 전문 (공백 포함 약 1,800~2,200자, 공백 제외 1,400자 이상의 꽉 찬 전문)"
+  "content_md": "마크다운 전문 (공백 포함 약 3,000~3,500자, 공백 제외 2,200자 이상의 꽉 찬 전문)"
 }}
 """
 
@@ -207,23 +168,23 @@ class AuraGeminiWriter:
 - 카테고리: {category_name} ({category_key})
 - 기획 의도: {intent}
 - 연계할 Aura AI 기능: {aura_feature}
-- 🌐 당일 대한민국 실시간 핫이슈 & 트렌드 키워드: {', '.join(live_trends)}
-- 네이버 실시간 고노출 키워드: {', '.join(naver_keywords)}
+- 2030 데이트 트렌드 키워드: {', '.join(live_trends)}
+- 네이버 실시간 검색 키워드: {', '.join(naver_keywords)}
 - 구글 Suggest 질문형 키워드: {', '.join(google_keywords)}
-- 바이럴 해시태그: {' '.join(hashtags)}
 - 공식 검색어: 아우라AI데이팅
 
 [글자수 및 구성 절대 수칙 - 매일 완전히 새로운 최신 트렌드 칼럼 집필]
 1. 제목 3종(title_naver, title_tistory, title_kakao)은 서로 다른 매력적인 스타일로 각각 작성하십시오.
 2. 🚨 [지역명 및 주제 고유성 100% 보존 절대 규칙]: 메인 주제('{topic_title}')에 명시된 고유 지역(성수동, 한남동, 을지로, 잠실, 강남역 등)이나 핵심 주제(스몰토크, MBTI, 룩북, 애프터 등)를 임의로 다른 지역(연남동 등)이나 다른 카테고리로 절대 바꾸거나 왜곡하지 마십시오! 반드시 원본 기획 주제의 고유 지역과 테마를 제목과 본문 전체의 중심축으로 집필하십시오.
-3. 🚨 [절대 금기: 매일 똑같은 진부한 전개 배제]: 위 실시간 트렌드 키워드({', '.join(live_trends[:3])}) 및 요즘 2030 세대의 최신 라이프스타일/핫플 트렌드를 오프닝과 본문 예시에 생생하게 녹여내어, 어제와 전혀 다른 독창적이고 흥미진진한 칼럼으로 집필하십시오.
-4. 본문(content_md) 총 글자 수는 반드시 공백 포함 1,800자 ~ 2,200자 분량으로 풍성하고 깊이 있게 집필하십시오.
-5. 본문 구성:
-   - 감성적이면서도 2030 독자의 공감을 100% 자극하는 오프닝 (300~350자)
-   - 주제에 부합하는 실전 핵심 공략법/멘트/팁 3~5개 항목 (각 항목마다 세련된 소제목 부여, 1,000자 이상)
-   - Aura의 '{aura_feature}'를 자연스럽게 소개하는 스마트 솔루션 제안 (300자)
-   - 💡 Aura 에디터 실전 치트키 (Tip Box, 150자)
-   - 맺음말: 남녀 50:50 황금 성비 AI 매칭 혜택 안내 및 공식 검색어 유도("네이버에 '아우라AI데이팅'을 검색해보세요")
+3. 🚨 [절대 금기: 억지 비유 및 진부한 전개 배제]: 무관한 스포츠 선수나 유명인, 엉뚱한 비유를 억지로 끼워 넣지 말고, 2030 세대의 생생한 데이트 심리와 실전 팁을 스토리텔링으로 진정성 있게 집필하십시오.
+4. 본문(content_md) 총 글자 수는 반드시 공백 포함 딱 3,000자 ~ 3,500자(공백 제외 2,200~2,600자) 수준으로 작성하십시오.
+   - 🚨 [너무 길어지지 않게 상한선 엄수]: 3,500자를 초과하여 불필요하게 늘어지지 않도록 깔끔하게 통제하십시오.
+5. 본문 5대 심층 매거진 챕터 구성 (각 챕터별 균형 배분):
+   - ① 2026 데이팅 트렌드 & 관계 심리 인트로 (약 500자)
+   - ② 상황별 카톡/대화 티키타카 실전 공략법 3~4개 (각 250~300자, 총 1,000자 내외)
+   - ③ 고유 지역 핫플 데이트 동선 & 공간 바이블 (약 600자): 1차 맛집 -> 2차 감성 장소 완벽 코스
+   - ④ 첫인상 비주얼 밸런스 & 비언어적 애티튜드 (약 500자): 스타일링 및 매력 포인트
+   - ⑤ Aura AI 스마트 솔루션 & 에디터 총평 + 댓글 소통 (약 400자): 50:50 황금 성비 AI 매칭 및 공식 검색 유도
 6. 절대 `[본론 1]`, `도입부` 같은 메타 지침 문구를 쓰지 마십시오! 독자가 읽는 매거진 잡지처럼 세련되게 작성하십시오.
 7. 🚨 본문 텍스트 내에 직접적인 URL 주소(http/https)를 적지 마십시오! 링크는 시스템이 본문 끝에 공식 카드로 자동 생성합니다.
 8. 독자 소통용 댓글 유도 질문(discussion_prompt)을 반드시 매력적으로 작성하십시오.
@@ -232,7 +193,7 @@ class AuraGeminiWriter:
    - 와인바면 바 카운터 데이트, 성수동이면 거리 산책 데이트, 남산이면 야경 산책 데이트 등 본문 스토리에 완벽히 부합하는 영문 프롬프트 1문장을 작성하십시오. (매번 똑같은 카페 테이블 마주앉기 금지)
 """
 
-        logger.info(f"📝 [AuraGeminiWriter] 주제 #{topic.get('id')} Gemini 2,000자 칼럼 & 3종 맞춤 제목 생성 시작...")
+        logger.info(f"📝 [AuraGeminiWriter] 주제 #{topic.get('id')} Gemini 3,000자 칼럼 & 3종 맞춤 제목 생성 시작...")
         raw_json = self._call_gemini_smart(user_prompt, system_instruction)
 
         # JSON 안전 파싱 로직
@@ -251,7 +212,7 @@ class AuraGeminiWriter:
 
         parsed = {}
         try:
-            parsed = json.loads(clean_str)
+            parsed = json.loads(clean_str, strict=False)
         except Exception as parse_err:
             logger.warning(f"⚠️ [AuraGeminiWriter] JSON 파싱 실패 ({parse_err}), 정규식 정밀 추출 가동")
             t_match = re.search(r'"title_naver"\s*:\s*"([^"]+)"', clean_str)
@@ -262,7 +223,9 @@ class AuraGeminiWriter:
             p_disc = d_match.group(1) if d_match else "Aura 회원 여러분의 생각은 어떠신가요? 아래 댓글로 여러분만의 꿀팁을 남겨주세요!"
             
             # content_md 정밀 추출 (JSON 전체 덤프 원천 차단)
-            c_match = re.search(r'"content_md"\s*:\s*"((?:[^"\\]|\\.)*)"', clean_str, re.DOTALL)
+            c_match = re.search(r'"content_md"\s*:\s*"(.*?)"\s*\}\s*$', clean_str, re.DOTALL)
+            if not c_match:
+                c_match = re.search(r'"content_md"\s*:\s*"((?:[^"\\]|\\.)*)"', clean_str, re.DOTALL)
             if c_match:
                 extracted_content = c_match.group(1).encode('utf-8').decode('unicode_escape', errors='replace')
                 extracted_content = extracted_content.replace('\\n', '\n').replace('\\"', '"')

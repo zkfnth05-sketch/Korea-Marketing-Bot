@@ -47,30 +47,8 @@ class InsuranceRedditCopywriter:
     OFFICIAL_URL = "https://insure-rebalance.vercel.app/"
 
     def __init__(self):
-        from config import (
-            GEMINI_FREE_API_KEY_AURA_1,
-            GEMINI_FREE_API_KEY_AURA_2,
-            GEMINI_FREE_API_KEY_AURA_3,
-            GEMINI_FREE_API_KEY_KMARKET,
-            GEMINI_API_KEY
-        )
-
-        candidates = [
-            {"name": "INSURE_KEY_1", "key": GEMINI_FREE_API_KEY_AURA_1},
-            {"name": "INSURE_KEY_2", "key": GEMINI_FREE_API_KEY_AURA_2},
-            {"name": "INSURE_KEY_3", "key": GEMINI_FREE_API_KEY_AURA_3},
-            {"name": "KM_BACKUP_FREE", "key": GEMINI_FREE_API_KEY_KMARKET},
-            {"name": "DEFAULT_KEY", "key": GEMINI_API_KEY},
-        ]
-
-        seen = set()
-        self.key_chain = []
-        for c in candidates:
-            k = (c.get("key") or "").strip()
-            if k and k not in seen and len(k) > 10:
-                seen.add(k)
-                self.key_chain.append({"name": c["name"], "key": k})
-
+        from core.gemini_unified_keys import get_unified_gemini_key_dicts
+        self.key_chain = get_unified_gemini_key_dicts()
         self._active_key_index = 0
         logger.info(f"🛡️ [InsuranceRedditCopywriter] 키 체인 등록 완료 (총 {len(self.key_chain)}개)")
 
@@ -217,16 +195,12 @@ STRICT RULES:
 
 Write the Reddit comment response directly:
 """
-        models_to_try = [
-            "gemini-2.5-flash-lite",
-            "gemini-flash-lite-latest",
-            "gemini-3.1-flash-lite",
-            "gemini-flash-latest",
-            "gemini-2.5-flash"
-        ]
-        for i in range(len(self.key_chain)):
-            idx = (self._active_key_index + i) % len(self.key_chain)
+        models_to_try = ["gemini-2.5-flash", "gemini-2.0-flash"]
+        total_keys = len(self.key_chain)
+        for i in range(total_keys):
+            idx = (self._active_key_index + i) % total_keys
             key_info = self.key_chain[idx]
+            key_quota_exhausted = False
             try:
                 client = self._get_genai_client(key_info["key"])
                 for model_name in models_to_try:
@@ -241,10 +215,22 @@ Write the Reddit comment response directly:
                             self._active_key_index = idx
                             return clean_text
                     except Exception as model_err:
-                        logger.debug(f"[{key_info['name']}] 카피라이팅 모델 {model_name} 실패: {model_err}")
-                        continue
+                        err_str = str(model_err)
+                        if any(k in err_str for k in ["429", "RESOURCE_EXHAUSTED", "quota", "depleted", "QuotaFailure"]):
+                            logger.warning(f"⚠️ [할당량 소진] 키={key_info['name']} ({model_name}) 429 쿼터 초과 -> 다음 무료키로 즉시 롤오버!")
+                            key_quota_exhausted = True
+                            break
+                        else:
+                            logger.debug(f"[{key_info['name']}] 카피라이팅 모델 {model_name} 실패: {model_err}")
+                            continue
+
+                if key_quota_exhausted:
+                    self._active_key_index = (idx + 1) % total_keys
+                    continue
             except Exception as e:
                 logger.warning(f"[{key_info['name']}] 카피라이팅 예외: {e}")
+                self._active_key_index = (idx + 1) % total_keys
+                continue
 
         # Fallback to pre-built high-converting scenario sample
         fallback_reply = scenario.get("sample_reply", "")

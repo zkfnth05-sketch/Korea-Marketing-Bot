@@ -18,5 +18,35 @@
     "video_file": "[주제02_완성본]_30초_세로풀HD.mp4",
     "channel_url": "https://clip.naver.com/@stockmaster_ai",
     "published_at": "2026-10-03 12:01:52"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 1,
+    "title": "[StockMaster AI] 퀀트 주식 AI 분석 #1",
+    "video_file": "★_Stock_34초숏폼_주제01_삼성전자_완제품.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-10 13:15:51"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 1,
+    "title": "🚨삼성전자 -2.05%? 외국인 수급의 진짜 비밀 퀀트 분석!",
+    "video_file": "★_Stock_34초숏폼_주제01_삼성전자_완제품.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-10 14:14:33"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 3,
+    "title": "하락장? NO! 📉 이 데이터가 당신을 살린다! #주식AI",
+    "video_file": "[주제03_완성본]_30초_세로풀HD.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-10 21:21:20"
   }
 ]

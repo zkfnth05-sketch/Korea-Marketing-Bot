@@ -11,6 +11,8 @@
 """
 
 import logging
+import core.gemini_unified_keys
+from core.gemini_unified_keys import format_gemini_error
 from typing import List, Optional, Any
 from config import (
     GEMINI_FREE_API_KEY_AURA_1,
@@ -19,6 +21,8 @@ from config import (
     GEMINI_FREE_API_KEY_AURA_4,
     GEMINI_FREE_API_KEY_EASYTAX,
     GEMINI_FREE_API_KEY_KMARKET,
+    GEMINI_PAID_API_KEY_AURA_1,
+    GEMINI_PAID_API_KEY_AURA_2,
     GEMINI_API_KEY_EASYTAX,
     GEMINI_API_KEY_KMARKET,
     GEMINI_API_KEY
@@ -46,9 +50,11 @@ class GeminiSmartClient:
                 {"name": "AURA_FREE_2 (무료 2순위)", "key": GEMINI_FREE_API_KEY_AURA_2},
                 {"name": "AURA_FREE_3 (무료 3순위)", "key": GEMINI_FREE_API_KEY_AURA_3},
                 {"name": "AURA_FREE_4 (무료 4순위)", "key": GEMINI_FREE_API_KEY_AURA_4},
-                {"name": "KMARKET_FREE (보조 무료 5순위)", "key": GEMINI_FREE_API_KEY_KMARKET},
-                {"name": "EASYTAX_FREE (보조 무료 6순위)", "key": GEMINI_FREE_API_KEY_EASYTAX},
-                {"name": "DEFAULT_KEY (기본 7순위)", "key": GEMINI_API_KEY},
+                {"name": "KMARKET_FREE (무료 5순위)", "key": GEMINI_FREE_API_KEY_KMARKET},
+                {"name": "EASYTAX_FREE (무료 6순위)", "key": GEMINI_FREE_API_KEY_EASYTAX},
+                {"name": "AURA_PAID_1 (유료 7순위)", "key": GEMINI_PAID_API_KEY_AURA_1},
+                {"name": "AURA_PAID_2 (유료 8순위)", "key": GEMINI_PAID_API_KEY_AURA_2},
+                {"name": "DEFAULT_KEY (기본 9순위)", "key": GEMINI_API_KEY},
             ]
         elif self.service_id == "easytax":
             candidates = [
@@ -130,11 +136,13 @@ class GeminiSmartClient:
 
                 if is_quota_or_billing:
                     next_idx = (idx + 1) % total_keys
+                    self._active_key_index = next_idx
                     next_name = self.key_chain[next_idx]["name"] if total_keys > 1 else "None"
                     logger.warning(
                         f"⚠️ [{self.service_id.upper()}] {key_name} 할당량/크레딧 초과 감지 -> 다음 키({next_name})로 자동 롤오버!"
                     )
                 else:
+                    self._active_key_index = (idx + 1) % total_keys
                     logger.warning(
                         f"⚠️ [{self.service_id.upper()}] {key_name} 호출 에러: {err_msg[:120]} -> 다음 키 시도"
                     )

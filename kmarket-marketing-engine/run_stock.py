@@ -57,7 +57,7 @@ def main():
 
     # ── [메타(인스타+페북) 카드뉴스 무인 자동 배포 옵션] ──
     if "--cardnews-meta" in sys.argv or "-cm" in sys.argv:
-        from brands.stock.stock_meta_scheduler import StockMetaScheduler
+        from brands.stock.stock_omni_cardnews_pilot import StockOmniCardnewsPilot
         topic_id = None
         for i, arg in enumerate(sys.argv):
             if arg in ["--topic", "--topic-id", "-t"] and i + 1 < len(sys.argv):
@@ -71,16 +71,17 @@ def main():
         print(f"📌 대상 주제: #{topic_id if topic_id else '자동 롤링'}")
         print("==============================================\n")
 
-        scheduler = StockMetaScheduler()
-        res = scheduler.run_one_cycle(force_topic_id=topic_id)
+        pilot = StockOmniCardnewsPilot()
+        res = pilot.execute_single_slot(topic_id=topic_id, force=True)
         print("\n[메타 배포 결과 요약]:")
         print(json.dumps(res, ensure_ascii=False, indent=2))
         return
 
     if "--meta-daemon" in sys.argv or "-md" in sys.argv:
-        from brands.stock.stock_meta_scheduler import StockMetaScheduler
-        scheduler = StockMetaScheduler()
-        scheduler.start_daemon()
+        from brands.stock.stock_omni_cardnews_pilot import StockOmniCardnewsPilot
+        pilot = StockOmniCardnewsPilot()
+        # 0-API Pure Browser Omni Cardnews Pilot
+        pilot.execute_single_slot(topic_id=topic_id, force=True)
         return
 
     # ── [지식iN 단독 실행 옵션] ──

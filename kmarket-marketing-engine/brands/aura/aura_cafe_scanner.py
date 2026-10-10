@@ -120,8 +120,8 @@ class AuraCafeScanner:
             page.on("response", on_res)
             search_url = f"https://m.cafe.naver.com/ca-fe/web/cafes/{club_id}/search?q={kw}&mi=0&ta=SUBJECT&pc=ALL&od=NEW"
             try:
-                await page.goto(search_url, wait_until="networkidle", timeout=16000)
-                await page.wait_for_timeout(1000)
+                await page.goto(search_url, wait_until="domcontentloaded", timeout=10000)
+                await page.wait_for_timeout(1500)
             except Exception:
                 pass
             finally:

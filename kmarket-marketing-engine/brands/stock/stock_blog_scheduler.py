@@ -106,32 +106,34 @@ class StockBlogScheduler:
                 
         return True, "발행 가능"
 
-    def run_one_cycle(self, force_topic_id: Optional[int] = None) -> Dict[str, Any]:
+    def run_one_cycle(self, force_topic_id: Optional[int] = None, force: bool = False) -> Dict[str, Any]:
         """
         주제 1개에 대해 안전 검증 후 수동 1회 발행
-        (하루 최대 3건 엄격 제한 & 도배 원천 차단)
+        (하루 최대 3건 엄격 제한 & 도배 원천 차단, force=True 시 강제 즉시 실행)
         """
-        can_pub, reason = self.can_publish_today(max_daily_posts=3)
-        if not can_pub and force_topic_id is None:
-            logger.warning(reason)
-            return {"status": "BLOCKED_DAILY_CAP", "message": reason}
+        if not force and force_topic_id is None:
+            can_pub, reason = self.can_publish_today(max_daily_posts=3)
+            if not can_pub:
+                logger.warning(reason)
+                return {"status": "BLOCKED_DAILY_CAP", "message": reason}
 
-        from brands.stock.stock_blog_engine import StockBlogEngine
-        from brands.stock.stock_100_topics import STOCK_100_TOPICS
+        from brands.stock.stock_100_topics import STOCK_100_TOPICS, get_interleaved_topic_order
         from brands.stock.stock_multi_publisher import StockMultiPublisher
+        from brands.stock.stock_blog_engine import StockBlogEngine
 
         engine = StockBlogEngine()
-        total_topics = len(STOCK_100_TOPICS)
+        interleaved_order = get_interleaved_topic_order()
+        total_topics = len(interleaved_order)
 
-        # 다음 포스팅 패키지 생성 (실시간 앱 1위 퀀트 캡처 1순위 결합)
+        # 다음 포스팅 패키지 생성 (7대 카테고리 균등 교차 순환)
         if force_topic_id is not None:
             topic_id = force_topic_id
-            logger.info(f"🚀 [StockScheduler] 지정 주제 #{topic_id} 포스팅 사이클 시작...")
-            package = engine.build_article_package(topic_id=topic_id, use_gemini=True, generate_photo=True)
         else:
-            logger.info("🔥 [StockScheduler] 실시간 주식 웹앱 1위 종목(한온시스템 등) + 1600x1600 전광판 캡처 기반 정기 포스팅 사이클 시작...")
-            package = engine.build_captured_article_package(article_type="rank1")
-            topic_id = package.get("topic_id", 999)
+            cur_idx = self.state.get("current_topic_index", 0)
+            topic_id = interleaved_order[cur_idx % total_topics]
+
+        logger.info(f"🚀 [StockScheduler] 주제 #{topic_id} 정기 포스팅 사이클 시작...")
+        package = engine.build_article_package(topic_id=topic_id, use_gemini=True)
 
         # 3대 채널(네이버, 티스토리, 브런치) 동시 무인 자동 배포!
         publisher = StockMultiPublisher()
@@ -190,7 +192,7 @@ class StockBlogScheduler:
         logger.info(f"🚀 [StockScheduler] 실시간 캡처 기반 ({article_type}) 발행 사이클 시작...")
 
         # 실시간 캡처 및 황금 바이블 기반 원고 패키지 생성
-        package = engine.build_captured_article_package(article_type=article_type)
+        package = engine.build_article_package(topic_id=None, use_gemini=True)
 
         # 3대 채널(네이버, 티스토리, 브런치) 동시 무인 배포
         publisher = StockMultiPublisher()

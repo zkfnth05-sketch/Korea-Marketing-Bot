@@ -83,23 +83,24 @@ class AuraRedditFilter:
             "weight": 35.0,
             "patterns": [
                 r"\[?seeking:?\]?\s*korean",
-                r"korean\s*(native|speaker|partner|friend|buddy|exchange|practice|conversation|slang|study)",
-                r"(practice|learn|study|speak|improve|conversing\s*in)\s*korean",
-                r"korean\s*language\s*exchange",
-                r"\b(tandem|hellotalk|hilocal)\b.*korean",
+                r"korean\s*(\w+\s*)?(native|speaker|partner|friend|buddy|exchange|practice|conversation|slang|study|tutor)",
+                r"(practice|learn|study|speak|talk|converse|improve|conversing)\s*(\w+\s*)?(korean|hangul)",
+                r"korean\s*(\w+\s*)?language\s*exchange",
+                r"\b(tandem|hellotalk|hilocal)\b",
                 r"(talk|chat|converse|speaking)\s*(with|to)\s*(koreans?|natives?)",
-                r"conversational\s*korean"
+                r"conversational\s*korean",
+                r"(korean\s*language|learn\s*korean|korean\s*resources?|korean\s*apps?)"
             ]
         },
         "k_dating_culture": {
             "weight": 40.0,
             "patterns": [
-                r"dating\s*(in\s*korea|in\s*seoul|korean\s*(guys?|men|women|girls?)|culture)",
-                r"korean\s*(guy|guys|men|man|boyfriend|crush|date|dating|romance|blind\s*date)",
+                r"dating\s*(\w+\s*)?(in\s*korea|in\s*seoul|korean\s*(guys?|men|women|girls?)|culture)",
+                r"korean\s*(\w+\s*)?(guy|guys|men|man|boyfriend|crush|date|dating|romance|blind\s*date)",
                 r"\b(k-drama\s*romance|korean\s*mbti|korean\s*ideal\s*type|sogaeting|some\s*relationship)\b",
                 r"dating\s*culture\s*(in\s*korea|korean)",
                 r"meeting\s*(koreans?|locals)\s*in\s*(korea|seoul)",
-                r"\b(tinder|bumble|hinge)\s*(in\s*korea|in\s*seoul)\b",
+                r"\b(tinder|bumble|hinge)\s*(\w+\s*)?(in\s*korea|in\s*seoul|korean)\b",
                 r"korean\s*dating\s*apps?",
                 r"date\s*(korean\s*men|korean\s*guys|in\s*seoul)"
             ]
@@ -107,19 +108,19 @@ class AuraRedditFilter:
         "korea_travel": {
             "weight": 30.0,
             "patterns": [
-                r"solo\s*(female|traveler|trip|woman|travel)\s*(in\s*seoul|to\s*seoul|in\s*korea|to\s*korea)",
-                r"\b(hongdae|seongsu|yeonnam|gangnam|seoul|myeongdong|itaewon|busan)\s*(cafe|bars?|buddy|nightlife|friends?|hangout)\b",
+                r"solo\s*(female|traveler|trip|woman|travel)\s*(\w+\s*)?(in\s*seoul|to\s*seoul|in\s*korea|to\s*korea)",
+                r"\b(hongdae|seongsu|yeonnam|gangnam|seoul|myeongdong|itaewon|busan)\s*(\w+\s*)?(cafe|bars?|buddy|nightlife|friends?|hangout)\b",
                 r"meet\s*(locals?|friends?)\s*in\s*(seoul|korea)",
                 r"making\s*friends\s*in\s*(seoul|korea)",
                 r"travel\s*buddy\s*in\s*(seoul|korea)",
                 r"\b(safe\s*local\s*friends?|cafe\s*hopping\s*seoul|hang\s*out\s*in\s*seoul)\b",
-                r"visiting\s*seoul\s*(next\s*week|soon|solo|as\s*a\s*woman)"
+                r"visiting\s*seoul\s*(\w+\s*)?(next\s*week|soon|solo|as\s*a\s*woman|looking\s*for)"
             ]
         },
         "zero_friction_app": {
             "weight": 35.0,
             "patterns": [
-                r"korean\s*(social\s*app|dating\s*app|chat\s*app)",
+                r"korean\s*(social\s*app|dating\s*app|chat\s*app|friend\s*app)",
                 r"(apps?|website)\s*to\s*(practice|talk|meet|chat)\s*(with\s*koreans?)",
                 r"no\s*(korean\s*number|phone\s*number|korean\s*sim|arc)",
                 r"korean\s*chat\s*app\s*for\s*foreigners",
@@ -130,8 +131,8 @@ class AuraRedditFilter:
 
     # 본문(Body) 심층 질문 및 진성 감정 부스터 (가산점)
     BODY_BOOSTERS = [
-        r"\b(how|where|anyone\s*know|recommend|advice|suggest|tips|looking\s*for|curious)\b",
-        r"\b(shy|awkward|safe|creepy|weird\s*guys|polite|culture|honest|friend|dating)\b"
+        r"\b(how|where|anyone\s*know|recommend|advice|suggest|tips|looking\s*for|curious|app|resource)\b",
+        r"\b(shy|awkward|safe|creepy|weird\s*guys|polite|culture|honest|friend|dating|study)\b"
     ]
 
     @classmethod

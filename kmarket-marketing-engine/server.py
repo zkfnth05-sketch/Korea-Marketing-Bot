@@ -335,64 +335,45 @@ def _brand_daemon_loop(brand: str):
             time.sleep(30)
     threading.Thread(target=_human_behavior_worker, daemon=True).start()
 
-    # 4. 🎬 [골든타임 15분 시차 숏폼 데몬 - 하루 3회 (오전/점심/저녁) 슬롯 윈도우 자율 단발 생산 & 4대 채널 송출]
+    # 4. 🎬 [골든타임 30분 시차 숏폼 데몬 - 하루 3회 (오전/점심/저녁) 25분 정시 윈도우 자율 단발 생산 & 4대 채널 송출]
+    # 렌더링+송출 실측 20~25분 소요 대비 30분 텀(Aura ➔ Insurance ➔ Stock)으로 GPU/브라우저 충돌 0% 철통 보장
     def _omni_shorts_daemon_worker():
-        if brand == "aura":
-            shorts_slots = [
-                ("morning", 9, 30, 12, 14, "오전 09:30"),
-                ("lunch", 12, 15, 18, 14, "점심 12:15"),
-                ("evening", 18, 15, 23, 59, "저녁 18:15")
-            ]
-        elif brand == "insurance":
-            shorts_slots = [
-                ("morning", 9, 45, 12, 29, "오전 09:45"),
-                ("lunch", 12, 30, 18, 29, "점심 12:30"),
-                ("evening", 18, 30, 23, 59, "저녁 18:30")
-            ]
-        else:  # stock
-            shorts_slots = [
-                ("morning", 10, 0, 12, 44, "오전 10:00"),
-                ("lunch", 12, 45, 18, 44, "점심 12:45"),
-                ("evening", 18, 45, 23, 59, "저녁 18:45")
-            ]
-
-        executed_shorts_slots = set()
-        slot_desc = " / ".join([s[5] for s in shorts_slots])
-        log_event(f"🎬 [{brand_kr}] 숏폼 하루 3회 슬롯 윈도우 스케줄러 상주 가동 (매일 {slot_desc} KST)", "success")
+        from core.engine.shorts_schedule_coordinator import ShortsScheduleCoordinator
+        coord = ShortsScheduleCoordinator()
+        slot_desc = coord.get_slot_description(brand)
+        log_event(f"🎬 [{brand_kr}] 숏폼 하루 3회 슬롯 스케줄러 상주 가동 (매일 {slot_desc} KST / 30분 텀 분리)", "success")
         
         while brand_daemons_running.get(brand, False):
             try:
                 now = get_now_kst()
                 today_str = now.strftime("%Y-%m-%d")
-                cur_min = now.hour * 60 + now.minute
+                slot_info = coord.check_slot_to_execute(brand, now)
 
-                for slot_id, s_h, s_m, e_h, e_m, s_label in shorts_slots:
-                    start_total = s_h * 60 + s_m
-                    end_total = e_h * 60 + e_m
-                    slot_key = f"{today_str}_{slot_id}"
+                if slot_info:
+                    slot_id, s_label = slot_info
+                    # 영구 상태 선기록 (서버 재부팅 및 중복 발사 0% 원천 차단)
+                    coord.mark_executed(brand, slot_id, today_str)
 
-                    if start_total <= cur_min <= end_total and slot_key not in executed_shorts_slots:
-                        executed_shorts_slots.add(slot_key)
-                        time_label = "오전" if s_h < 12 else ("점심" if s_h < 17 else "저녁")
-                        log_event(f"⏰ [{brand_kr}] {time_label} {s_h:02d}:{s_m:02d} 골든타임 도달! 쏘기 직전 숏폼 1편 신선 제작 및 4대 채널 단발 송출 시작...", "info")
-                        res = {}
-                        if brand == "aura":
-                            from brands.aura.aura_omni_shorts_pilot import AuraOmniShortsPilot
-                            res = AuraOmniShortsPilot().execute_single_slot()
-                        elif brand == "insurance":
-                            from brands.insurance.insurance_omni_shorts_pilot import InsuranceOmniShortsPilot
-                            res = InsuranceOmniShortsPilot().execute_single_slot()
-                        elif brand == "stock":
-                            from brands.stock.stock_omni_shorts_pilot import StockOmniShortsPilot
-                            res = StockOmniShortsPilot().execute_single_slot()
-                        
-                        status = res.get("status", "unknown") if isinstance(res, dict) else "done"
-                        if status == "success":
-                            log_event(f"🎉 [{brand_kr}] {time_label} 숏폼 4대 채널 송출 성공! ({res.get('title', '')})", "success")
-                        elif status == "skipped":
-                            log_event(f"ℹ️ [{brand_kr}] 숏폼 송출 스킵: {res.get('message', '')}", "info")
-                        else:
-                            log_event(f"⚠️ [{brand_kr}] 숏폼 송출 결과: {res.get('error') or res.get('message') or status}", "warning")
+                    time_label = "오전" if "오전" in s_label else ("점심" if "점심" in s_label else "저녁")
+                    log_event(f"⏰ [{brand_kr}] {s_label} 골든타임 도달! 쏘기 직전 숏폼 1편 신선 제작 및 4대 채널 단발 송출 시작...", "info")
+                    res = {}
+                    if brand == "aura":
+                        from brands.aura.aura_omni_shorts_pilot import AuraOmniShortsPilot
+                        res = AuraOmniShortsPilot().execute_single_slot()
+                    elif brand == "insurance":
+                        from brands.insurance.insurance_omni_shorts_pilot import InsuranceOmniShortsPilot
+                        res = InsuranceOmniShortsPilot().execute_single_slot()
+                    elif brand == "stock":
+                        from brands.stock.stock_omni_shorts_pilot import StockOmniShortsPilot
+                        res = StockOmniShortsPilot().execute_single_slot()
+                    
+                    status = res.get("status", "unknown") if isinstance(res, dict) else "done"
+                    if status == "success":
+                        log_event(f"🎉 [{brand_kr}] {time_label} 숏폼 4대 채널 송출 성공! ({res.get('title', '')})", "success")
+                    elif status == "skipped":
+                        log_event(f"ℹ️ [{brand_kr}] 숏폼 송출 스킵: {res.get('message', '')}", "info")
+                    else:
+                        log_event(f"⚠️ [{brand_kr}] 숏폼 송출 결과: {res.get('error') or res.get('message') or status}", "warning")
             except Exception as se:
                 import traceback
                 err_detail = traceback.format_exc()
@@ -400,25 +381,25 @@ def _brand_daemon_loop(brand: str):
             time.sleep(20)
     threading.Thread(target=_omni_shorts_daemon_worker, daemon=True).start()
 
-    # 5. 📸 [1일 3회 순차 롤링 카드뉴스 데몬 - 1차 오전(10:30~11:00) / 2차 오후(14:30~15:00) / 3차 저녁(20:30~21:00) KST]
+    # 5. 📸 [1일 3회 순차 롤링 카드뉴스 데몬 - 숏폼 30분 텀과 겹침 0% 완전 분리 (오전 11:15~ / 오후 15:00~ / 저녁 20:00~ KST)]
     def _omni_cardnews_daemon_worker():
         if brand == "aura":
             card_slots = [
-                ("morning", 10, 30, 14, 29, "오전 10:30"),
-                ("afternoon", 14, 30, 20, 29, "오후 14:30"),
-                ("evening", 20, 30, 23, 59, "저녁 20:30")
+                ("morning", 11, 15, 11, 40, "오전 11:15"),
+                ("afternoon", 15, 0, 15, 25, "오후 15:00"),
+                ("evening", 20, 0, 20, 25, "저녁 20:00")
             ]
         elif brand == "insurance":
             card_slots = [
-                ("morning", 10, 45, 14, 44, "오전 10:45"),
-                ("afternoon", 14, 45, 20, 44, "오후 14:45"),
-                ("evening", 20, 45, 23, 59, "저녁 20:45")
+                ("morning", 11, 35, 12, 0, "오전 11:35"),
+                ("afternoon", 15, 25, 15, 50, "오후 15:25"),
+                ("evening", 20, 25, 20, 50, "저녁 20:25")
             ]
         else:  # stock
             card_slots = [
-                ("morning", 11, 0, 14, 59, "오전 11:00"),
-                ("afternoon", 15, 0, 20, 59, "오후 15:00"),
-                ("evening", 21, 0, 23, 59, "저녁 21:00")
+                ("morning", 11, 55, 12, 20, "오전 11:55"),
+                ("afternoon", 15, 50, 16, 15, "오후 15:50"),
+                ("evening", 20, 50, 21, 15, "저녁 20:50")
             ]
 
         executed_card_slots = set()

@@ -1,3 +1,4 @@
+from core.gemini_unified_keys import get_unified_gemini_key_dicts, get_unified_gemini_keys, format_gemini_error
 # -*- coding: utf-8 -*-
 """
 🛡️ InsureBalance 전용 Gemini 2,000자 칼럼 작성기 (InsuranceGeminiWriter)
@@ -43,7 +44,7 @@ class InsuranceGeminiWriter:
     """InsureBalance 보험 비교 & 리모델링 전문 Gemini 원고 생성 엔진 (Cache-First)"""
 
     def __init__(self):
-        self.model_name = "gemini-2.0-flash"
+        self.model_name = "gemini-2.5-flash", "gemini-2.0-flash"
 
     def write_magazine_article(self, topic: Dict[str, Any], seo_brief: Dict[str, Any]) -> Dict[str, Any]:
         """주제와 SEO 키워드 패키지를 바탕으로 2,000자 전문 칼럼 생성 (Cache-First)"""
@@ -54,17 +55,7 @@ class InsuranceGeminiWriter:
         app_feature = topic.get("app_feature", "InsureBalance AI 보장 분석")
         tags = topic.get("tags", ["보험비교", "보험리모델링", "InsureBalance"])
 
-        # ⚡ 1. Cache-First: 이미 작성된 원고가 있으면 즉시 재사용 (Gemini 호출 0회, 비용 0원)
-        cache_file = CACHE_DIR / f"insurance_blog_topic_{topic_id:03d}.json"
-        if cache_file.exists():
-            try:
-                with open(cache_file, "r", encoding="utf-8") as fp:
-                    cached_data = json.load(fp)
-                if cached_data.get("body_markdown") and len(cached_data.get("body_markdown", "")) > 100:
-                    logger.info(f"⚡ [InsuranceGeminiWriter] 로컬 원고 캐시 즉시 재사용: {cache_file.name} (비용 0원)")
-                    cached_data["topic_id"] = topic_id
-            except Exception as e:
-                logger.warning(f"⚠️ [InsuranceGeminiWriter] 캐시 로드 실패 ({e}), 신규 작성 진행")
+        # 🚀 [100% 실시간 신규 작성 원칙] 매회 Gemini AI가 새로운 보험 칼럼을 실시간 집필합니다.
 
         seo_titles = seo_brief.get("seo_title_keywords", [])
         subheadings = seo_brief.get("h2_h3_subheading_keywords", [])
@@ -83,8 +74,9 @@ class InsuranceGeminiWriter:
 광고/설계사 냄새를 0%로 없애고, 글을 1줄도 안 읽고 스크롤만 내리는 사람도 시선이 턱 걸려서 무조건 [보험리밸런스]를 검색하게 만드는 '비주얼 훅 & 2단 침투형 찐후기 원고'를 작성합니다.
 
 [글쓰기 & 비주얼 구조화 절대 원칙]
-1. 분량 및 모바일 최적화 호흡:
-   - 1,300자 내외 (1,300~1,500자), 1~2줄 단위로 시원하게 줄바꿈.
+1. 분량 및 5대 심층 챕터 체계 (🚨 3,000자 ~ 3,500자 엄수, 3,500자 초과 금지):
+   - **분량: 한글 공백 포함 딱 3,000자 ~ 3,500자 내외 (공백 제외 2,200~2,600자)**, 4,000자 초과 금지.
+   - 5대 챕터(도입 실화 팩트체크, 약관 함정 정밀 해부, 숨은 보험금 청구 노하우, 세대별 맞춤 리모델링, 자가진단 체크리스트)를 군더더기 없이 압축 완결.
    - 눈에 확 들어오는 이모지(🚨, 💸, 💡, 🔖, 👉, 🚗, 🧠, 🏥) 적극 활용.
    - "~합니다" 일변도의 딱딱한 문어체 금지 ❌, "~하더라고요", "~했더니 소름 돋았음", "~정리해드릴게요 🔖" 같은 친근한 구어체 사용 ⭕
 2. 🚨 [절대 엄수: 현실적 보험료 & 과장 뻥튀기 0% 원칙 (REALISTIC ACCURACY)]:
@@ -117,7 +109,7 @@ class InsuranceGeminiWriter:
   "title_naver": "네이버 블로그용 5초 클릭 유도 제목 (충격 썰/이모지/질문형)",
   "title_tistory": "티스토리 SEO 최적화 정보형 꿀팁 제목",
   "title_brunch": "브런치스토리용 감성적 가계부 절약 에세이 제목",
-  "body_markdown": "2단 비주얼 박스와 이미지 앵커, 모바일 1~2줄 호흡이 완벽히 구현된 1,200~1,500자 완성형 본문",
+  "body_markdown": "2단 비주얼 박스와 이미지 앵커, 5대 심층 챕터가 완벽히 구현된 3,000~3,500자 완성형 본문",
   "summary": "1줄 요약 메타 디스크립션",
   "tags": ["태그1", "태그2", "태그3", "태그4", "태그5"],
   "visual_prompt": "당신이 집필한 본문 스토리의 가장 결정적이고 생생한 핵심 장면을 포착한 16:9 실사 영문 프롬프트 (🚨 절대 천편일률적인 서류/스마트폰 책상 사진 금지! 본문 스토리의 실제 상황과 인물에 100% 일치해야 함: 운전자/자동차보험이면 도로 위 안전하게 운전하며 미소 짓는 2030 한국인 운전자와 차량 내부, 치아보험이면 환한 미소로 치과 상담을 받거나 자신 있게 웃는 한국인, 누수/화재면 아늑한 거실과 주택 환경, 연금/절세면 햇살 드는 거실에서 가계 재무를 정리하며 안도하는 젊은 부부, 보험금 청구면 병원 진료 후 안도하는 표정, 보험료 다이어트면 가계 지출을 줄이고 밝게 웃는 2030 직장인 등 본문 이야기와 완벽히 일치하는 배경/인물/행동 상세 묘사. realistic Korean people, modern clean Seoul lifestyle, cinematic natural lighting, photorealistic, 16:9 포함)"
@@ -132,11 +124,11 @@ class InsuranceGeminiWriter:
 - 세부 기획의도: {intent}
 - 카테고리: {category}
 - 연계 솔루션: {app_feature} (포털 검색어: [보험리밸런스])
-- 🌐 당일 대한민국 실시간 핫이슈 & 트렌드 키워드: {', '.join(live_trends)}
+- 도메인 트렌드 키워드: {', '.join(live_trends)}
 - SEO 권장 키워드: {', '.join(seeds)}
 
 [필수 지침 - 매일 완전히 새로운 관점의 최신 칼럼 집필]
-1. 🚨 [절대 금기: 매일 똑같은 진부한 전개 배제]: 위 실시간 트렌드 키워드({', '.join(live_trends[:3])})와 최근 건강검진/의료비/물가 이슈를 오프닝 썰에 생생하게 결합하여, 매일 완전히 새롭고 흥미진진한 칼럼으로 집필하십시오.
+1. 🚨 [절대 금기: 억지 비유 및 진부한 전개 배제]: 무관한 연예인/스포츠 비유를 일절 배제하고, 실제 직장인/가정의 현실적인 의료비, 자동차 사고, 보험금 청구 및 보험료 절약 꿀팁을 실화 바탕의 생생한 스토리로 집필하십시오.
 2. 위 주제로 모바일 스크롤을 훑어보는 사람도 100% 사로잡아 네이버에 [보험리밸런스]를 검색하게 만드는 비주얼 침투형 블로그 원고를 작성해주세요.
 3. 🚨 [스토리 맞춤형 실사 사진 프롬프트(visual_prompt) 필수 수칙]:
    - 반드시 본문에서 다룬 스토리의 실제 배경 장소와 상황(운전자, 치아 치료, 아파트 누수, 연금 재무 계획, 보험금 청구 등)에 어울리게, 2030 한국인이 등장하는 생생한 16:9 실사 영문 프롬프트를 1문장으로 작성하십시오. (매번 똑같은 서류/책상/스마트폰 사진 금지)
@@ -150,14 +142,15 @@ class InsuranceGeminiWriter:
             try:
                 client = genai.Client(api_key=api_key)
                 response = None
-                for m_name in ["gemini-3.6-flash", "gemini-2.5-flash", "gemini-1.5-flash", "gemini-flash-latest"]:
+                for m_name in ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"]:
                     try:
                         response = client.models.generate_content(
                             model=m_name,
                             contents=user_prompt,
                             config=genai_types.GenerateContentConfig(
-                                system_instruction=system_instruction,
+                                automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True), system_instruction=system_instruction,
                                 temperature=0.7,
+                                max_output_tokens=4096,
                                 response_mime_type="application/json"
                             )
                         )
@@ -201,11 +194,13 @@ class InsuranceGeminiWriter:
 
                 # ⚡ 캐시 파일로 영구 저장
                 try:
-                    with open(cache_file, "w", encoding="utf-8") as fp:
+                    import datetime
+                    out_file = CACHE_DIR / f"insurance_blog_topic_{topic_id:03d}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                    with open(out_file, "w", encoding="utf-8") as fp:
                         json.dump(res, fp, ensure_ascii=False, indent=2)
-                    logger.info(f"💾 [InsuranceGeminiWriter] 신규 칼럼 캐시 저장 완료: {cache_file.name}")
+                    logger.info(f"💾 [InsuranceGeminiWriter] 신규 칼럼 아카이브 보관 완료: {out_file.name}")
                 except Exception as save_err:
-                    logger.warning(f"캐시 저장 실패: {save_err}")
+                    logger.warning(f"아카이브 보관 예외: {save_err}")
 
                 return res
             except Exception as e:

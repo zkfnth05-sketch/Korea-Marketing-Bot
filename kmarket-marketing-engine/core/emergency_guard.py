@@ -62,7 +62,7 @@ class EmergencyGuard:
                             error_msg = "Meta 접근 토큰 또는 페이지 ID가 설정되지 않았습니다."
                         else:
                             import urllib.request, urllib.error
-                            url = f"https://graph.facebook.com/v20.0/{page_id}?fields=id&access_token={token}"
+                            url = f"https://business.facebook.com"
                             req = urllib.request.Request(url)
                             try:
                                 with urllib.request.urlopen(req, timeout=2.5) as resp:

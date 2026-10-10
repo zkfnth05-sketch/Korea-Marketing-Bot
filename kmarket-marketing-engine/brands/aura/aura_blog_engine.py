@@ -5,7 +5,7 @@
 - 역할:
   1. 📚 100대 마스터 주제 풀에서 순환 또는 지정 추출
   2. 🛡️ [가드레일 1 & 2] 주제별 6대 카테고리 전용 시드어(Scoped Seed) 실시간 키워드 수집 및 노이즈 필터링
-  3. 🤖 [Gemini 2,000자 칼럼] 무료키 우선 체인으로 고품질 실전 칼럼 작성 (비용 0원)
+  3. 🤖 [Gemini 3,000자 칼럼] 무료키 우선 체인으로 고품질 실전 칼럼 작성 (비용 0원)
   4. 🎨 [맞춤 사진 1장] 글 스토리 맥락에 100% 어울리는 16:9 감성 사진 실시간 생성 (유료키 2단 롤오버)
   5. 🌐 네이버 스마트블록 1위 제목 + 대표 커버 사진 + H2/H3 소제목 + Aura 앱 전환 CTA + 4대 플랫폼 태그 완성
 """
@@ -43,7 +43,7 @@ from brands.aura.aura_keyword_matrix import AuraKeywordMatrix
 class AuraBlogEngine:
     """
     💖 100대 주제 + 3중 가드레일 실시간 키워드 결합 2030 데이팅 블로그 엔진
-    - Gemini 2,000자 칼럼 자동 작성
+    - Gemini 3,000자 칼럼 자동 작성
     - 주제 맥락 맞춤 16:9 사진 1장 실시간 생성
     """
     BRAND = "aura"
@@ -113,7 +113,7 @@ class AuraBlogEngine:
         generate_photo: bool = True
     ) -> Dict[str, Any]:
         """
-        100대 주제 중 1개를 선택하여 실시간 키워드 결합 ➔ Gemini 2,000자 칼럼 ➔ 맞춤 사진 1장 생성
+        100대 주제 중 1개를 선택하여 실시간 키워드 결합 ➔ Gemini 3,000자 칼럼 ➔ 맞춤 사진 1장 생성
         완벽한 SEO 포스팅 풀 패키지를 생성합니다.
         """
         # 1. 주제 선택
@@ -151,7 +151,7 @@ class AuraBlogEngine:
             try:
                 writer = self._get_writer()
                 gemini_result = writer.write_magazine_article(topic, seo_brief)
-                logger.info(f"✅ [AuraBlog] Gemini 2,000자 칼럼 작성 완료: '{gemini_result['title']}'")
+                logger.info(f"✅ [AuraBlog] Gemini 3,000자 칼럼 작성 완료: '{gemini_result['title']}'")
             except Exception as e:
                 logger.warning(f"⚠️ [AuraBlog] Gemini 작성 실패 (폴백 템플릿 사용): {e}")
 
@@ -222,7 +222,7 @@ class AuraBlogEngine:
                 </p>
             </header>
 
-            <!-- 2,000자 풍성한 본문 마크다운 렌더링 -->
+            <!-- 3,000자 풍성한 본문 마크다운 렌더링 -->
             <div class="aura-magazine-body" style="font-size:15.5px; color:#334155; line-height:1.9;">
                 {body_html}
             </div>

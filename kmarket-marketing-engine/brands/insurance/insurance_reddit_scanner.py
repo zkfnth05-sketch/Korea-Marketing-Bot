@@ -78,46 +78,48 @@ class InsuranceRedditFilter:
             "scenario_id": 1,
             "patterns": [
                 r"\b(nhis|national\s*health\s*insurance(\s*korea)?|korean\s*health\s*insurance)\b",
-                r"\b(silbi|silson|supplemental\s*insurance\s*korea|4th\s*gen\s*silbi)\b",
-                r"\b(health\s*coverage\s*(in\s*)?korea|medical\s*insurance\s*(in\s*)?korea|health\s*insurance\s*in\s*korea)\b",
-                r"\b(insurance\s*for\s*expats\s*in\s*korea)\b"
+                r"\b(silbi|silson|supplemental\s*insurance(\s*in\s*korea)?|4th\s*gen\s*silbi|private\s*insurance(\s*in\s*korea)?)\b",
+                r"\b(health\s*coverage\s*(\w+\s*)?(in\s*)?korea|medical\s*insurance\s*(\w+\s*)?(in\s*)?korea|health\s*insurance\s*(\w+\s*)?(in\s*)?korea)\b",
+                r"\b(insurance\s*for\s*(expats|foreigners|teachers|students|residents)\s*(in\s*korea)?)\b",
+                r"\b(health\s*insurance|medical\s*insurance|insurance\s*bill|insurance\s*claim|health\s*plan)\b"
             ]
         },
         "hospital_and_reimbursement": {
             "weight": 35.0,
             "scenario_id": 2,
             "patterns": [
-                r"\b(mri\s*(cost\s*)?in\s*korea|hospital\s*bill\s*in\s*korea|clinic\s*(cost|bill)\s*in\s*korea)\b",
-                r"\b(dental\s*(cost|bill|implant)\s*in\s*korea|surgery\s*cost\s*in\s*korea|korean\s*hospital\s*cost)\b",
-                r"\b(medical\s*reimbursement\s*korea|claim\s*korean\s*insurance|non-covered|bi-geup-yeo)\b",
-                r"\b(korean\s*medical\s*expense|korean\s*doctor\s*bill)\b"
+                r"\b(mri|hospital\s*(bill|cost|visit|fee|stay)?|clinic\s*(cost|bill|visit|fee)?)\b",
+                r"\b(dental\s*(cost|bill|implant|clinic|cleaning|treatment|work)?|dentist\s*(cost|bill|clinic|visit)?|root\s*canal)\b",
+                r"\b(surgery\s*(cost|bill|fee)?|korean\s*hospital\s*(cost|bill|care)|doctor\s*(visit|cost|fee|bill|appointment))\b",
+                r"\b(medical\s*(reimbursement|bill|cost|care|expense|treatment|checkup|exam)|claim\s*(korean\s*)?insurance|non-covered|bi-geup-yeo|out\s*of\s*pocket)\b",
+                r"\b(pharmacy\s*cost|prescription\s*(cost)?|blood\s*test|dermatologist|ent\s*clinic|eye\s*(clinic|exam|test)|health\s*checkup|medical\s*checkup|lasik|smile\s*lasik)\b"
             ]
         },
         "expat_and_arc_insurance": {
             "weight": 35.0,
             "scenario_id": 3,
             "patterns": [
-                r"\b(arc\s*insurance|alien\s*registration\s*insurance|foreigner\s*(health\s*)?insurance\s*korea)\b",
-                r"\b(insurance\s*for\s*(expats|foreigners|teachers|students)\s*in\s*korea)\b",
+                r"\b(arc\s*insurance|alien\s*registration\s*insurance|foreigner\s*(health\s*)?insurance(\s*in\s*korea)?)\b",
+                r"\b(insurance\s*for\s*(expats|foreigners|teachers|students)(\s*in\s*korea)?)\b",
                 r"\b(epik\s*insurance|hagwon\s*insurance|korean\s*international\s*student\s*insurance)\b",
-                r"\b((d-2|d-4|e-2|e-7|e-9)\s*insurance|foreigner\s*qualify\s*korean\s*insurance)\b"
+                r"\b((d-2|d-4|e-2|e-7|e-9)\s*insurance|foreigner\s*qualif(y|ied)\s*(for\s*)?(korean\s*)?insurance)\b"
             ]
         },
         "comparison_and_rebalance": {
             "weight": 30.0,
             "scenario_id": 7,
             "patterns": [
-                r"\b(compare\s*korean\s*insurance|korean\s*insurance\s*recommendation|cheapest\s*korean\s*insurance)\b",
-                r"\b(cancel\s*korean\s*insurance|rebalance\s*korean\s*insurance|best\s*private\s*insurance\s*in\s*korea)\b",
-                r"\b(insurance\s*quote\s*korea|insurance\s*broker\s*in\s*korea)\b"
+                r"\b(compare\s*(korean\s*)?insurance|insurance\s*recommendation|cheapest\s*(korean\s*)?insurance)\b",
+                r"\b(cancel\s*(korean\s*)?insurance|rebalance\s*(korean\s*)?insurance|best\s*private\s*insurance(\s*in\s*korea)?)\b",
+                r"\b(insurance\s*quote|insurance\s*broker(\s*in\s*korea)?|which\s*insurance\s*(to\s*get|in\s*korea)?)\b"
             ]
         }
     }
 
     # 본문(Body) 심층 질문 및 진성 감정 부스터 (가산점)
     BODY_BOOSTERS = [
-        r"\b(how|where|anyone\s*know|recommend|advice|suggest|tips|help|looking\s*for|curious)\b",
-        r"\b(expensive|bill|cost|shocked|confused|covered|reimbursed|out\s*of\s*pocket|pay)\b"
+        r"\b(how|where|anyone\s*know|recommend|advice|suggest|tips|help|looking\s*for|curious|hospital|clinic|doctor)\b",
+        r"\b(expensive|bill|cost|shocked|confused|covered|reimbursed|out\s*of\s*pocket|pay|prescription)\b"
     ]
 
     @classmethod
@@ -135,7 +137,7 @@ class InsuranceRedditFilter:
 
         # 0. 글자수 최소 길이 체크
         if len(clean_title) < 5:
-            return {"passed": False, "score": 0.0, "reason": "제목 너무 짧음", "cluster": None, "matched_keywords": []}
+            return {"passed": False, "is_passed": False, "score": 0.0, "reason": "제목 너무 짧음", "cluster": None, "matched_keywords": []}
 
         # [1단계: 블랙리스트 즉시 탈락]
         for pattern in cls.NEGATIVE_PATTERNS:
@@ -143,6 +145,7 @@ class InsuranceRedditFilter:
             if match:
                 return {
                     "passed": False,
+                    "is_passed": False,
                     "score": 0.0,
                     "reason": f"블랙리스트 차단: {match.group(0)}",
                     "cluster": None,
@@ -156,6 +159,7 @@ class InsuranceRedditFilter:
             if not re.search(k_anchor_pattern, combined, re.IGNORECASE):
                 return {
                     "passed": False,
+                    "is_passed": False,
                     "score": 0.0,
                     "reason": f"글로벌 서브레딧(r/{subreddit}) 내 한국 의료/보험 앵커 부재",
                     "cluster": None,
@@ -192,6 +196,7 @@ class InsuranceRedditFilter:
         if not best_cluster:
             return {
                 "passed": False,
+                "is_passed": False,
                 "score": 0.0,
                 "reason": "보험 관련 핵심 키워드 0건",
                 "cluster": None,
@@ -214,6 +219,7 @@ class InsuranceRedditFilter:
 
         return {
             "passed": passed,
+            "is_passed": passed,
             "score": final_score,
             "cluster": best_cluster,
             "scenario_id": best_scenario_id,

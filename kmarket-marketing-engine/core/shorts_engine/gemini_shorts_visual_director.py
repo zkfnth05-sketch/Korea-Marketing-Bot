@@ -1,3 +1,4 @@
+from core.gemini_unified_keys import get_unified_gemini_key_dicts, get_unified_gemini_keys, format_gemini_error
 # -*- coding: utf-8 -*-
 """
 GeminiShortsVisualDirector - 🎬 [제미나이 기반 숏폼 올인원 실시간 디렉터]
@@ -257,7 +258,7 @@ Return ONLY valid JSON matching this exact structure:
 
         # 2. 제미나이 호출 시도
         if self.client:
-            models_to_try = ["gemini-flash-latest", "gemini-3.1-flash-lite"]
+            models_to_try = ["gemini-2.5-flash", "gemini-2.0-flash"]
             for model_name in models_to_try:
                 try:
                     logger.info(f"🤖 [GeminiShortsVisualDirector] 제미나이 올인원 실시간 디렉팅 호출 ({model_name}, 테마: {theme_name[:25]})...")

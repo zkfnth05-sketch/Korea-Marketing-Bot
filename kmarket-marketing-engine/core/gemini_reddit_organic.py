@@ -1,3 +1,4 @@
+from core.gemini_unified_keys import get_unified_gemini_key_dicts, get_unified_gemini_keys, format_gemini_error
 """
 🌱 [Reddit Organic AI — 비홍보 순수 도움 댓글 생성 전담 AI 엔진]
 - 100% 순수 도움 댓글: 브랜드명/서비스명/URL 언급 완전 금지
@@ -115,7 +116,7 @@ class RedditOrganicAI:
 Write your comment now:"""
 
         if self.client:
-            for model_name in ['gemini-3.1-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash']:
+            for model_name in ["gemini-2.5-flash", "gemini-2.0-flash"]:
                 try:
                     response = self.client.models.generate_content(
                         model=model_name,

@@ -1,7 +1,7 @@
 {
-  "aura": false,
-  "insurance": false,
-  "stock": false,
+  "aura": true,
+  "insurance": true,
+  "stock": true,
   "kmarket": false,
   "easytax": false
 }

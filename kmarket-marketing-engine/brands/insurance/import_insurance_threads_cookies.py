@@ -36,18 +36,17 @@ PROFILE_DIR = BASE_DIR / "meta_chrome_profile"
 SESSION_FILE = BASE_DIR / "threads_session.json"
 ACCOUNTS_FILE = BASE_DIR / "accounts.json"
 PROOF_SCREENSHOT = BASE_DIR / "threads_live_logged_in.png"
+SCRATCH_PROOF = BASE_DIR.parent.parent / "scratch" / "insurance_threads_auth_proof.png"
 
 
 async def inject_and_verify():
     print("\n" + "=" * 70)
     print("🍪 [🛡️ 보험 리밸런스] 스레드(Threads) Cookie-Editor 자동 연동기")
-    print(f"👉 전용 계정: [ @goldmomofficial ]")
     print(f"👉 대상 쿠키: {COOKIE_FILE.name}")
     print("=" * 70)
 
     if not COOKIE_FILE.exists():
         print(f"\n❌ [오류] 쿠키 파일을 찾을 수 없습니다: {COOKIE_FILE}")
-        print("👉 threads_cookies.json 파일에 Cookie-Editor JSON 내용을 붙여넣어 주세요.")
         return False
 
     try:
@@ -63,36 +62,29 @@ async def inject_and_verify():
 
     pw_cookies = []
     for c in raw_cookies:
-        pw_c1 = {
+        base_domain = c.get("domain", ".threads.com")
+        pw_c = {
             "name": c["name"],
             "value": c["value"],
-            "domain": c.get("domain", ".threads.net"),
+            "domain": base_domain,
             "path": c.get("path", "/"),
             "secure": c.get("secure", True),
             "httpOnly": c.get("httpOnly", False),
         }
         same_site = c.get("sameSite")
         if same_site in ["Strict", "Lax", "None"]:
-            pw_c1["sameSite"] = same_site
+            pw_c["sameSite"] = same_site
         elif same_site == "no_restriction":
-            pw_c1["sameSite"] = "None"
+            pw_c["sameSite"] = "None"
         elif same_site == "lax":
-            pw_c1["sameSite"] = "Lax"
+            pw_c["sameSite"] = "Lax"
 
-        pw_cookies.append(pw_c1)
+        for dom in [".threads.com", ".threads.net", ".instagram.com"]:
+            item = dict(pw_c)
+            item["domain"] = dom
+            pw_cookies.append(item)
 
-        # Duplicate for .threads.net and .instagram.com if not already
-        if not pw_c1["domain"].endswith("threads.net"):
-            pw_c2 = dict(pw_c1)
-            pw_c2["domain"] = ".threads.net"
-            pw_cookies.append(pw_c2)
-
-        if not pw_c1["domain"].endswith("instagram.com"):
-            pw_c3 = dict(pw_c1)
-            pw_c3["domain"] = ".instagram.com"
-            pw_cookies.append(pw_c3)
-
-    print(f"1. 총 {len(pw_cookies)}개의 쿠키 정규화 준비 완료.")
+    print(f"1. 총 {len(pw_cookies)}개의 쿠키(3개 도메인 스코프) 정규화 준비 완료.")
 
     PROFILE_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -148,7 +140,8 @@ async def inject_and_verify():
         print(f"   현재 페이지 URL: {curr_url}")
 
         await page.screenshot(path=str(PROOF_SCREENSHOT))
-        print(f"4. 로그인 검증 스크린샷 저장 완료: {PROOF_SCREENSHOT.name}")
+        await page.screenshot(path=str(SCRATCH_PROOF))
+        print(f"4. 로그인 검증 스크린샷 저장 완료: {PROOF_SCREENSHOT.name}, {SCRATCH_PROOF.name}")
 
         create_btn = await page.query_selector("svg[aria-label='Create'], svg[aria-label='새 스레드'], div[role='button'][aria-label*='새'], a[href*='/@goldmomofficial'], a[href*='/@me'], svg[aria-label='Home'], svg[aria-label='홈']")
         login_modal = await page.query_selector("div:has-text('Continue with Instagram'), button:has-text('Log in with Instagram')")

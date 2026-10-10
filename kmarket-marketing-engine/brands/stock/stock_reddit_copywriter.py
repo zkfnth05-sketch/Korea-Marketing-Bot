@@ -53,32 +53,8 @@ class StockRedditCopywriter:
     OFFICIAL_URL = "https://stockmaster-ai.vercel.app/"
 
     def __init__(self):
-        from config import (
-            GEMINI_FREE_API_KEY_AURA_1,
-            GEMINI_FREE_API_KEY_AURA_2,
-            GEMINI_FREE_API_KEY_AURA_3,
-            GEMINI_PAID_API_KEY_AURA_1,
-            GEMINI_FREE_API_KEY_KMARKET,
-            GEMINI_API_KEY
-        )
-
-        candidates = [
-            {"name": "STOCK_FREE_1", "key": GEMINI_FREE_API_KEY_AURA_1},
-            {"name": "STOCK_FREE_2", "key": GEMINI_FREE_API_KEY_AURA_2},
-            {"name": "STOCK_FREE_3", "key": GEMINI_FREE_API_KEY_AURA_3},
-            {"name": "STOCK_PAID_1", "key": GEMINI_PAID_API_KEY_AURA_1},
-            {"name": "KM_BACKUP_FREE", "key": GEMINI_FREE_API_KEY_KMARKET},
-            {"name": "DEFAULT_KEY", "key": GEMINI_API_KEY},
-        ]
-
-        seen = set()
-        self.key_chain = []
-        for c in candidates:
-            k = (c.get("key") or "").strip()
-            if k and k not in seen and len(k) > 10:
-                seen.add(k)
-                self.key_chain.append({"name": c["name"], "key": k})
-
+        from core.gemini_unified_keys import get_unified_gemini_key_dicts
+        self.key_chain = get_unified_gemini_key_dicts()
         self._active_key_index = 0
         logger.info(f"📈 [StockRedditCopywriter] 키 체인 등록 완료 (총 {len(self.key_chain)}개)")
 
@@ -240,7 +216,8 @@ class StockRedditCopywriter:
 
             try:
                 client = self._get_genai_client(api_key)
-                for model_name in ['gemini-2.5-flash-lite', 'gemini-flash-lite-latest', 'gemini-3.1-flash-lite', 'gemini-flash-latest', 'gemini-2.5-flash']:
+                key_quota_exhausted = False
+                for model_name in ["gemini-2.5-flash", "gemini-2.0-flash"]:
                     try:
                         resp = client.models.generate_content(
                             model=model_name,
@@ -258,10 +235,21 @@ class StockRedditCopywriter:
                             logger.info(f"✍️ [Stock Reddit 댓글 생성 성공] (Key: {key_info['name']}, Model: {model_name}, Promo Level: {promo_level})")
                             return clean_text
                     except Exception as model_err:
-                        logger.debug(f"댓글 생성 모델 {model_name} 실패: {model_err}")
-                        continue
+                        err_str = str(model_err)
+                        if any(k in err_str for k in ["429", "RESOURCE_EXHAUSTED", "quota", "depleted", "QuotaFailure"]):
+                            logger.warning(f"⚠️ [할당량 소진] 키={key_info['name']} ({model_name}) 429 쿼터 초과 -> 다음 무료키로 즉시 롤오버!")
+                            key_quota_exhausted = True
+                            break
+                        else:
+                            logger.debug(f"댓글 생성 모델 {model_name} 실패: {model_err}")
+                            continue
+
+                if key_quota_exhausted:
+                    self._active_key_index = (idx + 1) % total_keys
+                    continue
             except Exception as key_err:
                 logger.warning(f"키 {key_info['name']} 오류: {key_err}")
+                self._active_key_index = (idx + 1) % total_keys
                 continue
 
         # Fallback 텍스트 반환

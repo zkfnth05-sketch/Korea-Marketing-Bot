@@ -1,3 +1,4 @@
+from core.gemini_unified_keys import get_unified_gemini_key_dicts, get_unified_gemini_keys, format_gemini_error
 # -*- coding: utf-8 -*-
 """
 AuraCardnewsGeminiCopywriter - 💖 [Aura 카드뉴스 8대 주제 전용 제미나이 실시간 카피라이터]
@@ -96,23 +97,7 @@ class AuraCardnewsGeminiCopywriter:
             GEMINI_API_KEY
         )
 
-        candidates = [
-            {"name": "AURA_FREE_1", "key": GEMINI_FREE_API_KEY_AURA_1},
-            {"name": "AURA_FREE_2", "key": GEMINI_FREE_API_KEY_AURA_2},
-            {"name": "AURA_FREE_3", "key": GEMINI_FREE_API_KEY_AURA_3},
-            {"name": "AURA_PAID_1", "key": GEMINI_PAID_API_KEY_AURA_1},
-            {"name": "KM_BACKUP_FREE", "key": GEMINI_FREE_API_KEY_KMARKET},
-            {"name": "DEFAULT_KEY", "key": GEMINI_API_KEY},
-        ]
-
-        seen = set()
-        self.key_chain = []
-        for c in candidates:
-            k = (c.get("key") or "").strip()
-            if k and k not in seen and len(k) > 10:
-                seen.add(k)
-                self.key_chain.append({"name": c["name"], "key": k})
-
+        self.key_chain = get_unified_gemini_key_dicts()
         self._active_key_index = 0
         self.scenario_director = AuraCardnewsScenarioDirector()
         logger.info(f"💖 [AuraCardnewsGeminiCopywriter] 키 체인 등록 완료 (총 {len(self.key_chain)}개)")
@@ -265,15 +250,16 @@ class AuraCardnewsGeminiCopywriter:
             try:
                 client = self._get_genai_client(api_key)
                 from google.genai import types as genai_types
+                types = genai_types
 
-                for model_name in ["gemini-2.0-flash", "gemini-2.5-flash", "gemini-flash-latest"]:
+                for model_name in ["gemini-2.5-flash", "gemini-2.0-flash"]:
                     try:
                         logger.info(f"🤖 [AuraGeminiCopywriter] {key_name} ({model_name})로 주제 #{topic_id} 실시간 깊이 있는 카피 창작 중...")
                         response = client.models.generate_content(
                             model=model_name,
                             contents=prompt,
                             config=genai_types.GenerateContentConfig(
-                                temperature=0.88,
+                                automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True), temperature=0.88,
                                 response_mime_type="application/json"
                             )
                         )

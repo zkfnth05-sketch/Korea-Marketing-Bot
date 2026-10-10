@@ -22,40 +22,7 @@ class AuraCheongdamMoodboardRenderer:
         self.h = 1920
         self.artifact_dir = Path(r"C:\Users\zkfnt\.gemini\antigravity-ide\brain\9d989a93-cf2f-49a0-94dd-4e770271805c")
         
-        self.models = [
-            {
-                "num": "01",
-                "name": "서연",
-                "age": 23,
-                "style": "화사한 파스텔 핑크 트위드 재킷 (Lovely Spring)",
-                "before_img": "woman1_before_seoyeon_1790299355914.jpg",
-                "after_img": "woman1_after_seoyeon_v2_1790299815639.jpg",
-            },
-            {
-                "num": "02",
-                "name": "지우",
-                "age": 25,
-                "style": "세련된 네이비 테일러드 블레이저 (Modern Chic)",
-                "before_img": "woman2_before_jiwoo_1790299419816.jpg",
-                "after_img": "woman2_after_jiwoo_v2_1790299878253.jpg",
-            },
-            {
-                "num": "03",
-                "name": "수아",
-                "age": 22,
-                "style": "실크 캐미솔 + 가디건 레이어드 (Pure Elegance)",
-                "before_img": "woman3_before_suah_1790299697602.jpg",
-                "after_img": "woman3_after_suah_1790299719616.jpg",
-            },
-            {
-                "num": "04",
-                "name": "유진",
-                "age": 24,
-                "style": "모던 소프트 브이넥 니트 (Soft Minimal)",
-                "before_img": "woman4_before_yujin_1790299743008.jpg",
-                "after_img": "woman4_after_yujin_1790299766621.jpg",
-            },
-        ]
+        self.models = ["gemini-2.5-flash", "gemini-2.0-flash"]
         
         # Pre-render static studio background once for max performance
         self._bg = self._create_studio_background()

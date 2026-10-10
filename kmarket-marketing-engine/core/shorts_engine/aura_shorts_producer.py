@@ -196,6 +196,27 @@ class AuraShortsProducer(BaseShortsProducer):
         seed: Optional[int] = None,
         **kwargs
     ) -> Dict[str, Any]:
+        from core.engine.gpu_lock import gpu_lock
+        t_id = topic_id if topic_id is not None else "자율"
+        with gpu_lock(f"🎬 💖 Aura 숏폼 #{t_id} 세션 풀 프로덕션"):
+            return self._produce_internal(
+                lang=lang,
+                topic_id=topic_id,
+                gender=gender,
+                custom_hero_image=custom_hero_image,
+                seed=seed,
+                **kwargs
+            )
+
+    def _produce_internal(
+        self,
+        lang: Optional[str] = "ko",
+        topic_id: Optional[int] = None,
+        gender: Optional[str] = None,
+        custom_hero_image: Optional[Image.Image] = None,
+        seed: Optional[int] = None,
+        **kwargs
+    ) -> Dict[str, Any]:
         """
         Aura 숏폼 풀 프로덕션:
         - topic_id 미지정 시 1~8번 자율 순환

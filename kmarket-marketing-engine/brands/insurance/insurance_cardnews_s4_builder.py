@@ -16,6 +16,8 @@ import sys
 import base64
 import logging
 from pathlib import Path
+from core.engine.naver_search_bar_component import render_naver_search_bar_html
+
 from typing import Dict, Any, Optional
 from playwright.sync_api import sync_playwright
 
@@ -67,6 +69,7 @@ class InsuranceCardnewsS4Builder:
         
         subtitle = copy_data.get("subtitle", "특정사 편파 추천 NO! 34개 모든 보험사 실제 가격표를 투명하게 공개합니다.") if copy_data else "특정사 편파 추천 NO! 34개 모든 보험사 실제 가격표를 투명하게 공개합니다."
         cta_text = copy_data.get("cta_button") or copy_data.get("cta_text", "👉 옆으로 넘겨서 내 보험료 1초 만에 조회하기 (4/5) >") if copy_data else "👉 옆으로 넘겨서 내 보험료 1초 만에 조회하기 (4/5) >"
+        naver_search_html = render_naver_search_bar_html(brand="insurance")
 
         html_content = f"""<!DOCTYPE html>
 <html lang="ko">
@@ -194,12 +197,8 @@ class InsuranceCardnewsS4Builder:
     </div>
   </div>
 
-  <!-- 4. Bottom CTA Bar -->
-  <div class="z-10 w-full cta-glow rounded-2xl py-4 flex items-center justify-center gap-2 shadow-2xl">
-    <span class="text-white text-xl font-black tracking-wide">
-      {cta_text}
-    </span>
-  </div>
+  <!-- 4. 하단 네이버 공식 검색창 UI 바 (숏폼 일체형) -->
+  {naver_search_html}
 
 </body>
 </html>"""

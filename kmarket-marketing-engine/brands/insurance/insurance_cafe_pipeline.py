@@ -122,106 +122,132 @@ class InsuranceCafePipeline:
                 await context.close()
                 return {"status": "SKIPPED_NO_QUALIFIED_POST", "message": msg}
 
-            # 5. 최적의 1등 글 선별 (적합도 점수 최고점, 최신순)
+            # 5. 최적의 후보 글 순차 검증 및 댓글 침투 (Auto-Fallback)
             candidate_posts.sort(key=lambda x: (x["score"], -x["age_hours"]), reverse=True)
-            top_post = candidate_posts[0]
+            
+            posted_result = None
+            for rank, target_post in enumerate(candidate_posts, 1):
+                cafe_slug = target_post.get("url_id") or target_post["club_id"]
+                article_url = f"https://cafe.naver.com/{cafe_slug}/{target_post['article_id']}"
+                
+                print("\n" + "🌟"*35, flush=True)
+                print(f"🏆 [{rank}/{len(candidate_posts)}순위 보험 타겟 글 검증 진입]", flush=True)
+                print(f"- 카페: {target_post['cafe_name']} (Club ID: {target_post['club_id']})", flush=True)
+                print(f"- 제목: {target_post['title']}", flush=True)
+                print(f"- 작성자: {target_post['writer']} ({target_post['age_str']})", flush=True)
+                print(f"- 적합도 점수: {target_post['score']}점 (매칭 키워드: {', '.join(target_post['matched_w'])})", flush=True)
+                print(f"- 접속 URL: {article_url}", flush=True)
+                print("🌟"*35 + "\n", flush=True)
 
-            print("\n" + "🌟"*35, flush=True)
-            print("🏆 [오늘의 최우선 침투 타겟 글 선별 완료]", flush=True)
-            print(f"- 카페: {top_post['cafe_name']} (Club ID: {top_post['club_id']})", flush=True)
-            print(f"- 제목: {top_post['title']}", flush=True)
-            print(f"- 작성자: {top_post['writer']} ({top_post['age_str']})", flush=True)
-            print(f"- 적합도 점수: {top_post['score']}점 (매칭 키워드: {', '.join(top_post['matched_w'])})", flush=True)
-            print(f"- 선별 사유: {top_post['reason']}", flush=True)
-            print("🌟"*35 + "\n", flush=True)
+                try:
+                    await page.goto(article_url, wait_until="domcontentloaded", timeout=20000)
+                    await asyncio.sleep(2.5)
+                except Exception as ge:
+                    print(f"⚠️ 게시글 접속 타임아웃 ({ge}) ➔ 다음 순위 후보로 이동", flush=True)
+                    continue
 
-            # 6. 제미나이 80% 공감 + 20% 보험 리밸런스 추천 답글 생성 (Zero URL)
-            print("✍️ 제미나이 1:1 맞춤형 보험 공감 댓글 작성 요청 중...", flush=True)
-            reply_text = self.writer.generate_sympathy_reply(
-                title=top_post["title"],
-                summary=top_post["summary"],
-                cafe_name=top_post["cafe_name"]
-            )
+                frame = page.frame(name="cafe_main")
+                if not frame:
+                    print("⚠️ cafe_main iframe 미발견 ➔ 다음 순위 후보로 이동", flush=True)
+                    continue
 
-            print("\n📝 [생성된 침투 댓글 미리보기]:", flush=True)
-            print("-" * 65, flush=True)
-            print(reply_text, flush=True)
-            print("-" * 65, flush=True)
+                # 댓글 영역 로딩을 위한 스크롤
+                await frame.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+                await asyncio.sleep(1.5)
 
-            # 7. 실행 모드 분기 (Dry-run vs Real Post)
-            if dry_run:
-                print("\n🧪 [DRY-RUN 모드] 실제 댓글 등록 버튼을 누르지 않고 파이프라인 검증을 성공적으로 마쳤습니다.", flush=True)
-                await context.close()
-                return {
-                    "status": "SUCCESS_DRY_RUN",
-                    "target_post": top_post,
-                    "reply_text": reply_text
+                # 1) 진짜 네이버 로그인 세션 만료 여부 확인 (로그아웃 링크 또는 유저 이름 엘리먼트 존재 여부)
+                is_logged_in = (await page.locator("a:has-text('로그아웃'), #gnb_name2, .gnb_my_name, .gnb_my_interface").count() > 0)
+                if not is_logged_in:
+                    has_cookie = any(c.get("name") == "NID_AUT" for c in (cookies if 'cookies' in locals() else []))
+                    if not has_cookie:
+                        print("❌ [네이버 세션 만료 감지] 네이버 로그인이 풀려있습니다. 세션 갱신이 필요합니다.", flush=True)
+                        await context.close()
+                        return {"status": "ERROR_SESSION_EXPIRED", "message": "네이버 로그인 세션 만료"}
+
+                # 2) 게시판 등업/댓글 작성 권한 여부 정밀 확인
+                no_perm_text = await frame.locator("text='댓글 쓰기 권한이 없습니다', text='등업이 필요합니다', text='작성 권한이 없습니다'").count()
+                comment_box = frame.locator("textarea.comment_inbox_text, .CommentWriter textarea, .comment_inbox textarea")
+                box_count = await comment_box.count()
+
+                if no_perm_text > 0 or box_count == 0:
+                    print(f"⚠️ [게시판 등업 제한 감지] '{target_post['title']}' 글은 현재 회원 등급에서 댓글 작성이 불가합니다.", flush=True)
+                    print(f"   ➔ 다음 {rank + 1}순위 적합 후보 글로 자동 전환(Auto-Fallback)합니다...", flush=True)
+                    continue
+
+                # 3) 댓글 작성 가능 확인 완료
+                print(f"✅ [댓글 작성 권한 확인 완료] '{target_post['title']}'에 1:1 맞춤 침투를 진행합니다!", flush=True)
+
+                # 6. 제미나이 80% 공감 + 20% 보험 리밸런스 추천 답글 생성 (Zero URL)
+                print("✍️ 제미나이 1:1 맞춤형 보험 공감 댓글 작성 요청 중...", flush=True)
+                reply_text = self.writer.generate_sympathy_reply(
+                    title=target_post["title"],
+                    summary=target_post["summary"],
+                    cafe_name=target_post["cafe_name"]
+                )
+
+                print("\n📝 [생성된 침투 댓글 미리보기]:", flush=True)
+                print("-" * 65, flush=True)
+                print(reply_text, flush=True)
+                print("-" * 65, flush=True)
+
+                # 7. 실행 모드 분기 (Dry-run vs Real Post)
+                if dry_run:
+                    print("\n🧪 [DRY-RUN 모드] 댓글 작성 가능 및 대본 무결성 검증 완료 (실제 등록 미클릭).", flush=True)
+                    await context.close()
+                    return {
+                        "status": "SUCCESS_DRY_RUN",
+                        "target_post": target_post,
+                        "reply_text": reply_text
+                    }
+
+                # 8. 실제 댓글 등록 수행
+                print("\n🚀 [실전 모드] 네이버 카페 댓글 등록 시작...", flush=True)
+                target_box = comment_box.first
+                await target_box.click()
+                await asyncio.sleep(1)
+                await target_box.fill(reply_text)
+                await asyncio.sleep(random.uniform(1.5, 2.5))
+
+                register_btn = frame.locator(".btn_register, button.btn_register, a.btn_register, .register_box .button")
+                if await register_btn.count() > 0:
+                    await register_btn.first.click()
+                else:
+                    await target_box.press("Enter")
+                await asyncio.sleep(4)
+
+                proof_dir = ROOT / "scratch"
+                proof_dir.mkdir(parents=True, exist_ok=True)
+                proof_path = proof_dir / f"live_comment_proof_insure_{target_post['article_id']}.png"
+                await page.screenshot(path=str(proof_path), full_page=False)
+                print(f"📸 등록 증빙 스크린샷 저장 완료: {proof_path}", flush=True)
+
+                self.scheduler.record_post_success(
+                    cafe_name=target_post["cafe_name"],
+                    article_id=target_post["article_id"],
+                    title=target_post["title"],
+                    reply_text=reply_text
+                )
+                print(f"🎉 [{target_post['cafe_name']}] 댓글 침투 등록 완료 및 히스토리 기록 완료!", flush=True)
+
+                posted_result = {
+                    "status": "SUCCESS_POSTED",
+                    "target_post": target_post,
+                    "reply_text": reply_text,
+                    "proof_screenshot": str(proof_path),
+                    "article_url": article_url
                 }
-
-            # 8. 실제 댓글 등록 수행
-            print("\n🚀 [실전 모드] 네이버 카페 댓글 등록 시작...", flush=True)
-            cafe_slug = top_post.get("url_id") or top_post["club_id"]
-            article_url = f"https://cafe.naver.com/{cafe_slug}/{top_post['article_id']}"
-            print(f"🌐 타겟 게시글 접속: {article_url}", flush=True)
-
-            async def on_dialog(dialog):
-                print(f"📢 [네이버 카페 알림창 감지]: {dialog.message}", flush=True)
-                await dialog.accept()
-            page.on("dialog", on_dialog)
-
-            await page.goto(article_url, wait_until="networkidle")
-            await asyncio.sleep(2)
-
-            frame = page.frame(name="cafe_main")
-            if not frame:
-                print("❌ cafe_main iframe을 찾지 못했습니다.", flush=True)
-                await context.close()
-                return {"status": "ERROR_FRAME_NOT_FOUND"}
-
-            comment_box = frame.locator("textarea.comment_inbox_text")
-            if await comment_box.count() == 0:
-                print("❌ 댓글 입력창을 찾지 못했습니다 (권한 부족 또는 등업 필요).", flush=True)
-                await context.close()
-                return {"status": "ERROR_COMMENT_BOX_NOT_FOUND"}
-
-            await comment_box.click()
-            await asyncio.sleep(1)
-            await comment_box.fill(reply_text)
-            await asyncio.sleep(random.uniform(1.5, 2.5))
-
-            register_btn = frame.locator(".btn_register")
-            await register_btn.click()
-            await asyncio.sleep(4)
-
-            proof_dir = ROOT / "scratch"
-            proof_dir.mkdir(parents=True, exist_ok=True)
-            proof_path = proof_dir / f"live_comment_proof_insure_{top_post['article_id']}.png"
-            await page.screenshot(path=str(proof_path), full_page=False)
-            print(f"📸 등록 증빙 스크린샷 저장 완료: {proof_path}", flush=True)
-
-            try:
-                artifact_path = Path("C:/Users/zkfnt/.gemini/antigravity-ide/brain/b8daaffd-1714-4ee8-b3e2-69cbbff3e6cb") / f"live_comment_proof_insure_{top_post['article_id']}.png"
-                with open(proof_path, "rb") as s_f, open(artifact_path, "wb") as d_f:
-                    d_f.write(s_f.read())
-            except Exception:
-                pass
-
-            self.scheduler.record_post_success(
-                cafe_name=top_post["cafe_name"],
-                article_id=top_post["article_id"],
-                title=top_post["title"],
-                reply_text=reply_text
-            )
-            print(f"🎉 [{top_post['cafe_name']}] 댓글 침투 등록 완료 및 히스토리 기록 완료!", flush=True)
+                break
 
             await context.close()
-            return {
-                "status": "SUCCESS_POSTED",
-                "target_post": top_post,
-                "reply_text": reply_text,
-                "proof_screenshot": str(proof_path),
-                "article_url": article_url
-            }
+            if not posted_result:
+                msg = "🛡️ [게이트키퍼] 오늘 스캔된 후보 글들이 모두 등업 제한 게시판이거나 작성 불가 상태였습니다. 억지 작성을 배제하고 다음 슬롯으로 전진합니다."
+                print("\n" + "="*75, flush=True)
+                print(msg, flush=True)
+                print("="*75, flush=True)
+                self.scheduler.advance_slot()
+                return {"status": "SKIPPED_ALL_RESTRICTED", "message": msg}
+
+            return posted_result
 
 
 if __name__ == "__main__":

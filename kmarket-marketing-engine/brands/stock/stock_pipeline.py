@@ -171,14 +171,21 @@ class StockPipeline:
         try:
             res = self.blog_scheduler.run_one_cycle()
             nb = res.get("publish_results", {}).get("channels", {}).get("naver_blog", {})
-            if nb.get("success") or res.get("blog_url") or res.get("url"):
+            is_success = (
+                nb.get("status") == "success"
+                or nb.get("success")
+                or bool(nb.get("url"))
+                or bool(res.get("blog_url"))
+                or bool(res.get("url"))
+            )
+            if is_success:
                 live_url = nb.get("url") or res.get("blog_url") or res.get("url") or "https://blog.naver.com/stockmaster_ai"
                 self.proof_verifier.record_and_capture_proof(
                     brand=self.BRAND, channel="naver_blog", live_url=live_url, title="StockMaster 퀀트 시황 발행", take_screenshot=True
                 )
             else:
                 self.proof_verifier.record_failure(
-                    brand=self.BRAND, channel="naver_blog", error_message=nb.get("error") or res.get("message") or "블로그 발행 실패", title="StockMaster 퀀트 시황 발행"
+                    brand=self.BRAND, channel="naver_blog", error_message=nb.get("error") or nb.get("message") or res.get("message") or "블로그 발행 실패", title="StockMaster 퀀트 시황 발행"
                 )
             return res
         except Exception as e:
@@ -308,6 +315,33 @@ class StockPipeline:
             results["kin"] = self.run_kin()
         except Exception as e:
             results["kin"] = {"error": str(e)}
+
+        try:
+            results["cafe"] = self.run_cafe()
+        except Exception as e:
+            results["cafe"] = {"error": str(e)}
+
+        try:
+            results["blog"] = self.run_blog()
+        except Exception as e:
+            results["blog"] = {"error": str(e)}
+
+        try:
+            results["threads"] = self.run_threads()
+        except Exception as e:
+            results["threads"] = {"error": str(e)}
+
+        try:
+            results["seo"] = self.run_seo()
+        except Exception as e:
+            results["seo"] = {"error": str(e)}
+
+        try:
+            results["reddit"] = self.run_reddit(mode="promo")
+        except Exception as e:
+            results["reddit"] = {"error": str(e)}
+
+        return results
 
     def run_full_daily_cycle(self) -> Dict[str, Any]:
         """일일 전 채널 순차 사이클 실행 (하위 호환 및 스케줄러 공식 표준)"""

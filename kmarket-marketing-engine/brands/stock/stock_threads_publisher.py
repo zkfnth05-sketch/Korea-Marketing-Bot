@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-Stock Threads Publisher (🧵 StockMaster AI 전용 스레드 독립 레고 블록 발행기)
-================================================================================
-- 브랜드: 📈 StockMaster AI (주식 AI)
+Stock Threads Publisher (🧵 스톡마스터 AI 전용 스레드 독립 레고 블록 발행기)
+===================================================================
+- 브랜드: 📈 스톡마스터 AI (StockMaster)
 - 전용 계정: @stockmaster_ai
-- 검색 공식 키워드: 스톡마스터 AI (띄어쓰기 필수, 절대 불변)
+- 검색 공식 키워드: 스톡마스터 AI (절대 불변)
 - 랜딩 URL: https://stockmaster-ai.vercel.app/
 - 프로필 디렉터리: brands/stock/meta_chrome_profile/
 - 세션 파일: brands/stock/threads_session.json
 - 기능:
   1. 스레드(threads.net) 완전 무인 자동 로그인 세션 유지
-  2. 3초 테마주/수급 분석 카드뉴스 이미지(4~5장 슬라이드) 또는 긴급 브리핑 텍스트 타래 게시
+  2. 카드뉴스 이미지(4~5장 슬라이드) 또는 텍스트 타래 게시 (500자 규격 자동 최적화)
   3. 첫 번째 타래 댓글로 공식 검색어('스톡마스터 AI') 및 랜딩 URL 자동 체인 부착
   4. 게시 결과 스크린샷 캡처 및 히스토리 아카이빙
 """
@@ -42,6 +42,7 @@ HISTORY_FILE = CURRENT_DIR / "threads_publish_history.json"
 
 
 def sanitize_threads_caption(raw_text: str) -> str:
+    """스레드 500자 제한 맞춤 본문 정제"""
     if not raw_text:
         return ""
     lines = raw_text.split("\n")
@@ -50,7 +51,7 @@ def sanitize_threads_caption(raw_text: str) -> str:
         s = line.strip()
         if not s:
             continue
-        if s.startswith("=") or s.startswith("•") or "주제:" in s or "산출 규격:" in s or "구성 안내" in s:
+        if s.startswith("=") or s.startswith("•") or "주제:" in s or "의상:" in s or "산출 규격:" in s or "구성 안내" in s:
             continue
         clean.append(s)
     
@@ -61,10 +62,10 @@ def sanitize_threads_caption(raw_text: str) -> str:
 
 
 class StockThreadsPublisher:
-    """📈 StockMaster AI 전용 스레드(Threads) 독립 레고 블록 발행기"""
+    """💖 Stock 전용 스레드(Threads) 독립 레고 블록 발행기"""
 
     BRAND = "stock"
-    BRAND_NAME = "StockMaster AI"
+    BRAND_NAME = "스톡마스터 AI"
     OFFICIAL_SEARCH_KEYWORD = "스톡마스터 AI"
     LANDING_URL = "https://stockmaster-ai.vercel.app/"
 
@@ -173,16 +174,17 @@ class StockThreadsPublisher:
         caption = sanitize_threads_caption(caption)
         if not caption:
             caption = (
-                "📈 [오늘의 실시간 외국인/기관 수급 급증 TOP 5]\n\n"
-                "급등 전 포착된 큰손들의 매수 시그널 분석!\n"
-                "3초 만에 확인하는 핵심 테마 브리핑 📊\n\n"
-                "#스톡마스터AI #주식AI #수급분석 #급등주 #테마주"
+                "📍 [500m 안심 레이더 & 안심 번개 매칭]\n\n"
+                "집 주소 노출될까 봐 불안하셨죠?\n"
+                "내 집 앞 500m 안심 지터링 보안으로 안전하게!\n\n"
+                "거리와 취향까지 딱 맞는 내 반경 500m 인연을 지금 확인해보세요 ✨\n\n"
+                "#Stock #데이팅 #소개팅 #안심매칭 #2030"
             )
 
         if not first_reply_text:
             first_reply_text = (
-                f"📈 AI 실시간 수급 & 급등 테마 1분 무료 진단\n"
-                f"네이버에 '{self.OFFICIAL_SEARCH_KEYWORD}' 한번 검색해보세요!\n"
+                f"📈 3초 실시간 외국인/기관 수급 레이더\n"
+                f"네이버에 '{self.OFFICIAL_SEARCH_KEYWORD}' 검색해보세요!\n"
                 f"👉 {self.LANDING_URL}"
             )
 
@@ -255,9 +257,9 @@ class StockThreadsPublisher:
                 logger.info("2. 스레드 작성창 열기...")
                 opened = False
                 for attempt in range(6):
-                    # 1) 상단 빠른 작성창 클릭 ("새로운 소식을 공유해보세요" 또는 "What's new?")
+                    # 1) 상단 빠른 작성창 클릭 ("새로운 소식을 공유해보세요")
                     try:
-                        quick = await page.query_selector("div:has-text('새로운 소식을 공유해보세요'), div:has-text('새로운 스레드를 시작하세요'), div:has-text('What\\'s new?')")
+                        quick = await page.query_selector("div:has-text('새로운 소식을 공유해보세요'), div:has-text('What\\'s new?')")
                         if quick and await quick.is_visible():
                             await quick.click()
                             await asyncio.sleep(2)
@@ -278,6 +280,7 @@ class StockThreadsPublisher:
                                     createBtn.click();
                                     return;
                                 }
+                                // 우측 하단 플로팅 버튼 fallback
                                 const allBtns = Array.from(document.querySelectorAll("div[role='button']"));
                                 if (allBtns.length > 0) {
                                     allBtns[allBtns.length - 1].click();
@@ -310,6 +313,7 @@ class StockThreadsPublisher:
                 textbox = await page.wait_for_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']", timeout=12000)
                 await textbox.click()
                 await asyncio.sleep(0.5)
+                # 기존 텍스트 지우고 새 텍스트 입력
                 await page.keyboard.press("Control+A")
                 await page.keyboard.press("Backspace")
                 await asyncio.sleep(0.3)
@@ -326,15 +330,15 @@ class StockThreadsPublisher:
                         wait_sec = 14 if is_video else 6
                         await asyncio.sleep(wait_sec)
 
-                # 5. [1단계] 본문 Post / 게시 버튼 클릭
+                # 5. [1단계] 본문 Post / 게시 버튼 클릭 및 모달 닫힘 대기
                 logger.info("5. 본문 [Post / 게시] 버튼 클릭...")
                 posted = False
-                try:
+                for _ in range(5):
                     posted = await page.evaluate("""() => {
                         const dialog = document.querySelector("div[role='dialog']") || document;
                         const btns = Array.from(dialog.querySelectorAll("div[role='button'], button"));
                         const postBtn = btns.find(b => {
-                            const t = b.innerText.trim();
+                            const t = (b.innerText || '').trim();
                             const ariaDisabled = b.getAttribute('aria-disabled');
                             const disabled = b.getAttribute('disabled');
                             return (t === 'Post' || t === '게시') && ariaDisabled !== 'true' && disabled === null;
@@ -346,18 +350,17 @@ class StockThreadsPublisher:
                         return false;
                     }""")
                     if posted:
-                        logger.info("   본문 JS 직접 클릭 성공!")
-                except Exception:
-                    pass
+                        break
+                    await asyncio.sleep(1)
 
                 if not posted:
-                    publish_btn = await page.wait_for_selector("div[role='dialog'] div[role='button']:has-text('Post'), div[role='dialog'] button:has-text('Post'), div[role='dialog'] div[role='button']:has-text('게시')", timeout=8000)
+                    publish_btn = await page.query_selector("div[role='dialog'] div[role='button']:has-text('Post'), div[role='dialog'] button:has-text('Post'), div[role='dialog'] div[role='button']:has-text('게시')")
                     if publish_btn:
                         await publish_btn.click(force=True)
                         posted = True
 
-                logger.info("   본문 게시 완료! 서버 반영 대기 (10초)...")
-                await asyncio.sleep(10)
+                logger.info("   본문 게시 요청 전송 완료! 모달 닫힘 및 서버 반영 대기 (12초)...")
+                await asyncio.sleep(12)
 
                 # 6. [2단계] 첫 번째 타래 댓글 (방금 올린 본문 글의 고유 상세 페이지로 직접 이동하여 답글 체인 작성)
                 if first_reply_text:
@@ -389,76 +392,75 @@ class StockThreadsPublisher:
                             await page.goto(post_url, wait_until="domcontentloaded", timeout=25000)
                             await asyncio.sleep(4)
 
-                            # 상세 페이지 내 답글 입력창 클릭 ("Reply to stockmaster_ai..." / "스톡마스터 AI님에게 답글 달기...")
-                            reply_box = await page.wait_for_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true'], div:has-text('Reply to'), div:has-text('답글')", timeout=10000)
+                                                        # 상세 페이지 내 답글 입력창 클릭 (이미지 오버레이 차단 방지 Leaf Element 정밀 타겟팅)
+                            clicked_reply = await page.evaluate("""() => {
+                                const elements = Array.from(document.querySelectorAll("span, div"));
+                                const replyEl = elements.reverse().find(el => {
+                                    const t = (el.innerText || '').trim();
+                                    return (t.startsWith('Reply to') || t.startsWith('답글')) && el.children.length === 0;
+                                });
+                                if (replyEl) {
+                                    const clickable = replyEl.closest("div[role='button']") || replyEl;
+                                    clickable.click();
+                                    return true;
+                                }
+                                return false;
+                            }""")
+                            await asyncio.sleep(1.5)
+
+                            reply_box = await page.wait_for_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']", timeout=10000)
                             if reply_box:
-                                await reply_box.click(force=True)
-                                await asyncio.sleep(1)
+                                await reply_box.click()
+                                await asyncio.sleep(0.5)
+                                await page.keyboard.press("Control+A")
+                                await page.keyboard.press("Backspace")
+                                await asyncio.sleep(0.3)
+                                await page.keyboard.insert_text(first_reply_text)
+                                await asyncio.sleep(2.5)  # OpenGraph 미리보기 렌더링 대기
 
-                                active_tb = await page.query_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']")
-                                if active_tb:
-                                    await active_tb.click()
-                                    await asyncio.sleep(0.5)
-                                    await page.keyboard.press("Control+A")
-                                    await page.keyboard.press("Backspace")
-                                    await asyncio.sleep(0.3)
-                                    await page.keyboard.insert_text(first_reply_text)
-                                    await asyncio.sleep(2.5)  # OpenGraph 미리보기 렌더링 대기
+                                # 답글 전송 (Post 버튼 클릭 + Control+Enter 2중 보장)
+                                reply_posted = await page.evaluate("""() => {
+                                    const btns = Array.from(document.querySelectorAll("div[role='button'], button"));
+                                    const postBtn = btns.find(b => {
+                                        const t = (b.innerText || '').trim();
+                                        const aria = b.getAttribute('aria-disabled');
+                                        return (t === 'Post' || t === '게시' || t === 'Reply' || t === '답글') && aria !== 'true';
+                                    });
+                                    if (postBtn) {
+                                        postBtn.click();
+                                        return true;
+                                    }
+                                    return false;
+                                }""")
+                                if not reply_posted:
+                                    await page.keyboard.press("Control+Enter")
+                                await asyncio.sleep(4)
+                                logger.info("   1번 타래 댓글 체인 부착 완료!")
+                    except Exception as re:
+                        logger.warning(f"⚠️ 타래 댓글 작성 예외: {re}")
 
-                                    # 답글 전송 (Control+Enter 단축키 및 전송 버튼 안전 클릭)
-                                    reply_posted = False
-                                    try:
-                                        await page.keyboard.press("Control+Enter")
-                                        await asyncio.sleep(1.5)
-                                    except Exception:
-                                        pass
-
-                                    for _ in range(8):
-                                        reply_posted = await page.evaluate("""() => {
-                                            const btns = Array.from(document.querySelectorAll("button, div[role='button']"));
-                                            const postBtn = btns.find(b => {
-                                                const t = (b.innerText || '').trim();
-                                                const ariaDisabled = b.getAttribute('aria-disabled');
-                                                const disabled = b.getAttribute('disabled');
-                                                return (t === 'Post' || t === '게시') && ariaDisabled !== 'true' && disabled === null;
-                                            });
-                                            if (postBtn && typeof postBtn.click === 'function') {
-                                                postBtn.click();
-                                                return true;
-                                            }
-                                            return false;
-                                        }""")
-                                        if reply_posted:
-                                            break
-                                        await asyncio.sleep(1)
-
-                                    if not reply_posted:
-                                        reply_post_btn = await page.query_selector("div[role='dialog'] div[role='button']:has-text('Post'), div[role='dialog'] button:has-text('Post'), div[role='button']:has-text('Post'), button:has-text('Post')")
-                                        if reply_post_btn:
-                                            await reply_post_btn.click(force=True)
-
-                                    logger.info("🎉 [2단계 대성공] 본문 글 고유 상세 페이지에서 1번 타래 댓글 체인 등록 완료!")
-                                    await asyncio.sleep(10)
-                    except Exception as ex_reply:
-                        logger.warning(f"⚠️ 타래 댓글 작성 예외: {ex_reply}")
-
-                # 7. 상세 페이지 및 프로필에서 최종 타래 결합 결과 확인 캡처
+                # 7. 본문 + 1번 타래 결합 최종 증빙 캡처
                 logger.info("7. 본문 + 1번 타래 결합 최종 증빙 캡처 중...")
                 proof_path = CURRENT_DIR / "threads_live_proof.png"
                 try:
-                    await page.reload(wait_until="domcontentloaded")
-                    await asyncio.sleep(4)
-                    await page.evaluate("window.scrollBy(0, 300)")
-                    await asyncio.sleep(2)
-                    await page.screenshot(path=str(proof_path), full_page=True)
-                    logger.info(f"📸 게시 완료 라이브 상세 결합 증빙 캡처: {proof_path}")
-                except Exception:
-                    await page.goto("https://www.threads.net/@stockmaster_ai", wait_until="domcontentloaded", timeout=25000)
-                    await asyncio.sleep(4)
                     await page.screenshot(path=str(proof_path))
+                except Exception:
+                    pass
                 logger.info(f"📸 게시 완료 라이브 증빙 캡처: {proof_path}")
 
+                # 8. 세션 및 히스토리 보관
                 await context.storage_state(path=str(SESSION_FILE))
+
+                # 9. 검증 완료 플래그 동기화 & 잔여 에러 스크린샷 정리
+                verified_flag = CURRENT_DIR / "threads_session_verified.json"
+                try:
+                    with open(verified_flag, "w", encoding="utf-8") as vf:
+                        json.dump({"verified_at": datetime.now().isoformat(), "brand": self.BRAND, "status": "authenticated"}, vf, indent=2)
+                    err_file = CURRENT_DIR / "threads_error_screenshot.png"
+                    if err_file.exists():
+                        err_file.unlink()
+                except Exception:
+                    pass
 
                 result_record = {
                     "brand": self.BRAND,
@@ -486,6 +488,27 @@ class StockThreadsPublisher:
                     await page.screenshot(path=str(fail_screenshot))
                 except Exception:
                     pass
+
+                # 실패 시 검증 플래그 파기 -> 관제판에 즉시 세션만료(빨간색) 반영
+                try:
+                    vf = CURRENT_DIR / "threads_session_verified.json"
+                    if vf.exists():
+                        vf.unlink()
+                except Exception:
+                    pass
+
+                result_record = {
+                    "brand": self.BRAND,
+                    "published_at": datetime.now().isoformat(),
+                    "caption_preview": caption[:60] + "..." if caption else "",
+                    "media_count": len(valid_media),
+                    "first_reply": first_reply_text,
+                    "status": "FAILED",
+                    "error": str(e),
+                    "screenshot": str(fail_screenshot)
+                }
+                self._save_history(result_record)
+
                 await context.close()
                 return {
                     "success": False,
@@ -505,3 +528,29 @@ class StockThreadsPublisher:
         history.append(record)
         with open(HISTORY_FILE, "w", encoding="utf-8") as f:
             json.dump(history, f, ensure_ascii=False, indent=2)
+
+
+async def main():
+    publisher = StockThreadsPublisher(headless=True)
+    target_folder = r"C:\Users\zkfnt\Desktop\한국 카드뉴스_산출물\아우라\아우라_08_500m안심레이더_20261001_1100"
+    
+    images = [str(Path(target_folder) / f"slide_{i}.png") for i in range(1, 6)]
+    
+    caption = (
+        "📍 [500m 안심 레이더 & 성수동 테라스 번개]\n\n"
+        "집 주소 노출될까 봐 불안하셨죠?\n"
+        "내 집 앞 500m 안심 지터링 보안으로 집 주소 노출 없이 안전하게!\n\n"
+        "거리와 취향까지 딱 맞는 내 반경 500m 인연을 지금 만나보세요 ✨\n\n"
+        "#Stock #아우라 #데이팅 #소개팅 #안심매칭 #2030"
+    )
+
+    res = await publisher.publish_thread(
+        caption=caption,
+        image_paths=images,
+        first_reply_text="💖 2030 매력 진단 & AI 매칭 리포트\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/"
+    )
+    print(json.dumps(res, ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

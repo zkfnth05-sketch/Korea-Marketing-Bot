@@ -1,6 +1,7 @@
+from core.gemini_unified_keys import get_unified_gemini_key_dicts, get_unified_gemini_keys, format_gemini_error
 # -*- coding: utf-8 -*-
 """
-📈 StockMaster 전용 Gemini 2,000자 칼럼 작성기 (StockGeminiWriter)
+📈 StockMaster 전용 Gemini 3,000자 칼럼 작성기 (StockGeminiWriter)
 ==================================================================
 - 브랜드: StockMaster AI (주식 AI 분석 & 퀀트 & 뇌동매매 방지)
 - 페르소나: "StockMaster 수석 퀀트 & AI 투자 전략가"
@@ -43,10 +44,10 @@ class StockGeminiWriter:
     """StockMaster 주식 AI & 투자 전문 Gemini 원고 생성 엔진 (Cache-First)"""
 
     def __init__(self):
-        self.model_name = "gemini-2.0-flash"
+        self.model_name = "gemini-2.5-flash", "gemini-2.0-flash"
 
     def write_magazine_article(self, topic: Dict[str, Any], seo_brief: Dict[str, Any]) -> Dict[str, Any]:
-        """주제와 SEO 키워드 패키지를 바탕으로 2,000자 전문 투자 칼럼 생성 (Cache-First)"""
+        """주제와 SEO 키워드 패키지를 바탕으로 3,000자 전문 투자 칼럼 생성 (Cache-First)"""
         topic_id = topic.get("id", 1)
         topic_title = topic["title"]
         category = topic.get("category", "korea_market")
@@ -57,18 +58,7 @@ class StockGeminiWriter:
         is_live_trend = seo_brief.get("is_live_trend", False)
         live_stock = seo_brief.get("live_stock", {})
 
-        # ⚡ 1. Cache-First: 일반 주제는 캐시 사용, 실시간 핫 트렌드는 실시간 생성
-        cache_file = CACHE_DIR / f"stock_blog_topic_{topic_id:03d}.json"
-        if not is_live_trend and cache_file.exists():
-            try:
-                with open(cache_file, "r", encoding="utf-8") as fp:
-                    cached_data = json.load(fp)
-                if cached_data.get("body_markdown") and len(cached_data.get("body_markdown", "")) > 100:
-                    logger.info(f"⚡ [StockGeminiWriter] 로컬 원고 캐시 즉시 재사용: {cache_file.name} (비용 0원)")
-                    cached_data["topic_id"] = topic_id
-                    return cached_data
-            except Exception as e:
-                logger.warning(f"⚠️ [StockGeminiWriter] 캐시 로드 실패 ({e}), 신규 작성 진행")
+        # 🚀 [100% 실시간 신규 작성 원칙] 매회 Gemini AI가 실시간 수급/시황 분석 칼럼을 실시간 집필합니다.
 
         import google.generativeai as genai
 
@@ -81,14 +71,16 @@ class StockGeminiWriter:
 시장의 소음과 뇌동매매를 배제하고, 철저히 데이터와 펀더멘털, 수급과 팩터에 기반한 냉철하고 명쾌한 투자 인사이트를 제공합니다.
 
 [3박자 퀀트 글쓰기 절대 원칙]
-1. 분량: 한글 공백 포함 2,000자 내외의 완성도 높은 장문 분석 칼럼.
-2. 톤앤매너: 전문적, 논리적, 명쾌함, 객관적. 뜬구름 잡는 루머 배제, 팩트와 수치 제시.
-3. 3박자 스토리텔링 구성:
-   - ① 도입부 (Hook): 오늘 실시간 검색어/외인 수급 집중 팩트 제시 & 뉴스만 보고 추격 매수하는 뇌동매매 위험 경고.
-   - ② H2 소제목 1: {subheadings[0] if len(subheadings) > 0 else '실시간 수급 이동과 기업 펀더멘털 팩트체크'}
-   - ③ H2 소제목 2: {subheadings[1] if len(subheadings) > 1 else '20일선 지지선·저항선 차트와 적정 밸류에이션 진단'}
-   - ④ H2 소제목 3: {subheadings[2] if len(subheadings) > 2 else '리스크 방어: StockMaster 10분 계량 전광판 & -5% 실시간 문자 손절 알림'}
-   - ⑤ 결론 (CTA): 10분마다 350개 주도주 체결강도를 스캔하는 'StockMaster AI 전광판'에서 실시간 데이터를 확인하고 안전하게 매매할 것을 권장.
+1. 분량 (🚨 3,000자 ~ 3,500자 엄수, 3,500자 초과 금지):
+   - **한글 공백 포함 딱 3,000자 ~ 3,500자 내외 (공백 제외 2,200~2,600자)**로 작성하십시오.
+   - 독자가 읽다 지치지 않도록 4,000자 이상 과도하게 길어지는 것을 절대 금지하며, 군더더기 없는 팩트 중심으로 3,000~3,500자 사이에서 완벽히 맺으십시오.
+2. 톤앤매너: 전문적, 논리적, 명쾌함, 객관적.
+3. 5대 퀀트 심층 스토리텔링 구성:
+   - ① 도입부 (Hook, 약 500자): 실시간 수급 팩트 & 뇌동매매 위험 경고
+   - ② H2 소제목 1 (약 650자): {subheadings[0] if len(subheadings) > 0 else '실시간 수급 이동과 기업 펀더멘털 팩트체크'}
+   - ③ H2 소제목 2 (약 550자): {subheadings[1] if len(subheadings) > 1 else '20일선 차트와 밸류에이션 진단'}
+   - ④ H2 소제목 3 (약 650자): {subheadings[2] if len(subheadings) > 2 else '가짜 수급 구별법: 체결강도 & 블록오더 분석'}
+   - ⑤ 결론 & 리스크 방어 (약 450자): StockMaster 10분 전광판 및 -5% 손절 알림 솔루션
 4. 검색어 자연 삽입: {', '.join(seeds)} 키워드를 본문에 자연스럽게 녹여낼 것.
 5. 리스크 경고: 모든 투자의 책임은 본인에게 있으며, 분할 매수와 손절 원칙을 항상 환기할 것.
 
@@ -98,7 +90,7 @@ class StockGeminiWriter:
   "title_naver": "{seo_titles[0] if seo_titles else '네이버 스마트블록 검색 1위용 클릭 유도 제목'}",
   "title_tistory": "{seo_titles[1] if len(seo_titles) > 1 else '티스토리 SEO 최적화 전문 정보형 제목'}",
   "title_brunch": "{seo_titles[2] if len(seo_titles) > 2 else '브런치스토리 감성적·통찰력 있는 투자 에세이형 제목'}",
-  "body_markdown": "H2, H3 소제목과 볼드체, 인용구를 적절히 활용한 2,000자 내외의 완성형 마크다운 본문",
+  "body_markdown": "H2, H3 소제목과 볼드체, 인용구를 적절히 활용한 3,000~3,500자 완성형 마크다운 본문",
   "summary": "1줄 요약 (메타 디스크립션용)",
   "tags": ["태그1", "태그2", "태그3", "태그4", "태그5"],
   "visual_prompt": "A modern sleek financial trading room in English, high-tech multi-monitor trading desk showing stock charts and candlestick graphs, city skyline at dusk visible through large window, professional fintech atmosphere, cinematic 8k editorial look, 16:9 aspect ratio"
@@ -114,7 +106,7 @@ class StockGeminiWriter:
 - 실시간 핫 종목: {live_stock.get('name', '우량주')} ({live_stock.get('sector', '핵심 섹터')})
 - SEO 권장 키워드: {', '.join(seeds)}
 
-위 실시간 수급 핫이슈와 퀀트 데이터를 결합하여 투자자들의 뇌동매매를 방지하는 완성도 높은 2,000자 투자 칼럼을 작성해주세요.
+위 실시간 수급 핫이슈와 퀀트 데이터를 결합하여 투자자들의 뇌동매매를 방지하는 완성도 높은 3,000자 이상(3,000~3,500자) 투자 칼럼을 작성해주세요.
 """
 
         from google import genai
@@ -124,13 +116,14 @@ class StockGeminiWriter:
         for attempt in range(3):
             try:
                 client = genai.Client(api_key=api_key)
-                for m_name in ["gemini-2.5-flash", "gemini-flash-latest"]:
+                response = None
+                for m_name in ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"]:
                     try:
                         response = client.models.generate_content(
                             model=m_name,
                             contents=user_prompt,
                             config=genai_types.GenerateContentConfig(
-                                system_instruction=system_instruction,
+                                automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True), system_instruction=system_instruction,
                                 temperature=0.7,
                                 max_output_tokens=4096
                             )
@@ -145,7 +138,7 @@ class StockGeminiWriter:
                 elif "```" in raw_text:
                     raw_text = raw_text.split("```")[1].split("```")[0].strip()
 
-                data = json.loads(raw_text)
+                data = json.loads(raw_text, strict=False)
                 res = {
                     "title": data.get("title_naver", topic_title),
                     "title_naver": data.get("title_naver", topic_title),
@@ -160,11 +153,13 @@ class StockGeminiWriter:
 
                 # ⚡ 캐시 파일로 영구 저장
                 try:
-                    with open(cache_file, "w", encoding="utf-8") as fp:
+                    import datetime
+                    out_file = CACHE_DIR / f"stock_blog_topic_{topic_id:03d}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                    with open(out_file, "w", encoding="utf-8") as fp:
                         json.dump(res, fp, ensure_ascii=False, indent=2)
-                    logger.info(f"💾 [StockGeminiWriter] 신규 칼럼 캐시 저장 완료: {cache_file.name}")
+                    logger.info(f"💾 [StockGeminiWriter] 신규 칼럼 아카이브 보관 완료: {out_file.name}")
                 except Exception as save_err:
-                    logger.warning(f"캐시 저장 실패: {save_err}")
+                    logger.warning(f"아카이브 보관 예외: {save_err}")
 
                 return res
             except Exception as e:
@@ -176,7 +171,7 @@ class StockGeminiWriter:
 
     def write_captured_article(self, capture_result: Dict[str, Any], article_type: str = "rank1") -> Dict[str, Any]:
         """
-        주식 웹앱에서 실시간 캡처한 실제 수치를 주입하여, 대표님의 '성공 블로그 원문(바이블)' 포맷으로 2,000자 칼럼 생성
+        주식 웹앱에서 실시간 캡처한 실제 수치를 주입하여, 대표님의 '성공 블로그 원문(바이블)' 포맷으로 3,000자 칼럼 생성
         article_type: 'rank1' (계량 전광판 1위 주도주 편) 또는 'semiconductor' (반도체 주도주 편)
         """
         metrics = capture_result.get("metrics", {})
@@ -238,7 +233,7 @@ class StockGeminiWriter:
   "title_naver": "삼성전자 vs SK하이닉스, 오늘 350개 종목 중 몇 위일까? 실시간 수급 격차와 AI 리스크 진단",
   "title_tistory": "삼성전자 SK하이닉스 주가 전망: 오늘 10분 계량 전광판 순위와 외인 수급·블록오더 정밀 비교",
   "title_brunch": "거인의 전쟁: 350개 주도주 전광판에서 본 삼성전자와 SK하이닉스의 현주소",
-  "body_markdown": "2,000자 내외의 완성형 마크다운 본문",
+  "body_markdown": "3,000~3,500자 완성형 마크다운 본문",
   "summary": "오늘 350개 종목 중 삼성전자와 SK하이닉스의 10분 계량 전광판 순위 및 외국계 수급 분석",
   "tags": ["삼성전자", "SK하이닉스", "반도체주도주", "AI주식", "퀀트투자", "체결강도", "블록오더", "스톡마스터AI"]
 }}
@@ -299,7 +294,7 @@ class StockGeminiWriter:
   "title_naver": "장 시작 10분 만에 털리는 개미 vs 세력 수급 발라내는 AI 퀀트 (오늘 전광판 1위: {s_name})",
   "title_tistory": "오늘 350개 주도주 중 1위 찍은 {s_name}: 체결강도 {s_strength}와 블록오더 {s_block}의 비밀",
   "title_brunch": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 {s_name} 심층 해부",
-  "body_markdown": "2,000자 내외의 완성형 마크다운 본문",
+  "body_markdown": "3,000~3,500자 완성형 마크다운 본문",
   "summary": "오늘 10분 계량 전광판 1위 {s_name}의 체결강도 {s_strength}, 블록오더 {s_block}, ATR 목표가 분석",
   "tags": ["{s_name}", "주식투자", "AI종목분석", "체결강도", "블록오더", "스톡마스터AI", "수급분석", "단타매매"]
 }}
@@ -310,13 +305,13 @@ class StockGeminiWriter:
         for attempt in range(3):
             try:
                 client = genai.Client(api_key=api_key)
-                for m_name in ["gemini-2.0-flash", "gemini-flash-latest", "gemini-1.5-flash"]:
+                for m_name in ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"]:
                     try:
                         response = client.models.generate_content(
                             model=m_name,
                             contents=user_prompt,
                             config=genai_types.GenerateContentConfig(
-                                system_instruction=system_instruction,
+                                automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True), system_instruction=system_instruction,
                                 temperature=0.7,
                                 max_output_tokens=4096
                             )
@@ -331,7 +326,7 @@ class StockGeminiWriter:
                 elif "```" in raw_text:
                     raw_text = raw_text.split("```")[1].split("```")[0].strip()
 
-                data = json.loads(raw_text)
+                data = json.loads(raw_text, strict=False)
                 return {
                     "title": data.get("title_naver", f"[StockMaster] {article_type}"),
                     "title_naver": data.get("title_naver", ""),

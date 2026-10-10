@@ -14,6 +14,8 @@ import time
 import base64
 import logging
 from pathlib import Path
+from core.engine.naver_search_bar_component import render_naver_search_bar_html
+
 from playwright.sync_api import sync_playwright
 
 if sys.platform == "win32":
@@ -116,6 +118,7 @@ class StockCardnewsS1Topic6Builder:
             bullets.append("StockMaster AI 실시간 퀀트 분석")
 
         cta_text = copy_data.get("cta_text", "👉 옆으로 넘겨서 AI 퀀트 비서 기능 보기 (1/5) >")
+        naver_search_html = render_naver_search_bar_html(brand="stock")
 
         html_content = f"""<!DOCTYPE html>
 <html lang="ko">
@@ -207,12 +210,8 @@ class StockCardnewsS1Topic6Builder:
       </div>
     </div>
 
-    <!-- 하단 스와이프 CTA 배너 -->
-    <div class="w-full py-4 rounded-2xl bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#F59E0B] shadow-xl shadow-orange-500/20 flex items-center justify-center border border-white/20">
-      <span class="text-white text-2xl font-black tracking-wide flex items-center gap-2">
-        {cta_text}
-      </span>
-    </div>
+    <!-- 하단 네이버 공식 검색창 UI 바 (숏폼 일체형) -->
+    {naver_search_html}
 
   </div>
 

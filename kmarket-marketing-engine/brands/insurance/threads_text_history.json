@@ -130,5 +130,289 @@
       }
     },
     "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "morning",
+    "topic": "4세대 실손보험 갈아타면 무조건 손해 보는 사람 특징",
+    "caption_preview": "보험료 아끼려다 병원비 폭탄 맞고 싶지 않다면 주목하세요. 4세대 실손보험 싸다고 덜컥 갈아탔다가 후회할 수...",
+    "published_at": "2026-10-09T09:31:42.967400",
+    "publish_result": {
+      "success": false,
+      "brand": "insurance",
+      "error": "스레드 작성창(textbox)을 활성화하지 못했습니다.",
+      "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_error_screenshot.png"
+    },
+    "success": false
+  },
+  {
+    "brand": "insurance",
+    "slot": "morning",
+    "topic": "치과 치료 받기 전에 반드시 확인해야 할 숨은 실손 보장",
+    "caption_preview": "치과 치료비 100만원! 아깝게 생돈 내기 전, 내 보험료 낭비 막는 꿀팁입니다.\n\n많은 분이 실손은 치과 ...",
+    "published_at": "2026-10-09T09:54:22.241733",
+    "publish_result": {
+      "success": false,
+      "brand": "insurance",
+      "error": "스레드 작성창(textbox)을 활성화하지 못했습니다.",
+      "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_error_screenshot.png"
+    },
+    "success": false
+  },
+  {
+    "brand": "insurance",
+    "slot": "evening",
+    "topic": "운전자보험 가입할 때 호구 안 당하는 필수 3대 특약",
+    "caption_preview": "운전자보험 3만원짜리 들지 마세요. 딱 1만원이면 충분한 이유 알려드립니다.\n\n대부분 비싼 보험료는 자동차보...",
+    "published_at": "2026-10-09T19:31:34.527263",
+    "publish_result": {
+      "success": true,
+      "brand": "insurance",
+      "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "insurance",
+        "published_at": "2026-10-09T19:31:34.459667",
+        "caption_preview": "운전자보험 3만원짜리 들지 마세요. 딱 1만원이면 충분한 이유 알려드립니다.\n\n대부분 비싼 보험료는 자동차보...",
+        "media_count": 0,
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "evening",
+    "topic": "가족력 있는 사람이 3대 질병 진단비 가성비로 맞추는 법",
+    "caption_preview": "가족력 때문에 비싼 3대 질병 진단비, 혹시 불필요한 보험료 낭비하고 계신가요?\n\n비싼 종합보험은 불필요한 ...",
+    "published_at": "2026-10-09T19:31:40.822357",
+    "publish_result": {
+      "success": true,
+      "brand": "insurance",
+      "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "insurance",
+        "published_at": "2026-10-09T19:31:40.762700",
+        "caption_preview": "가족력 때문에 비싼 3대 질병 진단비, 혹시 불필요한 보험료 낭비하고 계신가요?\n\n비싼 종합보험은 불필요한 ...",
+        "media_count": 0,
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "evening",
+    "topic": "운전자보험 가입할 때 호구 안 당하는 필수 3대 특약",
+    "caption_preview": "운전자보험 3만원짜리 들지 마세요. 딱 1만원이면 충분한 이유를 알려드립니다.\n\n많은 분들이 불필요한 특약까...",
+    "published_at": "2026-10-09T19:47:40.410785",
+    "publish_result": {
+      "success": true,
+      "brand": "insurance",
+      "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "insurance",
+        "published_at": "2026-10-09T19:47:40.340486",
+        "caption_preview": "운전자보험 3만원짜리 들지 마세요. 딱 1만원이면 충분한 이유를 알려드립니다.\n\n많은 분들이 불필요한 특약까...",
+        "media_count": 0,
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "evening",
+    "topic": "운전자보험 가입할 때 호구 안 당하는 필수 3대 특약",
+    "caption_preview": "운전자보험에 매달 3만 원씩 내고 계신가요? 솔직히 매달 2만 원은 버리고 계신 겁니다.\n\n운전자보험의 진짜...",
+    "published_at": "2026-10-09T20:02:33.566671",
+    "publish_result": {
+      "success": true,
+      "brand": "insurance",
+      "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "insurance",
+        "published_at": "2026-10-09T20:02:33.502096",
+        "caption_preview": "운전자보험에 매달 3만 원씩 내고 계신가요? 솔직히 매달 2만 원은 버리고 계신 겁니다.\n\n운전자보험의 진짜...",
+        "media_count": 0,
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "evening",
+    "topic": "가족력 있는 사람이 3대 질병 진단비 가성비로 맞추는 법",
+    "caption_preview": "가족력 불안하다고 비싼 종합보험부터 덜컥 가입하면 매달 피 같은 보험료가 줄줄 샙니다.\n\n자잘한 입원비나 수...",
+    "published_at": "2026-10-09T20:11:10.901379",
+    "publish_result": {
+      "success": true,
+      "brand": "insurance",
+      "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "insurance",
+        "published_at": "2026-10-09T20:11:10.834772",
+        "caption_preview": "가족력 불안하다고 비싼 종합보험부터 덜컥 가입하면 매달 피 같은 보험료가 줄줄 샙니다.\n\n자잘한 입원비나 수...",
+        "media_count": 0,
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "evening",
+    "topic": "잠자고 있는 숨은 보험금 3분 만에 계좌로 돌려받는 법",
+    "caption_preview": "대한민국 국민 1인당 평균 18만 원이 주인을 못 찾아 방치되고 있다는 사실, 알고 계셨나요?\n\n만기가 지났...",
+    "published_at": "2026-10-09T20:12:15.800063",
+    "publish_result": {
+      "success": true,
+      "brand": "insurance",
+      "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "insurance",
+        "published_at": "2026-10-09T20:12:15.747449",
+        "caption_preview": "대한민국 국민 1인당 평균 18만 원이 주인을 못 찾아 방치되고 있다는 사실, 알고 계셨나요?\n\n만기가 지났...",
+        "media_count": 0,
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "evening",
+    "topic": "운전자보험 가입할 때 호구 안 당하는 필수 3대 특약",
+    "caption_preview": "운전자보험 월 3만 원씩 내고 계신가요? 당장 증권 확인해 보세요. 딱 1만 원이면 충분하거든요.\n\n비싼 이...",
+    "published_at": "2026-10-09T20:13:48.987264",
+    "publish_result": {
+      "success": true,
+      "brand": "insurance",
+      "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "insurance",
+        "published_at": "2026-10-09T20:13:47.763756",
+        "caption_preview": "운전자보험 월 3만 원씩 내고 계신가요? 당장 증권 확인해 보세요. 딱 1만 원이면 충분하거든요.\n\n비싼 이...",
+        "media_count": 0,
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "evening",
+    "topic": "운전자보험 가입할 때 호구 안 당하는 필수 3대 특약",
+    "caption_preview": "운전자보험에 매달 3만 원씩 내고 계신가요? 솔직히 2만 원은 길바닥에 버리는 돈입니다.\n\n비싼 보험료의 8...",
+    "published_at": "2026-10-09T20:15:04.431385",
+    "publish_result": {
+      "success": true,
+      "brand": "insurance",
+      "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "insurance",
+        "published_at": "2026-10-09T20:15:04.357264",
+        "caption_preview": "운전자보험에 매달 3만 원씩 내고 계신가요? 솔직히 2만 원은 길바닥에 버리는 돈입니다.\n\n비싼 보험료의 8...",
+        "media_count": 0,
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "evening",
+    "topic": "가족력 있는 사람이 3대 질병 진단비 가성비로 맞추는 법",
+    "caption_preview": "4세대 실손보험 보험료 싸다고 무조건 갈아타면 안 되는 이유 💡\n\n1~2세대 실손(2017년 이전 가입)은 ...",
+    "published_at": "2026-10-09T20:48:09.597576",
+    "publish_result": {
+      "success": true,
+      "brand": "insurance",
+      "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "insurance",
+        "published_at": "2026-10-09T20:48:09.528978",
+        "caption_preview": "4세대 실손보험 보험료 싸다고 무조건 갈아타면 안 되는 이유 💡\n\n1~2세대 실손(2017년 이전 가입)은 ...",
+        "media_count": 0,
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "evening",
+    "topic": "가족력 있는 사람이 3대 질병 진단비 가성비로 맞추는 법",
+    "caption_preview": "가족력 불안하다고 10만 원 넘는 종합보험부터 덜컥 가입하면 매달 피 같은 돈 날립니다.\n\n불필요한 입원비·...",
+    "published_at": "2026-10-09T20:58:16.115250",
+    "publish_result": {
+      "success": true,
+      "brand": "insurance",
+      "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "insurance",
+        "published_at": "2026-10-09T20:58:16.036715",
+        "caption_preview": "가족력 불안하다고 10만 원 넘는 종합보험부터 덜컥 가입하면 매달 피 같은 돈 날립니다.\n\n불필요한 입원비·...",
+        "media_count": 0,
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "morning",
+    "topic": "2030 직장인 10명 중 8명이 매달 10만원씩 버리는 불필요한 특약",
+    "caption_preview": "매달 나가는 보험료 15만 원, 까보면 7만 원은 진짜 쓸데없는 특약입니다.\n\n2030 증권을 열어보면 발생...",
+    "published_at": "2026-10-10T09:31:35.236225",
+    "publish_result": {
+      "success": true,
+      "brand": "insurance",
+      "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "insurance",
+        "published_at": "2026-10-10T09:31:35.189710",
+        "caption_preview": "매달 나가는 보험료 15만 원, 까보면 7만 원은 진짜 쓸데없는 특약입니다.\n\n2030 증권을 열어보면 발생...",
+        "media_count": 0,
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "evening",
+    "topic": "가족력 있는 사람이 3대 질병 진단비 가성비로 맞추는 법",
+    "caption_preview": "비싼 종합보험에 암·뇌·심장 3대 진단비 다 넣고 계신가요? 보험료 낭비의 주범일 수 있습니다.\n\n가족력 있...",
+    "published_at": "2026-10-10T19:31:09.846897",
+    "publish_result": {
+      "success": false,
+      "brand": "insurance",
+      "error": "스레드 작성창(textbox)을 활성화하지 못했습니다.",
+      "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_error_screenshot.png"
+    },
+    "success": false
   }
 ]

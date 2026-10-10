@@ -57,3 +57,14 @@ scratch_*
 debug_*
 temp_*
 scratch_test_*.py
+
+# 브라우저 행동 프로필 및 백업 파일 제외
+*_behavior_profile/
+**/*_behavior_profile/
+*.bak*
+*.bak
+
+
+# 외부 깃 서브툴 제외
+core/github_tools/
+

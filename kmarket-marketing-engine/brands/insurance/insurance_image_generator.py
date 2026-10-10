@@ -199,7 +199,7 @@ class InsuranceImageGenerator:
         category: str,
         topic_title: str,
         custom_visual_prompt: Optional[str] = None,
-        force_regenerate: bool = False
+        force_regenerate: bool = True
     ) -> Dict[str, Any]:
         """
         주제 맥락에 100% 어울리는 16:9 실사 사진 1장 생성
@@ -215,23 +215,8 @@ class InsuranceImageGenerator:
         preset = INSURANCE_CATEGORY_PRESETS.get(category, INSURANCE_CATEGORY_PRESETS["health_medical"])
         fallback_url = preset["fallback_url"]
 
-        # ⚡ [비용 0원 원칙] force_regenerate가 False이고 캐시 이미지가 유효하면 즉시 재사용
-        existing_images = sorted(list(OUTPUTS_DIR.glob(f"insurance_topic_{topic_id:03d}_*.webp")), reverse=True)
-        # 구형 파일명(insurance_topic_017.webp)도 확인
-        legacy_file = OUTPUTS_DIR / f"insurance_topic_{topic_id:03d}.webp"
-        if legacy_file.exists() and legacy_file.stat().st_size > 1024:
-            existing_images.append(legacy_file)
-
-        if not force_regenerate and existing_images and existing_images[0].stat().st_size > 1024:
-            cached_file = existing_images[0]
-            logger.info(f"⚡ [InsuranceImage] 주제 #{topic_id} 기존 고화질 이미지 캐시 즉시 재사용 (비용 0원!): {cached_file.name}")
-            return {
-                "success": True,
-                "image_path": str(cached_file),
-                "web_url": str(cached_file),
-                "is_fallback": False,
-                "prompt_used": "CACHED_REUSE"
-            }
+        # 🚀 [100% 실시간 신규 생성 원칙] 매회 새로운 고유 실사 이미지를 실시간 생성합니다.
+        # (기존 이미지 재사용 전면 비활성화)
 
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"insurance_topic_{topic_id:03d}_{category}_{timestamp}.webp"

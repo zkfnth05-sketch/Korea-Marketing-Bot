@@ -114,5 +114,53 @@
     "published_at": "2026-10-04 09:26:23",
     "elapsed_sec": 48.9,
     "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "brand": "insurance",
+    "topic_id": 1,
+    "video_id": "BdUelU9NILo",
+    "video_url": "https://youtube.com/shorts/BdUelU9NILo",
+    "title": "[실손의료비 4세대 전환 손익] 보험 리밸런스 #1 #보험리밸런스 #Shorts",
+    "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+    "comment_status": "skipped",
+    "privacy_status": "public",
+    "video_file": "Insurance_22초숏폼_주제01_silbi_gen4_20261010_114916.mp4",
+    "published_at": "2026-10-10 12:15:07",
+    "elapsed_sec": 46.3,
+    "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "brand": "insurance",
+    "topic_id": 3,
+    "video_id": "8Iox0JNaf_w",
+    "video_url": "https://youtube.com/shorts/8Iox0JNaf_w",
+    "title": "🚨 암보험 함정? 월15만 버는 일반암 vs 유사암 진실! 💰 #보험비교 #Shorts",
+    "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+    "comment_status": "skipped",
+    "privacy_status": "public",
+    "video_file": "Insurance_22초숏폼_주제03_cancer_coverage_20261010_181917.mp4",
+    "published_at": "2026-10-10 19:13:52",
+    "elapsed_sec": 1064.7,
+    "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "brand": "insurance",
+    "topic_id": 3,
+    "video_id": "aAQ0ogo0oF4",
+    "video_url": "https://youtube.com/shorts/aAQ0ogo0oF4",
+    "title": "암보험, 일반암만 믿으세요? 🤯 유사암 진실 알면 월 15만원 아껴요! 💰 #보험비교 #Shorts",
+    "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+    "comment_status": "skipped",
+    "privacy_status": "public",
+    "video_file": "Insurance_22초숏폼_주제03_cancer_coverage_20261010_181917.mp4",
+    "published_at": "2026-10-10 20:40:18",
+    "elapsed_sec": 1117.5,
+    "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
   }
 ]

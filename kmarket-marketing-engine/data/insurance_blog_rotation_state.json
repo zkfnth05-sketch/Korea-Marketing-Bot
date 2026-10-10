@@ -1,10 +1,310 @@
 {
-  "current_topic_index": 1,
-  "last_topic_id": 13,
-  "last_run_time": "2026-10-03 10:01:59",
-  "last_title": "백내장 다초점 렌즈 수술비 실손보험 청구 거절? 대법원 판례 기준과 숨은 보험금 찾는 법 💸",
-  "published_count": 13,
+  "current_topic_index": 7,
+  "last_topic_id": 2,
+  "last_run_time": "2026-10-10 20:02:25",
+  "last_title": "🚨 암보험 5천만 원 나온다더니 갑상선암은 고작 400만 원? 일반암 vs 유사암 진단비의 충격적 진실",
+  "published_count": 19,
   "history": [
+    {
+      "topic_id": 2,
+      "title": "🚨 암보험 5천만 원 나온다더니 갑상선암은 고작 400만 원? 일반암 vs 유사암 진단비의 충격적 진실",
+      "title_naver": "🚨 암보험 5천만 원 나온다더니 갑상선암은 고작 400만 원? 일반암 vs 유사암 진단비의 충격적 진실",
+      "title_tistory": "암보험 가입 전 필수 체크: 일반암과 유사암 진단비 한도 축소와 최적 리모델링 가이드",
+      "title_brunch": "매달 11만 원 내던 내 암보험 고지서, 알고 보니 껍데기만 가득했다",
+      "category": "health_medical",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_002_health_medical_20261010_200054.webp",
+      "published_at": "2026-10-10 20:02:25",
+      "publish_results": {
+        "topic_id": 2,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "🚨 암보험 5천만 원 나온다더니 갑상선암은 고작 400만 원? 일반암 vs 유사암 진단비의 충격적 진실",
+            "url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224437350896&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=29794",
+            "post_url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224437350896&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=29794",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "암보험비교",
+              "암진단비",
+              "유사암한도",
+              "2030암보험",
+              "실비보험4세대",
+              "실비보험4세대5세대",
+              "실비보험4세대기간",
+              "실비보험4세대전환",
+              "실비보험4세대보장",
+              "실비보험4세대갱신",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "think83157",
+            "title": "암보험 가입 전 필수 체크: 일반암과 유사암 진단비 한도 축소와 최적 리모델링 가이드",
+            "post_url": "https://think83157.tistory.com/17",
+            "url": "https://think83157.tistory.com/17"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 81,
+      "title": "[보험 상식] 월 보험료 30만원 내는데 보장은 빈약? 보험 리모델링으로 10만원대 줄이기",
+      "title_naver": "월 보험료 30만원 내는데 보장은 빈약? 보험 리모델링으로 10만원대 줄이기 핵심 정리 및 손해 안 보는 팁",
+      "title_tistory": "[InsureBalance] 월 보험료 30만원 내는데 보장은 빈약? 보험 리모델링으로 10만원대 줄이기 완벽 가이드",
+      "title_brunch": "우리가 매달 내는 보험료, 월 보험료 30만원 내는데 보장은 빈약? 보험 리모델링으로 10만원대 줄이기",
+      "category": "remodeling_savings",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_081_remodeling_savings_20261010_152413.webp",
+      "published_at": "2026-10-10 15:25:44",
+      "publish_results": {
+        "topic_id": 81,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "월 보험료 30만원 내는데 보장은 빈약? 보험 리모델링으로 10만원대 줄이기 핵심 정리 및 손해 안 보는 팁",
+            "url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224437155423&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=13615",
+            "post_url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224437155423&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=13615",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "보험리모델링",
+              "보험료다이어트",
+              "적립보험료삭제",
+              "중복보험정리",
+              "보험리모델링어플",
+              "태아보험리모델링",
+              "보험리모델링뜻",
+              "보험리모델링후기",
+              "보험리모델링추천",
+              "보험리모델링장단점",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "think83157",
+            "title": "[InsureBalance] 월 보험료 30만원 내는데 보장은 빈약? 보험 리모델링으로 10만원대 줄이기 완벽 가이드",
+            "post_url": "https://think83157.tistory.com/16",
+            "url": "https://think83157.tistory.com/16"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 65,
+      "title": "[보험 상식] 실손보험 청구 서류 3분 만에 준비하기: 진료비 영수증 vs 세부내역서 차이",
+      "title_naver": "실손보험 청구 서류 3분 만에 준비하기: 진료비 영수증 vs 세부내역서 차이 핵심 정리 및 손해 안 보는 팁",
+      "title_tistory": "[InsureBalance] 실손보험 청구 서류 3분 만에 준비하기: 진료비 영수증 vs 세부내역서 차이 완벽 가이드",
+      "title_brunch": "우리가 매달 내는 보험료, 실손보험 청구 서류 3분 만에 준비하기: 진료비 영수증 vs 세부내역서 차이",
+      "category": "claims_knowhow",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_065_claims_knowhow_20261010_100010.webp",
+      "published_at": "2026-10-10 10:01:42",
+      "publish_results": {
+        "topic_id": 65,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "실손보험 청구 서류 3분 만에 준비하기: 진료비 영수증 vs 세부내역서 차이 핵심 정리 및 손해 안 보는 팁",
+            "url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224436909586&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=13607",
+            "post_url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224436909586&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=13607",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "보험금청구서류",
+              "진료비세부내역서",
+              "실비청구방법",
+              "모바일보험금청구",
+              "보험금청구서류발급",
+              "보험금청구서류종류",
+              "삼성생명보험금청구서류",
+              "현대해상보험금청구서류",
+              "한화생명보험금청구서류",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험",
+              "재테크"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "think83157",
+            "title": "[InsureBalance] 실손보험 청구 서류 3분 만에 준비하기: 진료비 영수증 vs 세부내역서 차이 완벽 가이드",
+            "post_url": "https://think83157.tistory.com/15",
+            "url": "https://think83157.tistory.com/15"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 49,
+      "title": "연금저축보험 vs 연금보험 차이 몰랐다가 연말정산 환급금 99만 원 날릴 뻔한 썰 💸",
+      "title_naver": "연금저축보험 vs 연금보험 차이 몰랐다가 연말정산 환급금 99만 원 날릴 뻔한 썰 💸",
+      "title_tistory": "연금저축보험 vs 일반 연금보험 완벽 비교: 연말정산 세액공제 99만원 챙기는 현실 기준",
+      "title_brunch": "50대를 앞둔 가장의 노후 준비, 연금저축과 연금보험 사이에서",
+      "category": "savings_annuity",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_049_savings_annuity_20261009_150022.webp",
+      "published_at": "2026-10-09 15:01:55",
+      "publish_results": {
+        "topic_id": 49,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "연금저축보험 vs 연금보험 차이 몰랐다가 연말정산 환급금 99만 원 날릴 뻔한 썰 💸",
+            "url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224436259652&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=29808",
+            "post_url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224436259652&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=29808",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "연금저축보험",
+              "연금보험비교",
+              "연말정산세액공제",
+              "비과세연금",
+              "연금저축세액공제",
+              "종합소득세연금저축세액공제",
+              "연금저축세액공제15%",
+              "연금저축세액공제한도",
+              "개인형irp해지",
+              "개인형irp퇴직금수령",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "think83157",
+            "title": "연금저축보험 vs 일반 연금보험 완벽 비교: 연말정산 세액공제 99만원 챙기는 현실 기준",
+            "post_url": "https://think83157.tistory.com/14",
+            "url": "https://think83157.tistory.com/14"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 33,
+      "title": "치아보험 들고 다음 달에 임플란트 심었다가 0원 나온 썰 🚨 면책·감액기간 팩트체크",
+      "title_naver": "치아보험 들고 다음 달에 임플란트 심었다가 0원 나온 썰 🚨 면책·감액기간 팩트체크",
+      "title_tistory": "치아보험 임플란트 100% 보장받는 최적의 타이밍: 면책기간 90일과 감액기간 총정리",
+      "title_brunch": "치과 견적 150만 원 앞에서 알게 된 치아보험의 냉혹한 타임라인",
+      "category": "life_dental_pet",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_033_life_dental_pet_20261009_112045.webp",
+      "published_at": "2026-10-09 11:22:18",
+      "publish_results": {
+        "topic_id": 33,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "치아보험 들고 다음 달에 임플란트 심었다가 0원 나온 썰 🚨 면책·감액기간 팩트체크",
+            "url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224436094806&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=23608",
+            "post_url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224436094806&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=23608",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "치아보험임플란트",
+              "치아보험면책기간",
+              "감액기간",
+              "크라운보장",
+              "nba",
+              "네이마르",
+              "안젤라박",
+              "집",
+              "도깨비의세계보물상자",
+              "치아보험",
+              "실속보장치아보험",
+              "보험다이어트",
+              "보험료줄이기"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "think83157",
+            "title": "치아보험 임플란트 100% 보장받는 최적의 타이밍: 면책기간 90일과 감액기간 총정리",
+            "post_url": "https://think83157.tistory.com/13",
+            "url": "https://think83157.tistory.com/13"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 17,
+      "title": "🚗 자동차보험 갱신하다 30만원 절약한 3년차 직장인의 대박 할인 특약 꿀팁!ㅋㅋ",
+      "title_naver": "🚗 자동차보험 갱신하다 30만원 절약한 3년차 직장인의 대박 할인 특약 꿀팁!ㅋㅋ",
+      "title_tistory": "자동차보험 다이렉트 5대 손보사 비교: 마일리지·티맵 특약으로 30만 원 아끼는 방법",
+      "title_brunch": "통장 요정이 된 3년 차 직장인의 자동차보험 고정비 다이어트 성공기",
+      "category": "auto_driver",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_017_auto_driver_20261006_122411.webp",
+      "published_at": "2026-10-09 10:02:02",
+      "publish_results": {
+        "topic_id": 17,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "🚗 자동차보험 갱신하다 30만원 절약한 3년차 직장인의 대박 할인 특약 꿀팁!ㅋㅋ",
+            "url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224436033214&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=20657",
+            "post_url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224436033214&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=20657",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "자동차보험비교",
+              "다이렉트자동차보험",
+              "티맵할인",
+              "주행거리특약",
+              "가디언즈대화이트삭스",
+              "정주영",
+              "오윤아",
+              "한고은",
+              "잠실돔구장",
+              "운전자보험",
+              "운전자보험보상",
+              "운전자보험비교사이트",
+              "보험다이어트"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "think83157",
+            "title": "자동차보험 다이렉트 5대 손보사 비교: 마일리지·티맵 특약으로 30만 원 아끼는 방법",
+            "post_url": "https://think83157.tistory.com/12",
+            "url": "https://think83157.tistory.com/12"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        }
+      }
+    },
     {
       "topic_id": 13,
       "title": "백내장 다초점 렌즈 수술비 실손보험 청구 거절? 대법원 판례 기준과 숨은 보험금 찾는 법 💸",

@@ -1,3 +1,4 @@
+from core.gemini_unified_keys import get_unified_gemini_key_dicts, get_unified_gemini_keys, format_gemini_error
 """
 TelegramAICommunityManager - 🤖 17개국어 24시간 실시간 AI 커뮤니티 매니저 (챗봇)
 - [기능 1] 신규 유저 입장(new_chat_members) 즉시 17개국 모국어 환영 & 첫 대화 유도

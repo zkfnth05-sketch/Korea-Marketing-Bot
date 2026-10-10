@@ -138,6 +138,16 @@ class StockRedditEngine:
                         target_url=post_url,
                         external_id=post_id
                     )
+                    try:
+                        from core.verification.live_proof_verifier import live_proof_verifier
+                        live_proof_verifier.record_failure(
+                            brand=self.SERVICE_ID,
+                            channel="reddit",
+                            error_message=str(err_msg),
+                            title=f"r/{subreddit}: {title}"
+                        )
+                    except Exception:
+                        pass
                     continue
 
                 # 가시성 검증 (10초 후 섀도우밴/삭제 여부 확인)
@@ -150,7 +160,7 @@ class StockRedditEngine:
                 logger.info(f"🧪 [시뮬레이션 모드 댓글 생성]\n{reply_content}")
                 post_success = True
 
-            # DB 기록 및 헬스 모니터 갱신 (실제 라이브 등록 시에만 저장)
+            # DB 기록 및 헬스 모니터 갱신 (실제 라이브 등록 시에만 저장 - 실제 URL 100% 투명 기록)
             if auto_post:
                 self.db_mgr.record_history(
                     content_type="reddit_reply",
@@ -158,12 +168,29 @@ class StockRedditEngine:
                     target_lang="en",
                     title=f"[{intent.get('category')}] {title}",
                     content_text=reply_content,
-                    target_url=self.OFFICIAL_LANDING_URL,
+                    target_url=post_url,
                     external_id=post_id
                 )
                 self.health.record_promo_comment()
+
+                try:
+                    from core.verification.live_proof_verifier import live_proof_verifier
+                    live_proof_verifier.record_and_capture_proof(
+                        brand=self.SERVICE_ID,
+                        channel="reddit",
+                        live_url=post_url,
+                        title=f"r/{subreddit}: {title}",
+                        extra_meta={
+                            "comment_preview": reply_content[:200],
+                            "screenshot_file": comment_res.get("screenshot_file")
+                        },
+                        take_screenshot=False
+                    )
+                except Exception as pe:
+                    logger.warning(f"LiveProof 등록 경고: {pe}")
+
             processed_count += 1
-            logger.info(f"✅ [Stock Reddit] 성공 처리 완료 (누적 {processed_count}건)")
+            logger.info(f"✅ [Stock Reddit] 성공 처리 완료 (실제 URL: {post_url}) (누적 {processed_count}건)")
 
         return processed_count
 

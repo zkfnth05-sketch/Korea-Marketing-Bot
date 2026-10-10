@@ -121,22 +121,13 @@ def produce_stock_34s_shorts_topic4():
 
     # 3. 📸 [Step 3] 마스터 인물 사진 준비 -> 전용 폴더에 01_master_photo_t2i.png로 보관
     master_photo_path = work_dir / "01_master_photo_t2i.png"
+    producer = StockShortsProducer()
     
-    # 방금 생성된 최신 아우라 스타일 훈남 마스터 사진 우선 연결
-    candidate_masters = list(out_base.glob("**/stock_topic04_아우라스타일_훈남_*.png"))
-    if candidate_masters and candidate_masters[0].exists():
-        shutil.copy2(candidate_masters[0], master_photo_path)
-        logger.info(f"📸 방금 생성된 아우라 스타일 훈남 마스터 사진 전용 폴더 복사: {master_photo_path}")
-    else:
-        # 백업 마스터 검색
-        cached_master = list(out_base.glob("**/stock_topic04_*.png"))
-        if cached_master and cached_master[0].exists():
-            shutil.copy2(cached_master[0], master_photo_path)
-            logger.info(f"📸 기존 마스터 사진 전용 폴더 복사: {master_photo_path}")
-        else:
-            res_photo = producer.produce_master_photo(topic_id=4, gender="male")
-            shutil.copy2(res_photo["photo_path"], master_photo_path)
-            logger.info(f"📸 마스터 사진 신규 생성: {master_photo_path}")
+    # 🎨 [100% 텍스트 기반 Wan 2.1 T2I 실사 신규 렌더링 - 캐시 재탕 0% 원천 배제]
+    logger.info("🎨 [Step 3] 28세 스마트 훈남 남성 투자자 실사 마스터컷 Wan 2.1 T2I 신규 렌더링 시작 (Text-to-Image)...")
+    res_photo = producer.produce_master_photo(topic_id=4, gender="male")
+    shutil.copy2(res_photo["photo_path"], master_photo_path)
+    logger.info(f"📸 마스터 인물 사진 신규 Wan T2I 100% 실사 생성 완료: {master_photo_path}")
 
     master_img = Image.open(str(master_photo_path))
     wan_ready = producer.ensure_engine_ready()

@@ -374,9 +374,9 @@ function renderHubGrid(btn) {
                     </button>
                 </div>
                 ${isShorts ? `
-                <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:6px;">
-                    <button class="btn btn-action" id="btn-run-${brand}-${h.key}" onclick="runModule('${brand}_shorts')" style="font-size:11px;padding:7px 2px;background:${theme.actionBg};border:1.5px solid ${theme.actionBorder};color:${theme.actionColor};font-weight:800;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.05);cursor:pointer;" title="1번 탈출전화부터 8번 안심레이더까지 8대 주제 숏폼을 순차적으로 100% 무인 자동 렌더링">
-                        🎬 8대 숏폼 순차 제작
+                <div style="display:grid;grid-template-columns:1.45fr 1fr;gap:6px;">
+                    <button class="btn btn-action" id="btn-run-${brand}-${h.key}" onclick="runModule('${brand}_shorts')" style="font-size:11px;padding:7px 2px;background:${theme.actionBg};border:1.5px solid ${theme.actionBorder};color:${theme.actionColor};font-weight:800;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.05);cursor:pointer;" title="고화질 완제품 숏폼 1편을 유튜브/틱톡/클립/릴스 4대 플랫폼에 100% 무인 직접 발행">
+                        🚀 숏폼 즉시 1회 무인 발행
                     </button>
                     <button class="btn btn-action" onclick="runModule('${brand}_master_photo')" style="font-size:11px;padding:7px 2px;background:#FFFFFF;border:1px solid #CBD5E1;color:#475569;font-weight:700;border-radius:8px;cursor:pointer;" title="텍스트 프롬프트로 28세 여성 실사 인물 사진만 단독 생성">
                         📸 인물 사진 생성
@@ -900,6 +900,32 @@ function renderTodayLiveFeedBoard(liveFeed, gpuStatus) {
             `;
         }
 
+        // 0. 당일 정시 슬롯 현황 배너
+        let slotsBannerHtml = "";
+        if (blog.today_slots && blog.today_slots.length > 0) {
+            slotsBannerHtml = `
+                <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:8px;padding:8px 10px;margin-bottom:8px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <span style="font-size:11.5px;font-weight:800;color:#166534;">📊 오늘 정시 발행 현황 (${blog.today_count || blog.today_slots.length}/3회)</span>
+                        <span style="font-size:10.5px;font-weight:800;background:#DCFCE7;color:#15803D;padding:2px 6px;border-radius:4px;">${blog.slot_status_label || '🟢 오늘 목표 발행 완료'}</span>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:4px;">
+                        ${blog.today_slots.map(s => `
+                            <div style="background:#FFFFFF;border:1px solid #DCFCE7;border-radius:5px;padding:5px 8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
+                                <div style="font-size:11px;color:#1E293B;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">
+                                    <span style="color:#059669;font-weight:800;">[${s.slot_num}차 ${(s.published_at||'').split(' ')[1] || ''}]</span> ${s.title}
+                                </div>
+                                <div style="display:flex;gap:4px;">
+                                    ${s.naver_url ? `<a href="${s.naver_url}" target="_blank" style="padding:2px 6px;background:#03C75A;color:#fff;border-radius:4px;font-size:10px;font-weight:800;text-decoration:none;">네이버 ↗</a>` : ''}
+                                    ${s.tistory_url ? `<a href="${s.tistory_url}" target="_blank" style="padding:2px 6px;background:#FF5722;color:#fff;border-radius:4px;font-size:10px;font-weight:800;text-decoration:none;">티스토리 ↗</a>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
         // 1. 네이버 블로그
         const nb = channels.naver_blog || {};
         let naverHtml = "";
@@ -1147,7 +1173,11 @@ function renderTodayLiveFeedBoard(liveFeed, gpuStatus) {
 
                 <!-- 1. 📰 4대 블로그 섹션 -->
                 <div style="display:flex;flex-direction:column;gap:6px;">
-                    <div style="font-size:12px;font-weight:800;color:#334155;">📰 블로그 채널 발행 상태 (초 단위 시간 검증)</div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-size:12px;font-weight:800;color:#334155;">📰 블로그 채널 발행 상태 (오늘 ${blog.today_count || 0}/3회)</span>
+                        <span style="font-size:10.5px;font-weight:800;background:#DCFCE7;color:#15803D;padding:2px 6px;border-radius:4px;">${blog.slot_status_label || '🟢 오늘 목표 발행 완료'}</span>
+                    </div>
+                    ${slotsBannerHtml}
                     ${supaHtml}
                     ${naverHtml}
                     ${tistoryHtml}
@@ -1282,6 +1312,22 @@ function updateChannelBadges(runningChannels = {}, liveFeed = {}, channelErrors 
                           : brand === "insurance" ? "[1회연동]_보험비교_티스토리_영구로그인.bat" 
                           : "[1회연동]_주식AI_티스토리_영구로그인.bat";
             errBox.innerHTML = `⚠️ <strong>장애 원인:</strong> 카카오 로그인 세션 만료<br>👉 <strong>해결 조치:</strong> 바탕화면의 <code>${batFile}</code> 을 실행해 주세요.`;
+        } else if (blog.today_count >= 3) {
+            blogBadge.innerHTML = "🟢 3/3회 오늘 발행 완료";
+            blogBadge.style.background = "#ECFDF5";
+            blogBadge.style.color = "#059669";
+            blogBadge.style.border = "1px solid #A7F3D0";
+            blogCard.style.border = "1px solid #E5DDD1";
+            const errBox = document.getElementById(`err-box-${brand}-omni_blog`);
+            if (errBox) errBox.remove();
+        } else if (blog.today_count > 0) {
+            blogBadge.innerHTML = `🟡 ${blog.today_count}/3회 발행 (정시 대기)`;
+            blogBadge.style.background = "#FEF3C7";
+            blogBadge.style.color = "#92400E";
+            blogBadge.style.border = "1px solid #FDE68A";
+            blogCard.style.border = "1px solid #E5DDD1";
+            const errBox = document.getElementById(`err-box-${brand}-omni_blog`);
+            if (errBox) errBox.remove();
         } else if (nb.is_success && nb.is_today) {
             blogBadge.innerHTML = "🟢 네이버 오늘 발행 완료";
             blogBadge.style.background = "#ECFDF5";
@@ -1321,6 +1367,18 @@ function updateChannelBadges(runningChannels = {}, liveFeed = {}, channelErrors 
             const errBox = document.getElementById(`err-box-${brand}-omni_blog`);
             if (errBox) errBox.remove();
         }
+
+        const isBlogRunning = runningChannels[`${brand}_blog`] || runningChannels[`${brand}_omni_blog`];
+        const blogBtn = document.getElementById(`btn-start-${brand}-omni_blog`) || document.getElementById(`btn-start-${brand}-blog`);
+        if (blogBtn) {
+            if (isBlogRunning) {
+                blogBtn.innerHTML = "🔄 무인 가동 중 🟢";
+                blogBtn.style.background = "#059669";
+            } else {
+                blogBtn.innerHTML = "🚀 무인 가동";
+                blogBtn.style.background = blogBtn.getAttribute("data-original-bg") || "";
+            }
+        }
     }
 
     // 2. 지식iN 허브 카드
@@ -1350,6 +1408,18 @@ function updateChannelBadges(runningChannels = {}, liveFeed = {}, channelErrors 
             kinBadge.style.border = "1px solid #A7F3D0";
             if (kinCard) kinCard.style.border = "1px solid #E5DDD1";
         }
+
+        const isKinRunning = runningChannels[`${brand}_naver_kin`] || runningChannels[`${brand}_kin`];
+        const kinBtn = document.getElementById(`btn-start-${brand}-naver_kin`) || document.getElementById(`btn-start-${brand}-kin`);
+        if (kinBtn) {
+            if (isKinRunning) {
+                kinBtn.innerHTML = "🔄 무인 가동 중 🟢";
+                kinBtn.style.background = "#059669";
+            } else {
+                kinBtn.innerHTML = "🚀 무인 가동";
+                kinBtn.style.background = kinBtn.getAttribute("data-original-bg") || "";
+            }
+        }
     }
 
     // 3. 숏폼 허브 카드
@@ -1372,11 +1442,22 @@ function updateChannelBadges(runningChannels = {}, liveFeed = {}, channelErrors 
             shortsBadge.style.color = isDaemonOn ? "#059669" : "#6E665E";
             shortsBadge.style.border = isDaemonOn ? "1px solid #A7F3D0" : "1px solid #E5DDD1";
             if (shortsCard) shortsCard.style.border = "1px solid #E5DDD1";
+
+            const shortsBtn = document.getElementById(`btn-start-${brand}-shorts`);
+            if (shortsBtn) {
+                if (isDaemonOn) {
+                    shortsBtn.innerHTML = "🔄 무인 가동 중 🟢";
+                    shortsBtn.style.background = "#059669";
+                } else {
+                    shortsBtn.innerHTML = "🚀 무인 가동";
+                    shortsBtn.style.background = shortsBtn.getAttribute("data-original-bg") || "";
+                }
+            }
         }
     }
 
-    // 4. 나머지 20대 허브 채널 뱃지 & 실시간 에러 동기화
-    const allHubKeys = ["omni_cardnews", "threads", "omni_threads", "reddit", "naver_cafe", "cafe", "seo", "google_ping", "search_advisor", "dcinside", "ppomppu", "nate_pann", "kakao_channel", "briefing", "tiktok", "youtube"];
+    // 4. 나머지 20대 허브 채널 뱃지 & 실시간 에러 및 가동 버튼 동기화
+    const allHubKeys = ["cardnews", "omni_cardnews", "threads", "omni_threads", "reddit", "naver_cafe", "daum_cafe", "cafe", "seo", "google_ping", "search_advisor", "dcinside", "ppomppu", "nate_pann", "kakao_channel", "bobaedream", "fmkorea", "twitter_x", "briefing", "tiktok", "youtube"];
     
     // running_channels 및 등록된 모든 허브 카드 순회
     allHubKeys.forEach(pureKey => {
@@ -1416,6 +1497,17 @@ function updateChannelBadges(runningChannels = {}, liveFeed = {}, channelErrors 
                 badge.style.background = isRunning ? "#ECFDF5" : "#F6F1EA";
                 badge.style.color = isRunning ? "#059669" : "#6E665E";
                 badge.style.border = isRunning ? "1px solid #A7F3D0" : "1px solid #E5DDD1";
+
+                const startBtn = document.getElementById(`btn-start-${brand}-${pureKey}`) || document.getElementById(`btn-start-${brand}-${pureKey.replace('omni_', '')}`);
+                if (startBtn) {
+                    if (isRunning) {
+                        startBtn.innerHTML = "🔄 무인 가동 중 🟢";
+                        startBtn.style.background = "#059669";
+                    } else {
+                        startBtn.innerHTML = "🚀 무인 가동";
+                        startBtn.style.background = startBtn.getAttribute("data-original-bg") || "";
+                    }
+                }
             }
         }
     });

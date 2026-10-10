@@ -56,7 +56,18 @@ class AuraCardnewsProducer:
         negative_prompt = card_data.get("negative_prompt", "")
         
         if not positive_prompt:
-            raise ValueError(f"[Slide {slide_idx}] 이미지 프롬프트 부재로 실사 사진 생성 불가")
+            # 100% 신규 GPU T2I 생성을 위한 고품질 포토제닉 프롬프트 자동 합성
+            theme_title = card_data.get("title", "Aura AI Dating")
+            positive_prompt = (
+                f"masterpiece, best quality, ultra-photorealistic portrait, authentic candid mobile snapshot shot on iPhone 15 Pro, "
+                f"solo 1person 20s Korean woman, chic modern sophisticated dating outfit in Seoul luxury venue, "
+                f"natural soft ambient lighting, highly detailed skin texture, subtle elegant smile, generous headroom, "
+                f"f/11 deep pan-focus, zero lens blur, tack sharp crystal clear focus, Apple iPhone 15 Pro Smart HDR photo."
+            )
+            negative_prompt = (
+                "open mouth, visible teeth, laughing hysterically, close up, cropped head, man, male, two people, crowd, "
+                "cleavage, revealing clothes, doll face, blurry, lens blur, cartoon, 3d render, watermark, text"
+            )
 
         if master_seed is None:
             master_seed = int(time.time() * 1000) % 100000000
@@ -260,6 +271,24 @@ class AuraCardnewsProducer:
         return result
 
     def produce_cardnews(
+        self,
+        topic_id: int = 1,
+        master_seed: Optional[int] = None,
+        target_dir: Optional[Path] = None,
+        fashion_id: Optional[int] = None,
+        copy_data: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        from core.engine.gpu_lock import gpu_lock
+        with gpu_lock(f"🎨 💖 Aura 카드뉴스 #{topic_id} 세션 풀 프로덕션"):
+            return self._produce_cardnews_internal(
+                topic_id=topic_id,
+                master_seed=master_seed,
+                target_dir=target_dir,
+                fashion_id=fashion_id,
+                copy_data=copy_data
+            )
+
+    def _produce_cardnews_internal(
         self,
         topic_id: int = 1,
         master_seed: Optional[int] = None,

@@ -15,6 +15,8 @@ import sys
 import base64
 import logging
 from pathlib import Path
+from core.engine.naver_search_bar_component import render_naver_search_bar_html
+
 from PIL import Image
 import cv2
 from playwright.sync_api import sync_playwright
@@ -54,6 +56,7 @@ class AuraCardnewsS3Topic6Builder:
         h1_line2 = s3_copy.get("headline_line2", "첫마디를 1초 만에 실시간 추천!")
         subtitle = s3_copy.get("subtitle", "사진과 취미를 분석해 첫 대화의 막막함과 어색함을 완벽하게 없애줍니다.")
         cta_text = s3_copy.get("cta_text", "👉 옆으로 넘겨서 실제 대화 결과 보기 (3/5) >")
+        naver_search_html = render_naver_search_bar_html(brand="aura")
 
         html_content = f"""<!DOCTYPE html>
 <html lang="ko">
@@ -169,12 +172,8 @@ class AuraCardnewsS3Topic6Builder:
     <img src="data:image/png;base64,{img_b64}" class="phone-img" alt="Shortform UI 0s" />
   </div>
 
-  <!-- 4. Bottom CTA Bar -->
-  <div class="z-10 w-full cta-glow rounded-2xl py-4 flex items-center justify-center gap-2 shadow-2xl">
-    <span class="text-white text-xl font-black tracking-wide">
-      {cta_text}
-    </span>
-  </div>
+  <!-- 4. 하단 네이버 공식 검색창 UI 바 (숏폼 일체형) -->
+  {naver_search_html}
 
 </body>
 </html>"""

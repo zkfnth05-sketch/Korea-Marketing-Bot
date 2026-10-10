@@ -66,6 +66,7 @@ class StockLiveTracker:
         shorts_info = self._get_shorts_info(today_str)
         cafe_info = self._get_cafe_info(today_str)
         cardnews_info = self._get_cardnews_info(today_str)
+        reddit_info = self._get_reddit_info(today_str)
         
         # 📸 12대 채널 실시간 육안 증빙 데이터 연동
         try:
@@ -85,12 +86,55 @@ class StockLiveTracker:
             "today_shorts_count": shorts_info.get("today_count", 0),
             "today_cardnews_count": cardnews_info.get("today_count", 0),
             "today_cafe_count": cafe_info.get("today_count", 0),
+            "today_reddit_count": reddit_info.get("today_count", 0),
             "blog": blog_info,
             "kin": kin_info,
             "shorts": shorts_info,
             "cardnews": cardnews_info,
             "cafe": cafe_info,
+            "reddit": reddit_info,
             "live_proofs": proofs_data
+        }
+
+    def _get_reddit_info(self, today_str: str) -> Dict[str, Any]:
+        """📈 주식 AI 전용 레딧 글로벌 투자자 스텔스 침투 이력 집계"""
+        posts = []
+        today_count = 0
+        try:
+            import sqlite3
+            from config import DB_PATH
+            if DB_PATH.exists():
+                conn = sqlite3.connect(str(DB_PATH))
+                cur = conn.cursor()
+                cur.execute("""
+                    SELECT id, title, content_text, target_url, created_at
+                    FROM marketing_history
+                    WHERE service_id = ? AND content_type = 'reddit_reply'
+                    ORDER BY id DESC LIMIT 10
+                """, (self.BRAND_KEY,))
+                rows = cur.fetchall()
+                conn.close()
+                for r in rows:
+                    p_time = str(r[4]) if r[4] else ""
+                    is_today = p_time.startswith(today_str)
+                    if is_today:
+                        today_count += 1
+                    posts.append({
+                        "id": r[0],
+                        "title": r[1] or "레딧 스텔스 답변",
+                        "comment_snippet": (r[2] or "")[:150],
+                        "url": r[3] or "https://www.reddit.com/r/stocks/",
+                        "time": p_time,
+                        "is_today": is_today
+                    })
+        except Exception as e:
+            logger.warning(f"Failed to read stock reddit history: {e}")
+
+        return {
+            "today_count": today_count,
+            "target_count": 1,
+            "posts": posts,
+            "last_post": posts[0] if posts else None
         }
 
     def _get_cafe_info(self, today_str: str) -> Dict[str, Any]:
@@ -308,6 +352,7 @@ class StockLiveTracker:
             "naver_blog": {
                 "name": "네이버 블로그",
                 "blog_id": self.NAVER_BLOG_ID,
+                "title": latest_item.get("title_naver") or latest_item.get("title") or last_title,
                 "status": "success" if (naver_status == "success" and is_naver_today) else "not_published_today" if naver_published_at else "idle",
                 "url": naver_url,
                 "published_at": naver_published_at,
@@ -318,22 +363,56 @@ class StockLiveTracker:
             "tistory": {
                 "name": "티스토리 (Tistory)",
                 "blog_name": self.TISTORY_BLOG_NAME,
+                "title": latest_item.get("title_tistory") or latest_item.get("title") or last_title,
                 "status": "success" if is_tistory_success else tistory_status,
                 "url": tistory_url if has_real_post_url else "",
+                "published_at": tistory_published_at or latest_item.get("published_at") or last_run_time or "",
+                "is_today": bool((tistory_published_at or latest_item.get("published_at") or "").startswith(today_str)),
                 "message": tistory_msg or ("카카오 세션 만료. [1회연동]_주식AI_티스토리_영구로그인.bat 실행 필요" if tistory_status == "session_expired" else ("오늘 발행 대기 중" if tistory_status == "idle" else "")),
                 "is_success": is_tistory_success,
                 "is_session_expired": tistory_status == "session_expired"
             },
             "brunch": {
                 "name": "카카오 브런치",
+                "title": latest_item.get("title") or last_title,
                 "status": brunch_status,
+                "published_at": latest_item.get("published_at") or last_run_time or "",
                 "message": brunch_msg or "브런치스토리 로그인 세션 필요",
                 "is_success": brunch_status == "success"
             }
         }
 
+        today_slots = []
+        sorted_today_history = sorted(today_history, key=lambda x: x.get("published_at", ""))
+        for idx, h in enumerate(sorted_today_history, 1):
+            ch = h.get("publish_results", {}).get("channels", {})
+            n_data = ch.get("naver_blog", {})
+            t_data = ch.get("tistory", {})
+            today_slots.append({
+                "slot_num": idx,
+                "published_at": h.get("published_at", "-"),
+                "title": h.get("title", "-"),
+                "naver_url": n_data.get("url") or n_data.get("post_url") or "",
+                "tistory_url": t_data.get("url") or "",
+                "is_naver_success": n_data.get("status") == "success" and bool(n_data.get("url") or n_data.get("post_url")),
+                "is_tistory_success": t_data.get("status") == "success" and bool(t_data.get("url"))
+            })
+
+        today_cnt = len(today_slots)
+        if today_cnt >= 3:
+            slot_status_label = f"🟢 [3/3회 완료] 오늘 목표 발행 달성"
+        elif today_cnt == 2:
+            slot_status_label = f"🟡 [2/3회 완료] 20:15 3차 저녁 정시 대기"
+        elif today_cnt == 1:
+            slot_status_label = f"🟡 [1/3회 완료] 15:15 2차 오후 정시 대기"
+        else:
+            slot_status_label = f"⚪ [0/3회 완료] 10:15 1차 오전 정시 대기"
+
         return {
-            "today_count": len(today_history),
+            "today_count": today_cnt,
+            "target_daily": 3,
+            "slot_status_label": slot_status_label,
+            "today_slots": today_slots,
             "total_count": published_count,
             "last_run_time": last_run_time,
             "last_title": latest_item.get("title") or last_title,
@@ -357,7 +436,7 @@ class StockLiveTracker:
                         if c_at.startswith(today_str):
                             today_count += 1
                         
-                        if len(recent_answers) < 4:
+                        if len(recent_answers) < 5:
                             q_title = item.get("title", "")
                             q_url = item.get("published_url") or item.get("url") or ""
                             doc_id = item.get("doc_id", "")
@@ -368,6 +447,7 @@ class StockLiveTracker:
                                 "url": q_url,
                                 "keyword": item.get("keyword", ""),
                                 "created_at": c_at,
+                                "time": c_at,
                                 "is_today": c_at.startswith(today_str),
                                 "status": item.get("status", "published")
                             })
@@ -376,8 +456,10 @@ class StockLiveTracker:
 
         return {
             "today_count": today_count,
+            "count_today": today_count,
             "target_count": target_count,
-            "recent_answers": recent_answers
+            "recent_answers": recent_answers,
+            "posts": recent_answers
         }
 
     def _get_shorts_info(self, today_str: str) -> Dict[str, Any]:
@@ -664,7 +746,9 @@ class StockLiveTracker:
                         if th_data and isinstance(th_data, list) and len(th_data) > 0:
                             th_sorted = sorted(th_data, key=lambda x: x.get("published_at", "") or x.get("timestamp", ""), reverse=True)
                             latest_th = th_sorted[0]
-                            p_at = latest_th.get("published_at") or latest_th.get("timestamp", "-")
+                            p_at = str(latest_th.get("published_at") or latest_th.get("timestamp", "-"))
+                            if "T" in p_at:
+                                p_at = p_at.replace("T", " ").split(".")[0]
                             th_url = latest_th.get("url") or latest_th.get("thread_url") or f"https://www.threads.net/@{self.ig_username}"
                             platforms["threads"] = {
                                 "name": "Threads (스레드 바이럴 타래/카드뉴스)",
@@ -674,7 +758,7 @@ class StockLiveTracker:
                                 "url": th_url,
                                 "title": latest_th.get("title", "주식AI 바이럴 스레드 타래"),
                                 "published_at": p_at,
-                                "is_today": str(p_at).startswith(today_str)
+                                "is_today": p_at.startswith(today_str)
                             }
                             break
                 except Exception:

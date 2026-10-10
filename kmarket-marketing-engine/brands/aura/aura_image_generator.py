@@ -183,7 +183,7 @@ class AuraImageGenerator:
         category: str,
         topic_title: str,
         custom_visual_prompt: Optional[str] = None,
-        force_regenerate: bool = False
+        force_regenerate: bool = True
     ) -> Dict[str, Any]:
         """
         주제 맥락에 100% 어울리는 16:9 사진 1장 생성
@@ -199,29 +199,8 @@ class AuraImageGenerator:
         preset = AURA_CATEGORY_PRESETS.get(category, AURA_CATEGORY_PRESETS["kakaotalk_signals"])
         fallback_url = preset["fallback_url"]
 
-        # ⚡ [비용 0원 원칙] force_regenerate가 False이고 캐시 이미지가 유효하면 재사용
-        existing_images = sorted(list(OUTPUTS_DIR.glob(f"aura_topic_{topic_id:03d}_*.webp")), reverse=True)
-        if not force_regenerate and existing_images and existing_images[0].stat().st_size > 1024:
-            cached_file = existing_images[0]
-            logger.info(f"⚡ [AuraImage] 주제 #{topic_id} 기존 고화질 이미지 캐시 즉시 재사용 (비용 0원!): {cached_file.name}")
-            
-            final_web_url = fallback_url
-            try:
-                from brands.aura.aura_supabase_manager import AuraSupabaseManager
-                sb_mgr = AuraSupabaseManager()
-                uploaded_url = sb_mgr.upload_image_to_storage(str(cached_file), bucket_subpath="magazines")
-                if uploaded_url:
-                    final_web_url = uploaded_url
-            except Exception as e:
-                logger.debug(f"캐시 이미지 Storage 연동 확인: {e}")
-
-            return {
-                "success": True,
-                "image_path": str(cached_file),
-                "web_url": final_web_url,
-                "is_fallback": (final_web_url == fallback_url),
-                "prompt_used": "CACHED_REUSE"
-            }
+        # 🚀 [100% 실시간 신규 생성 원칙] 매회 본문 맥락에 맞는 새로운 고유 이미지를 실시간 생성합니다.
+        # (기존 이미지 재사용 전면 비활성화)
 
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"aura_topic_{topic_id:03d}_{category}_{timestamp}.webp"

@@ -43,38 +43,8 @@ class InsuranceKinGeminiSolver:
     PASS_SCORE_THRESHOLD = 85 # 85점 이상만 합격
 
     def __init__(self):
-        from config import (
-            GEMINI_FREE_API_KEY_AURA_1,
-            GEMINI_FREE_API_KEY_AURA_2,
-            GEMINI_FREE_API_KEY_AURA_3,
-            GEMINI_FREE_API_KEY_AURA_4,
-            GEMINI_PAID_API_KEY_AURA_1,
-            GEMINI_PAID_API_KEY_AURA_2,
-            GEMINI_FREE_API_KEY_KMARKET,
-            GEMINI_FREE_API_KEY_EASYTAX,
-            GEMINI_API_KEY
-        )
-
-        candidates = [
-            {"name": "INSURANCE_FREE_1", "key": GEMINI_FREE_API_KEY_AURA_1},
-            {"name": "INSURANCE_FREE_2", "key": GEMINI_FREE_API_KEY_AURA_2},
-            {"name": "INSURANCE_FREE_3", "key": GEMINI_FREE_API_KEY_AURA_3},
-            {"name": "INSURANCE_FREE_4", "key": GEMINI_FREE_API_KEY_AURA_4},
-            {"name": "INSURANCE_PAID_1", "key": GEMINI_PAID_API_KEY_AURA_1},
-            {"name": "INSURANCE_PAID_2", "key": GEMINI_PAID_API_KEY_AURA_2},
-            {"name": "BACKUP_KM", "key": GEMINI_FREE_API_KEY_KMARKET},
-            {"name": "BACKUP_ET", "key": GEMINI_FREE_API_KEY_EASYTAX},
-            {"name": "DEFAULT_KEY", "key": GEMINI_API_KEY},
-        ]
-
-        seen = set()
-        self.key_chain = []
-        for c in candidates:
-            k = (c.get("key") or "").strip()
-            if k and k not in seen and len(k) > 10:
-                seen.add(k)
-                self.key_chain.append({"name": c["name"], "key": k})
-
+        from core.gemini_unified_keys import get_unified_gemini_key_dicts
+        self.key_chain = get_unified_gemini_key_dicts()
         self._active_key_index = 0
         names = [k["name"] for k in self.key_chain]
         logger.info(f"🛡️ [InsuranceKinGeminiSolver] 5단 키 체인 로드 완료: {' ➔ '.join(names)}")
@@ -95,16 +65,10 @@ class InsuranceKinGeminiSolver:
 
             try:
                 from google import genai
-                from google.genai import types as genai_types
+                from google.genai import types
 
                 client = genai.Client(api_key=api_key)
-                models_to_try = [
-                    "gemini-2.5-flash-lite",
-                    "gemini-flash-lite-latest",
-                    "gemini-3.1-flash-lite",
-                    "gemini-flash-latest",
-                    "gemini-2.5-flash"
-                ]
+                models_to_try = ["gemini-2.5-flash", "gemini-2.0-flash"]
 
                 for model_name in models_to_try:
                     try:
@@ -112,8 +76,8 @@ class InsuranceKinGeminiSolver:
                         response = client.models.generate_content(
                             model=model_name,
                             contents=prompt,
-                            config=genai_types.GenerateContentConfig(
-                                system_instruction=system_instruction,
+                            config=types.GenerateContentConfig(
+                                automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True), system_instruction=system_instruction,
                                 temperature=0.75,
                                 response_mime_type=mime_type
                             )
@@ -128,6 +92,7 @@ class InsuranceKinGeminiSolver:
 
             except Exception as e:
                 last_err = e
+                self._active_key_index = (idx + 1) % total_keys
                 logger.warning(f"⚠️ [InsuranceKinSolver] {key_name} 실패: {str(e)[:80]} ➔ 다음 키 시도")
 
         raise RuntimeError(f"모든 Gemini API 키 체인 실패: {last_err}")

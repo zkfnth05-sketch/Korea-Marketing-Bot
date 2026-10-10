@@ -153,29 +153,14 @@ class StockHashtagMatrix:
 
     @classmethod
     def fetch_live_trend_keywords(cls) -> List[str]:
-        """🌐 구글 실시간 급상승(Google Trends) + 🟢 네이버 실시간 주식/증시 검색 트렌드 교차 수집"""
+        """🟢 코스피·코스닥 국내 증시 퀀트 실시간 검색어(Naver AC API) 수집 (무관한 일반 검색어 100% 원천 차단)"""
         trends = []
+        import urllib.request
+        import urllib.parse
+        import json
 
-        # 1. 구글 대한민국 실시간 급상승 검색어
-        try:
-            url_google = "https://trends.google.com/trending/rss?geo=KR"
-            req_g = urllib.request.Request(url_google, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
-            with urllib.request.urlopen(req_g, timeout=3.0) as resp:
-                xml_text = resp.read().decode("utf-8", errors="ignore")
-                root = ET.fromstring(xml_text)
-                for item in root.findall("./channel/item"):
-                    title = item.find("title")
-                    if title is not None and title.text:
-                        w = title.text.strip().replace(" ", "").replace("#", "")
-                        if w and len(w) < 14 and f"#{w}" not in trends:
-                            trends.append(f"#{w}")
-                    if len(trends) >= 5:
-                        break
-        except Exception as eg:
-            logger.debug(f"Google Trends 수집 건너뜀: {eg}")
-
-        # 2. 네이버 실시간 주식/증시/수급 검색어 (Naver AC API)
-        naver_seeds = ["코스피 주도주", "오늘 급등주", "주식 수급", "주식시세", "특징주"]
+        # 🟢 네이버 실시간 주식/증시/수급 검색어 (Naver AC API)
+        naver_seeds = ["코스피 주도주", "체결강도", "외국인 순매수", "주식 퀀트", "당일 급등주"]
         for seed in naver_seeds:
             try:
                 encoded_q = urllib.parse.quote(seed)
@@ -189,19 +174,19 @@ class StockHashtagMatrix:
                             w = it[0].strip().replace(" ", "").replace("#", "")
                             if w and len(w) < 14 and f"#{w}" not in trends:
                                 trends.append(f"#{w}")
-                        if len(trends) >= 10:
+                        if len(trends) >= 8:
                             break
             except Exception:
                 pass
-            if len(trends) >= 10:
+            if len(trends) >= 8:
                 break
 
-        fallback = ["#실시간트렌드", "#국내증시", "#주식시황", "#투자트렌드", "#코스피", "#특징주"]
+        fallback = ["#코스피주도주", "#국내증시", "#체결강도", "#외국인순매수", "#퀀트투자", "#특징주"]
         for fb in fallback:
             if fb not in trends and len(trends) < 6:
                 trends.append(fb)
 
-        return trends[:8]
+        return trends[:6]
 
     @classmethod
     def get_rich_viral_hashtags(cls, topic_id: int = 1, count: int = 15) -> List[str]:

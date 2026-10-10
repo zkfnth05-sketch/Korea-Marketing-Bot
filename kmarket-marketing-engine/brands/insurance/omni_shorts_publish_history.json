@@ -79,5 +79,157 @@
         "brand": "insurance"
       }
     }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-10",
+    "published_at": "2026-10-10 12:14:20",
+    "brand": "insurance",
+    "topic_id": 1,
+    "title": "[실손의료비 4세대 전환 손익] 보험 리밸런스 #1",
+    "video_file": "Insurance_22초숏폼_주제01_silbi_gen4_20261010_114916.mp4",
+    "channels": {
+      "youtube": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 1,
+        "video_id": "BdUelU9NILo",
+        "video_url": "https://youtube.com/shorts/BdUelU9NILo",
+        "title": "[실손의료비 4세대 전환 손익] 보험 리밸런스 #1 #보험리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "skipped",
+        "privacy_status": "public",
+        "video_file": "Insurance_22초숏폼_주제01_silbi_gen4_20261010_114916.mp4",
+        "published_at": "2026-10-10 12:15:07",
+        "elapsed_sec": 46.3,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+      },
+      "tiktok": {
+        "channel": "tiktok",
+        "brand": "insurance",
+        "topic_id": 1,
+        "success": false,
+        "error": "async_browser_lock() got an unexpected keyword argument 'timeout'"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 1,
+        "title": "[실손의료비 4세대 전환 손익] 보험 리밸런스 #1",
+        "video_file": "Insurance_22초숏폼_주제01_silbi_gen4_20261010_114916.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-10 12:15:26"
+      },
+      "meta_business_suite_reels": {
+        "status": "success",
+        "message": "Meta Business Suite를 통한 보험 리밸런스 (골드망) 릴스 동시 발행 성공",
+        "platform": "meta_business_suite",
+        "video": "Insurance_22초숏폼_주제01_silbi_gen4_20261010_114916.mp4"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-10",
+    "published_at": "2026-10-10 18:56:07",
+    "brand": "insurance",
+    "topic_id": 3,
+    "title": "[암보험 일반암 vs 유사암 진실] 보험 리밸런스 #3",
+    "video_file": "Insurance_22초숏폼_주제03_cancer_coverage_20261010_181917.mp4",
+    "channels": {
+      "youtube": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 3,
+        "video_id": "8Iox0JNaf_w",
+        "video_url": "https://youtube.com/shorts/8Iox0JNaf_w",
+        "title": "🚨 암보험 함정? 월15만 버는 일반암 vs 유사암 진실! 💰 #보험비교 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "skipped",
+        "privacy_status": "public",
+        "video_file": "Insurance_22초숏폼_주제03_cancer_coverage_20261010_181917.mp4",
+        "published_at": "2026-10-10 19:13:52",
+        "elapsed_sec": 1064.7,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+      },
+      "tiktok": {
+        "success": false,
+        "error": "비동기 브라우저 락 획득 타임아웃 (1800초 경과): Insurance 틱톡 쇼츠 웹 발행 (주제 #3)",
+        "brand": "insurance",
+        "platform": "tiktok"
+      },
+      "naver_clip": {
+        "status": "error",
+        "error": "'desc'"
+      },
+      "meta_reels": {
+        "instagram_reels": {
+          "status": "error",
+          "error": "'InsuranceOmniShortsPilot' object has no attribute 'meta_pub'"
+        },
+        "facebook_video": {
+          "status": "error",
+          "error": "'InsuranceOmniShortsPilot' object has no attribute 'meta_pub'"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-10",
+    "published_at": "2026-10-10 20:42:17",
+    "brand": "insurance",
+    "topic_id": 3,
+    "title": "[암보험 일반암 vs 유사암 진실] 보험 리밸런스 #3",
+    "video_file": "Insurance_22초숏폼_주제03_cancer_coverage_20261010_181917.mp4",
+    "channels": {
+      "youtube": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 3,
+        "video_id": "aAQ0ogo0oF4",
+        "video_url": "https://youtube.com/shorts/aAQ0ogo0oF4",
+        "title": "암보험, 일반암만 믿으세요? 🤯 유사암 진실 알면 월 15만원 아껴요! 💰 #보험비교 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "skipped",
+        "privacy_status": "public",
+        "video_file": "Insurance_22초숏폼_주제03_cancer_coverage_20261010_181917.mp4",
+        "published_at": "2026-10-10 20:40:18",
+        "elapsed_sec": 1117.5,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+      },
+      "tiktok": {
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 3,
+        "video_file": "C:\\Users\\zkfnt\\Desktop\\한국 숏폼_산출물\\Insurance\\Insurance_03_cancer_coverage_20261010_181917\\Insurance_22초숏폼_주제03_cancer_coverage_20261010_181917.mp4",
+        "title": "[암보험 일반암 vs 유사암 진실] 보험 리밸런스 #3",
+        "caption": "매달 샌 돈이 월 15만원? 💸 암보험, 일반암만 봤다간 큰코다쳐요!\n유사암 진실 꿰뚫고 불필요한 보험료 싹 다이어트! 이제 제대로 알고 현명하게 내 보험료 지켜요. 🛡️\n네이버에 [보험비교] 검색!\n#암보험 #보험다이어트 #유사암 #보험리밸런스 #직장인재테크 #짠테크 #금융꿀팁\n\n#보험비교 #실손보험 #보험다이어트 #보험리모델링 #운전자보험 #암보험 #가계부절약 #재테크꿀팁",
+        "success": true,
+        "published_at": "2026-10-10 20:41:02",
+        "post_url": "https://www.tiktok.com/@thefirstlife",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_publish_proof_topic03.png"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 3,
+        "title": "암보험, 일반암만 믿으세요? 🤯 유사암 진실 알면 월 15만원 아껴요! 💰",
+        "video_file": "Insurance_22초숏폼_주제03_cancer_coverage_20261010_181917.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-10 20:41:22"
+      },
+      "meta_reels": {
+        "status": "success",
+        "message": "Meta Business Suite를 통한 보험 리밸런스 (골드망) 릴스 동시 발행 성공",
+        "platform": "meta_business_suite",
+        "video": "Insurance_22초숏폼_주제03_cancer_coverage_20261010_181917.mp4"
+      }
+    }
   }
 ]

@@ -17,6 +17,8 @@ from typing import Dict, Any, List, Optional
 from PIL import Image, ImageDraw
 import io
 from playwright.sync_api import sync_playwright
+from core.engine.naver_search_bar_component import render_naver_search_bar_html
+
 
 logger = logging.getLogger("AuraCardnewsTypography")
 
@@ -98,6 +100,12 @@ class AuraCardnewsTypography:
                     <span class="bullet-text">{html.escape(clean_b)}</span>
                 </div>
                 """
+
+        # 🌟 [하단 CTA 바] 사용자 지시: 오직 '👉 옆으로 넘겨서...' 자리에만 네이버 공식 검색창 바 1:1 교체
+        if is_cover or "옆으로 넘겨" in btn_text or not is_ending:
+            bottom_cta_html = render_naver_search_bar_html(brand="aura")
+        else:
+            bottom_cta_html = f'{bottom_cta_html}'
 
         overlay_html = f"""<!DOCTYPE html>
 <html>
@@ -293,7 +301,7 @@ class AuraCardnewsTypography:
         <div class="headline-title">{html.escape(title)}</div>
         {f'<div class="subtitle-text">{html.escape(subtitle)}</div>' if subtitle else ''}
         {f'<div class="bullets-list">{bullets_html}</div>' if bullets_html else ''}
-        <div class="cta-button">{html.escape(btn_text)}</div>
+        {bottom_cta_html}
     </div>
 </body>
 </html>"""

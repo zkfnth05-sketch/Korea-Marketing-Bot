@@ -577,10 +577,17 @@ class ShortsVideoComposer:
         if has_bgm:
             logger.info(f"🎵 [BGM 탑재] 경쾌한 숏폼 배경음악 결합: {os.path.basename(bgm_path)} (volume=0.12)")
 
-        # 3-2. 로고 오버레이 준비
+        # 3-2. 로고 오버레이 준비 (상단 캡슐 뱃지 + 하단 골든존 네이버 검색창 자동 기본 탑재)
+        if not logo_overlay_path or not os.path.exists(logo_overlay_path):
+            try:
+                from core.shorts_engine.shorts_branding_overlay import ShortsBrandingOverlay
+                logo_overlay_path = ShortsBrandingOverlay.get_overlay_path(brand_key)
+            except Exception as e:
+                logger.warning(f"기본 브랜딩 오버레이 자동 로드 실패: {e}")
+
         has_logo = bool(logo_overlay_path and os.path.exists(logo_overlay_path))
         if has_logo:
-            logger.info(f"🏷️ [로고 오버레이] 22초 상단 고정 브랜드 로고 탑재: {logo_overlay_path}")
+            logger.info(f"🏷️ [통합 브랜딩 오버레이] 22초 상단 뱃지 + 하단 네이버 검색창 탑재: {logo_overlay_path}")
 
         # 4. FFmpeg 복합 필터 구성 (음성이 끝날 때 비디오 자동 칼종료 동기화)
         use_multi_audio = bool(scene_audios and scene_audios.get("hook") and scene_audios.get("app") and scene_audios.get("cta"))

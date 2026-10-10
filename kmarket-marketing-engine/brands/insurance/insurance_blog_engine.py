@@ -6,7 +6,7 @@
 - 역할:
   1. 📚 100대 마스터 주제 풀에서 순환 또는 지정 추출
   2. 🛡️ 6대 카테고리 전용 시드어 실시간 키워드 수집 및 노이즈 필터링
-  3. 🤖 Gemini 2,000자 전문 칼럼 작성 (비용 0원 무료키 1순위)
+  3. 🤖 Gemini 3,000자 전문 칼럼 작성 (비용 0원 무료키 1순위)
   4. 🎨 글 스토리 맥락에 100% 어울리는 16:9 감성 사진 실시간 생성
   5. 🌐 3대 블로그(네이버, 티스토리, 브런치) 동시/순차 자동 발행
 """
@@ -39,7 +39,7 @@ from brands.insurance.insurance_keyword_matrix import InsuranceKeywordMatrix
 class InsuranceBlogEngine:
     """
     🛡️ 100대 주제 + 실시간 키워드 결합 보험 비교 블로그 엔진
-    - Gemini 2,000자 전문 칼럼 자동 작성
+    - Gemini 3,000자 전문 칼럼 자동 작성
     - 16:9 맞춤 실사 사진 1장 실시간 생성
     - 네이버, 티스토리, 브런치 무인 자동 발행
     """
@@ -181,10 +181,10 @@ class InsuranceBlogEngine:
         topic_id: Optional[int] = None,
         use_gemini: bool = True,
         generate_photo: bool = True,
-        force_regenerate_photo: bool = False
+        force_regenerate_photo: bool = True
     ) -> Dict[str, Any]:
         """
-        100대 주제 중 1개를 선택하여 실시간 키워드 결합 ➔ Gemini 2,000자 칼럼 ➔ 맞춤 사진 1장 생성
+        100대 주제 중 1개를 선택하여 실시간 키워드 결합 ➔ Gemini 3,000자 칼럼 ➔ 맞춤 사진 1장 생성
         """
         # 1. 주제 선택
         if topic_id is not None:
@@ -211,7 +211,7 @@ class InsuranceBlogEngine:
             try:
                 writer = self._get_writer()
                 gemini_result = writer.write_magazine_article(topic, seo_brief)
-                logger.info(f"✅ [InsuranceBlog] Gemini 2,000자 칼럼 작성 완료: '{gemini_result['title']}'")
+                logger.info(f"✅ [InsuranceBlog] Gemini 3,000자 칼럼 작성 완료: '{gemini_result['title']}'")
             except Exception as e:
                 logger.warning(f"⚠️ [InsuranceBlog] Gemini 작성 실패: {e}")
 
@@ -237,13 +237,19 @@ class InsuranceBlogEngine:
             except Exception as e:
                 logger.warning(f"⚠️ [InsuranceBlog] 사진 생성 실패: {e}")
 
-        # 5. 완성형 본문 조립 및 마크다운/HTML 정제
-        title = gemini_result.get("title", seed_topic) if gemini_result else seed_topic
-        title_naver = gemini_result.get("title_naver", title) if gemini_result else title
-        title_tistory = gemini_result.get("title_tistory", title) if gemini_result else title
-        title_brunch = gemini_result.get("title_brunch", title) if gemini_result else title
+        # 🚨 [절대 무결성 게이트: 껍데기/더미 글 100% 차단 및 완성형 원고 강제 보장]
+        writer = self._get_writer()
+        if not gemini_result or not gemini_result.get("body_markdown") or len(gemini_result.get("body_markdown", "").strip()) < 1500 or "내용 준비 중" in gemini_result.get("body_markdown", ""):
+            logger.warning("🛡️ [InsuranceBlog 무결성 게이트] 고품질 3,000자 완성형 보험 칼럼으로 안전 복원합니다.")
+            gemini_result = writer._generate_fallback(topic, seo_brief)
 
-        raw_body_md = gemini_result.get("body_markdown", "") if gemini_result else f"## {seed_topic}\n\n내용 준비 중..."
+        # 5. 완성형 본문 조립 및 마크다운/HTML 정제
+        title = gemini_result.get("title", seed_topic)
+        title_naver = gemini_result.get("title_naver", title)
+        title_tistory = gemini_result.get("title_tistory", title)
+        title_brunch = gemini_result.get("title_brunch", title)
+
+        raw_body_md = gemini_result.get("body_markdown", "")
         clean_body_md = self.clean_markdown_body(raw_body_md)
         full_html = self.render_clean_html_body(clean_body_md, self.LANDING_URL)
 

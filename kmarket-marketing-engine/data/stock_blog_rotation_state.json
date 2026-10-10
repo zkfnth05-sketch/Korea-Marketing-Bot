@@ -1,10 +1,416 @@
 {
-  "current_topic_index": 17,
-  "last_topic_id": 17,
-  "last_run_time": "2026-10-06 11:00:57",
-  "last_title": "오늘 수급 1위 [한화에어로스페이스] 급등 배경과 10분 계량 전광판 긴급 진단",
-  "published_count": 25,
+  "current_topic_index": 22,
+  "last_topic_id": 4,
+  "last_run_time": "2026-10-10 20:16:58",
+  "last_title": "체결 가속도 급증 시그널 포착법: 호가창이 불타오를 때 퀀트가 진입하는 절대 원칙",
+  "published_count": 31,
   "history": [
+    {
+      "topic_id": 4,
+      "title": "체결 가속도 급증 시그널 포착법: 호가창이 불타오를 때 퀀트가 진입하는 절대 원칙",
+      "title_naver": "체결 가속도 급증 시그널 포착법: 호가창이 불타오를 때 퀀트가 진입하는 절대 원칙",
+      "title_tistory": "체결강도보다 강력한 '체결 가속도(+%p)' 급증 시그널과 주도주 실전 매매 전략",
+      "title_brunch": "정체되던 호가창이 요동칠 때: 퀀트가 포착하는 체결 가속도와 우량주 수급의 비밀",
+      "category": "realtime_rank1",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_rank1_20261010_201514.png",
+      "published_at": "2026-10-10 20:16:58",
+      "publish_results": {
+        "topic_id": 4,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "체결 가속도 급증 시그널 포착법: 호가창이 불타오를 때 퀀트가 진입하는 절대 원칙",
+            "url": "https://blog.naver.com/stockmaster_ai/224437360684?fromRss=true&trackingCode=rss",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224437360684?fromRss=true&trackingCode=rss",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "체결가속도",
+              "호가창불타기",
+              "단타타점",
+              "순간체결량",
+              "장중시세분출",
+              "스캘핑",
+              "코스피주도주",
+              "코스피주도주찾는방법",
+              "주식체결강도뜻",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [1회연동]_주식AI_티스토리_영구로그인.bat 실행 필요",
+            "blog_name": "stockmaster-ai"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 35,
+            "title": "체결 가속도 급증 시그널 포착법: 호가창이 불타오를 때 퀀트가 진입하는 절대 원칙",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 88,
+      "title": "8대 지표 ③ [외국계 순매수액]: 검은 머리 외국인 거르고 진짜 메이저 외인 읽기 주가 전망 및 핵심 투자 포인트",
+      "title_naver": "8대 지표 ③ [외국계 순매수액]: 검은 머리 외국인 거르고 진짜 메이저 외인 읽기 주가 전망 및 핵심 투자 포인트",
+      "title_tistory": "[StockMaster] 8대 지표 ③ [외국계 순매수액]: 검은 머리 외국인 거르고 진짜 메이저 외인 읽기 실전 매매 전략",
+      "title_brunch": "시장의 소음을 넘어선 투자, 8대 지표 ③ [외국계 순매수액]: 검은 머리 외국인 거르고 진짜 메이저 외인 읽기",
+      "category": "quant_guide",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_quant_guide_20261010_150115.png",
+      "published_at": "2026-10-10 15:02:40",
+      "publish_results": {
+        "topic_id": 88,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "8대 지표 ③ [외국계 순매수액]: 검은 머리 외국인 거르고 진짜 메이저 외인 읽기 주가 전망 및 핵심 투자 포인트",
+            "url": "https://blog.naver.com/stockmaster_ai/224437137805?fromRss=true&trackingCode=rss",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224437137805?fromRss=true&trackingCode=rss",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "외국계순매수",
+              "진성외인수급",
+              "프로그램비차익",
+              "창구분석",
+              "검은머리외인",
+              "메이저외인",
+              "코스피주도주",
+              "코스피주도주찾는방법",
+              "주식체결강도뜻",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [1회연동]_주식AI_티스토리_영구로그인.bat 실행 필요",
+            "blog_name": "stockmaster-ai"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 34,
+            "title": "8대 지표 ③ [외국계 순매수액]: 검은 머리 외국인 거르고 진짜 메이저 외인 읽기 주가 전망 및 핵심 투자 포인트",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 73,
+      "title": "손익비 1:2 원칙: -3% 잃을 때 +6% 이상 버는 자리에서만 베팅하는 법 주가 전망 및 핵심 투자 포인트",
+      "title_naver": "손익비 1:2 원칙: -3% 잃을 때 +6% 이상 버는 자리에서만 베팅하는 법 주가 전망 및 핵심 투자 포인트",
+      "title_tistory": "[StockMaster] 손익비 1:2 원칙: -3% 잃을 때 +6% 이상 버는 자리에서만 베팅하는 법 실전 매매 전략",
+      "title_brunch": "시장의 소음을 넘어선 투자, 손익비 1:2 원칙: -3% 잃을 때 +6% 이상 버는 자리에서만 베팅하는 법",
+      "category": "price_boundary",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_price_boundary_20261010_144840.png",
+      "published_at": "2026-10-10 14:50:05",
+      "publish_results": {
+        "topic_id": 73,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "손익비 1:2 원칙: -3% 잃을 때 +6% 이상 버는 자리에서만 베팅하는 법 주가 전망 및 핵심 투자 포인트",
+            "url": "https://blog.naver.com/stockmaster_ai/224437127856?fromRss=true&trackingCode=rss",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224437127856?fromRss=true&trackingCode=rss",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "손익비1대2",
+              "리스크리워드",
+              "승률보다손익비",
+              "계좌우상향",
+              "손익비세팅",
+              "수학적우위",
+              "코스피주도주",
+              "코스피주도주찾는방법",
+              "주식체결강도뜻",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [1회연동]_주식AI_티스토리_영구로그인.bat 실행 필요",
+            "blog_name": "stockmaster-ai"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 33,
+            "title": "손익비 1:2 원칙: -3% 잃을 때 +6% 이상 버는 자리에서만 베팅하는 법 주가 전망 및 핵심 투자 포인트",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 63,
+      "title": "WTI 유가 급등락과 정유·항공주 셈법: 실적 연동 팩터 점검",
+      "title_naver": "WTI 유가 급등락과 정유·항공주 셈법: 실적 연동 팩터 점검",
+      "title_tistory": "국제 유가 변동성 폭발, 화학·정유·항공주 실전 퀀트 대응 전략",
+      "title_brunch": "유가의 역습: 흔들리는 매크로 속 펀더멘털을 읽는 법",
+      "category": "macro_stress",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_macro_stress_20261009_112031.png",
+      "published_at": "2026-10-09 11:22:19",
+      "publish_results": {
+        "topic_id": 63,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "WTI 유가 급등락과 정유·항공주 셈법: 실적 연동 팩터 점검",
+            "url": "https://blog.naver.com/stockmaster_ai/224436094948?fromRss=true&trackingCode=rss",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224436094948?fromRss=true&trackingCode=rss",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "국제유가WTI",
+              "정유주수혜",
+              "항공주리스크",
+              "원자재주식",
+              "정제마진",
+              "유가급등",
+              "nba",
+              "네이마르",
+              "안젤라박",
+              "집",
+              "도깨비의세계보물상자",
+              "코스피주도주",
+              "코스피주도주찾는방법"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "stockmaster-ai",
+            "title": "국제 유가 변동성 폭발, 화학·정유·항공주 실전 퀀트 대응 전략",
+            "url": "https://stockmaster-ai.tistory.com/29",
+            "post_url": "https://stockmaster-ai.tistory.com/29",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "국제유가WTI",
+              "정유주수혜",
+              "항공주리스크",
+              "원자재주식",
+              "정제마진",
+              "유가급등",
+              "nba",
+              "네이마르",
+              "안젤라박",
+              "집",
+              "도깨비의세계보물상자",
+              "코스피주도주",
+              "코스피주도주찾는방법"
+            ]
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 32,
+            "title": "WTI 유가 급등락과 정유·항공주 셈법: 실적 연동 팩터 점검",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 63,
+      "article_type": "rank1",
+      "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 한온시스템)",
+      "title_naver": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 한온시스템)",
+      "title_tistory": "오늘 350개 주도주 중 1위 찍은 한온시스템(018880): 체결강도 120.03%와 ATR 변동성 라인의 비밀",
+      "title_brunch": "숫자는 거짓말을 하지 않는다: 10분 퀀트 전광판 1위 한온시스템 심층 해부",
+      "category": "macro_stress",
+      "image_path": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_macro_stress_20261009_103757.png",
+      "metrics": {
+        "rank": 1,
+        "stock_name": "한온시스템",
+        "stock_code": "018880",
+        "sector": "기계·장비",
+        "total_score": 153,
+        "status_badge": "🟢 진입 가능",
+        "special_badge": "✨ 상승 변곡점 (수급)",
+        "chegyul_strength": "120.03%",
+        "chegyul_accel": "0%p",
+        "block_order_ratio": "0.0%",
+        "foreign_net_buy": "-2억원",
+        "short_ratio": "3.59%",
+        "credit_ratio": "0.9%",
+        "trade_amount": "419억원",
+        "current_price": "3,950원",
+        "swing_tp": "5,777원",
+        "exit_sl": "3,289원",
+        "roe": "-3.16%",
+        "pbr": "1.06배",
+        "debt_ratio": "164.6%",
+        "moving_avg_align": "정배열 (강력한 추세 상승)"
+      },
+      "published_at": "2026-10-09 10:39:39",
+      "publish_results": {
+        "topic_id": 63,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 한온시스템)",
+            "url": "https://blog.naver.com/stockmaster_ai/224436061273?fromRss=true&trackingCode=rss",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224436061273?fromRss=true&trackingCode=rss",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "국제유가WTI",
+              "정유주수혜",
+              "항공주리스크",
+              "원자재주식",
+              "정제마진",
+              "유가급등",
+              "투싼",
+              "잠실돔구장",
+              "자산",
+              "프리미어리그",
+              "한글날태극기",
+              "코스피주도주",
+              "코스피주도주찾는방법"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "stockmaster-ai",
+            "title": "오늘 350개 주도주 중 1위 찍은 한온시스템(018880): 체결강도 120.03%와 ATR 변동성 라인의 비밀",
+            "url": "https://stockmaster-ai.tistory.com/28",
+            "post_url": "https://stockmaster-ai.tistory.com/28",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "국제유가WTI",
+              "정유주수혜",
+              "항공주리스크",
+              "원자재주식",
+              "정제마진",
+              "유가급등",
+              "투싼",
+              "잠실돔구장",
+              "자산",
+              "프리미어리그",
+              "한글날태극기",
+              "코스피주도주",
+              "코스피주도주찾는방법"
+            ]
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 30,
+            "title": "장 시작 10분 만에 털리는 개미 vs 세력의 진짜 수급을 발라내는 AI 퀀트 매매법 (오늘 전광판 1위: 한온시스템)",
+            "category": "RANK1",
+            "is_updated": true
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 48,
+      "title": "평소 거래량의 500% 폭발한 '거래량 급증' 장대양봉: 세력 매집의 결정적 증거",
+      "title_naver": "평소 거래량의 500% 폭발한 '거래량 급증' 장대양봉: 세력 매집의 결정적 증거",
+      "title_tistory": "평소 거래량의 500% 폭발한 '거래량 급증' 장대양봉: 세력 매집의 결정적 증거",
+      "title_brunch": "평소 거래량의 500% 폭발한 '거래량 급증' 장대양봉: 세력 매집의 결정적 증거",
+      "category": "turning_point",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_turning_point_20261009_103430.png",
+      "published_at": "2026-10-09 10:36:05",
+      "publish_results": {
+        "topic_id": 48,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "평소 거래량의 500% 폭발한 '거래량 급증' 장대양봉: 세력 매집의 결정적 증거",
+            "url": "https://blog.naver.com/stockmaster_ai/224436058501?fromRss=true&trackingCode=rss",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224436058501?fromRss=true&trackingCode=rss",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "거래량급증",
+              "장대양봉",
+              "세력매집흔적",
+              "바닥거래량",
+              "500프로폭발",
+              "대량거래",
+              "투싼",
+              "잠실돔구장",
+              "자산",
+              "프리미어리그",
+              "한글날태극기",
+              "코스피주도주",
+              "코스피주도주찾는방법"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "stockmaster-ai",
+            "title": "평소 거래량의 500% 폭발한 '거래량 급증' 장대양봉: 세력 매집의 결정적 증거",
+            "url": "https://stockmaster-ai.tistory.com/27",
+            "post_url": "https://stockmaster-ai.tistory.com/27",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "거래량급증",
+              "장대양봉",
+              "세력매집흔적",
+              "바닥거래량",
+              "500프로폭발",
+              "대량거래",
+              "투싼",
+              "잠실돔구장",
+              "자산",
+              "프리미어리그",
+              "한글날태극기",
+              "코스피주도주",
+              "코스피주도주찾는방법"
+            ]
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 31,
+            "title": "평소 거래량의 500% 폭발한 '거래량 급증' 장대양봉: 세력 매집의 결정적 증거",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
     {
       "topic_id": 17,
       "title": "오늘 수급 1위 [한화에어로스페이스] 급등 배경과 10분 계량 전광판 긴급 진단",

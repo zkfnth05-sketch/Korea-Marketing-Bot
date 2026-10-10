@@ -5,10 +5,10 @@
 async function loadHealthStatus(btn) {
     if (btn) animateRefreshBtn(btn, "실시간 상태가 새로고침되었습니다! 🩺");
     try {
-        // 실시간 라이브 피드와 헬스 데이터를 동시 조회
+        // 실시간 라이브 피드와 헬스 데이터를 동시 조회 (캐시 원천 방지 타임스탬프)
         const [healthRes, feedRes] = await Promise.all([
-            fetch("/api/health"),
-            fetch("/api/today-live-feed")
+            fetch(`/api/health?_t=${Date.now()}`),
+            fetch(`/api/today-live-feed?_t=${Date.now()}`)
         ]);
 
         const data = await healthRes.json();
@@ -329,7 +329,7 @@ async function loadHealthStatus(btn) {
 
         // 🔐 2.5 6대 플랫폼 영구 로그인 실시간 관제 센터 렌더링 (Threads, Naver, Instagram, Facebook, YouTube, TikTok, Tistory, Brunch)
         const authGrid = document.getElementById("health-auth-sentinel-grid");
-        const authSentinelData = data.auth_sentinel || {};
+        // [Fix: Duplicate declaration removed - using authSentinelData from scope]
         const brandAuth = (authSentinelData.brands && authSentinelData.brands[b]) || {};
         const platformAuthList = Array.isArray(brandAuth.platforms) 
             ? brandAuth.platforms 
@@ -481,7 +481,33 @@ async function loadHealthStatus(btn) {
                 `;
             }).join("");
 
+            let slotsHealthHtml = "";
+            if (blog.today_slots && blog.today_slots.length > 0) {
+                slotsHealthHtml = `
+                    <div style="grid-column: 1 / -1; background:#F0FDF4; border:1.5px solid #BBF7D0; border-radius:12px; padding:14px 16px; margin-bottom:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span style="font-size:13px; font-weight:800; color:#166534;">📊 당일 정시 블로그 발행 현황 (${blog.today_count || blog.today_slots.length}/3회)</span>
+                            <span style="font-size:11px; font-weight:800; background:#DCFCE7; color:#15803D; padding:3px 8px; border-radius:6px;">${blog.slot_status_label || '🟢 오늘 목표 발행 달성'}</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                            ${blog.today_slots.map(s => `
+                                <div style="background:#FFFFFF; border:1px solid #DCFCE7; border-radius:8px; padding:8px 12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+                                    <div style="font-size:12px; color:#1E293B; font-weight:700;">
+                                        <span style="color:#059669; font-weight:800;">[${s.slot_num}차 ${(s.published_at||'').split(' ')[1] || ''}]</span> ${s.title}
+                                    </div>
+                                    <div style="display:flex; gap:6px;">
+                                        ${s.naver_url ? `<a href="${s.naver_url}" target="_blank" style="padding:3px 8px; background:#03C75A; color:#fff; border-radius:4px; font-size:11px; font-weight:800; text-decoration:none;">네이버 ↗</a>` : ''}
+                                        ${s.tistory_url ? `<a href="${s.tistory_url}" target="_blank" style="padding:3px 8px; background:#FF5722; color:#fff; border-radius:4px; font-size:11px; font-weight:800; text-decoration:none;">티스토리 ↗</a>` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
             channelsGrid.innerHTML = `
+                ${slotsHealthHtml}
                 ${supa.is_success ? `
                 <!-- 0. 🌐 자체 홈페이지 퀀트 리서치 블로그 -->
                 <div class="action-card" style="border:1.5px solid #E2E8F0; border-top:4px solid #2563EB; background:#FFFFFF; padding:16px; border-radius:12px;">
@@ -1080,6 +1106,32 @@ function renderHealthBrandLiveFeed(liveFeed, gpuStatus, bKey) {
         `;
     }
 
+    // 0. 당일 정시 슬롯 현황 배너
+    let slotsBannerHtml = "";
+    if (blog.today_slots && blog.today_slots.length > 0) {
+        slotsBannerHtml = `
+            <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:8px;padding:8px 10px;margin-bottom:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <span style="font-size:11.5px;font-weight:800;color:#166534;">📊 오늘 정시 발행 현황 (${blog.today_count || blog.today_slots.length}/3회)</span>
+                    <span style="font-size:10.5px;font-weight:800;background:#DCFCE7;color:#15803D;padding:2px 6px;border-radius:4px;">${blog.slot_status_label || '🟢 오늘 목표 발행 완료'}</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                    ${blog.today_slots.map(s => `
+                        <div style="background:#FFFFFF;border:1px solid #DCFCE7;border-radius:5px;padding:5px 8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
+                            <div style="font-size:11px;color:#1E293B;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">
+                                <span style="color:#059669;font-weight:800;">[${s.slot_num}차 ${(s.published_at||'').split(' ')[1] || ''}]</span> ${s.title}
+                            </div>
+                            <div style="display:flex;gap:4px;">
+                                ${s.naver_url ? `<a href="${s.naver_url}" target="_blank" style="padding:2px 6px;background:#03C75A;color:#fff;border-radius:4px;font-size:10px;font-weight:800;text-decoration:none;">네이버 ↗</a>` : ''}
+                                ${s.tistory_url ? `<a href="${s.tistory_url}" target="_blank" style="padding:2px 6px;background:#FF5722;color:#fff;border-radius:4px;font-size:10px;font-weight:800;text-decoration:none;">티스토리 ↗</a>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
     // 1. 네이버 블로그
     const nb = channels.naver_blog || {};
     let naverHtml = "";
@@ -1121,12 +1173,13 @@ function renderHealthBrandLiveFeed(liveFeed, gpuStatus, bKey) {
                   : "[1회연동]_주식AI_티스토리_영구로그인.bat";
 
     if (tb.is_success && tb.url) {
+        const tTime = (tb.published_at || blog.last_run_time || '-').replace('T', ' ').slice(0, 19);
         tistoryHtml = `
             <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
                 <div>
                     <div style="display:flex;align-items:center;gap:6px;">
                         <span style="background:#FFF7ED;color:#C2410C;font-size:11px;font-weight:800;padding:2px 8px;border-radius:4px;">🟠 티스토리</span>
-                        <span style="font-size:11px;color:#64748B;">🕒 ${tb.published_at || '-'}</span>
+                        <span style="font-size:11px;color:#64748B;">🕒 ${tTime}</span>
                     </div>
                     <div style="font-size:13px;font-weight:700;color:#0F172A;margin-top:3px;">${tb.title || blog.last_title || '티스토리 글'}</div>
                 </div>
@@ -1173,13 +1226,14 @@ function renderHealthBrandLiveFeed(liveFeed, gpuStatus, bKey) {
     const shortsListHtml = spKeys.map(sp => {
         const item = shortsPlatforms[sp.key] || {};
         const isSuccess = item.is_success && item.url;
+        const itemTime = (item.published_at || '-').replace('T', ' ').split('.')[0];
         if (isSuccess) {
             return `
                 <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
                     <div style="display:flex;align-items:center;gap:8px;">
                         <span style="font-size:14px;">${sp.icon}</span>
                         <strong style="font-size:12px;color:#0F172A;">${sp.name}</strong>
-                        <span style="font-size:11px;color:#64748B;">🕒 ${item.published_at || '-'}</span>
+                        <span style="font-size:11px;color:#64748B;">🕒 ${itemTime}</span>
                     </div>
                     <a href="${item.url}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:${sp.bg};color:${sp.color};border:1px solid ${sp.color};border-radius:5px;font-size:11px;font-weight:800;text-decoration:none;">
                         <span>🎬</span> <span>${sp.btnText}</span>
@@ -1209,13 +1263,14 @@ function renderHealthBrandLiveFeed(liveFeed, gpuStatus, bKey) {
     let cardnewsListHtml = cpKeys.map(cp => {
         const item = cardPlatforms[cp.key] || {};
         const isSuccess = item.is_success && item.url;
+        const itemTime = (item.published_at || '-').replace('T', ' ').split('.')[0];
         if (isSuccess) {
             return `
                 <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
                     <div style="display:flex;align-items:center;gap:8px;">
                         <span style="font-size:14px;">${cp.icon}</span>
                         <strong style="font-size:12px;color:#0F172A;">${cp.name}</strong>
-                        <span style="font-size:11px;color:#64748B;">🕒 ${item.published_at || '-'}</span>
+                        <span style="font-size:11px;color:#64748B;">🕒 ${itemTime}</span>
                     </div>
                     <a href="${item.url}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:${cp.bg};color:${cp.color};border:1px solid ${cp.color};border-radius:5px;font-size:11px;font-weight:800;text-decoration:none;">
                         <span>🖼️</span> <span>${cp.btnText}</span>
@@ -1251,25 +1306,29 @@ function renderHealthBrandLiveFeed(liveFeed, gpuStatus, bKey) {
     `;
 
     // 5. 네이버 지식iN 10건 목록
-    const kinPosts = kin.posts || [];
+    const kinPosts = kin.posts || kin.recent_answers || [];
     let kinListHtml = "";
     if (kinPosts.length === 0) {
         kinListHtml = `<div style="background:#F8FAFC;border:1px dashed #CBD5E1;border-radius:8px;padding:10px;text-align:center;font-size:11.5px;color:#94A3B8;">오늘자 지식iN 답변 내역이 아직 없습니다. (정기 스케줄 대기 중)</div>`;
     } else {
-        kinListHtml = kinPosts.slice(0, 5).map((p, idx) => `
+        kinListHtml = kinPosts.slice(0, 5).map((p, idx) => {
+            const pTime = (p.time || p.created_at || '-').replace('T', ' ').slice(0, 16);
+            return `
             <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
                 <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">
                     <span style="color:#0284C7;font-weight:800;font-size:11.5px;margin-right:4px;">#${idx + 1}</span>
                     <span style="font-size:12px;font-weight:600;color:#0F172A;">${p.title || '지식iN 답변'}</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-                    <span style="font-size:10.5px;color:#64748B;">🕒 ${p.time ? p.time.slice(0, 16) : '-'}</span>
+                    <span style="font-size:10.5px;color:#64748B;">🕒 ${pTime}</span>
                     <a href="${p.url || '#'}" target="_blank" style="font-size:11px;color:#0284C7;font-weight:800;text-decoration:none;background:#F0F9FF;padding:2px 8px;border-radius:4px;border:1px solid #BAE6FD;">열기↗</a>
                 </div>
             </div>
-        `).join("");
+            `;
+        }).join("");
     }
 
+    // 6. 네이버 카페 침투 목록
     // 6. 네이버 카페 침투 목록
     const cafePosts = (bData.cafe && bData.cafe.posts) || [];
     let cafeListHtml = "";
@@ -1297,6 +1356,34 @@ function renderHealthBrandLiveFeed(liveFeed, gpuStatus, bKey) {
         `).join("");
     }
 
+    // 7. 🤖 레딧 글로벌 스텔스 침투 목록
+    const reddit = bData.reddit || {};
+    const redditPosts = reddit.posts || [];
+    let redditListHtml = "";
+    if (redditPosts.length === 0) {
+        redditListHtml = `<div style="background:#F8FAFC;border:1px dashed #CBD5E1;border-radius:8px;padding:10px;text-align:center;font-size:11.5px;color:#94A3B8;">오늘자 레딧 침투 활동이 아직 없습니다. (정기 스케줄 대기 중)</div>`;
+    } else {
+        redditListHtml = redditPosts.slice(0, 3).map(rp => `
+            <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                    <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">
+                        <span style="background:#FFF7ED;color:#EA580C;font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:4px;border:1px solid #FED7AA;">🤖 Reddit</span>
+                        <strong style="font-size:12px;color:#0F172A;margin-left:4px;">${rp.title || '게시글'}</strong>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <span style="font-size:10.5px;color:#64748B;">🕒 ${rp.time || '-'}</span>
+                        <a href="${rp.url || '#'}" target="_blank" style="font-size:11px;color:#EA580C;font-weight:800;text-decoration:none;background:#FFF7ED;padding:2px 8px;border-radius:4px;border:1px solid #FED7AA;">🔗 글 열기↗</a>
+                    </div>
+                </div>
+                ${rp.comment_snippet ? `
+                    <div style="font-size:11.5px;color:#475569;background:#F8FAFC;padding:6px 10px;border-radius:6px;border-left:3px solid #EA580C;line-height:1.4;">
+                        💬 "${rp.comment_snippet}"
+                    </div>
+                ` : ''}
+            </div>
+        `).join("");
+    }
+
     container.innerHTML = `
         ${gpuBannerHtml}
         <div class="section-card" style="border-top: 4px solid ${cfg.color}; background:${cfg.bgGradient}; border-color:${cfg.border}; box-shadow:0 6px 20px rgba(0,0,0,0.06); margin-bottom: 24px;">
@@ -1310,12 +1397,12 @@ function renderHealthBrandLiveFeed(liveFeed, gpuStatus, bKey) {
                         <span class="badge-live-pulse" style="font-size:11px;"><span class="pulse-dot"></span> 실시간 동기화</span>
                     </div>
                     <p class="section-subtitle" style="margin-top:4px;font-size:12px;color:#64748B;">
-                        선택된 <strong>${cfg.title}</strong>의 모든 블로그, 숏폼, 카드뉴스, 지식iN, 카페의 <strong>실제 발행 URL과 초 단위 시각(YYYY-MM-DD HH:MM:SS)</strong>을 100% 독립 분리 표출합니다.
+                        선택된 <strong>${cfg.title}</strong>의 모든 블로그, 숏폼, 카드뉴스, 지식iN, 카페, 레딧의 <strong>실제 발행 URL과 초 단위 시각(YYYY-MM-DD HH:MM:SS)</strong>을 100% 독립 분리 표출합니다.
                     </p>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                     <div style="font-size:11.5px;color:#475569;background:#FFFFFF;padding:6px 12px;border-radius:8px;font-weight:700;border:1px solid #CBD5E1;">
-                        📅 오늘(${today}) 실적: 블로그 <strong style="color:#2563EB;">${blog.today_count || 0}</strong>건 | 숏폼 <strong style="color:#DC2626;">${shorts.today_count || 0}</strong>건 | 카드뉴스 <strong style="color:#7C3AED;">${cardnews.today_count || 0}</strong>세트 | 지식iN <strong style="color:#0284C7;">${kin.today_count || 0}</strong>건 | 카페 <strong style="color:#D97706;">${(bData.cafe && bData.cafe.today_count) || 0}</strong>건
+                        📅 오늘(${today}) 실적: 블로그 <strong style="color:#2563EB;">${blog.today_count || 0}</strong>건 | 숏폼 <strong style="color:#DC2626;">${shorts.today_count || 0}</strong>건 | 카드뉴스 <strong style="color:#7C3AED;">${cardnews.today_count || 0}</strong>세트 | 지식iN <strong style="color:#0284C7;">${kin.today_count || 0}</strong>건 | 카페 <strong style="color:#D97706;">${(bData.cafe && bData.cafe.today_count) || 0}</strong>건 | 레딧 <strong style="color:#EA580C;">${reddit.today_count || 0}</strong>건
                     </div>
                     <button class="btn btn-secondary" onclick="loadHealthStatus(this)" style="font-size:12px;padding:6px 12px;">
                         🔄 실시간 갱신
@@ -1331,9 +1418,10 @@ function renderHealthBrandLiveFeed(liveFeed, gpuStatus, bKey) {
                 <!-- 1. 📝 블로그 채널 발행 상태 -->
                 <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,0.03);">
                     <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #F1F5F9;padding-bottom:8px;">
-                        <span style="font-size:13px;font-weight:800;color:#0F172A;">📝 블로그 채널 발행 상태 (초 단위 시간 검증)</span>
-                        <span style="font-size:11px;color:#64748B;">오늘 ${blog.today_count || 0}건</span>
+                        <span style="font-size:13px;font-weight:800;color:#0F172A;">📝 블로그 채널 발행 상태 (오늘 ${blog.today_count || 0}/3회)</span>
+                        <span style="font-size:11px;font-weight:800;background:#DCFCE7;color:#15803D;padding:2px 6px;border-radius:4px;">${blog.slot_status_label || '🟢 오늘 목표 발행 완료'}</span>
                     </div>
+                    ${slotsBannerHtml}
                     ${supaHtml}
                     ${naverHtml}
                     ${tistoryHtml}
@@ -1373,7 +1461,7 @@ function renderHealthBrandLiveFeed(liveFeed, gpuStatus, bKey) {
                 </div>
 
                 <!-- 5. ☕ 네이버 카페 8대 정예 침투 -->
-                <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,0.03);grid-column:1 / -1;">
+                <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,0.03);">
                     <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #F1F5F9;padding-bottom:8px;">
                         <span style="font-size:13px;font-weight:800;color:#D97706;">☕ 네이버 카페 침투 (오늘 ${(bData.cafe && bData.cafe.today_count) || 0} / 1건 | 슬롯: ${(bData.cafe && bData.cafe.current_slot) || '-'})</span>
                         <button onclick="triggerCafeInfiltration('${b}', this)" style="font-size:11px;font-weight:700;padding:3px 8px;background:#FEF3C7;color:#D97706;border:1px solid #FDE68A;border-radius:6px;cursor:pointer;">⚡ 1회 즉시 침투</button>
@@ -1382,9 +1470,52 @@ function renderHealthBrandLiveFeed(liveFeed, gpuStatus, bKey) {
                         ${cafeListHtml}
                     </div>
                 </div>
+
+                <!-- 6. 🤖 레딧 글로벌 2단계 스텔스 침투 -->
+                <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #F1F5F9;padding-bottom:8px;">
+                        <span style="font-size:13px;font-weight:800;color:#EA580C;">🤖 레딧 글로벌 침투 (오늘 ${reddit.today_count || 0} / ${reddit.target_count || 1}건 | Zero URL 원칙)</span>
+                        <button onclick="triggerRedditInfiltration('${b}', this)" style="font-size:11px;font-weight:700;padding:3px 8px;background:#FFF7ED;color:#EA580C;border:1px solid #FED7AA;border-radius:6px;cursor:pointer;">⚡ 1회 즉시 침투</button>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:6px;">
+                        ${redditListHtml}
+                    </div>
+                </div>
             </div>
         </div>
     `;
+}
+
+// 🤖 레딧 1회 즉시 스텔스 침투 트리거
+async function triggerRedditInfiltration(brand, btn) {
+    const bName = brand === "aura" ? "Aura AI 데이팅" : brand === "insurance" ? "보험 리밸런스" : "StockMaster AI";
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = "⏳ 침투 중...";
+    }
+    appendLog(`[Action] ${bName} 레딧 1회 스텔스 침투 시작...`, "info");
+    showToast(`🤖 ${bName} 레딧 1회 즉시 침투가 시작되었습니다!`, "info");
+
+    try {
+        const res = await fetch(`/api/run-module/${brand}_reddit`, { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+            appendLog(`[Success] 🎉 [${bName} 레딧 침투 가동] ${data.message}`, "success");
+            showToast(data.message || "레딧 침투가 백그라운드에서 가동되었습니다.", "success");
+            setTimeout(loadHealthStatus, 3000);
+        } else {
+            appendLog(`[Error] ❌ [${bName} 레딧] ${data.message || '침투 요청 실패'}`, "error");
+            showToast(data.message || "레딧 침투 요청 실패", "error");
+        }
+    } catch (e) {
+        appendLog(`[Error] ❌ 레딧 침투 통신 오류: ${e}`, "error");
+        showToast("레딧 침투 통신 실패", "error");
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerText = "⚡ 1회 즉시 침투";
+        }
+    }
 }
 
 window.loadHealthStatus = loadHealthStatus;
@@ -1392,6 +1523,8 @@ window.runFullHealthDiagnostic = runFullHealthDiagnostic;
 window.openProofModal = openProofModal;
 window.closeProofModal = closeProofModal;
 window.retryChannelPublish = retryChannelPublish;
+window.triggerRedditInfiltration = triggerRedditInfiltration;
 window.renderStealthWarmupGrid = renderStealthWarmupGrid;
-window.triggerStealthWarmup = triggerStealthWarmup;
+window.triggerPlatformStealth = triggerPlatformStealth;
+window.triggerStealthWarmup = triggerPlatformStealth;
 window.renderHealthBrandLiveFeed = renderHealthBrandLiveFeed;

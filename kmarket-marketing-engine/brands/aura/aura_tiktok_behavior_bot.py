@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-[독립 레고 블록] Aura TikTok Behavior Bot (💖 Aura 전용 틱톡 30분 스텔스 인간 행동 봇)
+[독립 레고 블록] Aura TikTok Behavior Bot (💖 Aura AI 데이팅 전용 틱톡 30분 스텔스 인간 행동 봇)
 ===================================================================================
 - 역할:
   1. API 업로드 코드는 0% 배제! 오직 사람처럼 틱톡 FYP 피드 시청, 체류, 댓글 탐색, 좋아요만 전담
   2. 하루 총 30분을 4개 일과 시간(09:30, 13:30, 17:00, 23:00)으로 분할 실행
-  3. [사용자 절대 수칙] 매 세션마다 실제 '좋아요' 2~3회 실행 (tiktok_session.json 연동)
+  3. [사용자 절대 수칙] 매 세션마다 실제 좋아요 2~3회 실행 (tiktok_session.json 연동)
   4. 특정 주제 편향 방지: 일상/유머/반려동물/댄스(50%) + 연애/소개팅/심리(50%) 다채로운 탐색
   5. 고가치 시청자 신호: 영상 1편당 15~35초 고체류(완시청) + 댓글창 열람 후 닫기
   6. Gemini AI 호출 0회 (순수 파이썬 + Playwright 스텔스 브라우저, API 비용 0원)
@@ -28,8 +28,8 @@ from playwright.async_api import async_playwright
 
 if sys.platform == "win32":
     try:
-        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
     except Exception:
         pass
 
@@ -48,7 +48,7 @@ _UA_POOL = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
 ]
 
-# 🐶 일상/유머/댄스/반려동물 등 다양한 사람 관심사 키워드 (단일 주제 편향 방지)
+# 일상/유머/댄스/반려동물 등 다양한 사람 관심사 키워드 (단일 주제 편향 방지)
 _GENERAL_HUMAN_KEYWORDS = [
     "귀여운 강아지 고양이",
     "오늘의 꿀잼 틱톡",
@@ -60,7 +60,7 @@ _GENERAL_HUMAN_KEYWORDS = [
     "틱톡 인기 챌린지"
 ]
 
-# 💖 Aura 브랜드 관심사 키워드 (연애/소개팅/심리)
+# 💖 Aura AI 데이팅 관심사 키워드
 _AURA_KEYWORDS = [
     "소개팅 꿀팁",
     "소개팅 코디 룩북",
@@ -94,7 +94,7 @@ def urllib_quote(text: str) -> str:
 
 
 class AuraTikTokBehaviorBot:
-    """💖 Aura 전용 틱톡 30분 스텔스 인간 행동 봇"""
+    """💖 Aura AI 데이팅 전용 틱톡 30분 스텔스 인간 행동 봇"""
 
     SLOTS = [
         {"id": "morning", "time": "09:30", "start_h": 9, "start_m": 30, "end_h": 13, "end_m": 29, "name": "🌅 아침 출근길 틱톡 (15분)", "target_min": 15},
@@ -107,20 +107,13 @@ class AuraTikTokBehaviorBot:
         self.brand = "aura"
         self.brand_name = "💖 Aura AI 데이팅"
         self.headless = headless
-        self.profile_dir = CURRENT_DIR / "tiktok_browser_profile"
+        self.profile_dir = CURRENT_DIR / "tiktok_behavior_profile"
         self.profile_dir.mkdir(parents=True, exist_ok=True)
         self.session_file = CURRENT_DIR / "tiktok_session.json"
         self.history_file = CURRENT_DIR / "tiktok_routine_history.json"
 
     async def _simulate_tiktok_session(self, page, target_seconds: int, target_likes: int = 2) -> Dict[str, Any]:
-        """
-        사람처럼 틱톡 FYP 피드 둘러보기:
-        - 15~35초 고체류 시청
-        - 자연스러운 마우스 이동
-        - 댓글창 열람 및 체류
-        - 세션당 2~3회 좋아요 클릭
-        - 아래 방향키로 다음 영상 넘기기
-        """
+        """사람처럼 틱톡 FYP 피드 둘러보기"""
         result = {
             "videos_watched": 0,
             "likes": 0,
@@ -128,45 +121,38 @@ class AuraTikTokBehaviorBot:
             "searches_done": 0
         }
 
-        # 50% 확률로 검색창 탐색, 50% 확률로 FYP 추천 피드 진입
-        use_search = random.random() < 0.5
-        if use_search:
+        # 1. 사람처럼 가끔(20%) 관심사 키워드 검색 흔적 남기기
+        if random.random() < 0.20:
             kw = random.choice(_AURA_KEYWORDS if random.random() < 0.5 else _GENERAL_HUMAN_KEYWORDS)
             search_url = f"https://www.tiktok.com/search?q={urllib_quote(kw)}"
-            logger.info(f"🔍 [Aura TikTokBot] 사람처럼 틱톡 검색 진입: '{kw}'")
+            logger.info(f"🔍 [Aura TikTokBot] 사람처럼 관심사 탐색: '{kw}'")
             try:
-                await page.goto(search_url, wait_until="domcontentloaded", timeout=45000)
+                await page.goto(search_url, wait_until="domcontentloaded", timeout=25000)
                 result["searches_done"] += 1
-                await asyncio.sleep(random.uniform(4.0, 7.0))
+                await asyncio.sleep(random.uniform(3.0, 5.0))
             except Exception as e:
                 logger.debug(f"검색 페이지 로드 예외: {e}")
-                await page.goto("https://www.tiktok.com/foryou", wait_until="domcontentloaded", timeout=45000)
-        else:
-            logger.info("📱 [Aura TikTokBot] 틱톡 For You 추천 피드 진입")
-            try:
-                await page.goto("https://www.tiktok.com/foryou", wait_until="domcontentloaded", timeout=45000)
-                await asyncio.sleep(random.uniform(4.0, 6.0))
-            except Exception as e:
-                logger.debug(f"FYP 로드 예외: {e}")
+
+        # 2. 메인 For You(추천 피드) 진입 (피드 전체화면 연속 시청/좋아요/댓글 모드)
+        logger.info("📱 [Aura TikTokBot] 틱톡 For You 추천 피드 진입")
+        try:
+            await page.goto("https://www.tiktok.com/foryou", wait_until="domcontentloaded", timeout=45000)
+            await asyncio.sleep(random.uniform(4.0, 6.0))
+        except Exception as e:
+            logger.debug(f"FYP 로드 예외: {e}")
 
         start_time = time.time()
         video_index = 0
-
-        # 🚨 [틱톡 로그인 실물 전수 검증]
-        login_btn = await page.query_selector("button[data-e2e='top-login-button'], button:has-text('로그인'), a[href*='/login']")
-        profile_avatar = await page.query_selector("img[data-e2e='profile-icon'], div[data-e2e='profile-icon'], span[class*='Avatar']")
-        is_tt_logged_in = bool(profile_avatar and not login_btn)
 
         try:
             while (time.time() - start_time) < target_seconds:
                 video_index += 1
                 result["videos_watched"] += 1
 
-                # 1. 15~35초 완시청 체류
+                # 1. 15~32초 완시청 체류
                 watch_time = random.uniform(15.0, 32.0)
                 logger.info(f"🎬 [Aura TikTokBot] #{video_index}번째 틱톡 시청 중 ({round(watch_time, 1)}초 체류)...")
 
-                # 시청 중 자연스러운 미세 마우스 흔들림
                 start_t = time.time()
                 while (time.time() - start_t) < watch_time:
                     rx = random.randint(300, 900)
@@ -174,51 +160,91 @@ class AuraTikTokBehaviorBot:
                     await page.mouse.move(rx, ry)
                     await asyncio.sleep(random.uniform(3.0, 6.0))
 
-                # 2. 40% 확률로 댓글창 열람
-                if random.random() < 0.40:
+                # 2. 동적 로그인 상태 실시간 점검
+                is_logged_in = await page.evaluate("""() => {
+                    const profile = document.querySelector('[data-e2e="profile-icon"], [data-e2e="nav-profile"], [data-e2e="upload-icon"], [data-e2e="inbox-icon"]');
+                    const loginBtn = document.querySelector('[data-e2e="top-login-button"]');
+                    return Boolean(profile && !loginBtn);
+                }""")
+
+                # 3. 35% 확률로 댓글창 열람
+                if random.random() < 0.35:
                     try:
-                        comment_btn = await page.query_selector("button[data-e2e='comment-icon'], span[data-e2e='comment-icon'], button[aria-label*='댓글']")
-                        if comment_btn:
-                            await comment_btn.click()
+                        comment_info = await page.evaluate("""() => {
+                            const comments = document.querySelectorAll('[data-e2e="comment-icon"], [aria-label*="comments"], [aria-label*="댓글"]');
+                            for (let el of comments) {
+                                const rect = el.getBoundingClientRect();
+                                if (rect.top >= 0 && rect.top < window.innerHeight && rect.width > 0 && rect.height > 0) {
+                                    return {x: Math.round(rect.x + rect.width / 2), y: Math.round(rect.y + rect.height / 2)};
+                                }
+                            }
+                            return null;
+                        }""")
+                        if comment_info:
+                            p_start = (random.randint(200, 500), random.randint(300, 600))
+                            for pt in _bezier_points(p_start, (comment_info["x"], comment_info["y"]), steps=10):
+                                await page.mouse.move(pt[0], pt[1])
+                                await asyncio.sleep(0.01)
+                            await page.mouse.click(comment_info["x"], comment_info["y"])
                             result["comments_inspected"] += 1
                             logger.info("💬 [Aura TikTokBot] 시청자 댓글창 열람 체류 (5초)...")
-                            await asyncio.sleep(random.uniform(4.0, 6.5))
-                            close_btn = await page.query_selector("button[data-e2e='comment-close-icon'], button[aria-label*='닫기']")
+                            await asyncio.sleep(random.uniform(4.0, 6.0))
+
+                            close_btn = await page.query_selector("[data-e2e='comment-close-icon'], button[aria-label*='닫기'], [data-e2e='close-icon']")
                             if close_btn:
                                 await close_btn.click()
                             else:
                                 await page.keyboard.press("Escape")
                             await asyncio.sleep(1.0)
-                    except Exception:
-                        pass
+                    except Exception as ce:
+                        logger.debug(f"댓글창 열람 스킵: {ce}")
 
-                # 3. 목표 좋아요 도달할 때까지 자연스러운 좋아요 클릭 (실제 로그인 상태에서만)
-                if is_tt_logged_in and result["likes"] < target_likes and (time.time() - start_t) > 12:
+                # 4. 목표 좋아요 도달할 때까지 자연스러운 좋아요 클릭
+                if is_logged_in and result["likes"] < target_likes:
                     try:
-                        like_buttons = await page.query_selector_all("button[data-e2e='like-icon'], span[data-e2e='like-icon'], button[aria-label*='좋아요'], button[aria-label*='Like']")
-                        for l_btn in like_buttons:
-                            box = await l_btn.bounding_box()
-                            if box and box["width"] > 0 and box["height"] > 0:
-                                btn_x = box["x"] + box["width"] / 2
-                                btn_y = box["y"] + box["height"] / 2
-                                p_start = (random.randint(200, 500), random.randint(300, 600))
-                                for pt in _bezier_points(p_start, (btn_x, btn_y), steps=12):
-                                    await page.mouse.move(pt[0], pt[1])
-                                    await asyncio.sleep(0.015)
-                                await asyncio.sleep(random.uniform(0.5, 1.0))
-                                await page.mouse.click(btn_x, btn_y)
-                                result["likes"] += 1
-                                logger.info(f"💖 [Aura TikTokBot] 틱톡 영상 실제 '좋아요' 클릭 성공! (세션 누적: {result['likes']}/{target_likes}회)")
-                                await asyncio.sleep(random.uniform(2.0, 4.0))
-                                break
+                        like_target = await page.evaluate("""() => {
+                            const likes = document.querySelectorAll('[data-e2e="like-icon"], [aria-label*="Like video"], [aria-label*="좋아요"]');
+                            for (let el of likes) {
+                                const rect = el.getBoundingClientRect();
+                                if (rect.top >= 0 && rect.top < window.innerHeight && rect.width > 0 && rect.height > 0) {
+                                    const isPressed = el.getAttribute('aria-pressed') === 'true' || el.classList.contains('liked');
+                                    return {
+                                        x: Math.round(rect.x + rect.width / 2),
+                                        y: Math.round(rect.y + rect.height / 2),
+                                        is_pressed: isPressed
+                                    };
+                                }
+                            }
+                            return null;
+                        }""")
+
+                        if like_target and not like_target.get("is_pressed"):
+                            btn_x = like_target["x"]
+                            btn_y = like_target["y"]
+                            p_start = (random.randint(200, 500), random.randint(300, 600))
+                            for pt in _bezier_points(p_start, (btn_x, btn_y), steps=12):
+                                await page.mouse.move(pt[0], pt[1])
+                                await asyncio.sleep(0.015)
+                            await asyncio.sleep(random.uniform(0.4, 0.8))
+                            await page.mouse.click(btn_x, btn_y)
+                            result["likes"] += 1
+                            logger.info(f"💖 [Aura TikTokBot] 틱톡 영상 실제 '좋아요' 클릭 성공! (세션 누적: {result['likes']}/{target_likes}회)")
+                            await asyncio.sleep(random.uniform(2.0, 3.5))
                     except Exception as le:
                         logger.debug(f"좋아요 시도 스킵: {le}")
-                elif not is_tt_logged_in:
-                    logger.debug("틱톡 비로그인 상태 감지 — 좋아요 팝업 방지를 위해 좋아요 스킵 (완시청 체류 정상 유지)")
+                elif not is_logged_in:
+                    logger.debug("틱톡 비로그인 감지 — 좋아요 팝업 방지를 위해 좋아요 스킵")
 
-                # 4. 다음 틱톡 영상으로 스크롤 (PageDown 또는 ArrowDown)
+                # 5. 다음 틱톡 영상으로 포커스 후 부드럽게 스크롤 넘김
                 logger.info("🖱️ [Aura TikTokBot] 다음 틱톡 영상으로 부드럽게 스크롤 넘김...")
-                await page.keyboard.press("ArrowDown")
+                try:
+                    await page.mouse.click(640, 400)
+                    await asyncio.sleep(0.3)
+                    await page.keyboard.press("ArrowDown")
+                    await asyncio.sleep(0.5)
+                    await page.mouse.wheel(0, 300)
+                except Exception:
+                    await page.keyboard.press("ArrowDown")
                 await asyncio.sleep(random.uniform(2.0, 3.5))
 
         except Exception as e:
@@ -229,7 +255,7 @@ class AuraTikTokBehaviorBot:
     async def execute_slot_session_async(self, slot: Dict[str, Any]) -> Dict[str, Any]:
         """지정된 세션 실행 (쿠키 100% 주입 + 목표 좋아요 2~3회)"""
         slot_name = slot.get("name", "틱톡 인간 행동 세션")
-        target_sec = slot.get("target_min", 7) * 60
+        target_sec = int(slot.get("target_min", 7) * 60)
         target_likes = random.randint(2, 3)
 
         logger.info("=" * 70)
@@ -253,11 +279,11 @@ class AuraTikTokBehaviorBot:
             "brand": self.brand
         }
 
-        from core.engine.browser_guard import async_browser_lock, clean_browser_profile_locks, get_safe_browser_args
+        from core.engine.browser_guard import is_yield_requested, async_browser_lock, clean_browser_profile_locks, get_safe_browser_args
 
         clean_browser_profile_locks(self.profile_dir)
 
-        async with async_browser_lock(f"Aura 틱톡 세션 ({slot_name})"):
+        async with async_browser_lock(f"Aura 틱톡 세션 ({slot_name})") :
             async with async_playwright() as p:
                 try:
                     ctx_tt = await p.chromium.launch_persistent_context(
@@ -268,7 +294,6 @@ class AuraTikTokBehaviorBot:
                         args=get_safe_browser_args()
                     )
 
-                    # tiktok_session.json 쿠키 주입
                     if self.session_file.exists():
                         try:
                             with open(self.session_file, "r", encoding="utf-8") as sf:
@@ -354,7 +379,7 @@ class AuraTikTokBehaviorBot:
             "total_minutes": round(total_sec / 60, 1),
             "target_minutes": 60,
             "total_likes": total_likes,
-            "target_likes": "세션당 3~5회 (일 12~20회)",
+            "target_likes": "세션당 2~3회 (일 8~12회)",
             "completed_slots": completed_slots,
             "gemini_calls": 0
         }
@@ -382,15 +407,39 @@ class AuraTikTokBehaviorBot:
 
 
 class AuraTikTokBehaviorScheduler:
-    """💖 Aura 전용 틱톡 24시간 365일 무인 자율 스케줄러 데몬"""
+    """💖 Aura AI 데이팅 전용 틱톡 24시간 365일 무인 자율 스케줄러 데몬"""
 
     def __init__(self, headless: bool = True):
         self.bot = AuraTikTokBehaviorBot(headless=headless)
         self.is_running = False
+        self._executed_today = set()
+        self._last_date = ""
 
     def execute_single_session(self, duration_sec: int = 30) -> Dict[str, Any]:
         """단발 1회 실행"""
         return self.bot.execute_single_session(duration_sec=duration_sec)
+
+    def check_and_run_slot(self) -> Optional[Dict[str, Any]]:
+        """정기 스케줄 주기별 슬롯 자동 체크 및 실행"""
+        now = datetime.now()
+        today_str = now.strftime("%Y-%m-%d")
+        cur_min = now.hour * 60 + now.minute
+
+        if today_str != self._last_date:
+            self._executed_today.clear()
+            self._last_date = today_str
+
+        for slot in self.bot.SLOTS:
+            slot_id = slot["id"]
+            start_total = slot.get("start_h", 0) * 60 + slot.get("start_m", 0)
+            end_total = slot.get("end_h", 23) * 60 + slot.get("end_m", 59)
+            exec_key = f"{today_str}_{slot_id}"
+
+            if start_total <= cur_min <= end_total and exec_key not in self._executed_today:
+                logger.info(f"⏰ [Aura TikTok Scheduler] {slot['name']} 골든타임 도달! 무인 스텔스 세션 즉시 가동...")
+                self._executed_today.add(exec_key)
+                return self.bot.execute_slot_session(slot_id)
+        return None
 
     def start(self):
         if self.is_running:
@@ -400,30 +449,9 @@ class AuraTikTokBehaviorScheduler:
         threading.Thread(target=self._daemon_loop, daemon=True).start()
 
     def _daemon_loop(self):
-        executed_today = set()
-        last_date = ""
-
         while self.is_running:
             try:
-                now = datetime.now()
-                today_str = now.strftime("%Y-%m-%d")
-                cur_min = now.hour * 60 + now.minute
-
-                if today_str != last_date:
-                    executed_today.clear()
-                    last_date = today_str
-
-                for slot in self.bot.SLOTS:
-                    slot_id = slot["id"]
-                    start_total = slot.get("start_h", 0) * 60 + slot.get("start_m", 0)
-                    end_total = slot.get("end_h", 23) * 60 + slot.get("end_m", 59)
-                    exec_key = f"{today_str}_{slot_id}"
-
-                    if start_total <= cur_min <= end_total and exec_key not in executed_today:
-                        logger.info(f"⏰ [Aura TikTok Scheduler] {slot['name']} 골든타임 도달! 무인 스텔스 세션 즉시 가동...")
-                        executed_today.add(exec_key)
-                        self.bot.execute_slot_session(slot_id)
-
+                self.check_and_run_slot()
                 time.sleep(30)
             except Exception as e:
                 logger.error(f"❌ [Aura TikTok Scheduler 예외] {e}")

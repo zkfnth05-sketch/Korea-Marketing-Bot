@@ -31,19 +31,32 @@ class TodayLiveTracker:
     """3대 슈퍼앱 독립 레고 블록 조립 오케스트레이터"""
 
     def __init__(self):
-        # 3대 브랜드 100% 독립 레고 블록 인스턴스
-        self.aura_tracker = AuraLiveTracker()
-        self.insurance_tracker = InsuranceLiveTracker()
-        self.stock_tracker = StockLiveTracker()
+        pass
 
     def get_all_live_feed(self) -> Dict[str, Any]:
         """3대 브랜드의 독립 모듈을 각각 호출하여 종합 반환"""
         now = datetime.datetime.now()
         today_str = now.strftime("%Y-%m-%d")
 
-        aura_data = self.aura_tracker.get_live_status()
-        insurance_data = self.insurance_tracker.get_live_status()
-        stock_data = self.stock_tracker.get_live_status()
+        try:
+            import importlib
+            import brands.aura.aura_live_tracker as alt
+            import brands.insurance.insurance_live_tracker as ilt
+            import brands.stock.stock_live_tracker as slt
+            importlib.reload(alt)
+            importlib.reload(ilt)
+            importlib.reload(slt)
+            aura_tracker = alt.AuraLiveTracker()
+            insurance_tracker = ilt.InsuranceLiveTracker()
+            stock_tracker = slt.StockLiveTracker()
+        except Exception:
+            aura_tracker = AuraLiveTracker()
+            insurance_tracker = InsuranceLiveTracker()
+            stock_tracker = StockLiveTracker()
+
+        aura_data = aura_tracker.get_live_status()
+        insurance_data = insurance_tracker.get_live_status()
+        stock_data = stock_tracker.get_live_status()
 
         total_blog = (
             aura_data.get("today_blog_count", 0) +
@@ -70,6 +83,11 @@ class TodayLiveTracker:
             insurance_data.get("today_cafe_count", 0) +
             stock_data.get("today_cafe_count", 0)
         )
+        total_reddit = (
+            aura_data.get("today_reddit_count", 0) +
+            insurance_data.get("today_reddit_count", 0) +
+            stock_data.get("today_reddit_count", 0)
+        )
 
         return {
             "timestamp": now.strftime("%Y-%m-%d %H:%M:%S"),
@@ -79,7 +97,8 @@ class TodayLiveTracker:
                 "total_kin_today": total_kin,
                 "total_shorts_today": total_shorts,
                 "total_cardnews_today": total_cardnews,
-                "total_cafe_today": total_cafe
+                "total_cafe_today": total_cafe,
+                "total_reddit_today": total_reddit
             },
             "brands": {
                 "aura": aura_data,
@@ -90,12 +109,19 @@ class TodayLiveTracker:
 
     def get_brand_live_status(self, brand: str) -> Dict[str, Any]:
         """단일 브랜드 전용 독립 상태 반환"""
+        import importlib
         if brand == "aura":
-            return self.aura_tracker.get_live_status()
+            import brands.aura.aura_live_tracker as alt
+            importlib.reload(alt)
+            return alt.AuraLiveTracker().get_live_status()
         elif brand == "insurance":
-            return self.insurance_tracker.get_live_status()
+            import brands.insurance.insurance_live_tracker as ilt
+            importlib.reload(ilt)
+            return ilt.InsuranceLiveTracker().get_live_status()
         elif brand == "stock":
-            return self.stock_tracker.get_live_status()
+            import brands.stock.stock_live_tracker as slt
+            importlib.reload(slt)
+            return slt.StockLiveTracker().get_live_status()
         return {}
 
 

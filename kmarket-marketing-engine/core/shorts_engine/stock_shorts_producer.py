@@ -192,6 +192,29 @@ class StockShortsProducer(BaseShortsProducer):
         force_fresh_record: bool = False,
         **kwargs
     ) -> Dict[str, Any]:
+        from core.engine.gpu_lock import gpu_lock
+        t_id = topic_id if topic_id is not None else "자율"
+        with gpu_lock(f"🎬 📈 Stock 숏폼 #{t_id} 세션 풀 프로덕션"):
+            return self._produce_internal(
+                lang=lang,
+                topic_id=topic_id,
+                gender=gender,
+                custom_hero_image=custom_hero_image,
+                seed=seed,
+                force_fresh_record=force_fresh_record,
+                **kwargs
+            )
+
+    def _produce_internal(
+        self,
+        lang: Optional[str] = "ko",
+        topic_id: Optional[int] = None,
+        gender: Optional[str] = None,
+        custom_hero_image: Optional[Image.Image] = None,
+        seed: Optional[int] = None,
+        force_fresh_record: bool = False,
+        **kwargs
+    ) -> Dict[str, Any]:
         """
         StockMaster AI 숏폼 풀 프로덕션:
         - topic_id 미지정 시 1~8번 자율 순환
@@ -222,7 +245,7 @@ class StockShortsProducer(BaseShortsProducer):
                 speech_hook_p1 = dynamic_script["hook_p1_5s"]
                 speech_hook_p2 = dynamic_script["hook_p2_5s"]
                 speech_app = dynamic_script["app_10_20s"]
-                speech_cta = dynamic_script["cta_18_22s"]
+                speech_cta = dynamic_script.get("cta_30_34s") or dynamic_script.get("cta_18_22s") or dynamic_script.get("cta_speech", "")
                 full_speech = dynamic_script["full_speech"]
                 hero_copy = dynamic_script.get("hero_copy", scenario.get("hero_copy"))
                 debate_q = dynamic_script.get("debate_question", scenario.get("debate_question"))
@@ -366,12 +389,12 @@ class StockShortsProducer(BaseShortsProducer):
             subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
             person_audio_path = hook_wav_path
 
-        # 6. [Step 4] StockMaster AI 실제 웹앱 실시간 시연 클립 (표준 12.0초)
+        # 6. [Step 4] StockMaster AI 실제 웹앱 실시간 시연 클립 (30~32초 완제품 규격: 17.50s)
         app_clip_path = str(out_folder / f"04_app_sim_stock_{topic_id}.mp4")
-        logger.info(f"📱 [Step 4] StockMaster AI 실제 웹앱 시연 비디오 준비 (12.00s)...")
+        logger.info(f"📱 [Step 4] StockMaster AI 실제 웹앱 시연 비디오 준비 (30~32초 규격 17.50s)...")
         self.app_simulator.record_simulation_clip(
             topic_id=topic_id,
-            duration_sec=12.0,
+            duration_sec=17.5,
             output_mp4_path=app_clip_path,
             force_fresh_record=force_fresh_record
         )
@@ -389,7 +412,7 @@ class StockShortsProducer(BaseShortsProducer):
         )
 
         # 8. [Step 6] 22초 하이브리드 완제품 컴포징 (상단 좌측 다크 네이비 캡슐 뱃지 탑재)
-        final_mp4_name = f"Stock_22초숏폼_주제{topic_id:02d}_{scenario.get('theme_code', 'topic')}_{dt_str}.mp4"
+        final_mp4_name = f"Stock_32초숏폼_주제{topic_id:02d}_{scenario.get('theme_code', 'topic')}_{dt_str}.mp4"
         final_mp4_path = str(out_folder / final_mp4_name)
         from .shorts_brand_capsule_badge import ShortsBrandCapsuleBadge
         stock_logo_overlay = ShortsBrandCapsuleBadge.get_overlay_path("stock")
@@ -400,7 +423,7 @@ class StockShortsProducer(BaseShortsProducer):
             "cta": cta_wav_path if (cta_wav_path and os.path.exists(cta_wav_path)) else None
         }
 
-        logger.info("✨ [Step 6] 1080p 세로 풀HD 22초 하이브리드 비디오 최종 컴포징 (씬별 정밀 음성 동기화 + 상단 캡슐 뱃지)...")
+        logger.info("✨ [Step 6] 1080p 세로 풀HD 32초(30~32s) 하이브리드 비디오 최종 컴포징 (씬별 정밀 음성 동기화 + 상단 캡슐 뱃지)...")
         self.composer.compose_hybrid_22s_shorts(
             clip_person_path=person_clip_path,
             clip_app_path=app_clip_path,

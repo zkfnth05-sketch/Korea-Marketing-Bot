@@ -392,77 +392,75 @@ class AuraThreadsPublisher:
                             await page.goto(post_url, wait_until="domcontentloaded", timeout=25000)
                             await asyncio.sleep(4)
 
-                            # 상세 페이지 내 답글 입력창 클릭 ("Reply to aura_ai_dating..." / "아우라AI데이팅님에게 답글 달기...")
-                            reply_box = await page.wait_for_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true'], div:has-text('Reply to'), div:has-text('답글')", timeout=10000)
+                                                        # 상세 페이지 내 답글 입력창 클릭 (이미지 오버레이 차단 방지 Leaf Element 정밀 타겟팅)
+                            clicked_reply = await page.evaluate("""() => {
+                                const elements = Array.from(document.querySelectorAll("span, div"));
+                                const replyEl = elements.reverse().find(el => {
+                                    const t = (el.innerText || '').trim();
+                                    return (t.startsWith('Reply to') || t.startsWith('답글')) && el.children.length === 0;
+                                });
+                                if (replyEl) {
+                                    const clickable = replyEl.closest("div[role='button']") || replyEl;
+                                    clickable.click();
+                                    return true;
+                                }
+                                return false;
+                            }""")
+                            await asyncio.sleep(1.5)
+
+                            reply_box = await page.wait_for_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']", timeout=10000)
                             if reply_box:
-                                await reply_box.click(force=True)
-                                await asyncio.sleep(1)
+                                await reply_box.click()
+                                await asyncio.sleep(0.5)
+                                await page.keyboard.press("Control+A")
+                                await page.keyboard.press("Backspace")
+                                await asyncio.sleep(0.3)
+                                await page.keyboard.insert_text(first_reply_text)
+                                await asyncio.sleep(2.5)  # OpenGraph 미리보기 렌더링 대기
 
-                                active_tb = await page.query_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']")
-                                if active_tb:
-                                    await active_tb.click()
-                                    await asyncio.sleep(0.5)
-                                    await page.keyboard.press("Control+A")
-                                    await page.keyboard.press("Backspace")
-                                    await asyncio.sleep(0.3)
-                                    await page.keyboard.insert_text(first_reply_text)
-                                    await asyncio.sleep(2.5)  # OpenGraph 미리보기 렌더링 대기
+                                # 답글 전송 (Post 버튼 클릭 + Control+Enter 2중 보장)
+                                reply_posted = await page.evaluate("""() => {
+                                    const btns = Array.from(document.querySelectorAll("div[role='button'], button"));
+                                    const postBtn = btns.find(b => {
+                                        const t = (b.innerText || '').trim();
+                                        const aria = b.getAttribute('aria-disabled');
+                                        return (t === 'Post' || t === '게시' || t === 'Reply' || t === '답글') && aria !== 'true';
+                                    });
+                                    if (postBtn) {
+                                        postBtn.click();
+                                        return true;
+                                    }
+                                    return false;
+                                }""")
+                                if not reply_posted:
+                                    await page.keyboard.press("Control+Enter")
+                                await asyncio.sleep(4)
+                                logger.info("   1번 타래 댓글 체인 부착 완료!")
+                    except Exception as re:
+                        logger.warning(f"⚠️ 타래 댓글 작성 예외: {re}")
 
-                                    # 답글 전송 (Control+Enter 단축키 및 전송 버튼 안전 클릭)
-                                    reply_posted = False
-                                    try:
-                                        await page.keyboard.press("Control+Enter")
-                                        await asyncio.sleep(1.5)
-                                    except Exception:
-                                        pass
-
-                                    for _ in range(8):
-                                        reply_posted = await page.evaluate("""() => {
-                                            const btns = Array.from(document.querySelectorAll("button, div[role='button']"));
-                                            const postBtn = btns.find(b => {
-                                                const t = (b.innerText || '').trim();
-                                                const ariaDisabled = b.getAttribute('aria-disabled');
-                                                const disabled = b.getAttribute('disabled');
-                                                return (t === 'Post' || t === '게시') && ariaDisabled !== 'true' && disabled === null;
-                                            });
-                                            if (postBtn && typeof postBtn.click === 'function') {
-                                                postBtn.click();
-                                                return true;
-                                            }
-                                            return false;
-                                        }""")
-                                        if reply_posted:
-                                            break
-                                        await asyncio.sleep(1)
-
-                                    if not reply_posted:
-                                        reply_post_btn = await page.query_selector("div[role='dialog'] div[role='button']:has-text('Post'), div[role='dialog'] button:has-text('Post'), div[role='button']:has-text('Post'), button:has-text('Post')")
-                                        if reply_post_btn:
-                                            await reply_post_btn.click(force=True)
-
-                                    logger.info("🎉 [2단계 대성공] 본문 글 고유 상세 페이지에서 1번 타래 댓글 체인 등록 완료!")
-                                    await asyncio.sleep(10)
-                    except Exception as ex_reply:
-                        logger.warning(f"⚠️ 타래 댓글 작성 예외: {ex_reply}")
-
-                # 7. 상세 페이지 및 프로필에서 최종 타래 결합 결과 확인 캡처
+                # 7. 본문 + 1번 타래 결합 최종 증빙 캡처
                 logger.info("7. 본문 + 1번 타래 결합 최종 증빙 캡처 중...")
                 proof_path = CURRENT_DIR / "threads_live_proof.png"
                 try:
-                    await page.reload(wait_until="domcontentloaded")
-                    await asyncio.sleep(4)
-                    await page.evaluate("window.scrollBy(0, 300)")
-                    await asyncio.sleep(2)
-                    await page.screenshot(path=str(proof_path), full_page=True)
-                    logger.info(f"📸 게시 완료 라이브 상세 결합 증빙 캡처: {proof_path}")
-                except Exception:
-                    await page.goto("https://www.threads.net/@aura_ai_dating", wait_until="domcontentloaded", timeout=25000)
-                    await asyncio.sleep(4)
                     await page.screenshot(path=str(proof_path))
+                except Exception:
+                    pass
                 logger.info(f"📸 게시 완료 라이브 증빙 캡처: {proof_path}")
 
                 # 8. 세션 및 히스토리 보관
                 await context.storage_state(path=str(SESSION_FILE))
+
+                # 9. 검증 완료 플래그 동기화 & 잔여 에러 스크린샷 정리
+                verified_flag = CURRENT_DIR / "threads_session_verified.json"
+                try:
+                    with open(verified_flag, "w", encoding="utf-8") as vf:
+                        json.dump({"verified_at": datetime.now().isoformat(), "brand": self.BRAND, "status": "authenticated"}, vf, indent=2)
+                    err_file = CURRENT_DIR / "threads_error_screenshot.png"
+                    if err_file.exists():
+                        err_file.unlink()
+                except Exception:
+                    pass
 
                 result_record = {
                     "brand": self.BRAND,
@@ -490,6 +488,27 @@ class AuraThreadsPublisher:
                     await page.screenshot(path=str(fail_screenshot))
                 except Exception:
                     pass
+
+                # 실패 시 검증 플래그 파기 -> 관제판에 즉시 세션만료(빨간색) 반영
+                try:
+                    vf = CURRENT_DIR / "threads_session_verified.json"
+                    if vf.exists():
+                        vf.unlink()
+                except Exception:
+                    pass
+
+                result_record = {
+                    "brand": self.BRAND,
+                    "published_at": datetime.now().isoformat(),
+                    "caption_preview": caption[:60] + "..." if caption else "",
+                    "media_count": len(valid_media),
+                    "first_reply": first_reply_text,
+                    "status": "FAILED",
+                    "error": str(e),
+                    "screenshot": str(fail_screenshot)
+                }
+                self._save_history(result_record)
+
                 await context.close()
                 return {
                     "success": False,

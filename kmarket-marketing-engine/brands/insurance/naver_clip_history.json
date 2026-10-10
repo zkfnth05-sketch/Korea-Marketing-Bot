@@ -18,5 +18,25 @@
     "video_file": "Insurance_22초숏폼_주제02_driver_insurance_20261003_153447.mp4",
     "channel_url": "https://clip.naver.com/@thefirst-life",
     "published_at": "2026-10-03 16:07:11"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "insurance",
+    "topic_id": 1,
+    "title": "[실손의료비 4세대 전환 손익] 보험 리밸런스 #1",
+    "video_file": "Insurance_22초숏폼_주제01_silbi_gen4_20261010_114916.mp4",
+    "channel_url": "https://clip.naver.com/@thefirst-life",
+    "published_at": "2026-10-10 12:15:26"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "insurance",
+    "topic_id": 3,
+    "title": "암보험, 일반암만 믿으세요? 🤯 유사암 진실 알면 월 15만원 아껴요! 💰",
+    "video_file": "Insurance_22초숏폼_주제03_cancer_coverage_20261010_181917.mp4",
+    "channel_url": "https://clip.naver.com/@thefirst-life",
+    "published_at": "2026-10-10 20:41:22"
   }
 ]

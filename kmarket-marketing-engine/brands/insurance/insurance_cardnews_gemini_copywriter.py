@@ -1,3 +1,4 @@
+from core.gemini_unified_keys import get_unified_gemini_key_dicts, get_unified_gemini_keys, format_gemini_error
 # -*- coding: utf-8 -*-
 """
 InsuranceCardnewsGeminiCopywriter - 🛡️ [보험 리밸런스 8대 주제 전용 제미나이 심의 준수 카피라이터]
@@ -148,23 +149,7 @@ class InsuranceCardnewsGeminiCopywriter:
             GEMINI_PAID_API_KEY_AURA_1,
             GEMINI_API_KEY
         )
-        candidates = [
-            {"name": "INSURE_KEY_1", "key": GEMINI_FREE_API_KEY_AURA_1},
-            {"name": "INSURE_KEY_2", "key": GEMINI_FREE_API_KEY_AURA_2},
-            {"name": "INSURE_KEY_3", "key": GEMINI_FREE_API_KEY_AURA_3},
-            {"name": "INSURE_KEY_4", "key": GEMINI_FREE_API_KEY_AURA_4},
-            {"name": "INSURE_PAID_1", "key": GEMINI_PAID_API_KEY_AURA_1},
-            {"name": "DEFAULT", "key": GEMINI_API_KEY}
-        ]
-
-        seen = set()
-        self.key_chain = []
-        for c in candidates:
-            k = (c.get("key") or "").strip()
-            if k and k not in seen and len(k) > 10:
-                seen.add(k)
-                self.key_chain.append({"name": c["name"], "key": k})
-
+        self.key_chain = get_unified_gemini_key_dicts()
         self._active_key_index = 0
         self.hashtag_matrix = InsuranceHashtagMatrix()
 
@@ -301,14 +286,10 @@ class InsuranceCardnewsGeminiCopywriter:
             try:
                 from google import genai
                 from google.genai import types as genai_types
+                types = genai_types
 
                 client = genai.Client(api_key=api_key)
-                models_to_try = [
-                    "gemini-2.5-flash-lite",
-                    "gemini-flash-latest",
-                    "gemini-3.1-flash-lite",
-                    "gemini-2.5-flash"
-                ]
+                models_to_try = ["gemini-2.5-flash", "gemini-2.0-flash"]
 
                 for model_name in models_to_try:
                     try:
@@ -316,7 +297,7 @@ class InsuranceCardnewsGeminiCopywriter:
                             model=model_name,
                             contents=user_prompt,
                             config=genai_types.GenerateContentConfig(
-                                system_instruction=system_instruction,
+                                automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True), system_instruction=system_instruction,
                                 temperature=0.60,
                                 max_output_tokens=4096,
                                 response_mime_type="application/json"
@@ -345,9 +326,22 @@ class InsuranceCardnewsGeminiCopywriter:
                             logger.info(f"✅ [InsuranceCopywriter] 주제 #{topic_id} 제미나이({model_name}, 키={key_info['name']}) 5장 카피 집필 성공!")
                             return parsed
                     except Exception as me:
-                        logger.warning(f"⚠️ [InsuranceCopywriter] {model_name} 실패 (키={key_info['name']}): {me}")
+                        err_str = str(me)
+                        if any(k in err_str for k in ["429", "RESOURCE_EXHAUSTED", "quota", "depleted", "QuotaFailure"]):
+                            logger.warning(f"⚠️ [할당량 소진] 키={key_info['name']} ({model_name}) 429 쿼터 초과 -> 다음 무료키로 즉시 롤오버!")
+                            key_quota_exhausted = True
+                            break
+                        else:
+                            logger.warning(f"⚠️ [InsuranceCopywriter] {model_name} 실패 (키={key_info['name']}): {me}")
+                            continue
+
+                if key_quota_exhausted:
+                    self._active_key_index = (idx + 1) % total_keys
+                    continue
             except Exception as ke:
                 logger.warning(f"⚠️ [InsuranceCopywriter] 키={key_info['name']} 호출 실패: {ke}")
+                self._active_key_index = (idx + 1) % total_keys
+                continue
 
         logger.warning(f"⚠️ [InsuranceCopywriter] 모든 제미나이 키 소진 -> 심의 준수 폴백 시나리오 적용")
         return self._build_compliant_fallback(topic_id, topic_info['title'], fallback_scenario, hashtags_str)

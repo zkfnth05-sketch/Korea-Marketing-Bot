@@ -1,8 +1,57 @@
 {
-  "updated_at": "2026-10-08 22:05:00",
+  "updated_at": "2026-10-10 16:12:36",
   "brands": {
-    "aura": {},
-    "insurance": {},
-    "stock": {}
+    "aura": {
+      "reddit": {
+        "brand": "aura",
+        "channel": "reddit",
+        "live_url": "https://www.reddit.com/r/language_exchange/comments/1x268p9/offering_korean_seeking_english/",
+        "title": "r/Language_Exchange: Offering: Korean | Seeking: English",
+        "status": "HEALTHY",
+        "is_verified": false,
+        "error_message": null,
+        "screenshot_file": null,
+        "screenshot_path": null,
+        "published_at": "2026-10-10 16:12:36",
+        "extra_meta": {
+          "comment_preview": "Hi Sam! 👋 It's super cool you're in Calgary and looking for language exchange – I totally get wanting to practice naturally without the constant copy-pasting that breaks the flow! I love Korea and hav",
+          "screenshot_file": "proof_aura_reddit_20261010_161223.png"
+        }
+      }
+    },
+    "insurance": {
+      "reddit": {
+        "brand": "insurance",
+        "channel": "reddit",
+        "live_url": "https://www.reddit.com/r/Living_in_Korea/comments/1x1qg0f/korean_health_system_is_trash/",
+        "title": "r/Living_in_Korea: Korean Health System is Trash",
+        "status": "HEALTHY",
+        "is_verified": false,
+        "error_message": null,
+        "screenshot_file": null,
+        "screenshot_path": null,
+        "published_at": "2026-10-10 09:59:44",
+        "extra_meta": {
+          "comment_preview": "I’m so sorry you’re watching this unfold from afar—as an expat advisor who’s guided families here for years, the disconnect between Korea’s lightning-fast routine clinics and complex geriatric care ca",
+          "screenshot_file": "proof_insurance_reddit_20261010_095930.png"
+        }
+      }
+    },
+    "stock": {
+      "reddit": {
+        "brand": "stock",
+        "channel": "reddit",
+        "live_url": null,
+        "title": "r/StockMarket: The OpenAI revenue gap may be a measurement problem before it is a growth problem",
+        "status": "ERROR",
+        "is_verified": false,
+        "error_message": "댓글 등록 버튼 클릭 실패",
+        "failed_at": "2026-10-09 19:40:01",
+        "published_at": null,
+        "screenshot_file": null,
+        "screenshot_path": null,
+        "extra_meta": {}
+      }
+    }
   }
 }

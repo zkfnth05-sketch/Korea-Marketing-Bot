@@ -23,9 +23,9 @@ class DaemonStateManager:
     """무인 데몬 가동 상태 영구 보존 및 복원 싱글톤 매니저"""
 
     DEFAULT_STATES = {
-        "aura": False,
-        "insurance": False,
-        "stock": False,
+        "aura": True,
+        "insurance": True,
+        "stock": True,
         "kmarket": False,
         "easytax": False
     }
@@ -44,7 +44,7 @@ class DaemonStateManager:
         try:
             with open(_STATE_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            # 기본 키 누락 방지
+            # 기본 키 누락 방지 (3대 브랜드는 기본 True 유지)
             states = dict(cls.DEFAULT_STATES)
             for k, v in data.items():
                 states[k] = bool(v)
@@ -84,4 +84,5 @@ class DaemonStateManager:
     def get_daemon_state(cls, brand: str) -> bool:
         """특정 브랜드의 무인가동 상태 조회"""
         states = cls.load_states()
-        return states.get(brand, False)
+        default_val = True if brand in ["aura", "insurance", "stock"] else False
+        return states.get(brand, default_val)

@@ -265,7 +265,7 @@ const APP_PIPELINES = {
                 hubNumber: 14,
                 name: "💡 네이버 지식iN 100대 황금키워드 낚아채기",
                 icon: "💡",
-                desc: "<b>💡 [100대 황금키워드 실시간 레이더]</b> (국내/미국 주식/ETF/AI 퀀트 100개 키워드 실시간 스캔 + 85점 심사 + 10년 차 수석 애널리스트 3박자 킬러 답변)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 100대 황금 키워드 실시간 질문 낚아채기 (하루 딱 10개 엄선)<br>➔ ② Gemini 2.5 Flash 적합도 85점 이상 선별 (불법 리딩방 100% 차단)<br>➔ ③ 10년 차 애널리스트 3박자 답변 (종목분석 70% + 리딩방피해 15% + StockMaster 15%)</div>",
+                desc: "<b>💡 [100대 황금키워드 실시간 레이더]</b> (국내/미국 주식/ETF/AI 퀀트 100개 키워드 실시간 스캔 + 85점 심사 + 10년 차 수석 애널리스트 3박자 킬러 답변)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 100대 황금 키워드 실시간 질문 낚아채기 (하루 딱 10개 엄선)<br>➔ ② Gemini 3.8 Flash 적합도 85점 이상 선별 (불법 리딩방 100% 차단)<br>➔ ③ 10년 차 애널리스트 3박자 답변 (종목분석 70% + 리딩방피해 15% + StockMaster 15%)</div>",
                 isKin: true,
                 kinUrl: "https://kin.naver.com"
             },
@@ -436,7 +436,7 @@ const APP_PIPELINES = {
                 hubNumber: 14,
                 name: "💡 네이버 지식iN 100대 황금키워드 낚아채기",
                 icon: "💡",
-                desc: "<b>💡 [100대 황금키워드 실시간 레이더]</b> (실손/암/뇌심/운전자/리모델링 100개 키워드 실시간 스캔 + 85점 심사 + 12년 차 컨설턴트 3박자 킬러 답변)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 100대 황금 키워드 실시간 질문 낚아채기 (하루 딱 10개 엄선)<br>➔ ② Gemini 2.5 Flash 적합도 85점 이상 선별 (보험사기 100% 차단)<br>➔ ③ 12년 차 공인 컨설턴트 3박자 답변 (증권분석 70% + 눈탱이피해 15% + InsureBalance 15%)</div>",
+                desc: "<b>💡 [100대 황금키워드 실시간 레이더]</b> (실손/암/뇌심/운전자/리모델링 100개 키워드 실시간 스캔 + 85점 심사 + 12년 차 컨설턴트 3박자 킬러 답변)<br><div style='margin-top:6px; background:#FFFFFF; border:1px solid #E5DDD1; border-radius:6px; padding:6px 8px; font-size:11px; line-height:1.55; color:#4A443D;'>➔ ① 100대 황금 키워드 실시간 질문 낚아채기 (하루 딱 10개 엄선)<br>➔ ② Gemini 3.8 Flash 적합도 85점 이상 선별 (보험사기 100% 차단)<br>➔ ③ 12년 차 공인 컨설턴트 3박자 답변 (증권분석 70% + 눈탱이피해 15% + InsureBalance 15%)</div>",
                 isKin: true,
                 kinUrl: "https://kin.naver.com"
             },

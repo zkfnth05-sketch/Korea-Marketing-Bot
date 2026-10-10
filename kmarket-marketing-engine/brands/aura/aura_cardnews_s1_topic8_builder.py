@@ -14,6 +14,8 @@ import time
 import base64
 import logging
 from pathlib import Path
+from core.engine.naver_search_bar_component import render_naver_search_bar_html
+
 from typing import Dict, Any, Optional
 from PIL import Image
 from playwright.sync_api import sync_playwright
@@ -108,6 +110,7 @@ class AuraCardnewsS1Topic8Builder:
             "GPS 위치 & 본인 실명 인증된 검증 회원 간 안심 매칭"
         ]
         cta_text = copy_data.get("cta_text", "👉 옆으로 넘겨서 안심 레이더 지도 보기 (1/5) >") if copy_data else "👉 옆으로 넘겨서 안심 레이더 지도 보기 (1/5) >"
+        naver_search_html = render_naver_search_bar_html(brand="aura")
 
         b1 = bullets[0] if len(bullets) > 0 else "500m 반경 오차 지터링 보안"
         b2 = bullets[1] if len(bullets) > 1 else "24시간 실시간 동네 번개 퀘스트"
@@ -251,12 +254,8 @@ class AuraCardnewsS1Topic8Builder:
       </div>
     </div>
 
-    <!-- Bottom Swipe CTA Bar -->
-    <div class="w-full cta-glow rounded-2xl py-4 flex items-center justify-center gap-2 shadow-2xl">
-      <span class="text-white text-xl font-black tracking-wide">
-        {cta_text}
-      </span>
-    </div>
+      <!-- 하단 네이버 공식 검색창 UI 바 (숏폼 일체형) -->
+      {naver_search_html}
 
   </div>
 

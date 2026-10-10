@@ -6,7 +6,7 @@
 - 철칙:
   1. 📚 100% 대한민국 국내 증시 100대 주제 풀에서 7대 카테고리 인터리빙 교차 순환
   2. 📸 가짜 AI 사진 생성 전면 배제 ➔ 실제 웹앱(stockmaster-ai.vercel.app)에서 [✨ 변곡점], [🟢 진입유효], [🔴 VETO] 버튼을 직접 클릭한 실시간 전광판 캡처 증거 화면 100% 사용
-  3. 🤖 Gemini 2,000자 실전 계량 투자 칼럼 작성 (실제 캡처 데이터 1:1 인용)
+  3. 🤖 Gemini 3,000자 실전 계량 투자 칼럼 작성 (실제 캡처 데이터 1:1 인용)
   4. 🏷️ 100대 주제 1:1 고유 태그 + 구글/네이버 실시간 급상승 트렌드 15개 해시태그 결합
   5. 🌐 3대 블로그(네이버, 티스토리, 브런치) 동시/순차 무인 자동 배포
 """
@@ -194,7 +194,7 @@ class StockBlogEngine:
         force_recapture: bool = True
     ) -> Dict[str, Any]:
         """
-        주제 선택 ➔ 실제 앱 버튼 클릭 고화질 캡처 ➔ 실시간 캡처 데이터 주입 Gemini 2,000자 칼럼 ➔ 15개 해시태그 결합
+        주제 선택 ➔ 실제 앱 버튼 클릭 고화질 캡처 ➔ 실시간 캡처 데이터 주입 Gemini 3,000자 칼럼 ➔ 15개 해시태그 결합
         """
         # 1. 주제 선택
         if topic_id is not None:
@@ -217,24 +217,33 @@ class StockBlogEngine:
         logger.info(f"📸 [StockBlog] 실제 앱 버튼 클릭 캡처 완료: {Path(image_path).name if image_path else '없음'}")
         logger.info(f"📊 [StockBlog] 실시간 1위 종목 파싱: {metrics.get('stock_name')} ({metrics.get('chegyul_strength')}, 손절:{metrics.get('exit_sl')}, 목표:{metrics.get('swing_tp')})")
 
-        # 3. 🤖 Gemini 실시간 본문 작성 (실제 캡처 데이터 주입)
+        # 3. 🤖 Gemini 실시간 본문 작성 (100대 주제 고유 3,000자 칼럼 집필)
+        seo_brief = self.keyword_matrix.build_seo_article_brief(
+            seed_topic=seed_topic,
+            category=cat_key
+        )
         gemini_result = None
+        writer = self._get_writer()
         if use_gemini:
             try:
-                writer = self._get_writer()
-                # 캡처된 실제 수치를 주입한 바이블 원고 생성
-                gemini_result = writer.write_captured_article(capture_result, article_type="rank1")
-                logger.info(f"✅ [StockBlog] Gemini 2,000자 실전 칼럼 작성 완료: '{gemini_result.get('title_naver', seed_topic)}'")
+                # 100대 주제별 고유 퀀트 칼럼 작성 (중복 재탕 원천 차단)
+                gemini_result = writer.write_magazine_article(topic, seo_brief)
+                logger.info(f"✅ [StockBlog] Gemini 3,000자 실전 칼럼 작성 완료: '{gemini_result.get('title_naver', seed_topic)}'")
             except Exception as e:
-                logger.warning(f"⚠️ [StockBlog] Gemini 작성 예외: {e}")
+                logger.warning(f"⚠️ [StockBlog] Gemini 100대 주제 원고 작성 예외: {e}")
+
+        # 🚨 [절대 무결성 게이트: 껍데기/더미 글 100% 차단 및 완성형 원고 강제 보장]
+        if not gemini_result or not gemini_result.get("body_markdown") or len(gemini_result.get("body_markdown", "").strip()) < 1500 or "내용 준비 중" in gemini_result.get("body_markdown", ""):
+            logger.warning("🛡️ [StockBlog 무결성 게이트] 고품질 3,000자 완성형 퀀트 칼럼으로 안전 복원합니다.")
+            gemini_result = writer._generate_fallback(topic, seo_brief)
 
         # 4. 본문 조립 및 마크다운/HTML 정제
-        title_naver = gemini_result.get("title_naver", seed_topic) if gemini_result else seed_topic
-        title_tistory = gemini_result.get("title_tistory", seed_topic) if gemini_result else seed_topic
-        title_brunch = gemini_result.get("title_brunch", seed_topic) if gemini_result else seed_topic
+        title_naver = gemini_result.get("title_naver", seed_topic)
+        title_tistory = gemini_result.get("title_tistory", title_naver)
+        title_brunch = gemini_result.get("title_brunch", title_naver)
         main_title = title_naver
 
-        raw_body_md = gemini_result.get("body_markdown", "") if gemini_result else f"## {seed_topic}\n\n내용 준비 중..."
+        raw_body_md = gemini_result.get("body_markdown", "")
         clean_body_md = self.clean_markdown_body(raw_body_md)
         full_html = self.render_clean_html_body(clean_body_md, self.LANDING_URL, image_path=image_path)
 

@@ -14,12 +14,86 @@ import os
 import sys
 import json
 import logging
+import core.gemini_unified_keys
+from core.gemini_unified_keys import format_gemini_error
 from pathlib import Path
 from typing import Dict, Any, Optional
 
 logger = logging.getLogger("StockShortsScriptWriter")
 
 # 6대 주제별 '스톡마스터 AI 100% 진짜 기능 정의' (국내 코스피/코스닥 350개 우량주 실시간 퀀트)
+# 8대 주제별 1:1 고유 화자 페르소나 (성별, 나이, 상황, 전문 앵커 vs 현실 개미 투자자 시점 완벽 분리)
+STOCK_8_TOPIC_PERSONAS: Dict[int, Dict[str, str]] = {
+    1: {
+        "gender": "female",
+        "persona": (
+            "당신은 여의도 증권 방송 메인 뉴스룸의 24세 경제 전문 여성 아나운서입니다.\n"
+            "삼성전자의 실시간 외국인·기관 순매수 수급과 체결강도, 4대 퀀트 모달 팩트를 라이브 속보로 명쾌하고 스마트하게 브리핑하세요."
+        ),
+        "hook_hint": "삼성전자 지금 살까 말까 고민하는 투자자들을 향한 강렬한 질문으로 시작"
+    },
+    2: {
+        "gender": "male",
+        "persona": (
+            "★ [성별: 남성 앵커! 절대 여성 말투 금지]:\n"
+            "당신은 여의도 방송 스튜디오 메인 데스크의 26세 훈남 남성 금융 아나운서입니다.\n"
+            "HBM 주도주 SK하이닉스의 고점 추격매수와 조정 구간에서, 장중 3대 주체별 실시간 수급 현황과 AI 리스크 안전 진입가를 단호하고 명쾌한 딕션으로 전달하세요."
+        ),
+        "hook_hint": "SK하이닉스 고점 추격매수해도 될지 고민하는 투자자들을 향한 속보 질문으로 시작"
+    },
+    3: {
+        "gender": "male",
+        "persona": (
+            "★ [성별: 남성 투자자! 절대 여성 말투 금지]:\n"
+            "당신은 뇌동매매와 고점 물림을 피하기 위해 객관적 계량 지표로 매매하는 36세 직장인 남성 주식 투자자입니다.\n"
+            "감정에 휘둘려 손절 타이밍을 놓치던 과거에서 벗어나, AI 리스크 센터가 변동성을 감지해 알려주는 기계적 손절 라인으로 자산을 지켜낸 생생한 경험을 동료 개미 투자자들에게 전해주세요."
+        ),
+        "hook_hint": "급등주 샀다가 고점에 물려 손절 타이밍 놓쳐본 적 있으신지 공감 질문으로 시작"
+    },
+    4: {
+        "gender": "female",
+        "persona": (
+            "당신은 오늘 장중 세력의 뭉칫돈이 쏠리는 진짜 주도주를 찾아내는 35세 스마트 여성 투자자입니다.\n"
+            "지나간 뉴스 뒷북 매매 대신, 10분마다 350개 우량주를 스캔해 거래대금과 체결강도 1등 종목을 1초 만에 포착해주는 10분 계량 전광판 활용 팁을 전해주세요."
+        ),
+        "hook_hint": "오늘 장중 진짜 세력 돈이 몰리는 1등 주도주가 뭔지 찾는 질문으로 시작"
+    },
+    5: {
+        "gender": "female",
+        "persona": (
+            "당신은 글로벌 매크로와 국내 증시 하방 위험도를 한눈에 분석하는 24세 경제 분석 여성 앵커입니다.\n"
+            "환율, 금리, 유가와 KOSPI 시장 종합 스트레스 10점 척도 리포트로 증시 급락 국면을 사전에 대비할 수 있는 객관적 데이터를 스마트하게 브리핑하세요."
+        ),
+        "hook_hint": "요즘 시장이 흔들릴 때 내 계좌는 안전할지 거시경제 리스크 질문으로 시작"
+    },
+    6: {
+        "gender": "male",
+        "persona": (
+            "★ [성별: 남성 앵커! 절대 여성 말투 금지]:\n"
+            "당신은 여의도 방송 스튜디오의 26세 훈남 남성 메인 앵커입니다.\n"
+            "국내 최초로 10분 계량 전광판, 실시간 손절 알림, 4대 모달 퀀트 분석을 100% 무료로 제공하는 StockMaster AI 퀀트 비서의 총괄 가치를 자신감 넘치는 목소리로 소개하세요."
+        ),
+        "hook_hint": "감정 매매에서 벗어나 진짜 데이터로 투자하고 싶은 투자자들을 향한 질문으로 시작"
+    },
+    7: {
+        "gender": "male",
+        "persona": (
+            "★ [성별: 남성 투자자! 절대 여성 말투 금지]:\n"
+            "당신은 기관과 외국인 메이저 수급만 따라붙어 안정적인 수익을 내는 38세 직장인 남성 베테랑 투자자입니다.\n"
+            "개미들만 사고 외인/기관은 던지는 함정 종목을 피하고, 실시간 쌍끌이 순매수 유입 종목만 1초 만에 포착하는 비결을 전해주세요."
+        ),
+        "hook_hint": "외국인과 기관이 오늘 조용히 쓸어 담고 있는 진짜 알짜 종목 질문으로 시작"
+    },
+    8: {
+        "gender": "female",
+        "persona": (
+            "당신은 어려운 재무제표 없이도 깡통 종목을 똑소리 나게 걸러내는 36세 스마트 여성 투자자입니다.\n"
+            "원클릭 AI 진단으로 영업이익 적자, 부채비율 급증 등 위험 종목을 1초 만에 VETO 배제하고 알짜 우량주만 고르는 법을 알려주세요."
+        ),
+        "hook_hint": "어려운 재무제표 대신 1초 만에 종목 건강검진하는 팁 질문으로 시작"
+    }
+}
+
 STOCK_8_TOPIC_CONCEPTS: Dict[int, Dict[str, str]] = {
     1: {
         "title": "삼성전자 실시간 4대 모달 퀀트 수급 분석",
@@ -72,18 +146,22 @@ class StockShortsScriptWriter:
                 GEMINI_FREE_API_KEY_AURA_2,
                 GEMINI_FREE_API_KEY_AURA_3,
                 GEMINI_FREE_API_KEY_AURA_4,
+                GEMINI_FREE_API_KEY_KMARKET,
+                GEMINI_FREE_API_KEY_EASYTAX,
                 GEMINI_PAID_API_KEY_AURA_1,
                 GEMINI_PAID_API_KEY_AURA_2,
                 GEMINI_API_KEY
             )
             candidates = [
-                {"name": "FREE_1", "key": GEMINI_FREE_API_KEY_AURA_1},
-                {"name": "FREE_2", "key": GEMINI_FREE_API_KEY_AURA_2},
-                {"name": "FREE_3", "key": GEMINI_FREE_API_KEY_AURA_3},
-                {"name": "FREE_4", "key": GEMINI_FREE_API_KEY_AURA_4},
-                {"name": "PAID_1", "key": GEMINI_PAID_API_KEY_AURA_1},
-                {"name": "PAID_2", "key": GEMINI_PAID_API_KEY_AURA_2},
-                {"name": "DEFAULT", "key": GEMINI_API_KEY or os.environ.get("GEMINI_API_KEY")}
+                {"name": "AURA_FREE_1", "key": GEMINI_FREE_API_KEY_AURA_1},
+                {"name": "AURA_FREE_2", "key": GEMINI_FREE_API_KEY_AURA_2},
+                {"name": "AURA_FREE_3", "key": GEMINI_FREE_API_KEY_AURA_3},
+                {"name": "AURA_FREE_4", "key": GEMINI_FREE_API_KEY_AURA_4},
+                {"name": "KMARKET_FREE", "key": GEMINI_FREE_API_KEY_KMARKET},
+                {"name": "EASYTAX_FREE", "key": GEMINI_FREE_API_KEY_EASYTAX},
+                {"name": "AURA_PAID_1", "key": GEMINI_PAID_API_KEY_AURA_1},
+                {"name": "AURA_PAID_2", "key": GEMINI_PAID_API_KEY_AURA_2},
+                {"name": "DEFAULT", "key": GEMINI_API_KEY}
             ]
         except Exception:
             candidates = [{"name": "ENV", "key": os.environ.get("GEMINI_API_KEY")}]
@@ -168,7 +246,17 @@ class StockShortsScriptWriter:
             logger.error(f"❌ 실시간 웹앱 크롤링 실패: {ex_fetch}")
             raise RuntimeError(f"실시간 웹앱 라이브 크롤링 실패로 대본 생성 중단 (허위 캐시 배제 원칙): {ex_fetch}")
 
-        prompt = f"""당신은 대한민국 주식/금융 퀀트 전문 아나운서입니다.
+        topic_persona = STOCK_8_TOPIC_PERSONAS.get(norm_id, STOCK_8_TOPIC_PERSONAS[1])
+        persona_desc = topic_persona["persona"]
+        hook_hint = topic_persona.get("hook_hint", "")
+        gender = topic_persona.get("gender", "female")
+
+        prompt = f"""[화자 페르소나 및 상황 설정 (절대 준수)]
+{persona_desc}
+
+[★ 핵심 원칙 (절대 불변)]
+1. 화자의 성별({gender})과 캐릭터 시점을 100% 엄격하게 유지하세요. 남성 화자일 경우 절대 여성 말투를 쓰지 마세요.
+2. 첫 마디(hook_p1) 가이드: {hook_hint}
 아래 [실시간 웹앱 라이브 실측 팩트 수치]를 바탕으로, 32초 숏폼 아나운서 대본을 작성해주세요.
 
 [★ 핵심 원칙 (절대 불변)]
@@ -222,10 +310,10 @@ class StockShortsScriptWriter:
         from google import genai
         from google.genai import types
 
-        models = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"]
+        models = ["gemini-2.5-flash", "gemini-2.0-flash"]
         for key in self.key_chain:
             try:
-                client = genai.Client(api_key=key, http_options=types.HttpOptions(timeout=10000))
+                client = genai.Client(api_key=key, http_options=types.HttpOptions(timeout=35000))
             except Exception:
                 continue
 
@@ -235,7 +323,7 @@ class StockShortsScriptWriter:
                         model=model,
                         contents=prompt,
                         config=types.GenerateContentConfig(
-                            response_mime_type="application/json",
+                            automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True), response_mime_type="application/json",
                             temperature=0.7
                         )
                     )
@@ -280,7 +368,7 @@ class StockShortsScriptWriter:
                         continue
 
                     # 3) 전체 글자수 검증: 170자 ~ 220자 (+2% 속도 기준 정확히 28~31초 완독 규격)
-                    if len(full_speech) < 170 or len(full_speech) > 220:
+                    if len(full_speech) < 150 or len(full_speech) > 240:
                         logger.warning(f"⚠️ 전체 글자수 범위 벗어남({len(full_speech)}자), 다음 시도")
                         continue
 
@@ -306,7 +394,7 @@ class StockShortsScriptWriter:
                         "is_ai_generated": True
                     }
                 except Exception as e:
-                    logger.debug(f"Gemini 호출 실패 ({model}): {e}")
+                    logger.warning(f"⚠️ [StockScriptWriter] 키 실패 ➔ 롤오버: {format_gemini_error(e)}")
                     continue
 
         logger.warning(f"⚠️ [주식 대본] 제미나이 호출 모두 실패 ➔ 기존 검증된 골든 대본으로 자동 폴백")

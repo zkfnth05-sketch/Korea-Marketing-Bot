@@ -81,13 +81,7 @@ class AuraTranslator:
                 if system_instruction:
                     cfg.system_instruction = system_instruction
 
-                models_to_try = [
-                    "gemini-2.5-flash-lite",
-                    "gemini-flash-lite-latest",
-                    "gemini-3.1-flash-lite",
-                    "gemini-flash-latest",
-                    "gemini-2.5-flash"
-                ]
+                models_to_try = ["gemini-2.5-flash", "gemini-2.0-flash"]
                 for model_name in models_to_try:
                     try:
                         response = client.models.generate_content(

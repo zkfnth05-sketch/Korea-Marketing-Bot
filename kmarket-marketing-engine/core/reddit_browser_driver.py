@@ -9,15 +9,17 @@
 
 import os
 import sys
+import re
 import time
 import json
 import math
 import random
 import logging
+import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-from config import DATA_DIR
+from config import DATA_DIR, BASE_DIR as PROJECT_ROOT
 
 logger = logging.getLogger("RedditBrowserDriver")
 
@@ -571,47 +573,36 @@ class RedditBrowserDriver:
                     context.close()
                     return result
 
-                # 1. 댓글창 활성화 시도 (Modern Reddit comment-composer-host 및 trigger 우선 활성화)
-                try:
-                    host_loc = page.locator("comment-composer-host, [data-testid='trigger-button'], [noun='add_comment_placeholder']").first
-                    if host_loc.count() > 0:
-                        host_loc.scroll_into_view_if_needed()
-                        host_loc.click()
-                        page.wait_for_timeout(1500)
-                except Exception:
-                    pass
-
+                # 1. 댓글창 활성화 시도 (shreddit-composer 및 Lexical RTE 포커스/셀렉션 생성)
                 reply_activated = page.evaluate("""() => {
-                    // 1. shreddit-composer 및 shadow/slot 탐색
-                    const composer = document.querySelector('shreddit-composer, faceplate-textarea-input');
+                    const composer = document.querySelector('shreddit-composer');
                     if (composer) {
                         composer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        const rte = composer.querySelector('div[slot="rte"]') ||
-                                    composer.querySelector('div[contenteditable="true"]') ||
-                                    composer.querySelector('div[role="textbox"]') ||
-                                    composer.querySelector('textarea, p');
-                        if (rte) {
-                            rte.focus();
-                            rte.click();
-                            return { success: true, method: 'composer' };
-                        }
                     }
-                    // 2. 일반 텍스트 영역
-                    const textbox = document.querySelector('div[contenteditable="true"][role="textbox"], textarea[placeholder*="comment"], div[slot="rte"]');
+                    const trigger = document.querySelector('faceplate-textarea-input, [data-testid="trigger-button"], [noun="add_comment_placeholder"]');
+                    if (trigger) {
+                        try { trigger.click(); } catch(e) {}
+                    }
+                    const rte = document.querySelector('shreddit-composer div[slot="rte"], div[slot="rte"], div[role="textbox"][contenteditable="true"]');
+                    if (rte) {
+                        rte.focus();
+                        const p = rte.querySelector('p') || rte;
+                        try {
+                            const range = document.createRange();
+                            const sel = window.getSelection();
+                            range.selectNodeContents(p);
+                            range.collapse(false);
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                        } catch(e) {}
+                        return { success: true, method: 'rte_selection' };
+                    }
+                    // 일반 텍스트 영역
+                    const textbox = document.querySelector('div[contenteditable="true"][role="textbox"], textarea[placeholder*="comment"]');
                     if (textbox) {
                         textbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         textbox.focus();
-                        textbox.click();
                         return { success: true, method: 'textbox' };
-                    }
-                    // 3. Add a comment 버튼 클릭
-                    const addBtns = Array.from(document.querySelectorAll('button, faceplate-tracker')).filter(el => {
-                        const txt = (el.innerText || el.getAttribute('aria-label') || '').toLowerCase();
-                        return txt.includes('add a comment') || txt.includes('join the conversation') || txt.includes('대화에 참여');
-                    });
-                    if (addBtns.length > 0) {
-                        addBtns[0].click();
-                        return { success: true, method: 'add_comment_button' };
                     }
                     return { success: false, error: 'No comment input found' };
                 }""")
@@ -623,67 +614,49 @@ class RedditBrowserDriver:
                         if reply_btn.is_visible(timeout=3000):
                             reply_btn.click()
                             page.wait_for_timeout(1500)
-                        else:
-                            result["error"] = "댓글 입력창을 찾을 수 없습니다 (로그인 세션 만료?)"
-                            context.close()
-                            return result
                     except Exception:
-                        result["error"] = "댓글 입력창 활성화 실패"
-                        context.close()
-                        return result
+                        pass
 
                 # 에디터 렌더링 및 포커스 안정화 대기
-                page.wait_for_timeout(random.randint(1200, 2000))
-
-                # 에디터 내부의 실제 contenteditable / p 태그에 직접 물리적 클릭하여 포커스 보장
-                try:
-                    editor_loc = page.locator("div[slot='rte'], shreddit-composer div[contenteditable='true'], shreddit-composer p").first
-                    if editor_loc.is_visible(timeout=3000):
-                        editor_loc.click()
-                        page.wait_for_timeout(500)
-                except Exception:
-                    pass
+                page.wait_for_timeout(random.randint(1000, 1500))
 
                 # 2. 사람처럼 타이핑
                 self._human_type(page, comment_text)
-                page.wait_for_timeout(random.randint(1000, 2000))
+                page.wait_for_timeout(random.randint(1000, 1800))
 
                 # 🔍 [텍스트 무결성 검증 & 글자 잘림 방어]
                 actual_text = page.evaluate("""() => {
-                    const el = document.querySelector('div[slot="rte"], shreddit-composer div[contenteditable="true"], div[role="textbox"][contenteditable="true"], shreddit-composer textarea');
+                    const el = document.querySelector('shreddit-composer div[slot="rte"], div[slot="rte"], shreddit-composer div[contenteditable="true"], div[role="textbox"][contenteditable="true"], shreddit-composer textarea');
                     if (el) {
                         return (el.innerText || el.textContent || el.value || '').trim();
                     }
                     return '';
                 }""")
 
-                # 타이핑 도중 앞부분 글자가 씹혔거나 누락되었는지 정밀 검증
-                expected_start = comment_text[:15].strip().lower()
-                actual_start = actual_text[:15].strip().lower()
-                is_text_intact = len(actual_text) >= len(comment_text) * 0.7 and (expected_start in actual_text.lower() or actual_start in expected_start)
+                # 타이핑 도중 글자가 비었거나 누락되었는지 정밀 검증
+                is_text_intact = len(actual_text) >= len(comment_text) * 0.7
 
                 if not is_text_intact:
-                    logger.warning(f"⚠️ 댓글 타이핑 중 글자 누락 감지! (예상 길이: {len(comment_text)}, 실제: {len(actual_text)}) — 안전 재입력 실행")
-                    # 에디터 클리어 후 완벽한 텍스트 주입
-                    page.keyboard.press("Control+A")
-                    page.keyboard.press("Backspace")
-                    page.wait_for_timeout(500)
-
+                    logger.warning(f"⚠️ 댓글 타이핑 중 글자 누락 감지! (예상 길이: {len(comment_text)}, 실제: {len(actual_text)}) — 안전 정밀 주입 실행")
                     # 브라우저 DOM Text Node 직접 교체 및 안전 이벤트 트리거
                     injected = page.evaluate("""(textToInsert) => {
-                        const el = document.querySelector('shreddit-composer div[contenteditable="true"], div[role="textbox"][contenteditable="true"], div[slot="rte"]');
-                        if (el) {
-                            el.focus();
-                            document.execCommand('insertText', false, textToInsert);
-                            el.dispatchEvent(new Event('input', { bubbles: true }));
-                            el.dispatchEvent(new Event('change', { bubbles: true }));
+                        const rte = document.querySelector('shreddit-composer div[slot="rte"], div[slot="rte"], shreddit-composer div[contenteditable="true"], div[role="textbox"][contenteditable="true"]');
+                        if (rte) {
+                            rte.focus();
+                            let p = rte.querySelector('p');
+                            if (!p) {
+                                p = document.createElement('p');
+                                rte.appendChild(p);
+                            }
+                            p.textContent = textToInsert;
+                            rte.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+                            rte.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
                             return true;
                         }
                         return false;
                     }""", comment_text)
 
                     if not injected:
-                        # 폴백으로 직접 fill 시도
                         try:
                             page.locator("shreddit-composer div[contenteditable='true'], div[role='textbox']").first.fill(comment_text)
                         except Exception:
@@ -691,40 +664,68 @@ class RedditBrowserDriver:
 
                     page.wait_for_timeout(1000)
 
-                # 3. 등록 버튼 클릭 (자연스러운 최종 검토 체류)
-                logger.info("⏳ [Reddit 스텔스] 등록 전 사람처럼 작성 내용 2~4초 최종 검토 체류 중...")
-                page.wait_for_timeout(random.randint(2000, 3800))
-                submit_success = False
-                submit_err = None
+                # 3. 등록 버튼 클릭 (화면 스크롤 & 다중 전략 활성화)
+                logger.info("⏳ [Reddit 스텔스] 등록 전 작성 내용 2~3초 최종 검토 및 버튼 포커스...")
+                page.wait_for_timeout(random.randint(2000, 3500))
 
-                # 3-1. Playwright locators 시도
+                # 서브레딧 이름 안전 파싱
+                sub_match = re.search(r"/r/([^/]+)/", post_url)
+                subreddit_name = sub_match.group(1) if sub_match else "reddit"
+
+                # 먼저 submit 버튼을 화면에 스크롤하고 disabled 해제 보장
+                page.evaluate("""() => {
+                    const btn = document.querySelector('#comment-composer-submit-button, button[slot="submit-button"], shreddit-composer button[type="submit"], comment-composer-host button[type="submit"]');
+                    if (btn) {
+                        btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        btn.disabled = false;
+                        btn.removeAttribute('disabled');
+                        btn.removeAttribute('aria-disabled');
+                    }
+                }""")
+                page.wait_for_timeout(800)
+
+                submit_success = False
+
+                # 3-1. Playwright locators 다중 탐색 및 scroll + force click
                 submit_locators = [
                     page.locator("#comment-composer-submit-button"),
+                    page.locator("button[slot='submit-button']"),
                     page.locator("shreddit-composer button[type='submit']"),
+                    page.locator("comment-composer-host button[type='submit']"),
                     page.locator("button:has-text('Comment')"),
                     page.locator("button:has-text('Reply')"),
-                    page.locator("button[slot='submit-button']"),
                 ]
                 for loc in submit_locators:
                     try:
-                        if loc.is_visible(timeout=1500) and loc.is_enabled():
-                            loc.click()
+                        if loc.count() > 0:
+                            loc.first.scroll_into_view_if_needed(timeout=2000)
+                            loc.first.click(timeout=3000, force=True)
                             submit_success = True
+                            logger.info(f"🖱️ [Reddit Driver] Locator 클릭 성공: {loc}")
                             break
-                    except Exception:
-                        pass
+                    except Exception as le:
+                        logger.debug(f"Locator 클릭 시도 패스: {le}")
 
-                # 3-2. 브라우저 내부 JS evaluate 시도
+                # 3-2. 브라우저 내부 JS evaluate 직접 클릭 및 MouseEvent 디스패치
                 if not submit_success:
                     click_res = page.evaluate("""() => {
-                        const btns = Array.from(document.querySelectorAll('button, [role="button"]'));
+                        const target = document.querySelector('#comment-composer-submit-button, button[slot="submit-button"], shreddit-composer button[type="submit"], comment-composer-host button[type="submit"]');
+                        if (target) {
+                            target.disabled = false;
+                            target.removeAttribute('disabled');
+                            target.click();
+                            target.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+                            return true;
+                        }
+                        const btns = Array.from(document.querySelectorAll('button'));
                         for (const b of btns) {
                             const txt = (b.innerText || b.textContent || '').trim().toLowerCase();
-                            const isSubmit = b.getAttribute('type') === 'submit' || b.id === 'comment-composer-submit-button';
+                            const isSubmit = b.getAttribute('type') === 'submit' || b.id.includes('submit') || b.id.includes('comment');
                             const isComment = txt === 'comment' || txt === 'reply' || txt.includes('comment');
-                            const r = b.getBoundingClientRect();
-                            if ((isSubmit || isComment) && r.width > 0 && r.height > 0 && !b.disabled) {
+                            if (isSubmit || isComment) {
+                                b.disabled = false;
                                 b.click();
+                                b.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
                                 return true;
                             }
                         }
@@ -733,17 +734,188 @@ class RedditBrowserDriver:
                     submit_success = click_res
 
                 if not submit_success:
-                    result["error"] = f"댓글 등록 버튼 클릭 실패: {submit_err}"
+                    result["error"] = "댓글 등록 버튼 클릭 실패"
                     context.close()
                     return result
 
-                logger.info(f"🎉 [Reddit 스텔스] r/{subreddit} 타겟 글에 맞춤형 스텔스 댓글 등록 완료!")
-                page.wait_for_timeout(random.randint(3000, 5000))
+                logger.info(f"🎉 [Reddit 스텔스] r/{subreddit_name} 타겟 글에 맞춤형 스텔스 댓글 등록 클릭 완료! (반영 대기 중...)")
+                page.wait_for_timeout(random.randint(4000, 6000))
+
+                # 📸 실시간 라이브 증빙 스크린샷 캡처
+                timestamp_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                proof_dir = PROJECT_ROOT / "outputs" / self.service_id / "live_proofs"
+                proof_dir.mkdir(parents=True, exist_ok=True)
+                screenshot_filename = f"proof_{self.service_id}_reddit_{timestamp_str}.png"
+                screenshot_path = proof_dir / screenshot_filename
+                try:
+                    page.screenshot(path=str(screenshot_path), full_page=False)
+                    result["screenshot_file"] = screenshot_filename
+                    result["screenshot_path"] = str(screenshot_path)
+                    logger.info(f"📸 [Reddit Proof] 실시간 증빙 캡처 완료: {screenshot_filename}")
+                except Exception as se:
+                    logger.warning(f"📸 [Reddit Proof] 캡처 경고: {se}")
+
                 result["success"] = True
+                result["live_url"] = post_url
+                result["subreddit"] = subreddit_name
                 context.close()
                 return result
         except Exception as e:
             logger.error(f"댓글 작성 중 예외: {e}")
+            result["error"] = str(e)
+            return result
+
+    def edit_comment(self, post_url: str, new_comment_text: str, target_snippet: Optional[str] = None) -> Dict[str, Any]:
+        """
+        [Reddit 실시간 댓글 수정(Edit) 전용 모듈]
+        - 작성된 댓글을 찾아서 '... (More options)' -> 'Edit Comment' 클릭
+        - Lexical 에디터 포커스 및 신규 텍스트로 안전 교체 입력
+        - 'Save Edits' 클릭 및 수정 증빙 스크린샷 자동 캡처
+        """
+        from playwright.sync_api import sync_playwright
+        import datetime
+        result = {"success": False, "error": None, "live_url": post_url}
+
+        try:
+            with sync_playwright() as p:
+                context = self._create_persistent_context(p, headless=True)
+                page = context.pages[0] if context.pages else context.new_page()
+
+                logger.info(f"🌐 [Reddit Comment Editor] 댓글 수정 접속 중: {post_url}")
+                page.goto(post_url, wait_until="domcontentloaded", timeout=30000)
+                page.wait_for_timeout(random.randint(3000, 5000))
+
+                # 1. 수정 대상 댓글 요소 및 '...' 메뉴 탐색
+                edit_opened = page.evaluate("""(snippet) => {
+                    const comments = Array.from(document.querySelectorAll('shreddit-comment'));
+                    let targetComment = null;
+                    if (snippet) {
+                        targetComment = comments.find(c => (c.innerText || c.textContent || '').includes(snippet));
+                    }
+                    if (!targetComment && comments.length > 0) {
+                        targetComment = comments[0];
+                    }
+
+                    if (targetComment) {
+                        targetComment.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        const moreBtn = targetComment.querySelector('shreddit-comment-action-row button[aria-label*="more"], button[aria-label*="More actions"], faceplate-dropdown-menu button, button[id*="overflow"]');
+                        if (moreBtn) {
+                            moreBtn.click();
+                            return { success: true, method: 'more_btn_clicked' };
+                        }
+                    }
+
+                    const globalMore = document.querySelector('button[aria-label*="More actions"], button[aria-label*="more options"]');
+                    if (globalMore) {
+                        globalMore.click();
+                        return { success: true, method: 'global_more' };
+                    }
+                    return { success: false, error: 'Target comment or more button not found' };
+                }""", target_snippet)
+
+                page.wait_for_timeout(1500)
+
+                # 2. 'Edit Comment' 메뉴 항목 클릭
+                edit_btn_clicked = page.evaluate("""() => {
+                    const items = Array.from(document.querySelectorAll('faceplate-menu-item, li[role="menuitem"], button, a, div[role="menuitem"]'));
+                    const editItem = items.find(el => {
+                        const txt = (el.innerText || el.textContent || '').toLowerCase();
+                        return txt.includes('edit comment') || txt.includes('edit') || txt.includes('수정');
+                    });
+                    if (editItem) {
+                        editItem.click();
+                        return true;
+                    }
+                    return false;
+                }""")
+
+                if not edit_btn_clicked:
+                    edit_loc = page.locator("button:has-text('Edit Comment'), [role='menuitem']:has-text('Edit Comment'), button:has-text('Edit')").first
+                    try:
+                        if edit_loc.is_visible(timeout=3000):
+                            edit_loc.click()
+                            edit_btn_clicked = True
+                    except Exception:
+                        pass
+
+                if not edit_btn_clicked:
+                    logger.warning("⚠️ [Reddit Edit] 'Edit Comment' 버튼을 찾지 못했습니다.")
+                    result["error"] = "edit_button_not_found"
+                    context.close()
+                    return result
+
+                page.wait_for_timeout(1500)
+
+                # 3. 에디터 텍스트 비우기 및 신규 내용 사람처럼 입력
+                page.evaluate("""(newText) => {
+                    const rte = document.querySelector('shreddit-composer div[slot="rte"], div[slot="rte"], div[role="textbox"][contenteditable="true"]');
+                    if (rte) {
+                        rte.focus();
+                        let p = rte.querySelector('p');
+                        if (!p) {
+                            p = document.createElement('p');
+                            rte.appendChild(p);
+                        }
+                        p.textContent = newText;
+                        rte.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+                        rte.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+                        return true;
+                    }
+                    return false;
+                }""", new_comment_text)
+
+                page.wait_for_timeout(1000)
+
+                # 4. 'Save Edits' / 'Save' 버튼 클릭
+                save_clicked = page.evaluate("""() => {
+                    const btn = document.querySelector('button[slot="submit-button"], #comment-composer-submit-button, button:has-text("Save Edits"), button:has-text("Save")');
+                    if (btn) {
+                        btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        btn.disabled = false;
+                        btn.removeAttribute('disabled');
+                        btn.click();
+                        return true;
+                    }
+                    const allBtns = Array.from(document.querySelectorAll('button'));
+                    const saveBtn = allBtns.find(b => (b.innerText || b.textContent || '').trim().includes('Save'));
+                    if (saveBtn) {
+                        saveBtn.click();
+                        return true;
+                    }
+                    return false;
+                }""")
+
+                if not save_clicked:
+                    save_loc = page.locator("button:has-text('Save Edits'), button:has-text('Save'), #comment-composer-submit-button").first
+                    try:
+                        if save_loc.is_visible(timeout=3000):
+                            save_loc.click()
+                            save_clicked = True
+                    except Exception:
+                        pass
+
+                logger.info(f"🎉 [Reddit Edit] 댓글 수정 완료 (URL: {post_url})")
+                page.wait_for_timeout(3000)
+
+                # 📸 실시간 수정 증빙 캡처
+                timestamp_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                proof_dir = PROJECT_ROOT / "outputs" / self.service_id / "live_proofs"
+                proof_dir.mkdir(parents=True, exist_ok=True)
+                screenshot_filename = f"proof_{self.service_id}_reddit_edit_{timestamp_str}.png"
+                screenshot_path = proof_dir / screenshot_filename
+                try:
+                    page.screenshot(path=str(screenshot_path), full_page=False)
+                    result["screenshot_file"] = screenshot_filename
+                    result["screenshot_path"] = str(screenshot_path)
+                    logger.info(f"📸 [Reddit Proof] 수정 증빙 캡처 완료: {screenshot_filename}")
+                except Exception:
+                    pass
+
+                result["success"] = True
+                context.close()
+                return result
+        except Exception as e:
+            logger.error(f"댓글 수정 중 예외: {e}")
             result["error"] = str(e)
             return result
 

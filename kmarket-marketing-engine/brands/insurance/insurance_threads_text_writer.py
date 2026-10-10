@@ -21,6 +21,10 @@ import logging
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, Optional, List
+from google import genai
+from google.genai import types
+from core.gemini_unified_keys import get_unified_gemini_key_dicts, format_gemini_error, get_gemini_content_config
+
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -79,23 +83,7 @@ class InsuranceThreadsTextWriter:
     LANDING_URL = "https://insure-rebalance.vercel.app/"
 
     def __init__(self):
-        from config import (
-            GEMINI_FREE_API_KEY_AURA_1,
-            GEMINI_FREE_API_KEY_AURA_2,
-            GEMINI_FREE_API_KEY_AURA_3,
-        )
-        candidates = [
-            {"name": "INSURE_FREE_1", "key": GEMINI_FREE_API_KEY_AURA_1},
-            {"name": "INSURE_FREE_2", "key": GEMINI_FREE_API_KEY_AURA_2},
-            {"name": "INSURE_FREE_3", "key": GEMINI_FREE_API_KEY_AURA_3},
-        ]
-        seen = set()
-        self.key_chain = []
-        for c in candidates:
-            k = (c.get("key") or "").strip()
-            if k and k not in seen and len(k) > 10:
-                seen.add(k)
-                self.key_chain.append({"name": c["name"], "key": k})
+        self.key_chain = get_unified_gemini_key_dicts()
         self._active_key_index = 0
 
     def _call_gemini_chain(self, prompt: str) -> str:
@@ -108,19 +96,19 @@ class InsuranceThreadsTextWriter:
             idx = (self._active_key_index + i) % total_keys
             kinfo = self.key_chain[idx]
             try:
-                from google import genai
                 client = genai.Client(api_key=kinfo["key"])
 
                 resp = client.models.generate_content(
                     model="gemini-2.5-flash",
-                    contents=prompt
+                    contents=prompt,
+                    config=types.GenerateContentConfig(temperature=0.85)
                 )
                 if resp and resp.text and len(resp.text.strip()) > 80:
                     self._active_key_index = idx
                     return resp.text.strip()
             except Exception as e:
                 last_err = e
-                logger.warning(f"⚠️ [InsuranceTextWriter] {kinfo['name']} 실패 ➔ 롤오버: {e}")
+                logger.warning(f"⚠️ [InsuranceTextWriter] {kinfo['name']} 실패 ➔ 롤오버: {format_gemini_error(e)}")
 
         raise RuntimeError(f"모든 Gemini 키 호출 실패: {last_err}")
 

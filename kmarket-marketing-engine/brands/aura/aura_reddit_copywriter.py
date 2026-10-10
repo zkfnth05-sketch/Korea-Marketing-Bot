@@ -47,32 +47,8 @@ class AuraRedditCopywriter:
     OFFICIAL_URL = "https://aura-ai-dating.vercel.app/"
 
     def __init__(self):
-        from config import (
-            GEMINI_FREE_API_KEY_AURA_1,
-            GEMINI_FREE_API_KEY_AURA_2,
-            GEMINI_FREE_API_KEY_AURA_3,
-            GEMINI_PAID_API_KEY_AURA_1,
-            GEMINI_FREE_API_KEY_KMARKET,
-            GEMINI_API_KEY
-        )
-
-        candidates = [
-            {"name": "AURA_FREE_1", "key": GEMINI_FREE_API_KEY_AURA_1},
-            {"name": "AURA_FREE_2", "key": GEMINI_FREE_API_KEY_AURA_2},
-            {"name": "AURA_FREE_3", "key": GEMINI_FREE_API_KEY_AURA_3},
-            {"name": "AURA_PAID_1", "key": GEMINI_PAID_API_KEY_AURA_1},
-            {"name": "KM_BACKUP_FREE", "key": GEMINI_FREE_API_KEY_KMARKET},
-            {"name": "DEFAULT_KEY", "key": GEMINI_API_KEY},
-        ]
-
-        seen = set()
-        self.key_chain = []
-        for c in candidates:
-            k = (c.get("key") or "").strip()
-            if k and k not in seen and len(k) > 10:
-                seen.add(k)
-                self.key_chain.append({"name": c["name"], "key": k})
-
+        from core.gemini_unified_keys import get_unified_gemini_key_dicts
+        self.key_chain = get_unified_gemini_key_dicts()
         self._active_key_index = 0
         logger.info(f"💖 [AuraRedditCopywriter] 키 체인 등록 완료 (총 {len(self.key_chain)}개)")
 
@@ -100,68 +76,41 @@ class AuraRedditCopywriter:
     def classify_aura_reddit_intent(self, post_title: str, post_body: str = "") -> Dict[str, Any]:
         """
         💖 [Aura 레딧 100% 순수 파이썬 사전 심사 게이트 (Zero Gemini 호출 원칙)]
-        - 네이버 카페 침투(AuraCafeFilter)와 동일하게 파이썬이 100% 사전 심사 (제미나이 0회 호출)
-        - 1단계: 네거티브 정규식 (비자, 법률, 세무, 코인, 수리, 인종차별 하소연 등 즉각 탈락)
-        - 2단계: 4대 클러스터 포지티브 정규식 매칭 및 카테고리/시나리오ID 자동 확정
-        - 제미나이 API 호출 0회 ➔ 0.001초 무결성 즉시 판별
+        - AuraRedditFilter를 통한 정밀 평가 및 시나리오 ID 자동 매핑
         """
-        combined = f"{post_title} {post_body}".lower()
-
-        # 1. 네거티브 패턴 검사 (법률, 비자, 세무, 코인, 취업 비자 스폰서, 하드웨어 수리, 인종차별 하소연 등)
-        negative_patterns = [
-            r"\b(e-7\s*visa|f-2-7|f-4\s*visa|visa\s*run|immigration\s*law|tax\s*return|deduction|crypto|bitcoin|ethereum|forex|stock\s*trading)\b",
-            r"\b(pc\s*repair|screen\s*repair|plumbing|boiler\s*error|car\s*lease|used\s*car|racism|harassment|lawsuit|police\s*report)\b",
-        ]
-        has_negative = any(re.search(pat, combined, re.IGNORECASE) for pat in negative_patterns)
-        if has_negative:
-            logger.info(f"🚫 [Aura 레딧 파이썬 심사 탈락] 네거티브 키워드 감지: '{post_title[:35]}'")
-            return {"is_relevant": False, "category": "negative_filter", "reason": "비관련 주제 (비자/법률/기술/금융/분쟁)"}
-
-        # 2. 포지티브 키워드 체크 (클러스터별 정밀 매칭 및 시나리오 자동 배정)
-        cluster_rules = [
-            (
-                "language_exchange",
-                1,
-                r"\b(seeking:?\s*korean|korean\s*(native|speaker|partner|friend|buddy|exchange|practice|conversation|slang|tutor|study)|(practice|learn|study|speak|improve)\s*korean|korean\s*language\s*exchange|tandem|hellotalk|hilocal|language\s*partner|study\s*buddy|speaking\s*partner)\b"
-            ),
-            (
-                "k_dating_culture",
-                2,
-                r"\b(dating\s*(in\s*korea|in\s*seoul|korean|apps?|culture)|korean\s*(guy|guys|men|man|boyfriend|crush|date|dating|romance|blind\s*date)|interracial\s*dating|k-drama\s*romance|korean\s*mbti|ideal\s*type|sogaeting|meeting\s*(koreans?|people|locals|guys))\b"
-            ),
-            (
-                "korea_travel",
-                3,
-                r"\b(solo\s*(female|traveler|trip|woman|travel)|(hongdae|seongsu|yeonnam|gangnam|seoul|myeongdong|itaewon|busan)\s*(cafe|bars?|buddy|nightlife|friends?|hangout)|meet\s*(locals?|friends?|people)|making\s*friends|travel\s*buddy|safe\s*friends?|cafe\s*hopping)\b"
-            ),
-            (
-                "safety_verification",
-                4,
-                r"\b(korean\s*(app|apps|chat|chatting|social\s*app|dating\s*app)|no\s*(korean\s*number|phone\s*number|korean\s*sim|arc)|pass\s*verification|korean\s*chat\s*app)\b"
-            ),
-            (
-                "general_social",
-                5,
-                r"\b(k-?drama|k-?pop|korean\s*mbti|ideal\s*type|korean\s*slang|korean\s*texting|korean\s*culture)\b"
-            )
-        ]
-
-        for cat_name, scen_id, pat in cluster_rules:
-            if re.search(pat, combined, re.IGNORECASE):
-                logger.info(f"🎯 [Aura 레딧 파이썬 심사 통과] '{post_title[:35]}' ➔ {cat_name} (시나리오 {scen_id})")
+        try:
+            from brands.aura.aura_reddit_scanner import AuraRedditFilter
+            eval_res = AuraRedditFilter.evaluate_post(post_title, post_body)
+            if not eval_res.get("is_passed", False):
                 return {
-                    "is_relevant": True,
-                    "category": cat_name,
-                    "scenario_id": scen_id,
-                    "reason": f"파이썬 {cat_name} 패턴 100% 매칭"
+                    "is_relevant": False,
+                    "category": "not_passed",
+                    "reason": eval_res.get("reason", "Aura 필터 탈락")
                 }
 
-        # 포지티브 매칭 없음 -> 탈락
-        return {
-            "is_relevant": False,
-            "category": "no_keyword_match",
-            "reason": "Aura 핵심 타겟 키워드 미매칭"
-        }
+            cluster = eval_res.get("matched_cluster", "language_exchange")
+            scenario_map = {
+                "language_exchange": 1,
+                "dating_culture": 2,
+                "seoul_solo_travel": 3,
+                "zero_friction_app": 4
+            }
+            scenario_id = scenario_map.get(cluster, 1)
+            logger.info(f"🎯 [Aura 레딧 파이썬 심사 통과] '{post_title[:35]}' ➔ {cluster} (시나리오 {scenario_id})")
+            return {
+                "is_relevant": True,
+                "category": cluster,
+                "scenario_id": scenario_id,
+                "reason": eval_res.get("reason", "파이썬 심사 통과")
+            }
+        except Exception as e:
+            logger.warning(f"인텐트 분류 예외: {e}")
+            return {
+                "is_relevant": True,
+                "category": "language_exchange",
+                "scenario_id": 1,
+                "reason": "기본 언어교환 시나리오 fallback"
+            }
 
     def generate_reddit_response(
         self,
@@ -225,7 +174,8 @@ class AuraRedditCopywriter:
 
             try:
                 client = self._get_genai_client(api_key)
-                for model_name in ['gemini-2.5-flash-lite', 'gemini-flash-lite-latest', 'gemini-3.1-flash-lite', 'gemini-flash-latest', 'gemini-2.5-flash']:
+                key_quota_exhausted = False
+                for model_name in ["gemini-2.5-flash", "gemini-2.0-flash"]:
                     try:
                         resp = client.models.generate_content(
                             model=model_name,
@@ -238,10 +188,21 @@ class AuraRedditCopywriter:
                             logger.info(f"✍️ [Aura Reddit 댓글 생성 성공] (Key: {key_info['name']}, Model: {model_name}, Promo Level: {promo_level})")
                             return clean_text
                     except Exception as model_err:
-                        logger.debug(f"댓글 생성 모델 {model_name} 실패: {model_err}")
-                        continue
+                        err_str = str(model_err)
+                        if any(k in err_str for k in ["429", "RESOURCE_EXHAUSTED", "quota", "depleted", "QuotaFailure", "API_KEY_INVALID", "API_KEY_DELETED", "PERMISSION_DENIED", "UNAUTHENTICATED", "400", "401", "403", "forbidden"]):
+                            logger.warning(f"⚠️ [키 차단/소진 감지] 키={key_info['name']} ({model_name}) 에러: {err_str[:80]} -> 다음 무료키로 즉시 롤오버!")
+                            key_quota_exhausted = True
+                            break
+                        else:
+                            logger.debug(f"댓글 생성 모델 {model_name} 실패: {model_err}")
+                            continue
+
+                if key_quota_exhausted:
+                    self._active_key_index = (idx + 1) % total_keys
+                    continue
             except Exception as key_err:
                 logger.warning(f"키 {key_info['name']} 오류: {key_err}")
+                self._active_key_index = (idx + 1) % total_keys
                 continue
 
         # Fallback 텍스트 반환

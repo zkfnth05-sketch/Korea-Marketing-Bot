@@ -15,6 +15,8 @@ import time
 import base64
 import logging
 from pathlib import Path
+from core.engine.naver_search_bar_component import render_naver_search_bar_html
+
 from PIL import Image
 from playwright.sync_api import sync_playwright
 
@@ -101,6 +103,7 @@ class AuraCardnewsS1Topic5Builder:
             bullets.append("Aura AI 가치관 밸런스 매칭")
 
         cta_text = s1_copy.get("cta_text", "👉 옆으로 넘겨서 3대 가치관 대결 보기 (1/5) >")
+        naver_search_html = render_naver_search_bar_html(brand="aura")
 
         html_content = f"""<!DOCTYPE html>
 <html lang="ko">
@@ -190,12 +193,8 @@ class AuraCardnewsS1Topic5Builder:
       </div>
     </div>
 
-    <!-- 하단 스와이프 CTA 배너 -->
-    <div class="w-full py-4 rounded-2xl bg-gradient-to-r from-[#F43F5E] to-[#E11D48] shadow-xl shadow-[#F43F5E]/30 flex items-center justify-center border border-white/30">
-      <span class="text-white text-xl font-black tracking-wide">
-        {cta_text}
-      </span>
-    </div>
+    <!-- 하단 네이버 공식 검색창 UI 바 (숏폼 일체형) -->
+    {naver_search_html}
 
   </div>
 

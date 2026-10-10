@@ -85,69 +85,23 @@ class InsuranceHashtagMatrix:
     }
 
     @classmethod
-    def fetch_live_trend_keywords(cls) -> List[str]:
-        """🌐 구글 실시간 급상승(Google Trends) + 🟢 네이버 실시간 건강/보험/절약 검색 트렌드(Naver Trend) 듀얼 교차 수집"""
-        trends = []
-        import urllib.request
-        import urllib.parse
-        import json
-        import xml.etree.ElementTree as ET
-
-        # 1. 🌐 구글 대한민국 실시간 급상승 검색어 (Google Trends KR RSS)
-        try:
-            url_google = "https://trends.google.com/trending/rss?geo=KR"
-            req_g = urllib.request.Request(url_google, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
-            with urllib.request.urlopen(req_g, timeout=3.0) as resp:
-                xml_text = resp.read().decode("utf-8", errors="ignore")
-                root = ET.fromstring(xml_text)
-                for item in root.findall("./channel/item"):
-                    title = item.find("title")
-                    if title is not None and title.text:
-                        w = title.text.strip().replace(" ", "").replace("#", "")
-                        if w and len(w) < 14 and f"#{w}" not in trends:
-                            trends.append(f"#{w}")
-                    if len(trends) >= 5:
-                        break
-        except Exception as eg:
-            logger.debug(f"Google Trends 수집 건너뜀: {eg}")
-
-    @classmethod
     def fetch_live_trend_keywords(cls, category: str = "") -> List[str]:
-        """🌐 구글 실시간 급상승(Google Trends) + 🟢 카테고리별 네이버 실시간 검색어(Naver AC API) 결합 수집"""
+        """🟢 보험·금융·의료비 도메인 실시간 검색어(Naver AC API) 수집 (무관한 일반 검색어 100% 원천 차단)"""
         trends = []
         import urllib.request
         import urllib.parse
         import json
-        import xml.etree.ElementTree as ET
 
-        # 1. 🌐 구글 대한민국 실시간 급상승 검색어 (Google Trends KR RSS)
-        try:
-            url_google = "https://trends.google.com/trending/rss?geo=KR"
-            req_g = urllib.request.Request(url_google, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
-            with urllib.request.urlopen(req_g, timeout=3.0) as resp:
-                xml_text = resp.read().decode("utf-8", errors="ignore")
-                root = ET.fromstring(xml_text)
-                for item in root.findall("./channel/item"):
-                    title = item.find("title")
-                    if title is not None and title.text:
-                        w = title.text.strip().replace(" ", "").replace("#", "")
-                        if w and len(w) < 14 and f"#{w}" not in trends:
-                            trends.append(f"#{w}")
-                    if len(trends) >= 5:
-                        break
-        except Exception as eg:
-            logger.debug(f"Google Trends 수집 건너뜀: {eg}")
-
-        # 2. 🟢 카테고리별 네이버 실시간 검색어 시드 동적 선택
+        # 🟢 카테고리별 네이버 실시간 검색어 시드 동적 선택
         category_seeds = {
-            "auto_driver": ["운전자보험", "자동차보험 다이렉트", "교통사고 합의"],
-            "life_dental_pet": ["치아보험", "펫보험", "아파트 누수", "일상생활배상책임"],
-            "savings_annuity": ["연금저축 세액공제", "IRP", "비과세 연금"],
-            "claims_knowhow": ["보험금 청구 서류", "실비보험 청구", "숨은보험금 찾기"],
-            "remodeling_savings": ["보험 리모델링", "보험료 줄이기", "비갱신형 암보험"],
-            "health_medical": ["실비보험", "건강검진", "암보험", "보험비교"]
+            "auto_driver": ["운전자보험 특약", "자동차보험 다이렉트", "교통사고 합의요령", "자동차보험 할인"],
+            "life_dental_pet": ["치아보험 임플란트", "펫보험 추천", "아파트 누수 화재보험", "일상생활배상책임"],
+            "savings_annuity": ["연금저축 세액공제", "개인형 IRP", "비과세 저축보험", "연금보험 비교"],
+            "claims_knowhow": ["보험금 청구 서류", "실비보험 청구", "숨은보험금 찾기", "손해사정사 팁"],
+            "remodeling_savings": ["보험 리모델링", "보험료 줄이기", "비갱신형 암보험", "보험 다이어트"],
+            "health_medical": ["실비보험 4세대", "건강검진 수술비", "표적항암 치료비", "3대 질병 보험"]
         }
-        naver_seeds = category_seeds.get(category, ["보험비교", "실비보험", "생활비 절약"])
+        naver_seeds = category_seeds.get(category, ["보험 리밸런스", "실비보험 비교", "보험료 줄이기", "건강보험"])
 
         for seed in naver_seeds:
             try:
@@ -162,18 +116,18 @@ class InsuranceHashtagMatrix:
                             w = it[0].strip().replace(" ", "").replace("#", "")
                             if w and len(w) < 14 and f"#{w}" not in trends:
                                 trends.append(f"#{w}")
-                        if len(trends) >= 10:
+                        if len(trends) >= 8:
                             break
             except Exception:
                 pass
-            if len(trends) >= 10:
+            if len(trends) >= 8:
                 break
 
-        fallback = ["#실시간트렌드", "#고정지출절약", "#재테크꿀팁", "#생활비절약", "#보험료다이어트"]
+        fallback = ["#보험리밸런스", "#고정지출절약", "#실손보험", "#보험료다이어트", "#보장분석"]
         for fb in fallback:
-            if fb not in trends and len(trends) < 6:
+            if fb not in trends and len(trends) < 5:
                 trends.append(fb)
-        return trends[:8]
+        return trends[:6]
 
     @classmethod
     def get_rich_viral_hashtags(cls, topic_id: int = 1, count: int = 15) -> List[str]:

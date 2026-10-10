@@ -101,14 +101,11 @@ def produce_stock_34s_shorts_topic2():
     master_photo_path = work_dir / "01_master_photo_t2i.png"
     producer = StockShortsProducer()
     
-    cached_master = list(out_base.glob("**/master_t2i_02_*.png"))
-    if cached_master and cached_master[0].exists():
-        shutil.copy2(cached_master[0], master_photo_path)
-        logger.info(f"📸 마스터 남성 인물 사진 전용 폴더 복사: {master_photo_path}")
-    else:
-        res_photo = producer.produce_master_photo(topic_id=2, gender="male")
-        shutil.copy2(res_photo["photo_path"], master_photo_path)
-        logger.info(f"📸 마스터 남성 인물 사진 신규 T2I 생성: {master_photo_path}")
+    # 🎨 [100% 텍스트 기반 Wan 2.1 T2I 실사 신규 렌더링 - 캐시 재탕 0% 원천 배제]
+    logger.info("🎨 [Step 3] 26세 여의도 뉴스룸 훈남 남성 금융 아나운서 실사 마스터컷 Wan 2.1 T2I 신규 렌더링 시작 (Text-to-Image)...")
+    res_photo = producer.produce_master_photo(topic_id=2, gender="male")
+    shutil.copy2(res_photo["photo_path"], master_photo_path)
+    logger.info(f"📸 마스터 인물 사진 신규 Wan T2I 100% 실사 생성 완료: {master_photo_path}")
 
     master_img = Image.open(str(master_photo_path))
     wan_ready = producer.ensure_engine_ready()

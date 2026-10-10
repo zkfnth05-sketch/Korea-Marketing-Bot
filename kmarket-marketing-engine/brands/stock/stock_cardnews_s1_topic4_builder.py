@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
 StockCardnewsS1Topic4Builder - 📈 [StockMaster AI 주식 4번 주제 '체결 가속도(+%p) 급증 시그널' 1번 표지 전문 빌더]
 =====================================================================================================
@@ -29,6 +29,7 @@ if str(WORKSPACE_DIR) not in sys.path:
     sys.path.insert(0, str(WORKSPACE_DIR))
 
 from core.engine.wan_pipeline_client import WanPipelineClient
+from core.engine.naver_search_bar_component import render_naver_search_bar_html
 from core.engine.comfy_process_manager import ComfyProcessManager
 
 logger = logging.getLogger("StockCardnewsS1Topic4Builder")
@@ -118,6 +119,7 @@ class StockCardnewsS1Topic4Builder:
             bullets.append("StockMaster AI 실시간 체결 가속도 엔진")
 
         cta_text = copy_data.get("cta_text", "👉 옆으로 넘겨서 실시간 체결 가속도 순위 보기 (1/5) >")
+        naver_search_html = render_naver_search_bar_html(brand="stock")
 
         html_content = f"""<!DOCTYPE html>
 <html lang="ko">
@@ -209,12 +211,8 @@ class StockCardnewsS1Topic4Builder:
       </div>
     </div>
 
-    <!-- 하단 스와이프 CTA 배너 -->
-    <div class="w-full py-4 rounded-2xl bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#F59E0B] shadow-xl shadow-orange-500/20 flex items-center justify-center border border-white/20">
-      <span class="text-white text-2xl font-black tracking-wide flex items-center gap-2">
-        {cta_text}
-      </span>
-    </div>
+    <!-- 하단 네이버 공식 검색창 UI 바 (숏폼 일체형) -->
+    {naver_search_html}
 
   </div>
 

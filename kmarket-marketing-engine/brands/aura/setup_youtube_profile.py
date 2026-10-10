@@ -1,18 +1,23 @@
 # -*- coding: utf-8 -*-
 """
-Aura AI 데이팅 전용 유튜브(Google/YouTube) 영구 브라우저 프로필 1회 생성 도구
+Aura AI 데이팅 전용 유튜브(Google/YouTube) 영구 브라우저 프로필 1회 세팅 도구
 ========================================================================================
 - 브랜드: 💖 Aura AI 데이팅
-- 전용 계정: Aura 공식 채널 계정
+- 전용 계정: zkfnth021@gmail.com
 - 프로필 경로: brands/aura/youtube_chrome_profile/
-- 설명: Playwright 독립 브라우저로 1회 로그인하면 브라우저 쿠키/인증토큰이 영구 저장됩니다.
-- 원칙: Rule 1 (앱별 완전 독립 모듈화), Rule 6 (무인 자율 구동)
+- 특징:
+  1. [의심 플래그 0% 순수 크롬 실행]: --no-sandbox 등 자동화 플래그를 전면 제거하여
+     reCAPTCHA(로봇이 아닙니다) 무한 로딩 원천 차단
+  2. [완벽한 세션 쿠키 추출]: 로그인 완료 후 창을 닫으면 68+개 영구 인증 토큰을
+     youtube_session.json에 완벽히 동기화
+========================================================================================
 """
 
 import os
 import sys
 import json
 import time
+import subprocess
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
@@ -35,94 +40,92 @@ PROFILE_DIR.mkdir(parents=True, exist_ok=True)
 SESSION_JSON = CURRENT_DIR / "youtube_session.json"
 
 
+def find_chrome_executable() -> str:
+    paths = [
+        r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+        os.path.expandvars(r"%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe"),
+        r"C:\Program Files\Microsoft\Edge\Application\msedge.exe"
+    ]
+    for p in paths:
+        if os.path.exists(p):
+            return p
+    return "chrome.exe"
+
+
 def main():
     print("\n" + "=" * 70)
-    print("🔑 [💖 Aura AI 데이팅] 유튜브(Google/YouTube) 영구 브라우저 프로필 1회 세팅 도구")
+    print("🔑 [💖 Aura AI 데이팅] 유튜브 스튜디오 1회 영구 로그인")
     print("=" * 70)
-    print(f"👉 대상 브랜드: 💖 Aura AI 데이팅")
+    print("👉 대상 브랜드: 💖 Aura AI 데이팅")
+    print("👉 대상 계정: zkfnth021@gmail.com")
     print(f"👉 프로필 저장 위치: {PROFILE_DIR}")
     print("-" * 70)
-    print("1. 독립된 전용 크롬 창이 실행됩니다.")
-    print("2. [Aura AI 데이팅 전용 구글 계정]으로 로그인해 주세요.")
-    print("3. 유튜브 스튜디오 홈이 뜨면 브라우저 창 우측 상단 [X]를 눌러 닫아주세요.")
+    print("1. 순수 크롬 브라우저가 화면에 열립니다 (의심 플래그 0%).")
+    print("2. [zkfnth021@gmail.com] 계정으로 로그인을 완료해 주세요.")
+    print("3. 유튜브 스튜디오(studio.youtube.com) 홈 화면이 뜨면,")
+    print("4. 크롬 창 우측 상단 [X]를 눌러 닫아주세요.")
+    print("5. 닫히는 즉시 봇이 68+개 영구 세션 쿠키를 자동 추출하여 저장합니다.")
     print("=" * 70 + "\n")
 
     clean_browser_profile_locks(PROFILE_DIR)
-
+    chrome_path = find_chrome_executable()
     login_url = "https://accounts.google.com/ServiceLogin?service=youtube&continue=https%3A%2F%2Fstudio.youtube.com%2F"
 
-    print("🚀 독립 브라우저 실행 중...")
-    with sync_playwright() as p:
-        context = p.chromium.launch_persistent_context(
-            user_data_dir=str(PROFILE_DIR),
-            headless=False,
-            viewport={"width": 1280, "height": 850},
-            args=[
-                "--disable-blink-features=AutomationControlled",
-                "--no-sandbox",
-                "--disable-infobars"
-            ]
-        )
+    print(f"🚀 순수 크롬 브라우저 실행 중... ({chrome_path})", flush=True)
 
-        page = context.pages[0] if context.pages else context.new_page()
-        page.goto(login_url)
+    # 🛑 의심 플래그(--no-sandbox, --disable-blink-features 등) 일체 배제하여 reCAPTCHA 무한 로딩 원천 방지
+    cmd = [
+        chrome_path,
+        f"--user-data-dir={PROFILE_DIR}",
+        "--no-first-run",
+        "--no-default-browser-check",
+        login_url
+    ]
 
-        print("\n" + "=" * 70, flush=True)
-        print("💡 [Aura AI 데이팅 zkfnth021@gmail.com 로그인 진행 중]", flush=True)
-        print("1. 열린 크롬 창에서 [zkfnth021@gmail.com] 계정으로 로그인해 주세요.", flush=True)
-        print("2. 로그인이 완료되어 유튜브 스튜디오 화면이 뜨면 봇이 자동으로 감지하여 저장합니다.", flush=True)
-        print("   (또는 로그인 완료 후 이 터미널 창에서 [엔터(Enter)]를 누르셔도 됩니다)", flush=True)
-        print("=" * 70 + "\n", flush=True)
+    subprocess.run(cmd)
 
-        # 자동 감지 루프 (최대 10분 대기)
-        for _ in range(600):
-            time.sleep(1)
-            try:
-                current_url = page.url
-                if "studio.youtube.com" in current_url and "accounts.google.com" not in current_url:
-                    print("✨ [자동 감지] 유튜브 스튜디오 로그인 성공 감지! 세션을 동기화합니다...", flush=True)
-                    time.sleep(2)
-                    break
-                if len(context.pages) == 0:
-                    break
-            except Exception:
-                break
+    print("\n🌐 브라우저가 닫혔습니다. 영구 세션 쿠키 동기화 중...", flush=True)
+    clean_browser_profile_locks(PROFILE_DIR)
 
-        # 쿠키 추출 및 동기화
-        clean_cookies = []
-        try:
+    clean_cookies = []
+    try:
+        with sync_playwright() as p:
+            context = p.chromium.launch_persistent_context(
+                user_data_dir=str(PROFILE_DIR),
+                headless=True
+            )
             cookies = context.cookies()
             for c in cookies:
-                c_item = {
+                item = {
                     "name": c.get("name"),
                     "value": c.get("value"),
                     "domain": c.get("domain", ".youtube.com"),
                     "path": c.get("path", "/")
                 }
                 if "sameSite" in c and c["sameSite"] in ["Strict", "Lax", "None"]:
-                    c_item["sameSite"] = c["sameSite"]
+                    item["sameSite"] = c["sameSite"]
                 if c.get("name", "").startswith(("__Secure-", "__Host-")) or c.get("secure"):
-                    c_item["secure"] = True
-                clean_cookies.append(c_item)
+                    item["secure"] = True
+                if c.get("httpOnly"):
+                    item["httpOnly"] = True
+                clean_cookies.append(item)
 
             with open(SESSION_JSON, "w", encoding="utf-8") as f:
                 json.dump({"cookies": clean_cookies}, f, ensure_ascii=False, indent=2)
-        except Exception as ce:
-            print(f"쿠키 저장 참조: {ce}", flush=True)
-
-        try:
             context.close()
-        except Exception:
-            pass
+    except Exception as ex:
+        print(f"⚠️ 쿠키 동기화 안내: {ex} (프로필 디스크 저장은 완료되었습니다)")
 
-    has_login = any(c.get("name") in ["LOGIN_INFO", "SID", "SSID", "SAPISID"] for c in clean_cookies)
-    print("\n" + "=" * 70)
-    print(f"🎉 [성공] 총 {len(clean_cookies)}개의 유튜브 세션 쿠키가 영구 보관함에 완벽하게 동기화되었습니다!")
-    if has_login:
-        print("✅ [검증 통과] Aura AI 데이팅 구글/유튜브 인증 토큰(SID/LOGIN_INFO) 정상 감지 완료!")
+    auth_tokens = [c["name"] for c in clean_cookies if c["name"] in ["LOGIN_INFO", "SID", "SSID", "SAPISID", "HSID", "__Secure-3PSID", "__Secure-1PSID"]]
+    print(f"\n📦 총 {len(clean_cookies)}개의 유튜브 세션 쿠키 저장 완료!")
+    print(f"🔑 발견된 핵심 인증 토큰: {set(auth_tokens)}")
+
+    if any(k in auth_tokens for k in ["LOGIN_INFO", "SID", "__Secure-3PSID"]):
+        print("\n🎉 [검증 통과] Aura AI 데이팅 구글/유튜브 영구 인증 토큰 저장 성공!")
+        print("👉 이제 365일 24시간 무인 쇼츠 자동 송출이 가능합니다.\n")
     else:
-        print("⚠️ [안내] 로그인 토큰이 감지되지 않았습니다. 로그인이 정상 완료되었는지 확인해 주세요.")
-    print("=" * 70 + "\n")
+        print("\n⚠️ [안내] 로그인 토큰이 감지되지 않았습니다. 로그인이 정상 완료되었는지 확인 후 다시 실행해 주세요.\n")
 
 
 if __name__ == "__main__":

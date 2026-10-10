@@ -99,7 +99,7 @@ class StockYouTubeBehaviorBot:
         self.brand = "stock"
         self.brand_name = "📈 StockMaster AI"
         self.headless = headless
-        self.youtube_profile_dir = CURRENT_DIR / "youtube_chrome_profile"
+        self.youtube_profile_dir = CURRENT_DIR / "youtube_behavior_profile"
         self.youtube_profile_dir.mkdir(parents=True, exist_ok=True)
         self.session_file = CURRENT_DIR / "youtube_session.json"
         self.history_file = CURRENT_DIR / "youtube_human_routine_history.json"
@@ -136,6 +136,11 @@ class StockYouTubeBehaviorBot:
             await asyncio.sleep(random.uniform(2.5, 4.5))
 
             while (time.time() - start_t) < duration_sec:
+                # 🚨 [스텔스 봇 자율 양보] 고우선순위 숏폼/카드뉴스 업로드 요청 감지 시 즉각 양보
+                if is_yield_requested():
+                    logger.info('🚨 [스텔스 봇 긴급 양보] 고우선순위 영상/카드뉴스 업로드 작업 감지 -> 시청 루틴 즉시 정상 종료 및 브라우저 양보!')
+                    break
+
                 # 2. 쇼츠 완시청 체류 (16 ~ 35초)
                 watch_time = random.uniform(16.0, 35.0)
                 logger.info(f"👀 [Stock YouTubeBot] 쇼츠 #{result['shorts_watched'] + 1} 완시청 중... ({watch_time:.1f}초 체류)")
@@ -218,7 +223,7 @@ class StockYouTubeBehaviorBot:
             "brand": self.brand
         }
 
-        from core.engine.browser_guard import async_browser_lock, clean_browser_profile_locks, get_safe_browser_args
+        from core.engine.browser_guard import is_yield_requested, async_browser_lock, clean_browser_profile_locks, get_safe_browser_args
 
         clean_browser_profile_locks(self.youtube_profile_dir)
 

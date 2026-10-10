@@ -29,31 +29,8 @@ class AuraCafeReplyWriter:
     """💖 Aura 카페 침투 전용 제미나이 감성 댓글 생성기"""
 
     def __init__(self):
-        from config import (
-            GEMINI_FREE_API_KEY_AURA_1,
-            GEMINI_FREE_API_KEY_AURA_2,
-            GEMINI_FREE_API_KEY_AURA_3,
-            GEMINI_FREE_API_KEY_AURA_4,
-            GEMINI_PAID_API_KEY_AURA_1,
-            GEMINI_API_KEY
-        )
-        candidates = [
-            {"name": "AURA_FREE_1", "key": GEMINI_FREE_API_KEY_AURA_1},
-            {"name": "AURA_FREE_2", "key": GEMINI_FREE_API_KEY_AURA_2},
-            {"name": "AURA_FREE_3", "key": GEMINI_FREE_API_KEY_AURA_3},
-            {"name": "AURA_FREE_4", "key": GEMINI_FREE_API_KEY_AURA_4},
-            {"name": "AURA_PAID_1", "key": GEMINI_PAID_API_KEY_AURA_1},
-            {"name": "DEFAULT", "key": GEMINI_API_KEY}
-        ]
-
-        seen = set()
-        self.key_chain = []
-        for c in candidates:
-            k = (c.get("key") or "").strip()
-            if k and k not in seen and len(k) > 10:
-                seen.add(k)
-                self.key_chain.append({"name": c["name"], "key": k})
-
+        from core.gemini_unified_keys import get_unified_gemini_key_dicts
+        self.key_chain = get_unified_gemini_key_dicts()
         self._active_key_index = 0
 
     def _is_valid_reply(self, text: str) -> bool:
@@ -113,25 +90,19 @@ class AuraCafeReplyWriter:
 
             try:
                 from google import genai
-                from google.genai import types as genai_types
+                from google.genai import types
 
                 client = genai.Client(api_key=api_key)
-                # 토큰 낭비 없는 3.1-flash-lite 최우선, 2.5-flash 백업
-                models_to_try = [
-                    "gemini-2.5-flash-lite",
-                    "gemini-flash-lite-latest",
-                    "gemini-3.1-flash-lite",
-                    "gemini-flash-latest",
-                    "gemini-2.5-flash"
-                ]
+                models_to_try = ["gemini-2.5-flash", "gemini-2.0-flash"]
 
+                key_quota_exhausted = False
                 for model_name in models_to_try:
                     try:
                         response = client.models.generate_content(
                             model=model_name,
                             contents=prompt,
-                            config=genai_types.GenerateContentConfig(
-                                system_instruction=system_instruction,
+                            config=types.GenerateContentConfig(
+                                automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True), system_instruction=system_instruction,
                                 temperature=0.75,
                                 max_output_tokens=2048
                             )
@@ -150,12 +121,27 @@ class AuraCafeReplyWriter:
                                 return text
                             else:
                                 logger.warning(
-                                    f"⚠️ [봇 자율 게이트 불합격] 키={key_info['name']}, 모델={model_name}의 출력이 미흡함: '{text}' -> 다음 무료키로 자율 전환"
+                                    f"⚠️ [봇 자율 게이트 불합격] 키={key_info['name']}, 모델={model_name}의 출력이 미흡함: '{text}' -> 다음 무료키로 즉시 롤오버"
                                 )
+                                key_quota_exhausted = True
+                                break
                     except Exception as me:
-                        logger.warning(f"모델 {model_name} 실패 (키={key_info['name']}): {me}")
+                        err_str = str(me)
+                        if any(k in err_str for k in ["429", "RESOURCE_EXHAUSTED", "quota", "depleted", "QuotaFailure"]):
+                            logger.warning(f"⚠️ [할당량 소진] 키={key_info['name']} ({model_name}) 429 쿼터 초과 -> 다음 무료키로 즉시 롤오버!")
+                            key_quota_exhausted = True
+                            break
+                        else:
+                            logger.warning(f"모델 {model_name} 실패 (키={key_info['name']}): {me}")
+                            continue
+
+                if key_quota_exhausted:
+                    self._active_key_index = (idx + 1) % total_keys
+                    continue
             except Exception as ke:
                 logger.warning(f"키 {key_info['name']} 호출 실패: {ke}")
+                self._active_key_index = (idx + 1) % total_keys
+                continue
 
         # 백업 응답 (모든 키/모델 시도 실패 시에도 100% 무결점 보장)
         return (

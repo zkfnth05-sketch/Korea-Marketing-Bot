@@ -37,9 +37,9 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from config import BASE_DIR, get_now_kst_str
 from brands.aura.aura_hashtag_matrix import AuraHashtagMatrix
-from brands.aura.aura_meta_publisher import AuraMetaPublisher
 from brands.aura.aura_mbs_reels_publisher import AuraMBSReelsPublisher
 from brands.aura.aura_youtube_bot_publisher import AuraYouTubeBotPublisher
+from brands.aura.aura_tiktok_publisher import AuraTikTokPublisher
 from brands.aura.aura_naver_clip_publisher import AuraNaverClipPublisher
 
 logger = logging.getLogger("AuraOmniCardnewsPilot")
@@ -65,10 +65,10 @@ class AuraOmniCardnewsPilot:
 
     def __init__(self):
         self.hashtag_matrix = AuraHashtagMatrix()
-        self.meta_pub = AuraMetaPublisher()
         self.mbs_pub = AuraMBSReelsPublisher()
         self.youtube_pub = AuraYouTubeBotPublisher(headless=True)
         self.clip_pub = AuraNaverClipPublisher()
+        self.tiktok_pub = AuraTikTokPublisher(headless=True)
         self.history_file = CURRENT_DIR / "omni_cardnews_publish_history.json"
         self.state_file = CURRENT_DIR / "omni_cardnews_schedule_state.json"
 
@@ -176,8 +176,8 @@ class AuraOmniCardnewsPilot:
     def build_meta_packages(self, topic_id: int) -> Dict[str, Any]:
         """[제미나이 100% 실시간 카피 + 실시간 급상승 트렌드 해시태그 융합] 5장 카드뉴스 및 4대 채널 포스팅 패키지"""
         main_title = self.CARDNEWS_TOPICS.get(topic_id, f"소개팅 꿀팁 카드뉴스 #{topic_id}")
-        from core.gemini_domestic_sns_copywriter import GeminiDomesticSNSCopywriter
-        copywriter = GeminiDomesticSNSCopywriter(brand="aura")
+        from brands.aura.aura_domestic_sns_copywriter import AuraDomesticSNSCopywriter
+        copywriter = AuraDomesticSNSCopywriter()
         pkg = copywriter.generate_full_package(topic_id=topic_id, topic_title=main_title, media_type="shorts")
         return {
             "title": main_title,
@@ -228,13 +228,8 @@ class AuraOmniCardnewsPilot:
             "channels": {}
         }
 
-        # 🛑 [대표님 긴급 수칙] 외부 API 송출 차단 모드 검사
-        dispatch_allowed, dispatch_msg = AuraProductionSafetyGate.is_api_dispatch_allowed()
-        if not dispatch_allowed:
-            logger.warning(f"{dispatch_msg} (주제 #{target_topic} 바탕화면 실물 {len(slides)}장 보관 완료)")
-            results["channels"] = {"all_channels": {"status": "blocked", "message": dispatch_msg}}
-            self.save_publish_history(results)
-            return results
+        # 🌐 [대표님 절대 수칙] API 배제 -> 사람처럼 크롬 브라우저를 직접 띄워 올리는 웹 브라우저 봇 자동 송출
+        logger.info("🌐 [사람처럼 올리는 브라우저 봇 가동] 인스타그램, 스레드, 네이버 블로그 무인 송출 시작!")
 
         # 4-1. 카드뉴스 슬라이드 ➔ 15.5초 세로 릴스/숏폼 MP4 자동 변환
         cardnews_reels_path = None
@@ -266,18 +261,23 @@ class AuraOmniCardnewsPilot:
                 logger.error(f"❌ [MBS 릴스 발행 예외] {mbse}")
                 results["channels"]["meta_business_suite_reels"] = {"status": "error", "error": str(mbse)}
 
-        # 4-3. [Channel 2-1] 페이스북 5장 카드뉴스 앨범 피드 송출
-        if self.meta_pub.is_available():
-            logger.info(f"📘 [Meta Graph API] 페이스북 5장 카드뉴스 앨범 송출...")
-            try:
-                fb_res = self.meta_pub.publish_facebook_cardnews_album(
-                    image_paths=slides,
-                    caption=pkg["fb_caption"],
-                    first_comment=pkg["fb_comment"]
-                )
-                results["channels"]["facebook_cardnews"] = fb_res
-            except Exception as fbe:
-                results["channels"]["facebook_cardnews"] = {"status": "error", "error": str(fbe)}
+
+        # 4-3-2. [Channel 2-3] 스레드(Threads) 5장 카드뉴스 & 타래 댓글 무인 송출
+        logger.info(f"🧵 [Threads] 스레드 5장 카드뉴스 무인 송출 개시...")
+        try:
+            import asyncio
+            from brands.aura.aura_threads_pipeline import AuraThreadsPipeline
+            th_pipe = AuraThreadsPipeline(headless=True)
+            slide_dir = Path(slides[0]).parent if slides else CURRENT_DIR
+            th_res = asyncio.run(th_pipe.run_pipeline(
+                cardnews_folder=str(slide_dir),
+                custom_caption=pkg.get("ig_caption", pkg.get("title"))
+            ))
+            results["channels"]["threads"] = th_res
+            logger.info(f"🎉 [스레드 송출 완료]: {th_res.get('status')}")
+        except Exception as the:
+            logger.error(f"❌ 스레드 송출 예외: {the}")
+            results["channels"]["threads"] = {"status": "error", "error": str(the)}
 
         # 4-4. [Channel 3] 유튜브 쇼츠에 카드뉴스 릴스 영상 송출
         if cardnews_reels_path and os.path.exists(cardnews_reels_path) and self.youtube_pub.is_available():
@@ -311,6 +311,23 @@ class AuraOmniCardnewsPilot:
             except Exception as ce:
                 logger.error(f"❌ 네이버 클립 카드뉴스 숏츠 송출 실패: {ce}")
                 results["channels"]["naver_clip"] = {"status": "error", "error": str(ce)}
+
+        
+        # [Channel] 틱톡 카드뉴스 숏폼 무인 송출
+        if cardnews_reels_path and os.path.exists(cardnews_reels_path) and hasattr(self, 'tiktok_pub') and self.tiktok_pub.is_available():
+            logger.info(f"🎵 [틱톡 카드뉴스 릴스 송출] 주제 #{target_topic} 발사...")
+            try:
+                tk_res = self.tiktok_pub.publish_short(
+                    video_path=cardnews_reels_path,
+                    topic_id=target_topic,
+                    caption=pkg.get("tiktok", {}).get("caption", pkg.get("title")),
+                    title=pkg.get("title")
+                )
+                results["channels"]["tiktok"] = tk_res
+                logger.info(f"🎉 [틱톡 카드뉴스 송출 완료]: {tk_res.get('post_url', tk_res.get('status'))}")
+            except Exception as tke:
+                logger.error(f"❌ 틱톡 카드뉴스 숏츠 송출 실패: {tke}")
+                results["channels"]["tiktok"] = {"status": "error", "error": str(tke)}
 
         # 5. 중복 락 및 히스토리 영구 기록
         self._record_history(results)

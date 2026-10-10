@@ -128,13 +128,19 @@ class ShortsBrandCapsuleBadge:
 
     @classmethod
     def get_overlay_path(cls, brand_key: str, force_refresh: bool = False) -> str:
-        """브랜드별 1080x1920 상단 캡슐 뱃지 오버레이 경로 반환 (없으면 자동 렌더링)"""
-        config = cls.BADGE_CONFIGS.get(brand_key.lower())
-        if not config:
-            return ""
-
-        out_path = OVERLAYS_DIR / config["filename"]
-        if force_refresh or not out_path.exists():
-            cls.create_capsule_overlay_png(brand_key, str(out_path))
-
-        return str(out_path)
+        """
+        브랜드별 1080x1920 상단 캡슐 뱃지 + 하단 네이버 검색창 통합 오버레이 경로 반환
+        - 카드뉴스 공식 디자인 100% 계승된 ShortsBrandingOverlay에 위임
+        """
+        try:
+            from core.shorts_engine.shorts_branding_overlay import ShortsBrandingOverlay
+            return ShortsBrandingOverlay.get_overlay_path(brand_key, force_refresh=force_refresh)
+        except Exception as e:
+            logger.warning(f"ShortsBrandingOverlay 위임 실패({e}), 기존 단독 캡슐 뱃지 폴백 사용...")
+            config = cls.BADGE_CONFIGS.get(brand_key.lower())
+            if not config:
+                return ""
+            out_path = OVERLAYS_DIR / config["filename"]
+            if force_refresh or not out_path.exists():
+                cls.create_capsule_overlay_png(brand_key, str(out_path))
+            return str(out_path)

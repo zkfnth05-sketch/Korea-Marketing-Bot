@@ -180,7 +180,7 @@ class InsuranceYouTubeBotPublisher:
 
         async with async_browser_lock(f"Insurance 유튜브 쇼츠 업로드 ({final_title[:15]})"):
             async with async_playwright() as p:
-                browser_args = get_safe_browser_args()
+                browser_args = get_safe_browser_args() + ['--disable-blink-features=AutomationControlled']
                 
                 try:
                     context = await p.chromium.launch_persistent_context(
@@ -197,6 +197,43 @@ class InsuranceYouTubeBotPublisher:
                         args=browser_args,
                         viewport={"width": 1366, "height": 850}
                     )
+
+                                # 세션 쿠키 주입 (RFC 6265bis 규격 정제 및 보안 속성 보정)
+                if self.session_file.exists():
+                    try:
+                        with open(self.session_file, "r", encoding="utf-8") as f:
+                            raw = json.load(f)
+                        raw_cookies = raw.get("cookies", raw) if isinstance(raw, dict) else raw
+                        clean_cookies = []
+                        for c in raw_cookies:
+                            c_name = c.get("name", "")
+                            c_val = c.get("value", "")
+                            c_domain = c.get("domain", ".youtube.com")
+                            c_path = c.get("path", "/")
+                            item = {"name": c_name, "value": c_val, "path": c_path}
+                            is_secure = c.get("secure", False)
+                            if c_name.startswith("__Secure-") or c_name.startswith("__Host-"):
+                                is_secure = True
+                            item["secure"] = bool(is_secure)
+                            if "httpOnly" in c:
+                                item["httpOnly"] = bool(c["httpOnly"])
+                            ss = c.get("sameSite")
+                            if ss in ["Strict", "Lax", "None"]:
+                                item["sameSite"] = ss
+                            if c_name.startswith("__Host-"):
+                                item["domain"] = c_domain.lstrip(".")
+                                item["path"] = "/"
+                            else:
+                                item["domain"] = c_domain
+                            clean_cookies.append(item)
+                        for ck in clean_cookies:
+                            try:
+                                await context.add_cookies([ck])
+                            except Exception:
+                                pass
+                        logger.info(f"   🍪 유튜브 세션 쿠키 {len(clean_cookies)}개 브라우저 주입 완료")
+                    except Exception as ce:
+                        logger.warning(f"유튜브 세션 쿠키 로드 예외: {ce}")
 
                 page = context.pages[0] if context.pages else await context.new_page()
                 

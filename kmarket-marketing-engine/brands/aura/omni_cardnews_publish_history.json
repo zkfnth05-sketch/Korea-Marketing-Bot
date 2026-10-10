@@ -194,5 +194,66 @@
         "brand": "aura"
       }
     }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-10",
+    "published_at": "2026-10-10 15:06:10",
+    "brand": "aura",
+    "topic_id": 1,
+    "title": "소개팅 첫 만남, 어색함 3초 만에 깨는 대화 치트키 4선",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "message": "Meta Business Suite를 통한 Aura AI 데이팅 릴스 동시 발행 성공",
+        "platform": "meta_business_suite",
+        "video": "aura_topic1_cardnews_reels.mp4"
+      },
+      "threads": {
+        "success": false,
+        "brand": "aura",
+        "error": "스레드 작성창(textbox)을 활성화하지 못했습니다.",
+        "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_error_screenshot.png"
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "aura",
+        "topic_id": 1,
+        "video_id": "ysaBU4nH0aM",
+        "video_url": "https://youtube.com/shorts/ysaBU4nH0aM",
+        "title": "소개팅 첫 만남, 어색함 3초 만에 깨는 대화 치트키 4선 #아우라AI데이팅 #Shorts",
+        "pinned_comment": "📌 영상에서 나온 50:50 완벽 성비 AI 소개팅 라운지는\n네이버에 👉 [ 아우라AI데이팅 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://aura-ai-dating.vercel.app/)",
+        "comment_status": "skipped",
+        "privacy_status": "public",
+        "video_file": "aura_topic1_cardnews_reels.mp4",
+        "published_at": "2026-10-10 15:15:46",
+        "elapsed_sec": 469.4,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "aura",
+        "topic_id": 1,
+        "title": "소개팅 첫 만남, 어색함 3초 만에 깨는 대화 치트키 4선",
+        "video_file": "aura_topic1_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@auraaidating",
+        "published_at": "2026-10-10 15:16:04"
+      },
+      "tiktok": {
+        "brand": "aura",
+        "platform": "tiktok",
+        "topic_id": 1,
+        "video_file": "C:\\Users\\zkfnt\\Desktop\\한국 카드뉴스_산출물\\아우라\\아우라_01_소개팅긴급탈출전화_20261010_1454\\aura_topic1_cardnews_reels.mp4",
+        "title": "소개팅 첫 만남, 어색함 3초 만에 깨는 대화 치트키 4선",
+        "caption": "소개팅 첫 만남, 어색함 3초 만에 깨는 대화 치트키 4선",
+        "success": true,
+        "published_at": "2026-10-10 15:16:46",
+        "post_url": "https://www.tiktok.com/@aura_ai_dating",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\tiktok_publish_proof_topic01.png"
+      }
+    }
   }
 ]

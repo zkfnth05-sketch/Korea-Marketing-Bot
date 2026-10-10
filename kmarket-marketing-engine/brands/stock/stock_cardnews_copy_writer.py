@@ -1,3 +1,4 @@
+from core.gemini_unified_keys import get_unified_gemini_key_dicts, get_unified_gemini_keys, format_gemini_error
 # -*- coding: utf-8 -*-
 """
 StockCardnewsCopyWriter - ✍️ [StockMaster AI 실시간 팩트 데이터 기반 제미나이 카드뉴스 카피 집필기]
@@ -48,7 +49,7 @@ class StockCardnewsCopyWriter:
     """📈 실시간 주식 팩트 데이터를 바탕으로 카드뉴스 5장 전체 카피를 실시간 집필하는 제미나이 엔진"""
 
     def __init__(self):
-        self.model_name = "gemini-2.0-flash"
+        self.model_name = "gemini-2.5-flash", "gemini-2.0-flash"
 
     def write_cardnews_copy(self, stock_name: str, real_data: Dict[str, Any], topic_title: str = "") -> Dict[str, Any]:
         """실시간 수집 데이터를 제미나이에 프롬프트로 전달하여 1~5번 슬라이드 맞춤형 카피 생성"""
@@ -137,7 +138,7 @@ class StockCardnewsCopyWriter:
   }}
 }}
 """
-        models_to_try = ["gemini-3.8-flash", "gemini-3.5-flash-lite", "gemini-flash-latest", "gemini-2.5-flash", "gemini-2.5-flash-lite"]
+        models_to_try = ["gemini-2.5-flash", "gemini-2.0-flash"]
         for model_name in models_to_try:
             try:
                 model = genai.GenerativeModel(model_name)

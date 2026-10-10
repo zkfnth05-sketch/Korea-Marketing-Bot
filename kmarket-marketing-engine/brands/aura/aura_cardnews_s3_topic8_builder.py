@@ -15,6 +15,8 @@ import sys
 import base64
 import logging
 from pathlib import Path
+from core.engine.naver_search_bar_component import render_naver_search_bar_html
+
 from typing import Dict, Any, Optional
 import cv2
 from playwright.sync_api import sync_playwright
@@ -53,6 +55,7 @@ class AuraCardnewsS3Topic8Builder:
         h1_line2 = copy_data.get("headline_line2", "500m 반경 랜덤 지터링으로 안전 등록") if copy_data else "500m 반경 랜덤 지터링으로 안전 등록"
         subtitle = copy_data.get("subtitle", "등록 24시간 뒤 흔적 없이 자동 삭제! 반경 5km 이내 검증 이성에게만 실시간 알림") if copy_data else "등록 24시간 뒤 흔적 없이 자동 삭제! 반경 5km 이내 검증 이성에게만 실시간 알림"
         cta_text = copy_data.get("cta_text", "👉 옆으로 넘겨서 실시간 번개 지도 보기 (3/5) >") if copy_data else "👉 옆으로 넘겨서 실시간 번개 지도 보기 (3/5) >"
+        naver_search_html = render_naver_search_bar_html(brand="aura")
 
         html_content = f"""<!DOCTYPE html>
 <html lang="ko">
@@ -177,12 +180,8 @@ class AuraCardnewsS3Topic8Builder:
     </div>
   </div>
 
-  <!-- 4. Bottom CTA Bar -->
-  <div class="z-10 w-full cta-glow rounded-2xl py-4 flex items-center justify-center gap-2 shadow-2xl">
-    <span class="text-white text-xl font-black tracking-wide">
-      {cta_text}
-    </span>
-  </div>
+  <!-- 4. 하단 네이버 공식 검색창 UI 바 (숏폼 일체형) -->
+  {naver_search_html}
 
  </body>
 </html>"""

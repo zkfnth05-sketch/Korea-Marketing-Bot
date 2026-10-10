@@ -27,40 +27,49 @@ AURA_8_TOPIC_SPECS = {
             "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, visible real pores and individual hair strands"
         ),
         "char_desc": (
-            "a beautiful 28-year-old Korean woman, perfect 8-head-high golden ratio model proportions, delicate small petite head and face, slender elegant long neck, calm low ponytail hairstyle, clear fair skin, "
-            "refined subtle makeup, wearing stylish sophisticated civilian dating clothes, a chic modern evening dinner outfit, "
-            "elegant and poised appearance with genuine expressive eyes looking directly into the camera lens"
+            "an exceptionally breathtaking gorgeous 24-year-old Korean high-society luxury date goddess, "
+            "top-tier visual beauty with enchanting deer-like and fox-like facial aesthetics, "
+            "captivating magnetic almond dark hazel eyes with subtle elegant winged eyeliner, delicate cute button nose, sculpted flawless V-line jawline, "
+            "flawless porcelain glass skin with a soft natural peach glow, "
+            "natural full lips gently closed together with a subtle captivating confident micro-smile (strictly zero teeth showing), "
+            "voluminous silky dark brown long layered wavy hair flowing effortlessly over her shoulders, "
+            "wearing an ultra-luxurious elegant black square-neck fitted silk-knit blouse accentuating her delicate graceful collarbones and slender neckline, delicate minimalist gold pendant necklace, sophisticated Cheongdam date-night fashion"
         ),
         "bg_desc": (
-            "moody upscale evening bistro and wine restaurant in Cheongdam, soft warm pin-spot table lighting, "
-            "antique dark wooden dining table, delicate wine glasses and neat linen napkin in the background in tack sharp f/11 focus"
+            "seated gracefully across a dark polished marble table inside a high-end luxury wine dining lounge in Hannam-dong, "
+            "glowing romantic candle votive lamp casting warm flattering ambient candlelight across the table, sparkling crystal wine glasses and boutique champagne bottle in tack sharp f/11 focus, "
+            "modern luxury architectural interior with warm golden mood lighting, creating an intimate, glamorous high-society dating atmosphere"
         ),
-        "vibe": "청담동 고급 비스트로에서 눈길을 싹쓸이하는 세련되고 우아한 로맨스 드라마 여주급 직장인 비주얼"
+        "vibe": "한남동/청담동 최고급 와인바에서 눈길을 싹쓸이하는 압도적 미모의 24세 럭셔리 데이트 여신"
     },
     2: {
         "topic_id": 2,
         "title": "실시간 자막 통화",
         "gender": "female",
         "framing": (
-            "photographed from 2.0 meters away from the date's first-person eye-level perspective on Apple iPhone 15 Pro 24mm main camera, "
-            "solo 1person female, perfectly centered in the middle of frame, perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
-            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and graceful shoulders, "
-            "gently closed mouth, natural lips closed together, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
-            "candid cowboy medium shot showing chest, waist, and warm wooden furniture clearly, generous headroom above, "
-            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, completely clear background bookshelves and plants in sharp crisp focus, visible real pores and individual hair strands"
+            "photographed from 1.8 meters directly across a marble cafe table from the date's first-person eye-level perspective on Apple iPhone 15 Pro 24mm main camera, "
+            "solo 1person female, perfectly centered in the middle of frame, perfectly frontal portrait view looking directly into the camera lens with captivating magnetic eye contact, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, slender elegant long neck and graceful delicate collarbones, "
+            "gently closed mouth, natural full glossy rose lips closed together with subtle alluring micro-smile, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
+            "candid medium chest-up and waist shot showing upper body, collarbones, and clean white marble table clearly, generous balanced headroom above, "
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, visible real delicate skin pores and individual silky hair strands"
         ),
         "char_desc": (
-            "an exceptionally gorgeous 24-year-old Japanese young woman (Nanami), perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck, authentic real human model visual, "
-            "authentic natural human skin with visible fine pores and realistic delicate skin texture, strictly no airbrushing, "
-            "charming expressive doe-like hazel-brown eyes, delicate see-through bangs, neat dark brown shoulder-length hair, "
-            "wearing clean stylish civilian casual clothes, a neat comfortable daily outfit, looking directly into the camera lens"
+            "an exceptionally breathtaking gorgeous 23-year-old Japanese goddess and Tokyo IT-girl influencer (Nanami), "
+            "top-tier Japanese idol and visual model beauty with enchanting magnetic charm, "
+            "mesmerizing doe-like and cat-like almond hazel eyes with chic subtle winged eyeliner, delicate aegyo-sal, high bridge cute petite button nose, sculpted flawless V-line jawline, "
+            "flawless dewy luminous porcelain glass skin with soft natural peach cheek glow, authentic delicate skin texture, strictly no plastic doll look, "
+            "natural full alluring glossy rose lips gently closed together with a captivating confident smile (strictly zero teeth showing), "
+            "voluminous silky soft caramel-brown layered wavy hair with airy curtain bangs gracefully framing her face and delicate collarbones, "
+            "wearing an ultra-chic trendy off-shoulder pastel-cream ribbed knit top revealing elegant slender shoulders and graceful neckline, delicate minimalist gold layered necklace, sophisticated trendy Seongsu-dong date-night fashion"
         ),
         "bg_desc": (
-            "warm cozy living room with authentic dark oak wooden bookshelves filled with books, "
-            "vibrant lush green indoor potted plants, warm directional room ambient lighting creating natural depth and rich realistic shadows, "
-            "warm inviting atmosphere with over 75% background rich interior details in tack sharp f/11 focus"
+            "sitting gracefully across a clean polished white marble table at a sunlit trendy glasshouse boutique cafe in Seongsu-dong, "
+            "warm soft golden hour natural sunlight streaming gently from the floor-to-ceiling glass windows, "
+            "modern minimalist aesthetic cafe interior with elegant subtle architectural lines, "
+            "warm inviting dating atmosphere in tack sharp crisp f/11 focus"
         ),
-        "vibe": "도쿄 잇걸 미모의 나나미, 따뜻한 원목 책장과 초록 식물 배경에서 세련된 일상 사복으로 쨍하고 선명한 아이폰 15 Pro 실사 비주얼"
+        "vibe": "도쿄 롯폰기 잇걸 출신의 23세 일본 여신 나나미, 성수동 채광 가득한 통유리 부티크 카페 대리석 테이블에서 오프숄더 크림 니트로 쇄골을 드러내며 설레는 첫 통화를 거는 압도적 비주얼"
     },
     3: {
         "topic_id": 3,
