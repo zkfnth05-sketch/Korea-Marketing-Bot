@@ -196,7 +196,18 @@ class AuraCardnewsS2MaleProfileBuilder:
                 male_photo_p = default_candidate
                 logger.info(f"📸 기존 생성된 훈남 사진 재사용: {male_photo_p}")
             else:
-                male_photo_p = self.generate_male_photo(seed=seed)
+                try:
+                    male_photo_p = self.generate_male_photo(seed=seed)
+                except Exception as e:
+                    logger.warning(f"⚠️ ComfyUI 미실행 -> 골든 실사 훈남 사진 안전 폴백: {e}")
+                    male_candidates = [
+                        Path(r"c:\Users\zkfnt\Desktop\한국 마케팅봇\new_seed_513121480_master.png"),
+                        self.base_dir / "assets" / "aura_topic3_slide3_screen.png",
+                        self.template_path
+                    ]
+                    male_photo_p = next((c for c in male_candidates if c.exists()), None)
+                    if not male_photo_p:
+                        raise e
 
         # 2. 템플릿 로드 (758 x 1024 RGBA)
         template_img = Image.open(str(self.template_path)).convert("RGBA")

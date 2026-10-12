@@ -27,9 +27,10 @@ class StockShortsPipeline:
         gender: Optional[str] = None,
         custom_master_image: Optional[Image.Image] = None,
         seed: Optional[int] = None,
-        force_fresh_record: bool = False
+        force_fresh_record: bool = False,
+        auto_publish: bool = True
     ) -> str:
-        """주식 1080p 숏폼 엔진 호출 및 완성본 MP4 경로 반환 (매번 새로운 인물/주제 순환)"""
+        """주식 1080p 숏폼 엔진 호출 및 완성본 MP4 경로 반환 (렌더링 완료 즉시 4대 SNS 자율 송출 체인 지원)"""
         res = self._producer.produce(
             topic_id=topic_id,
             gender=gender,
@@ -37,7 +38,13 @@ class StockShortsPipeline:
             seed=seed,
             force_fresh_record=force_fresh_record
         )
-        return res.get("output_mp4", "")
+        mp4_path = res.get("output_mp4", "")
+        if auto_publish and mp4_path:
+            import logging
+            logging.getLogger("StockShortsPipeline").info(f"🚀 [주식 숏폼 일체형 파이프라인] 렌더링 완료 즉시 4대 SNS 봇 자율 송출 시작: {mp4_path}")
+            from brands.stock.stock_omni_shorts_pilot import StockOmniShortsPilot
+            StockOmniShortsPilot().execute_single_slot(topic_id=topic_id or 1, force=True)
+        return mp4_path
 
     def produce_master_photo(
         self,

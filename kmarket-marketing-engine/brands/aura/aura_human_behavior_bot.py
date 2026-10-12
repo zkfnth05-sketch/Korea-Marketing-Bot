@@ -141,7 +141,13 @@ class AuraHumanBehaviorBot:
             except Exception:
                 pass
 
+            from core.engine.browser_guard import is_yield_requested, interruptible_sleep
+
             while (time.time() - start_t) < duration_sec:
+                if is_yield_requested():
+                    logger.info("🚨 [Aura InstagramBot 긴급 양보] 고우선순위 발행 작업 감지 -> 루틴 즉시 정상 종료 및 브라우저 양보!")
+                    break
+
                 # 1. 불규칙 휠 스크롤
                 scroll_amount = random.randint(350, 750)
                 await page.mouse.wheel(0, scroll_amount)
@@ -157,7 +163,9 @@ class AuraHumanBehaviorBot:
                 # 3. 체류 시간 (실제 글/사진 보는 시간)
                 dwell = random.uniform(4.0, 8.5)
                 logger.info(f"📸 [Aura InstagramBot] 탐색 피드 스크롤({scroll_amount}px) 후 게시물 #{result['posts_viewed']} 정독 체류 ({dwell:.1f}초)...")
-                await asyncio.sleep(dwell)
+                if await interruptible_sleep(dwell):
+                    logger.info("🚨 [Aura InstagramBot 긴급 양보] 고우선순위 발행 작업 감지 -> 체류 즉각 중단!")
+                    break
 
                 # 4. 자연스러운 좋아요 시도 (세션 목표 좋아요까지)
                 if result["likes"] < target_likes and (time.time() - start_t) > 12:
@@ -177,7 +185,8 @@ class AuraHumanBehaviorBot:
                                 await page.mouse.click(btn_x, btn_y)
                                 result["likes"] += 1
                                 logger.info(f"💖 [Aura HumanBot] 인스타그램 게시물 실제 '좋아요' 터치 완료! (인스타 누적: {result['likes']}회)")
-                                await asyncio.sleep(random.uniform(3.0, 5.0))
+                                if await interruptible_sleep(random.uniform(3.0, 5.0)):
+                                    break
                     except Exception as le:
                         logger.debug(f"인스타 좋아요 시도 스킵: {le}")
 
@@ -189,17 +198,23 @@ class AuraHumanBehaviorBot:
 
     async def _simulate_threads_activity(self, page, duration_sec: int) -> Dict[str, Any]:
         """스레드(Threads) 피드 인간 체류 및 스크롤"""
+        from core.engine.browser_guard import is_yield_requested, interruptible_sleep
         result = {"posts_viewed": 0, "platform": "threads", "status": "success"}
         start_t = time.time()
         try:
             logger.info("🧵 [Aura HumanBot] 스레드(https://www.threads.net) 피드 둘러보기...")
             await page.goto("https://www.threads.net", wait_until="domcontentloaded", timeout=40000)
-            await asyncio.sleep(random.uniform(3.0, 5.0))
+            if await interruptible_sleep(random.uniform(3.0, 5.0)):
+                return result
 
             while (time.time() - start_t) < duration_sec:
+                if is_yield_requested():
+                    logger.info("🚨 [Aura ThreadsBot 긴급 양보] 고우선순위 발행 작업 감지 -> 즉시 양보!")
+                    break
                 await page.mouse.wheel(0, random.randint(300, 600))
                 result["posts_viewed"] += 1
-                await asyncio.sleep(random.uniform(3.0, 6.0))
+                if await interruptible_sleep(random.uniform(3.0, 6.0)):
+                    break
         except Exception as e:
             logger.debug(f"스레드 루틴 스킵/예외: {e}")
             result["status"] = f"error: {e}"
@@ -207,6 +222,7 @@ class AuraHumanBehaviorBot:
 
     async def _simulate_youtube_activity(self, page, duration_sec: int, target_likes: int = 1) -> Dict[str, Any]:
         """유튜브 쇼츠 탐색, 완시청 및 좋아요 (일상 50% + 브랜드 50% 혼합)"""
+        from core.engine.browser_guard import is_yield_requested, interruptible_sleep
         result = {"shorts_watched": 0, "likes": 0, "platform": "youtube", "status": "success"}
         start_t = time.time()
         pool = _GENERAL_HUMAN_KEYWORDS if random.random() < 0.5 else _AURA_KEYWORDS
@@ -216,7 +232,8 @@ class AuraHumanBehaviorBot:
             logger.info(f"🎬 [Aura HumanBot] 유튜브 쇼츠 탐색 중... (키워드: '{kw}')")
             search_url = f"https://www.youtube.com/results?search_query={kw}&sp=CAISAhAB"
             await page.goto(search_url, wait_until="domcontentloaded", timeout=45000)
-            await asyncio.sleep(random.uniform(3.0, 5.0))
+            if await interruptible_sleep(random.uniform(3.0, 5.0)):
+                return result
 
             # 🚨 [유튜브 로그인 실물 검증]
             avatar_btn = await page.query_selector('button#avatar-btn, button[aria-label*="계정"], yt-img-shadow#avatar')
@@ -224,12 +241,19 @@ class AuraHumanBehaviorBot:
             is_yt_logged_in = bool(avatar_btn and not login_btn)
 
             await page.goto("https://www.youtube.com/shorts", wait_until="domcontentloaded", timeout=45000)
-            await asyncio.sleep(random.uniform(2.5, 4.5))
+            if await interruptible_sleep(random.uniform(2.5, 4.5)):
+                return result
 
             while (time.time() - start_t) < duration_sec:
+                if is_yield_requested():
+                    logger.info("🚨 [Aura YouTubeBot 긴급 양보] 고우선순위 발행 작업 감지 -> 루틴 즉시 정상 종료 및 브라우저 양보!")
+                    break
+
                 watch_time = random.uniform(16.0, 30.0)
                 logger.info(f"👀 [Aura HumanBot] 쇼츠 영상 완시청 중... (체류: {watch_time:.1f}초)")
-                await asyncio.sleep(watch_time)
+                if await interruptible_sleep(watch_time):
+                    logger.info("🚨 [Aura YouTubeBot 긴급 양보] 완시청 즉각 중단!")
+                    break
                 result["shorts_watched"] += 1
 
                 # 로그인 상태일 때만 실제 '좋아요' 클릭 시도
@@ -237,18 +261,22 @@ class AuraHumanBehaviorBot:
                     try:
                         like_btn = await page.query_selector("button[aria-label*='좋아요'], button[aria-label*='like this']")
                         if like_btn:
-                            await asyncio.sleep(random.uniform(0.6, 1.3))
+                            if await interruptible_sleep(random.uniform(0.6, 1.3)):
+                                break
                             await like_btn.click()
                             result["likes"] += 1
                             logger.info(f"💖 [Aura HumanBot] 유튜브 쇼츠 실제 '좋아요' 클릭 완료! (유튜브 누적: {result['likes']}회)")
-                            await asyncio.sleep(random.uniform(2.0, 4.0))
+                            if await interruptible_sleep(random.uniform(2.0, 4.0)):
+                                break
                     except Exception as le:
                         logger.debug(f"유튜브 좋아요 시도 스킵: {le}")
                 elif not is_yt_logged_in:
                     logger.debug("유튜브 비로그인 상태이므로 좋아요 팝업 방지를 위해 좋아요 클릭 스킵 (완시청 체류만 정상 진행)")
 
                 await page.keyboard.press("PageDown")
-                await asyncio.sleep(random.uniform(2.0, 3.5))
+                if await interruptible_sleep(random.uniform(2.0, 3.5)):
+                    break
+
 
         except Exception as e:
             logger.warning(f"유튜브 루틴 예외: {e}")
@@ -339,12 +367,25 @@ class AuraHumanBehaviorBot:
                     summary["actions"].append(ig_res)
                     summary["likes_given"] += ig_res.get("likes", 0)
 
+                    if is_yield_requested():
+                        logger.info("🚨 [Aura HumanBot 긴급 양보] 고우선순위 발행 감지 -> 스레드 스킵 및 브라우저 즉시 반환!")
+                        await ctx.close()
+                        elapsed_sec = int(time.time() - session_start)
+                        summary["actual_sec"] = elapsed_sec
+                        return summary
+
                     th_res = await self._simulate_threads_activity(page, int(meta_sec * 0.3))
                     summary["actions"].append(th_res)
 
                     await ctx.close()
                 except Exception as e:
                     logger.warning(f"메타 브라우저 컨텍스트 오류: {e}")
+
+            if is_yield_requested():
+                logger.info("🚨 [Aura HumanBot 긴급 양보] 고우선순위 발행 감지 -> 유튜브 스킵 및 브라우저 즉시 반환!")
+                elapsed_sec = int(time.time() - session_start)
+                summary["actual_sec"] = elapsed_sec
+                return summary
 
             # 2. 유튜브
             yt_sec = int(target_sec * 0.5)

@@ -144,7 +144,10 @@ class StockYouTubeBehaviorBot:
                 # 2. 쇼츠 완시청 체류 (16 ~ 35초)
                 watch_time = random.uniform(16.0, 35.0)
                 logger.info(f"👀 [Stock YouTubeBot] 쇼츠 #{result['shorts_watched'] + 1} 완시청 중... ({watch_time:.1f}초 체류)")
-                await asyncio.sleep(watch_time)
+                from core.engine.browser_guard import interruptible_sleep
+                if await interruptible_sleep(watch_time):
+                    logger.info('🚨 [스텔스 봇 긴급 양보] 시청 중단 및 즉시 양보!')
+                    break
                 result["shorts_watched"] += 1
 
                 # 3. 댓글창 열람 시뮬레이션

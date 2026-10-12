@@ -65,7 +65,7 @@ def main():
     clean_browser_profile_locks(PROFILE_DIR)
 
     chrome_exe = find_chrome_path()
-    mbs_login_url = "https://business.facebook.com/latest/home?asset_id=1341778472350233"
+    mbs_login_url = "https://business.facebook.com/latest/home?business_id=1524234062837117&asset_id=1341778472350233"
     print(f"🚀 실제 크롬 브라우저 실행 중... ({chrome_exe})")
 
     cmd = [
@@ -84,19 +84,30 @@ def main():
     # Playwright로 쿠키 추출하여 meta_session.json 동기화
     clean_cookies = []
     try:
+        import shutil, time
         from playwright.sync_api import sync_playwright
         with sync_playwright() as p:
             context = p.chromium.launch_persistent_context(
                 user_data_dir=str(PROFILE_DIR),
                 headless=True,
-                args=["--disable-blink-features=AutomationControlled"]
+                args=["--disable-blink-features=AutomationControlled",
+                      "--no-first-run", "--no-default-browser-check"],
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
             )
+            # 인스타그램 피드 접속으로 sessionid 쿠키 활성화
+            page = context.pages[0] if context.pages else context.new_page()
+            try:
+                page.goto("https://www.instagram.com/", wait_until="domcontentloaded", timeout=20000)
+                time.sleep(3)
+            except Exception:
+                pass
+
             cookies = context.cookies()
             for c in cookies:
                 c_item = {
                     "name": c.get("name"),
                     "value": c.get("value"),
-                    "domain": c.get("domain", ".facebook.com"),
+                    "domain": c.get("domain", ".instagram.com"),
                     "path": c.get("path", "/"),
                     "secure": c.get("secure", True),
                     "httpOnly": c.get("httpOnly", False)
@@ -108,16 +119,25 @@ def main():
             with open(SESSION_JSON, "w", encoding="utf-8") as f:
                 json.dump({"cookies": clean_cookies}, f, ensure_ascii=False, indent=2)
             context.close()
-            
-        print(f"🎉 [성공] 총 {len(clean_cookies)}개의 최신 메타(페이스북/인스타) 쿠키가 영구 보관함에 완벽하게 동기화되었습니다!")
-        has_fb_auth = any(c.get("name") in ["c_user", "xs", "datr"] for c in clean_cookies)
-        if has_fb_auth:
-            print("✅ [검증 통과] Meta Business Suite 마스터 인증 토큰(c_user/xs) 정상 감지 완료!")
-            print("👉 이제 페이스북 + 인스타그램 릴스 24시간 무인 동시 송출이 가능합니다.\n")
+
+        print(f"[INFO] 총 {len(clean_cookies)}개 쿠키 추출 완료")
+        names = {c.get("name") for c in clean_cookies}
+        has_ig_auth = "sessionid" in names and "ds_user_id" in names
+        has_fb_auth = "c_user" in names and "xs" in names
+
+        if has_ig_auth or has_fb_auth:
+            print("[OK] 인증 쿠키 검증 통과 (sessionid/ds_user_id 또는 c_user/xs 정상 감지)")
+            backup_dir = SESSION_JSON.parent / "session_backups"
+            backup_dir.mkdir(parents=True, exist_ok=True)
+            backup_path = backup_dir / "meta_session.good.json"
+            shutil.copyfile(SESSION_JSON, backup_path)
+            print(f"[BACKUP] 정상 백업 저장: {backup_path.name}")
+            print("[SUCCESS] 이제 봇이 이 세션으로 24시간 무인 송출합니다. 재로그인 불필요!\n")
         else:
-            print("ℹ️ [안내] 로그인 후 창을 닫아주시면 세션이 즉시 반영됩니다.\n")
+            print("[WARNING] 인증 쿠키(sessionid/c_user)가 없습니다.")
+            print("  -> 인스타그램에 로그인 완료 후 피드가 뜰 때 창을 닫아주세요.\n")
     except Exception as ex:
-        print(f"⚠️ 쿠키 동기화 안내: {ex} (프로필 디스크 저장은 완료되었습니다)\n")
+        print(f"[ERROR] 쿠키 동기화 오류: {ex}\n")
 
 
 if __name__ == "__main__":

@@ -122,18 +122,32 @@ class AuraMultiPublisher:
             logger.error(f"❌ [2/4] 🟢 네이버 블로그 발행 실패: {e}")
             results["channels"]["naver_blog"] = {"status": "error", "message": str(e)}
 
-        # 3. 🟠 티스토리 자동 발행 (title_tistory)
-        try:
-            tistory_res = self.tistory_pub.publish_post(
-                title=title_tistory,
-                content_html=content_html,
-                tag_list=tags
-            )
-            results["channels"]["tistory"] = tistory_res
-            logger.info(f"✅ [3/4] 🟠 티스토리 발행: '{title_tistory}' -> {tistory_res.get('url', '')}")
-        except Exception as e:
-            logger.error(f"❌ [3/4] 🟠 티스토리 발행 실패: {e}")
-            results["channels"]["tistory"] = {"status": "error", "message": str(e)}
+        # 3. 🟠 티스토리 자동 발행 (title_tistory) — 최대 3회 재시도
+        import time as _time
+        tistory_res = {"status": "error", "message": "재시도 소진"}
+        for _attempt in range(1, 4):
+            try:
+                tistory_res = self.tistory_pub.publish_post(
+                    title=title_tistory,
+                    content_html=content_html,
+                    tag_list=tags
+                )
+                t_status = tistory_res.get("status", "")
+                if t_status in ("success", "active", "restored"):
+                    logger.info(f"✅ [3/4] 🟠 티스토리 발행 성공 (시도 {_attempt}): '{title_tistory}' -> {tistory_res.get('url', '')}")
+                    break
+                elif t_status == "session_expired":
+                    logger.warning(f"⚠️ [3/4] 티스토리 세션 만료 (시도 {_attempt}/3), 10초 후 재시도...")
+                    _time.sleep(10)
+                else:
+                    logger.warning(f"⚠️ [3/4] 티스토리 실패 (시도 {_attempt}/3): {tistory_res.get('message')}, 10초 후 재시도...")
+                    _time.sleep(10)
+            except Exception as e:
+                logger.error(f"❌ [3/4] 티스토리 예외 (시도 {_attempt}/3): {e}")
+                tistory_res = {"status": "error", "message": str(e)}
+                _time.sleep(10)
+        results["channels"]["tistory"] = tistory_res
+
 
         # 4. 🟡 카카오 브런치스토리 자동 발행 (title_kakao)
         try:

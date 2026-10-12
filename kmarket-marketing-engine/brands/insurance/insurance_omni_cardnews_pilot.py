@@ -182,9 +182,9 @@ class InsuranceOmniCardnewsPilot:
             "youtube": pkg.get("youtube", {}),
             "naver_clip": pkg.get("naver_clip", {}),
             "tiktok": pkg.get("tiktok", {}),
-            "ig_caption": pkg.get("meta", {}).get("ig_caption", ""),
-            "fb_caption": pkg.get("meta", {}).get("fb_caption", ""),
-            "fb_comment": pkg.get("meta", {}).get("fb_comment", "")
+            "ig_caption": pkg.get("meta_reels", {}).get("caption") or pkg.get("meta", {}).get("ig_caption", ""),
+            "fb_caption": pkg.get("facebook", {}).get("caption") or pkg.get("meta", {}).get("fb_caption", ""),
+            "fb_comment": pkg.get("facebook", {}).get("comment") or pkg.get("meta", {}).get("fb_comment", "")
         }
 
     def execute_single_slot(self, topic_id: Optional[int] = None, force: bool = False) -> Dict[str, Any]:

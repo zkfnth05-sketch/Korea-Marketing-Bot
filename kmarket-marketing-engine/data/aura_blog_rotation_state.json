@@ -1,10 +1,328 @@
 {
-  "current_topic_index": 7,
-  "last_topic_id": 38,
-  "last_run_time": "2026-10-10 18:19:53",
-  "last_title": "소개팅 망치는 '질문 폭격' 그만! 💖 호감도 200% 만드는 대화 핑퐁 기술 3가지",
-  "published_count": 32,
+  "current_topic_index": 13,
+  "last_topic_id": 39,
+  "last_run_time": "2026-10-12 19:50:30",
+  "last_title": "소개팅 망치는 최악의 대화주제 3가지, 이것만 피하면 무조건 성공!",
+  "published_count": 38,
   "history": [
+    {
+      "topic_id": 39,
+      "title": "소개팅 망치는 최악의 대화주제 3가지, 이것만 피하면 무조건 성공!",
+      "title_naver": "소개팅 망치는 최악의 대화주제 3가지, 이것만 피하면 무조건 성공!",
+      "title_tistory": "[2026 가이드] 소개팅에서 절대 꺼내면 안 되는 3대 금기 대화주제 (정치, 연봉, 전연인) 핵심 정리",
+      "title_kakao": "소개팅에서 절대 꺼내면 안 되는 3대 금기 대화주제 (정치, 연봉, 전연인)에 대한 솔직한 이야기",
+      "category": "conversation_skills",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_039_conversation_skills_20261012_194538.webp",
+      "published_at": "2026-10-12 19:50:30",
+      "publish_results": {
+        "topic_id": 39,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-039",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "소개팅 망치는 최악의 대화주제 3가지, 이것만 피하면 무조건 성공!",
+            "url": "https://blog.naver.com/PostView.naver?blogId=zkfnth01&Redirect=View&logNo=224439363270&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=18143",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플",
+              "성수동핫플거리",
+              "성수동핫플카페",
+              "성수동핫플레이스",
+              "성수동핫플맛집",
+              "성수동핫플지도",
+              "AI매력상",
+              "얼굴상진단",
+              "여우상vs강아지상",
+              "연애궁합",
+              "AI관상",
+              "찰떡궁합",
+              "성수동데이트"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-dating",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 20,
+      "title": "성수동 소개팅 첫 만남 성공률 200% 올리는 분위기 좋은 프라이빗 룸식당 추천 BEST 3",
+      "title_naver": "성수동 소개팅 첫 만남 성공률 200% 올리는 분위기 좋은 프라이빗 룸식당 추천 BEST 3",
+      "title_tistory": "성수동 데이트 코스 완벽 가이드: 소음 없는 프라이빗 룸식당부터 2차 와인바까지 동선 총정리",
+      "title_kakao": "시끄러운 성수동에서 둘만의 대화에 온전히 몰입하는 법, 비밀스러운 룸식당의 미학",
+      "category": "date_spots",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_020_date_spots_20261012_144549.webp",
+      "published_at": "2026-10-12 14:50:40",
+      "publish_results": {
+        "topic_id": 20,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-020",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "성수동 소개팅 첫 만남 성공률 200% 올리는 분위기 좋은 프라이빗 룸식당 추천 BEST 3",
+            "url": "https://blog.naver.com/PostView.naver?blogId=zkfnth01&Redirect=View&logNo=224439041309&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=30199",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플",
+              "성수동핫플거리",
+              "성수동핫플카페",
+              "성수동핫플레이스",
+              "성수동핫플맛집",
+              "성수동핫플지도",
+              "소개팅프로필",
+              "AI프로필",
+              "청담동스튜디오",
+              "인생샷",
+              "프로필사진",
+              "소개팅사진",
+              "성수동데이트"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-dating",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 2,
+      "title": "소개팅 후 '카톡 답장 1시간'의 진짜 속마음! 2030 심리 분석 가이드",
+      "title_naver": "소개팅 후 '카톡 답장 1시간'의 진짜 속마음! 2030 심리 분석 가이드",
+      "title_tistory": "[2026 가이드] 소개팅 후 카톡 답장 텀 1시간의 진짜 심리 분석 핵심 정리",
+      "title_kakao": "소개팅 후 카톡 답장 텀 1시간의 진짜 심리 분석에 대한 솔직한 이야기",
+      "category": "kakaotalk_signals",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_002_kakaotalk_signals_20261012_094527.webp",
+      "published_at": "2026-10-12 09:50:12",
+      "publish_results": {
+        "topic_id": 2,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-002",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "소개팅 후 '카톡 답장 1시간'의 진짜 속마음! 2030 심리 분석 가이드",
+            "url": "https://blog.naver.com/PostView.naver?blogId=zkfnth01&Redirect=View&logNo=224438711044&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=18132",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플",
+              "성수동핫플거리",
+              "성수동핫플카페",
+              "성수동핫플레이스",
+              "성수동핫플맛집",
+              "성수동핫플지도",
+              "글로벌썸",
+              "외국인친구",
+              "일본인친구",
+              "언어교환",
+              "AI자막통화",
+              "실시간번역",
+              "성수동데이트"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-dating",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 87,
+      "title": "소개팅 애프터, 언제 신청해야 성공률 90%일까? '이 타이밍' 놓치면 끝!",
+      "title_naver": "소개팅 애프터, 언제 신청해야 성공률 90%일까? '이 타이밍' 놓치면 끝!",
+      "title_tistory": "[2026 가이드] 소개팅 애프터 신청은 언제 하는 게 가장 성공률이 높을까? 핵심 정리",
+      "title_kakao": "소개팅 애프터 신청은 언제 하는 게 가장 성공률이 높을까?에 대한 솔직한 이야기",
+      "category": "after_dating",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_087_after_dating_20261011_194523.webp",
+      "published_at": "2026-10-11 19:46:40",
+      "publish_results": {
+        "topic_id": 87,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-087",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "소개팅 애프터, 언제 신청해야 성공률 90%일까? '이 타이밍' 놓치면 끝!",
+            "url": "https://blog.naver.com/PostView.naver?blogId=zkfnth01&Redirect=View&logNo=224438199323&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=18126",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플",
+              "성수동핫플거리",
+              "성수동핫플레이스",
+              "성수동핫플카페",
+              "성수동핫플맛집",
+              "성수동핫플지도",
+              "AI매력상",
+              "얼굴상진단",
+              "여우상vs강아지상",
+              "연애궁합",
+              "AI관상",
+              "찰떡궁합",
+              "성수동데이트"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-dating",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 (1회 로그인 스크립트 실행 필요)"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 72,
+      "title": "소개팅 첫인상 호감도 1위! '꾸안꾸' 그녀의 메이크업&헤어 비법 대공개",
+      "title_naver": "소개팅 첫인상 호감도 1위! '꾸안꾸' 그녀의 메이크업&헤어 비법 대공개",
+      "title_tistory": "[2026 가이드] 소개팅 여자 첫인상 호감도 1위 메이크업 & 헤어 스타일링 핵심 정리",
+      "title_kakao": "소개팅 여자 첫인상 호감도 1위 메이크업 & 헤어 스타일링에 대한 솔직한 이야기",
+      "category": "lookbook_style",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_072_lookbook_style_20261011_144550.webp",
+      "published_at": "2026-10-11 14:46:59",
+      "publish_results": {
+        "topic_id": 72,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-072",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "소개팅 첫인상 호감도 1위! '꾸안꾸' 그녀의 메이크업&헤어 비법 대공개",
+            "url": "https://blog.naver.com/PostView.naver?blogId=zkfnth01&Redirect=View&logNo=224437963819&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=18136",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플",
+              "성수동핫플거리",
+              "성수동핫플레이스",
+              "성수동핫플카페",
+              "성수동핫플맛집",
+              "성수동핫플지도",
+              "500m안심레이더",
+              "동네친구",
+              "성수동번개",
+              "퇴근길번개",
+              "안심데이팅",
+              "위치보안",
+              "성수동데이트"
+            ]
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. 루트의 [1회연동]_aura_티스토리_영구로그인.bat 1회 실행 필요",
+            "blog_name": "aura-magazine"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 (1회 로그인 스크립트 실행 필요)"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 56,
+      "title": "내 연애 매력점수는? 2030 플러팅 지수 자가진단 체크리스트",
+      "title_naver": "내 연애 매력점수는? 2030 플러팅 지수 자가진단 체크리스트",
+      "title_tistory": "[2026 가이드] 내 연애 매력도와 플러팅 지수 자가진단 체크리스트 핵심 정리",
+      "title_kakao": "내 연애 매력도와 플러팅 지수 자가진단 체크리스트에 대한 솔직한 이야기",
+      "category": "psychology_mbti",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_056_psychology_mbti_20261011_085315.webp",
+      "published_at": "2026-10-11 08:54:19",
+      "publish_results": {
+        "topic_id": 56,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-056",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "내 연애 매력점수는? 2030 플러팅 지수 자가진단 체크리스트",
+            "url": "https://blog.naver.com/PostView.naver?blogId=zkfnth01&Redirect=View&logNo=224437733494&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=18122",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플",
+              "성수동핫플거리",
+              "성수동핫플레이스",
+              "성수동핫플카페",
+              "성수동핫플맛집",
+              "성수동핫플지도",
+              "500m안심레이더",
+              "동네친구",
+              "성수동번개",
+              "퇴근길번개",
+              "안심데이팅",
+              "위치보안",
+              "성수동데이트"
+            ]
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. python brands/aura/aura_tistory_login.py 1회 실행 필요",
+            "blog_name": "aura-magazine"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 (1회 로그인 스크립트 실행 필요)"
+          }
+        }
+      }
+    },
     {
       "topic_id": 38,
       "title": "소개팅 망치는 '질문 폭격' 그만! 💖 호감도 200% 만드는 대화 핑퐁 기술 3가지",

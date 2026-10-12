@@ -13,6 +13,7 @@ import os
 import re
 import base64
 import logging
+from typing import Optional
 from pathlib import Path
 from PIL import Image
 from playwright.sync_api import sync_playwright
@@ -52,23 +53,40 @@ class AuraCardnewsS4Builder:
                         return m.group(1)
         return ""
 
-    def _get_nanami_b64(self) -> str:
-        """나나미 실물 사진을 스마트폰 통화 화면에 최적화된 base64 JPEG로 인코딩"""
-        if self.nanami_source_path.exists():
+    def _get_nanami_b64(self, hero_image: Optional[Image.Image] = None, hero_image_path: Optional[Path] = None) -> str:
+        """나나미(주인공) 실물 사진을 스마트폰 통화 화면에 최적화된 base64 JPEG로 인코딩"""
+        import io
+        img = None
+        if hero_image is not None:
+            img = hero_image.convert("RGB")
+        elif hero_image_path is not None and Path(hero_image_path).exists():
+            img = Image.open(str(hero_image_path)).convert("RGB")
+        elif self.nanami_source_path.exists():
             img = Image.open(str(self.nanami_source_path)).convert("RGB")
-            # 얼굴/상반신 중심 최적 세로 비율 리사이즈 및 인코딩
-            import io
+        else:
+            # 폴백: 워크스페이스 또는 assets의 기존 나나미 사진
+            fallbacks = [
+                self.base_dir / "current_slide_1.png",
+                self.assets_dir / "nanami_portrait.jpg",
+                self.assets_dir / "aura_subtitles_call_screen.png"
+            ]
+            for fb in fallbacks:
+                if fb.exists():
+                    img = Image.open(str(fb)).convert("RGB")
+                    break
+
+        if img is not None:
             buf = io.BytesIO()
             img.save(buf, format="JPEG", quality=95)
             b64_str = base64.b64encode(buf.getvalue()).decode("utf-8")
             return f"data:image/jpeg;base64,{b64_str}"
         return ""
 
-    def build_s4_screen_asset(self) -> Path:
-        """1080x1350 카드뉴스 규격으로 나나미 영상통화 화면 에셋 렌더링"""
-        logger.info("🎨 [AuraCardnewsS4Builder] 나나미 실시간 자막 통화 화면 에셋 빌드 시작...")
+    def build_s4_screen_asset(self, hero_image: Optional[Image.Image] = None, hero_image_path: Optional[Path] = None) -> Path:
+        """1080x1350 카드뉴스 규격으로 주인공 영상통화 화면 에셋 렌더링"""
+        logger.info("🎨 [AuraCardnewsS4Builder] 주인공 실시간 자막 통화 화면 에셋 빌드 시작...")
 
-        nanami_b64 = self._get_nanami_b64()
+        nanami_b64 = self._get_nanami_b64(hero_image=hero_image, hero_image_path=hero_image_path)
         male_pip_b64 = self._get_male_pip_b64()
 
         html_content = f"""<!DOCTYPE html>

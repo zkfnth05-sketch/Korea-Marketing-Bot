@@ -1,10 +1,295 @@
 {
-  "current_topic_index": 7,
-  "last_topic_id": 2,
-  "last_run_time": "2026-10-10 20:02:25",
-  "last_title": "🚨 암보험 5천만 원 나온다더니 갑상선암은 고작 400만 원? 일반암 vs 유사암 진단비의 충격적 진실",
-  "published_count": 19,
+  "current_topic_index": 13,
+  "last_topic_id": 3,
+  "last_run_time": "2026-10-12 20:05:49",
+  "last_title": "[보험 상식] 뇌혈관질환 vs 뇌졸중 vs 뇌출혈: 보장 범위 10배 차이 나는 이유",
+  "published_count": 25,
   "history": [
+    {
+      "topic_id": 3,
+      "title": "[보험 상식] 뇌혈관질환 vs 뇌졸중 vs 뇌출혈: 보장 범위 10배 차이 나는 이유",
+      "title_naver": "뇌혈관질환 vs 뇌졸중 vs 뇌출혈: 보장 범위 10배 차이 나는 이유 핵심 정리 및 손해 안 보는 팁",
+      "title_tistory": "[InsureBalance] 뇌혈관질환 vs 뇌졸중 vs 뇌출혈: 보장 범위 10배 차이 나는 이유 완벽 가이드",
+      "title_brunch": "우리가 매달 내는 보험료, 뇌혈관질환 vs 뇌졸중 vs 뇌출혈: 보장 범위 10배 차이 나는 이유",
+      "category": "health_medical",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_003_health_medical_20261012_200123.webp",
+      "published_at": "2026-10-12 20:05:49",
+      "publish_results": {
+        "topic_id": 3,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "뇌혈관질환 vs 뇌졸중 vs 뇌출혈: 보장 범위 10배 차이 나는 이유 핵심 정리 및 손해 안 보는 팁",
+            "url": "https://nid.naver.com/nidlogin.login?mode=form&url=https%3A%2F%2Fblog.naver.com%2Fthefirst-life%3FRedirect=%26categoryNo=",
+            "post_url": "https://nid.naver.com/nidlogin.login?mode=form&url=https%3A%2F%2Fblog.naver.com%2Fthefirst-life%3FRedirect=%26categoryNo=",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "뇌혈관질환보험",
+              "뇌졸중진단비",
+              "보험약관분석",
+              "건강보험비교",
+              "실비보험4세대",
+              "실비보험4세대5세대",
+              "실비보험4세대기간",
+              "실비보험4세대전환",
+              "실비보험4세대보장",
+              "실비보험4세대갱신",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "insure-balance",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 82,
+      "title": "매달 5만 원씩 보험사에 무이자로 바치고 계셨나요? 🚨 적립보험료 0원 만들고 당장 통장 살린 썰",
+      "title_naver": "매달 5만 원씩 보험사에 무이자로 바치고 계셨나요? 🚨 적립보험료 0원 만들고 당장 통장 살린 썰",
+      "title_tistory": "적립보험료의 치명적 함정: 매월 5만 원 고정비 즉시 삭제하고 돌려받는 실전 꿀팁",
+      "title_brunch": "통장에서 조용히 새어나간 5만 원, 적립보험료라는 환상을 걷어내다",
+      "category": "remodeling_savings",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_082_remodeling_savings_20261012_150047.webp",
+      "published_at": "2026-10-12 15:05:57",
+      "publish_results": {
+        "topic_id": 82,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "매달 5만 원씩 보험사에 무이자로 바치고 계셨나요? 🚨 적립보험료 0원 만들고 당장 통장 살린 썰",
+            "url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224439060014&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=47215",
+            "post_url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224439060014&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=47215",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "적립보험료함정",
+              "보장보험료비교",
+              "보험료줄이기",
+              "환급금의진실",
+              "보험리모델링어플",
+              "태아보험리모델링",
+              "보험리모델링뜻",
+              "보험리모델링추천",
+              "보험리모델링후기",
+              "보험리모델링비교",
+              "보험다이어트",
+              "보험",
+              "재테크"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "insure-balance",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 66,
+      "title": "보험사 손해사정사 만날 때 '이 서류' 서명하면 보험금 0원 됩니다 🚨 (현장심사 대처법)",
+      "title_naver": "보험사 손해사정사 만날 때 '이 서류' 서명하면 보험금 0원 됩니다 🚨 (현장심사 대처법)",
+      "title_tistory": "보험사 현장심사 손해사정사 면담 시 절대 서명하면 안 되는 서류 3가지 팩트체크",
+      "title_brunch": "손해사정사가 내민 볼펜을 멈춰야 가계부와 보험금을 지킨다",
+      "category": "claims_knowhow",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_066_claims_knowhow_20261012_100107.webp",
+      "published_at": "2026-10-12 10:06:10",
+      "publish_results": {
+        "topic_id": 66,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "보험사 손해사정사 만날 때 '이 서류' 서명하면 보험금 0원 됩니다 🚨 (현장심사 대처법)",
+            "url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224438726163&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=26270",
+            "post_url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224438726163&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=26270",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "보험사현장심사",
+              "손해사정사서명주의",
+              "의무기록열람동의",
+              "보험금지급거절",
+              "보험금청구서류",
+              "보험금청구서류발급",
+              "보험금청구서류종류",
+              "삼성생명보험금청구서류",
+              "한화생명보험금청구서류",
+              "메리츠화재보험금청구서류",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "insure-balance",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 50,
+      "title": "연말정산 148만원 뱉어내고 멘붕 온 3년 차 직장인, 연금저축 600 + IRP 300 황금비율로 역전한 썰💸",
+      "title_naver": "연말정산 148만원 뱉어내고 멘붕 온 3년 차 직장인, 연금저축 600 + IRP 300 황금비율로 역전한 썰💸",
+      "title_tistory": "IRP와 연금저축 펀드 최적 배분 가이드: 연 900만원 세액공제 한도 100% 채우는 현실 전략",
+      "title_brunch": "월급쟁이 3년 차의 통장 다이어트, 연금저축과 IRP로 13월의 월급 되찾기",
+      "category": "savings_annuity",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_050_savings_annuity_20261011_200031.webp",
+      "published_at": "2026-10-11 20:01:41",
+      "publish_results": {
+        "topic_id": 50,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "연말정산 148만원 뱉어내고 멘붕 온 3년 차 직장인, 연금저축 600 + IRP 300 황금비율로 역전한 썰💸",
+            "url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224438211329&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=36098",
+            "post_url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224438211329&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=36098",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "IRP세액공제",
+              "연금저축펀드",
+              "연금저축보험비교",
+              "퇴직연금절세",
+              "연금저축세액공제",
+              "종합소득세연금저축세액공제",
+              "연금저축세액공제15%",
+              "연금저축세액공제한도",
+              "개인형irp해지",
+              "개인형irp",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "message": "InsuranceTistoryPublisher.publish_post() got an unexpected keyword argument 'image_paths'"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 34,
+      "title": "치과 견적 120만 원 맞고 멘붕? 레진·인레이·크라운 치아보험 실속 챙기는 꿀팁 🦷",
+      "title_naver": "치과 견적 120만 원 맞고 멘붕? 레진·인레이·크라운 치아보험 실속 챙기는 꿀팁 🦷",
+      "title_tistory": "치아보험 레진 vs 인레이 vs 크라운 보존치료 차이와 치과 방문 전 고지의무 총정리",
+      "title_brunch": "달콤한 간식 뒤에 찾아온 치과 견적서, 가계부를 지켜낸 충치 치료의 기술",
+      "category": "life_dental_pet",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_034_life_dental_pet_20261011_150049.webp",
+      "published_at": "2026-10-11 15:02:01",
+      "publish_results": {
+        "topic_id": 34,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "치과 견적 120만 원 맞고 멘붕? 레진·인레이·크라운 치아보험 실속 챙기는 꿀팁 🦷",
+            "url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224437974662&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=40359",
+            "post_url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224437974662&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=40359",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "치아보존치료",
+              "크라운보험금",
+              "레진치료보험",
+              "인레이보장",
+              "치아보험임플란트",
+              "치아보험임플란트보장",
+              "치아보험임플란트청구",
+              "치아보험임플란트무제한",
+              "치아보험임플란트면책기간",
+              "치아보험임플란트보장범위",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "message": "InsuranceTistoryPublisher.publish_post() got an unexpected keyword argument 'image_paths'"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 18,
+      "title": "운전자보험 3만 원 넘게 내고 계세요? 제가 9,900원으로 갈아타고 소름 돋은 이유 🚗💸",
+      "title_naver": "운전자보험 3만 원 넘게 내고 계세요? 제가 9,900원으로 갈아타고 소름 돋은 이유 🚗💸",
+      "title_tistory": "운전자보험 vs 자동차보험 완벽 비교: 월 1만 원대 순수보장형이면 충분한 현실적 이유",
+      "title_brunch": "통장에서 조용히 새어나가던 3만 원, 운전자보험 다이어트 실화",
+      "category": "auto_driver",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_018_auto_driver_20261011_100058.webp",
+      "published_at": "2026-10-11 10:02:09",
+      "publish_results": {
+        "topic_id": 18,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "운전자보험 3만 원 넘게 내고 계세요? 제가 9,900원으로 갈아타고 소름 돋은 이유 🚗💸",
+            "url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224437771263&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=49965",
+            "post_url": "https://blog.naver.com/PostView.naver?blogId=thefirst-life&Redirect=View&logNo=224437771263&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=49965",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "운전자보험비교",
+              "자동차보험차이",
+              "1만원운전자보험",
+              "형사합의금",
+              "운전자보험특약",
+              "운전자보험특약추천",
+              "운전자보험특약추가",
+              "운전자보험특약누수",
+              "운전자보험특약일상생활",
+              "운전자보험특약삭제",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "message": "InsuranceTistoryPublisher.publish_post() got an unexpected keyword argument 'image_paths'"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        }
+      }
+    },
     {
       "topic_id": 2,
       "title": "🚨 암보험 5천만 원 나온다더니 갑상선암은 고작 400만 원? 일반암 vs 유사암 진단비의 충격적 진실",

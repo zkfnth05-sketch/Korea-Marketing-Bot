@@ -154,17 +154,42 @@ class StockOmniShortsPilot:
 
     def produce_fresh_short(self, topic_id: int) -> str:
         """
-        🎬 [쏘기 직전 1편 실시간 100% 신선 제작]
-        - 과거 생성된 오래된 파일을 무단 주워오지 않고, 쏘기 직전 해당 주제 1편을 실시간으로 신선하게 제작
-        - 실패 시 절대 옛날 파일을 주워오지 않고 즉시 중단(Fail-Fast)
+        🎬 [쏘기 직전 1편 실시간 100% 신선 제작 - 봇 자율 파이프라인]
+        - 1단계: 오늘 완성된 최신 완제품이 이미 바탕화면에 존재하는지 우선 탐색 (중복 GPU 렌더링 방지 & 즉각 송출)
+        - 2단계: 없을 경우 StockShortsPipeline을 통해 신규 1편 단독 렌더링
         """
         logger.info("=" * 70)
-        logger.info(f"🎬 [StockMaster 숏폼 실시간 제작] 쏘기 직전 주제 #{topic_id} 1편 신규 단독 렌더링 시작...")
+        logger.info(f"🎬 [StockMaster 숏폼 제작/감지] 주제 #{topic_id} 완제품 확인 및 파이프라인 가동...")
         logger.info("=" * 70)
+
+        today_str = datetime.now().strftime("%Y%m%d")
+        desktop_base = Path(os.environ.get("USERPROFILE", "C:/Users/zkfnt")) / "Desktop" / "한국 숏폼_산출물" / "Stock"
+        if desktop_base.exists():
+            topic_str = f"{topic_id:02d}"
+            candidates = []
+            for folder in desktop_base.iterdir():
+                if folder.is_dir() and f"_{topic_str}_" in folder.name and today_str in folder.name:
+                    found_mp4s = list(folder.glob("*32초*.mp4")) + list(folder.glob("*22초*.mp4")) + list(folder.glob("*숏폼*.mp4"))
+                    seen_paths = set()
+                    for mp4 in found_mp4s:
+                        if mp4 in seen_paths:
+                            continue
+                        seen_paths.add(mp4)
+                        name_lower = mp4.name.lower()
+                        # 🚨 10초, 원테이크, temp 등 중간 생성물은 100% 원천 배제
+                        if any(w in name_lower for w in ["10초", "원테이크", "temp", "clip_", "person_"]):
+                            continue
+                        if mp4.stat().st_size > 2 * 1024 * 1024:
+                            candidates.append((mp4.stat().st_mtime, mp4))
+            if candidates:
+                candidates.sort(key=lambda x: x[0], reverse=True)
+                latest_fresh = str(candidates[0][1])
+                logger.info(f"✨ [StockMaster 숏폼 완제품 즉각 확보] 오늘 완성된 무결점 완제품 감지: {latest_fresh}")
+                return latest_fresh
 
         from brands.stock.stock_shorts_pipeline import StockShortsPipeline
         pipeline = StockShortsPipeline()
-        output_mp4 = pipeline.produce(topic_id=topic_id)
+        output_mp4 = pipeline.produce(topic_id=topic_id, auto_publish=False)
         if output_mp4 and Path(output_mp4).exists():
             logger.info(f"🎉 [StockMaster 숏폼 제작 100% 성공] 방금 생성된 신선한 완제품: {output_mp4}")
             return str(output_mp4)

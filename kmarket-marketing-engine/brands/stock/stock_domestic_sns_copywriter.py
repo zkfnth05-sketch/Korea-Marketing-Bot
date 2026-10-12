@@ -78,10 +78,10 @@ class StockDomesticSNSCopywriter:
 
     def __init__(self):
         self.brand_name = "📈 StockMaster AI"
-        self.official_keyword = "주식AI"
+        self.official_keyword = "스톡마스터 AI"
         self.url = "https://stockmaster-ai.vercel.app/"
         self.naver_blog_url = "https://blog.naver.com/stockmaster_ai"
-        self.search_phrase = "네이버 검색창에 [주식AI]를 검색해보세요!"
+        self.search_phrase = "네이버 검색창에 [스톡마스터 AI]를 검색해보세요!"
         self.core_value = "감정 배제 100% 퀀트 데이터 기반 국내외 증시 실시간 수급 및 외국인/기관 매집 패턴 분석"
         self.target = "2050 개인 스마트 주식 투자자 및 ETF 트레이더"
         self.client = None
@@ -209,7 +209,7 @@ class StockDomesticSNSCopywriter:
     def _call_gemini(self, prompt: str) -> Optional[str]:
         if not self.client:
             return None
-        models = ["gemini-2.5-flash", "gemini-2.0-flash"]
+        models = ["gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-2.5-flash", "gemini-2.0-flash"]
         for m in models:
             try:
                 resp = self.client.generate_content(model=m, contents=prompt)
@@ -266,15 +266,16 @@ class StockDomesticSNSCopywriter:
 
 [플랫폼별 작성 지침 - 분량을 풍부하고 데이터/수급 팩트 중심으로 작성할 것]
 1. viral_title: 실시간 주식 팩트를 담아 스마트 투자자의 시선을 단 1초 만에 사로잡는 강력한 훅 제목 (이모지 포함, 35자 내외)
-2. youtube_desc: 유튜브 쇼츠 상세 설명문 (풍부한 줄바꿈 포함)
+2. youtube_desc: 유튜브 쇼츠 상세 설명문 (풍부한 줄바꿈 포함, 본문 내 외부 URL 절대 삽입 금지)
    - [시장 공감 인트로 2~3줄: "외국인과 기관의 실시간 수급, 도대체 어디로 향하고 있을까요?"]
    - [💡 실전 퀀트 팩트체크 3대 포인트] (위 실시간 팩트 데이터를 인용하여 번호 매겨서 상세 서술)
-   - [감정 배제 100% 퀀트 분석 안내 및 검색 유도]
-3. youtube_pinned: 시청자 토론을 유도하는 고정 댓글 (질문 던지기 + 네이버 검색어 안내)
-4. tiktok_caption: 틱톡 알고리즘 최적화 본문 (실시간 수급 훅 2줄 + 핵심 요약 2줄 + 검색어)
-5. naver_clip_desc: 네이버 클립용 280자 내외 고밀도 실전 증시 팩트 압축 카피
-6. instagram_caption: 인스타그램 릴스/피드용 감각적인 투자 인사이트 본문 (실시간 지표 서사 + 체크포인트 + 프로필 링크 유도)
-7. facebook_caption: 페이스북용 깊이 있는 증시 칼럼 본문 (시장 분석 서사 + 실전 매매 가이드 + 첫 댓글 안내)
+   - [감정 배제 100% 퀀트 분석 대시보드는 첫 번째 댓글 참조 유도]
+3. youtube_pinned: 시청자 토론을 유도하는 고정 댓글 (공식 바로가기 링크 단독 배치)
+4. tiktok_caption: 틱톡 알고리즘 최적화 본문 (실시간 수급 훅 2줄 + 핵심 요약 2줄 + 첫 댓글 참조 안내 + 검색어)
+5. naver_clip_desc: 네이버 클립용 280자 내외 고밀도 실전 증시 팩트 압축 카피 (첫 댓글 참조 안내 포함)
+6. instagram_caption: 인스타그램 릴스/피드용 감각적인 투자 인사이트 본문 (실시간 지표 서사 + 체크포인트 + 첫 댓글 링크 참조 안내)
+7. facebook_caption: 페이스북용 깊이 있는 증시 칼럼 본문 (시장 분석 서사 + 실전 매매 가이드 + 첫 번째 댓글 링크 안내)
+※ [절대 원칙] 모든 본문(캡션/설명문)에는 외부 링크(http/https)를 절대 넣지 말고 '첫 번째 댓글 참조'를 안내하세요!
 
 반드시 아래 JSON 형식으로만 응답하세요:
 {{
@@ -299,7 +300,7 @@ class StockDomesticSNSCopywriter:
 
         v_title = self._clean_text(parsed.get("viral_title")) or hook_title
 
-        # YouTube
+        # YouTube (본문 URL 0% - 알고리즘 다운랭킹 방지 & 첫 댓글 참조 필수)
         yt_d = self._clean_text(parsed.get("youtube_desc"))
         if not yt_d:
             stock_str = realtime_facts.get('stock_name') or spec.get('stock_name')
@@ -314,16 +315,22 @@ class StockDomesticSNSCopywriter:
                 f"3. 뇌동매매 방지를 위한 100% 데이터 기반 알고리즘 매매 타이밍 제시\n\n"
                 f"👉 {self.search_phrase}"
             )
-        yt_desc_full = f"{yt_d}\n\n🔍 {self.search_phrase}\n🌐 퀀트 분석 대시보드: {self.url}\n\n{short_tags}"
+        yt_desc_full = (
+            f"💬 국내 350개 종목 AI 퀀트 점수 확인 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n"
+            f"{yt_d}\n\n"
+            f"🔍 {self.search_phrase}\n\n"
+            f"{short_tags}"
+        )
 
-        yt_p = self._clean_text(parsed.get("youtube_pinned"))
-        if not yt_p:
-            yt_p = (
-                f"📌 오늘의 수급 주도주에 대해 어떻게 생각하시나요? 여러분의 투자 뷰를 댓글로 남겨주세요!\n\n"
-                f"실시간 퀀트 데이터 분석은 네이버에 👉 [ {self.official_keyword} ] 검색 시 바로 확인 가능합니다! 📈"
-            )
+        yt_p = (
+            f"📈 [StockMaster AI] 국내 우량주 350개 실시간 퀀트점수 무료 확인:\n"
+            f"👉 {self.url}\n\n"
+            f"🔍 네이버 검색창에 [{self.official_keyword}]를 검색해보세요!\n\n"
+            f"✨ 10분마다 갱신되는 국내 350개 종목의 AI 퀀트 점수를 즉시 확인해 보세요!\n"
+            f"(네이버 검색: {self.official_keyword})"
+        )
 
-        # TikTok
+        # TikTok (본문 URL 0% & 첫 댓글 참조 필수)
         tk_c = self._clean_text(parsed.get("tiktok_caption"))
         if not tk_c:
             tk_c = (
@@ -332,9 +339,13 @@ class StockDomesticSNSCopywriter:
                 f"👉 {self.search_phrase}\n"
                 f"실시간 퀀트 분석 대시보드 📲"
             )
-        tk_caption_full = f"{tk_c}\n\n{short_tags}"
+        tk_caption_full = (
+            f"💬 국내 350개 종목 AI 퀀트 점수 확인 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n"
+            f"{tk_c}\n\n"
+            f"{short_tags}"
+        )
 
-        # Naver Clip
+        # Naver Clip (본문 URL 0% & 첫 댓글 참조 필수)
         nv_d = self._clean_text(parsed.get("naver_clip_desc"))
         if not nv_d:
             nv_d = (
@@ -343,9 +354,13 @@ class StockDomesticSNSCopywriter:
                 f"빅데이터 퀀트 알고리즘으로 시장 주도주와 수급 집중 구간을 한눈에 파악하세요.\n\n"
                 f"🔍 네이버 검색: [{self.official_keyword}]"
             )
-        nv_desc_full = f"{nv_d}\n\n{short_tags}"
+        nv_desc_full = (
+            f"💬 국내 350개 종목 AI 퀀트 점수 확인 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n"
+            f"{nv_d}\n\n"
+            f"{short_tags}"
+        )
 
-        # Meta Reels
+        # Meta Reels (본문 URL 0% & 첫 댓글 참조 필수)
         ig_c = self._clean_text(parsed.get("instagram_caption"))
         if not ig_c:
             ig_c = (
@@ -354,12 +369,15 @@ class StockDomesticSNSCopywriter:
                 f"✔️ 감정 배제 100% 퀀트 데이터 분석\n"
                 f"✔️ 외인/기관 실시간 순매수 집중 종목 추적\n"
                 f"✔️ 스마트 투자자를 위한 리스크 가드 알고리즘\n\n"
-                f"🔗 지금 프로필 상단 링크를 클릭하거나\n"
                 f"👉 {self.search_phrase}"
             )
-        ig_caption_full = f"{ig_c}\n\n{full_tags}"
+        ig_caption_full = (
+            f"💬 국내 350개 종목 AI 퀀트 점수 확인 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n"
+            f"{ig_c}\n\n"
+            f"{full_tags}"
+        )
 
-        # Facebook
+        # Facebook (본문 URL 0% & 첫 댓글 참조 필수)
         fb_c = self._clean_text(parsed.get("facebook_caption"))
         if not fb_c:
             fb_c = (
@@ -368,7 +386,18 @@ class StockDomesticSNSCopywriter:
                 f"{self.core_value}\n\n"
                 f"💡 지금 네이버에서 [{self.official_keyword}]을 검색해보세요!"
             )
-        fb_caption_full = f"{fb_c}\n\n👇 [첫 번째 댓글]의 퀀트 대시보드 링크를 확인하세요!\n\n{short_tags}"
+        fb_caption_full = (
+            f"💬 국내 350개 종목 AI 퀀트 점수 확인 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n"
+            f"{fb_c}\n\n"
+            f"{short_tags}"
+        )
+
+        # 🛡️ 본문 내 모든 URL 전면 소독 (스레드/릴스/틱톡/유튜브 알고리즘 다운랭킹 원천 방지)
+        yt_desc_full = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', yt_desc_full)
+        tk_caption_full = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', tk_caption_full)
+        nv_desc_full = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', nv_desc_full)
+        ig_caption_full = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', ig_caption_full)
+        fb_caption_full = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', fb_caption_full)
 
         return {
             "title": v_title,

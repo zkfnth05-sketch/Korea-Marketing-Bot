@@ -70,3 +70,10 @@ naver_browser_profile/
 scratch_*.py
 debug_*.py
 *_cache.json
+*.xml
+*.lock
+*.jpg
+*.jpeg
+session_backups/
+**/session_backups/
+*.jsonl

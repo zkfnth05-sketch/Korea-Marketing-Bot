@@ -24,16 +24,23 @@ class AuraShortsPipeline:
         topic_id: Optional[int] = None,
         gender: Optional[str] = None,
         custom_master_image: Optional[Image.Image] = None,
-        seed: Optional[int] = None
+        seed: Optional[int] = None,
+        auto_publish: bool = True
     ) -> str:
-        """Aura 1080p 숏폼 엔진 호출 및 완성본 MP4 경로 반환 (매번 새로운 인물/주제 순환)"""
+        """Aura 1080p 숏폼 엔진 호출 및 완성본 MP4 경로 반환 (렌더링 완료 즉시 4대 SNS 자율 송출 체인 지원)"""
         res = self._producer.produce(
             topic_id=topic_id,
             gender=gender,
             custom_hero_image=custom_master_image,
             seed=seed
         )
-        return res.get("output_mp4", "")
+        mp4_path = res.get("output_mp4", "")
+        if auto_publish and mp4_path:
+            import logging
+            logging.getLogger("AuraShortsPipeline").info(f"🚀 [Aura 숏폼 일체형 파이프라인] 렌더링 완료 즉시 4대 SNS 봇 자율 송출 시작: {mp4_path}")
+            from brands.aura.aura_omni_shorts_pilot import AuraOmniShortsPilot
+            AuraOmniShortsPilot().execute_single_slot(topic_id=topic_id or 1, force=True)
+        return mp4_path
 
     def produce_all_8_topics(
         self,

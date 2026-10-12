@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 chcp 65001 > nul
 title 💖 Aura AI 데이팅 유튜브 영구 로그인 1회 연동기 (zkfnth021@gmail.com)
 echo ========================================================

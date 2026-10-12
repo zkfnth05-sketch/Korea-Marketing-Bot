@@ -160,19 +160,28 @@ class StockOmniCardnewsPilot:
         logger.info(f"🎨 [주식 카드뉴스 무인 자율 제작] 쏘기 직전 주제 #{topic_id} 5장 신규 렌더링 시작...")
         logger.info("=" * 70)
 
-        if topic_id == 1:
-            from brands.stock.render_topic1_cardnews_all import render_all
-            render_all()
-            out_dir = Path(os.environ.get("USERPROFILE", "C:/Users/zkfnt")) / "Desktop" / "한국 카드뉴스_산출물" / "주식" / "[주제01] 삼성전자_수급쌍끌이_20대여성아나운서"
-        elif topic_id == 2:
-            from brands.stock.render_topic2_cardnews_all import render_all_topic2_cardnews
-            render_all_topic2_cardnews()
-            out_dir = Path(os.environ.get("USERPROFILE", "C:/Users/zkfnt")) / "Desktop" / "한국 카드뉴스_산출물" / "주식" / "[주제02] SK하이닉스_HBM수급_20대남성아나운서"
-        else:
-            # 3번 이상 주제도 2번 엔진 기반으로 실시간 자동 생산
-            from brands.stock.render_topic2_cardnews_all import render_all_topic2_cardnews
-            render_all_topic2_cardnews()
-            out_dir = Path(os.environ.get("USERPROFILE", "C:/Users/zkfnt")) / "Desktop" / "한국 카드뉴스_산출물" / "주식" / "[주제02] SK하이닉스_HBM수급_20대남성아나운서"
+        desktop_base = Path(os.environ.get("USERPROFILE", "C:/Users/zkfnt")) / "Desktop" / "한국 카드뉴스_산출물" / "주식"
+        norm_topic = ((topic_id - 1) % 6) + 1
+
+        topic_render_map = {
+            1: ("[주제01] 삼성전자_수급쌍끌이_20대여성아나운서", lambda: (__import__("brands.stock.render_topic1_cardnews_all", fromlist=["render_all"]).render_all())),
+            2: ("[주제02] SK하이닉스_HBM수급_20대남성아나운서", lambda: (__import__("brands.stock.render_topic2_cardnews_all", fromlist=["render_all_topic2_cardnews"]).render_all_topic2_cardnews())),
+            3: ("[주제03] 뇌동매매방지_리스크가드_20대여성기자", lambda: (__import__("brands.stock.render_topic3_cardnews_all", fromlist=["render_all_topic3_cardnews"]).render_all_topic3_cardnews())),
+            4: ("[주제04] 체결가속도_호가창급등_실시간포착", lambda: (__import__("brands.stock.render_topic4_cardnews_all", fromlist=["render_all_topic4_cardnews"]).render_all_topic4_cardnews())),
+            5: ("[주제05] KOSPI_시장종합스트레스_4대매크로리포트", lambda: (__import__("brands.stock.render_topic5_cardnews_all", fromlist=["render_all_topic5_cardnews"]).render_all_topic5_cardnews())),
+            6: ("[주제06] AI퀀트비서_총괄소개_20대훈남", lambda: (__import__("brands.stock.render_topic6_cardnews_all", fromlist=["render_all_topic6_cardnews"]).render_all_topic6_cardnews()))
+        }
+
+        folder_name, render_fn = topic_render_map.get(norm_topic, topic_render_map[1])
+        out_dir = desktop_base / folder_name
+
+        try:
+            render_fn()
+        except Exception as re:
+            logger.warning(f"⚠️ [주식 카드뉴스 #{norm_topic} 렌더러 실행 예외 발생]: {re}")
+            existing_slides = [str(out_dir / f"slide_{i}.png") for i in range(1, 6) if (out_dir / f"slide_{i}.png").exists()]
+            if len(existing_slides) < 5:
+                raise RuntimeError(f"주식 카드뉴스 #{norm_topic} 렌더링 실패 및 실물 부재: {re}")
 
         slides = [str(out_dir / f"slide_{i}.png") for i in range(1, 6) if (out_dir / f"slide_{i}.png").exists()]
         if len(slides) < 5:
@@ -192,9 +201,9 @@ class StockOmniCardnewsPilot:
             "youtube": pkg.get("youtube", {}),
             "naver_clip": pkg.get("naver_clip", {}),
             "tiktok": pkg.get("tiktok", {}),
-            "ig_caption": pkg.get("meta", {}).get("ig_caption", ""),
-            "fb_caption": pkg.get("meta", {}).get("fb_caption", ""),
-            "fb_comment": pkg.get("meta", {}).get("fb_comment", "")
+            "ig_caption": pkg.get("meta_reels", {}).get("caption") or pkg.get("meta", {}).get("ig_caption", ""),
+            "fb_caption": pkg.get("facebook", {}).get("caption") or pkg.get("meta", {}).get("fb_caption", ""),
+            "fb_comment": pkg.get("facebook", {}).get("comment") or pkg.get("meta", {}).get("fb_comment", "")
         }
 
     def execute_single_slot(self, topic_id: Optional[int] = None, force: bool = False) -> Dict[str, Any]:

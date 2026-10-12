@@ -1,11 +1,10 @@
-@echo off
+﻿@echo off
 chcp 65001 > nul
-title 🛡️ 보험 리밸런스 메타(인스타·페북) 영구 로그인 1회 연동기
+title 🛡️ 보험 리밸런스 메타(페이스북/인스타) 영구 로그인 1회 연동기
 echo ========================================================
-echo   🛡️ [보험 리밸런스] 메타(인스타·페북) 영구 로그인 1회 연동기
-echo   - [✓] 정품 크롬 전용 프로필 모드 실행 (봇 탐지 0%)
-echo   - [✓] 인스타그램 1회 로그인 완료 시 세션 영구 보존
+echo   🛡️ 보험 리밸런스 메타 비즈니스 스튜디오 영구 로그인 1회 연동기
+echo   - 브라우저 창이 열리면 페이스북/인스타 로그인 후 창을 닫아주세요.
 echo ========================================================
 cd /d "%~dp0kmarket-marketing-engine"
-python -u "%~dp0kmarket-marketing-engine\brands\insurance\insurance_meta_login.py"
+python -u "%~dp0kmarket-marketing-engine\brands\insurance\setup_meta_profile.py"
 pause

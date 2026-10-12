@@ -19,6 +19,9 @@ from playwright.async_api import async_playwright
 
 CURRENT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = CURRENT_DIR.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+from core.engine.session_integrity import load_best_cookies, sanitize_for_playwright, has_auth, safe_save
 PROFILE_DIR = CURRENT_DIR / "brunch_chrome_profile"
 FALLBACK_PROFILE = CURRENT_DIR.parent / "aura" / "brunch_chrome_profile"
 
@@ -163,10 +166,30 @@ class StockBrunchPublisher:
                     await asyncio.sleep(2)
                     cur_url = page.url
                     if "signin" in cur_url or "accounts.kakao.com" in cur_url:
-                        logger.warning("⚠️ [Brunch-Stock] 브런치 세션 만료 감지 (1회 연동 필요)")
-                        return {"status": "error", "message": "로그인 만료 ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"}
+                        logger.warning("⚠️ [Brunch-Stock] 세션 만료, .good.json 백업 쿠키 주입 시도...")
+                        best = load_best_cookies("brunch", self.session_file)
+                        if best:
+                            for c in sanitize_for_playwright(best):
+                                try:
+                                    await context.add_cookies([c])
+                                except Exception:
+                                    pass
+                            await page.goto(write_url, wait_until="networkidle", timeout=timeout_sec * 1000)
+                            await asyncio.sleep(2)
+                            cur_url = page.url
+                        if "signin" in cur_url or "accounts.kakao.com" in cur_url:
+                            return {"status": "error", "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"}
+                        logger.info("[RESTORE] 브런치 백업 쿠키 복원 성공!")
+                        try:
+                            await safe_save("brunch", context, self.session_file, reason="brunch_restore_success")
+                        except Exception:
+                            pass
                     else:
                         await context.storage_state(path=str(self.session_file))
+                        try:
+                            await safe_save("brunch", context, self.session_file, reason="sso_reauth_success")
+                        except Exception:
+                            pass
                         logger.info("🎉 [Brunch-Stock] 카카오 SSO 자동 재인증 및 영구 세션 갱신 완료!")
 
                 # 제목 입력
@@ -207,6 +230,12 @@ class StockBrunchPublisher:
                 if await save_btn.count() > 0:
                     await save_btn.click()
                     await asyncio.sleep(2)
+
+                try:
+                    await context.storage_state(path=str(self.session_file))
+                    await safe_save("brunch", context, self.session_file, reason="brunch_publish_success")
+                except Exception:
+                    pass
 
                 return {
                     "status": "success",

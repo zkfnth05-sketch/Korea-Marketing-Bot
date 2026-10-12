@@ -48,5 +48,95 @@
     "duration_sec": 603,
     "status": "COMPLETED",
     "ended_at": "2026-10-10T16:10:11.723213"
+  },
+  {
+    "brand": "aura",
+    "started_at": "2026-10-11T08:49:26.211309",
+    "posts_read": 48,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 600,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-11T08:59:26.601890"
+  },
+  {
+    "brand": "aura",
+    "started_at": "2026-10-11T12:45:23.028859",
+    "posts_read": 48,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 605,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-11T12:55:28.737833"
+  },
+  {
+    "brand": "aura",
+    "started_at": "2026-10-11T16:00:29.643802",
+    "posts_read": 51,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 605,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-11T16:10:35.518672"
+  },
+  {
+    "brand": "aura",
+    "started_at": "2026-10-11T22:00:06.523940",
+    "posts_read": 74,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 908,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-11T22:15:14.629798"
+  },
+  {
+    "brand": "aura",
+    "started_at": "2026-10-11T22:00:19.931635",
+    "posts_read": 74,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 904,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-11T22:15:24.635475"
+  },
+  {
+    "brand": "aura",
+    "started_at": "2026-10-12T08:45:02.618973",
+    "posts_read": 52,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 601,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-12T08:55:03.819946"
+  },
+  {
+    "brand": "aura",
+    "started_at": "2026-10-12T12:45:04.311407",
+    "posts_read": 51,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 602,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-12T12:55:07.184646"
+  },
+  {
+    "brand": "aura",
+    "started_at": "2026-10-12T16:00:13.886897",
+    "posts_read": 47,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 610,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-12T16:10:23.977026"
+  },
+  {
+    "brand": "aura",
+    "started_at": "2026-10-12T22:00:28.850252",
+    "posts_read": 74,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 909,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-12T22:15:38.475122"
   }
 ]

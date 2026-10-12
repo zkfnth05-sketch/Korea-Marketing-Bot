@@ -40,20 +40,24 @@ AURA_8_CARDNEWS_SCENARIOS: Dict[int, Dict[str, Any]] = {
                 "cta_button": "👉 옆으로 넘겨서 탈출 비법 보기 (1/5) >",
                 "image_prompt": (
                     "masterpiece, best quality, ultra-photorealistic portrait, authentic candid mobile snapshot shot on iPhone 15 Pro, "
-                    "cinematic over-the-shoulder shot (OTS) from directly behind a Korean man's back and dark navy suit jacket shoulder in the foreground, "
-                    "the back of the man's head and right shoulder are softly visible in the lower foreground corner looking towards his date across the table, "
-                    "seated directly across an antique dark wooden dining table is a breathtakingly beautiful 28-year-old Korean office woman, "
-                    "she is seated upright looking directly across the table at him and the camera with warm authentic eye contact, "
-                    "she has a subtle gentle polite smile, charming restrained smile with lips naturally closed together, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
+                    "photographed from 1.6 meters directly across a dining table from the date's first-person eye-level perspective on iPhone 15 Pro, "
+                    "solo 1person female, perfectly centered in the middle of frame, perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
+                    "seated gracefully across a dark polished marble table inside a high-end luxury wine dining lounge in Hannam-dong, "
+                    "glowing romantic candle votive lamp casting warm flattering ambient candlelight across the table, sparkling crystal wine glasses and boutique champagne bottle in tack sharp f/11 focus, "
+                    "an exceptionally breathtaking gorgeous 24-year-old Korean high-society luxury date goddess, "
+                    "top-tier visual beauty with enchanting deer-like and fox-like facial aesthetics, "
+                    "captivating magnetic almond dark hazel eyes with subtle elegant winged eyeliner, delicate cute button nose, sculpted flawless V-line jawline, "
+                    "flawless porcelain glass skin with a soft natural peach glow, "
+                    "natural full lips gently closed together with a subtle captivating confident micro-smile (strictly zero teeth showing, mouth gently shut), "
+                    "voluminous silky dark brown long layered wavy hair flowing effortlessly over her shoulders, "
+                    "wearing an ultra-luxurious elegant black square-neck fitted silk-knit blouse accentuating her delicate graceful collarbones and slender neckline, delicate minimalist gold pendant necklace, "
+                    "sophisticated Cheongdam date-night fashion, "
                     "perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck, graceful shoulders, "
-                    "calm low ponytail hairstyle, clear fair skin with realistic fine skin pores, refined subtle daytime makeup, "
-                    "wearing stylish sophisticated civilian dating clothes, an elegant chic modern dinner outfit with light cream knit and tailored jacket, "
-                    "on the dark wooden dining table between them are delicate wine glasses, neat cutlery, and folded linen napkins in tack sharp focus, "
-                    "moody upscale evening bistro and wine restaurant in Cheongdam, soft warm pin-spot table lighting casting natural 3D facial depth, "
+                    "cinematic warm 3-point portrait lighting, soft diffused warm key lighting from 45-degree angle casting subtle natural shadows across jawline and cheekbones creating rich 3D facial depth, "
                     "Apple iPhone 15 Pro Smart HDR photo, f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, completely clear background in tack sharp crisp focus."
                 ),
                 "negative_prompt": (
-                    "man's face, facing camera man, front view man, two women, "
+                    "man, male, man's back, back of head, back of shoulder, man's shoulder, suit jacket in foreground, over-the-shoulder, 2 people, two people, second person, obstructed foreground, "
                     "open mouth, parted lips, visible teeth, showing teeth, grinning, laughing, wide smile, angry, frowning, grimacing, "
                     "cleavage, deep neckline, exposed chest, bustier, low cut, exposed collarbone, bare shoulders, revealing clothes, nightlife, hostess, "
                     "holding phone, phone in hand, smartphone facing camera, electronic device, "
@@ -75,12 +79,14 @@ AURA_8_CARDNEWS_SCENARIOS: Dict[int, Dict[str, Any]] = {
                 "cta_button": "스마트한 해결책 보기 >",
                 "image_prompt": (
                     "masterpiece, best quality, ultra-photorealistic portrait, authentic candid mobile snapshot shot on iPhone 15 Pro, "
-                    "solo 1person female, the exact same gorgeous 28-year-old Korean office woman from slide 1, "
-                    "perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck, calm low ponytail hairstyle, clear fair skin with realistic fine skin pores, refined subtle makeup, "
-                    "wearing the exact same stylish sophisticated civilian dating clothes, an elegant chic modern dinner outfit with light cream knit and tailored jacket, "
+                    "solo 1person female, the exact same exceptionally breathtaking gorgeous 24-year-old Korean high-society luxury date goddess from slide 1, "
+                    "flawless porcelain glass skin with a soft natural peach glow, captivating magnetic dark hazel eyes, "
+                    "voluminous silky dark brown long layered wavy hair flowing gracefully over her shoulders, "
+                    "wearing the exact same ultra-luxurious elegant black square-neck fitted silk-knit blouse accentuating her delicate graceful collarbones, delicate minimalist gold pendant necklace, "
+                    "perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck, graceful shoulders, "
                     "standing inside an ultra-luxurious 5-star hotel powder room and restroom, grand Italian marble vanity counter, elegant warm vanity mirror lighting with soft ambient golden glow in tack sharp f/11 focus, "
-                    "she is holding her sleek smartphone in both hands at chest level, looking down intently at the glowing smartphone screen with a troubled, slightly anxious and frustrated facial expression, lips gently pressed together in serious thought, frantically trying to text a friend for an escape rescue call from an awkward blind date, "
-                    "candid medium cowboy portrait shot showing upper body, cream jacket, hands holding smartphone, and luxury marble restroom interior, generous headroom above, "
+                    "she is holding her sleek smartphone in both hands at chest level, looking down intently at the glowing smartphone screen with a troubled, slightly anxious and frustrated facial expression, lips gently pressed together in serious thought, frantically trying to trigger an escape rescue call from an awkward blind date, "
+                    "candid medium cowboy portrait shot showing upper body, black silk blouse, hands holding smartphone, and luxury marble restroom interior, generous headroom above, "
                     "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, realistic skin subsurface scattering, Apple iPhone 15 Pro Smart HDR photo."
                 ),
                 "negative_prompt": (
@@ -104,9 +110,10 @@ AURA_8_CARDNEWS_SCENARIOS: Dict[int, Dict[str, Any]] = {
                 "cta_button": "Aura 전용 탈출 기능 >",
                 "image_prompt": (
                     "masterpiece, best quality, ultra-photorealistic portrait, authentic candid mobile snapshot shot on iPhone 15 Pro, "
-                    "solo 1person female, the exact same gorgeous 28-year-old Korean office woman from slide 1 and slide 2, "
-                    "perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck, calm low ponytail hairstyle, clear fair skin with realistic fine skin pores, refined subtle makeup, "
-                    "wearing the exact same stylish sophisticated civilian dating clothes, an elegant chic modern dinner outfit with light cream knit and tailored jacket, chic trousers, "
+                    "solo 1person female, the exact same exceptionally breathtaking gorgeous 24-year-old Korean high-society luxury date goddess from slide 1 and slide 2, "
+                    "flawless porcelain glass skin, captivating almond dark hazel eyes, voluminous silky dark brown long layered wavy hair flowing over her shoulders, "
+                    "wearing the exact same ultra-luxurious elegant black square-neck fitted silk-knit blouse, delicate gold pendant necklace, chic tailored evening trousers, "
+                    "perfect 8-head-high golden ratio model proportions, delicate small petite head and face size, slender elegant long neck, graceful shoulders, "
                     "photographed from 5.0 meters distance in a wide environmental full-body shot, wide full length shot showing the subject from head to toe with generous headroom above, "
                     "standing outside the grand entrance canopy driveway of an ultra-luxurious 5-star hotel in Seoul at evening, magnificent modern hotel architecture with glowing warm golden entrance canopy lights and glass revolving doors in the background in tack sharp f/11 focus, "
                     "she is standing gracefully with an upright tall model posture, looking towards the camera with a subtle gentle restrained smile, a charming calm poised smile with lips naturally closed together, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, elegant quiet relief and satisfaction after politely escaping an awkward blind date, "
@@ -121,7 +128,6 @@ AURA_8_CARDNEWS_SCENARIOS: Dict[int, Dict[str, Any]] = {
                     "blurry, lens blur, out of focus, bokeh blur, shallow depth of field, deformed hands, extra fingers, missing fingers, bad fingers, "
                     "cartoon, anime, 3d render, cgi, illustration, drawing, watermark, text"
                 )
-
             },
             {
                 "page": 4,
@@ -134,20 +140,22 @@ AURA_8_CARDNEWS_SCENARIOS: Dict[int, Dict[str, Any]] = {
                     "화면에 표출되는 자연스러운 통화 대본 보고 읽으면 끝!"
                 ],
                 "cta_button": "댓글 찬반 투표 참여 >",
-                "asset_image": "brands/aura/assets/aura_escape_call_dialog.png",
+                "asset_image": "brands/aura/assets/aura_escape_call_config_modal.png",
                 "use_direct_asset": True
             },
             {
                 "page": 5,
-                "badge": "찬반 토론 & 회원가입 CTA",
+                "badge": "찬반 토론 & 검색 CTA",
                 "title": "소개팅 긴급 탈출 전화, 센스다 vs 너무하다?",
-                "subtitle": "불안한 소개팅은 이제 그만! 안심하고 만나는 Aura 데이팅",
+                "subtitle": "여러분의 솔직한 생각을 댓글로 남겨주세요! 👇",
                 "bullets": [
-                    "사진 1장으로 1초 만에 프로필 등록 & 무료 가입",
-                    "50:50 황금 성비율 • 100% 실명 인증된 2030 라운지",
-                    "👉 프로필 링크에서 3초 만에 내 이상형/성향 확인!"
+                    "1번: 서로 시간 낭비 안 하는 최고의 센스다",
+                    "2번: 아무리 그래도 끝까지 예의를 지켜야 한다",
+                    "네이버 검색창에 '아우라AI데이팅'을 검색해보세요!"
                 ],
-                "cta_button": "👉 프로필 링크에서 3초 이상형 확인 >"
+                "cta_button": "네이버에 '아우라AI데이팅' 검색하기 >",
+                "asset_image": "brands/aura/assets/aura_escape_call_dialog.png",
+                "use_direct_asset": True
             }
         ]
     },

@@ -140,12 +140,14 @@ class GlobalBrowserLock:
     전역 브라우저 동시 실행 직렬화 관리자 (싱글톤)
     - 숏폼/카드뉴스 정시 업로드(High Priority) 우선 보장
     - 스텔스 봇(Low Priority)의 자율 즉시 양보(Cooperative Preemption) 지원
+    - 스레드 락 장기 점유 안티패턴 완전 제거: 내부 상태 전용 단기 락(_state_lock) 적용
+    - 고우선순위 작업 진입 시 2초 내 스텔스 봇 강제 선점(Preemption) 집행
     """
     _instance = None
-    _thread_lock = threading.RLock()
+    _init_lock = threading.Lock()
 
     def __new__(cls):
-        with cls._thread_lock:
+        with cls._init_lock:
             if cls._instance is None:
                 cls._instance = super(GlobalBrowserLock, cls).__new__(cls)
                 cls._instance._initialized = False
@@ -154,11 +156,15 @@ class GlobalBrowserLock:
     def __init__(self):
         if self._initialized:
             return
+        self._state_lock = threading.RLock()
+        self._is_busy = False
         self._current_task: Optional[str] = None
         self._current_pid: Optional[int] = None
         self._current_is_behavior: bool = False
+        self._current_owner_ident: Optional[int] = None
         self._task_start_time: Optional[float] = None
         self._queue_count = 0
+        self._high_priority_waiting = 0
         self._yield_requested = False
         self._initialized = True
 
@@ -171,21 +177,23 @@ class GlobalBrowserLock:
             "omni", "youtube shorts", "tiktok", "naver clip", "mbs"
         ]
         # 단, task_name에 '휴식', '시청', 'behavior'가 들어가면 스텔스 작업임
-        if any(w in t for w in ["휴식", "시청", "routine", "behavior", "스텔스"]):
+        if any(w in t for w in ["휴식", "시청", "routine", "behavior", "스텔스", "세션", "출근길", "퇴근길", "점심시간", "야간"]):
             return False
         return any(k in t for k in high_keywords)
 
     def is_yield_requested(self) -> bool:
         """스텔스 봇이 루프 중간중간 호출하여 양보 요청 여부 확인"""
-        if self._yield_requested:
-            return True
+        with self._state_lock:
+            if self._yield_requested or self._high_priority_waiting > 0:
+                return True
         if BROWSER_YIELD_FLAG_FILE.exists():
             return True
         return False
 
     def request_yield(self, target_publisher_task: str):
         """고우선순위 업로드 작업이 스텔스 봇에게 즉시 양보 요청 발송"""
-        self._yield_requested = True
+        with self._state_lock:
+            self._yield_requested = True
         try:
             BROWSER_YIELD_FLAG_FILE.write_text(f"yield_to={target_publisher_task}\ntimestamp={time.time()}", encoding="utf-8")
         except Exception:
@@ -194,11 +202,13 @@ class GlobalBrowserLock:
 
     def clear_yield(self):
         """양보 플래그 정리"""
-        self._yield_requested = False
-        try:
-            BROWSER_YIELD_FLAG_FILE.unlink(missing_ok=True)
-        except Exception:
-            pass
+        with self._state_lock:
+            if self._high_priority_waiting <= 0:
+                self._yield_requested = False
+                try:
+                    BROWSER_YIELD_FLAG_FILE.unlink(missing_ok=True)
+                except Exception:
+                    pass
 
     def _write_status(self, task_name: Optional[str], status: str):
         try:
@@ -207,80 +217,94 @@ class GlobalBrowserLock:
                 "status": status,
                 "updated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
                 "timestamp": time.time(),
-                "queue_count": self._queue_count
+                "queue_count": self._queue_count,
+                "high_priority_waiting": self._high_priority_waiting
             }
             with open(BROWSER_STATUS_FILE, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
+            if status == "idle":
+                try:
+                    BROWSER_LOCK_FILE.unlink(missing_ok=True)
+                except Exception:
+                    pass
         except Exception:
             pass
 
     def acquire(self, task_name: str, timeout_sec: int = 1800, is_high_priority: Optional[bool] = None) -> bool:
-        """동기 브라우저 락 획득 (우선순위 선점 지원)"""
+        """동기 브라우저 락 획득 (우선순위 선점 & 스텔스 무대기 스킵 지원)"""
         start_wait = time.time()
         logged_wait = False
-        self._queue_count += 1
 
         is_high = is_high_priority if is_high_priority is not None else self._is_high_priority_task(task_name)
-        yield_requested_sent = False
+
+        # 🛑 [스텔스 봇 대기열 병목 원천 차단]
+        # 고우선순위 작업이 대기 중이거나, 브라우저가 이미 사용 중이면 스텔스 봇은 대기열에 쌓이지 않고 즉시 스킵!
+        if not is_high:
+            with self._state_lock:
+                if self._high_priority_waiting > 0 or self._yield_requested or self._is_busy or BROWSER_YIELD_FLAG_FILE.exists() or BROWSER_LOCK_FILE.exists():
+                    logger.info(f"⏭️ [BrowserGuard 스킵] 브라우저 사용 중 또는 발행 대기 중 -> 스텔스 작업('{task_name}') 대기열 미진입 즉각 스킵 (0초)")
+                    return False
+            timeout_sec = min(timeout_sec, 2)
+
+        with self._state_lock:
+            self._queue_count += 1
+            if is_high:
+                self._high_priority_waiting += 1
+                self._yield_requested = True
+
+        if is_high:
+            self.request_yield(task_name)
 
         try:
             while True:
-                # 고우선순위 작업인 경우, 현재 실행 중인 스텔스 작업에 즉각 양보 요청
-                if is_high and not yield_requested_sent:
-                    if BROWSER_LOCK_FILE.exists():
-                        try:
-                            content = BROWSER_LOCK_FILE.read_text(encoding="utf-8").strip()
-                            if any(w in content for w in ["휴식", "시청", "routine", "behavior", "스텔스"]):
-                                self.request_yield(task_name)
-                                yield_requested_sent = True
-                        except Exception:
-                            pass
-
-                acquired = self._thread_lock.acquire(blocking=False)
-                if acquired:
-                    file_locked = False
+                with self._state_lock:
+                    # 1. 이전 프로세스 파일 락 점검 및 고아/스텔스 회수
                     if BROWSER_LOCK_FILE.exists():
                         try:
                             content = BROWSER_LOCK_FILE.read_text(encoding="utf-8").strip()
                             file_age = time.time() - BROWSER_LOCK_FILE.stat().st_mtime
-                            
+
                             import re
                             m = re.search(r"pid=(\d+)", content)
                             if m:
                                 lock_pid = int(m.group(1))
                                 if not _is_pid_alive(lock_pid):
-                                    logger.warning(f"⚠️ [BrowserGuard] 사망한 프로세스(PID={lock_pid})의 잉여 락 파일 즉시 자동 회수: {content}")
+                                    logger.warning(f"⚠️ [BrowserGuard] 사망한 프로세스(PID={lock_pid}) 락 회수: {content}")
                                     BROWSER_LOCK_FILE.unlink(missing_ok=True)
-                                    file_locked = False
-                                elif is_high and any(w in content for w in ["휴식", "시청", "routine", "behavior", "스텔스"]) and (time.time() - start_wait) > 5.0:
-                                    # 고우선순위 작업이 5초 이상 기다렸는데 스텔스 작업이 아직 안 비켰다면 안전 강제 회수
-                                    logger.warning(f"⚡ [BrowserGuard 선점 집행] 스텔스 봇(PID={lock_pid}, '{content}') 5초 양보 지연 -> 브라우저 강제 회수 후 업로드 우선권 인계!")
+                                    self._is_busy = False
+                                elif is_high and any(w in content for w in ["휴식", "시청", "routine", "behavior", "스텔스", "세션", "출근길", "퇴근길", "점심시간", "야간"]) and (time.time() - start_wait) > 2.0:
+                                    logger.warning(f"⚡ [BrowserGuard 선점 집행] 스텔스 봇(PID={lock_pid}, '{content}') 2초 초과로 브라우저 즉각 강제 회수 -> 업로드 선점 인계!")
                                     BROWSER_LOCK_FILE.unlink(missing_ok=True)
-                                    file_locked = False
+                                    self._is_busy = False
                                 elif file_age > 1800:
-                                    logger.warning(f"⚠️ [BrowserGuard] 30분 초과 고아 브라우저 락 자동 해제: {BROWSER_LOCK_FILE}")
+                                    logger.warning(f"⚠️ [BrowserGuard] 30분 초과 고아 브라우저 락 해제: {BROWSER_LOCK_FILE}")
                                     BROWSER_LOCK_FILE.unlink(missing_ok=True)
-                                    file_locked = False
-                                else:
-                                    file_locked = True
+                                    self._is_busy = False
                             else:
                                 if file_age > 300:
                                     BROWSER_LOCK_FILE.unlink(missing_ok=True)
-                                    file_locked = False
-                                else:
-                                    file_locked = True
+                                    self._is_busy = False
                         except Exception:
-                            file_locked = False
+                            pass
 
-                    if not file_locked:
+                    # 2. 같은 프로세스 내 스텔스 스레드가 점유 중인 경우 선점 검사
+                    if self._is_busy and self._current_is_behavior and is_high and (time.time() - start_wait) > 2.0:
+                        logger.warning(f"⚡ [BrowserGuard 스레드 선점 집행] 선행 스텔스 작업('{self._current_task}') 2초 초과로 즉각 선점 회수!")
+                        self._is_busy = False
+                        BROWSER_LOCK_FILE.unlink(missing_ok=True)
+
+                    # 3. 브라우저가 비어있으면 즉시 획득
+                    if not self._is_busy and not BROWSER_LOCK_FILE.exists():
                         try:
                             BROWSER_LOCK_FILE.write_text(f"{task_name} (pid={os.getpid()})", encoding="utf-8")
                         except Exception:
                             pass
 
+                        self._is_busy = True
                         self._current_task = task_name
                         self._current_pid = os.getpid()
                         self._current_is_behavior = not is_high
+                        self._current_owner_ident = threading.get_ident()
                         self._task_start_time = time.time()
                         self._write_status(task_name, "running")
                         self.clear_yield()
@@ -291,44 +315,47 @@ class GlobalBrowserLock:
                         else:
                             logger.info(f"🌐 [BrowserGuard] '{task_name}' 브라우저 단독 실행 진입 (GPU 0% 모드)")
                         return True
-                    else:
-                        self._thread_lock.release()
 
+                # 타임아웃 검사
                 elapsed = round(time.time() - start_wait, 1)
                 if elapsed > timeout_sec:
-                    logger.error(f"❌ [BrowserGuard] '{task_name}' 브라우저 대기 시간({timeout_sec}초) 초과로 중단")
+                    if not is_high:
+                        logger.info(f"⏭️ [BrowserGuard 스킵] 스텔스 작업('{task_name}') {timeout_sec}초 내 미획득으로 안전 스킵")
+                    else:
+                        logger.error(f"❌ [BrowserGuard] '{task_name}' 브라우저 대기 시간({timeout_sec}초) 초과로 중단")
                     return False
 
-                if not logged_wait or int(elapsed) % 15 == 0:
+                if is_high and (not logged_wait or int(elapsed) % 3 == 0):
                     cur = self._current_task or "선행 브라우저 봇"
-                    logger.info(f"⏳ [BrowserGuard 순차 대기] 현재 '{cur}' 실행 중. '{task_name}'은(는) 안전 대기 중... ({int(elapsed)}초 경과 / 대기열: {self._queue_count}개)")
+                    logger.info(f"⏳ [BrowserGuard 긴급 대기] '{task_name}' 업로드 진입 대기 중 (현재: '{cur}', {int(elapsed)}초 경과 / 대기열: {self._queue_count}개)")
                     logged_wait = True
 
-                time.sleep(1)  # 1초 간격으로 신속 재시도
+                time.sleep(0.3)  # 0.3초 간격 초고속 폴링
         finally:
-            self._queue_count = max(0, self._queue_count - 1)
+            with self._state_lock:
+                if is_high:
+                    self._high_priority_waiting = max(0, self._high_priority_waiting - 1)
+                self._queue_count = max(0, self._queue_count - 1)
 
     def release(self, task_name: Optional[str] = None):
         """브라우저 락 해제"""
-        try:
-            BROWSER_LOCK_FILE.unlink(missing_ok=True)
-        except Exception:
-            pass
+        with self._state_lock:
+            try:
+                BROWSER_LOCK_FILE.unlink(missing_ok=True)
+            except Exception:
+                pass
 
-        finished_task = task_name or self._current_task or "브라우저 작업"
-        duration = round(time.time() - self._task_start_time, 1) if self._task_start_time else 0
+            finished_task = task_name or self._current_task or "브라우저 작업"
+            duration = round(time.time() - self._task_start_time, 1) if self._task_start_time else 0
 
-        self._current_task = None
-        self._current_pid = None
-        self._current_is_behavior = False
-        self._task_start_time = None
-        self._write_status(None, "idle")
-        self.clear_yield()
-
-        try:
-            self._thread_lock.release()
-        except RuntimeError:
-            pass
+            self._is_busy = False
+            self._current_task = None
+            self._current_pid = None
+            self._current_is_behavior = False
+            self._current_owner_ident = None
+            self._task_start_time = None
+            self._write_status(None, "idle")
+            self.clear_yield()
 
         logger.info(f"✅ [BrowserGuard] '{finished_task}' 브라우저 세션 정상 완료 및 자원 반환 (소요: {duration}초)")
 
@@ -339,6 +366,21 @@ browser_guard_manager = GlobalBrowserLock()
 def is_yield_requested() -> bool:
     """모듈 레벨 헬퍼 함수: 스텔스 봇이 양보 요청 여부 확인"""
     return browser_guard_manager.is_yield_requested()
+
+
+async def interruptible_sleep(duration_sec: float, check_interval: float = 0.5) -> bool:
+    """
+    스텔스 봇 전용 인터럽트 슬립:
+    - 양보 요청(is_yield_requested()) 감지 시 즉각 슬립을 중단하고 True 반환
+    - 정상 시간 경과 시 False 반환
+    """
+    end_t = time.time() + duration_sec
+    while time.time() < end_t:
+        if is_yield_requested():
+            return True
+        remaining = end_t - time.time()
+        await asyncio.sleep(min(check_interval, max(0.05, remaining)))
+    return False
 
 
 @contextmanager

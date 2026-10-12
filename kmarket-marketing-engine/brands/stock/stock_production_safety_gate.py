@@ -187,19 +187,44 @@ class StockProductionSafetyGate:
         return True, f"5장 전수 무결성 확인 완료 (총 {len(slide_paths)}장, 정상 1080x1350 규격)"
 
     @classmethod
-    def verify_desktop_shorts_completed(cls, video_path: str) -> Tuple[bool, str]:
-        """바탕화면에 숏폼 비디오 완제품이 100% 온전히 생성되었는지 파이썬 실물 전수 검증"""
+    def verify_desktop_shorts_completed(cls, video_path: str, min_duration_sec: float = 20.0) -> Tuple[bool, str]:
+        """바탕화면에 22초 숏폼 비디오 완제품이 100% 온전히 생성되었는지 파이썬 실물 전수 검증"""
         if not video_path:
             return False, "비디오 파일 경로가 지정되지 않음"
         p = Path(video_path)
         if not p.exists():
             return False, f"숏폼 비디오 실물 파일이 바탕화면에 존재하지 않음: {p}"
+
+        name_lower = p.name.lower()
+        if any(bad in name_lower for bad in ["10초", "원테이크", "temp", "clip_", "person_"]):
+            return False, f"숏폼 완제품 부적격: 10초 원테이크/임시 파일 배포 시도 원천 차단 ({p.name})"
+        if not any(k in name_lower for k in ["32초", "22초", "32s", "22s", "숏폼"]):
+            return False, f"숏폼 완제품 규격 오류: 파일명에 '32초' 또는 '22초' 미포함 ({p.name})"
+
         size = p.stat().st_size
-        if size < 500 * 1024:  # 최소 500KB 이상
-            return False, f"숏폼 비디오 용량 미달 비정상 파일 ({size} bytes < 500KB): {p}"
+        if size < 2 * 1024 * 1024:  # 최소 2MB 이상
+            return False, f"숏폼 비디오 용량 미달 ({size // 1024}KB < 2048KB): 비정상 축소본/중간본 ({p.name})"
+
         if not str(p).lower().endswith(".mp4"):
             return False, f"숏폼 파일 포맷 오류 (MP4 확장자 아님): {p}"
-        return True, f"숏폼 비디오 완제품 무결성 확인 완료 ({p.name}, {size // 1024}KB)"
+
+        # 🎬 OpenCV 실물 비디오 재생 시간(초수) 정밀 실측
+        try:
+            import cv2
+            cap = cv2.VideoCapture(str(p.resolve()))
+            if not cap.isOpened():
+                return False, f"비디오 파일 열기 실패 (파일 손상 의심): {p.name}"
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+            cap.release()
+
+            duration_sec = (frame_count / fps) if fps and fps > 0 else 0
+            if duration_sec < min_duration_sec:
+                return False, f"🚨 [숏폼 길이 규격 미달] 실측 재생 시간: {duration_sec:.1f}초 (최소 규격: {min_duration_sec}초 이상 필수! 10초짜리 배포 원천 차단): {p.name}"
+
+            return True, f"22초 숏폼 완제품 실측 무결성 합격 (파일명: {p.name}, 실측 재생시간: {duration_sec:.1f}초, 용량: {size // 1024}KB)"
+        except Exception as ve:
+            return False, f"비디오 재생시간 실측 검증 중 예외 발생: {ve}"
 
 
     @classmethod

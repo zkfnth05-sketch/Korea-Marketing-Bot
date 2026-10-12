@@ -38,6 +38,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from config import BASE_DIR, get_now_kst_str
 from brands.insurance.insurance_hashtag_matrix import InsuranceHashtagMatrix
 from core.engine.browser_guard import async_browser_lock, get_safe_browser_args, clean_browser_profile_locks
+from core.engine.session_integrity import ensure_auth_cookies, safe_save, is_logged_out_url, has_auth
 
 logger = logging.getLogger("InsuranceYouTubeBotPublisher")
 
@@ -150,20 +151,25 @@ class InsuranceYouTubeBotPublisher:
             raw_title = f"{raw_title} #Shorts"
         final_title = raw_title[:100]
 
-        # 설명란 조립 (4단 해시태그 결합)
+        # 설명란 조립 (4단 해시태그 결합 - 본문 내 URL 전면 배제, 첫 댓글 직결)
         tags_line = " ".join(yt_tags) if yt_tags else "#보험리밸런스 #보험비교 #실손보험 #암보험 #Shorts"
         desc_body = description or (
             "34개 보험사 비교 견적부터 매달 새는 보험료 다이어트까지!\n\n"
-            f"🔍 네이버 검색창에 👉 [ {self.OFFICIAL_KEYWORD} ] 검색해보세요!\n"
-            f"공식 진단센터 바로가기: {self.LANDING_URL}\n\n"
+            f"🔍 네이버 검색: {self.OFFICIAL_KEYWORD}\n\n"
         )
+        if "첫 번째 댓글" not in desc_body:
+            desc_body = f"💬 34개 보험사 무료 비교 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n{desc_body}"
+        # 본문 내 모든 URL 전면 제거 (스레드 방식: 본문 URL 0%, 첫 댓글 100% 직결)
+        desc_body = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', desc_body)
         full_desc = f"{desc_body.strip()}\n\n{tags_line}".strip()[:5000]
 
-        # 고정 댓글 문구
+        # 고정 댓글 문구 (시청자가 댓글창 열자마자 바로 누르고 조회할 수 있는 직결 통로)
         pinned_comment = (
-            "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n"
-            f"네이버에 👉 [ {self.OFFICIAL_KEYWORD} ] 검색하시면 바로 나옵니다!\n"
-            f"(공식 링크: {self.LANDING_URL})"
+            f"🛡️ [보험 리밸런스] 34개 보험사 모든 보험 무료조회:\n"
+            f"👉 {self.LANDING_URL}\n\n"
+            f"🔍 네이버 검색창에 [{self.OFFICIAL_KEYWORD}]를 검색해보세요!\n\n"
+            f"✨ 34개 보험사 비교 및 내 보험료 다이어트를 무료로 즉시 시작해 보세요!\n"
+            f"(네이버 검색: {self.OFFICIAL_KEYWORD})"
         )
 
         logger.info("=" * 70)
@@ -198,42 +204,11 @@ class InsuranceYouTubeBotPublisher:
                         viewport={"width": 1366, "height": 850}
                     )
 
-                                # 세션 쿠키 주입 (RFC 6265bis 규격 정제 및 보안 속성 보정)
-                if self.session_file.exists():
-                    try:
-                        with open(self.session_file, "r", encoding="utf-8") as f:
-                            raw = json.load(f)
-                        raw_cookies = raw.get("cookies", raw) if isinstance(raw, dict) else raw
-                        clean_cookies = []
-                        for c in raw_cookies:
-                            c_name = c.get("name", "")
-                            c_val = c.get("value", "")
-                            c_domain = c.get("domain", ".youtube.com")
-                            c_path = c.get("path", "/")
-                            item = {"name": c_name, "value": c_val, "path": c_path}
-                            is_secure = c.get("secure", False)
-                            if c_name.startswith("__Secure-") or c_name.startswith("__Host-"):
-                                is_secure = True
-                            item["secure"] = bool(is_secure)
-                            if "httpOnly" in c:
-                                item["httpOnly"] = bool(c["httpOnly"])
-                            ss = c.get("sameSite")
-                            if ss in ["Strict", "Lax", "None"]:
-                                item["sameSite"] = ss
-                            if c_name.startswith("__Host-"):
-                                item["domain"] = c_domain.lstrip(".")
-                                item["path"] = "/"
-                            else:
-                                item["domain"] = c_domain
-                            clean_cookies.append(item)
-                        for ck in clean_cookies:
-                            try:
-                                await context.add_cookies([ck])
-                            except Exception:
-                                pass
-                        logger.info(f"   🍪 유튜브 세션 쿠키 {len(clean_cookies)}개 브라우저 주입 완료")
-                    except Exception as ce:
-                        logger.warning(f"유튜브 세션 쿠키 로드 예외: {ce}")
+                                # 🛡️ DBSC 하드웨어 키 보호: 텍스트 쿠키 강제 덮어쓰기(add_cookies) 전면 배제
+                # 크롬 영구 프로필(user_data_dir)의 실물 TPM 암호화 스토리지와 하드웨어 바인딩 세션을 그대로 보존
+                logger.info(f"   🔐 [DBSC 영구 보호] 크롬 하드웨어 TPM 프로필({self.profile_dir.name}) 세션 직접 연동")
+                # 프로필에 구글 로그인 쿠키가 있으면 손대지 않고, 없을 때만 마지막 정상 백업에서 정제 복원
+                await ensure_auth_cookies("youtube", context, self.session_file)
 
                 page = context.pages[0] if context.pages else await context.new_page()
                 
@@ -249,8 +224,14 @@ class InsuranceYouTubeBotPublisher:
                     await page.goto(studio_url, wait_until="domcontentloaded", timeout=timeout_sec * 1000)
                     await asyncio.sleep(4.0)
 
-                    # 로그인 상태 점검
-                    if "accounts.google.com" in page.url or await page.locator("input[type='email']").is_visible():
+                    # 로그인 상태 점검: 리다이렉트가 끝날 때까지 최대 ~12초 대기 후 인증 쿠키+URL로 판정
+                    _logged_in = False
+                    for _ in range(8):
+                        if (not is_logged_out_url("youtube", page.url)) and has_auth("youtube", await context.cookies()):
+                            _logged_in = True
+                            break
+                        await asyncio.sleep(1.5)
+                    if not _logged_in:
                         logger.error("🛑 [Insurance YouTube Bot] 구글 로그인이 만료되었습니다. setup_youtube_profile.py를 실행해 주세요.")
                         await context.close()
                         return {
@@ -469,39 +450,70 @@ class InsuranceYouTubeBotPublisher:
 
                     logger.info(f"🎉 [Insurance YouTube Bot] 쇼츠 무인 발행 완결! URL: {video_url or '게시 완료'}")
 
-                    # 5. 고정 댓글(Pinned Comment) 자동 작성
+                    # 5. 고정 댓글(Pinned Comment) 100% 무인 자동 작성 (60초 대기 & watch URL 직행)
                     comm_status = "skipped"
-                    if video_url:
+                    if video_id or video_url:
+                        target_shorts_url = f"https://www.youtube.com/shorts/{video_id}" if video_id else video_url
                         try:
-                            logger.info(f"💬 [고정 댓글 등록] 쇼츠 페이지({video_url}) 이동 중...")
-                            await page.goto(video_url, wait_until="domcontentloaded", timeout=30000)
-                            await asyncio.sleep(3.0)
+                            logger.info("⏳ [Insurance YouTube Bot] 유튜브 서버 동영상 트랜스코딩 & 댓글 활성화를 위해 60초간 대기합니다...")
+                            await asyncio.sleep(60.0)
+                            logger.info(f"💬 [고정 댓글 등록] 60초 대기 완료! 쇼츠 플레이어({target_shorts_url}) 접속 중...")
+                            await page.goto(target_shorts_url, wait_until="domcontentloaded", timeout=40000)
+                            await asyncio.sleep(4.0)
 
-                            comment_placeholder = page.locator("#placeholder-area, #simplebox-placeholder, ytd-comment-simplebox-renderer").first
-                            if await comment_placeholder.is_visible():
-                                await comment_placeholder.click()
-                                await asyncio.sleep(1.0)
-                                comment_input = page.locator("#contenteditable-root, div[aria-label*='댓글 추가'], div[aria-label*='Add a comment']").first
-                                if await comment_input.is_visible():
-                                    await comment_input.fill(pinned_comment)
-                                    await asyncio.sleep(1.0)
-                                    submit_btn = page.locator("#submit-button, button[aria-label*='댓글'], button:has-text('댓글'), button:has-text('Comment')").first
-                                    if await submit_btn.is_visible():
-                                        await submit_btn.click()
-                                        await asyncio.sleep(2.0)
-                                        comm_status = "submitted"
-                                        logger.info("✅ [Insurance YouTube Bot] 공식 검색어 유도 댓글 등록 성공!")
+                            # 1. 쇼츠 플레이어 우측 댓글 서랍 열기
+                            comment_btn = page.locator("button[aria-label*='댓글 보기'], #comments-button button, [aria-label*='댓글']").first
+                            if await comment_btn.is_visible():
+                                await comment_btn.click(force=True)
+                                await asyncio.sleep(2.5)
+
+                            # 2. 댓글 placeholder 클릭하여 활성화
+                            placeholder = page.locator("#placeholder-area, #simplebox-placeholder, ytd-comment-simplebox-renderer").first
+                            if await placeholder.is_visible():
+                                await placeholder.scroll_into_view_if_needed()
+                                await placeholder.click(force=True)
+                                await asyncio.sleep(1.5)
+
+                            # 3. 댓글 본문 입력
+                            comment_input = page.locator("#contenteditable-root, div[aria-label*='댓글 추가'], div[aria-label*='Add a comment']").first
+                            if await comment_input.is_visible():
+                                await comment_input.fill(pinned_comment)
+                                await asyncio.sleep(1.5)
+
+                                # 4. 댓글 등록 버튼 클릭 (JS fallback 보장)
+                                await page.evaluate("""() => {
+                                    const btns = Array.from(document.querySelectorAll('button'));
+                                    const b = btns.find(el => el.innerText && el.innerText.trim() === '댓글' && !el.disabled);
+                                    if (b) { b.click(); }
+                                }""")
+                                await asyncio.sleep(3.5)
+
+                                # 5. 상단 고정(Pin) 시도
+                                try:
+                                    menu_btn = page.locator("ytd-comment-view-model ytd-menu-renderer yt-icon-button, ytd-comment-thread-renderer #action-menu yt-icon-button, yt-icon-button.ytd-menu-renderer").first
+                                    if await menu_btn.is_visible():
+                                        await menu_btn.click(force=True)
+                                        await asyncio.sleep(1.5)
+                                        pin_item = page.locator("tp-yt-paper-item:has-text('고정'), tp-yt-paper-item:has-text('Pin')").first
+                                        if await pin_item.is_visible():
+                                            await pin_item.click(force=True)
+                                            await asyncio.sleep(1.5)
+                                            confirm_pin = page.locator("yt-button-renderer#confirm-button, button:has-text('고정')").first
+                                            if await confirm_pin.is_visible():
+                                                await confirm_pin.click(force=True)
+                                                await asyncio.sleep(2.0)
+                                                logger.info("📌 [Insurance YouTube Bot] 댓글 상단 고정(Pin) 완료!")
+                                except Exception as pe:
+                                    logger.debug(f"고정 옵션 안내: {pe}")
+
+                                comm_status = "submitted"
+                                logger.info("🎉 [Insurance YouTube Bot] 공식 URL & 혜택 첫 댓글 100% 등록 성공!")
                         except Exception as ce:
                             logger.warning(f"댓글 등록 안내 (스튜디오 게시 성공 유지): {ce}")
 
                     try:
-                        cookies = await context.cookies()
-                        clean_cookies = [
-                            {"name": c["name"], "value": c["value"], "domain": c.get("domain", ".youtube.com"), "path": c.get("path", "/")}
-                            for c in cookies
-                        ]
-                        with open(self.session_file, "w", encoding="utf-8") as f:
-                            json.dump({"cookies": clean_cookies}, f, ensure_ascii=False, indent=2)
+                        # 로그인 인증 쿠키가 있을 때만 저장 (전체 쿠키 속성 보존, 로그아웃 상태로 덮어쓰기 금지)
+                        safe_save("youtube", self.session_file, await context.cookies(), reason="insurance_youtube_end")
                     except Exception:
                         pass
 

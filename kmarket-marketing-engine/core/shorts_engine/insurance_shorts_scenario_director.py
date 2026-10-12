@@ -77,7 +77,7 @@ class InsuranceShortsScenarioDirector:
             "topic_id": 4,
             "theme_name": "뇌경색 100% 뇌혈관질환 최저가 다이렉트 비교",
             "theme_code": "brain_vascular",
-            "gender": "male",
+            "gender": "female",
             "hook_p1_5s": "뇌경색까지 든든하게 보장하는 뇌혈관 보험, 내 증권의 보장 범위는 안전할까요?",
             "hook_p2_5s": "내 조건만 넣으면 전 보험사 객관적 요율이 바로 나옵니다!",
             "hook_0_10s": "뇌경색까지 든든하게 보장하는 뇌혈관 보험, 내 증권의 보장 범위는 안전할까요? 내 조건만 넣으면 전 보험사 객관적 요율이 바로 나옵니다!",
@@ -85,10 +85,10 @@ class InsuranceShortsScenarioDirector:
             "cta_18_22s": "지금 네이버에 보험 리밸런스 검색해보세요!",
             "hero_copy": "뇌경색까지 보장하는 뇌혈관보험 객관적 비교!",
             "s2v_motion_prompt": (
-                "a trustworthy 48-year-old Korean family man in stylish neat casual daily clothes, looking directly into camera with sincere honest eyes, "
-                "speaking clearly with smooth natural lip sync, precise mouth movements and subtle head nods"
+                "a gorgeous and confident 28-year-old Korean female professional in tailored chic blazer, looking directly into camera with engaging captivating expression, "
+                "speaking clearly with smooth natural lip sync, articulate facial articulation, subtle posture shifts and confident nods"
             ),
-            "voice_pitch": "+0Hz",
+            "voice_pitch": "+2Hz",
             "voice_rate": "+3%"
         },
         5: {

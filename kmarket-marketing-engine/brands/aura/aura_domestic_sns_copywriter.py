@@ -112,7 +112,7 @@ class AuraDomesticSNSCopywriter:
     def _call_gemini(self, prompt: str) -> Optional[str]:
         if not self.client:
             return None
-        models = ["gemini-2.5-flash", "gemini-2.0-flash"]
+        models = ["gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-2.5-flash", "gemini-2.0-flash"]
         for m in models:
             try:
                 resp = self.client.generate_content(model=m, contents=prompt)
@@ -153,15 +153,16 @@ class AuraDomesticSNSCopywriter:
 
 [플랫폼별 작성 지침 - 분량을 풍부하고 감성적으로 작성할 것]
 1. viral_title: 2030 시선을 단 1초 만에 사로잡는 강력한 훅 제목 (이모지 포함, 35자 내외)
-2. youtube_desc: 유튜브 쇼츠 상세 설명문 (풍부한 줄바꿈 포함)
+2. youtube_desc: 유튜브 쇼츠 상세 설명문 (풍부한 줄바꿈 포함, 본문 내 외부 URL 절대 삽입 금지)
    - [공감 폭발 인트로 2~3줄: "소개팅 나가서 이런 경험 다들 한 번쯤 있으시죠?"]
    - [💡 실전 연애 치트키 3대 포인트] (번호 매겨서 구체적 서술)
-   - [공식 라운지 유도 문구]
-3. youtube_pinned: 시청자 댓글 참여 유도 고정 댓글 (질문 던지기 + 네이버 검색어 안내)
-4. tiktok_caption: 틱톡 알고리즘 최적화 본문 (강렬한 훅 2줄 + 핵심 요약 2줄 + 검색어)
-5. naver_clip_desc: 네이버 클립용 280자 내외 고밀도 실전 연애 정보 압축 카피
-6. instagram_caption: 인스타그램 릴스/피드용 감성 스토리텔링 본문 (공감 서사 + 체크리스트 + 프로필 링크 유도)
-7. facebook_caption: 페이스북용 깊이 있는 연애 칼럼 본문 (공감 서사 + 실전 가이드 + 첫 댓글 안내)
+   - [공식 라운지는 첫 번째 댓글 참조 유도]
+3. youtube_pinned: 시청자 댓글 참여 유도 고정 댓글 (공식 바로가기 링크 단독 배치)
+4. tiktok_caption: 틱톡 알고리즘 최적화 본문 (강렬한 훅 2줄 + 핵심 요약 2줄 + 첫 댓글 참조 안내 + 검색어)
+5. naver_clip_desc: 네이버 클립용 280자 내외 고밀도 실전 연애 정보 압축 카피 (첫 댓글 참조 안내 포함)
+6. instagram_caption: 인스타그램 릴스/피드용 감성 스토리텔링 본문 (공감 서사 + 체크리스트 + 첫 댓글 링크 참조 안내)
+7. facebook_caption: 페이스북용 깊이 있는 연애 칼럼 본문 (공감 서사 + 실전 가이드 + 첫 번째 댓글 링크 안내)
+※ [절대 원칙] 모든 본문(캡션/설명문)에는 외부 링크(http/https)를 절대 넣지 말고 '첫 번째 댓글 참조'를 안내하세요!
 
 반드시 아래 JSON 형식으로만 응답하세요:
 {{
@@ -186,7 +187,7 @@ class AuraDomesticSNSCopywriter:
 
         v_title = self._clean_text(parsed.get("viral_title")) or hook_title
 
-        # YouTube
+        # YouTube (본문 URL 0% - 알고리즘 다운랭킹 방지 & 첫 댓글 참조 필수)
         yt_d = self._clean_text(parsed.get("youtube_desc"))
         if not yt_d:
             yt_d = (
@@ -199,16 +200,22 @@ class AuraDomesticSNSCopywriter:
                 f"3. 부담 없는 자연스러운 애프터 신청 타이밍 잡기\n\n"
                 f"👉 {self.search_phrase}"
             )
-        yt_desc_full = f"{yt_d}\n\n🔍 {self.search_phrase}\n🌐 공식 라운지: {self.url}\n\n{short_tags}"
+        yt_desc_full = (
+            f"💬 3초 무료 공식 입장 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n"
+            f"{yt_d}\n\n"
+            f"🔍 {self.search_phrase}\n\n"
+            f"{short_tags}"
+        )
 
-        yt_p = self._clean_text(parsed.get("youtube_pinned"))
-        if not yt_p:
-            yt_p = (
-                f"📌 여러분의 소개팅 경험은 어떠셨나요? 댓글로 솔직한 후기를 남겨주세요!\n\n"
-                f"성비 50:50 청정 데이팅 라운지는 네이버에 👉 [ {self.official_keyword} ] 검색 시 100% 무료 입장 가능합니다! 💖"
-            )
+        yt_p = (
+            f"💖 [Aura AI 데이팅] 모든 기능 무료 사용하기 (3초 무료 입장):\n"
+            f"👉 {self.url}\n\n"
+            f"🔍 네이버 검색창에 [{self.official_keyword}]을 검색해보세요!\n\n"
+            f"✨ 50:50 황금 성비 라운지를 3초 만에 무료로 이용해 보세요!\n"
+            f"(네이버 검색: {self.official_keyword})"
+        )
 
-        # TikTok
+        # TikTok (본문 URL 0% & 첫 댓글 참조 필수)
         tk_c = self._clean_text(parsed.get("tiktok_caption"))
         if not tk_c:
             tk_c = (
@@ -217,9 +224,13 @@ class AuraDomesticSNSCopywriter:
                 f"👉 {self.search_phrase}\n"
                 f"50:50 성비 청정 라운지 무료 입장 💖"
             )
-        tk_caption_full = f"{tk_c}\n\n{short_tags}"
+        tk_caption_full = (
+            f"💬 3초 무료 공식 입장 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n"
+            f"{tk_c}\n\n"
+            f"{short_tags}"
+        )
 
-        # Naver Clip
+        # Naver Clip (본문 URL 0% & 첫 댓글 참조 필수)
         nv_d = self._clean_text(parsed.get("naver_clip_desc"))
         if not nv_d:
             nv_d = (
@@ -228,9 +239,13 @@ class AuraDomesticSNSCopywriter:
                 f"유령회원 없는 50:50 청정 라운지에서 AI 이상형 매칭을 시작해보세요.\n\n"
                 f"🔍 네이버 검색: [{self.official_keyword}]"
             )
-        nv_desc_full = f"{nv_d}\n\n{short_tags}"
+        nv_desc_full = (
+            f"💬 3초 무료 공식 입장 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n"
+            f"{nv_d}\n\n"
+            f"{short_tags}"
+        )
 
-        # Meta Reels
+        # Meta Reels (본문 URL 0% & 첫 댓글 참조 필수)
         ig_c = self._clean_text(parsed.get("instagram_caption"))
         if not ig_c:
             ig_c = (
@@ -239,12 +254,15 @@ class AuraDomesticSNSCopywriter:
                 f"✔️ 50:50 황금 성비 청정 라운지\n"
                 f"✔️ AI 맞춤 이상형 매칭 & 1:1 비밀 쪽지 100% 무료\n"
                 f"✔️ 알바/유령회원 없는 100% 실명 인증 회원\n\n"
-                f"🔗 지금 바로 프로필 링크를 클릭하거나\n"
                 f"👉 {self.search_phrase}"
             )
-        ig_caption_full = f"{ig_c}\n\n{full_tags}"
+        ig_caption_full = (
+            f"💬 3초 무료 공식 입장 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n"
+            f"{ig_c}\n\n"
+            f"{full_tags}"
+        )
 
-        # Facebook
+        # Facebook (본문 URL 0% & 첫 댓글 참조 필수)
         fb_c = self._clean_text(parsed.get("facebook_caption"))
         if not fb_c:
             fb_c = (
@@ -253,7 +271,18 @@ class AuraDomesticSNSCopywriter:
                 f"{self.core_value}\n\n"
                 f"💡 지금 네이버에서 [{self.official_keyword}]을 검색해보세요!"
             )
-        fb_caption_full = f"{fb_c}\n\n👇 [첫 번째 댓글]의 공식 라운지 링크를 확인하세요!\n\n{short_tags}"
+        fb_caption_full = (
+            f"💬 3초 무료 공식 입장 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n"
+            f"{fb_c}\n\n"
+            f"{short_tags}"
+        )
+
+        # 🛡️ 본문 내 모든 URL 전면 소독 (스레드/릴스/틱톡/유튜브 알고리즘 다운랭킹 원천 방지)
+        yt_desc_full = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', yt_desc_full)
+        tk_caption_full = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', tk_caption_full)
+        nv_desc_full = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', nv_desc_full)
+        ig_caption_full = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', ig_caption_full)
+        fb_caption_full = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', fb_caption_full)
 
         return {
             "title": v_title,

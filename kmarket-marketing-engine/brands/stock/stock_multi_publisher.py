@@ -85,20 +85,34 @@ class StockMultiPublisher:
             logger.error(f"❌ [1/3] 🟢 네이버 블로그 실패: {e}")
             results["channels"]["naver_blog"] = {"status": "error", "message": str(e)}
 
-        # 2. 🟠 티스토리
-        try:
-            logger.info("🚀 [2/3] 🟠 티스토리 블로그 발행 시작...")
-            res_t = self.tistory.publish_post(
-                title=title_tistory,
-                content_html=body_html,
-                tag_list=tags,
-                image_paths=image_paths
-            )
-            results["channels"]["tistory"] = res_t
-            logger.info(f"✅ [2/3] 🟠 티스토리 발행 완료: {res_t.get('post_url', res_t.get('url', ''))}")
-        except Exception as e:
-            logger.error(f"❌ [2/3] 🟠 티스토리 실패: {e}")
-            results["channels"]["tistory"] = {"status": "error", "message": str(e)}
+        # 2. 🟠 티스토리 — 최대 3회 재시도
+        import time as _time
+        res_t = {"status": "error", "message": "재시도 소진"}
+        for _attempt in range(1, 4):
+            try:
+                logger.info(f"🚀 [2/3] 🟠 티스토리 발행 시도 {_attempt}/3...")
+                res_t = self.tistory.publish_post(
+                    title=title_tistory,
+                    content_html=body_html,
+                    tag_list=tags,
+                    image_paths=image_paths
+                )
+                t_status = res_t.get("status", "")
+                if t_status in ("success", "active", "restored"):
+                    logger.info(f"✅ [2/3] 🟠 티스토리 발행 성공 (시도 {_attempt}): {res_t.get('post_url', res_t.get('url', ''))}")
+                    break
+                elif t_status == "session_expired":
+                    logger.warning(f"⚠️ [2/3] 티스토리 세션 만료 (시도 {_attempt}/3), 10초 후 재시도...")
+                    _time.sleep(10)
+                else:
+                    logger.warning(f"⚠️ [2/3] 티스토리 실패 (시도 {_attempt}/3): {res_t.get('message')}, 10초 후 재시도...")
+                    _time.sleep(10)
+            except Exception as e:
+                logger.error(f"❌ [2/3] 티스토리 예외 (시도 {_attempt}/3): {e}")
+                res_t = {"status": "error", "message": str(e)}
+                _time.sleep(10)
+        results["channels"]["tistory"] = res_t
+
 
         # 3. 🟡 브런치스토리
         try:

@@ -122,9 +122,8 @@ class StockCardnewsMagazine:
             caption_lines.append("")
 
         caption_lines.append("👇 당일 실시간 퀀트 1위 종목 무료 확인")
-        caption_lines.append(f"👉 상단 프로필({self.IG_HANDLE}) 링크를 터치하세요!")
+        caption_lines.append("💬 국내 350개 종목 AI 퀀트 점수 확인 링크는 [첫 번째 댓글]을 확인해 보세요!")
         caption_lines.append(f"🔍 네이버 검색: [{self.OFFICIAL_SEARCH}]")
-        caption_lines.append(f"🔗 공식 웹: {self.LANDING_URL}")
         caption_lines.append("")
         caption_lines.append(" ".join([f"#{t}" for t in selected["tags"]]))
 
@@ -162,11 +161,19 @@ class StockCardnewsMagazine:
             "link_strategy": "bio_link"
         }
 
+        standard_comment = (
+            f"📈 [StockMaster AI] 국내 우량주 350개 실시간 퀀트점수 무료 확인:\n"
+            f"👉 {self.LANDING_URL}\n\n"
+            f"🔍 네이버 검색창에 [{self.OFFICIAL_SEARCH}]를 검색해보세요!\n\n"
+            f"✨ 10분마다 갱신되는 국내 350개 종목의 AI 퀀트 점수를 즉시 확인해 보세요!\n"
+            f"(네이버 검색: {self.OFFICIAL_SEARCH})"
+        )
+
         # 2. 페이스북 (그룹 & 피드)
         fb_result = {
             "platform": "facebook",
             "status": "published_simulated",
-            "first_comment": f"👉 StockMaster AI 실시간 수급 전광판 바로가기: {self.LANDING_URL}\n네이버에 [{self.OFFICIAL_SEARCH}] 검색하셔도 바로 나옵니다!",
+            "first_comment": standard_comment,
             "stealth_link": True
         }
 
@@ -191,7 +198,7 @@ class StockCardnewsMagazine:
             "platform": "threads_carousel",
             "status": "chain_posted",
             "slides_count": 4,
-            "reply_chain": f"당일 외인 기관 수급 조건검색식 바로가기 👉 {self.LANDING_URL}"
+            "reply_chain": standard_comment
         }
 
         summary_msg = (

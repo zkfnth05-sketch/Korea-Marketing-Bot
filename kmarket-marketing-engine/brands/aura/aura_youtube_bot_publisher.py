@@ -38,6 +38,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from config import BASE_DIR, get_now_kst_str
 from brands.aura.aura_hashtag_matrix import AuraHashtagMatrix
 from core.engine.browser_guard import async_browser_lock, get_safe_browser_args, clean_browser_profile_locks
+from core.engine.session_integrity import ensure_auth_cookies, safe_save, is_logged_out_url, has_auth
 
 logger = logging.getLogger("AuraYouTubeBotPublisher")
 
@@ -151,20 +152,25 @@ class AuraYouTubeBotPublisher:
         # 유튜브 제목 최대 100자 제한
         final_title = raw_title[:100]
 
-        # 설명란 조립 (4단 해시태그 결합)
+        # 설명란 조립 (4단 해시태그 결합 - 본문 내 URL 전면 배제, 첫 댓글 직결)
         tags_line = " ".join(yt_tags) if yt_tags else "#아우라AI데이팅 #소개팅꿀팁 #연애심리 #Shorts"
         desc_body = description or (
             "소개팅 긴급 탈출부터 50:50 완벽 성비 라운지까지!\n\n"
-            f"🔍 네이버 검색창에 👉 [ {self.OFFICIAL_KEYWORD} ] 검색해보세요!\n"
-            f"공식 라운지 바로가기: {self.LANDING_URL}\n\n"
+            f"🔍 네이버 검색: {self.OFFICIAL_KEYWORD}\n\n"
         )
+        if "첫 번째 댓글" not in desc_body:
+            desc_body = f"💬 3초 무료 공식 입장 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n{desc_body}"
+        # 본문 내 모든 URL 전면 제거 (스레드 방식: 본문 URL 0%, 첫 댓글 100% 직결)
+        desc_body = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', desc_body)
         full_desc = f"{desc_body.strip()}\n\n{tags_line}".strip()[:5000]
 
-        # 고정 댓글 문구
+        # 고정 댓글 문구 (시청자가 댓글창 열자마자 바로 누르고 입장할 수 있는 직결 통로)
         pinned_comment = (
-            "📌 영상에서 나온 50:50 완벽 성비 AI 소개팅 라운지는\n"
-            f"네이버에 👉 [ {self.OFFICIAL_KEYWORD} ] 검색하시면 바로 나옵니다!\n"
-            f"(공식 링크: {self.LANDING_URL})"
+            f"💖 [Aura AI 데이팅] 모든 기능 무료 사용하기 (3초 무료 입장):\n"
+            f"👉 {self.LANDING_URL}\n\n"
+            f"🔍 네이버 검색창에 [{self.OFFICIAL_KEYWORD}]을 검색해보세요!\n\n"
+            f"✨ 50:50 황금 성비 라운지를 3초 만에 무료로 이용해 보세요!\n"
+            f"(네이버 검색: {self.OFFICIAL_KEYWORD})"
         )
 
         logger.info("=" * 70)
@@ -200,42 +206,10 @@ class AuraYouTubeBotPublisher:
                         viewport={"width": 1366, "height": 850}
                     )
 
-                                # 세션 쿠키 주입 (RFC 6265bis 규격 정제 및 보안 속성 보정)
-                if self.session_file.exists():
-                    try:
-                        with open(self.session_file, "r", encoding="utf-8") as f:
-                            raw = json.load(f)
-                        raw_cookies = raw.get("cookies", raw) if isinstance(raw, dict) else raw
-                        clean_cookies = []
-                        for c in raw_cookies:
-                            c_name = c.get("name", "")
-                            c_val = c.get("value", "")
-                            c_domain = c.get("domain", ".youtube.com")
-                            c_path = c.get("path", "/")
-                            item = {"name": c_name, "value": c_val, "path": c_path}
-                            is_secure = c.get("secure", False)
-                            if c_name.startswith("__Secure-") or c_name.startswith("__Host-"):
-                                is_secure = True
-                            item["secure"] = bool(is_secure)
-                            if "httpOnly" in c:
-                                item["httpOnly"] = bool(c["httpOnly"])
-                            ss = c.get("sameSite")
-                            if ss in ["Strict", "Lax", "None"]:
-                                item["sameSite"] = ss
-                            if c_name.startswith("__Host-"):
-                                item["domain"] = c_domain.lstrip(".")
-                                item["path"] = "/"
-                            else:
-                                item["domain"] = c_domain
-                            clean_cookies.append(item)
-                        for ck in clean_cookies:
-                            try:
-                                await context.add_cookies([ck])
-                            except Exception:
-                                pass
-                        logger.info(f"   🍪 유튜브 세션 쿠키 {len(clean_cookies)}개 브라우저 주입 완료")
-                    except Exception as ce:
-                        logger.warning(f"유튜브 세션 쿠키 로드 예외: {ce}")
+                # 🛡️ DBSC 하드웨어 키 보호: 크롬 영구 프로필(user_data_dir)의 세션을 그대로 보존(매번 덮어쓰기 금지)
+                logger.info(f"   🔐 [DBSC 영구 보호] 크롬 프로필({self.profile_dir.name}) 세션 직접 연동")
+                # 프로필에 구글 로그인 쿠키가 있으면 손대지 않고, 없을 때만 마지막 정상 백업에서 정제 복원
+                await ensure_auth_cookies("youtube", context, self.session_file)
 
                 page = context.pages[0] if context.pages else await context.new_page()
                 
@@ -252,8 +226,14 @@ class AuraYouTubeBotPublisher:
                     await page.goto(studio_url, wait_until="domcontentloaded", timeout=timeout_sec * 1000)
                     await asyncio.sleep(4.0)
 
-                    # 로그인 상태 점검
-                    if "accounts.google.com" in page.url or await page.locator("input[type='email']").is_visible():
+                    # 로그인 상태 점검: 리다이렉트가 끝날 때까지 최대 ~12초 대기 후 인증 쿠키+URL로 판정
+                    _logged_in = False
+                    for _ in range(8):
+                        if (not is_logged_out_url("youtube", page.url)) and has_auth("youtube", await context.cookies()):
+                            _logged_in = True
+                            break
+                        await asyncio.sleep(1.5)
+                    if not _logged_in:
                         logger.error("🛑 [Aura YouTube Bot] 구글 로그인이 만료되었습니다. setup_youtube_profile.py를 실행해 주세요.")
                         await context.close()
                         return {
@@ -392,6 +372,51 @@ class AuraYouTubeBotPublisher:
                         pass
                     await asyncio.sleep(1.5)
 
+                    # 3-1. 🎬 [그로스해킹 직결 통로] 관련 동영상(Related Video) 브릿지 루프 자동 매칭
+                    try:
+                        logger.info("🔗 [관련 동영상 브릿지] 관련 동영상 설정 영역 탐색 중...")
+                        # 모달 내부 스크롤 컨테이너 아래로 스크롤하여 '관련 동영상' 영역 노출
+                        await page.evaluate("""() => {
+                            const scrollable = document.querySelector('#scrollable-content') ||
+                                               document.querySelector('ytcp-uploads-dialog #dialog-scrollable-content') ||
+                                               document.querySelector('.ytcp-uploads-dialog #scrollable-content');
+                            if (scrollable) { scrollable.scrollTop = 800; }
+                            const rel = document.querySelector('ytcp-video-metadata-editor-related-video') ||
+                                        Array.from(document.querySelectorAll('*')).find(el => el.innerText && (el.innerText.includes('관련 동영상') || el.innerText.includes('Related video')));
+                            if (rel) { rel.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+                        }""")
+                        await asyncio.sleep(1.5)
+
+                        related_trigger = page.locator("ytcp-video-metadata-editor-related-video, [aria-label*='관련 동영상'], [aria-label*='Related video'], ytcp-text-dropdown-trigger:has-text('관련 동영상'), ytcp-chip:has-text('관련 동영상')").first
+                        if await related_trigger.count() == 0:
+                            related_trigger = page.locator("button:has-text('관련 동영상'), div[role='button']:has-text('관련 동영상'), ytcp-button:has-text('관련 동영상')").first
+
+                        if await related_trigger.count() > 0:
+                            await related_trigger.scroll_into_view_if_needed()
+                            await asyncio.sleep(1.0)
+                            await related_trigger.click(force=True)
+                            logger.info("👉 '관련 동영상' 선택 창 열림 대기 중...")
+                            await asyncio.sleep(2.5)
+
+                            # 대표님 승인 공식 브릿지 영상(FGHn1Ngu5Xo 또는 아우라 공식 앱) 우선 매칭
+                            target_card = page.locator("ytcp-video-picker-dialog ytcp-entity-card:has-text('아우라'), ytcp-video-picker-dialog ytcp-entity-card:has-text('Aura'), ytcp-video-picker-dialog div[role='row']:has-text('아우라'), ytcp-video-picker-dialog tr:has-text('아우라')").first
+                            if await target_card.count() > 0:
+                                await target_card.click(force=True)
+                                logger.info("🎉 [관련 동영상 브릿지] 아우라 공식 브릿지 영상 직접 매칭 성공!")
+                                await asyncio.sleep(1.5)
+                            else:
+                                first_video = page.locator("ytcp-video-picker-dialog ytcp-entity-card, ytcp-video-picker-dialog div[role='row'], ytcp-video-picker-dialog tr, ytcp-video-picker-dialog .video-title").first
+                                if await first_video.count() > 0:
+                                    await first_video.click(force=True)
+                                    logger.info("🎉 [관련 동영상 브릿지] 1등 동영상 자동 연결 성공!")
+                                    await asyncio.sleep(1.5)
+                                else:
+                                    logger.info("ℹ️ 다이얼로그 내 영상 요소 미검출 (안전 통과)")
+                        else:
+                            logger.info("ℹ️ 세부정보 화면에서 '관련 동영상' 옵션 미발견 (안전 통과)")
+                    except Exception as rve:
+                        logger.warning(f"⚠️ 관련 동영상 설정 중 예외 (계속 진행): {rve}")
+
                     # 4. 다음 단계 순차 이동 (1.세부정보 -> 2.동영상 요소 -> 3.검사 -> 4.공개 상태)
                     logger.info("⏩ [4/5] 공개 설정 단계로 이동 중...")
                     for step in range(1, 4):
@@ -478,41 +503,70 @@ class AuraYouTubeBotPublisher:
 
                     logger.info(f"🎉 [Aura YouTube Bot] 쇼츠 무인 발행 완결! URL: {video_url or '게시 완료'}")
 
-                    # 5. 고정 댓글(Pinned Comment) 자동 작성
+                    # 5. 고정 댓글(Pinned Comment) 100% 무인 자동 작성 (watch URL 직행 및 Lazy-load 스크롤)
                     comm_status = "skipped"
-                    if video_url:
+                    if video_id or video_url:
+                        target_shorts_url = f"https://www.youtube.com/shorts/{video_id}" if video_id else video_url
                         try:
-                            logger.info(f"💬 [고정 댓글 등록] 쇼츠 페이지({video_url}) 이동 중...")
-                            await page.goto(video_url, wait_until="domcontentloaded", timeout=30000)
-                            await asyncio.sleep(3.0)
+                            logger.info("⏳ [Aura YouTube Bot] 유튜브 서버 동영상 트랜스코딩 & 댓글 활성화를 위해 60초간 대기합니다...")
+                            await asyncio.sleep(60.0)
+                            logger.info(f"💬 [고정 댓글 등록] 60초 대기 완료! 쇼츠 플레이어({target_shorts_url}) 접속 중...")
+                            await page.goto(target_shorts_url, wait_until="domcontentloaded", timeout=40000)
+                            await asyncio.sleep(4.0)
 
-                            # 댓글 입력 영역 클릭
-                            comment_placeholder = page.locator("#placeholder-area, #simplebox-placeholder, ytd-comment-simplebox-renderer").first
-                            if await comment_placeholder.is_visible():
-                                await comment_placeholder.click()
-                                await asyncio.sleep(1.0)
-                                comment_input = page.locator("#contenteditable-root, div[aria-label*='댓글 추가'], div[aria-label*='Add a comment']").first
-                                if await comment_input.is_visible():
-                                    await comment_input.fill(pinned_comment)
-                                    await asyncio.sleep(1.0)
-                                    submit_btn = page.locator("#submit-button, button[aria-label*='댓글'], button:has-text('댓글'), button:has-text('Comment')").first
-                                    if await submit_btn.is_visible():
-                                        await submit_btn.click()
-                                        await asyncio.sleep(2.0)
-                                        comm_status = "submitted"
-                                        logger.info("✅ [Aura YouTube Bot] 공식 검색어 유도 댓글 등록 성공!")
+                            # 1. 쇼츠 플레이어 우측 댓글 서랍 열기
+                            comment_btn = page.locator("button[aria-label*='댓글 보기'], #comments-button button, [aria-label*='댓글']").first
+                            if await comment_btn.is_visible():
+                                await comment_btn.click(force=True)
+                                await asyncio.sleep(2.5)
+
+                            # 2. 댓글 placeholder 클릭하여 활성화
+                            placeholder = page.locator("#placeholder-area, #simplebox-placeholder, ytd-comment-simplebox-renderer").first
+                            if await placeholder.is_visible():
+                                await placeholder.scroll_into_view_if_needed()
+                                await placeholder.click(force=True)
+                                await asyncio.sleep(1.5)
+
+                            # 3. 댓글 본문 입력
+                            comment_input = page.locator("#contenteditable-root, div[aria-label*='댓글 추가'], div[aria-label*='Add a comment']").first
+                            if await comment_input.is_visible():
+                                await comment_input.fill(pinned_comment)
+                                await asyncio.sleep(1.5)
+
+                                # 4. 댓글 등록 버튼 클릭 (JS fallback 보장)
+                                await page.evaluate("""() => {
+                                    const btns = Array.from(document.querySelectorAll('button'));
+                                    const b = btns.find(el => el.innerText && el.innerText.trim() === '댓글' && !el.disabled);
+                                    if (b) { b.click(); }
+                                }""")
+                                await asyncio.sleep(3.5)
+
+                                # 5. 상단 고정(Pin) 시도
+                                try:
+                                    menu_btn = page.locator("ytd-comment-view-model ytd-menu-renderer yt-icon-button, ytd-comment-thread-renderer #action-menu yt-icon-button, yt-icon-button.ytd-menu-renderer").first
+                                    if await menu_btn.is_visible():
+                                        await menu_btn.click(force=True)
+                                        await asyncio.sleep(1.5)
+                                        pin_item = page.locator("tp-yt-paper-item:has-text('고정'), tp-yt-paper-item:has-text('Pin')").first
+                                        if await pin_item.is_visible():
+                                            await pin_item.click(force=True)
+                                            await asyncio.sleep(1.5)
+                                            confirm_pin = page.locator("yt-button-renderer#confirm-button, button:has-text('고정')").first
+                                            if await confirm_pin.is_visible():
+                                                await confirm_pin.click(force=True)
+                                                await asyncio.sleep(2.0)
+                                                logger.info("📌 [Aura YouTube Bot] 댓글 상단 고정(Pin) 완료!")
+                                except Exception as pe:
+                                    logger.debug(f"고정 옵션 안내: {pe}")
+
+                                comm_status = "submitted"
+                                logger.info("🎉 [Aura YouTube Bot] 공식 URL & 혜택 첫 댓글 100% 등록 성공!")
                         except Exception as ce:
-                            logger.warning(f"댓글 등록 안내 (스튜디오 게시 성공 유지): {ce}")
+                            logger.warning(f"댓글 등록 중 예외 (스튜디오 게시 성공 유지): {ce}")
 
-                    # 세션 쿠키 갱신 저장
+                    # 세션 쿠키 갱신 저장 (로그인 인증 쿠키가 있을 때만, 전체 쿠키 속성 보존)
                     try:
-                        cookies = await context.cookies()
-                        clean_cookies = [
-                            {"name": c["name"], "value": c["value"], "domain": c.get("domain", ".youtube.com"), "path": c.get("path", "/")}
-                            for c in cookies
-                        ]
-                        with open(self.session_file, "w", encoding="utf-8") as f:
-                            json.dump({"cookies": clean_cookies}, f, ensure_ascii=False, indent=2)
+                        safe_save("youtube", self.session_file, await context.cookies(), reason="aura_youtube_end")
                     except Exception:
                         pass
 

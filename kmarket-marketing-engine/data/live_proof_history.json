@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-10 16:12:36",
+  "updated_at": "2026-10-12 16:18:57",
   "brands": {
     "aura": {
       "reddit": {
@@ -23,17 +23,17 @@
       "reddit": {
         "brand": "insurance",
         "channel": "reddit",
-        "live_url": "https://www.reddit.com/r/Living_in_Korea/comments/1x1qg0f/korean_health_system_is_trash/",
-        "title": "r/Living_in_Korea: Korean Health System is Trash",
+        "live_url": "https://www.reddit.com/r/Living_in_Korea/comments/1x3tdix/looking_for_hospital_not_too_far_from_paju_area/",
+        "title": "r/Living_in_Korea: Looking for hospital not too far from paju area that can help with pectoral muscle tear surgery",
         "status": "HEALTHY",
         "is_verified": false,
         "error_message": null,
         "screenshot_file": null,
         "screenshot_path": null,
-        "published_at": "2026-10-10 09:59:44",
+        "published_at": "2026-10-12 16:18:57",
         "extra_meta": {
-          "comment_preview": "I’m so sorry you’re watching this unfold from afar—as an expat advisor who’s guided families here for years, the disconnect between Korea’s lightning-fast routine clinics and complex geriatric care ca",
-          "screenshot_file": "proof_insurance_reddit_20261010_095930.png"
+          "comment_preview": "Hey there, that sounds incredibly painful for your relative – pec tears are no joke and acting fast is key! For a specialized injury like this, you'll definitely want to look at the bigger university ",
+          "screenshot_file": "proof_insurance_reddit_20261012_161838.png"
         }
       }
     },

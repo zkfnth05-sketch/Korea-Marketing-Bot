@@ -1,6 +1,6 @@
-@echo off
+﻿@echo off
 chcp 65001 > nul
-title 🛡️ 보험 리밸런스 유튜브 영구 로그인 1회 연동기 (zkfnth03@gmail.com)
+title 🛡️ 보험비교 유튜브 영구 로그인 1회 연동기 (zkfnth03@gmail.com)
 echo ========================================================
 echo   🛡️ [보험 리밸런스] 유튜브 스튜디오 영구 로그인 1회 연동기
 echo   - 대상 계정: zkfnth03@gmail.com (보험 전용 구글 계정)

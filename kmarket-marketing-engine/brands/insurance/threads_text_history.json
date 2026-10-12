@@ -414,5 +414,107 @@
       "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_error_screenshot.png"
     },
     "success": false
+  },
+  {
+    "brand": "insurance",
+    "slot": "morning",
+    "topic": "치과 치료 받기 전에 반드시 확인해야 할 숨은 실손 보장",
+    "caption_preview": "사회초년생 때 지인 부탁으로 월 15만원짜리 종신보험 든 분들 진짜 많으시죠...\n\n솔직히 2030 싱글한테...",
+    "published_at": "2026-10-11T09:31:02.517622",
+    "publish_result": {
+      "success": false,
+      "brand": "insurance",
+      "error": "스레드 작성창(textbox)을 활성화하지 못했습니다.",
+      "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_error_screenshot.png"
+    },
+    "success": false
+  },
+  {
+    "brand": "insurance",
+    "slot": "morning",
+    "topic": "부모님 암보험 갱신 폭탄 피하는 리모델링 3원칙",
+    "caption_preview": "부모님 보험료가 3년마다 2배씩 뛴다면 당장 이 항목부터 확인하세요. 갱신형 암보험은 나이가 들수록 보험료가...",
+    "published_at": "2026-10-11T10:52:18.903927",
+    "publish_result": {
+      "success": false,
+      "brand": "insurance",
+      "error": "스레드 작성창(textbox)을 활성화하지 못했습니다.",
+      "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_error_screenshot.png"
+    },
+    "success": false
+  },
+  {
+    "brand": "insurance",
+    "slot": "evening",
+    "topic": "사회초년생 월급 250만원 기준 가장 이상적인 보험료 비율",
+    "caption_preview": "사회초년생 첫 월급 받고 지인 추천 보험에 덜컥 가입했다가 후회하는 분들 많죠? 불필요한 보장과 과도한 보험...",
+    "published_at": "2026-10-11T19:31:13.064071",
+    "publish_result": {
+      "success": true,
+      "brand": "insurance",
+      "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "insurance",
+        "published_at": "2026-10-11T19:31:13.002039",
+        "caption_preview": "사회초년생 첫 월급 받고 지인 추천 보험에 덜컥 가입했다가 후회하는 분들 많죠? 불필요한 보장과 과도한 보험...",
+        "media_count": 0,
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "evening",
+    "topic": "가족력 있는 사람이 3대 질병 진단비 가성비로 맞추는 법",
+    "caption_preview": "가족력 때문에 비싼 종합보험 드시며 보험료 낭비하고 계신가요?\n\n종합보험은 불필요한 특약이 많아 보험료가 올...",
+    "published_at": "2026-10-11T20:06:58.025168",
+    "publish_result": {
+      "status": "FAIL",
+      "error": "최대 3회 재시도 실패: Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"Post\").first\n    - locator resolved to <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x1c9tyrk xeusxvb x1pahc9y x1ertn4p x78zum5 xc9qbxq xl56j7k x14qfxbe\">…</div>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1fmog5m xu25z0z x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x78zum5 x1iyjqo2 x1dnml7z xl56j7k xpp8er5 xs9wviy\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1fmog5m xu25z0z x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x78zum5 x1iyjqo2 x1dnml7z xl56j7k xpp8er5 xs9wviy\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    55 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1fmog5m xu25z0z x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x78zum5 x1iyjqo2 x1dnml7z xl56j7k xpp8er5 xs9wviy\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n",
+      "attempts": 3
+    },
+    "success": false
+  },
+  {
+    "brand": "insurance",
+    "slot": "evening",
+    "topic": "가족력 있는 사람이 3대 질병 진단비 가성비로 맞추는 법",
+    "caption_preview": "가족력 때문에 3대 질병 보험료, 혹시 비싸게 낭비하고 계신가요?\n\n비싼 종합보험은 불필요한 특약까지 끼워 ...",
+    "published_at": "2026-10-11T20:37:37.184534",
+    "publish_result": {
+      "status": "FAIL",
+      "error": "최대 3회 재시도 실패: Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"Post\").or_(locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"게시하기\")).or_(locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"게시\")).first\n    - locator resolved to <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x1c9tyrk xeusxvb x1pahc9y x1ertn4p x78zum5 xc9qbxq xl56j7k x14qfxbe\">…</div>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"__fb-light-mode x1qjc9v5 x9f619 x78zum5 xdt5ytf x1iyjqo2 xl56j7k\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"__fb-light-mode x1qjc9v5 x9f619 x78zum5 xdt5ytf x1iyjqo2 xl56j7k\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    55 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <div class=\"__fb-light-mode x1qjc9v5 x9f619 x78zum5 xdt5ytf x1iyjqo2 xl56j7k\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n",
+      "attempts": 3
+    },
+    "success": false
+  },
+  {
+    "brand": "insurance",
+    "slot": "morning",
+    "topic": "치과 치료 받기 전에 반드시 확인해야 할 숨은 실손 보장",
+    "caption_preview": "불필요한 보험료 낭비, 치과 치료에서 특히 심합니다. 모르고 지나치면 억울하죠! 치과 가서 100만원 깨지기...",
+    "published_at": "2026-10-12T09:33:06.721106",
+    "publish_result": {
+      "status": "FAIL",
+      "error": "최대 3회 재시도 실패: Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"Post\").or_(locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"게시하기\")).or_(locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"게시\")).first\n    - locator resolved to <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x1c9tyrk xeusxvb x1pahc9y x1ertn4p x78zum5 xc9qbxq xl56j7k x14qfxbe\">…</div>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1fmog5m xu25z0z x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x78zum5 x1iyjqo2 x1dnml7z xl56j7k xpp8er5 xs9wviy\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1fmog5m xu25z0z x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x78zum5 x1iyjqo2 x1dnml7z xl56j7k xpp8er5 xs9wviy\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    56 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1fmog5m xu25z0z x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x78zum5 x1iyjqo2 x1dnml7z xl56j7k xpp8er5 xs9wviy\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n",
+      "attempts": 3
+    },
+    "success": false
+  },
+  {
+    "brand": "insurance",
+    "slot": "evening",
+    "topic": "운전자보험 가입할 때 호구 안 당하는 필수 3대 특약",
+    "caption_preview": "3만원짜리 운전자보험, 당장 그만두세요! 딱 1만원이면 충분합니다.\n\n대부분 불필요한 특약으로 보험료 낭비하...",
+    "published_at": "2026-10-12T19:33:06.186200",
+    "publish_result": {
+      "status": "FAIL",
+      "error": "최대 3회 재시도 실패: Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"Post\").or_(locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"게시하기\")).or_(locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"게시\")).first\n    - locator resolved to <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x1c9tyrk xeusxvb x1pahc9y x1ertn4p x78zum5 xc9qbxq xl56j7k x14qfxbe\">…</div>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1fmog5m xu25z0z x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x78zum5 x1iyjqo2 x1dnml7z xl56j7k xpp8er5 xs9wviy\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1fmog5m xu25z0z x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x78zum5 x1iyjqo2 x1dnml7z xl56j7k xpp8er5 xs9wviy\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    56 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1fmog5m xu25z0z x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x78zum5 x1iyjqo2 x1dnml7z xl56j7k xpp8er5 xs9wviy\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n",
+      "attempts": 3
+    },
+    "success": false
   }
 ]

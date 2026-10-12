@@ -145,7 +145,11 @@ class StockTikTokBehaviorBot:
         video_index = 0
 
         try:
+            from core.engine.browser_guard import is_yield_requested, interruptible_sleep
             while (time.time() - start_time) < target_seconds:
+                if is_yield_requested():
+                    logger.info("🚨 [Stock TikTokBot] 고우선순위 미디어 배포(숏폼/카드뉴스) 긴급 진입 감지 -> 브라우저 1초 즉시 양보!")
+                    break
                 video_index += 1
                 result["videos_watched"] += 1
 
@@ -155,10 +159,15 @@ class StockTikTokBehaviorBot:
 
                 start_t = time.time()
                 while (time.time() - start_t) < watch_time:
+                    if is_yield_requested():
+                        break
                     rx = random.randint(300, 900)
                     ry = random.randint(250, 700)
                     await page.mouse.move(rx, ry)
-                    await asyncio.sleep(random.uniform(3.0, 6.0))
+                    if await interruptible_sleep(random.uniform(3.0, 6.0)):
+                        break
+                if is_yield_requested():
+                    break
 
                 # 2. 동적 로그인 상태 실시간 점검
                 is_logged_in = await page.evaluate("""() => {

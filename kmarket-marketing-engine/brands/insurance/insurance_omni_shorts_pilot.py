@@ -152,15 +152,35 @@ class InsuranceOmniShortsPilot:
                 pass
         return False
 
-    def produce_fresh_short(self, topic_id: int) -> str:
+    def produce_fresh_short(self, topic_id: int, force_render: bool = False) -> str:
         """
-        🎬 [쏘기 직전 1편 실시간 100% 신선 제작]
-        - 과거 생성된 오래된 파일을 무단 주워오지 않고, 쏘기 직전 해당 주제 1편을 실시간으로 신선하게 제작
-        - 실패 시 절대 옛날 파일을 주워오지 않고 즉시 중단(Fail-Fast)
+        🎬 [쏘기 직전 1편 실시간 100% 신선 제작 - 봇 자율 파이프라인]
+        - 1단계: 오늘 완성된 최신 완제품이 이미 바탕화면에 존재하는지 우선 탐색 (중복 GPU 렌더링 방지 & 즉각 송출)
+        - 2단계: 없을 경우 InsuranceShortsPipeline을 통해 신규 1편 단독 렌더링
         """
         logger.info("=" * 70)
-        logger.info(f"🎬 [보험 숏폼 실시간 제작] 쏘기 직전 주제 #{topic_id} 1편 신규 단독 렌더링 시작...")
+        logger.info(f"🎬 [보험 숏폼 제작/감지] 주제 #{topic_id} 완제품 확인 및 파이프라인 가동...")
         logger.info("=" * 70)
+
+        today_str = datetime.now().strftime("%Y%m%d")
+        desktop_base = Path(os.environ.get("USERPROFILE", "C:/Users/zkfnt")) / "Desktop" / "한국 숏폼_산출물" / "Insurance"
+        if not force_render and desktop_base.exists():
+            topic_str = f"{topic_id:02d}"
+            candidates = []
+            for folder in desktop_base.iterdir():
+                if folder.is_dir() and f"_{topic_str}_" in folder.name and today_str in folder.name:
+                    for mp4 in folder.glob("*22초*.mp4"):
+                        name_lower = mp4.name.lower()
+                        # 🚨 10초, 원테이크, temp 등 중간 생성물은 100% 원천 배제
+                        if any(w in name_lower for w in ["10초", "원테이크", "temp", "clip_", "person_"]):
+                            continue
+                        if mp4.stat().st_size > 2 * 1024 * 1024:
+                            candidates.append((mp4.stat().st_mtime, mp4))
+            if candidates:
+                candidates.sort(key=lambda x: x[0], reverse=True)
+                latest_fresh = str(candidates[0][1])
+                logger.info(f"✨ [보험 22초 숏폼 완제품 즉각 확보] 오늘 완성된 무결점 22초 완제품 감지: {latest_fresh}")
+                return latest_fresh
 
         from brands.insurance.insurance_shorts_pipeline import InsuranceShortsPipeline
         pipeline = InsuranceShortsPipeline()
@@ -202,7 +222,7 @@ class InsuranceOmniShortsPilot:
         if guide_tags:
             pkg['tags_line'] = guide_tags
         return pkg
-    def execute_single_slot(self, topic_id: Optional[int] = None, force: bool = False) -> Dict[str, Any]:
+    def execute_single_slot(self, topic_id: Optional[int] = None, force: bool = False, force_render: bool = False) -> Dict[str, Any]:
         """
         🚀 [정시 1회 단발 실행] 쏘기 직전 1편 제작 ➔ 4대 채널 즉시 1회 발사 ➔ 중복 락
         """
@@ -214,7 +234,7 @@ class InsuranceOmniShortsPilot:
             return {"status": "skipped", "message": f"주제 #{target_topic} 오늘 송출 완료 상태"}
 
         try:
-            fresh_video = self.produce_fresh_short(target_topic)
+            fresh_video = self.produce_fresh_short(target_topic, force_render=force_render)
         except Exception as e:
             logger.error(f"❌ [보험 숏폼 제작 실패] {e}")
             return {"status": "error", "error": f"제작 실패: {e}"}

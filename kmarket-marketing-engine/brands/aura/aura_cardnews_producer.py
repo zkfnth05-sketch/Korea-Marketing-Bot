@@ -12,6 +12,7 @@ AuraCardnewsProducer - 💖 [EasyTax 검증 규격 기반 Aura 카드뉴스 전�
 
 import os
 import sys
+import re
 import copy
 import time
 import logging
@@ -140,13 +141,94 @@ class AuraCardnewsProducer:
                 if s_copy.get("bullets"):
                     card_data["bullets"] = s_copy["bullets"]
                 if s_copy.get("badge"):
-                    card_data["badge"] = s_copy["badge"]
+                    raw_b = str(s_copy["badge"]).strip()
+                    card_data["badge"] = re.sub(r'^[\[\(\{<]+|[\]\}\)>]+$', '', raw_b).strip() or raw_b
                 if s_copy.get("cta_text"):
                     card_data["cta_button"] = s_copy["cta_text"]
 
-        # 1. 고정 에셋(Aura 앱 실물 화면 등)인 경우 Wan 생성 없이 즉시 로드 (영구 재사용)
-        asset_rel_path = card_data.get("asset_image")
-        if card_data.get("use_direct_asset") and asset_rel_path:
+        # 3번 주제 (50:50 VIP 게이트): 2, 3, 4번 전용 앱 실물 프로필/라운지 빌더 직결
+        if topic_id == 3 and slide_num in [2, 3, 4]:
+            if target_dir is None:
+                target_dir = AuraCardnewsStorage.create_target_directory(theme_code=theme_code, lang="KO", theme_title=theme_name)
+            out_slide_path = target_dir / f"slide_{slide_num}.png"
+            if slide_num == 2:
+                from .aura_cardnews_s2_male_profile_builder import AuraCardnewsS2MaleProfileBuilder
+                saved_str = AuraCardnewsS2MaleProfileBuilder().build_s2_card(output_png_path=str(out_slide_path), seed=master_seed)
+            elif slide_num == 3:
+                from .aura_cardnews_s3_female_profile_builder import AuraCardnewsS3FemaleProfileBuilder
+                saved_str = AuraCardnewsS3FemaleProfileBuilder().build_s3_card(output_png_path=str(out_slide_path), seed=master_seed)
+            elif slide_num == 4:
+                from .aura_cardnews_s4_equilibrium_builder import AuraCardnewsS4EquilibriumBuilder
+                saved_str = AuraCardnewsS4EquilibriumBuilder().build_s4_card(output_png_path=str(out_slide_path))
+
+            rendered_slide = Image.open(saved_str).convert("RGB")
+            ws_current = Path(__file__).resolve().parent / f"current_slide_{slide_num}.png"
+            rendered_slide.save(str(ws_current), "PNG", quality=95)
+            meta_path = AuraCardnewsStorage.save_metadata(
+                target_dir=target_dir,
+                theme_code=theme_code,
+                theme_title=theme_name,
+                image_paths=[str(p) for p in sorted(target_dir.glob("slide_*.png"))],
+                guide_file_path=str(target_dir / "SNS_포스팅_가이드_KO.txt"),
+                lang="KO"
+            )
+            return {
+                "success": True,
+                "theme_name": theme_name,
+                "theme_code": theme_code,
+                "output_dir": str(target_dir),
+                "slide_num": slide_num,
+                "slide_path": saved_str,
+                "metadata_path": str(meta_path)
+            }
+
+        # 4번 주제 (청담동 화보 보정): 2, 3, 4번 전용 청담 룩북 빌더 직결
+        if topic_id == 4 and slide_num in [2, 3, 4]:
+            if target_dir is None:
+                target_dir = AuraCardnewsStorage.create_target_directory(theme_code=theme_code, lang="KO", theme_title=theme_name)
+            out_slide_path = target_dir / f"slide_{slide_num}.png"
+            from .aura_cardnews_s2_s4_lookbook_builder import AuraCardnewsS2S4LookbookBuilder
+            saved_str = AuraCardnewsS2S4LookbookBuilder().build_lookbook_slide(slide_num=slide_num, output_path=str(out_slide_path))
+
+            rendered_slide = Image.open(saved_str).convert("RGB")
+            ws_current = Path(__file__).resolve().parent / f"current_slide_{slide_num}.png"
+            rendered_slide.save(str(ws_current), "PNG", quality=95)
+            meta_path = AuraCardnewsStorage.save_metadata(
+                target_dir=target_dir,
+                theme_code=theme_code,
+                theme_title=theme_name,
+                image_paths=[str(p) for p in sorted(target_dir.glob("slide_*.png"))],
+                guide_file_path=str(target_dir / "SNS_포스팅_가이드_KO.txt"),
+                lang="KO"
+            )
+            return {
+                "success": True,
+                "theme_name": theme_name,
+                "theme_code": theme_code,
+                "output_dir": str(target_dir),
+                "slide_num": slide_num,
+                "slide_path": saved_str,
+                "metadata_path": str(meta_path)
+            }
+
+        # 1. 2번 주제 4번 슬라이드 특화: 1번 슬라이드의 여주인공 사진을 스마트폰 영상통화 화면 속에 1:1 동적 주입!
+        if topic_id == 2 and slide_num == 4:
+            from .aura_cardnews_s4_builder import AuraCardnewsS4Builder
+            s4_builder = AuraCardnewsS4Builder()
+            
+            # 1번 슬라이드 사진 탐색 (target_dir의 slide_1.png 또는 워크스페이스 current_slide_1.png)
+            s1_photo_path = None
+            if target_dir and (target_dir / "slide_1.png").exists():
+                s1_photo_path = target_dir / "slide_1.png"
+            elif (Path(__file__).resolve().parent / "current_slide_1.png").exists():
+                s1_photo_path = Path(__file__).resolve().parent / "current_slide_1.png"
+            
+            logger.info(f"📱 [Topic 2 Slide 4] 1번 슬라이드 여주인공 사진({s1_photo_path})을 영상통화 화면에 실시간 1:1 주입 렌더링!")
+            rendered_s4_screen = s4_builder.build_s4_screen_asset(hero_image_path=s1_photo_path)
+            base_photo = Image.open(str(rendered_s4_screen)).convert("RGB")
+        elif card_data.get("use_direct_asset") and card_data.get("asset_image"):
+            # 고정 에셋(Aura 앱 실물 화면 등)인 경우 Wan 생성 없이 즉시 로드
+            asset_rel_path = card_data.get("asset_image")
             asset_full = Path(r"C:\Users\zkfnt\Desktop\한국 마케팅봇\kmarket-marketing-engine") / asset_rel_path
             if asset_full.exists():
                 logger.info(f"📱 [Slide {slide_num}] 고정 앱 에셋 화면 직접 로드 (Wan 미생성 100% 영구 재사용): {asset_full}")
@@ -154,6 +236,9 @@ class AuraCardnewsProducer:
             else:
                 logger.warning(f"⚠️ [Slide {slide_num}] 에셋 파일을 찾을 수 없어 기본 렌더링 진행: {asset_full}")
                 base_photo = self._generate_slide_photo(card_data=card_data, slide_idx=slide_num, master_seed=master_seed)
+        elif slide_num == 5:
+            # 5번 슬라이드는 전용 엔딩 빌더가 1080x1350 전체를 렌더링하므로 불필요한 Wan T2I 호출 배제
+            base_photo = Image.new("RGB", (1080, 1350), (10, 10, 15))
         else:
             # 1. Wan 2.1 사진 생성 (시나리오 디렉터의 비주얼 프롬프트 사용)
             base_photo = self._generate_slide_photo(
@@ -169,10 +254,8 @@ class AuraCardnewsProducer:
             s5_copy = copy_data.get("slide5", copy_data) if (copy_data and isinstance(copy_data, dict)) else None
             try:
                 if topic_id == 1:
-                    from .aura_cardnews_s5_topic1_builder import AuraCardnewsS5Topic1Builder
-                    AuraCardnewsS5Topic1Builder().build_s5_ending_card(str(temp_s5_path), copy_data=s5_copy)
-                    rendered_slide = Image.open(str(temp_s5_path)).convert("RGB")
-                    topic_s5_rendered = True
+                    # 💖 1번 주제는 실물 통화 연결 에셋(aura_escape_call_dialog.png) + 찬반 토론 정규 골든 타이포그래피로 100% 완벽 렌더링
+                    pass
                 elif topic_id == 2:
                     from .aura_cardnews_s5_topic2_builder import AuraCardnewsS5Topic2Builder
                     AuraCardnewsS5Topic2Builder().build_s5_ending_card(str(temp_s5_path), copy_data=s5_copy)

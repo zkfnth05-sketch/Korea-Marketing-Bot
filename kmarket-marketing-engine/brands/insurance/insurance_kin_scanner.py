@@ -145,6 +145,9 @@ class InsuranceKinScanner:
 
                         doc_id_match = re.search(r"docId=(\d+)", href)
                         doc_id = doc_id_match.group(1) if doc_id_match else ""
+                        dir_id_match = re.search(r"dirId=(\d+)", href)
+                        dir_id = dir_id_match.group(1) if dir_id_match else ""
+                        clean_url = f"https://kin.naver.com/qna/detail.naver?dirId={dir_id}&docId={doc_id}" if dir_id else f"https://kin.naver.com/qna/detail.naver?docId={doc_id}"
 
                         if not doc_id or doc_id in seen_doc_ids:
                             continue
@@ -182,7 +185,7 @@ class InsuranceKinScanner:
                             "keyword": kw,
                             "title": title,
                             "content": desc,
-                            "url": href,
+                            "url": clean_url,
                             "scanned_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                             "date_text": date_str,
                             "answer_count": ans_count,

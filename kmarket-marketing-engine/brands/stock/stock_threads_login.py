@@ -79,19 +79,86 @@ async def run_threads_login_flow():
         print("⏳ 스레드 로그인 대기 중... (열린 창에서 로그인을 진행해 주세요)")
 
         logged_in = False
-        for i in range(120):  # 120 * 2초 = 240초 (4분 대기)
+        for i in range(450):  # 450 * 2초 = 15분 대기
             await asyncio.sleep(2)
-            
-            curr_url = page.url.lower()
-            login_form = await page.query_selector("input[type='password'], button:has-text('Log in'), div:has-text('Say more with Threads')")
-            nav_element = await page.query_selector("svg[aria-label='Create'], svg[aria-label='새 스레드'], svg[aria-label='Home'], svg[aria-label='홈'], a[href*='/@'], div[role='button'][aria-label*='새']")
-            
-            if "login" not in curr_url and not login_form and nav_element:
-                logged_in = True
+
+            # 1. 🍪 스레드 도메인 전용 쿠키 판별 (인스타그램 쿠키만 있을 때는 절대 조기 종료하지 않음!)
+            try:
+                cookies = await context.cookies()
+                threads_cookies = [
+                    c for c in cookies 
+                    if ("threads.net" in c.get("domain", "") or "threads.com" in c.get("domain", ""))
+                ]
+                t_names = {c.get("name") for c in threads_cookies}
+                if "sessionid" in t_names and ("ds_user_id" in t_names or "mid" in t_names or "csrftoken" in t_names):
+                    print("🎉 [스레드 쿠키 감지 성공] 스레드 전용 세션 토큰(threads sessionid)이 정상 발급되었습니다!")
+                    logged_in = True
+                    break
+            except Exception:
+                pass
+
+            # 2. 🪟 사용자가 브라우저 창을 직접 닫았을 때 감지 (스레드 쿠키가 있을 때만 성공)
+            pages_to_check = context.pages
+            if not pages_to_check:
+                print("ℹ️ 브라우저 창 닫힘 감지. 저장된 쿠키 및 세션을 정밀 검증합니다...")
+                try:
+                    cookies = await context.cookies()
+                    threads_cookies = [
+                        c for c in cookies 
+                        if ("threads.net" in c.get("domain", "") or "threads.com" in c.get("domain", ""))
+                    ]
+                    t_names = {c.get("name") for c in threads_cookies}
+                    if "sessionid" in t_names or "ds_user_id" in t_names:
+                        print("🎉 [스레드 세션 보존 확인] 스레드 인증 쿠키가 정상 저장되어 연동을 완료합니다!")
+                        logged_in = True
+                        break
+                    else:
+                        print("⚠️ 스레드 메인 피드 도달 전에 창이 닫혔습니다. (인스타 로그인 완료 -> 스레드 전환 중단 감지)")
+                except Exception:
+                    pass
                 break
 
+            # 3. 🌐 화면 및 URL 기반 보조 감지 & 자동 브릿지 클릭
+            for p_check in pages_to_check:
+                try:
+                    curr_url = p_check.url.lower()
+
+                    # 인스타그램 로그인 완료 후 'Continue as ...' 또는 '계속' 버튼 자동 클릭 지원
+                    if "threads.net" in curr_url or "threads.com" in curr_url:
+                        btn_continue = await p_check.query_selector(
+                            "button:has-text('Continue as'), button:has-text('계속'), div[role='button']:has-text('Continue'), div[role='button']:has-text('계속')"
+                        )
+                        if btn_continue:
+                            try:
+                                print("👉 스레드 연결 버튼('Continue / 계속') 자동 클릭 감지...")
+                                await btn_continue.click()
+                                await asyncio.sleep(2.0)
+                            except Exception:
+                                pass
+
+                    # 메인 피드 진입 여부 검증
+                    if ("threads.net" in curr_url or "threads.com" in curr_url) and "login" not in curr_url and "accounts" not in curr_url:
+                        login_form = await p_check.query_selector("input[type='password'], button:has-text('Log in'), div:has-text('Say more with Threads')")
+                        nav_element = await p_check.query_selector("svg[aria-label='Create'], svg[aria-label='새 스레드'], svg[aria-label='Home'], svg[aria-label='홈'], a[href*='/@'], div[role='button'][aria-label*='새']")
+                        clean_url = curr_url.rstrip("/")
+                        if (not login_form and nav_element) or clean_url in ["https://www.threads.net", "https://threads.net", "https://www.threads.com", "https://threads.com"]:
+                            # 쿠키가 완전히 발급되도록 2초 여유 대기
+                            await asyncio.sleep(2.0)
+                            logged_in = True
+                            page = p_check
+                            break
+                except Exception:
+                    continue
+
+            if logged_in:
+                break
+
+            if (i + 1) % 15 == 0:
+                elapsed_min = (i + 1) * 2 // 60
+                print(f"   ... 로그인 진행 중 ({elapsed_min}분 경과 / 15분 대기)")
+
         if not logged_in:
-            print("\n⚠️ 4분 동안 로그인이 완료되지 않았거나 창이 닫혔습니다. 다시 시도해 주세요.")
+            print("\n⚠️ 15분 동안 로그인이 완료되지 않았거나 창이 닫혔습니다. 다시 시도해 주세요.")
             try:
                 await context.close()
             except Exception:
@@ -103,6 +170,18 @@ async def run_threads_login_flow():
         await context.storage_state(path=str(SESSION_FILE))
         print(f"💾 1. 영구 프로필 및 {SESSION_FILE.name} 세션 동기화 완료")
 
+        vfile = CURRENT_DIR / "threads_session_verified.json"
+        with open(vfile, "w", encoding="utf-8") as vf:
+            json.dump({"verified_at": "2026-10-11", "brand": "stock", "status": "authenticated"}, vf, indent=2)
+
+        try:
+            cookies = await context.cookies()
+            with open(CURRENT_DIR / "threads_cookies.json", "w", encoding="utf-8") as f:
+                json.dump(cookies, f, ensure_ascii=False, indent=2)
+            print("💾 2. threads_cookies.json 영구 쿠키 파일 저장 완료")
+        except Exception as ce:
+            logger.warning(f"쿠키 파일 저장 경고: {ce}")
+
         if ACCOUNTS_FILE.exists():
             try:
                 with open(ACCOUNTS_FILE, "r", encoding="utf-8") as f:
@@ -111,7 +190,7 @@ async def run_threads_login_flow():
                 acc["credentials"]["threads_username"] = "stockmaster_ai"
                 with open(ACCOUNTS_FILE, "w", encoding="utf-8") as f:
                     json.dump(acc, f, ensure_ascii=False, indent=2)
-                print(f"💾 2. accounts.json 연동 상태 업데이트 완료")
+                print("💾 3. accounts.json 연동 상태 업데이트 완료")
             except Exception as ex:
                 logger.warning(f"accounts.json 업데이트 실패: {ex}")
 

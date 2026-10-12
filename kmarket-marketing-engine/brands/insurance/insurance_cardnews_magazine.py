@@ -119,8 +119,9 @@ class InsuranceCardnewsMagazine:
             caption_lines.append(f"  👉 {s['text']}")
             caption_lines.append("")
 
-        caption_lines.append(f"💡 객관적인 30개 보험사 최저가 비교 견적은 InsureBalance에서!")
-        caption_lines.append(f"🔗 {self.LANDING_URL}")
+        caption_lines.append("💡 객관적인 34개 보험사 최저가 비교 견적은 InsureBalance에서!")
+        caption_lines.append("💬 34개 보험사 무료 비교 링크는 [첫 번째 댓글]을 확인해 보세요!")
+        caption_lines.append(f"👉 네이버 검색: [{self.OFFICIAL_SEARCH}]")
         caption_lines.append("")
         caption_lines.append(" ".join([f"#{t}" for t in selected["tags"]]))
 
@@ -158,11 +159,19 @@ class InsuranceCardnewsMagazine:
             "link_strategy": "bio_link"
         }
 
+        standard_comment = (
+            f"🛡️ [보험 리밸런스] 34개 보험사 모든 보험 무료조회:\n"
+            f"👉 {self.LANDING_URL}\n\n"
+            f"🔍 네이버 검색창에 [{self.OFFICIAL_SEARCH}]를 검색해보세요!\n\n"
+            f"✨ 34개 보험사 비교 및 내 보험료 다이어트를 무료로 즉시 시작해 보세요!\n"
+            f"(네이버 검색: {self.OFFICIAL_SEARCH})"
+        )
+
         # 2. 페이스북 (그룹 & 피드)
         fb_result = {
             "platform": "facebook",
             "status": "published_simulated",
-            "first_comment": f"👉 InsureBalance 1:1 무료 증권 분석: {self.LANDING_URL}",
+            "first_comment": standard_comment,
             "stealth_link": True
         }
 
@@ -187,7 +196,7 @@ class InsuranceCardnewsMagazine:
             "platform": "threads_carousel",
             "status": "chain_posted",
             "slides_count": 4,
-            "reply_chain": f"내 보험료 줄이는 법 프로필 링크에서 1분 확인! 👉 {self.LANDING_URL}"
+            "reply_chain": standard_comment
         }
 
         summary_msg = (

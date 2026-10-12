@@ -195,7 +195,23 @@ class AuraCardnewsS3FemaleProfileBuilder:
             female_photo_p = Path(custom_photo_path)
             logger.info(f"📸 기존 지정 여성 사진 로드: {female_photo_p}")
         else:
-            female_photo_p = self.generate_female_photo(seed=seed)
+            default_candidate = Path(r"D:\ComfyUI_Wan_Engine\ComfyUI\output\aura_cardnews_s3_female_00001_.png")
+            if default_candidate.exists():
+                female_photo_p = default_candidate
+                logger.info(f"📸 기존 생성된 여성 사진 재사용: {female_photo_p}")
+            else:
+                try:
+                    female_photo_p = self.generate_female_photo(seed=seed)
+                except Exception as e:
+                    logger.warning(f"⚠️ ComfyUI 미실행 -> 골든 실사 여성 사진 안전 폴백: {e}")
+                    female_candidates = [
+                        self.base_dir / "assets" / "aura_topic3_slide3_screen.png",
+                        self.base_dir / "current_slide_1.png",
+                        self.template_path
+                    ]
+                    female_photo_p = next((c for c in female_candidates if c.exists()), None)
+                    if not female_photo_p:
+                        raise e
 
         # 2. 템플릿 로드 (758 x 1024 RGBA)
         template_img = Image.open(str(self.template_path)).convert("RGBA")

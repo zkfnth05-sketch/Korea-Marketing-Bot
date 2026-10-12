@@ -102,10 +102,12 @@ class AuraCardnewsTypography:
                 """
 
         # 🌟 [하단 CTA 바] 사용자 지시: 오직 '👉 옆으로 넘겨서...' 자리에만 네이버 공식 검색창 바 1:1 교체
-        if is_cover or "옆으로 넘겨" in btn_text or not is_ending:
+        if "댓글 찬반" in btn_text or "투표" in btn_text or is_ending:
+            bottom_cta_html = f'<div class="cta-button" style="background: #f59e0b; color: #0f172a; font-weight: 800; font-size: 14px; padding: 13px 20px; border-radius: 12px; text-align: center; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45); letter-spacing: -0.2px; margin-top: 4px;">{html.escape(btn_text)}</div>'
+        elif is_cover or "옆으로 넘겨" in btn_text:
             bottom_cta_html = render_naver_search_bar_html(brand="aura")
         else:
-            bottom_cta_html = f'{bottom_cta_html}'
+            bottom_cta_html = f'<div class="cta-button" style="background: #f59e0b; color: #0f172a; font-weight: 800; font-size: 14px; padding: 13px 20px; border-radius: 12px; text-align: center; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45); letter-spacing: -0.2px; margin-top: 4px;">{html.escape(btn_text)}</div>'
 
         overlay_html = f"""<!DOCTYPE html>
 <html>

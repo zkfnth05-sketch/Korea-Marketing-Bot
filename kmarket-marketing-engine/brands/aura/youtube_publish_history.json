@@ -191,5 +191,117 @@
     "published_at": "2026-10-10 22:35:03",
     "elapsed_sec": 47.4,
     "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "비동기 브라우저 락 획득 타임아웃(1800초 경과): Aura 유튜브 쇼츠 업로드 (첫 만남 더치페이! 칼반띵 )",
+    "published_at": "2026-10-11 10:25:16"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "brand": "aura",
+    "topic_id": 5,
+    "video_id": "",
+    "video_url": "https://youtube.com/shorts/JJf1DBPpPWc",
+    "title": "소개팅 첫 만남, 더치페이 VS 번갈아 내기? 당신의 선택은? 🤔💔 #아우라AI데이팅 #Shorts",
+    "pinned_comment": "📌 영상에서 나온 50:50 완벽 성비 AI 소개팅 라운지는\n네이버에 👉 [ 아우라AI데이팅 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://aura-ai-dating.vercel.app/)",
+    "comment_status": "skipped",
+    "privacy_status": "public",
+    "video_file": "Aura_22초숏폼_주제05_balance_match_20261011_093056.mp4",
+    "published_at": "2026-10-11 11:23:26",
+    "elapsed_sec": 52.4,
+    "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "brand": "aura",
+    "topic_id": 4,
+    "video_id": "iyyt6s_1YCw",
+    "video_url": "https://youtube.com/shorts/iyyt6s_1YCw",
+    "title": "첫 만남 최악의 빌런 1위? 솔직히 이거 하면 바로 손절임 🚩 #아우라AI데이팅 #Shorts",
+    "pinned_comment": "📌 영상에서 나온 50:50 완벽 성비 AI 소개팅 라운지는\n네이버에 👉 [ 아우라AI데이팅 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://aura-ai-dating.vercel.app/)",
+    "comment_status": "skipped",
+    "privacy_status": "public",
+    "video_file": "aura_topic4_cardnews_reels.mp4",
+    "published_at": "2026-10-11 12:14:08",
+    "elapsed_sec": 1622.3,
+    "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "비동기 브라우저 락 획득 타임아웃(1800초 경과): Aura 유튜브 쇼츠 업로드 (요즘 인스타에서 난리난 ‘내)",
+    "published_at": "2026-10-11 12:57:25"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "비동기 브라우저 락 획득 타임아웃(1800초 경과): Aura 유튜브 쇼츠 업로드 (톡만 3일째.. 질질 끄는 )",
+    "published_at": "2026-10-11 18:53:58"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "비동기 브라우저 락 획득 타임아웃(1800초 경과): Aura 유튜브 쇼츠 업로드 (애프터 거절당하는 사람 특징)",
+    "published_at": "2026-10-11 20:54:43"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "비동기 브라우저 락 획득 타임아웃(1800초 경과): Aura 유튜브 쇼츠 업로드 (애프터 거절당하는 놈들 특징)",
+    "published_at": "2026-10-11 20:58:54"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "비동기 브라우저 락 획득 타임아웃(1800초 경과): Aura 유튜브 쇼츠 업로드 (애프터 거절당하는 애들의 특)",
+    "published_at": "2026-10-11 21:08:48"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "비동기 브라우저 락 획득 타임아웃(1800초 경과): Aura 유튜브 쇼츠 업로드 (애프터 거절당하는 애들 특징)",
+    "published_at": "2026-10-11 21:31:21"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "brand": "aura",
+    "topic_id": 8,
+    "video_id": "JJf1DBPpPWc",
+    "video_url": "https://youtube.com/shorts/JJf1DBPpPWc",
+    "title": "소개팅 안심 레이더 가동! 위험 인물 3초 감지 🚩 #아우라AI데이팅 #Shorts",
+    "pinned_comment": "📌 영상 좌하단 [▶ 관련 동영상] 배너를 터치하시면 공식 소개 영상과 직결 링크로 이동합니다!\n🔍 네이버 검색창에 👉 [ 아우라AI데이팅 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://aura-ai-dating.vercel.app/)",
+    "comment_status": "skipped",
+    "privacy_status": "public",
+    "video_file": "Aura_10초_순수인물_원테이크_주제08_safe_radar_20261011_180012.mp4",
+    "published_at": "2026-10-12 08:43:27",
+    "elapsed_sec": 47.7,
+    "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "asyncio.run() cannot be called from a running event loop",
+    "published_at": "2026-10-12 10:15:58"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "brand": "aura",
+    "topic_id": 7,
+    "video_id": "vzNo0A_nNJs",
+    "video_url": "https://youtube.com/shorts/vzNo0A_nNJs",
+    "title": "[AI 아우라 매력 진단] 요즘 인스타에서 난리 난 내 얼굴 아우라 매력 테스트 #아우라AI데이팅 #Shorts",
+    "pinned_comment": "📌 영상 좌하단 [▶ 관련 동영상] 배너를 터치하시면 공식 소개 영상과 직결 링크로 이동합니다!\n🔍 네이버 검색창에 👉 [ 아우라AI데이팅 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://aura-ai-dating.vercel.app/)",
+    "comment_status": "skipped",
+    "privacy_status": "public",
+    "video_file": "Aura_22초숏폼_주제07_aura_diagnosis_20260927_174016.mp4",
+    "published_at": "2026-10-12 10:17:10",
+    "elapsed_sec": 49.0,
+    "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
   }
 ]

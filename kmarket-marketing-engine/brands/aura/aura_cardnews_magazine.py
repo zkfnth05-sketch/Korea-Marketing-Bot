@@ -119,8 +119,9 @@ class AuraCardnewsMagazine:
             caption_lines.append(f"  👉 {s['text']}")
             caption_lines.append("")
 
-        caption_lines.append(f"✨ 2030 데이팅 AI 솔루션 Aura에서 더 많은 팁을 확인하세요!")
-        caption_lines.append(f"🔗 {self.LANDING_URL}")
+        caption_lines.append("✨ 2030 데이팅 AI 솔루션 Aura에서 더 많은 팁을 확인하세요!")
+        caption_lines.append("💬 공식 무료 링크는 [첫 번째 댓글]을 확인해 보세요!")
+        caption_lines.append(f"👉 네이버 검색: [{self.OFFICIAL_SEARCH}]")
         caption_lines.append("")
         caption_lines.append(" ".join([f"#{t}" for t in selected["tags"]]))
 
@@ -158,11 +159,19 @@ class AuraCardnewsMagazine:
             "link_strategy": "bio_link"
         }
 
+        standard_comment = (
+            f"💖 [Aura AI 데이팅] 모든 기능 무료 사용하기 (3초 무료 입장):\n"
+            f"👉 {self.LANDING_URL}\n\n"
+            f"🔍 네이버 검색창에 [{self.OFFICIAL_SEARCH}]을 검색해보세요!\n\n"
+            f"✨ 50:50 황금 성비 라운지를 3초 만에 무료로 이용해 보세요!\n"
+            f"(네이버 검색: {self.OFFICIAL_SEARCH})"
+        )
+
         # 2. 페이스북 (그룹 & 피드)
         fb_result = {
             "platform": "facebook",
             "status": "published_simulated",
-            "first_comment": f"👉 Aura 1:1 소개팅 진단받기: {self.LANDING_URL}",
+            "first_comment": standard_comment,
             "stealth_link": True
         }
 
@@ -187,7 +196,7 @@ class AuraCardnewsMagazine:
             "platform": "threads_carousel",
             "status": "chain_posted",
             "slides_count": 4,
-            "reply_chain": f"더 많은 연애 꿀팁은 프로필 링크 Aura 앱에서 확인! 👉 {self.LANDING_URL}"
+            "reply_chain": standard_comment
         }
 
         summary_msg = (

@@ -834,6 +834,45 @@ for _name in [
 # 루트 로거에도 등록하여 임의의 미지정 하위 모듈 로그도 100% 직결
 logging.getLogger().addHandler(_dash_handler)
 
+def _tistory_keepalive_worker():
+    """
+    🔄 [24시간 무인 카카오 티스토리 세션 킵얼라이브 상주 워커]
+    - 3개 브랜드(Aura, Insurance, Stock)의 카카오 티스토리 세션을 4시간마다 순차 점검
+    - 토큰 유효기간을 디스크 및 브라우저 컨텍스트 상에서 24시간씩 자동 연장하여 세션 만료 원천 방지
+    """
+    log_event("🔄 [Tistory Keep-Alive] 3개 브랜드 티스토리 세션 4시간 주기 자동 갱신 상주 워커 가동", "info")
+    while True:
+        try:
+            for brand in ["aura", "insurance", "stock"]:
+                try:
+                    if brand == "aura":
+                        from brands.aura.aura_tistory_pipeline import AuraTistoryPipeline
+                        p = AuraTistoryPipeline()
+                    elif brand == "insurance":
+                        from brands.insurance.insurance_tistory_pipeline import InsuranceTistoryPipeline
+                        p = InsuranceTistoryPipeline()
+                    else:
+                        from brands.stock.stock_tistory_pipeline import StockTistoryPipeline
+                        p = StockTistoryPipeline()
+
+                    if p.publisher.is_available():
+                        res = p.keep_alive()
+                        if res.get("status") == "active":
+                            log_event(f"🔄 [{brand.upper()} 티스토리] 세션 수명 24시간 자동 연장 완료 (Auto-Renewed)", "info")
+                        elif res.get("status") == "session_expired":
+                            log_event(f"⚠️ [{brand.upper()} 티스토리] 세션 만료 감지 -> 루트의 [1회연동]_{brand}_티스토리_영구로그인.bat 실행 필요", "warning")
+                except Exception as be:
+                    logger.debug(f"[{brand}] 킵얼라이브 루프 예외: {be}")
+                time.sleep(10)  # 브랜드 간 10초 시차 분산
+
+            # 다음 4시간 대기 (14400초)
+            for _ in range(1440):
+                time.sleep(10)
+        except Exception as e:
+            logger.warning(f"⚠️ [Tistory Keep-Alive 워커 루프 예외] {e}")
+            time.sleep(60)
+
+
 def init_verified_live_logs():
     """서버 부팅 시 3대 브랜드 무인 관제 센터 정상 가동 안내만 깔끔하게 출력"""
     log_event("🚀 [System] 대한민국 3대 슈퍼앱 24시간 무인 마케팅 관제 센터 가동 완료 (포트 8080)", "success")
@@ -1683,6 +1722,11 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 rel_js = rel_js.split("?")[0]
             self._serve_file(BASE_DIR / "web" / "js" / rel_js, "application/javascript; charset=utf-8")
             return
+        elif path == "/api/tistory/status" or path.startswith("/api/tistory/status"):
+            query = urllib.parse.parse_qs(parsed.query)
+            brand = query.get("brand", ["aura"])[0]
+            self._handle_get_tistory_status(brand)
+            return
         elif path.startswith("/api/kmarket/clean_view"):
             self._handle_kmarket_clean_view(parsed)
             return
@@ -1832,6 +1876,14 @@ class DashboardHandler(BaseHTTPRequestHandler):
             return
         elif path == "/api/stock/stop":
             self._handle_brand_stop("stock")
+            return
+        elif path.startswith("/api/tistory/run/"):
+            brand = path.split("/")[-1]
+            self._handle_post_tistory_run(brand, payload)
+            return
+        elif path.startswith("/api/tistory/keepalive/"):
+            brand = path.split("/")[-1]
+            self._handle_post_tistory_keepalive(brand)
             return
         elif path.startswith("/api/omni-blog/publish/"):
             brand = path.split("/")[-1]
@@ -2336,6 +2388,83 @@ class DashboardHandler(BaseHTTPRequestHandler):
         res = {"success": True, "message": f"⏹️ {brand_kr} 무인 마케팅 데몬 및 하위 채널이 정지되었습니다."}
         self._set_headers("application/json")
         self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_get_tistory_status(self, brand: str):
+        """티스토리 독립 파이프라인 상태 조회 핸들러"""
+        try:
+            if brand == "aura":
+                from brands.aura.aura_tistory_pipeline import AuraTistoryPipeline
+                st = AuraTistoryPipeline().get_status()
+            elif brand == "insurance":
+                from brands.insurance.insurance_tistory_pipeline import InsuranceTistoryPipeline
+                st = InsuranceTistoryPipeline().get_status()
+            elif brand == "stock":
+                from brands.stock.stock_tistory_pipeline import StockTistoryPipeline
+                st = StockTistoryPipeline().get_status()
+            else:
+                st = {"error": f"Unknown brand: {brand}"}
+            self._set_headers(content_type="application/json; charset=utf-8")
+            self.wfile.write(json.dumps(st, ensure_ascii=False).encode("utf-8"))
+        except Exception as e:
+            self._set_headers(content_type="application/json; charset=utf-8", status=500)
+            self.wfile.write(json.dumps({"error": str(e)}, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_post_tistory_run(self, brand: str, payload: dict):
+        """티스토리 독립 파이프라인 1회 즉시 발행 (백그라운드 스레드)"""
+        force_topic = payload.get("topic_id") if payload else None
+        
+        def _worker():
+            name_map = {"aura": "💖 Aura 데이팅", "insurance": "🛡️ InsureBalance 보험비교", "stock": "📈 StockMaster 주식AI"}
+            brand_kr = name_map.get(brand, brand.upper())
+            log_event(f"🎬 [{brand_kr}] 티스토리 단독 무인 발행 시작... (Gemini SEO 2,000자 + 16:9 사진)", "info")
+            try:
+                if brand == "aura":
+                    from brands.aura.aura_tistory_pipeline import AuraTistoryPipeline
+                    res = AuraTistoryPipeline().run_cycle(force_topic_id=force_topic, force=True)
+                elif brand == "insurance":
+                    from brands.insurance.insurance_tistory_pipeline import InsuranceTistoryPipeline
+                    res = InsuranceTistoryPipeline().run_cycle(force_topic_id=force_topic, force=True)
+                elif brand == "stock":
+                    from brands.stock.stock_tistory_pipeline import StockTistoryPipeline
+                    res = StockTistoryPipeline().run_cycle(force_topic_id=force_topic, force=True)
+                else:
+                    raise ValueError(f"Unknown brand: {brand}")
+
+                if res.get("status") == "success":
+                    log_event(f"🎉 [{brand_kr}] 티스토리 단독 발행 대성공! URL: {res.get('url')}", "success")
+                else:
+                    log_event(f"⚠️ [{brand_kr}] 티스토리 단독 발행 결과: {res.get('status')} - {res.get('message')}", "warning")
+            except Exception as ex:
+                log_event(f"❌ [{brand_kr}] 티스토리 발행 오류: {ex}", "error")
+
+        threading.Thread(target=_worker, daemon=True, name=f"TistoryRunWorker-{brand}").start()
+        self._set_headers(content_type="application/json; charset=utf-8")
+        self.wfile.write(json.dumps({"status": "started", "brand": brand, "message": "티스토리 단독 발행이 백그라운드에서 시작되었습니다."}, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_post_tistory_keepalive(self, brand: str):
+        """티스토리 세션 24시간 킵얼라이브 즉시 실행"""
+        def _worker():
+            name_map = {"aura": "💖 Aura 데이팅", "insurance": "🛡️ InsureBalance 보험비교", "stock": "📈 StockMaster 주식AI"}
+            brand_kr = name_map.get(brand, brand.upper())
+            try:
+                if brand == "aura":
+                    from brands.aura.aura_tistory_pipeline import AuraTistoryPipeline
+                    res = AuraTistoryPipeline().keep_alive()
+                elif brand == "insurance":
+                    from brands.insurance.insurance_tistory_pipeline import InsuranceTistoryPipeline
+                    res = InsuranceTistoryPipeline().keep_alive()
+                elif brand == "stock":
+                    from brands.stock.stock_tistory_pipeline import StockTistoryPipeline
+                    res = StockTistoryPipeline().keep_alive()
+                else:
+                    res = {"status": "error", "message": f"Unknown brand: {brand}"}
+                log_event(f"🔄 [{brand_kr}] 티스토리 세션 킵얼라이브: {res.get('status')} ({res.get('message')})", "info")
+            except Exception as ex:
+                log_event(f"⚠️ [{brand_kr}] 티스토리 킵얼라이브 예외: {ex}", "warning")
+
+        threading.Thread(target=_worker, daemon=True, name=f"TistoryKeepAlive-{brand}").start()
+        self._set_headers(content_type="application/json; charset=utf-8")
+        self.wfile.write(json.dumps({"status": "started", "brand": brand, "message": "티스토리 킵얼라이브가 실행되었습니다."}, ensure_ascii=False).encode("utf-8"))
 
     def _handle_run_hub(self, brand: str, hub_key: str):
         def _worker():
@@ -4048,6 +4177,43 @@ def run_server(port: int = 8080):
 
     # 🛡️ [대시보드 UI 스위치 연동 안전 대기 모드]
     # 서버 기동 시 임의 자동 가동을 방지하고 기본 OFF(대기) 상태 유지.
+    # 🌟 [3개 브랜드 × 6대 플랫폼 365일 무인 세션 영구 생명 연장 상시 데몬 스레드 가동]
+    def _omni_session_heartbeat_worker():
+        time.sleep(3.0)  # 서버 바인딩 안정화 후 시작
+        try:
+            from core.auto_publishers.omni_session_heartbeat_keeper import start_heartbeat_daemon
+            import asyncio
+            log_event("🌟 [시스템] 3대 브랜드 × 6대 플랫폼 3시간 스텔스 세션 생명 연장 데몬이 가동되었습니다.", "success")
+            print("🌟 [OmniSessionHeartbeat] 대시보드 일체형 3시간 스텔스 세션 생명 연장 데몬 가동 완료 (주기: 3시간)")
+            asyncio.run(start_heartbeat_daemon(interval_hours=3.0))
+        except Exception as err:
+            log_event(f"⚠️ [시스템] 세션 생명 연장 데몬 스레드 예외: {err}", "warning")
+            print(f"⚠️ [OmniSessionHeartbeat] 데몬 예외: {err}")
+
+    try:
+        hb_thread = threading.Thread(target=_omni_session_heartbeat_worker, daemon=True, name="OmniSessionHeartbeatThread")
+        hb_thread.start()
+    except Exception as hb_err:
+        log_event(f"⚠️ [시스템] 세션 생명 연장 스레드 시작 실패: {hb_err}", "warning")
+
+    # 🎬 [100% 무인 숏폼 자동 감지 & 4대 SNS 즉시 자율 송출 상시 데몬 가동]
+    def _omni_shorts_watcher_worker():
+        time.sleep(2.0)
+        try:
+            from core.shorts_engine.omni_shorts_desktop_watcher import omni_shorts_desktop_watcher
+            log_event("🎬 [시스템] 100% 무인 숏폼 자동 감지 & 4대 SNS 자율 송출 데몬이 가동되었습니다.", "success")
+            print("🎬 [OmniShortsWatcher] 바탕화면 신선 숏폼 감지 & 4대 SNS 즉시 자율 송출 데몬 가동 완료 (주기: 30초)")
+            omni_shorts_desktop_watcher.run_loop(poll_interval_sec=30)
+        except Exception as w_err:
+            log_event(f"⚠️ [시스템] 숏폼 감지 데몬 스레드 예외: {w_err}", "warning")
+            print(f"⚠️ [OmniShortsWatcher] 데몬 예외: {w_err}")
+
+    try:
+        w_thread = threading.Thread(target=_omni_shorts_watcher_worker, daemon=True, name="OmniShortsDesktopWatcherThread")
+        w_thread.start()
+    except Exception as w_err:
+        log_event(f"⚠️ [시스템] 숏폼 감지 데몬 스레드 시작 실패: {w_err}", "warning")
+
     # 🔄 [DaemonStateManager 기반 Auto-Resume (무인 데몬 자동 부활 로직)]
     def _auto_resume_daemons():
         time.sleep(1.0)

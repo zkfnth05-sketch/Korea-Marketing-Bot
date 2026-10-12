@@ -1,10 +1,332 @@
 {
-  "current_topic_index": 22,
-  "last_topic_id": 4,
-  "last_run_time": "2026-10-10 20:16:58",
-  "last_title": "체결 가속도 급증 시그널 포착법: 호가창이 불타오를 때 퀀트가 진입하는 절대 원칙",
-  "published_count": 31,
+  "current_topic_index": 28,
+  "last_topic_id": 89,
+  "last_run_time": "2026-10-12 20:20:05",
+  "last_title": "공매도 비중과 숏스퀴즈 원리: 공매도 상환 폭등주를 포착하는 퀀트 수급 전략",
+  "published_count": 37,
   "history": [
+    {
+      "topic_id": 89,
+      "title": "공매도 비중과 숏스퀴즈 원리: 공매도 상환 폭등주를 포착하는 퀀트 수급 전략",
+      "title_naver": "공매도 비중과 숏스퀴즈 원리: 공매도 상환 폭등주를 포착하는 퀀트 수급 전략",
+      "title_tistory": "공매도 잔고 상위주의 반격, 숏스퀴즈(Short Squeeze) 폭등 원리와 실전 퀀트 매매법",
+      "title_brunch": "공매도 비중과 숏스퀴즈, 차가운 수급 데이터가 만들어내는 폭등의 미학",
+      "category": "quant_guide",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_quant_guide_20261012_201504.png",
+      "published_at": "2026-10-12 20:20:05",
+      "publish_results": {
+        "topic_id": 89,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "공매도 비중과 숏스퀴즈 원리: 공매도 상환 폭등주를 포착하는 퀀트 수급 전략",
+            "url": "https://blog.naver.com/stockmaster_ai/224439387286?fromRss=true&trackingCode=rss",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224439387286?fromRss=true&trackingCode=rss",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "공매도비중",
+              "숏스퀴즈",
+              "숏커버링폭등",
+              "공매도잔고",
+              "숏커버매수",
+              "폭등원리",
+              "코스피주도주",
+              "코스피주도주찾는방법",
+              "주식체결강도뜻",
+              "체결강도",
+              "주식체결강도",
+              "체결강도뜻",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [백업도 실패] [1회연동]_stock_티스토리_영구로그인.bat 1회 실행 필요",
+            "blog_name": "stockmaster-ai"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 41,
+            "title": "공매도 비중과 숏스퀴즈 원리: 공매도 상환 폭등주를 포착하는 퀀트 수급 전략",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 74,
+      "title": "지지선 1호가 아래 손절의 미학: 투매를 피하는 퀀트 리스크 관리법",
+      "title_naver": "지지선 1호가 아래 손절의 미학: 투매를 피하는 퀀트 리스크 관리법",
+      "title_tistory": "주요 지지선 1호가 아래 청산 손절선을 설정하는 퀀트 실전 매매 기술",
+      "title_brunch": "투매가 쏟아지기 직전 빠져나오는 법: 지지선 1호가 아래의 원칙",
+      "category": "price_boundary",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_price_boundary_20261012_151501.png",
+      "published_at": "2026-10-12 15:19:29",
+      "publish_results": {
+        "topic_id": 74,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "지지선 1호가 아래 손절의 미학: 투매를 피하는 퀀트 리스크 관리법",
+            "url": "https://blog.naver.com/stockmaster_ai/224439078983?fromRss=true&trackingCode=rss",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224439078983?fromRss=true&trackingCode=rss",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "지지선손절",
+              "손실최소화",
+              "호가창손절",
+              "스탑로스주문",
+              "1호가아래",
+              "칼손절",
+              "코스피주도주",
+              "코스피주도주찾는방법",
+              "주식체결강도뜻",
+              "체결강도",
+              "주식체결강도",
+              "체결강도뜻",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [백업도 실패] [1회연동]_stock_티스토리_영구로그인.bat 1회 실행 필요",
+            "blog_name": "stockmaster-ai"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 40,
+            "title": "지지선 1호가 아래 손절의 미학: 투매를 피하는 퀀트 리스크 관리법",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 64,
+      "title": "금 시세 사상 최고가 랠리와 주식 비중 조절 전략: 인플레이션 헤지 퀀트 포트폴리오",
+      "title_naver": "금 시세 사상 최고가 랠리와 주식 비중 조절 전략: 인플레이션 헤지 퀀트 포트폴리오",
+      "title_tistory": "국제 금 가격 폭등의 경고, 밸류업 주식과 현금 비중 리밸런싱 가이드",
+      "title_brunch": "황금빛 랠리의 역설: 위험자산 축소와 팩터 기반 생존 방정식",
+      "category": "macro_stress",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_macro_stress_20261012_101503.png",
+      "published_at": "2026-10-12 10:19:29",
+      "publish_results": {
+        "topic_id": 64,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "금 시세 사상 최고가 랠리와 주식 비중 조절 전략: 인플레이션 헤지 퀀트 포트폴리오",
+            "url": "https://blog.naver.com/stockmaster_ai/224438741478?fromRss=true&trackingCode=rss",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224438741478?fromRss=true&trackingCode=rss",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "금시세최고가",
+              "안전자산선호",
+              "인플레이션헤지",
+              "자산배분",
+              "GOLD시세",
+              "금투자",
+              "코스피주도주",
+              "코스피주도주찾는방법",
+              "주식체결강도뜻",
+              "체결강도",
+              "주식체결강도",
+              "체결강도뜻",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [백업도 실패] [1회연동]_stock_티스토리_영구로그인.bat 1회 실행 필요",
+            "blog_name": "stockmaster-ai"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 39,
+            "title": "금 시세 사상 최고가 랠리와 주식 비중 조절 전략: 인플레이션 헤지 퀀트 포트폴리오",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 49,
+      "title": "52주 신고가 종목 매물대 공백의 비밀: 위가 뻥 뚫린 주도주가 거침없이 상승하는 퀀트 분석",
+      "title_naver": "52주 신고가 종목 매물대 공백의 비밀: 위가 뻥 뚫린 주도주가 거침없이 상승하는 퀀트 분석",
+      "title_tistory": "52주 신고가 돌파와 매물대 공백의 퀀트 메커니즘: 주도주 매매의 핵심 원리",
+      "title_brunch": "천장이 사라진 주식들: 52주 신고가와 매물대 공백이 만드는 추세의 미학",
+      "category": "turning_point",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_turning_point_20261011_200401.png",
+      "published_at": "2026-10-11 20:05:53",
+      "publish_results": {
+        "topic_id": 49,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "52주 신고가 종목 매물대 공백의 비밀: 위가 뻥 뚫린 주도주가 거침없이 상승하는 퀀트 분석",
+            "url": "https://blog.naver.com/stockmaster_ai/224438214927?fromRss=true&trackingCode=rss",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224438214927?fromRss=true&trackingCode=rss",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "52주신고가",
+              "매물대공백",
+              "신고가돌파",
+              "주도주매매",
+              "위가뚫린종목",
+              "시세분출",
+              "코스피주도주",
+              "코스피주도주찾는방법",
+              "주식체결강도뜻",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "message": "StockTistoryPublisher.publish_post() got an unexpected keyword argument 'image_paths'"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 38,
+            "title": "52주 신고가 종목 매물대 공백의 비밀: 위가 뻥 뚫린 주도주가 거침없이 상승하는 퀀트 분석",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 34,
+      "title": "공매도 비중 10% 이상 과다 종목 VETO 경보: 기관 숏 타깃 피하는 법과 현대차 기아 하이브리드 실적 분석",
+      "title_naver": "공매도 비중 10% 이상 과다 종목 VETO 경보: 기관 숏 타깃 피하는 법과 현대차 기아 하이브리드 실적 분석",
+      "title_tistory": "공매도 10% 초과 종목의 치명적 덫: 기관 숏 타깃 회피 전략과 밸류에이션 팩터 점검",
+      "title_brunch": "주가가 오르지 못하는 진짜 이유: 공매도 과다 종목 VETO 경보와 냉철한 수급 읽기",
+      "category": "veto_risk",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_veto_risk_20261011_151526.png",
+      "published_at": "2026-10-11 15:17:21",
+      "publish_results": {
+        "topic_id": 34,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "공매도 비중 10% 이상 과다 종목 VETO 경보: 기관 숏 타깃 피하는 법과 현대차 기아 하이브리드 실적 분석",
+            "url": "https://blog.naver.com/stockmaster_ai/224437986415?fromRss=true&trackingCode=rss",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224437986415?fromRss=true&trackingCode=rss",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "공매도과다",
+              "기관숏포지션",
+              "대차잔고리스크",
+              "투매방지",
+              "공매도10프로",
+              "숏타깃",
+              "코스피주도주",
+              "코스피주도주찾는방법",
+              "주식체결강도뜻",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "message": "StockTistoryPublisher.publish_post() got an unexpected keyword argument 'image_paths'"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 37,
+            "title": "공매도 비중 10% 이상 과다 종목 VETO 경보: 기관 숏 타깃 피하는 법과 현대차 기아 하이브리드 실적 분석",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 19,
+      "title": "거래대금 500억 이상 우량주 선별법: 잡주 거르고 주도주 올라타는 퀀트 수급 전략",
+      "title_naver": "거래대금 500억 이상 우량주 선별법: 잡주 거르고 주도주 올라타는 퀀트 수급 전략",
+      "title_tistory": "거래대금 500억 터진 진입유효 우량주 포착법: 호가창 함정 피하는 데이터 투자 전략",
+      "title_brunch": "거래대금 500억의 법칙: 잡주를 버려야 시장의 큰돈이 보인다",
+      "category": "valid_entry",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_valid_entry_20261011_085246.png",
+      "published_at": "2026-10-11 08:54:29",
+      "publish_results": {
+        "topic_id": 19,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "거래대금 500억 이상 우량주 선별법: 잡주 거르고 주도주 올라타는 퀀트 수급 전략",
+            "url": "https://blog.naver.com/stockmaster_ai/224437733327?fromRss=true&trackingCode=rss",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224437733327?fromRss=true&trackingCode=rss",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "거래대금우량주",
+              "잡주필터링",
+              "환금성",
+              "대형주매매",
+              "500억이상",
+              "안전매매",
+              "코스피주도주",
+              "코스피주도주찾는방법",
+              "주식체결강도뜻",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [1회연동]_주식AI_티스토리_영구로그인.bat 실행 필요",
+            "blog_name": "stockmaster-ai"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 36,
+            "title": "거래대금 500억 이상 우량주 선별법: 잡주 거르고 주도주 올라타는 퀀트 수급 전략",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
     {
       "topic_id": 4,
       "title": "체결 가속도 급증 시그널 포착법: 호가창이 불타오를 때 퀀트가 진입하는 절대 원칙",

@@ -231,5 +231,277 @@
         "video": "Insurance_22초숏폼_주제03_cancer_coverage_20261010_181917.mp4"
       }
     }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-11",
+    "published_at": "2026-10-11 12:03:55",
+    "brand": "insurance",
+    "topic_id": 4,
+    "title": "[뇌경색 100% 뇌혈관질환 최저가 비교] 보험 리밸런스 #4",
+    "video_file": "Insurance_22초숏폼_주제04_brain_vascular_20261011_114016.mp4",
+    "channels": {
+      "youtube": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 4,
+        "video_id": "SkHGytAeJ1U",
+        "video_url": "https://youtube.com/shorts/SkHGytAeJ1U",
+        "title": "[뇌경색 100% 뇌혈관질환 최저가 비교] 보험 리밸런스 #4",
+        "privacy_status": "public",
+        "published_at": "2026-10-11 12:20:00",
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 고정 댓글 완료"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 4,
+        "video_file": "Insurance_22초숏폼_주제04_brain_vascular_20261011_114016.mp4",
+        "title": "[뇌경색 100% 뇌혈관질환 최저가 비교] 보험 리밸런스 #4",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "published_at": "2026-10-11 13:06:44",
+        "proof_screenshot": "C:\\Users\\zkfnt\\.gemini\\antigravity-ide\\brain\\9ff4a69f-d317-4002-a5ad-5808dc4e079a\\tiktok_topic4_published_success.png"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 4,
+        "title": "뇌경색 진단비 100% 보장? 보험료는 반값으로 줄이는 법 🧠💰",
+        "video_file": "Insurance_22초숏폼_주제04_brain_vascular_20261011_114016.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-11 13:08:39"
+      },
+      "meta_reels": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 🛡️ InsureBalance 보험비교 릴스 동시 발행 성공",
+        "video": "Insurance_22초숏폼_주제04_brain_vascular_20261011_114016.mp4",
+        "published_at": "2026-10-11 13:08:08"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-11",
+    "published_at": "2026-10-11 12:53:41",
+    "brand": "insurance",
+    "topic_id": 5,
+    "title": "[아는 사람 부탁으로 가입한 보험 손익 분석] 보험 리밸런스 #5",
+    "video_file": "Insurance_22초숏폼_주제05_whole_life_vs_term_20261011_123007.mp4",
+    "channels": {
+      "youtube": {
+        "status": "error",
+        "platform": "youtube_shorts",
+        "error": "비동기 브라우저 락 획득 타임아웃(1800초 경과): Insurance 유튜브 쇼츠 업로드 (지인 보험 가입? 당신의 월)",
+        "published_at": "2026-10-11 13:23:42"
+      },
+      "tiktok": {
+        "status": "error",
+        "error": "비동기 브라우저 락 획득 타임아웃(1200초 경과): 🛡️ InsureBalance 보험비교 틱톡 쇼츠 웹 발행 (주제 #5)",
+        "brand": "insurance"
+      },
+      "naver_clip": {
+        "status": "error",
+        "message": "비동기 브라우저 락 획득 타임아웃(1200초 경과): 🛡️ InsureBalance 보험비교 네이버 클립 발행 (지인 보험 가입? 당신의 월)",
+        "brand": "insurance"
+      },
+      "meta_reels": {
+        "status": "error",
+        "message": "비동기 브라우저 락 획득 타임아웃(1200초 경과): 🛡️ InsureBalance 보험비교 Meta 릴스 웹 발행",
+        "brand": "insurance"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-11",
+    "published_at": "2026-10-11 18:58:00",
+    "brand": "insurance",
+    "topic_id": 6,
+    "title": "[어릴 때 부모님이 들어준 보험 성인 리모델링] 보험 리밸런스 #6",
+    "video_file": "Insurance_10초_순수인물_원테이크_주제06_child_to_adult_20261011_183009.mp4",
+    "channels": {
+      "youtube": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 6,
+        "video_id": "whNvL2PnTQ4",
+        "video_url": "https://youtube.com/shorts/whNvL2PnTQ4",
+        "title": "🛡️ 부모님이 물려주신 보험, 그대로 두면 매달 15만원 버립니다! #보험비교 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "skipped",
+        "privacy_status": "public",
+        "video_file": "Insurance_10초_순수인물_원테이크_주제06_child_to_adult_20261011_183009.mp4",
+        "published_at": "2026-10-11 18:58:46",
+        "elapsed_sec": 46.3,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 6,
+        "video_file": "Insurance_10초_순수인물_원테이크_주제06_child_to_adult_20261011_183009.mp4",
+        "title": "[어릴 때 부모님이 들어준 보험 성인 리모델링] 보험 리밸런스 #6",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic06.png"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 6,
+        "title": "🛡️ 부모님이 물려주신 보험, 그대로 두면 매달 15만원 버립니다!",
+        "video_file": "Insurance_10초_순수인물_원테이크_주제06_child_to_adult_20261011_183009.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-11 18:59:37"
+      },
+      "meta_reels": {
+        "status": "error",
+        "brand": "insurance",
+        "message": "3회 재시도 모두 소진, 실물 등록 미확인"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-11",
+    "published_at": "2026-10-11 18:53:42",
+    "brand": "insurance",
+    "topic_id": 6,
+    "title": "[어릴 때 부모님이 들어준 보험 성인 리모델링] 보험 리밸런스 #6",
+    "video_file": "Insurance_22초숏폼_주제06_child_to_adult_20261011_183009.mp4",
+    "channels": {
+      "youtube": {
+        "status": "error",
+        "platform": "youtube_shorts",
+        "error": "비동기 브라우저 락 획득 타임아웃(1800초 경과): Insurance 유튜브 쇼츠 업로드 (🛡️ 부모님이 물려주신 보험)",
+        "published_at": "2026-10-11 19:23:43"
+      },
+      "tiktok": {
+        "status": "error",
+        "error": "비동기 브라우저 락 획득 타임아웃(1200초 경과): 🛡️ InsureBalance 보험비교 틱톡 쇼츠 웹 발행 (주제 #6)",
+        "brand": "insurance"
+      },
+      "naver_clip": {
+        "status": "error",
+        "message": "비동기 브라우저 락 획득 타임아웃(1200초 경과): 🛡️ InsureBalance 보험비교 네이버 클립 발행 (🛡️ 부모님이 물려주신 보험)",
+        "brand": "insurance"
+      },
+      "meta_reels": {
+        "status": "error",
+        "message": "비동기 브라우저 락 획득 타임아웃(1200초 경과): 🛡️ InsureBalance 보험비교 Meta 릴스 웹 발행",
+        "brand": "insurance"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-12",
+    "published_at": "2026-10-12 10:24:18",
+    "brand": "insurance",
+    "topic_id": 7,
+    "title": "[가족 보험료 다이어트 & 중복 특약 정리] 보험 리밸런스 #7",
+    "video_file": "Insurance_22초숏폼_주제07_duplicate_coverage_diet_20261012_100027.mp4",
+    "channels": {
+      "youtube": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 7,
+        "video_id": "UVf52dCMmXw",
+        "video_url": "https://youtube.com/shorts/UVf52dCMmXw",
+        "title": "🛡️ 매달 줄줄 새는 보험료, ‘이것’ 하나로 15만원 아끼는 법 #보험비교 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "skipped",
+        "privacy_status": "public",
+        "video_file": "Insurance_22초숏폼_주제07_duplicate_coverage_diet_20261012_100027.mp4",
+        "published_at": "2026-10-12 10:25:05",
+        "elapsed_sec": 46.4,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 7,
+        "video_file": "Insurance_22초숏폼_주제07_duplicate_coverage_diet_20261012_100027.mp4",
+        "title": "[가족 보험료 다이어트 & 중복 특약 정리] 보험 리밸런스 #7",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic07.png"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 7,
+        "title": "🛡️ 매달 줄줄 새는 보험료, ‘이것’ 하나로 15만원 아끼는 법",
+        "video_file": "Insurance_22초숏폼_주제07_duplicate_coverage_diet_20261012_100027.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-12 10:25:56"
+      },
+      "meta_reels": {
+        "status": "error",
+        "brand": "insurance",
+        "message": "3회 재시도 모두 소진, 실물 등록 미확인"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-12",
+    "published_at": "2026-10-12 10:24:47",
+    "brand": "insurance",
+    "topic_id": 7,
+    "title": "[가족 보험료 다이어트 & 중복 특약 정리] 보험 리밸런스 #7",
+    "video_file": "Insurance_22초숏폼_주제07_duplicate_coverage_diet_20261012_100027.mp4",
+    "channels": {
+      "youtube": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 7,
+        "video_id": "s17_RVQjLJg",
+        "video_url": "https://youtube.com/shorts/s17_RVQjLJg",
+        "title": "🛡️ 매달 줄줄 새는 보험료, 이렇게 바꾸면 월 15만 원 아낍니다! #보험비교 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "skipped",
+        "privacy_status": "public",
+        "video_file": "Insurance_22초숏폼_주제07_duplicate_coverage_diet_20261012_100027.mp4",
+        "published_at": "2026-10-12 10:26:42",
+        "elapsed_sec": 115.2,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 7,
+        "video_file": "Insurance_22초숏폼_주제07_duplicate_coverage_diet_20261012_100027.mp4",
+        "title": "[가족 보험료 다이어트 & 중복 특약 정리] 보험 리밸런스 #7",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic07.png"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 7,
+        "title": "🛡️ 매달 줄줄 새는 보험료, 이렇게 바꾸면 월 15만 원 아낍니다!",
+        "video_file": "Insurance_22초숏폼_주제07_duplicate_coverage_diet_20261012_100027.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-12 10:29:17"
+      },
+      "meta_reels": {
+        "status": "error",
+        "brand": "insurance",
+        "message": "3회 재시도 모두 소진, 실물 등록 미확인"
+      }
+    }
   }
 ]

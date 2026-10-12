@@ -314,5 +314,132 @@
     "status": "success",
     "gemini_calls": 0,
     "brand": "insurance"
+  },
+  {
+    "timestamp": "2026-10-11 08:49:26",
+    "slot_id": "morning",
+    "slot_name": "🌅 아침 출근길 (11분)",
+    "target_min": 11,
+    "target_likes": 3,
+    "actual_sec": 1620,
+    "likes_given": 0,
+    "actions": [
+      {
+        "posts_viewed": 0,
+        "likes": 0,
+        "platform": "instagram",
+        "status": "unauthenticated",
+        "error": "Instagram session expired - please login"
+      },
+      {
+        "posts_viewed": 21,
+        "platform": "threads",
+        "status": "success"
+      },
+      {
+        "shorts_watched": 13,
+        "likes": 0,
+        "platform": "youtube",
+        "status": "success"
+      }
+    ],
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "insurance"
+  },
+  {
+    "timestamp": "2026-10-11 10:51:22",
+    "slot_id": "morning",
+    "slot_name": "🌅 아침 출근길 (11분)",
+    "target_min": 11,
+    "target_likes": 4,
+    "actual_sec": 1158,
+    "likes_given": 0,
+    "actions": [
+      {
+        "posts_viewed": 0,
+        "likes": 0,
+        "platform": "instagram",
+        "status": "unauthenticated",
+        "error": "Instagram session expired - please login"
+      },
+      {
+        "posts_viewed": 21,
+        "platform": "threads",
+        "status": "success"
+      },
+      {
+        "shorts_watched": 13,
+        "likes": 0,
+        "platform": "youtube",
+        "status": "success"
+      }
+    ],
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "insurance"
+  },
+  {
+    "timestamp": "2026-10-11 20:34:41",
+    "slot_id": "afternoon",
+    "slot_name": "☕ 오후 티타임 (11분)",
+    "target_min": 11,
+    "target_likes": 4,
+    "actual_sec": 1369,
+    "likes_given": 2,
+    "actions": [
+      {
+        "posts_viewed": 33,
+        "likes": 0,
+        "platform": "instagram",
+        "status": "success"
+      },
+      {
+        "posts_viewed": 20,
+        "platform": "threads",
+        "status": "success"
+      },
+      {
+        "shorts_watched": 14,
+        "likes": 2,
+        "platform": "youtube",
+        "status": "success"
+      }
+    ],
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "insurance"
+  },
+  {
+    "timestamp": "2026-10-11 21:14:17",
+    "slot_id": "afternoon",
+    "slot_name": "☕ 오후 티타임 (11분)",
+    "target_min": 11,
+    "target_likes": 5,
+    "actual_sec": 595,
+    "likes_given": 3,
+    "actions": [
+      {
+        "posts_viewed": 0,
+        "likes": 0,
+        "platform": "instagram",
+        "status": "unauthenticated",
+        "error": "Instagram session expired - please login"
+      },
+      {
+        "posts_viewed": 21,
+        "platform": "threads",
+        "status": "success"
+      },
+      {
+        "shorts_watched": 13,
+        "likes": 3,
+        "platform": "youtube",
+        "status": "success"
+      }
+    ],
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "insurance"
   }
 ]
