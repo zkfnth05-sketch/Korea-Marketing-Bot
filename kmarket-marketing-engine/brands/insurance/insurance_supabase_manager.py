@@ -132,11 +132,11 @@ class InsuranceSupabaseManager:
             res_logs = self.client.table("visitor_logs").select("*").order("created_at", desc=True).limit(5000).execute()
             raw_logs = res_logs.data or []
 
-            # 2. customer_leads 실제 고객 상담 신청 실데이터 조회
-            res_leads = self.client.table("customer_leads").select("id, planner_id, name, phone, insurance_type, monthly_premium, lead_source, status, created_at").order("created_at", desc=True).execute()
+            # 2. customer_leads 실제 고객 상담 신청 실데이터 조회 (299건+)
+            res_leads = self.client.table("customer_leads").select("id, planner_id, name, phone, insurance_type, monthly_premium, lead_source, raw_payload, status, created_at").order("created_at", desc=True).execute()
             raw_leads = res_leads.data or []
 
-            # 3. planners 공인 설계사 조회
+            # 3. planners 공인 설계사 조회 (9명)
             res_planners = self.client.table("planners").select("id, name, company_name, is_admin").execute()
             total_planners = len(res_planners.data or [])
 
@@ -169,17 +169,22 @@ class InsuranceSupabaseManager:
             for lead in raw_leads:
                 dt_k = parse_kst(lead.get("created_at"))
                 if dt_k:
+                    raw_payload = lead.get("raw_payload") or {}
+                    lead_utm = raw_payload.get("utm_source") or lead.get("lead_source") or "direct"
                     parsed_leads.append({
                         "id": lead.get("id"),
+                        "session_id": f"lead_{lead.get('id')}",
                         "name": lead.get("name") or "고객",
                         "phone": lead.get("phone") or "",
                         "insurance_type": lead.get("insurance_type") or "종합보험",
                         "monthly_premium": lead.get("monthly_premium") or 0,
+                        "lead_source": lead_utm,
+                        "planner_id": lead.get("planner_id") or "direct",
                         "status": lead.get("status") or "pending",
                         "kst_dt": dt_k
                     })
 
-            # 기간별 필터링
+            # 기간별 필터링 헬퍼
             def is_in_period(dt_k: datetime, p: str) -> bool:
                 if p == "weekly":
                     return dt_k.date() >= (today_date - timedelta(days=7))
@@ -193,64 +198,22 @@ class InsuranceSupabaseManager:
             period_logs = [l for l in parsed_logs if is_in_period(l["kst_dt"], period)]
             period_leads = [ld for ld in parsed_leads if is_in_period(ld["kst_dt"], period)]
 
-            # 🌟 [순 방문자수 계산] session_id 기준 중복 100% 제거
-            total_unique_sessions = set(l["session_id"] for l in parsed_logs)
-            period_unique_sessions = set(l["session_id"] for l in period_logs)
-            today_unique_sessions = set(l["session_id"] for l in parsed_logs if l["kst_dt"].date() == today_date)
+            # 🌟 [순 유입자 통합 집계] visitor_logs 세션 + customer_leads 고객 세션 통합
+            all_historical_sessions = set(l["session_id"] for l in parsed_logs) | set(ld["session_id"] for ld in parsed_leads)
+            total_cumulative_uv = len(all_historical_sessions)
+
+            period_visitor_sessions = set(l["session_id"] for l in period_logs) | set(ld["session_id"] for ld in period_leads)
+            period_uv_count = len(period_visitor_sessions)
 
             total_leads_cnt = len(parsed_leads)
             period_leads_cnt = len(period_leads)
-            today_leads_cnt = len([ld for ld in parsed_leads if ld["kst_dt"].date() == today_date])
-
-            # 기간별 차트 데이터 생성
-            if period == "weekly":
-                date_list = [(today_date - timedelta(days=i)) for i in range(6, -1, -1)]
-                weekly_sessions = {d.strftime("%Y-%m-%d"): set() for d in date_list}
-                for l in period_logs:
-                    d_str = l["kst_dt"].strftime("%Y-%m-%d")
-                    if d_str in weekly_sessions:
-                        weekly_sessions[d_str].add(l["session_id"])
-                hourly_data = [{"hour": d.strftime("%m/%d"), "count": len(weekly_sessions[d.strftime("%Y-%m-%d")])} for d in date_list]
-                chart_title = "📊 [보험 리밸런스] 최근 7일간 일별 순 방문자 유입 추이 (KST)"
-                chart_badge = "기준: 최근 7일 순 방문자(중복제거)"
-                period_label = "최근 7일"
-
-            elif period == "monthly":
-                weeks = [("4주 전", 28, 21), ("3주 전", 21, 14), ("2주 전", 14, 7), ("이번 주", 7, 0)]
-                hourly_data = []
-                for label, start_days, end_days in weeks:
-                    w_start = today_date - timedelta(days=start_days)
-                    w_end = today_date - timedelta(days=max(0, end_days - 1))
-                    w_sessions = set(l["session_id"] for l in period_logs if w_start <= l["kst_dt"].date() <= w_end)
-                    hourly_data.append({"hour": label, "count": len(w_sessions)})
-                chart_title = "📊 [보험 리밸런스] 최근 4주간 주차별 순 방문자 유입 추이 (KST)"
-                chart_badge = "기준: 최근 30일 순 방문자(중복제거)"
-                period_label = "최근 30일"
-
-            elif period == "yearly":
-                mon_sessions = {m: set() for m in range(1, 13)}
-                for l in period_logs:
-                    if l["kst_dt"].year == today_date.year:
-                        mon_sessions[l["kst_dt"].month].add(l["session_id"])
-                hourly_data = [{"hour": f"{m}월", "count": len(mon_sessions[m])} for m in range(1, 13)]
-                chart_title = f"📊 [보험 리밸런스] {today_date.year}년 연간 월별 순 방문자 유입 추이 (KST)"
-                chart_badge = f"기준: {today_date.year}년 연간 순 방문자(중복제거)"
-                period_label = f"{today_date.year}년 연간"
-
-            else: # today
-                hr_sessions = {h: set() for h in range(24)}
-                for l in period_logs:
-                    hr_sessions[l["kst_dt"].hour].add(l["session_id"])
-                hourly_data = [{"hour": f"{h:02d}시", "count": len(hr_sessions[h])} for h in range(24)]
-                chart_title = "📊 [보험 리밸런스] 오늘 24시간 시간대별 순 방문자 유입 추이 (00시~23시 KST)"
-                chart_badge = "기준: 오늘 24H 순 방문자(중복제거)"
-                period_label = "오늘 24H"
 
             # 🌟 [보험 맞춤 15대 옴니채널 리졸버]
             def resolve_insurance_channel(utm: str, planner: str) -> Dict[str, str]:
                 u_l = (utm or "").lower()
                 p_l = (planner or "").lower()
 
+                # 1. 글로벌 메이저 SNS
                 if "youtube" in u_l or "shorts" in u_l:
                     return {"name": "🎬 #1 유튜브 쇼츠 (실손/암보험 진실)", "category": "global_sns", "color": "#EF4444"}
                 if "tiktok" in u_l:
@@ -259,25 +222,15 @@ class InsuranceSupabaseManager:
                     return {"name": "📸 #2 인스타그램 (카드뉴스 매거진)", "category": "global_sns", "color": "#EC4899"}
                 if "facebook" in u_l or "fb" in u_l:
                     return {"name": "📸 #2 페이스북 (보험료 절감 꿀팁)", "category": "global_sns", "color": "#3B82F6"}
-                if "blog" in u_l or "thefirst-life" in u_l or "naver_blog" in u_l:
-                    return {"name": "💖 #4 네이버 블로그 (공식 칼럼)", "category": "seo_blog", "color": "#10B981"}
-                if "tistory" in u_l or "think83157" in u_l:
-                    return {"name": "💖 #4 티스토리 (보험비교 전문 칼럼)", "category": "seo_blog", "color": "#F97316"}
-                if "brunch" in u_l:
-                    return {"name": "💖 #4 카카오 브런치 (재테크 에세이)", "category": "seo_blog", "color": "#334155"}
-                if "kin" in u_l or "지식" in u_l:
-                    return {"name": "💡 #7 네이버 지식iN (보험 리모델링 Q&A)", "category": "seo_blog", "color": "#10B981"}
-                if "search" in u_l or "naver" in u_l:
-                    return {"name": "🌐 #5 네이버 검색 (보험 리밸런스)", "category": "seo_blog", "color": "#10B981"}
-                if "google" in u_l:
-                    return {"name": "🌐 #5 구글 검색 (서치콘솔 색인)", "category": "seo_blog", "color": "#3B82F6"}
                 if "threads" in u_l:
                     return {"name": "📜 #6 Meta 스레드 (보험 호구 탈출 썰)", "category": "community", "color": "#0F172A"}
-                if "twitter" in u_l or "x" in u_l:
+                if "twitter" in u_l or "x.com" in u_l or "t.co" in u_l:
                     return {"name": "📜 #6 X / 트위터 (바이럴 타래)", "category": "community", "color": "#0284C7"}
-                if "cafe" in u_l or "mom" in u_l:
+
+                # 2. 버티컬 커뮤니티 & 카페 (우선 검사)
+                if "cafe" in u_l or "naver_cafe" in u_l or "mom" in u_l:
                     return {"name": "☕ #8 네이버 맘/직장인 카페 (보험 점검)", "category": "community", "color": "#10B981"}
-                if "daum" in u_l:
+                if "daum_cafe" in u_l or "cafe.daum" in u_l or "daum" in u_l:
                     return {"name": "🍵 #9 다음(Daum) 카페 (보험 후기)", "category": "community", "color": "#EAB308"}
                 if "ppomppu" in u_l or "뽐뿌" in u_l:
                     return {"name": "🛒 #10 뽐뿌 보험포럼 (가성비 특약)", "category": "community", "color": "#2563EB"}
@@ -291,12 +244,86 @@ class InsuranceSupabaseManager:
                     return {"name": "⚽ #14 에펨코리아 (사회초년생 첫보험)", "category": "community", "color": "#059669"}
                 if "kakao" in u_l:
                     return {"name": "💬 #15 카카오 알림톡 (무료 증권분석)", "category": "messenger", "color": "#FACC15"}
+
+                # 3. SEO 블로그 & 지식 플랫폼
+                if "blog" in u_l or "thefirst-life" in u_l or "naver_blog" in u_l:
+                    return {"name": "💖 #4 네이버 블로그 (공식 칼럼)", "category": "seo_blog", "color": "#10B981"}
+                if "tistory" in u_l or "think83157" in u_l:
+                    return {"name": "💖 #4 티스토리 (보험비교 전문 칼럼)", "category": "seo_blog", "color": "#F97316"}
+                if "brunch" in u_l:
+                    return {"name": "💖 #4 카카오 브런치 (재테크 에세이)", "category": "seo_blog", "color": "#334155"}
+                if "kin" in u_l or "지식" in u_l:
+                    return {"name": "💡 #7 네이버 지식iN (보험 리모델링 Q&A)", "category": "seo_blog", "color": "#10B981"}
+
+                # 4. 포털 검색
+                if "search" in u_l or "naver" in u_l:
+                    return {"name": "🌐 #5 네이버 검색 (보험 리밸런스)", "category": "seo_blog", "color": "#10B981"}
+                if "google" in u_l:
+                    return {"name": "🌐 #5 구글 검색 (서치콘솔 색인)", "category": "seo_blog", "color": "#3B82F6"}
+
+                # 5. 플랫폼 자가진단 및 설계사 링크
+                if "distribute" in u_l or "organic" in u_l:
+                    return {"name": "💡 #5 포털 검색 및 AI 자가진단 유입", "category": "seo_blog", "color": "#10B981"}
                 if p_l and p_l not in ["direct", "test"]:
                     return {"name": f"👨‍💼 공인 설계사 전용 링크 ({p_l})", "category": "other", "color": "#0284C7"}
 
                 return {"name": "🔗 다이렉트 / 즐겨찾기 직접 접속", "category": "other", "color": "#64748B"}
 
-            # 🚀 [채널별 순 유입자수 계산]
+            # 기간별 차트 데이터 생성 (logs + leads 통합 시간대 매핑)
+            if period == "weekly":
+                date_list = [(today_date - timedelta(days=i)) for i in range(6, -1, -1)]
+                weekly_sessions = {d.strftime("%Y-%m-%d"): set() for d in date_list}
+                for l in period_logs:
+                    d_str = l["kst_dt"].strftime("%Y-%m-%d")
+                    if d_str in weekly_sessions:
+                        weekly_sessions[d_str].add(l["session_id"])
+                for ld in period_leads:
+                    d_str = ld["kst_dt"].strftime("%Y-%m-%d")
+                    if d_str in weekly_sessions:
+                        weekly_sessions[d_str].add(ld["session_id"])
+                hourly_data = [{"hour": d.strftime("%m/%d"), "count": len(weekly_sessions[d.strftime("%Y-%m-%d")])} for d in date_list]
+                chart_title = "📊 [보험 리밸런스] 최근 7일간 일별 순 방문자 & 상담신청 추이 (KST)"
+                chart_badge = "기준: 최근 7일 순 방문자(중복제거)"
+                period_label = "최근 7일"
+
+            elif period == "monthly":
+                weeks = [("4주 전", 28, 21), ("3주 전", 21, 14), ("2주 전", 14, 7), ("이번 주", 7, 0)]
+                hourly_data = []
+                for label, start_days, end_days in weeks:
+                    w_start = today_date - timedelta(days=start_days)
+                    w_end = today_date - timedelta(days=max(0, end_days - 1))
+                    w_sessions = set(l["session_id"] for l in period_logs if w_start <= l["kst_dt"].date() <= w_end)
+                    w_sessions |= set(ld["session_id"] for ld in period_leads if w_start <= ld["kst_dt"].date() <= w_end)
+                    hourly_data.append({"hour": label, "count": len(w_sessions)})
+                chart_title = "📊 [보험 리밸런스] 최근 4주간 주차별 순 방문자 & 상담신청 추이 (KST)"
+                chart_badge = "기준: 최근 30일 순 방문자(중복제거)"
+                period_label = "최근 30일"
+
+            elif period == "yearly":
+                mon_sessions = {m: set() for m in range(1, 13)}
+                for l in period_logs:
+                    if l["kst_dt"].year == today_date.year:
+                        mon_sessions[l["kst_dt"].month].add(l["session_id"])
+                for ld in period_leads:
+                    if ld["kst_dt"].year == today_date.year:
+                        mon_sessions[ld["kst_dt"].month].add(ld["session_id"])
+                hourly_data = [{"hour": f"{m}월", "count": len(mon_sessions[m])} for m in range(1, 13)]
+                chart_title = f"📊 [보험 리밸런스] {today_date.year}년 연간 월별 순 방문자 & 상담신청 추이 (KST)"
+                chart_badge = f"기준: {today_date.year}년 연간 순 방문자(중복제거)"
+                period_label = f"{today_date.year}년 연간"
+
+            else: # today
+                hr_sessions = {h: set() for h in range(24)}
+                for l in period_logs:
+                    hr_sessions[l["kst_dt"].hour].add(l["session_id"])
+                for ld in period_leads:
+                    hr_sessions[ld["kst_dt"].hour].add(ld["session_id"])
+                hourly_data = [{"hour": f"{h:02d}시", "count": len(hr_sessions[h])} for h in range(24)]
+                chart_title = "📊 [보험 리밸런스] 오늘 24시간 시간대별 순 방문자 & 상담신청 추이 (00시~23시 KST)"
+                chart_badge = "기준: 오늘 24H 순 방문자(중복제거)"
+                period_label = "오늘 24H"
+
+            # 🚀 [채널별 순 유입자수 계산] (logs + leads 통합 채널 매핑)
             channel_map: Dict[str, Dict[str, Any]] = {}
             for l in period_logs:
                 resolved = resolve_insurance_channel(l.get("utm_source", ""), l.get("planner_code", ""))
@@ -310,8 +337,19 @@ class InsuranceSupabaseManager:
                     }
                 channel_map[c_name]["sessions"].add(l["session_id"])
 
+            for ld in period_leads:
+                resolved = resolve_insurance_channel(ld.get("lead_source", ""), ld.get("planner_id", ""))
+                c_name = resolved["name"]
+                if c_name not in channel_map:
+                    channel_map[c_name] = {
+                        "name": c_name,
+                        "category": resolved["category"],
+                        "color": resolved["color"],
+                        "sessions": set()
+                    }
+                channel_map[c_name]["sessions"].add(ld["session_id"])
+
             channel_inflows = []
-            period_uv_count = len(period_unique_sessions)
             for c_name, c_data in sorted(channel_map.items(), key=lambda x: len(x[1]["sessions"]), reverse=True):
                 c_count = len(c_data["sessions"])
                 share = round((c_count / max(period_uv_count, 1)) * 100, 1)
@@ -324,13 +362,23 @@ class InsuranceSupabaseManager:
                     "unit": "명"
                 })
 
+            if not channel_inflows and period_uv_count > 0:
+                channel_inflows.append({
+                    "name": "🔗 다이렉트 / 즐겨찾기 직접 접속",
+                    "category": "other",
+                    "count": period_uv_count,
+                    "share": 100.0,
+                    "color": "#64748B",
+                    "unit": "명"
+                })
+
             # 전환율 CVR (상담 신청 기준)
             cvr_pct = round((period_leads_cnt / max(period_uv_count, 1)) * 100, 1) if period_uv_count > 0 else 0.0
 
-            # 4대 핵심 KPI
+            # 4대 핵심 KPI (100% 실데이터 매칭)
             active_kpis = {
                 "today_pv": period_uv_count,
-                "cumulative_pv": len(total_unique_sessions),
+                "cumulative_pv": total_cumulative_uv,
                 "yoy_growth": f"상담신청 {total_leads_cnt}건 (설계사 {total_planners}명)",
                 "monthly_visitors": period_leads_cnt,
                 "visitor_unit": "건",
@@ -340,20 +388,21 @@ class InsuranceSupabaseManager:
 
             # 실시간 유입 & 상담 신청 목록
             real_visitors_list = []
-            # 1. 최근 상담 신청 실데이터 우선
+            # 1. 최근 상담 신청 실데이터 우선 매핑
             for ld in period_leads[:15]:
-                phone_masked = ld["phone"][:3] + "-****-" + ld["phone"][-4:] if len(ld["phone"]) >= 8 else ld["phone"]
+                phone_raw = ld["phone"] or ""
+                phone_masked = phone_raw[:3] + "-****-" + phone_raw[-4:] if len(phone_raw) >= 8 else phone_raw
                 real_visitors_list.append({
                     "source_name": f"📋 [상담 신청] {ld['insurance_type']}",
-                    "medium": f"월납: {ld['monthly_premium']:,}원" if isinstance(ld['monthly_premium'], int) else "보험 진단",
+                    "medium": f"월납: {ld['monthly_premium']:,}원" if isinstance(ld['monthly_premium'], int) and ld['monthly_premium'] > 0 else "보장 리모델링 진단",
                     "campaign": f"고객: {ld['name']} ({phone_masked})",
                     "target_app": "InsureBalance 보험비교",
                     "ip": f"상태: {ld['status']}",
                     "created_at": ld["kst_dt"].strftime("%Y-%m-%d %H:%M:%S KST")
                 })
 
-            # 2. 최근 접속 로그
-            for l in period_logs[:15]:
+            # 2. 최근 접속 로그 매핑
+            for l in period_logs[:10]:
                 resolved = resolve_insurance_channel(l.get("utm_source", ""), l.get("planner_code", ""))
                 real_visitors_list.append({
                     "source_name": resolved["name"],
@@ -372,7 +421,7 @@ class InsuranceSupabaseManager:
                 "channels_title": f"🚀 [보험 리밸런스] 옴니채널 실제 유입 실적 ({period_label})",
                 "channels_subtitle": f"* {period_label} 동안 보험 리밸런스에 실제로 접속한 순 방문자({period_uv_count}명)의 채널별 실적입니다.",
                 "visitors_title": f"👥 [보험 리밸런스] 실제 웹사이트 방문 & 상담 신청 실시간 추적 ({period_label})",
-                "visitors_subtitle": f"보험 리밸런스에 유입된 진짜 고객의 실시간 접속 및 288건 상담 신청 기록입니다.",
+                "visitors_subtitle": f"보험 리밸런스에 유입된 진짜 고객의 실시간 접속 및 {total_leads_cnt}건 상담 신청 기록입니다.",
                 "kpis": active_kpis,
                 "hourly_data": hourly_data,
                 "channel_inflows": channel_inflows,
@@ -380,7 +429,7 @@ class InsuranceSupabaseManager:
                 "real_visitors_list": real_visitors_list,
                 "stats_summary": {
                     "unique_visitors": period_uv_count,
-                    "total_unique_visitors": len(total_unique_sessions),
+                    "total_unique_visitors": total_cumulative_uv,
                     "period_leads": period_leads_cnt,
                     "total_leads": total_leads_cnt,
                     "total_planners": total_planners,

@@ -1,10 +1,173 @@
 {
-  "current_topic_index": 28,
-  "last_topic_id": 89,
-  "last_run_time": "2026-10-12 20:20:05",
-  "last_title": "공매도 비중과 숏스퀴즈 원리: 공매도 상환 폭등주를 포착하는 퀀트 수급 전략",
-  "published_count": 37,
+  "current_topic_index": 31,
+  "last_topic_id": 35,
+  "last_run_time": "2026-10-15 19:28:11",
+  "last_title": "신용잔고율 5%의 덫: 아침 8시 40분 반대매매 폭탄 피하는 퀀트 생존법",
+  "published_count": 40,
   "history": [
+    {
+      "topic_id": 35,
+      "title": "신용잔고율 5%의 덫: 아침 8시 40분 반대매매 폭탄 피하는 퀀트 생존법",
+      "title_naver": "신용잔고율 5%의 덫: 아침 8시 40분 반대매매 폭탄 피하는 퀀트 생존법",
+      "title_tistory": "빚투가 부르는 연쇄 하한가, 신용잔고율 5% 초과 위험 종목 필터링 전략",
+      "title_brunch": "숫자는 거짓말을 하지 않는다: 개미 빚투의 종말과 반대매매 리스크",
+      "category": "veto_risk",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_veto_risk_20261015_192108.png",
+      "published_at": "2026-10-15 19:28:11",
+      "publish_results": {
+        "topic_id": 35,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "신용잔고율 5%의 덫: 아침 8시 40분 반대매매 폭탄 피하는 퀀트 생존법",
+            "url": "https://blog.naver.com/stockmaster_ai/224442911573?fromRss=true&trackingCode=rss",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224442911573?fromRss=true&trackingCode=rss",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "신용잔고율",
+              "반대매매경보",
+              "빚투위험",
+              "하한가폭탄피하기",
+              "신용5프로초과",
+              "투매주의",
+              "코스피주도주",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "체결강도높으면",
+              "체결강도500%",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [백업도 실패] [1회연동]_stock_티스토리_영구로그인.bat 1회 실행 필요",
+            "blog_name": "stockmaster-ai"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "Page.goto: Timeout 40000ms exceeded.\nCall log:\n  - navigating to \"https://brunch.co.kr/write\", waiting until \"networkidle\"\n",
+            "archive_file": "brunch_draft_topic_001.json"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 44,
+            "title": "신용잔고율 5%의 덫: 아침 8시 40분 반대매매 폭탄 피하는 퀀트 생존법",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 20,
+      "title": "체결강도 130% 돌파 종목 포착법: 외국인 기관 순매수 수급과 장중 시세 분출 1순위 공식",
+      "title_naver": "체결강도 130% 돌파 종목 포착법: 외국인 기관 순매수 수급과 장중 시세 분출 1순위 공식",
+      "title_tistory": "진입유효 종목 중 체결강도 130% 초과 종목 선별: 외국인 기관 순매수 수급 기반 퀀트 전략",
+      "title_brunch": "숫자가 가리키는 장중 시세 분출의 비밀: 체결강도 130%와 메이저 수급의 결합",
+      "category": "valid_entry",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_valid_entry_20261013_201505.png",
+      "published_at": "2026-10-13 20:20:06",
+      "publish_results": {
+        "topic_id": 20,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "체결강도 130% 돌파 종목 포착법: 외국인 기관 순매수 수급과 장중 시세 분출 1순위 공식",
+            "url": "https://blog.naver.com/stockmaster_ai/224440608907?fromRss=true&trackingCode=rss",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224440608907?fromRss=true&trackingCode=rss",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "체결강도130",
+              "초강세종목",
+              "당일급등",
+              "매수우위",
+              "힘있는종목",
+              "호가우위",
+              "코스피주도주",
+              "코스피주도주찾는방법",
+              "주식체결강도뜻",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [백업도 실패] [1회연동]_stock_티스토리_영구로그인.bat 1회 실행 필요",
+            "blog_name": "stockmaster-ai"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 43,
+            "title": "체결강도 130% 돌파 종목 포착법: 외국인 기관 순매수 수급과 장중 시세 분출 1순위 공식",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 5,
+      "title": "전광판 1위 종목의 스윙 목표선(SWING TP) 도달 시 분할 익절 원칙 | StockMaster 퀀트 전략",
+      "title_naver": "전광판 1위 종목의 스윙 목표선(SWING TP) 도달 시 분할 익절 원칙 | StockMaster 퀀트 전략",
+      "title_tistory": "실시간 1위 주도주 매매법: AI 스윙 목표가(TP) 도달 시 50% 분할 매도해야 하는 이유",
+      "title_brunch": "수익을 확정 짓는 기술: 주도주 스윙 목표선과 분할 익절의 미학",
+      "category": "realtime_rank1",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_rank1_20261013_160121.png",
+      "published_at": "2026-10-13 16:06:04",
+      "publish_results": {
+        "topic_id": 5,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "전광판 1위 종목의 스윙 목표선(SWING TP) 도달 시 분할 익절 원칙 | StockMaster 퀀트 전략",
+            "url": "https://blog.naver.com/stockmaster_ai/224440355711?fromRss=true&trackingCode=rss",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224440355711?fromRss=true&trackingCode=rss",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "스윙목표선",
+              "분할익절",
+              "수익실현원칙",
+              "스윙TP",
+              "매도타이밍",
+              "익절기준",
+              "코스피주도주",
+              "코스피주도주찾는방법",
+              "주식체결강도뜻",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [백업도 실패] [1회연동]_stock_티스토리_영구로그인.bat 1회 실행 필요",
+            "blog_name": "stockmaster-ai"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 42,
+            "title": "전광판 1위 종목의 스윙 목표선(SWING TP) 도달 시 분할 익절 원칙 | StockMaster 퀀트 전략",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
     {
       "topic_id": 89,
       "title": "공매도 비중과 숏스퀴즈 원리: 공매도 상환 폭등주를 포착하는 퀀트 수급 전략",

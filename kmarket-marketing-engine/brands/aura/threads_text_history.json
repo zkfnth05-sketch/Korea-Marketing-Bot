@@ -432,5 +432,31 @@
       "attempts": 3
     },
     "success": false
+  },
+  {
+    "brand": "aura",
+    "slot": "evening",
+    "topic": "나랑 진짜 잘 맞는 인연을 5초 만에 알아보는 대화법",
+    "caption_preview": "아무리 외모가 이상형이어도 이 '한 가지' 안 맞으면 무조건 파국입니다.\n\n그 '한 가지'는 바로 대화 티키...",
+    "published_at": "2026-10-13T19:32:52.528833",
+    "publish_result": {
+      "status": "FAIL",
+      "error": "최대 3회 재시도 실패: Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"Post\").or_(locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"게시하기\")).or_(locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"게시\")).first\n    - locator resolved to <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x1c9tyrk xeusxvb x1pahc9y x1ertn4p x78zum5 xc9qbxq xl56j7k x14qfxbe\">…</div>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"__fb-light-mode x1qjc9v5 x9f619 x78zum5 xdt5ytf x1iyjqo2 xl56j7k\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"__fb-light-mode x1qjc9v5 x9f619 x78zum5 xdt5ytf x1iyjqo2 xl56j7k\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    55 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <div class=\"__fb-light-mode x1qjc9v5 x9f619 x78zum5 xdt5ytf x1iyjqo2 xl56j7k\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n",
+      "attempts": 3
+    },
+    "success": false
+  },
+  {
+    "brand": "aura",
+    "slot": "evening",
+    "topic": "요즘 2030이 남초 어플 거르고 안심 매칭 찾는 이유",
+    "caption_preview": "2030들, 요즘 남초 데이팅앱에서 현타 제대로 오는 이유 다들 알죠?\n\n허위 프로필, 유령 회원 밭에 메시...",
+    "published_at": "2026-10-15T20:09:57.045100",
+    "publish_result": {
+      "status": "FAIL",
+      "error": "최대 3회 재시도 실패: Page.goto: Timeout 30000ms exceeded.\nCall log:\n  - navigating to \"https://www.threads.net/\", waiting until \"networkidle\"\n",
+      "attempts": 3
+    },
+    "success": false
   }
 ]

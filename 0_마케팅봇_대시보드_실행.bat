@@ -1,19 +1,36 @@
 @echo off
+setlocal
 chcp 65001 >nul
 set PYTHONIOENCODING=utf-8
 set PYTHONUTF8=1
-title 3ëŒ€ ìŠˆí¼ì•± ë§ˆì¼€íŒ… ì‚¬ë ¹ë¶€ ëŒ€ì‹œë³´ë“œ
+title [3´ë ½´ÆÛ¾Û ¸¶ÄÉÆÃº¿ ´ë½Ãº¸µå]
 
 echo ==============================================================================
-echo   [3ëŒ€ ìŠˆí¼ì•± ë§ˆì¼€íŒ… ì‚¬ë ¹ë¶€] 24ì‹œê°„ ë¬´ì¸ ê´€ì œ ì„¼í„°
-echo   - ë¸Œëžœë“œ: Aura ë°ì´íŒ…  Â·  InsureBalance ë³´í—˜ë¹„êµ  Â·  Stock Master ì£¼ì‹ AI
-echo   - ì›¹ ëŒ€ì‹œë³´ë“œ ì£¼ì†Œ: http://localhost:8080
-echo   - ðŸŒŸ [ì¼ì²´í˜• íƒ‘ìž¬] 3ëŒ€ ë¸Œëžœë“œ Ã— 6ëŒ€ í”Œëž«í¼ 3ì‹œê°„ ìŠ¤í…”ìŠ¤ ì„¸ì…˜ ìƒëª… ì—°ìž¥ ìžë™ ê°€ë™
+echo   [3´ë ½´ÆÛ¾Û ¸¶ÄÉÆÃ »ç·ÉºÎ] ´ë½Ãº¸µå ¹× ¼­¹ö °¡µ¿
+echo   - ´ë»ó: Aura AI µ¥ÀÌÆÃ / InsureBalance º¸Çèºñ±³ / StockMaster ÁÖ½Ä AI
+echo   - ´ë½Ãº¸µå ÁÖ¼Ò: http://localhost:8080
+echo   - Àá½Ã ÈÄ ±âº» ºê¶ó¿ìÀú¿¡¼­ ´ë½Ãº¸µå°¡ ÀÚµ¿À¸·Î ¿­¸³´Ï´Ù.
 echo ==============================================================================
 echo.
 
+REM 1. ÀÌÀü ÀÜ¿© 8080 Æ÷Æ® ÇÁ·Î¼¼½º Á¤¸®
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr :8080 ^| findstr LISTENING') do (
+    taskkill /F /PID %%a >nul 2>&1
+)
+
+REM 2. ÀÛ¾÷ µð·ºÅÍ¸® ÀÌµ¿
 cd /d "%~dp0kmarket-marketing-engine"
 
-python server.py
+set "PY=python"
+if exist "%~dp0venv\Scripts\python.exe" set "PY=%~dp0venv\Scripts\python.exe"
+if exist "%~dp0kmarket-marketing-engine\venv\Scripts\python.exe" set "PY=%~dp0kmarket-marketing-engine\venv\Scripts\python.exe"
 
+echo [¾È³»] °üÁ¦ ¼¾ÅÍ ¼­¹ö¸¦ ±âµ¿ÇÕ´Ï´Ù...
+echo [¾È³»] ´ë½Ãº¸µå¸¦ °è¼Ó ¾²½Ã·Á¸é ÀÌ ÄÜ¼Ö Ã¢À» ´ÝÁö ¸¶¼¼¿ä.
+echo.
+
+"%PY%" server.py
+
+echo.
+echo [¾È³»] ¼­¹ö°¡ Á¾·áµÇ¾ú½À´Ï´Ù.
 pause

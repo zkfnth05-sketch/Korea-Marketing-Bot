@@ -352,5 +352,17 @@
     "published_at": "2026-10-12 15:45:43",
     "elapsed_sec": 47.3,
     "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "name 're' is not defined",
+    "published_at": "2026-10-13 20:35:46"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "name 're' is not defined",
+    "published_at": "2026-10-15 20:37:39"
   }
 ]

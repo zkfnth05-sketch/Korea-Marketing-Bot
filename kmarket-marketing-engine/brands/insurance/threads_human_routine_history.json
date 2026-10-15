@@ -148,5 +148,15 @@
     "duration_sec": 911,
     "status": "COMPLETED",
     "ended_at": "2026-10-12T22:15:35.868170"
+  },
+  {
+    "brand": "insurance",
+    "started_at": "2026-10-13T16:01:21.396204",
+    "posts_read": 50,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 604,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-13T16:11:25.779145"
   }
 ]

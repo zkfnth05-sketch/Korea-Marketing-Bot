@@ -1,10 +1,155 @@
 {
-  "current_topic_index": 13,
-  "last_topic_id": 3,
-  "last_run_time": "2026-10-12 20:05:49",
-  "last_title": "[보험 상식] 뇌혈관질환 vs 뇌졸중 vs 뇌출혈: 보장 범위 10배 차이 나는 이유",
-  "published_count": 25,
+  "current_topic_index": 16,
+  "last_topic_id": 51,
+  "last_run_time": "2026-10-15 19:27:14",
+  "last_title": "매달 25만 원 내던 종신보험 해지하고 3만 원짜리 정기보험 바꾼 40대 가장의 솔직 후기 💸",
+  "published_count": 28,
   "history": [
+    {
+      "topic_id": 51,
+      "title": "매달 25만 원 내던 종신보험 해지하고 3만 원짜리 정기보험 바꾼 40대 가장의 솔직 후기 💸",
+      "title_naver": "매달 25만 원 내던 종신보험 해지하고 3만 원짜리 정기보험 바꾼 40대 가장의 솔직 후기 💸",
+      "title_tistory": "종신보험 정기보험 차이 비교: 가장의 사망보장 보험료 1/5로 줄이고 IRP 연금 챙기는 법",
+      "title_brunch": "내가 죽어야 나오는 1억보다, 오늘 우리 가족의 밥벌이가 더 절실했습니다",
+      "category": "savings_annuity",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_051_savings_annuity_20261015_192147.webp",
+      "published_at": "2026-10-15 19:27:14",
+      "publish_results": {
+        "topic_id": 51,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "매달 25만 원 내던 종신보험 해지하고 3만 원짜리 정기보험 바꾼 40대 가장의 솔직 후기 💸",
+            "url": "https://nid.naver.com/nidlogin.login?mode=form&url=https%3A%2F%2Fblog.naver.com%2Fthefirst-life%3FRedirect=%26categoryNo=",
+            "post_url": "https://nid.naver.com/nidlogin.login?mode=form&url=https%3A%2F%2Fblog.naver.com%2Fthefirst-life%3FRedirect=%26categoryNo=",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "종신보험비교",
+              "정기보험추천",
+              "사망보험금",
+              "가장보험료절약",
+              "연금저축세액공제",
+              "종합소득세연금저축세액공제",
+              "연금저축세액공제15%",
+              "연금저축세액공제한도",
+              "개인형irp해지",
+              "개인형irp",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "insure-balance",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "Page.goto: Timeout 40000ms exceeded.\nCall log:\n  - navigating to \"https://brunch.co.kr/write\", waiting until \"networkidle\"\n",
+            "archive_file": "brunch_draft_topic_001.json"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 35,
+      "title": "동물병원 영수증 180만 원 찍히고 멘붕? 펫보험 슬개골·피부병 3초 청구 환급 후기 🐶💸",
+      "title_naver": "동물병원 영수증 180만 원 찍히고 멘붕? 펫보험 슬개골·피부병 3초 청구 환급 후기 🐶💸",
+      "title_tistory": "펫보험 가입 전 필수 비교: 슬개골 탈구, 구강질환, 피부병 보장과 1일 통원 한도 총정리",
+      "title_brunch": "말티즈 쓸개골 수술비 180만 원의 교훈: 펫보험 똑똑하게 가입하고 고정비 줄이기",
+      "category": "life_dental_pet",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_035_life_dental_pet_20261013_200043.webp",
+      "published_at": "2026-10-13 20:05:16",
+      "publish_results": {
+        "topic_id": 35,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "동물병원 영수증 180만 원 찍히고 멘붕? 펫보험 슬개골·피부병 3초 청구 환급 후기 🐶💸",
+            "url": "https://nid.naver.com/nidlogin.login?mode=form&url=https%3A%2F%2Fblog.naver.com%2Fthefirst-life%3FRedirect=%26categoryNo=",
+            "post_url": "https://nid.naver.com/nidlogin.login?mode=form&url=https%3A%2F%2Fblog.naver.com%2Fthefirst-life%3FRedirect=%26categoryNo=",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "펫보험비교",
+              "슬개골탈구보험",
+              "강아지보험추천",
+              "반려묘보험",
+              "치아보험임플란트",
+              "치아보험임플란트보장",
+              "치아보험임플란트면책기간",
+              "치아보험임플란트청구",
+              "치아보험임플란트보장범위",
+              "치아보험임플란트가격",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "insure-balance",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 19,
+      "title": "스쿨존 벌금 3천만원인데 내 보험은 2천만원? 운전자보험 1만원대로 살려낸 썰 🚨",
+      "title_naver": "스쿨존 벌금 3천만원인데 내 보험은 2천만원? 운전자보험 1만원대로 살려낸 썰 🚨",
+      "title_tistory": "민식이법 스쿨존 사고 벌금 3,000만 원 한도 확인! 옛날 운전자보험 1만 원대 리모델링 팁",
+      "title_brunch": "매달 3만 원씩 내던 운전자보험, 스쿨존 벌금은 보장도 안 된다니",
+      "category": "auto_driver",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_019_auto_driver_20261013_160204.webp",
+      "published_at": "2026-10-13 16:06:35",
+      "publish_results": {
+        "topic_id": 19,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "스쿨존 벌금 3천만원인데 내 보험은 2천만원? 운전자보험 1만원대로 살려낸 썰 🚨",
+            "url": "https://nid.naver.com/nidlogin.login?mode=form&url=https%3A%2F%2Fblog.naver.com%2Fthefirst-life%3FRedirect=%26categoryNo=",
+            "post_url": "https://nid.naver.com/nidlogin.login?mode=form&url=https%3A%2F%2Fblog.naver.com%2Fthefirst-life%3FRedirect=%26categoryNo=",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "민식이법벌금",
+              "스쿨존사고",
+              "운전자보험특약",
+              "벌금3천만원",
+              "운전자보험특약추천",
+              "운전자보험특약추가",
+              "운전자보험특약일상생활",
+              "운전자보험특약확인",
+              "운전자보험특약누수",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험",
+              "재테크"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "insure-balance",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        }
+      }
+    },
     {
       "topic_id": 3,
       "title": "[보험 상식] 뇌혈관질환 vs 뇌졸중 vs 뇌출혈: 보장 범위 10배 차이 나는 이유",

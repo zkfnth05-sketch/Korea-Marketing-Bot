@@ -1,21 +1,21 @@
 {
-  "updated_at": "2026-10-12 16:18:57",
+  "updated_at": "2026-10-13 20:05:29",
   "brands": {
     "aura": {
       "reddit": {
         "brand": "aura",
         "channel": "reddit",
-        "live_url": "https://www.reddit.com/r/language_exchange/comments/1x268p9/offering_korean_seeking_english/",
-        "title": "r/Language_Exchange: Offering: Korean | Seeking: English",
+        "live_url": "https://www.reddit.com/r/language_exchange/comments/1x4sheg/offering_dutch_english_seeking_korean/",
+        "title": "r/Language_Exchange: Offering: Dutch 🇳🇱 / English 🇬🇧 | Seeking: Korean 🇰🇷",
         "status": "HEALTHY",
         "is_verified": false,
         "error_message": null,
         "screenshot_file": null,
         "screenshot_path": null,
-        "published_at": "2026-10-10 16:12:36",
+        "published_at": "2026-10-13 20:05:29",
         "extra_meta": {
-          "comment_preview": "Hi Sam! 👋 It's super cool you're in Calgary and looking for language exchange – I totally get wanting to practice naturally without the constant copy-pasting that breaks the flow! I love Korea and hav",
-          "screenshot_file": "proof_aura_reddit_20261010_161223.png"
+          "comment_preview": "Hey! It's awesome you're diving into Korean! 💖 Learning a new language is such a journey, especially finding fluent partners when you're just starting. I totally get how frustrating it can be to keep ",
+          "screenshot_file": "proof_aura_reddit_20261013_200515.png"
         }
       }
     },
@@ -23,34 +23,34 @@
       "reddit": {
         "brand": "insurance",
         "channel": "reddit",
-        "live_url": "https://www.reddit.com/r/Living_in_Korea/comments/1x3tdix/looking_for_hospital_not_too_far_from_paju_area/",
-        "title": "r/Living_in_Korea: Looking for hospital not too far from paju area that can help with pectoral muscle tear surgery",
-        "status": "HEALTHY",
+        "live_url": null,
+        "title": "r/seoul: Need help Jawtox and Undereye Filler in Seoul. Clinic recommendations?",
+        "status": "ERROR",
         "is_verified": false,
-        "error_message": null,
+        "error_message": "댓글 등록 버튼 클릭 실패",
+        "failed_at": "2026-10-13 16:36:41",
+        "published_at": null,
         "screenshot_file": null,
         "screenshot_path": null,
-        "published_at": "2026-10-12 16:18:57",
-        "extra_meta": {
-          "comment_preview": "Hey there, that sounds incredibly painful for your relative – pec tears are no joke and acting fast is key! For a specialized injury like this, you'll definitely want to look at the bigger university ",
-          "screenshot_file": "proof_insurance_reddit_20261012_161838.png"
-        }
+        "extra_meta": {}
       }
     },
     "stock": {
       "reddit": {
         "brand": "stock",
         "channel": "reddit",
-        "live_url": null,
-        "title": "r/StockMarket: The OpenAI revenue gap may be a measurement problem before it is a growth problem",
-        "status": "ERROR",
+        "live_url": "https://www.reddit.com/r/Daytrading/comments/1x4rixs/order_flow_vs_ictsmc_what_am_i_missing/",
+        "title": "r/Daytrading: Order Flow vs. ICT/SMC: What Am I Missing?",
+        "status": "HEALTHY",
         "is_verified": false,
-        "error_message": "댓글 등록 버튼 클릭 실패",
-        "failed_at": "2026-10-09 19:40:01",
-        "published_at": null,
+        "error_message": null,
         "screenshot_file": null,
         "screenshot_path": null,
-        "extra_meta": {}
+        "published_at": "2026-10-13 19:59:05",
+        "extra_meta": {
+          "comment_preview": "ICT/SMC offers structural price context, but its Achilles' heel is often the lack of real-time conviction from actual capital flow. 📊 Order Flow, particularly tracking significant institutional and fo",
+          "screenshot_file": "proof_stock_reddit_20261013_195851.png"
+        }
       }
     }
   }

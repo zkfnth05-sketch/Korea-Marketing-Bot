@@ -365,5 +365,79 @@
         "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_tiktok_verified_proof_topic06.png"
       }
     }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-13",
+    "published_at": "2026-10-13 16:04:46",
+    "brand": "stock",
+    "topic_id": 7,
+    "title": "주린이 탈출: 손절매와 익절 구간 설정하는 절대 공식",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "stock"
+      },
+      "threads": {
+        "status": "FAIL",
+        "error": "최대 3회 재시도 실패: Locator.wait_for: Timeout 10000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='textbox']\").first to be visible\n",
+        "attempts": 3
+      },
+      "youtube_shorts": {
+        "status": "error",
+        "platform": "youtube_shorts",
+        "error": "name 're' is not defined",
+        "published_at": "2026-10-13 16:06:07"
+      },
+      "naver_clip": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "stock"
+      },
+      "tiktok": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "stock"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-13",
+    "published_at": "2026-10-13 20:50:40",
+    "brand": "stock",
+    "topic_id": 8,
+    "title": "24시간 글로벌 시황 & 외신 속보 실시간 레이더 활용법",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "stock"
+      },
+      "threads": {
+        "status": "FAIL",
+        "error": "최대 3회 재시도 실패: Locator.wait_for: Timeout 10000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='textbox']\").first to be visible\n",
+        "attempts": 3
+      },
+      "youtube_shorts": {
+        "status": "error",
+        "platform": "youtube_shorts",
+        "error": "name 're' is not defined",
+        "published_at": "2026-10-13 20:52:41"
+      },
+      "naver_clip": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "stock"
+      },
+      "tiktok": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "stock"
+      }
+    }
   }
 ]

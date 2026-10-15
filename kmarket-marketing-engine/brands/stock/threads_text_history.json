@@ -414,5 +414,31 @@
       "attempts": 3
     },
     "success": false
+  },
+  {
+    "brand": "stock",
+    "slot": "evening",
+    "topic": "장마감 후 외인·기관이 몰래 쌍끌이 매수한 종목 분석법",
+    "caption_preview": "오늘 같은 하락장, 개인 투자자들은 매도에만 급급했죠? 📉 하지만 실전 퀀트 트레이더의 눈에는 오히려 기회가...",
+    "published_at": "2026-10-13T19:31:27.510505",
+    "publish_result": {
+      "status": "FAIL",
+      "error": "최대 3회 재시도 실패: Locator.wait_for: Timeout 10000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='textbox']\").first to be visible\n",
+      "attempts": 3
+    },
+    "success": false
+  },
+  {
+    "brand": "stock",
+    "slot": "evening",
+    "topic": "장마감 후 외인·기관이 몰래 쌍끌이 매수한 종목 분석법",
+    "caption_preview": "주식 초보분들이 가장 많이 하는 실수가 '장 시작하자마자 9시 5분에 급등주 추격 매수'하는 겁니다 ㅠㅠ\n\n...",
+    "published_at": "2026-10-15T20:11:46.913719",
+    "publish_result": {
+      "status": "FAIL",
+      "error": "최대 3회 재시도 실패: Locator.wait_for: Timeout 10000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='textbox']\").first to be visible\n",
+      "attempts": 3
+    },
+    "success": false
   }
 ]

@@ -1,10 +1,170 @@
 {
-  "current_topic_index": 13,
-  "last_topic_id": 39,
-  "last_run_time": "2026-10-12 19:50:30",
-  "last_title": "소개팅 망치는 최악의 대화주제 3가지, 이것만 피하면 무조건 성공!",
-  "published_count": 38,
+  "current_topic_index": 16,
+  "last_topic_id": 88,
+  "last_run_time": "2026-10-15 19:27:30",
+  "last_title": "삼프터 고백 성공률 100%! '설렘 확신' 주는 데이트&대화 꿀팁 대공개",
+  "published_count": 41,
   "history": [
+    {
+      "topic_id": 88,
+      "title": "삼프터 고백 성공률 100%! '설렘 확신' 주는 데이트&대화 꿀팁 대공개",
+      "title_naver": "삼프터 고백 성공률 100%! '설렘 확신' 주는 데이트&대화 꿀팁 대공개",
+      "title_tistory": "[2026 가이드] 소개팅 삼프터의 의미와 100% 성공하는 고백 타이밍 핵심 정리",
+      "title_kakao": "소개팅 삼프터의 의미와 100% 성공하는 고백 타이밍에 대한 솔직한 이야기",
+      "category": "after_dating",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_088_after_dating_20261015_192135.webp",
+      "published_at": "2026-10-15 19:27:30",
+      "publish_results": {
+        "topic_id": 88,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-088",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "삼프터 고백 성공률 100%! '설렘 확신' 주는 데이트&대화 꿀팁 대공개",
+            "url": "https://blog.naver.com/zkfnth01",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플거리",
+              "성수동핫플",
+              "성수동핫플레이스",
+              "성수동핫플카페",
+              "성수동핫플맛집",
+              "성수동핫플지도",
+              "500m안심레이더",
+              "동네친구",
+              "성수동번개",
+              "퇴근길번개",
+              "안심데이팅",
+              "위치보안",
+              "성수동데이트"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-dating",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "Page.goto: Timeout 40000ms exceeded.\nCall log:\n  - navigating to \"https://brunch.co.kr/write\", waiting until \"networkidle\"\n",
+            "archive_file": "brunch_draft_topic_088.json"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 73,
+      "title": "소개팅 성공률 200% UP! 은은하게 기억될 '향수 BEST 5' 추천",
+      "title_naver": "소개팅 성공률 200% UP! 은은하게 기억될 '향수 BEST 5' 추천",
+      "title_tistory": "[2026 가이드] 과하지 않고 은은한 소개팅 남자/여자 향수 추천 BEST 5 핵심 정리",
+      "title_kakao": "과하지 않고 은은한 소개팅 남자/여자 향수 추천 BEST 5에 대한 솔직한 이야기",
+      "category": "lookbook_style",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_073_lookbook_style_20261013_194550.webp",
+      "published_at": "2026-10-13 19:50:35",
+      "publish_results": {
+        "topic_id": 73,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-073",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "소개팅 성공률 200% UP! 은은하게 기억될 '향수 BEST 5' 추천",
+            "url": "https://blog.naver.com/PostView.naver?blogId=zkfnth01&Redirect=View&logNo=224440583004&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=18128",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플거리",
+              "성수동핫플",
+              "성수동핫플레이스",
+              "성수동핫플카페",
+              "성수동핫플맛집",
+              "성수동핫플지도",
+              "소개팅탈출",
+              "소개팅긴급탈출",
+              "소개팅매너",
+              "소개팅빌런",
+              "소개팅후기",
+              "소개팅2차",
+              "성수동데이트"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-dating",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        }
+      }
+    },
+    {
+      "topic_id": 57,
+      "title": "회피형 vs 불안형 연애 심리: 성수동 데이트에서 갈등 없이 티키타카 통하는 4가지 대화법",
+      "title_naver": "회피형 vs 불안형 연애 심리: 성수동 데이트에서 갈등 없이 티키타카 통하는 4가지 대화법",
+      "title_tistory": "회피형과 불안형의 애착유형 갈등 해결 가이드: 성수동 핫플레이스 데이트 코스와 관계 심리 분석",
+      "title_kakao": "다가갈수록 멀어지는 너, 숨을수록 불안한 나: 애착유형의 굴레를 끊는 관계 처방전",
+      "category": "psychology_mbti",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_057_psychology_mbti_20261013_160345.webp",
+      "published_at": "2026-10-13 16:08:55",
+      "publish_results": {
+        "topic_id": 57,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-057",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "회피형 vs 불안형 연애 심리: 성수동 데이트에서 갈등 없이 티키타카 통하는 4가지 대화법",
+            "url": "https://blog.naver.com/PostView.naver?blogId=zkfnth01&Redirect=View&logNo=224440358498&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=27230",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플거리",
+              "성수동핫플",
+              "성수동핫플레이스",
+              "성수동핫플카페",
+              "성수동핫플맛집",
+              "성수동핫플지도",
+              "소개팅탈출",
+              "소개팅긴급탈출",
+              "소개팅매너",
+              "소개팅빌런",
+              "소개팅후기",
+              "소개팅2차",
+              "성수동데이트"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-dating",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        }
+      }
+    },
     {
       "topic_id": 39,
       "title": "소개팅 망치는 최악의 대화주제 3가지, 이것만 피하면 무조건 성공!",
