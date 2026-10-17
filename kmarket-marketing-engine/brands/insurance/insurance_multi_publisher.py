@@ -126,4 +126,35 @@ class InsuranceMultiPublisher:
             logger.error(f"❌ [3/3] 🟡 브런치 실패: {e}")
             results["channels"]["brunch"] = {"status": "error", "message": str(e)}
 
+        # 🔍 [사후 무결성 실사 검증 레고 블록] 실제 공개 블로그 등록 여부 '눈으로 확인'
+        try:
+            from brands.insurance.insurance_blog_verifier import InsuranceBlogVerifier
+            verifier = InsuranceBlogVerifier()
+            v_res = verifier.verify_all(expected_title=title_naver, capture=True)
+            results["verification"] = v_res
+
+            # 네이버 실사 검증 반영 (가짜 성공 원천 차단)
+            if not v_res.get("naver", {}).get("verified"):
+                if results["channels"].get("naver_blog", {}).get("status") == "success":
+                    results["channels"]["naver_blog"]["status"] = "error"
+                    results["channels"]["naver_blog"]["message"] = f"사후 실사 검증 실패 (RSS/블로그 미등록: {v_res.get('naver', {}).get('error', '제목 불일치')})"
+            else:
+                real_url = v_res["naver"].get("real_url")
+                if real_url:
+                    results["channels"]["naver_blog"]["url"] = real_url
+                    results["channels"]["naver_blog"]["post_url"] = real_url
+
+            # 티스토리 실사 검증 반영
+            if not v_res.get("tistory", {}).get("verified"):
+                if results["channels"].get("tistory", {}).get("status") in ("success", "active", "restored"):
+                    results["channels"]["tistory"]["status"] = "error"
+                    results["channels"]["tistory"]["message"] = f"사후 실사 검증 실패 (티스토리 미등록: {v_res.get('tistory', {}).get('error', '제목 불일치')})"
+            else:
+                real_t_url = v_res["tistory"].get("real_url")
+                if real_t_url:
+                    results["channels"]["tistory"]["url"] = real_t_url
+                    results["channels"]["tistory"]["post_url"] = real_t_url
+        except Exception as ve:
+            logger.warning(f"⚠️ [Insurance] 사후 실사 검증 예외: {ve}")
+
         return results

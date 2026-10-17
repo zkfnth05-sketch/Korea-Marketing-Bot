@@ -201,9 +201,8 @@ class InsuranceDomesticSNSCopywriter:
                 f"👉 {self.search_phrase}"
             )
         yt_desc_full = (
-            f"💬 34개 보험사 무료 비교 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n"
             f"{yt_d}\n\n"
-            f"🔍 {self.search_phrase}\n\n"
+            f"👉 {self.search_phrase}\n\n"
             f"{short_tags}"
         )
 
@@ -215,7 +214,7 @@ class InsuranceDomesticSNSCopywriter:
             f"(네이버 검색: {self.official_keyword})"
         )
 
-        # TikTok (본문 URL 0% & 첫 댓글 참조 필수)
+        # TikTok (본문 URL 0% & 네이버 검색 유도)
         tk_c = self._clean_text(parsed.get("tiktok_caption"))
         if not tk_c:
             tk_c = (
@@ -225,12 +224,12 @@ class InsuranceDomesticSNSCopywriter:
                 f"전화번호 없이 34개사 실시간 비교 📲"
             )
         tk_caption_full = (
-            f"💬 34개 보험사 무료 비교 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n"
             f"{tk_c}\n\n"
+            f"👉 {self.search_phrase}\n\n"
             f"{short_tags}"
         )
 
-        # Naver Clip (본문 URL 0% & 첫 댓글 참조 필수)
+        # Naver Clip (본문 URL 0% & 네이버 검색 유도)
         nv_d = self._clean_text(parsed.get("naver_clip_desc"))
         if not nv_d:
             nv_d = (
@@ -240,12 +239,12 @@ class InsuranceDomesticSNSCopywriter:
                 f"🔍 네이버 검색: [{self.official_keyword}]"
             )
         nv_desc_full = (
-            f"💬 34개 보험사 무료 비교 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n"
             f"{nv_d}\n\n"
+            f"👉 {self.search_phrase}\n\n"
             f"{short_tags}"
         )
 
-        # Meta Reels (본문 URL 0% & 첫 댓글 참조 필수)
+        # Meta Reels (본문 URL 0% & 네이버 검색 유도)
         ig_c = self._clean_text(parsed.get("instagram_caption"))
         if not ig_c:
             ig_c = (
@@ -257,12 +256,12 @@ class InsuranceDomesticSNSCopywriter:
                 f"👉 {self.search_phrase}"
             )
         ig_caption_full = (
-            f"💬 34개 보험사 무료 비교 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n"
             f"{ig_c}\n\n"
+            f"👉 {self.search_phrase}\n\n"
             f"{full_tags}"
         )
 
-        # Facebook (본문 URL 0% & 첫 댓글 참조 필수)
+        # Facebook (본문 URL 0% & 네이버 검색 유도)
         fb_c = self._clean_text(parsed.get("facebook_caption"))
         if not fb_c:
             fb_c = (
@@ -272,17 +271,18 @@ class InsuranceDomesticSNSCopywriter:
                 f"💡 지금 네이버에서 [{self.official_keyword}]을 검색해보세요!"
             )
         fb_caption_full = (
-            f"💬 34개 보험사 무료 비교 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n"
             f"{fb_c}\n\n"
+            f"👉 {self.search_phrase}\n\n"
             f"{short_tags}"
         )
 
-        # 🛡️ 본문 내 모든 URL 전면 소독 (스레드/릴스/틱톡/유튜브 알고리즘 다운랭킹 원천 방지)
-        yt_desc_full = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', yt_desc_full)
-        tk_caption_full = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', tk_caption_full)
-        nv_desc_full = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', nv_desc_full)
-        ig_caption_full = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', ig_caption_full)
-        fb_caption_full = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', fb_caption_full)
+        # 🛡️ 본문 내 모든 URL 전면 소독 (알고리즘 다운랭킹 방지 및 네이버 공식 검색어로 치환)
+        search_sub = f"👉 네이버 검색: [{self.official_keyword}]"
+        yt_desc_full = re.sub(r'https?://\S+', search_sub, yt_desc_full)
+        tk_caption_full = re.sub(r'https?://\S+', search_sub, tk_caption_full)
+        nv_desc_full = re.sub(r'https?://\S+', search_sub, nv_desc_full)
+        ig_caption_full = re.sub(r'https?://\S+', search_sub, ig_caption_full)
+        fb_caption_full = re.sub(r'https?://\S+', search_sub, fb_caption_full)
 
         return {
             "title": v_title,

@@ -439,5 +439,153 @@
         "brand": "stock"
       }
     }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-15",
+    "published_at": "2026-10-15 20:55:00",
+    "brand": "stock",
+    "topic_id": 1,
+    "title": "오늘 외인·기관이 쌍끌이 매수한 주도 섹터 TOP 4 분석",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "stock"
+      },
+      "threads": {
+        "status": "FAIL",
+        "error": "최대 3회 재시도 실패: Locator.wait_for: Timeout 10000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='textbox']\").first to be visible\n",
+        "attempts": 3
+      },
+      "youtube_shorts": {
+        "status": "error",
+        "platform": "youtube_shorts",
+        "error": "name 're' is not defined",
+        "published_at": "2026-10-15 20:56:32"
+      },
+      "naver_clip": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "stock"
+      },
+      "tiktok": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "stock"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-17",
+    "published_at": "2026-10-17 11:55:50",
+    "brand": "stock",
+    "topic_id": 2,
+    "title": "20일선 돌파 & 거래량 폭증! 신고가 레이더 포착 종목 4선",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "stock"
+      },
+      "threads": {
+        "status": "FAIL",
+        "error": "최대 3회 재시도 실패: Locator.wait_for: Timeout 10000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='textbox']\").first to be visible\n",
+        "attempts": 3
+      },
+      "youtube_shorts": {
+        "status": "error",
+        "platform": "youtube_shorts",
+        "error": "name 're' is not defined",
+        "published_at": "2026-10-17 11:57:25"
+      },
+      "naver_clip": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "stock"
+      },
+      "tiktok": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "stock"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-17",
+    "published_at": "2026-10-17 12:15:03",
+    "brand": "stock",
+    "topic_id": 3,
+    "title": "FOMC 금리 결정 후 코스피/코스닥 대응 전략 4대 핵심 포인트",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "stock"
+      },
+      "threads": {
+        "status": "FAIL",
+        "error": "최대 3회 재시도 실패: Locator.wait_for: Timeout 10000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='textbox']\").first to be visible\n",
+        "attempts": 3
+      },
+      "youtube_shorts": {
+        "status": "error",
+        "platform": "youtube_shorts",
+        "error": "name 're' is not defined",
+        "published_at": "2026-10-17 12:17:07"
+      },
+      "naver_clip": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "stock"
+      },
+      "tiktok": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "stock"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-17",
+    "published_at": "2026-10-17 12:19:45",
+    "brand": "stock",
+    "topic_id": 4,
+    "title": "미국 배당 ETF(SCHD·JEPQ) 월 100만원 파이프라인 구축법",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "stock"
+      },
+      "threads": {
+        "status": "FAIL",
+        "error": "최대 3회 재시도 실패: Locator.wait_for: Timeout 10000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='textbox']\").first to be visible\n",
+        "attempts": 3
+      },
+      "youtube_shorts": {
+        "status": "error",
+        "platform": "youtube_shorts",
+        "error": "name 're' is not defined",
+        "published_at": "2026-10-17 12:21:22"
+      },
+      "naver_clip": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "stock"
+      },
+      "tiktok": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "stock"
+      }
+    }
   }
 ]

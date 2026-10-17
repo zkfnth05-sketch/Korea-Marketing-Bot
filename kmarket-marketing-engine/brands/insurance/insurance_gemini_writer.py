@@ -13,6 +13,7 @@ from core.gemini_unified_keys import get_unified_gemini_key_dicts, get_unified_g
 
 import os
 import sys
+import re
 import json
 import logging
 from pathlib import Path

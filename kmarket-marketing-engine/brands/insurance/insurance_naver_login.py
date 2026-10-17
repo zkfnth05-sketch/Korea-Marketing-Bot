@@ -83,21 +83,35 @@ async def run_login_flow():
         except Exception as e:
             print(f"⚠️ 영구 옵션 자동 세팅 안내: {e}")
 
-        print("\n⏳ 네이버 로그인 대기 중... (로그인을 완료하시면 봇이 자동으로 감지합니다)")
+        print("\n⏳ 네이버 로그인 대기 중... (QR코드 또는 아이디/비번으로 로그인을 완료해 주세요)")
 
         logged_in = False
         nid_aut = ""
         nid_ses = ""
 
-        for _ in range(90):  # 180초 대기
+        for sec in range(90):  # 90 * 2초 = 180초
             await asyncio.sleep(2)
+            cur_url = page.url
             cookies = await context.cookies()
             cookie_dict = {c["name"]: c["value"] for c in cookies}
 
-            if "NID_AUT" in cookie_dict and "NID_SES" in cookie_dict:
+            has_auth = "NID_AUT" in cookie_dict and "NID_SES" in cookie_dict
+            left_login_page = ("nidlogin" not in cur_url and "nid.naver.com" not in cur_url)
+            
+            has_user_ui = False
+            try:
+                logout_el = await page.query_selector("a[href*='logout'], a[href*='nid.naver.com/nidlogin.logout'], [class*='link_logout'], [class*='MyView']")
+                if logout_el:
+                    has_user_ui = True
+            except Exception:
+                pass
+
+            # 진짜로 로그인이 완료되어 메인 또는 블로그로 이동했을 때만 성공 인정!
+            if has_auth and (left_login_page or has_user_ui):
                 nid_aut = cookie_dict["NID_AUT"]
                 nid_ses = cookie_dict["NID_SES"]
                 logged_in = True
+                print(f"🎉 네이버 로그인 성공 감지! (현재 URL: {cur_url})")
                 break
 
         if not logged_in:

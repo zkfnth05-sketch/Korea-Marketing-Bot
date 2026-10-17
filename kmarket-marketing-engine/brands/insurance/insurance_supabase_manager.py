@@ -133,7 +133,7 @@ class InsuranceSupabaseManager:
             raw_logs = res_logs.data or []
 
             # 2. customer_leads 실제 고객 상담 신청 실데이터 조회 (299건+)
-            res_leads = self.client.table("customer_leads").select("id, planner_id, name, phone, insurance_type, monthly_premium, lead_source, raw_payload, status, created_at").order("created_at", desc=True).execute()
+            res_leads = self.client.table("customer_leads").select("id, planner_id, name, phone, insurance_type, monthly_premium, lead_source, raw_payload, status, created_at, is_demo").order("created_at", desc=True).execute()
             raw_leads = res_leads.data or []
 
             # 3. planners 공인 설계사 조회 (9명)
@@ -153,7 +153,10 @@ class InsuranceSupabaseManager:
 
             # 로그 데이터 전처리
             parsed_logs = []
+            from .insurance_traffic_filters import is_demo_visitor, is_demo_lead
             for r in raw_logs:
+                if is_demo_visitor(r.get("planner_code"), r.get("utm_source")):
+                    continue  # 🛡️ 체험/테스트 계정 방문 제외
                 dt_k = parse_kst(r.get("created_at"))
                 if dt_k:
                     parsed_logs.append({
@@ -161,12 +164,19 @@ class InsuranceSupabaseManager:
                         "session_id": r.get("session_id") or r.get("id"),
                         "planner_code": r.get("planner_code") or "direct",
                         "utm_source": r.get("utm_source") or "direct",
+                        "referrer": r.get("referrer") or "Direct",
+                        "path": r.get("path") or "/",
+                        "device": r.get("device") or "desktop",
+                        "utm_medium": r.get("utm_medium") or "",
+                        "utm_campaign": r.get("utm_campaign") or "",
                         "kst_dt": dt_k
                     })
 
             # 상담 신청 데이터 전처리
             parsed_leads = []
             for lead in raw_leads:
+                if is_demo_lead(lead.get("is_demo"), lead.get("planner_id"), lead.get("phone")):
+                    continue  # 🛡️ 데모/테스트 상담신청 제외
                 dt_k = parse_kst(lead.get("created_at"))
                 if dt_k:
                     raw_payload = lead.get("raw_payload") or {}
@@ -208,57 +218,58 @@ class InsuranceSupabaseManager:
             total_leads_cnt = len(parsed_leads)
             period_leads_cnt = len(period_leads)
 
-            # 🌟 [보험 맞춤 15대 옴니채널 리졸버]
-            def resolve_insurance_channel(utm: str, planner: str) -> Dict[str, str]:
+            # 🌟 [보험 맞춤 15대 옴니채널 리졸버 - UTM 및 Referrer 융합]
+            def resolve_insurance_channel(utm: str, planner: str, referrer: str = "") -> Dict[str, str]:
                 u_l = (utm or "").lower()
                 p_l = (planner or "").lower()
+                r_l = (referrer or "").lower()
 
                 # 1. 글로벌 메이저 SNS
-                if "youtube" in u_l or "shorts" in u_l:
+                if any(k in r_l for k in ["youtube.com", "youtu.be"]) or "youtube" in u_l or "shorts" in u_l:
                     return {"name": "🎬 #1 유튜브 쇼츠 (실손/암보험 진실)", "category": "global_sns", "color": "#EF4444"}
-                if "tiktok" in u_l:
+                if "tiktok.com" in r_l or "tiktok" in u_l:
                     return {"name": "🎬 #1 틱톡 (2030 보험 다이어트)", "category": "global_sns", "color": "#06B6D4"}
-                if "insta" in u_l or "instagram" in u_l:
+                if "instagram.com" in r_l or "insta" in u_l or "instagram" in u_l:
                     return {"name": "📸 #2 인스타그램 (카드뉴스 매거진)", "category": "global_sns", "color": "#EC4899"}
-                if "facebook" in u_l or "fb" in u_l:
+                if any(k in r_l for k in ["facebook.com", "fb.com"]) or "facebook" in u_l or "fb" in u_l:
                     return {"name": "📸 #2 페이스북 (보험료 절감 꿀팁)", "category": "global_sns", "color": "#3B82F6"}
-                if "threads" in u_l:
+                if "threads.net" in r_l or "threads" in u_l:
                     return {"name": "📜 #6 Meta 스레드 (보험 호구 탈출 썰)", "category": "community", "color": "#0F172A"}
-                if "twitter" in u_l or "x.com" in u_l or "t.co" in u_l:
+                if any(k in r_l for k in ["twitter.com", "x.com", "t.co"]) or "twitter" in u_l or "x.com" in u_l or "t.co" in u_l:
                     return {"name": "📜 #6 X / 트위터 (바이럴 타래)", "category": "community", "color": "#0284C7"}
 
                 # 2. 버티컬 커뮤니티 & 카페 (우선 검사)
-                if "cafe" in u_l or "naver_cafe" in u_l or "mom" in u_l:
+                if "cafe.naver.com" in r_l or "cafe" in u_l or "naver_cafe" in u_l or "mom" in u_l:
                     return {"name": "☕ #8 네이버 맘/직장인 카페 (보험 점검)", "category": "community", "color": "#10B981"}
-                if "daum_cafe" in u_l or "cafe.daum" in u_l or "daum" in u_l:
+                if "cafe.daum.net" in r_l or "daum_cafe" in u_l or "cafe.daum" in u_l or "daum" in u_l:
                     return {"name": "🍵 #9 다음(Daum) 카페 (보험 후기)", "category": "community", "color": "#EAB308"}
-                if "ppomppu" in u_l or "뽐뿌" in u_l:
+                if "ppomppu.co.kr" in r_l or "ppomppu" in u_l or "뽐뿌" in u_l:
                     return {"name": "🛒 #10 뽐뿌 보험포럼 (가성비 특약)", "category": "community", "color": "#2563EB"}
-                if "dcinside" in u_l or "디시" in u_l:
+                if "dcinside.com" in r_l or "dcinside" in u_l or "디시" in u_l:
                     return {"name": "갤 #11 디시인사이드 (보험 갤러리)", "category": "community", "color": "#4338CA"}
-                if "bobae" in u_l or "보배" in u_l:
+                if "bobaedream.co.kr" in r_l or "bobae" in u_l or "보배" in u_l:
                     return {"name": "🚗 #12 보배드림 (운전자/자동차보험)", "category": "community", "color": "#1E40AF"}
-                if "pann" in u_l or "nate" in u_l:
+                if "pann.nate.com" in r_l or "pann" in u_l or "nate" in r_l or "nate" in u_l:
                     return {"name": "💬 #13 네이트판 (보험 분쟁/해지 실화)", "category": "community", "color": "#DC2626"}
-                if "fmkorea" in u_l or "femco" in u_l:
+                if "fmkorea.com" in r_l or "fmkorea" in u_l or "femco" in u_l:
                     return {"name": "⚽ #14 에펨코리아 (사회초년생 첫보험)", "category": "community", "color": "#059669"}
-                if "kakao" in u_l:
+                if "kakao" in r_l or "kakao" in u_l:
                     return {"name": "💬 #15 카카오 알림톡 (무료 증권분석)", "category": "messenger", "color": "#FACC15"}
 
                 # 3. SEO 블로그 & 지식 플랫폼
-                if "blog" in u_l or "thefirst-life" in u_l or "naver_blog" in u_l:
+                if "blog.naver.com" in r_l or "blog" in u_l or "thefirst-life" in u_l or "naver_blog" in u_l:
                     return {"name": "💖 #4 네이버 블로그 (공식 칼럼)", "category": "seo_blog", "color": "#10B981"}
-                if "tistory" in u_l or "think83157" in u_l:
+                if "tistory.com" in r_l or "tistory" in u_l or "think83157" in u_l:
                     return {"name": "💖 #4 티스토리 (보험비교 전문 칼럼)", "category": "seo_blog", "color": "#F97316"}
-                if "brunch" in u_l:
+                if "brunch.co.kr" in r_l or "brunch" in u_l:
                     return {"name": "💖 #4 카카오 브런치 (재테크 에세이)", "category": "seo_blog", "color": "#334155"}
-                if "kin" in u_l or "지식" in u_l:
+                if "kin.naver.com" in r_l or "kin" in u_l or "지식" in u_l:
                     return {"name": "💡 #7 네이버 지식iN (보험 리모델링 Q&A)", "category": "seo_blog", "color": "#10B981"}
 
                 # 4. 포털 검색
-                if "search" in u_l or "naver" in u_l:
+                if any(k in r_l for k in ["search.naver.com", "naver.com"]) or "search" in u_l or "naver_search" in u_l:
                     return {"name": "🌐 #5 네이버 검색 (보험 리밸런스)", "category": "seo_blog", "color": "#10B981"}
-                if "google" in u_l:
+                if "google.com" in r_l or "google" in u_l:
                     return {"name": "🌐 #5 구글 검색 (서치콘솔 색인)", "category": "seo_blog", "color": "#3B82F6"}
 
                 # 5. 플랫폼 자가진단 및 설계사 링크
@@ -326,7 +337,7 @@ class InsuranceSupabaseManager:
             # 🚀 [채널별 순 유입자수 계산] (logs + leads 통합 채널 매핑)
             channel_map: Dict[str, Dict[str, Any]] = {}
             for l in period_logs:
-                resolved = resolve_insurance_channel(l.get("utm_source", ""), l.get("planner_code", ""))
+                resolved = resolve_insurance_channel(l.get("utm_source", ""), l.get("planner_code", ""), l.get("referrer", ""))
                 c_name = resolved["name"]
                 if c_name not in channel_map:
                     channel_map[c_name] = {
@@ -401,13 +412,15 @@ class InsuranceSupabaseManager:
                     "created_at": ld["kst_dt"].strftime("%Y-%m-%d %H:%M:%S KST")
                 })
 
-            # 2. 최근 접속 로그 매핑
+            # 2. 최근 접속 로그 매핑 (디바이스, 경로, 출처 반영)
             for l in period_logs[:10]:
-                resolved = resolve_insurance_channel(l.get("utm_source", ""), l.get("planner_code", ""))
+                resolved = resolve_insurance_channel(l.get("utm_source", ""), l.get("planner_code", ""), l.get("referrer", ""))
+                dev_icon = "📱" if l.get("device") == "mobile" else "💻"
+                ref_info = f" (출처: {l.get('referrer')[:25]}...)" if l.get("referrer") and l.get("referrer") != "Direct" else ""
                 real_visitors_list.append({
                     "source_name": resolved["name"],
-                    "medium": f"코드: {l['planner_code']}",
-                    "campaign": f"UTM: {l['utm_source']}",
+                    "medium": f"{dev_icon} {l.get('device', 'desktop').upper()} | 코드: {l['planner_code']}",
+                    "campaign": f"경로: {l.get('path', '/')} | UTM: {l.get('utm_source', 'direct')}{ref_info}",
                     "target_app": "InsureBalance 보험비교",
                     "ip": f"세션: {l['session_id'][:12]}...",
                     "created_at": l["kst_dt"].strftime("%Y-%m-%d %H:%M:%S KST")

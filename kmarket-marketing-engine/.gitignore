@@ -68,3 +68,8 @@ scratch_test_*.py
 # 외부 깃 서브툴 제외
 core/github_tools/
 
+
+scratch/
+outputs/proofs/
+*.good.json
+

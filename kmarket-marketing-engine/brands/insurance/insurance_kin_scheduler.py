@@ -50,6 +50,7 @@ class InsuranceKinScheduler:
     BRAND = "insurance"
     NAME = "InsureBalance (보험비교)"
     DAILY_TARGET = 10
+    SAFETY_LOCKED = True  # 🛡️ [네이버 계정 보호 절대 안전핀] 1차 경고에 따른 전면 동면 (0회 답변 영구 보장)
 
     def __init__(self):
         self.pipeline = InsuranceKinPipeline()
@@ -93,9 +94,20 @@ class InsuranceKinScheduler:
     def trigger_scheduled_catch(self) -> Dict[str, Any]:
         """
         24시간 상시 호출 트리거:
+        - 안전핀 활성화 시 계정 보호를 위해 무조건 실행 즉시 스킵
         - 오늘 10개 미만이면 실시간으로 보험 질문을 낚아채어 등록
         - 10개 완료 시 안전 대기
         """
+        if getattr(self, "SAFETY_LOCKED", False):
+            logger.info("🛡️ [안전핀 작동] 네이버 계정 보호를 위해 InsureBalance 지식iN 무인 답변이 완전 봉인(휴식)되어 있습니다.")
+            return {
+                "success": False,
+                "status": "safety_locked",
+                "message": "🛡️ 네이버 계정 보호를 위해 보험 지식iN 무인 답변이 안전하게 완전 봉인(휴식)되어 있습니다.",
+                "daily_total": 0,
+                "target": 0
+            }
+
         state = self._load_state()
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 

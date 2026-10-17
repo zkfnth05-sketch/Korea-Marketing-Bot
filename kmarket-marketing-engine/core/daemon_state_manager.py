@@ -24,7 +24,7 @@ class DaemonStateManager:
 
     DEFAULT_STATES = {
         "aura": True,
-        "insurance": True,
+        "insurance": False,
         "stock": True,
         "kmarket": False,
         "easytax": False

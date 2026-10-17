@@ -346,7 +346,10 @@ class AuraSupabaseManager:
 
             # 로그 데이터 전처리
             parsed_logs = []
+            from .aura_traffic_filters import is_noise_traffic
             for r in raw_logs:
+                if is_noise_traffic(r.get("referrer"), r.get("path")):
+                    continue  # 🛡️ 개발/테스트/자기참조 트래픽은 통계에서 제외
                 dt_k = parse_kst(r.get("created_at"))
                 if dt_k:
                     parsed_logs.append({
@@ -469,7 +472,8 @@ class AuraSupabaseManager:
                     return {"name": "💖 #4 티스토리 (Google SEO)", "category": "seo_blog", "color": "#F97316"}
                 if "brunch.co.kr" in ref_l or "브런치" in ch_l:
                     return {"name": "💖 #4 카카오 브런치 (감성 에세이)", "category": "seo_blog", "color": "#334155"}
-                if "lounge" in (path_str or "").lower() or "lounge" in ref_l or "라운지" in ch_l:
+                # ※ 접속 '경로(path)'는 유입 출처가 아니므로 분류에 사용하지 않음 (referrer/channel만 신뢰)
+                if "lounge" in ref_l or "라운지" in ch_l:
                     return {"name": "💖 #4 Aura 라운지 매거진 (피드)", "category": "seo_blog", "color": "#EC4899"}
                 if "kin.naver.com" in ref_l or "지식in" in ch_l or "지식인" in ch_l:
                     return {"name": "💡 #7 네이버 지식iN (100대 황금키워드)", "category": "seo_blog", "color": "#10B981"}

@@ -97,6 +97,10 @@ class AuraNaverPublisher:
         # 4. 본문 문장 중간에 노출된 순수 URL 패턴도 본문에서 제거
         text = re.sub(r'https?://[^\s]+', '', text)
 
+        # 5. 스킴 없는 도메인(aura-ai-dating.vercel.app/lounge 등) 및 잔여 마크다운 링크 최종 제거
+        from brands.aura.aura_link_sanitizer import sanitize_aura_body
+        text = sanitize_aura_body(text)
+
         lines = text.split("\n")
         cleaned_lines = []
         for line in lines:

@@ -104,10 +104,8 @@ class StockTikTokPublisher:
             return {"status": "error", "message": f"비디오 파일 없음: {video_path}", "brand": self.brand}
 
         full_caption = caption or f"{title or ''}\n\n#주식 #급등주 #주식투자 #주식공부"
-        # 🛡️ 본문 내 URL 전면 소독 (알고리즘 다운랭킹 방지) 및 첫 댓글 참조 안내 보장
-        if "첫 번째 댓글" not in full_caption:
-            full_caption = f"💬 국내 350개 종목 AI 퀀트 점수 확인 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n{full_caption}"
-        full_caption = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', full_caption)
+        # 🛡️ 본문 내 URL 전면 소독 (알고리즘 다운랭킹 방지 및 네이버 공식 검색어 유도)
+        full_caption = re.sub(r'https?://\S+', '👉 네이버 검색: [스톡마스터 AI]', full_caption)
         video_name = os.path.basename(video_path)
         logger.info(f"🚀 [주식 TikTok] 순수 브라우저 글자 레시피 발행 가동: {video_name}")
 

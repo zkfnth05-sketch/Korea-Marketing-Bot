@@ -12,6 +12,7 @@
 
 import os
 import sys
+import re
 import json
 import logging
 import asyncio
@@ -116,10 +117,8 @@ class AuraNaverClipPublisher:
         target_video = Path(video_path)
         main_title = title or "소개팅 꿀팁 대방출"
         clip_desc = description or main_title
-        # 🛡️ 본문 내 URL 전면 소독 (알고리즘 다운랭킹 방지) 및 첫 댓글 참조 안내 보장
-        if "첫 번째 댓글" not in clip_desc:
-            clip_desc = f"💬 3초 무료 공식 입장 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n{clip_desc}"
-        clip_desc = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', clip_desc)
+        # 🛡️ 본문 내 URL 전면 소독 (알고리즘 다운랭킹 방지 및 네이버 공식 검색어 유도)
+        clip_desc = re.sub(r'https?://\S+', '👉 네이버 검색: [아우라AI데이팅]', clip_desc)
         upload_url = "https://clipcreators.naver.com/web/upload"
 
         logger.info(f"🚀 [💖 Aura 데이팅 Naver Clip] 숏폼 발행 시작: '{main_title}' (영상: {target_video.name})")

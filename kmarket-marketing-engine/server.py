@@ -147,6 +147,12 @@ def _brand_kin_worker(brand: str):
     log_event(f"🎯 [{brand_kr}] 네이버 지식iN 24시간 실시간 레이더 가동 시작 (300초 주기 / 1일 10건 목표)", "success")
 
     while brand_daemons_running.get(brand, False):
+        ch_key = f"{brand}_naver_kin"
+        # 🛡️ [대시보드 스위치 1:1 실시간 하드웨어 연동] 개별 카드가 꺼져있거나 보험 안전핀인 경우 즉시 대기
+        if not running_channels.get(ch_key, False) or brand == "insurance":
+            time.sleep(5)
+            continue
+
         try:
             res = scheduler.trigger_scheduled_catch()
             status = res.get("status", "")
@@ -170,7 +176,7 @@ def _brand_kin_worker(brand: str):
 
         # 300초(5분) 대기 (5초 슬립 루프로 정지 신호 즉시 감지)
         for _ in range(60):
-            if not brand_daemons_running.get(brand, False):
+            if not brand_daemons_running.get(brand, False) or not running_channels.get(ch_key, False):
                 break
             time.sleep(5)
 
@@ -233,6 +239,13 @@ def _brand_blog_worker(brand: str):
         pass
 
     while brand_daemons_running.get(brand, False):
+        # 🛡️ [대시보드 블로그 스위치 1:1 실시간 하드웨어 연동]
+        ch_blog = f"{brand}_blog"
+        ch_omni = f"{brand}_omni_blog"
+        if not (running_channels.get(ch_blog, False) or running_channels.get(ch_omni, False)):
+            time.sleep(5)
+            continue
+
         try:
             now = get_now_kst()
             today_str = now.strftime("%Y-%m-%d")
@@ -293,7 +306,7 @@ def _brand_blog_worker(brand: str):
 
             # 5초마다 시계 감시 및 정지 신호 즉시 감지
             for _ in range(6):
-                if not brand_daemons_running.get(brand, False):
+                if not brand_daemons_running.get(brand, False) or not (running_channels.get(ch_blog, False) or running_channels.get(ch_omni, False)):
                     break
                 time.sleep(5)
 
@@ -320,6 +333,10 @@ def _brand_daemon_loop(brand: str):
     # 3. 🤖 [24시간 무인 인간 행동 봇 (08:30, 12:30, 15:30, 21:30 KST - 하루 45분 체류 및 3~5회 좋아요, 0 API)]
     def _human_behavior_worker():
         while brand_daemons_running.get(brand, False):
+            # 🛡️ [대시보드 스위치 1:1 연동] 해당 브랜드의 활동 채널이 켜져 있을 때만 실행
+            if not (running_channels.get(f"{brand}_shorts", False) or running_channels.get(f"{brand}_cardnews", False)):
+                time.sleep(10)
+                continue
             try:
                 if brand == "aura":
                     from brands.aura.aura_human_behavior_bot import AuraHumanBehaviorBot
@@ -344,6 +361,12 @@ def _brand_daemon_loop(brand: str):
         log_event(f"🎬 [{brand_kr}] 숏폼 하루 3회 슬롯 스케줄러 상주 가동 (매일 {slot_desc} KST / 30분 텀 분리)", "success")
         
         while brand_daemons_running.get(brand, False):
+            # 🛡️ [대시보드 숏폼 스위치 1:1 실시간 하드웨어 연동]
+            ch_key = f"{brand}_shorts"
+            if not running_channels.get(ch_key, False):
+                time.sleep(10)
+                continue
+
             try:
                 now = get_now_kst()
                 today_str = now.strftime("%Y-%m-%d")
@@ -407,6 +430,12 @@ def _brand_daemon_loop(brand: str):
         log_event(f"📸 [{brand_kr}] 카드뉴스 하루 3회 슬롯 윈도우 스케줄러 상주 가동 (매일 {slot_desc} KST)", "success")
 
         while brand_daemons_running.get(brand, False):
+            # 🛡️ [대시보드 카드뉴스 스위치 1:1 실시간 하드웨어 연동]
+            ch_key = f"{brand}_cardnews"
+            if not running_channels.get(ch_key, False):
+                time.sleep(10)
+                continue
+
             try:
                 now = get_now_kst()
                 today_str = now.strftime("%Y-%m-%d")
@@ -449,6 +478,10 @@ def _brand_daemon_loop(brand: str):
     # 6. 🎬 [24시간 무인 유튜브 전담 30분 스텔스 봇 (09:00, 13:00, 16:30, 22:30 KST - 쇼츠 16~35초 완시청, 댓글 탐색, 좋아요 2~3회, 0 API)]
     def _youtube_behavior_worker():
         while brand_daemons_running.get(brand, False):
+            # 🛡️ [대시보드 유튜브 스텔스 스위치 1:1 연동]
+            if not running_channels.get(f"{brand}_shorts", False):
+                time.sleep(30)
+                continue
             try:
                 if brand == "aura":
                     from brands.aura.aura_youtube_behavior_bot import AuraYouTubeBehaviorScheduler
@@ -467,6 +500,10 @@ def _brand_daemon_loop(brand: str):
     # 7. 📱 [24시간 무인 틱톡 전담 30분 스텔스 봇 (09:30, 13:30, 17:00, 23:00 KST - FYP 완시청, 댓글 탐색, 좋아요 2~3회, 0 API)]
     def _tiktok_behavior_worker():
         while brand_daemons_running.get(brand, False):
+            # 🛡️ [대시보드 틱톡 스텔스 스위치 1:1 연동]
+            if not (running_channels.get(f"{brand}_shorts", False) or running_channels.get(f"{brand}_tiktok", False)):
+                time.sleep(30)
+                continue
             try:
                 if brand == "aura":
                     from brands.aura.aura_tiktok_behavior_bot import AuraTikTokBehaviorScheduler
@@ -487,6 +524,11 @@ def _brand_daemon_loop(brand: str):
         channel_key = f"{brand}_reddit"
         log_event(f"🤖 [{brand_kr}] 레딧 24시간 스텔스 안전 침투 데몬 상주 시작 (08:00/10:00/13:00/16:00/20:00 ±30분)", "success")
         while brand_daemons_running.get(brand, False):
+            # 🛡️ [대시보드 레딧 스위치 1:1 실시간 하드웨어 연동]
+            if not running_channels.get(channel_key, False):
+                time.sleep(30)
+                continue
+
             try:
                 res = {}
                 if brand == "aura":
@@ -530,6 +572,12 @@ def _brand_daemon_loop(brand: str):
         log_event(f"☕ [{brand_kr}] 네이버 카페 슬롯 윈도우 스케줄러 상주 가동 (매일 오후 {cafe_hour:02d}:{cafe_min:02d} KST)", "success")
 
         while brand_daemons_running.get(brand, False):
+            # 🛡️ [대시보드 네이버 카페 스위치 1:1 실시간 하드웨어 연동]
+            ch_key = f"{brand}_naver_cafe"
+            if not running_channels.get(ch_key, False):
+                time.sleep(15)
+                continue
+
             try:
                 now = get_now_kst()
                 today_str = now.strftime("%Y-%m-%d")
@@ -571,6 +619,12 @@ def _brand_daemon_loop(brand: str):
         log_event(f"🧵 [{brand_kr}] 스레드 45분 인간 행동 봇 상주 가동 (08:45, 12:45, 16:00, 22:00 KST)", "success")
 
         while brand_daemons_running.get(brand, False):
+            # 🛡️ [대시보드 스레드 스위치 1:1 실시간 하드웨어 연동]
+            ch_key = f"{brand}_threads"
+            if not running_channels.get(ch_key, False):
+                time.sleep(30)
+                continue
+
             try:
                 now = get_now_kst()
                 today_str = now.strftime("%Y-%m-%d")
@@ -615,6 +669,12 @@ def _brand_daemon_loop(brand: str):
         log_event(f"✍️ [{brand_kr}] 스레드 1일 2회 순수 텍스트 AI 발행 스케줄러 상주 가동 (매일 09:30 / 19:30 KST)", "success")
 
         while brand_daemons_running.get(brand, False):
+            # 🛡️ [대시보드 스레드 텍스트 스위치 1:1 실시간 하드웨어 연동]
+            ch_key = f"{brand}_threads"
+            if not running_channels.get(ch_key, False):
+                time.sleep(20)
+                continue
+
             try:
                 now = get_now_kst()
                 today_str = now.strftime("%Y-%m-%d")
@@ -1722,6 +1782,10 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 rel_js = rel_js.split("?")[0]
             self._serve_file(BASE_DIR / "web" / "js" / rel_js, "application/javascript; charset=utf-8")
             return
+        elif path == "/api/blogs/verification" or path.startswith("/api/blogs/verification"):
+            query = urllib.parse.parse_qs(parsed.query)
+            self._handle_get_blogs_verification(query)
+            return
         elif path == "/api/tistory/status" or path.startswith("/api/tistory/status"):
             query = urllib.parse.parse_qs(parsed.query)
             brand = query.get("brand", ["aura"])[0]
@@ -1923,6 +1987,18 @@ class DashboardHandler(BaseHTTPRequestHandler):
         elif path.startswith("/api/run-module/"):
             module_name = path.split("/")[-1]
             self._handle_run_module(module_name)
+            return
+        elif path.startswith("/api/publish-stored/"):
+            parts = path.strip("/").split("/")
+            b = parts[2] if len(parts) >= 3 else "aura"
+            m = parts[3] if len(parts) >= 4 else "shorts"
+            self._handle_publish_stored(b, m)
+            return
+        elif path.startswith("/api/safe-create/"):
+            parts = path.strip("/").split("/")
+            b = parts[2] if len(parts) >= 3 else "aura"
+            m = parts[3] if len(parts) >= 4 else "shorts"
+            self._handle_safe_create(b, m)
             return
         elif path.startswith("/api/platforms/test-publish/"):
             platform_id = path.split("/")[-1]
@@ -2157,7 +2233,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
             },
             "golden_eight_languages": GOLDEN_EIGHT_LANGUAGES,
             "golden_eight_details": GOLDEN_EIGHT_DETAILS,
-            "golden_batch_summary": golden_batch_producer.get_today_production_summary(),
+            "golden_batch_summary": golden_batch_producer.get_today_production_summary() if golden_batch_producer else {},
             "today_live_feed": today_live_tracker.get_all_live_feed(),
             "auth_sentinel": (lambda: (lambda mod: (__import__('importlib').reload(mod).PlatformAuthSentinel.get_full_diagnostic_report()))(__import__('core.platform_auth_sentinel', fromlist=['PlatformAuthSentinel'])))(),
             "gpu_status": gpu_lock_manager.get_status(),
@@ -2276,6 +2352,18 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
     def _handle_channel_start(self, module_name: str):
         global running_channels
+
+        # 🔒 [보험 지식iN 안전핀 차단]
+        if module_name == "insurance_naver_kin" or module_name == "insurance_kin":
+            res = {
+                "success": False,
+                "message": "🔒 [안전핀 작동] 보험 지식iN은 네이버 안전 제재 방지를 위해 영구 안전핀(Safety Lock)이 체결되어 가동이 원천 봉인되어 있습니다.",
+                "running_channels": running_channels
+            }
+            self._set_headers("application/json")
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+            return
+
         if not running_channels.get(module_name, False):
             running_channels[module_name] = True
             threading.Thread(target=channel_continuous_worker, args=(module_name,), daemon=True).start()
@@ -2365,6 +2453,10 @@ class DashboardHandler(BaseHTTPRequestHandler):
         ]
         for m in brand_modules:
             ch_key = f"{brand}_{m}"
+            # 🔒 보험 지식iN은 일괄 가동 시에도 절대 켜지 않고 안전핀(False) 유지
+            if ch_key in ["insurance_naver_kin", "insurance_kin"]:
+                running_channels[ch_key] = False
+                continue
             running_channels[ch_key] = True
 
         t = threading.Thread(target=_brand_daemon_loop, args=(brand,), daemon=True)
@@ -2405,6 +2497,39 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 st = {"error": f"Unknown brand: {brand}"}
             self._set_headers(content_type="application/json; charset=utf-8")
             self.wfile.write(json.dumps(st, ensure_ascii=False).encode("utf-8"))
+        except Exception as e:
+            self._set_headers(content_type="application/json; charset=utf-8", status=500)
+            self.wfile.write(json.dumps({"error": str(e)}, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_get_blogs_verification(self, parsed_query: Optional[dict] = None):
+        """3대 브랜드 네이버 & 티스토리 실제 공개 블로그 사후 실사 검증 결과 API"""
+        try:
+            from brands.aura.aura_blog_verifier import AuraBlogVerifier
+            from brands.insurance.insurance_blog_verifier import InsuranceBlogVerifier
+            from brands.stock.stock_blog_verifier import StockBlogVerifier
+
+            do_capture = False
+            if parsed_query and parsed_query.get("capture", ["false"])[0].lower() in ["true", "1"]:
+                do_capture = True
+
+            data = {
+                "aura": AuraBlogVerifier().verify_all(capture=do_capture),
+                "insurance": InsuranceBlogVerifier().verify_all(capture=do_capture),
+                "stock": StockBlogVerifier().verify_all(capture=do_capture),
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+
+            # 각 채널별 최신 캡처 이미지 웹 URL 매핑
+            for b_name in ["aura", "insurance", "stock"]:
+                b_dir = OUTPUTS_DIR / b_name / "blog_verification"
+                if b_dir.exists():
+                    for ch in ["naver", "tistory"]:
+                        ch_shots = sorted(list(b_dir.glob(f"{ch}_proof_*.png")), key=lambda p: p.stat().st_mtime, reverse=True)
+                        if ch_shots and data.get(b_name, {}).get(ch):
+                            data[b_name][ch]["web_screenshot"] = f"/outputs/{b_name}/blog_verification/{ch_shots[0].name}"
+
+            self._set_headers(content_type="application/json; charset=utf-8")
+            self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
         except Exception as e:
             self._set_headers(content_type="application/json; charset=utf-8", status=500)
             self.wfile.write(json.dumps({"error": str(e)}, ensure_ascii=False).encode("utf-8"))
@@ -2499,15 +2624,15 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 if brand == "aura":
                     from brands.aura.aura_blog_scheduler import AuraBlogScheduler
                     scheduler = AuraBlogScheduler()
-                    res = scheduler.run_one_cycle(force_topic_id=force_topic)
+                    res = scheduler.run_one_cycle(force_topic_id=force_topic, force=True)
                 elif brand == "insurance":
                     from brands.insurance.insurance_blog_scheduler import InsuranceBlogScheduler
                     scheduler = InsuranceBlogScheduler()
-                    res = scheduler.run_one_cycle(force_topic_id=force_topic)
+                    res = scheduler.run_one_cycle(force_topic_id=force_topic, force=True)
                 elif brand == "stock":
                     from brands.stock.stock_blog_scheduler import StockBlogScheduler
                     scheduler = StockBlogScheduler()
-                    res = scheduler.run_one_cycle(force_topic_id=force_topic)
+                    res = scheduler.run_one_cycle(force_topic_id=force_topic, force=True)
                 else:
                     raise ValueError(f"Unknown brand: {brand}")
 
@@ -2743,6 +2868,84 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
         threading.Thread(target=_worker, daemon=True).start()
         res = {"success": True, "message": f"⚡ [{module_name}] 즉시 1회 실행이 백그라운드에서 가동되었습니다."}
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_publish_stored(self, brand: str, media_type: str):
+        """새벽에 미리 만들어둔 오늘자 완성본을 꺼내어 즉시 1회 SNS 송출 (GPU 0% 사용)"""
+        def _worker():
+            try:
+                log_event(f"📦 [{brand.upper()}] 새벽 완성본 {media_type} 즉시 1회 송출 시작 (GPU 부하 0%)...", "info")
+                from daytime_sns_dispatcher import DaytimeSNSDispatcher
+                dispatcher = DaytimeSNSDispatcher(dry_run=False)
+                manifest = dispatcher.load_today_manifest()
+                
+                # 오늘자 큐에서 해당 브랜드와 타입의 태스크 탐색
+                topic_id = 1
+                slot = f"{media_type}_1"
+                if manifest and "tasks" in manifest:
+                    matched = [t for t in manifest["tasks"] if t.get("brand") == brand and t.get("type") == media_type]
+                    if matched:
+                        topic_id = matched[0].get("topic_id", 1)
+                        slot = matched[0].get("slot", slot)
+                
+                success = dispatcher.publish_single_content(brand=brand, content_type=media_type, topic_id=topic_id, slot=slot)
+                if success:
+                    log_event(f"🎉 [{brand.upper()}] 새벽 완성본 {media_type} (주제 #{topic_id}) 즉시 송출 성공!", "success")
+                else:
+                    log_event(f"⚠️ [{brand.upper()}] 완성본 송출 완료 또는 플랫폼 처리 완료", "info")
+            except Exception as e:
+                import traceback
+                log_event(f"❌ [{brand.upper()}] 완성본 송출 실패: {e}\n{traceback.format_exc()}", "error")
+
+        threading.Thread(target=_worker, daemon=True).start()
+        res = {"success": True, "message": f"📦 [{brand.upper()}] 보관된 {media_type} 즉시 송출이 시작되었습니다. (GPU 0% 순수 전송)"}
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_safe_create(self, brand: str, media_type: str):
+        """저쪽 컴퓨터(KTRS) 작업 감지 & GPU 온도 확인 후 안전하게 신규 제작 렌더링"""
+        def _worker():
+            try:
+                log_event(f"🔍 [{brand.upper()}] {media_type} 신규 제작 진입 전 GPU 안전 및 저쪽 컴퓨터 점유율 점검 중...", "info")
+                from core.gpu_safety_guard import GPUSafetyGuard
+                safe = GPUSafetyGuard.wait_for_safe_gpu_entry(timeout_sec=600)
+                if not safe:
+                    log_event(f"❌ [{brand.upper()}] GPU 안전 대기 타임아웃 (과열 또는 리소스 충돌)", "error")
+                    return
+
+                log_event(f"🎨 [{brand.upper()}] GPU 안전 승인 완료! 신규 {media_type} 렌더링을 시작합니다...", "info")
+                
+                from pathlib import Path
+                cur_dir = Path(__file__).resolve().parent
+                if media_type == "shorts":
+                    script_name = f"run_{brand}_shorts.py"
+                    cmd = [sys.executable, str(cur_dir / script_name)]
+                    if brand == "aura":
+                        cmd.append("--no-publish")
+                else:
+                    script_name = f"run_{brand}_cardnews.py"
+                    cmd = [sys.executable, str(cur_dir / script_name)]
+                    if brand == "aura":
+                        cmd.insert(2, "all")
+
+                run_res = GPUSafetyGuard.run_isolated_step(
+                    cmd=cmd,
+                    label=f"{brand.upper()} 신규 {media_type} 안전 제작",
+                    cwd=str(cur_dir),
+                    cooldown_sec=120
+                )
+                if run_res.get("success"):
+                    log_event(f"🎉 [{brand.upper()}] 신규 {media_type} 렌더링 완성 및 GPU 냉각 완료!", "success")
+                else:
+                    log_event(f"❌ [{brand.upper()}] 신규 {media_type} 렌더링 실패: {run_res.get('error', '종료 코드 오류')}", "error")
+
+            except Exception as e:
+                import traceback
+                log_event(f"❌ [{brand.upper()}] 안전 제작 예외: {e}\n{traceback.format_exc()}", "error")
+
+        threading.Thread(target=_worker, daemon=True).start()
+        res = {"success": True, "message": f"🎨 [{brand.upper()}] GPU 상태(저쪽 컴퓨터 점유 여부) 확인 후 안전하게 제작을 시작합니다."}
         self._set_headers("application/json")
         self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
 
@@ -4228,7 +4431,12 @@ def run_server(port: int = 8080):
                     "nate_pann", "bobaedream", "fmkorea", "kakao_channel"
                 ]
                 for m in brand_modules:
-                    running_channels[f"{brand}_{m}"] = True
+                    ch_key = f"{brand}_{m}"
+                    # 🔒 보험 지식iN은 자동 부활 시에도 절대 켜지 않고 안전핀(False) 유지
+                    if ch_key in ["insurance_naver_kin", "insurance_kin"]:
+                        running_channels[ch_key] = False
+                        continue
+                    running_channels[ch_key] = True
                 threading.Thread(target=_brand_daemon_loop, args=(brand,), daemon=True).start()
                 b_name = name_map.get(brand, brand.upper())
                 print(f"🔄 [Auto-Resume] 이전 가동 상태에 따라 {b_name} 24개 옴니채널 무인 데몬이 자동 부활 가동되었습니다.")
@@ -4259,6 +4467,22 @@ def run_server(port: int = 8080):
             print("🔄 [Auto-Resume] EasyTax 무인 공장이 자동 부활 가동되었습니다.")
 
     threading.Thread(target=_auto_resume_daemons, daemon=True).start()
+
+    # 🌙 [밤 12시 3대 앱 무인 생산 공장 & 주간 정시 SNS 송출기 자동 상주]
+    def _start_korea_marketing_master():
+        try:
+            from midnight_content_factory import MidnightContentFactory
+            from daytime_sns_dispatcher import DaytimeSNSDispatcher
+            factory = MidnightContentFactory(cooldown_sec=300)
+            dispatcher = DaytimeSNSDispatcher(dry_run=False)
+            threading.Thread(target=factory.start_daemon, daemon=True, name="MidnightFactoryDaemon").start()
+            threading.Thread(target=dispatcher.start_daemon, daemon=True, name="DaytimeDispatcherDaemon").start()
+            print("🌙 [마스터 상주] 대시보드 연동: 밤 12시 3대 앱 15개 순차 제작 + 5분 GPU 쿨다운 데몬 가동 완료.")
+            print("☀️ [마스터 상주] 대시보드 연동: 주간 5대 골든타임 정시 SNS 송출 데몬 가동 완료.")
+        except Exception as e:
+            print(f"⚠️ 마스터 데몬 자동 연동 실패: {e}")
+
+    threading.Thread(target=_start_korea_marketing_master, daemon=True).start()
 
     # 🌐 서버 준비 완료 직후 브라우저 자동 오픈 (에러 없는 1초 컷 즉시 실행)
     def _open_browser():

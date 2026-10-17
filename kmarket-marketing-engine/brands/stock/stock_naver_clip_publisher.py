@@ -12,6 +12,7 @@
 
 import os
 import sys
+import re
 import json
 import logging
 import asyncio
@@ -116,10 +117,8 @@ class StockNaverClipPublisher:
         target_video = Path(video_path)
         main_title = title or "AI 퀀트 주식 리포트"
         clip_desc = description or main_title
-        # 🛡️ 본문 내 URL 전면 소독 (알고리즘 다운랭킹 방지) 및 첫 댓글 참조 안내 보장
-        if "첫 번째 댓글" not in clip_desc:
-            clip_desc = f"💬 국내 350개 종목 AI 퀀트 점수 확인 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n{clip_desc}"
-        clip_desc = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', clip_desc)
+        # 🛡️ 본문 내 URL 전면 소독 (알고리즘 다운랭킹 방지 및 네이버 공식 검색어 유도)
+        clip_desc = re.sub(r'https?://\S+', '👉 네이버 검색: [스톡마스터 AI]', clip_desc)
         upload_url = "https://clipcreators.naver.com/web/upload"
 
         logger.info(f"🚀 [📈 StockMaster 주식AI Naver Clip] 숏폼 발행 시작: '{main_title}' (영상: {target_video.name})")

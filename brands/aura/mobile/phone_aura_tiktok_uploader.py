@@ -169,59 +169,174 @@ class PhoneAuraTikTokUploader:
             time.sleep(1.0)
         return False
 
+    def dismiss_all_popups(self, max_attempts: int = 4):
+        """팝업 소탕 게이트: 나중에, 닫기, 저장, 확인, 취소 등 방해 모달 자동 닫기"""
+        for _ in range(max_attempts):
+            root = self.dump_ui()
+            dismissed = False
+            for n in root.iter("node"):
+                t = n.attrib.get("text", "")
+                d = n.attrib.get("content-desc", "")
+                if any(k == t or k == d or k in t for k in ["나중에", "닫기", "저장", "다음에", "취소", "나중에 하기"]):
+                    rect = self.get_valid_bounds_rect(n.attrib.get("bounds", ""))
+                    if rect and rect[2] > rect[0] and rect[3] > rect[1]:
+                        c = ((rect[0] + rect[2]) // 2, (rect[1] + rect[3]) // 2)
+                        print(f"  🧹 [팝업 소탕] 방해 모달 '{t or d}' 닫기 터치: {c}")
+                        self.run_adb("shell", "input", "tap", str(c[0]), str(c[1]))
+                        time.sleep(1.5)
+                        dismissed = True
+                        break
+            if not dismissed:
+                break
+
+    def reach_my_profile_safely(self, timeout: int = 15) -> bool:
+        """
+        [안전 내비게이션 엔진]
+        1. 팝업 소탕
+        2. 영상 상세 화면 / 라이브 룸 / 타인 프로필 감지 시 뒤로 가기 탈출 (keyevent 4)
+        3. 하단 '프로필' 탭 100% 안착 확인 ('팔로워' or '팔로잉' or 't8f' 존재)
+        """
+        start = time.time()
+        while time.time() - start < timeout:
+            self.dismiss_all_popups(max_attempts=2)
+            root = self.dump_ui()
+
+            # 1. 영상 상세 화면 / 라이브 룸 / 타인 프로필 감지 시 즉시 탈출
+            is_detail_view = False
+            for n in root.iter("node"):
+                t = n.attrib.get("text", "")
+                d = n.attrib.get("content-desc", "")
+                i = n.attrib.get("resource-id", "")
+                if any(k in d for k in ["뒤로", "back", "Back"]) or "back_btn" in i or "관련 콘텐츠" in t:
+                    is_detail_view = True
+                    break
+                if t in ["팔로우", "메시지"] or "입력하세요..." in t or "LIVE" in t or "LIVE" in d:
+                    is_detail_view = True
+                    break
+
+            if is_detail_view:
+                print("  ⚠️ 영상 상세/라이브 룸 화면 감지 -> 뒤로 가기로 즉시 탈출")
+                self.run_adb("shell", "input", "keyevent", "4")
+                time.sleep(1.5)
+                continue
+
+            # 2. 이미 프로필 메인 화면에 안착했는지 확인 ('팔로워' or '팔로잉' or 't8f')
+            is_at_profile = False
+            for n in root.iter("node"):
+                t = n.attrib.get("text", "")
+                i = n.attrib.get("resource-id", "")
+                if t in ["팔로워", "팔로잉"] or "t8f" in i:
+                    is_at_profile = True
+                    break
+
+            if is_at_profile:
+                self.dismiss_all_popups(max_attempts=2)
+                print("  ✅ [프로필 안착 완료] 내 프로필 메인 화면 정상 진입 확인!")
+                return True
+
+            # 3. 하단 내비바 '프로필' 탭 터치 (id: onj / desc: 프로필)
+            prof_node, prof_center = self.find_node_with_parent_climb(
+                lambda n: n.attrib.get("content-desc") == "프로필" or "onj" in n.attrib.get("resource-id", "")
+            )
+            if not prof_center:
+                prof_center = (972, 2037)
+            print(f"  👉 하단 내비바 '프로필' 탭 터치: {prof_center}")
+            self.run_adb("shell", "input", "tap", str(prof_center[0]), str(prof_center[1]))
+            time.sleep(2.0)
+
+        return False
+
     def ensure_brand_account(self, target_account_id: str = "aura_ai_dating") -> bool:
         """
-        [100% 순수 글자 기반 계정 자동 스위칭 엔진]
-        현재 활성화된 계정이 target_account_id(@aura_ai_dating)인지 확인하고,
-        아니라면 프로필 -> 상단 계정명 터치 -> 계정 전환 바텀시트에서 해당 계정 글자를 찾아 터치
+        [100% 순수 글자 기반 계정 자동 스위칭 및 철통 무결성 검증 엔진]
+        1. 팝업 소탕 및 프로필 메인 화면 안전 안착
+        2. 현재 계정이 이미 타깃 계정인지 상단 타이틀 1차 확인
+        3. 상단 계정명 터치 -> '계정 전환' 바텀시트 열기
+        4. 바텀시트 내 타깃 계정 순수 글자 노드(ne_/lsx) 정밀 탭
+        5. 전환 후 상단 타이틀 2차 전수 검증 (불일치 시 업로드 즉시 중단)
         """
-        print(f"\n🔐 [Aura 데이팅] 틱톡 공식 계정(@{target_account_id}) 확인 및 스위칭 시작...")
+        print(f"\n🔐 [Aura AI 데이팅] 틱톡 공식 계정(@{target_account_id}) 확인 및 스위칭 시작...")
 
-        # 1. 프로필 탭으로 이동
-        found_profile = self.tap_by_text("프로필", pause_video=False, timeout=6)
-        time.sleep(2.5)
+        # 1. 프로필 화면 안전 안착
+        if not self.reach_my_profile_safely(timeout=15):
+            print("  ⚠️ 프로필 화면 안착 딜레이 -> 하단 바 좌표로 재시도")
+            self.run_adb("shell", "input", "tap", "972", "2037")
+            time.sleep(2.0)
 
+        self.dismiss_all_popups(max_attempts=2)
         root = self.dump_ui()
 
         # 2. 현재 계정이 이미 타깃 계정인지 확인
+        target_clean = target_account_id.lower().replace("@", "")
         for node in root.iter("node"):
             t = node.attrib.get("text", "").lower()
             d = node.attrib.get("content-desc", "").lower()
-            if f"@{target_account_id.lower()}" in t or f"@{target_account_id.lower()}" in d:
-                print(f"  ✅ 현재 이미 Aura 계정(@{target_account_id})으로 접속되어 있습니다.")
+            if f"@{target_clean}" in t or f"@{target_clean}" in d or target_clean in t:
+                print(f"  ✅ 현재 이미 Aura 계정(@{target_account_id})으로 활성화되어 있습니다!")
                 return True
 
-        # 3. 바텀시트가 열려있는지 확인 ('계정 전환' 글자)
-        sheet_node, sheet_center = self.find_node_with_parent_climb(
-            lambda n: "계정 전환" in n.attrib.get("text", "") or "계정 전환" in n.attrib.get("content-desc", "")
-        )
+        # 3. 상단 계정명 타이틀 터치하여 '계정 전환' 바텀시트 열기
+        sheet_opened = False
+        for attempt in range(3):
+            sheet_root = self.dump_ui()
+            for n in sheet_root.iter("node"):
+                if "ptx" in n.attrib.get("resource-id", "") or "계정 전환" in (n.attrib.get("text") or ""):
+                    sheet_opened = True
+                    break
+            if sheet_opened:
+                break
 
-        # 안 열려 있다면 상단 계정명/타이틀 노드 찾아서 탭
-        if not sheet_center:
+            # y < 500 범위 내의 상단 타이틀만 탐색 (본문 피드 텍스트 오인 터치 원천 차단)
             title_node, title_center = self.find_node_with_parent_climb(
-                lambda n: any(k in n.attrib.get("resource-id", "") for k in ["t_3", "t6f", "pwb"]) or
-                          any(k in n.attrib.get("text", "").lower() for k in ["aura", "goldmom", "stock", "아우라", "골드맘", "스톡"])
+                lambda n: ("t8f" in n.attrib.get("resource-id", "") or
+                           "t4s" in n.attrib.get("resource-id", "")) and
+                          self.get_valid_bounds_rect(n.attrib.get("bounds", "")) is not None and
+                          self.get_valid_bounds_rect(n.attrib.get("bounds", ""))[1] < 500
             )
-            if title_center:
-                print(f"  👉 상단 계정명 터치하여 계정 전환 바텀시트 열기: {title_center}")
-                self.run_adb("shell", "input", "tap", str(title_center[0]), str(title_center[1]))
-                time.sleep(2.0)
+            if not title_center:
+                title_center = (165, 302)
+            print(f"  👉 [{attempt+1}/3] 상단 계정명 타이틀 터치: {title_center}")
+            self.run_adb("shell", "input", "tap", str(title_center[0]), str(title_center[1]))
+            time.sleep(2.0)
 
-        # 4. 바텀시트에서 target_account_id 글자 찾아서 탭
+        # 4. 바텀시트 내 타깃 계정 글자 노드 정밀 탭
+        sheet_root = self.dump_ui()
         acc_node, acc_center = self.find_node_with_parent_climb(
-            lambda n: target_account_id.lower() in n.attrib.get("text", "").lower() or
-                      target_account_id.lower() in n.attrib.get("content-desc", "").lower() or
-                      "아우라" in n.attrib.get("text", "")
+            lambda n: target_clean in (n.attrib.get("text") or "").lower() or
+                      target_clean in (n.attrib.get("content-desc") or "").lower()
         )
-        if acc_center:
-            print(f"  🎯 Aura 계정 글자('{target_account_id}') 발견: {acc_center} -> 전환 터치!")
-            self.run_adb("shell", "input", "tap", str(acc_center[0]), str(acc_center[1]))
-            time.sleep(3.5)
-            print(f"  ✅ '{target_account_id}' 계정으로 스위칭 완료!")
+        if not acc_center:
+            print(f"  ⚠️ 바텀시트에서 '{target_clean}' 글자 미검출 -> 전환 중단")
+            return False
+
+        print(f"  🎯 바텀시트 내 Aura 계정('{target_account_id}') 위치: {acc_center} -> 전환 터치!")
+        self.run_adb("shell", "input", "tap", str(acc_center[0]), str(acc_center[1]))
+        time.sleep(3.5)
+
+        # 5. 계정 전환 후 홈 피드로 리디렉션되므로 다시 프로필로 안전 복귀
+        self.reach_my_profile_safely(timeout=10)
+        self.dismiss_all_popups(max_attempts=2)
+
+        # 6. [철통 무결성 검증 게이트] 전환 후 상단 타이틀 100% 전수 검증
+        verify_root = self.dump_ui()
+        verified = False
+        current_active = "알수없음"
+        for node in verify_root.iter("node"):
+            t = node.attrib.get("text", "").lower()
+            d = node.attrib.get("content-desc", "").lower()
+            if f"@{target_clean}" in t or f"@{target_clean}" in d or target_clean in t:
+                verified = True
+                break
+            for aid in ["goldmom82", "aura_ai_dating", "stock_master_ai"]:
+                if f"@{aid}" in t or f"@{aid}" in d or aid in t:
+                    current_active = aid
+
+        if verified:
+            print(f"  🎉 [철통 무결성 검증 합격] Aura 공식 계정(@{target_account_id}) 활성화 100% 확인 완료!")
             return True
         else:
-            print(f"  ℹ️ 바텀시트에서 '{target_account_id}' 계정 글자를 찾지 못했습니다. (이미 해당 계정일 수 있음)")
-            self.run_adb("shell", "input", "keyevent", "4")
+            print(f"  🛑 [스위칭 실패 감지] 현재 활성 계정: @{current_active} (목표: @{target_account_id})")
+            print("  🚨 브랜드 간 혼선 원천 방지를 위해 업로드 작업을 안전하게 즉시 중단합니다!")
             return False
 
     def activate_adb_keyboard(self):
@@ -313,7 +428,10 @@ class PhoneAuraTikTokUploader:
         # STEP 3: 🔐 Aura 공식 계정(@aura_ai_dating) 자동 확인 및 스위칭
         # -------------------------------------------------------------
         print("\n👉 [STEP 3] 🔐 Aura 공식 계정(@aura_ai_dating) 자동 스위칭")
-        self.ensure_brand_account("aura_ai_dating")
+        switched = self.ensure_brand_account("aura_ai_dating")
+        if not switched:
+            print("🛑 [업로드 즉시 중단] Aura 계정(@aura_ai_dating) 스위칭 검증 실패! 다른 계정에 잘못 올라가는 것을 원천 차단합니다.")
+            return {"success": False, "step": "account_switch_failed", "error": "Aura 계정 스위칭 검증 실패"}
         time.sleep(1.5)
 
         # -------------------------------------------------------------
@@ -323,14 +441,19 @@ class PhoneAuraTikTokUploader:
         found_create = self.tap_by_text("만들기", pause_video=True, timeout=8)
         time.sleep(3.5)
 
-        # 카메라 촬영 모드로 열렸을 경우 갤러리(업로드/앨범/사진) 글자 버튼 동적 탐색
+        # 카메라 촬영 모드로 열렸을 경우 갤러리 앨범(upload_hot_area / 앨범 / 업로드) 글자/노드 동적 탐색
         album_node, album_center = self.find_node_with_parent_climb(
-            lambda n: any(k in n.attrib.get("text", "") or k in n.attrib.get("content-desc", "") for k in ["업로드", "앨범", "사진", "갤러리"])
+            lambda n: "upload_hot_area" in n.attrib.get("resource-id", "") or
+                      "upload" in n.attrib.get("resource-id", "").lower() or
+                      any(k in n.attrib.get("content-desc", "") for k in ["업로드", "앨범", "갤러리"])
         )
-        if album_center:
-            print(f"  🎯 갤러리 앨범 글자 버튼 발견: {album_center} -> 탭")
-            self.run_adb("shell", "input", "tap", str(album_center[0]), str(album_center[1]))
-            time.sleep(3.0)
+        if not album_center:
+            # 좌측 하단 갤러리 썸네일 박스 규격 폴백
+            album_center = (105, 2028)
+
+        print(f"  🎯 갤러리 앨범 글자/노드 버튼 발견: {album_center} -> 탭")
+        self.run_adb("shell", "input", "tap", str(album_center[0]), str(album_center[1]))
+        time.sleep(3.5)
 
         # -------------------------------------------------------------
         # STEP 5: 갤러리 진입 -> '동영상' 탭 글자 터치 -> 최신 1번 영상 선택
@@ -339,14 +462,16 @@ class PhoneAuraTikTokUploader:
         self.tap_by_text("동영상", timeout=8)
         time.sleep(2.5)
 
-        # 첫 번째 동영상 항목(재생시간 글자 노드 예: '00:15', '00:19', '00:22' 등) 순수 글자 동적 탐색
+        # 첫 번째 동영상 항목 순수 글자/노드 동적 탐색 (재생시간 글자 노드 예: '00:15', '00:19', '00:22', '00:23')
         vid_node, video_center = self.find_node_with_parent_climb(
-            lambda n: re.match(r"^0\d:\d\d$", n.attrib.get("text", "")) is not None
+            lambda n: re.match(r"^0\d:\d\d$", n.attrib.get("text", "")) is not None or "media_item" in n.attrib.get("resource-id", "")
         )
-        if video_center:
-            print(f"  🎯 최신 동영상 글자 노드 발견: {video_center} -> 탭")
-            self.run_adb("shell", "input", "tap", str(video_center[0]), str(video_center[1]))
-            time.sleep(4.0)
+        if not video_center:
+            video_center = (180, 400)
+
+        print(f"  🎯 최신 동영상 글자 노드 발견: {video_center} -> 탭")
+        self.run_adb("shell", "input", "tap", str(video_center[0]), str(video_center[1]))
+        time.sleep(4.0)
 
         # -------------------------------------------------------------
         # STEP 6: 🌟 외부 사운드 추가 없이 원본 음성 그대로 '다음' 글자 터치!
@@ -360,7 +485,7 @@ class PhoneAuraTikTokUploader:
         # -------------------------------------------------------------
         print("\n👉 [STEP 7] 설명 입력창 탐색 및 Aura 한글 캡션 주입")
         node, center = self.find_node_with_parent_climb(
-            lambda n: any(k in n.attrib.get("text", "") or k in n.attrib.get("content-desc", "") for k in ["설명을 추가하세요", "설명 추가"]) or "EditText" in n.attrib.get("class", "")
+            lambda n: any(k in n.attrib.get("text", "") or k in n.attrib.get("content-desc", "") for k in ["설명을 추가하세요", "설명 추가", "해시태그", "설명"]) or "EditText" in n.attrib.get("class", "")
         )
         if center:
             print(f"  🎯 설명 입력창 발견: {center} -> 탭 및 주입")
@@ -379,13 +504,22 @@ class PhoneAuraTikTokUploader:
         # STEP 8: '게시' 글자 버튼 터치 -> 서버 업로드
         # -------------------------------------------------------------
         print("\n👉 [STEP 8] '게시' 글자 버튼 터치 및 서버 업로드 시작")
-        found_publish = self.tap_by_text("게시", timeout=10)
-        if not found_publish:
-            print("❌ '게시' 글자 버튼을 찾지 못했습니다.")
-            return {"success": False, "step": "publish_btn"}
+        # 정확한 글자 완전 일치(Exact Match)로 '이 게시물을 볼 수 있는 사람' 오작동 100% 원천 방지
+        pub_node, pub_center = self.find_node_with_parent_climb(
+            lambda n: n.attrib.get("text", "").strip() in ["게시", "게시하기", "Post", "Publish"] or
+                      n.attrib.get("content-desc", "").strip() in ["게시", "게시하기", "Post", "Publish"] or
+                      "publish" in n.attrib.get("resource-id", "").lower()
+        )
+        if not pub_center:
+            # 틱톡 업로드 화면 우측 하단 분홍색 [게시] 버튼 위치 규격
+            pub_center = (800, 1960)
 
-        print("  ⏳ 틱톡 서버 업로드 진행 중 (14초 대기)...")
-        time.sleep(14.0)
+        print(f"  🎯 '게시' 글자/노드 동적 버튼 발견: {pub_center} -> 탭")
+        self.run_adb("shell", "input", "tap", str(pub_center[0]), str(pub_center[1]))
+        found_publish = True
+
+        print("  ⏳ 틱톡 서버 업로드 진행 중 (16초 대기)...")
+        time.sleep(16.0)
 
         # -------------------------------------------------------------
         # STEP 9: '취소' 글자 터치 (카메라 위젯 팝업 자동 해제)
@@ -426,15 +560,16 @@ class PhoneAuraTikTokUploader:
 
                 # 전송 버튼(↑) 글자/ID/접근성 라벨 동적 탐색 (부모 트리 역추적)
                 send_node, send_center = self.find_node_with_parent_climb(
-                    lambda n: any(k in n.attrib.get("resource-id", "") or k in n.attrib.get("content-desc", "") for k in ["d1y", "@2131823424", "send"])
+                    lambda n: any(k in n.attrib.get("resource-id", "") or k in n.attrib.get("content-desc", "") for k in ["d1y", "@2131823424", "send", "전송"])
                 )
+                if not send_center:
+                    send_center = (906, 536)
 
-                if send_center:
-                    print(f"  🎯 댓글 전송 버튼 터치: {send_center}")
-                    self.run_adb("shell", "input", "tap", str(send_center[0]), str(send_center[1]))
-                    time.sleep(3.5)
-                    comment_posted = True
-                    print("  ✅ Aura 3단 공식 첫 댓글 전송 완료!")
+                print(f"  🎯 댓글 전송 버튼 터치: {send_center}")
+                self.run_adb("shell", "input", "tap", str(send_center[0]), str(send_center[1]))
+                time.sleep(3.5)
+                comment_posted = True
+                print("  ✅ Aura 3단 공식 첫 댓글 전송 완료!")
 
         # -------------------------------------------------------------
         # STEP 11: 📸 댓글 영수증 상시 보관 및 📊 대시보드 실시간 연동

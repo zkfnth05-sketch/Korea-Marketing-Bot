@@ -88,8 +88,9 @@ AURA_CATEGORY_PRESETS: Dict[str, Dict[str, Any]] = {
     "after_dating": {
         "name": "애프터 & 고백",
         "default_prompt": (
-            "A romantic evening stroll near Han River Seoul park, glowing city skyline night lights reflecting on water, "
-            "cozy romantic twilight vibe, subtle cinematic street lamps, nostalgic and heart-fluttering mood, "
+            "A romantic evening at a cozy rooftop terrace overlooking Seoul glowing city skyline, "
+            "two attractive Korean young adults (a handsome man and a beautiful woman) smiling warmly and chatting over warm drinks, "
+            "subtle fairy lights, nostalgic and heart-fluttering mood, "
             "photorealistic, cinematic 16:9, master quality"
         ),
         "fallback_url": "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1200&auto=format&fit=crop&q=80"
@@ -102,6 +103,7 @@ class AuraImageGenerator:
     💖 Aura 2030 매거진 맞춤 사진 생성 독립 엔진
     - 유료키 2개 스마트 롤오버 (K-Market 유료키 ➔ EasyTax 유료키)
     - 16:9 WebP 고압축 최적화 저장
+    - 🛑 천편일률적 걷는 사진(walking) 전면 배제 & 7대 감성 인터랙션 데이트 씬 100% 반영
     """
 
     def __init__(self):
@@ -133,34 +135,69 @@ class AuraImageGenerator:
         return genai.Client(api_key=api_key)
 
     def _build_full_prompt(self, category: str, topic_title: str = "", custom_visual_prompt: Optional[str] = None) -> str:
-        """Gemini가 칼럼 스토리에 맞춰 직접 생성한 visual_prompt 100% 최우선 반영"""
+        """Gemini가 칼럼 스토리에 맞춰 직접 기획한 visual_prompt 100% 최우선 반영 + 걷기 사진 배제"""
         if custom_visual_prompt and len(custom_visual_prompt.strip()) > 20:
             prompt = custom_visual_prompt.strip()
+            # 🛑 [원천 방어: 프롬프트에 걷는 단어가 남아있을 경우 생동감 넘치는 인터랙션으로 자동 치환]
+            import re
+            prompt = re.sub(r'\b(walking|strolling|walk|stroll)\b', 'enjoying an intimate conversation seated', prompt, flags=re.IGNORECASE)
+
             # 🌟 [필수 원칙: 남녀 2인 데이트 구도 100% 보장]
             if "couple" not in prompt.lower() and ("man" not in prompt.lower() or "woman" not in prompt.lower()):
-                prompt = f"Two attractive Korean young adults, a handsome man and a beautiful woman on a romantic date, {prompt}"
+                prompt = f"Two attractive Korean young adults, a handsome man and a beautiful woman on an intimate romantic date, {prompt}"
             if "photorealistic" not in prompt.lower():
-                prompt += ", photorealistic, cinematic natural lighting, authentic mood, 16:9, 8k"
+                prompt += ", photorealistic, cinematic natural lighting, authentic mood, 16:9 aspect ratio, 8k"
             if "seoul" not in prompt.lower() and "korean" not in prompt.lower():
-                prompt += ", contemporary Seoul aesthetic"
-            if "head" not in prompt.lower() and "upright" not in prompt.lower():
-                prompt += ", upright head posture looking straight ahead with zero tilt"
+                prompt += ", contemporary stylish Seoul aesthetic"
+            # 🌟 [자연스러운 감정 교류: 뻣뻣한 정면 응시 대신 눈맞춤과 미소 유도]
+            if "candid" not in prompt.lower() and "smile" not in prompt.lower():
+                prompt += ", genuine candid smiles, warm affectionate eye contact, natural dynamic body language"
             return prompt
 
-        # 🌟 Gemini 프롬프트가 누락된 극단적 예외 상황에서도 하드코딩 카페 대신 topic_title에서 장소/데이트 동적 추출
+        # 🌟 Gemini 프롬프트가 누락된 예외 상황에서도 걷는 사진 없이 7대 감성 인터랙션 동적 생성
         t = (topic_title or "").lower()
         if "와인" in t or "bar" in t or "술" in t or "다이닝" in t:
-            return "Romantic intimate modern wine bar in Seoul, dim cozy candlelight, two attractive Korean young adults (a handsome man and a beautiful woman) toasting with glasses of red wine on a date, authentic candid lifestyle photography, photorealistic, cinematic 16:9, 8k"
+            return (
+                "Romantic intimate modern wine bar in Hannam-dong Seoul, dim cozy candlelight, "
+                "two attractive Korean young adults (a handsome man and a beautiful woman) toasting with glasses of red wine, "
+                "warm ambient lighting, romantic bust shot, authentic candid lifestyle photography, photorealistic, cinematic 16:9, 8k"
+            )
         elif "성수" in t:
-            return "Two attractive Korean young adults, a stylish man and woman smiling and strolling side by side on a romantic date along a trendy Seongsu-dong red brick street in Seoul, boutique cafes and pop-up stores in soft background, natural afternoon sunlight, photorealistic, cinematic 16:9, 8k"
+            return (
+                "Trendy Seongsu-dong dessert cafe with huge sunny glass windows, two attractive Korean young adults "
+                "(a stylish man and woman) sharing a lovely dessert plate with forks, laughing genuinely and talking, "
+                "medium shot, warm natural sunlight, authentic date moment, photorealistic, cinematic 16:9, 8k"
+            )
         elif "남산" in t or "야경" in t or "밤" in t:
-            return "Romantic Seoul night city view from Namsan park trail, two attractive Korean young adults (a man and a woman) holding hands while walking on a romantic date, warm street lamps and sparkling city lights in distance, cinematic twilight mood, photorealistic, 16:9"
-        elif "한강" in t or "산책" in t or "피크닉" in t:
-            return "Golden hour sunset walk along Han River park in Seoul, two attractive Korean young adults (a man and a woman) enjoying a romantic date with peaceful riverside breeze, warm glowing backlight, natural candid photography, photorealistic, 16:9"
+            return (
+                "Romantic scenic Seoul night city view from an open-air observatory terrace, "
+                "two attractive Korean young adults sitting close together on a wooden bench enjoying the sparkling city lights, "
+                "warm cinematic twilight mood, affectionate conversation, photorealistic, 16:9, 8k"
+            )
+        elif "한강" in t or "피크닉" in t or "산책" in t:
+            return (
+                "Golden hour sunset picnic at Han River park in Seoul, two attractive Korean young adults sitting on a picnic mat "
+                "with iced coffee cups, enjoying peaceful riverside breeze, smiling warmly at each other, "
+                "natural backlit photography, photorealistic, cinematic 16:9, 8k"
+            )
+        elif "lp" in t or "음악" in t or "재즈" in t:
+            return (
+                "Vintage Seoul LP vinyl bar with warm amber pin spot lighting, two attractive Korean young adults "
+                "sharing a pair of vintage headphones and admiring a vinyl album cover together, intellectual romantic vibe, "
+                "shallow depth of field, photorealistic, 16:9, 8k"
+            )
         elif "룩" in t or "패션" in t or "스타일" in t or "옷" in t:
-            return "Modern chic Seoul street style fashion look, clean minimalist neutral-toned casual date outfit, two stylish Korean young adults (a man and a woman) walking on a trendy Seoul street, lookbook photography, photorealistic, 16:9"
+            return (
+                "Chic minimalist fashion boutique in Seoul, two stylish Korean young adults (a handsome man and a beautiful woman) "
+                "giving styling advice to each other near a warm lit mirror, bright smiles, high-end editorial lookbook vibe, "
+                "photorealistic, 16:9, 8k"
+            )
         else:
-            return f"Two attractive Korean young adults (a handsome man and a beautiful woman) enjoying a heart-fluttering romantic date in Seoul, inspired by '{topic_title}', cozy Seoul street aesthetic, natural cinematic lighting, photorealistic, 16:9, 8k"
+            return (
+                f"Two attractive Korean young adults (a handsome man and a beautiful woman) having an engaging conversation "
+                f"at a cozy stylish Seoul cafe table inspired by '{topic_title}', medium over-the-shoulder shot, "
+                f"genuine laughter, warm natural sunlight, contemporary Seoul aesthetic, photorealistic, cinematic 16:9, 8k"
+            )
 
     def _compress_to_webp(self, raw_bytes: bytes, max_width: int = 1200, quality: int = 82) -> bytes:
         """PNG 이미지 ➔ WebP 고압축 변환 및 16:9 리사이즈"""

@@ -73,17 +73,13 @@ async function loadHealthStatus(btn) {
             const bTitle = bf.brand_name || bKey;
 
             // 1. 티스토리 블로그
-            const batName = bKey === "aura" ? "[1회연동]_Aura_티스토리_영구로그인.bat" 
-                          : bKey === "insurance" ? "[1회연동]_보험비교_티스토리_영구로그인.bat" 
-                          : "[1회연동]_주식AI_티스토리_영구로그인.bat";
-
             if (chs.tistory?.is_session_expired) {
                 criticalIssues.push({
                     brand: bTitle,
                     type: "세션 만료",
                     channel: "티스토리 (Tistory)",
                     cause: "카카오 로그인 세션 쿠키 수명 만료",
-                    action: `바탕화면의 [${batName}] 배치 파일을 1회 실행하여 로그인해 주세요.`
+                    action: `대시보드 하단 카드의 [🔄 대시보드에서 세션 1클릭 복구] 버튼을 눌러주세요.`
                 });
             } else if (chs.tistory?.status === "error") {
                 criticalIssues.push({
@@ -91,7 +87,7 @@ async function loadHealthStatus(btn) {
                     type: "발행 오류",
                     channel: "티스토리 (Tistory)",
                     cause: chs.tistory.message || "티스토리 자동 발행 실패",
-                    action: `블로그 ID 확인 및 필요 시 바탕화면의 [${batName}] 실행`
+                    action: `블로그 ID 확인 및 대시보드 [🔄 세션 1클릭 복구] 실행`
                 });
             } else if (!chs.tistory?.is_today && !chs.tistory?.is_success) {
                 scheduledPending.push({
@@ -104,17 +100,13 @@ async function loadHealthStatus(btn) {
             }
 
             // 2. 네이버 블로그
-            const naverBat = bKey === "aura" ? "[1회연동]_Aura_네이버_영구로그인.bat"
-                           : bKey === "insurance" ? "[1회연동]_보험비교_네이버_영구로그인.bat"
-                           : "[1회연동]_주식AI_네이버_영구로그인.bat";
-
             if (chs.naver_blog?.status === "error") {
                 criticalIssues.push({
                     brand: bTitle,
                     type: "발행 에러",
                     channel: "네이버 블로그",
                     cause: chs.naver_blog.message || "네이버 글쓰기 세션 확인 필요",
-                    action: `바탕화면의 [${naverBat}] 실행 필요`
+                    action: `대시보드 상에서 네이버 세션 확인 및 1회 발행 트리거`
                 });
             } else if (!chs.naver_blog?.is_today) {
                 scheduledPending.push({
@@ -1168,9 +1160,6 @@ function renderHealthBrandLiveFeed(liveFeed, gpuStatus, bKey) {
     // 2. 티스토리 블로그
     const tb = channels.tistory || {};
     let tistoryHtml = "";
-    const batFile = b === "aura" ? "[1회연동]_Aura_티스토리_영구로그인.bat" 
-                  : b === "insurance" ? "[1회연동]_보험비교_티스토리_영구로그인.bat" 
-                  : "[1회연동]_주식AI_티스토리_영구로그인.bat";
 
     if (tb.is_success && tb.url) {
         const tTime = (tb.published_at || blog.last_run_time || '-').replace('T', ' ').slice(0, 19);
@@ -1197,9 +1186,9 @@ function renderHealthBrandLiveFeed(liveFeed, gpuStatus, bKey) {
                         <span style="font-size:11.5px;color:#991B1B;font-weight:700;">사유: 티스토리 글쓰기 세션 만료</span>
                     </div>
                 </div>
-                <div style="font-size:11px;color:#1E40AF;background:#EFF6FF;border:1px solid #BFDBFE;padding:4px 8px;border-radius:4px;font-weight:700;">
-                    👉 바탕화면 [${batFile}] 1회 실행 필요
-                </div>
+                <button onclick="triggerTistoryRecovery('${b}', this)" style="font-size:11px;color:#1E40AF;background:#EFF6FF;border:1px solid #BFDBFE;padding:4px 10px;border-radius:4px;font-weight:700;cursor:pointer;">
+                    🔄 대시보드에서 세션 1클릭 복구
+                </button>
             </div>
         `;
     } else {
@@ -1356,28 +1345,30 @@ function renderHealthBrandLiveFeed(liveFeed, gpuStatus, bKey) {
         `).join("");
     }
 
-    // 7. 🤖 레딧 글로벌 스텔스 침투 목록
+    // 7. 🤖 레딧 글로벌 스텔스 침투 목록 (투명 실시간 서브레딧 + 작성 시각 + 댓글 내용 직결)
     const reddit = bData.reddit || {};
     const redditPosts = reddit.posts || [];
     let redditListHtml = "";
     if (redditPosts.length === 0) {
-        redditListHtml = `<div style="background:#F8FAFC;border:1px dashed #CBD5E1;border-radius:8px;padding:10px;text-align:center;font-size:11.5px;color:#94A3B8;">오늘자 레딧 침투 활동이 아직 없습니다. (정기 스케줄 대기 중)</div>`;
+        redditListHtml = `<div style="background:#F8FAFC;border:1px dashed #CBD5E1;border-radius:8px;padding:14px;text-align:center;font-size:11.5px;color:#94A3B8;">오늘자 레딧 침투 활동이 아직 없습니다. (정기 5회 스케줄 대기 중)</div>`;
     } else {
-        redditListHtml = redditPosts.slice(0, 3).map(rp => `
-            <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;">
+        redditListHtml = redditPosts.slice(0, 5).map(rp => `
+            <div style="background:#FFFFFF;border:1px solid ${rp.is_today ? '#FDBA74' : '#E2E8F0'};border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;${rp.is_today ? 'box-shadow:0 2px 8px rgba(234,88,12,0.08);' : ''}">
                 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
                     <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">
-                        <span style="background:#FFF7ED;color:#EA580C;font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:4px;border:1px solid #FED7AA;">🤖 Reddit</span>
-                        <strong style="font-size:12px;color:#0F172A;margin-left:4px;">${rp.title || '게시글'}</strong>
+                        <span style="background:#EA580C;color:#FFFFFF;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:4px;letter-spacing:0.3px;">r/${rp.subreddit || 'Reddit'}</span>
+                        ${rp.is_today ? '<span style="background:#FEF3C7;color:#D97706;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:4px;border:1px solid #FDE68A;">🔥 오늘 침투</span>' : ''}
+                        <strong style="font-size:12px;color:#0F172A;margin-left:6px;" title="${rp.title || ''}">${rp.title || '게시글'}</strong>
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;">
-                        <span style="font-size:10.5px;color:#64748B;">🕒 ${rp.time || '-'}</span>
-                        <a href="${rp.url || '#'}" target="_blank" style="font-size:11px;color:#EA580C;font-weight:800;text-decoration:none;background:#FFF7ED;padding:2px 8px;border-radius:4px;border:1px solid #FED7AA;">🔗 글 열기↗</a>
+                        <span style="font-size:11px;color:#475569;font-weight:600;">🕒 ${rp.time || '-'}</span>
+                        <a href="${rp.url || '#'}" target="_blank" style="font-size:11px;color:#EA580C;font-weight:800;text-decoration:none;background:#FFF7ED;padding:3px 9px;border-radius:5px;border:1px solid #FED7AA;transition:all 0.15s ease;">🔗 원문 열기↗</a>
                     </div>
                 </div>
                 ${rp.comment_snippet ? `
-                    <div style="font-size:11.5px;color:#475569;background:#F8FAFC;padding:6px 10px;border-radius:6px;border-left:3px solid #EA580C;line-height:1.4;">
-                        💬 "${rp.comment_snippet}"
+                    <div style="font-size:11.5px;color:#334155;background:#FFF7ED;border:1px solid #FFEDD5;padding:8px 12px;border-radius:6px;border-left:4px solid #EA580C;line-height:1.45;word-break:break-word;">
+                        <div style="font-size:10.5px;font-weight:800;color:#C2410C;margin-bottom:3px;">💬 실제 등록된 스텔스 맞춤 댓글:</div>
+                        "${rp.comment_snippet}"
                     </div>
                 ` : ''}
             </div>
@@ -1474,7 +1465,7 @@ function renderHealthBrandLiveFeed(liveFeed, gpuStatus, bKey) {
                 <!-- 6. 🤖 레딧 글로벌 2단계 스텔스 침투 -->
                 <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,0.03);">
                     <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #F1F5F9;padding-bottom:8px;">
-                        <span style="font-size:13px;font-weight:800;color:#EA580C;">🤖 레딧 글로벌 침투 (오늘 ${reddit.today_count || 0} / ${reddit.target_count || 1}건 | Zero URL 원칙)</span>
+                        <span style="font-size:13px;font-weight:800;color:#EA580C;">🤖 레딧 글로벌 침투 (오늘 ${reddit.today_count || 0} / ${reddit.target_count || 4}회 목표 | Zero URL 원칙)</span>
                         <button onclick="triggerRedditInfiltration('${b}', this)" style="font-size:11px;font-weight:700;padding:3px 8px;background:#FFF7ED;color:#EA580C;border:1px solid #FED7AA;border-radius:6px;cursor:pointer;">⚡ 1회 즉시 침투</button>
                     </div>
                     <div style="display:flex;flex-direction:column;gap:6px;">
@@ -1518,8 +1509,40 @@ async function triggerRedditInfiltration(brand, btn) {
     }
 }
 
+// 🔄 티스토리 대시보드 1클릭 세션 복구 함수
+async function triggerTistoryRecovery(brand, btn) {
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = "⏳ 세션 복구 중...";
+    }
+    appendLog(`[Action] ${brand.toUpperCase()} 티스토리 세션 1클릭 자동 복구 시도...`, "info");
+    showToast(`🔄 ${brand.toUpperCase()} 티스토리 세션 복구를 시작합니다.`, "info");
+
+    try {
+        const res = await fetch(`/api/tistory/keepalive/${brand}`, { method: "POST" });
+        const data = await res.json();
+        if (data.status === "active" || data.status === "restored" || data.status === "success") {
+            appendLog(`[Success] 🎉 [${brand.toUpperCase()} 티스토리 세션 복구 성공] ${data.message || '세션 유지'}` , "success");
+            showToast("티스토리 세션이 성공적으로 복구되었습니다!", "success");
+            setTimeout(loadHealthStatus, 2000);
+        } else {
+            appendLog(`[Error] ⚠️ [${brand.toUpperCase()} 티스토리] ${data.message || '복구 필요'}`, "warning");
+            showToast(data.message || "세션 복구 상태를 확인해 주세요.", "warning");
+        }
+    } catch (e) {
+        appendLog(`[Error] ❌ 티스토리 복구 통신 오류: ${e}`, "error");
+        showToast("세션 복구 통신 실패", "error");
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerText = "🔄 대시보드에서 세션 1클릭 복구";
+        }
+    }
+}
+
 window.loadHealthStatus = loadHealthStatus;
 window.runFullHealthDiagnostic = runFullHealthDiagnostic;
+window.triggerTistoryRecovery = triggerTistoryRecovery;
 window.openProofModal = openProofModal;
 window.closeProofModal = closeProofModal;
 window.retryChannelPublish = retryChannelPublish;

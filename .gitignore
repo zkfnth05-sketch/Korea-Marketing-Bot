@@ -77,3 +77,8 @@ debug_*.py
 session_backups/
 **/session_backups/
 *.jsonl
+
+scratch/
+outputs/proofs/
+*.good.json
+

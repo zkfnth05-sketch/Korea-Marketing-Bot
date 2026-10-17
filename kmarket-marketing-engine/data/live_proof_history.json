@@ -1,55 +1,55 @@
 {
-  "updated_at": "2026-10-13 20:05:29",
+  "updated_at": "2026-10-17 21:07:50",
   "brands": {
     "aura": {
       "reddit": {
         "brand": "aura",
         "channel": "reddit",
-        "live_url": "https://www.reddit.com/r/language_exchange/comments/1x4sheg/offering_dutch_english_seeking_korean/",
-        "title": "r/Language_Exchange: Offering: Dutch 🇳🇱 / English 🇬🇧 | Seeking: Korean 🇰🇷",
-        "status": "HEALTHY",
-        "is_verified": false,
-        "error_message": null,
-        "screenshot_file": null,
-        "screenshot_path": null,
-        "published_at": "2026-10-13 20:05:29",
-        "extra_meta": {
-          "comment_preview": "Hey! It's awesome you're diving into Korean! 💖 Learning a new language is such a journey, especially finding fluent partners when you're just starting. I totally get how frustrating it can be to keep ",
-          "screenshot_file": "proof_aura_reddit_20261013_200515.png"
-        }
-      }
-    },
-    "insurance": {
-      "reddit": {
-        "brand": "insurance",
-        "channel": "reddit",
         "live_url": null,
-        "title": "r/seoul: Need help Jawtox and Undereye Filler in Seoul. Clinic recommendations?",
+        "title": "r/seoul: Looking for international friends to hang out",
         "status": "ERROR",
         "is_verified": false,
         "error_message": "댓글 등록 버튼 클릭 실패",
-        "failed_at": "2026-10-13 16:36:41",
+        "failed_at": "2026-10-17 20:37:27",
         "published_at": null,
         "screenshot_file": null,
         "screenshot_path": null,
         "extra_meta": {}
       }
     },
-    "stock": {
+    "insurance": {
       "reddit": {
-        "brand": "stock",
+        "brand": "insurance",
         "channel": "reddit",
-        "live_url": "https://www.reddit.com/r/Daytrading/comments/1x4rixs/order_flow_vs_ictsmc_what_am_i_missing/",
-        "title": "r/Daytrading: Order Flow vs. ICT/SMC: What Am I Missing?",
+        "live_url": "https://www.reddit.com/r/teachinginkorea/comments/1x83cdc/quitting_my_hagwon_job/",
+        "title": "r/teachinginkorea: quitting my hagwon job",
         "status": "HEALTHY",
         "is_verified": false,
         "error_message": null,
         "screenshot_file": null,
         "screenshot_path": null,
-        "published_at": "2026-10-13 19:59:05",
+        "published_at": "2026-10-17 21:07:50",
         "extra_meta": {
-          "comment_preview": "ICT/SMC offers structural price context, but its Achilles' heel is often the lack of real-time conviction from actual capital flow. 📊 Order Flow, particularly tracking significant institutional and fo",
-          "screenshot_file": "proof_stock_reddit_20261013_195851.png"
+          "comment_preview": "Hey there! Ugh, that's such a classic hagwon move, playing dumb then switching to sympathy. Good on you for knowing your contract and calling him out! Your idea to negotiate for all fees waived in exc",
+          "screenshot_file": "proof_insurance_reddit_20261017_210733.png"
+        }
+      }
+    },
+    "stock": {
+      "reddit": {
+        "brand": "stock",
+        "channel": "reddit",
+        "live_url": "https://www.reddit.com/r/Daytrading/comments/1x81gzu/trying_to_get_it_back_and_end_up_losing_more/",
+        "title": "r/Daytrading: Trying to get it back and end up losing more!",
+        "status": "HEALTHY",
+        "is_verified": false,
+        "error_message": null,
+        "screenshot_file": null,
+        "screenshot_path": null,
+        "published_at": "2026-10-17 20:37:04",
+        "extra_meta": {
+          "comment_preview": "That 'revenge trading' loop after a stop-loss is a profit killer, OP. It signals a breakdown in discipline and proper position sizing. Your risk-per-trade (e.g., 1-2% of capital) must be non-negotiabl",
+          "screenshot_file": "proof_stock_reddit_20261017_203651.png"
         }
       }
     }

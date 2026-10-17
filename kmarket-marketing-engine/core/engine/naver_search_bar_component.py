@@ -31,29 +31,34 @@ BRAND_SEARCH_CONFIGS: Dict[str, Dict[str, str]] = {
 
 def render_naver_search_bar_html(brand: str = "stock", custom_keyword: Optional[str] = None) -> str:
     """
-    3개 브랜드 공용 슬림형 네이버 공식 검색창 바 HTML 생성
-    (기존 42~44px CTA 버튼 자리에 1:1로 쏙 들어가는 초슬림형 규격)
+    3개 브랜드 공용 네이버 공식 검색창 바 HTML 생성
+    (대표님 지정 황금 규격: 50px 슬림 럭셔리 & 고시인성 일체형)
     """
     cfg = BRAND_SEARCH_CONFIGS.get(brand.lower(), BRAND_SEARCH_CONFIGS["stock"])
     keyword = custom_keyword or cfg["keyword"]
     guide = cfg["guide"]
 
     html = f"""
-    <!-- 네이버 공식 검색창 UI (기존 44px CTA 버튼 1:1 슬림 교체형) -->
-    <div style="width: 100%; height: 44px; padding: 0 14px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: space-between; border: 1.5px solid #03C75A; box-sizing: border-box; margin-top: 3px;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <div style="width: 28px; height: 28px; border-radius: 7px; background: #03C75A; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(3, 199, 90, 0.3); flex-shrink: 0;">
-          <span style="color: #ffffff; font-size: 16px; font-weight: 900; font-family: sans-serif; line-height: 1;">N</span>
+    <!-- 네이버 공식 검색창 UI (대표님 지정 50px 슬림 럭셔리 규격) -->
+    <div style="width: 100%; height: 50px; padding: 0 15px; background: #ffffff; border-radius: 13px; box-shadow: 0 4px 15px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: space-between; border: 1.5px solid #03C75A; box-sizing: border-box; margin-top: 3px;">
+      <div style="display: flex; align-items: center; gap: 11px;">
+        <!-- N 뱃지: 32px -->
+        <div style="width: 32px; height: 32px; border-radius: 8px; background: #03C75A; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(3, 199, 90, 0.35); flex-shrink: 0;">
+          <span style="color: #ffffff; font-size: 18px; font-weight: 900; font-family: sans-serif; line-height: 1;">N</span>
         </div>
+        <!-- 안내문구 & 공식 키워드 텍스트 -->
         <div style="display: flex; flex-direction: column; justify-content: center; text-align: left;">
-          <span style="font-size: 9px; color: #64748b; font-weight: 700; line-height: 1; margin-bottom: 2px;">{guide}</span>
-          <span style="font-size: 15px; color: #0f172a; font-weight: 900; letter-spacing: -0.3px; line-height: 1;">{keyword}</span>
+          <span style="font-size: 10px; color: #64748b; font-weight: 700; line-height: 1; margin-bottom: 2px;">{guide}</span>
+          <span style="font-size: 17px; color: #0f172a; font-weight: 900; letter-spacing: -0.3px; line-height: 1;">{keyword}</span>
         </div>
       </div>
-      <div style="padding: 5px 12px; border-radius: 7px; background: #03C75A; border: 1px solid #02b150; box-shadow: 0 2px 6px rgba(3, 199, 90, 0.25); display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
-        <span style="color: #ffffff; font-size: 12px; font-weight: 900; letter-spacing: -0.2px;">검색</span>
-        <span style="font-size: 11px;">🔍</span>
+      <!-- 우측 검색 버튼 -->
+      <div style="padding: 5px 13px; border-radius: 8px; background: #03C75A; border: 1px solid #02b150; box-shadow: 0 2px 6px rgba(3, 199, 90, 0.25); display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+        <span style="color: #ffffff; font-size: 13px; font-weight: 900; letter-spacing: -0.2px;">검색</span>
+        <span style="font-size: 12px;">🔍</span>
       </div>
     </div>
     """
     return html.strip()
+
+

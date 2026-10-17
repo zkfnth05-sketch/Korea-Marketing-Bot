@@ -1,10 +1,238 @@
 {
-  "current_topic_index": 16,
-  "last_topic_id": 88,
-  "last_run_time": "2026-10-15 19:27:30",
-  "last_title": "삼프터 고백 성공률 100%! '설렘 확신' 주는 데이트&대화 꿀팁 대공개",
-  "published_count": 41,
+  "current_topic_index": 19,
+  "last_topic_id": 40,
+  "last_run_time": "2026-10-17 20:36:03",
+  "last_title": "소개팅 성공 부르는 대화법: 상대가 '계속 말하고 싶게' 만드는 리액션 3원칙",
+  "published_count": 44,
   "history": [
+    {
+      "topic_id": 40,
+      "title": "소개팅 성공 부르는 대화법: 상대가 '계속 말하고 싶게' 만드는 리액션 3원칙",
+      "title_naver": "소개팅 성공 부르는 대화법: 상대가 '계속 말하고 싶게' 만드는 리액션 3원칙",
+      "title_tistory": "[2026 가이드] 상대방이 끊임없이 말하게 만드는 마법의 '리액션 3원칙' 핵심 정리",
+      "title_kakao": "상대방이 끊임없이 말하게 만드는 마법의 '리액션 3원칙'에 대한 솔직한 이야기",
+      "category": "conversation_skills",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_040_conversation_skills_20261017_203429.webp",
+      "published_at": "2026-10-17 20:36:03",
+      "publish_results": {
+        "topic_id": 40,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-040",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "소개팅 성공 부르는 대화법: 상대가 '계속 말하고 싶게' 만드는 리액션 3원칙",
+            "url": "https://blog.naver.com/zkfnth01/224444926568",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플거리",
+              "성수동핫플",
+              "성수동핫플레이스",
+              "성수동핫플맛집",
+              "성수동핫플카페",
+              "성수동핫플지도",
+              "500m안심레이더",
+              "동네친구",
+              "성수동번개",
+              "퇴근길번개",
+              "안심데이팅",
+              "위치보안",
+              "성수동데이트"
+            ],
+            "post_url": "https://blog.naver.com/zkfnth01/224444926568"
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-magazine",
+            "title": "[2026 가이드] 상대방이 끊임없이 말하게 만드는 마법의 '리액션 3원칙' 핵심 정리",
+            "url": "https://aura-magazine.tistory.com/22",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플거리",
+              "성수동핫플",
+              "성수동핫플레이스",
+              "성수동핫플맛집",
+              "성수동핫플카페",
+              "성수동핫플지도",
+              "500m안심레이더",
+              "동네친구",
+              "성수동번개",
+              "퇴근길번개",
+              "안심데이팅",
+              "위치보안",
+              "성수동데이트"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "aura",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "zkfnth01",
+            "title": "소개팅 성공 부르는 대화법: 상대가 '계속 말하고 싶게' 만드는 리액션 3원칙",
+            "real_url": "https://blog.naver.com/zkfnth01/224444926568",
+            "log_no": "224444926568",
+            "pub_date": "Sat, 17 Oct 2026 20:35:24 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\aura\\blog_verification\\naver_proof_1792236960.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "aura-magazine",
+            "title": "[2026 가이드] 상대방이 끊임없이 말하게 만드는 마법의 '리액션 3원칙' 핵심 정리",
+            "real_url": "https://aura-magazine.tistory.com/22",
+            "pub_date": "Sat, 17 Oct 2026 20:35:51 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-17 20:36:03"
+        }
+      }
+    },
+    {
+      "topic_id": 21,
+      "title": "강남역 소개팅 카페 실패 없는 5곳! 테이블 넓고 조용한 신논현 데이트 명소 총정리",
+      "title_naver": "강남역 소개팅 카페 실패 없는 5곳! 테이블 넓고 조용한 신논현 데이트 명소 총정리",
+      "title_tistory": "강남역·신논현역 대화하기 좋은 조용한 카페 5선 및 소개팅 애프터 성공 동선 가이드",
+      "title_kakao": "시끄러운 강남역에서 오직 둘만의 목소리에 집중할 수 있는 숨은 아지트 5곳",
+      "category": "date_spots",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_021_date_spots_20261017_144601.webp",
+      "published_at": "2026-10-17 14:50:49",
+      "publish_results": {
+        "topic_id": 21,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-021",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "강남역 소개팅 카페 실패 없는 5곳! 테이블 넓고 조용한 신논현 데이트 명소 총정리",
+            "url": "https://blog.naver.com/zkfnth01/224444689566",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플거리",
+              "성수동핫플",
+              "성수동핫플레이스",
+              "성수동핫플맛집",
+              "성수동핫플카페",
+              "성수동핫플지도",
+              "가치관매칭",
+              "소개팅더치페이",
+              "데이트비용",
+              "연락빈도",
+              "연애밸런스게임",
+              "소개팅가치관",
+              "성수동데이트"
+            ],
+            "post_url": "https://blog.naver.com/zkfnth01/224444689566"
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-dating",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "aura",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "zkfnth01",
+            "title": "강남역 소개팅 카페 실패 없는 5곳! 테이블 넓고 조용한 신논현 데이트 명소 총정리",
+            "real_url": "https://blog.naver.com/zkfnth01/224444689566",
+            "log_no": "224444689566",
+            "pub_date": "Sat, 17 Oct 2026 14:46:49 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\aura\\blog_verification\\naver_proof_1792216246.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "aura-magazine",
+            "title": "[2026 가이드] 호감도 200% 올려주는 '공감 + 질문' 핑퐁 대화의 기술 핵심 정리",
+            "real_url": "https://aura-magazine.tistory.com/20",
+            "pub_date": "Sat, 10 Oct 2026 18:19:49 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-17 14:50:49"
+        }
+      }
+    },
+    {
+      "topic_id": 3,
+      "title": "소개팅 애프터 부르는 선톡, 남녀 누구든 '이때' 보내세요!",
+      "title_naver": "소개팅 애프터 부르는 선톡, 남녀 누구든 '이때' 보내세요!",
+      "title_tistory": "[2026 가이드] 소개팅 당일 밤 선톡, 남자가 먼저? 여자가 먼저? 핵심 정리",
+      "title_kakao": "소개팅 당일 밤 선톡, 남자가 먼저? 여자가 먼저?에 대한 솔직한 이야기",
+      "category": "kakaotalk_signals",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_003_kakaotalk_signals_20261017_105210.webp",
+      "published_at": "2026-10-17 10:56:59",
+      "publish_results": {
+        "topic_id": 3,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-003",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "소개팅 애프터 부르는 선톡, 남녀 누구든 '이때' 보내세요!",
+            "url": "https://blog.naver.com/PostView.naver?blogId=zkfnth01&Redirect=View&logNo=224444522828&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=18125",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플거리",
+              "성수동핫플",
+              "성수동핫플레이스",
+              "성수동핫플맛집",
+              "성수동핫플카페",
+              "성수동핫플지도",
+              "50대50황금성비",
+              "성비50대50",
+              "소개팅앱추천",
+              "데이팅앱추천",
+              "남초탈출",
+              "유령회원제로",
+              "성수동데이트"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-dating",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        }
+      }
+    },
     {
       "topic_id": 88,
       "title": "삼프터 고백 성공률 100%! '설렘 확신' 주는 데이트&대화 꿀팁 대공개",

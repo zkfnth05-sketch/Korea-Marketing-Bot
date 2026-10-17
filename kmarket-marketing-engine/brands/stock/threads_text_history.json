@@ -440,5 +440,31 @@
       "attempts": 3
     },
     "success": false
+  },
+  {
+    "brand": "stock",
+    "slot": "morning",
+    "topic": "단타 칠 때 거래량 터지는 양봉 캔들 제대로 해석하는 법",
+    "caption_preview": "거래대금 1,000억 터졌다고 무조건 진입한다? 그게 바로 초보 투자자들의 착각입니다.\n\n거래량 터진 양봉은...",
+    "published_at": "2026-10-17T10:53:14.006617",
+    "publish_result": {
+      "status": "FAIL",
+      "error": "최대 3회 재시도 실패: Locator.wait_for: Timeout 10000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='textbox']\").first to be visible\n",
+      "attempts": 3
+    },
+    "success": false
+  },
+  {
+    "brand": "stock",
+    "slot": "evening",
+    "topic": "실시간 뉴스 뜨기 전에 차트와 수급에서 먼저 나오는 시그널",
+    "caption_preview": "호재 공시 뜨고 매수하면 왜 항상 고점일까요? 스마트 머니는 이미 뉴스 뜨기 전에 움직였거든요.\n\n진정한 기...",
+    "published_at": "2026-10-17T20:35:36.550582",
+    "publish_result": {
+      "status": "FAIL",
+      "error": "최대 3회 재시도 실패: Locator.wait_for: Timeout 10000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='textbox']\").first to be visible\n",
+      "attempts": 3
+    },
+    "success": false
   }
 ]

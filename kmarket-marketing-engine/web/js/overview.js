@@ -374,12 +374,26 @@ function renderHubGrid(btn) {
                     </button>
                 </div>
                 ${isShorts ? `
-                <div style="display:grid;grid-template-columns:1.45fr 1fr;gap:6px;">
-                    <button class="btn btn-action" id="btn-run-${brand}-${h.key}" onclick="runModule('${brand}_shorts')" style="font-size:11px;padding:7px 2px;background:${theme.actionBg};border:1.5px solid ${theme.actionBorder};color:${theme.actionColor};font-weight:800;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.05);cursor:pointer;" title="고화질 완제품 숏폼 1편을 유튜브/틱톡/클립/릴스 4대 플랫폼에 100% 무인 직접 발행">
-                        🚀 숏폼 즉시 1회 무인 발행
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                    <button class="btn btn-action" id="btn-pub-stored-${brand}-shorts" onclick="publishStoredContent('${brand}', 'shorts', this)" style="width:100%;font-size:11.5px;padding:7px 2px;background:#10B981;border:1.5px solid #059669;color:#FFFFFF;font-weight:800;border-radius:8px;box-shadow:0 2px 5px rgba(16,185,129,0.3);cursor:pointer;" title="새벽에 미리 완성된 오늘자 숏폼을 꺼내어 5대 SNS에 GPU 0%로 즉시 1회 송출">
+                        🚀 1회 즉시 송출 (새벽 완성본)
                     </button>
-                    <button class="btn btn-action" onclick="runModule('${brand}_master_photo')" style="font-size:11px;padding:7px 2px;background:#FFFFFF;border:1px solid #CBD5E1;color:#475569;font-weight:700;border-radius:8px;cursor:pointer;" title="텍스트 프롬프트로 28세 여성 실사 인물 사진만 단독 생성">
-                        📸 인물 사진 생성
+                    <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:5px;">
+                        <button class="btn btn-action" id="btn-run-${brand}-${h.key}" onclick="safeCreateContent('${brand}', 'shorts', this)" style="font-size:10.5px;padding:6px 2px;background:${theme.actionBg};border:1.5px solid ${theme.actionBorder};color:${theme.actionColor};font-weight:800;border-radius:8px;cursor:pointer;" title="GPU 상태(저쪽 컴퓨터 점유 여부) 확인 후 안전하게 새 숏폼 렌더링">
+                            🎨 숏폼 신규 제작 (GPU 안전대기)
+                        </button>
+                        <button class="btn btn-action" onclick="runModule('${brand}_master_photo')" style="font-size:10.5px;padding:6px 2px;background:#FFFFFF;border:1px solid #CBD5E1;color:#475569;font-weight:700;border-radius:8px;cursor:pointer;" title="텍스트 프롬프트로 실사 인물 사진만 단독 생성">
+                            📸 인물 사진
+                        </button>
+                    </div>
+                </div>
+                ` : isCardnews ? `
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                    <button class="btn btn-action" id="btn-pub-stored-${brand}-cardnews" onclick="publishStoredContent('${brand}', 'cardnews', this)" style="width:100%;font-size:11.5px;padding:7px 2px;background:#10B981;border:1.5px solid #059669;color:#FFFFFF;font-weight:800;border-radius:8px;box-shadow:0 2px 5px rgba(16,185,129,0.3);cursor:pointer;" title="새벽에 미리 완성된 오늘자 5장 카드뉴스를 꺼내어 4대 SNS에 GPU 0%로 즉시 1회 송출">
+                        🚀 1회 즉시 송출 (새벽 완성본)
+                    </button>
+                    <button class="btn btn-action" id="btn-run-${brand}-${h.key}" onclick="safeCreateContent('${brand}', 'cardnews', this)" style="width:100%;font-size:10.5px;padding:6px 2px;background:${theme.actionBg};border:1.5px solid ${theme.actionBorder};color:${theme.actionColor};font-weight:800;border-radius:8px;cursor:pointer;" title="GPU 상태(저쪽 컴퓨터 점유 여부) 확인 후 안전하게 새 카드뉴스 렌더링">
+                        🎨 카드뉴스 신규 제작 (GPU 안전대기)
                     </button>
                 </div>
                 ` : `
@@ -451,6 +465,64 @@ async function triggerKinCatch(brand, btn) {
         if (btn) {
             btn.disabled = false;
             btn.innerHTML = `💡 지식iN 실시간 1회 낚아채기`;
+        }
+    }
+}
+
+// 📦 새벽 완성본 즉시 1회 송출 함수 (GPU 0% 순수 전송)
+async function publishStoredContent(brand, mediaType, btn) {
+    const nameMap = { "aura": "💖 Aura", "insurance": "🛡️ 보험비교", "stock": "📈 주식AI" };
+    const brandName = nameMap[brand] || brand.toUpperCase();
+    const typeLabel = mediaType === "shorts" ? "숏폼" : "카드뉴스";
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spin-icon" style="display:inline-block;animation:rotateSpin 0.6s linear infinite;">🔄</span> 송출 중...`;
+    }
+    appendLog(`[즉시 송출] 📦 ${brandName} 새벽 완성본 ${typeLabel} 1회 즉시 송출 시작 (GPU 부하 0%)...`, "info");
+    showToast(`📦 ${brandName} 새벽 완성본 ${typeLabel}을 즉시 송출합니다! (GPU 0% 순수 전송)`, "info");
+
+    try {
+        const res = await fetch(`/api/publish-stored/${brand}/${mediaType}`, { method: "POST" });
+        const data = await res.json();
+        showToast(data.message || `🎉 ${brandName} ${typeLabel} 즉시 송출 가동 완료!`, "success");
+        appendLog(`[즉시 송출] 🎉 ${data.message || '완료'}`, "success");
+    } catch (e) {
+        showToast(`❌ 송출 요청 실패: ${e}`, "error");
+        appendLog(`[즉시 송출 오류] ❌ ${e}`, "error");
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = `🚀 1회 즉시 송출 (새벽 완성본)`;
+        }
+    }
+}
+
+// 🎨 저쪽 컴퓨터 확인 후 안전 신규 제작 함수
+async function safeCreateContent(brand, mediaType, btn) {
+    const nameMap = { "aura": "💖 Aura", "insurance": "🛡️ 보험비교", "stock": "📈 주식AI" };
+    const brandName = nameMap[brand] || brand.toUpperCase();
+    const typeLabel = mediaType === "shorts" ? "숏폼" : "카드뉴스";
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spin-icon" style="display:inline-block;animation:rotateSpin 0.6s linear infinite;">⏳</span> GPU 점검 중...`;
+    }
+    appendLog(`[안전 제작] 🎨 ${brandName} ${typeLabel} 신규 제작 진입 전 GPU 상태 및 저쪽 컴퓨터 점유율 점검 중...`, "info");
+    showToast(`🎨 ${brandName} GPU 상태 확인 후 안전하게 ${typeLabel}을 새로 제작합니다.`, "info");
+
+    try {
+        const res = await fetch(`/api/safe-create/${brand}/${mediaType}`, { method: "POST" });
+        const data = await res.json();
+        showToast(data.message || `🎨 ${brandName} 신규 제작 가동!`, "success");
+        appendLog(`[안전 제작] 🎉 ${data.message || '가동 완료'}`, "success");
+    } catch (e) {
+        showToast(`❌ 안전 제작 요청 실패: ${e}`, "error");
+        appendLog(`[안전 제작 오류] ❌ ${e}`, "error");
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = `🎨 ${typeLabel} 신규 제작 (GPU 안전대기)`;
         }
     }
 }
@@ -1395,29 +1467,52 @@ function updateChannelBadges(runningChannels = {}, liveFeed = {}, channelErrors 
         kinRecentEl.innerHTML = `<span style="color:#64748B;font-size:10.5px;">[${ka.created_at || '-'}]</span> <a href="${liveUrl}" target="_blank" style="color:#0284C7;text-decoration:underline;font-weight:700;" title="${ka.title}">${ka.title}</a>`;
     }
     if (kinBadge) {
-        if (kinErr) {
+        const isKinRunning = runningChannels[`${brand}_naver_kin`] || runningChannels[`${brand}_kin`];
+        const kinBtn = document.getElementById(`btn-start-${brand}-naver_kin`) || document.getElementById(`btn-start-${brand}-kin`);
+
+        if (brand === "insurance") {
+            // 🔒 보험 지식iN 전용 완전 봉인 안전핀 표시
+            kinBadge.innerHTML = "🔒 안전핀 봉인 중 (대기)";
+            kinBadge.style.background = "#F1F5F9";
+            kinBadge.style.color = "#475569";
+            kinBadge.style.border = "1px solid #CBD5E1";
+            if (kinCard) kinCard.style.border = "1px dashed #94A3B8";
+
+            if (kinBtn) {
+                kinBtn.innerHTML = "🔒 안전핀 봉인됨";
+                kinBtn.style.background = "#64748B";
+                kinBtn.style.cursor = "not-allowed";
+                kinBtn.title = "네이버 제재 방지를 위해 안전핀(Safety Lock)으로 완전 봉인되어 있습니다.";
+            }
+        } else if (kinErr) {
             kinBadge.innerHTML = "🚨 오류 발생";
             kinBadge.style.background = "#FEF2F2";
             kinBadge.style.color = "#DC2626";
             kinBadge.style.border = "1.5px solid #F87171";
             if (kinCard) kinCard.style.border = "2px solid #EF4444";
-        } else {
-            kinBadge.innerHTML = `🟢 감시 중 (오늘 ${kin.today_count || 0}/10건)`;
+        } else if (isKinRunning) {
+            kinBadge.innerHTML = `🟢 실시간 감시 중 (오늘 ${kin.today_count || 0}/10건)`;
             kinBadge.style.background = "#ECFDF5";
             kinBadge.style.color = "#059669";
             kinBadge.style.border = "1px solid #A7F3D0";
             if (kinCard) kinCard.style.border = "1px solid #E5DDD1";
-        }
 
-        const isKinRunning = runningChannels[`${brand}_naver_kin`] || runningChannels[`${brand}_kin`];
-        const kinBtn = document.getElementById(`btn-start-${brand}-naver_kin`) || document.getElementById(`btn-start-${brand}-kin`);
-        if (kinBtn) {
-            if (isKinRunning) {
+            if (kinBtn) {
                 kinBtn.innerHTML = "🔄 무인 가동 중 🟢";
                 kinBtn.style.background = "#059669";
-            } else {
+                kinBtn.style.cursor = "pointer";
+            }
+        } else {
+            kinBadge.innerHTML = `⚪ 대기 중 (오늘 ${kin.today_count || 0}/10건)`;
+            kinBadge.style.background = "#F6F1EA";
+            kinBadge.style.color = "#6E665E";
+            kinBadge.style.border = "1px solid #E5DDD1";
+            if (kinCard) kinCard.style.border = "1px solid #E5DDD1";
+
+            if (kinBtn) {
                 kinBtn.innerHTML = "🚀 무인 가동";
                 kinBtn.style.background = kinBtn.getAttribute("data-original-bg") || "";
+                kinBtn.style.cursor = "pointer";
             }
         }
     }

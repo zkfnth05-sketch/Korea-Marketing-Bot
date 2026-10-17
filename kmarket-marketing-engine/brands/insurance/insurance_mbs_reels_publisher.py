@@ -12,6 +12,7 @@
 
 import os
 import sys
+import re
 import json
 import logging
 import asyncio
@@ -107,11 +108,9 @@ class InsuranceMBSReelsPublisher:
             return {"status": "error", "message": f"비디오 파일 없음: {video_path}", "brand": self.brand}
 
         video_name = os.path.basename(video_path)
-        # 🛡️ 본문 내 URL 전면 소독 (알고리즘 다운랭킹 방지) 및 첫 댓글 참조 안내 보장
+        # 🛡️ 본문 내 URL 전면 소독 (알고리즘 다운랭킹 방지 및 네이버 공식 검색어 유도)
         clean_caption = caption or ""
-        if "첫 번째 댓글" not in clean_caption:
-            clean_caption = f"💬 34개 보험사 무료 비교 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n{clean_caption}"
-        clean_caption = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', clean_caption)
+        clean_caption = re.sub(r'https?://\S+', '👉 네이버 검색: [보험 리밸런스]', clean_caption)
         logger.info(f"🚀 [보험 MBS Reel] 순수 브라우저 글자 레시피 발행 가동: {video_name}")
 
         for attempt in range(1, max_retries + 1):
@@ -176,25 +175,39 @@ class InsuranceMBSReelsPublisher:
 
                 if is_logged_out_url("meta", page.url) or not has_auth("meta", await context.cookies()):
                     raise RuntimeError("메타(페이스북) 세션 만료. 로그인 필요.")
+                # 방해 모달/팝업 닫기
+                for close_sel in ["[aria-label='닫기']", "[aria-label='Close']", "button:has-text('닫기')", "button:has-text('Close')"]:
+                    try:
+                        cb = await page.query_selector(close_sel)
+                        if cb and await cb.is_visible():
+                            await cb.click()
+                    except Exception:
+                        pass
 
-                # 📌 2단계: '동영상 추가' 글자 눈으로 찾고 파일 넣기
+                # 📌 2단계: '동영상 추가' / 'Add video' 글자 눈으로 찾고 파일 넣기
                 logger.info("2. '동영상 추가' 미디어 주입 중...")
-                file_input = await page.query_selector("input[type='file']")
-                if not file_input:
-                    for fr in page.frames:
-                        file_input = await fr.query_selector("input[type='file']")
-                        if file_input:
-                            break
+                import re
+                try:
+                    await page.wait_for_selector("input[type='file'], [role='button']:has-text('동영상'), [role='button']:has-text('Add video'), button:has-text('동영상'), button:has-text('Add Video')", timeout=15000)
+                except Exception:
+                    pass
 
-                if file_input:
-                    await file_input.set_input_files(str(Path(video_path).resolve()))
+                # 파일 주입: Add Video 버튼 클릭 후 file_chooser 대응
+                btn = page.locator("div[role='button'], button").filter(has_text=re.compile(r"^Add Video$|^동영상 추가$", re.I)).first
+                if await btn.count() == 0:
+                    btn = page.locator("div[role='button'], button").filter(has_text=re.compile(r"Add Video|동영상 추가", re.I)).first
+
+                if await btn.count() > 0 and await btn.is_visible():
+                    async with page.expect_file_chooser(timeout=15000) as fc_info:
+                        await btn.click()
+                    fc = await fc_info.value
+                    await fc.set_files(str(Path(video_path).resolve()))
+                    logger.info("🎬 파일 선택기를 통한 비디오 파일 주입 성공!")
                 else:
-                    add_btn = page.locator("div[role='button'], button").filter(has_text="동영상 추가").first
-                    if await add_btn.count() > 0:
-                        async with page.expect_file_chooser(timeout=15000) as fc_info:
-                            await add_btn.click()
-                        fc = await fc_info.value
-                        await fc.set_files(str(Path(video_path).resolve()))
+                    file_input = await page.query_selector("input[type='file']")
+                    if file_input:
+                        await file_input.set_input_files(str(Path(video_path).resolve()))
+                        logger.info("🎬 input[type='file']에 직접 비디오 파일 주입 성공!")
                     else:
                         raise RuntimeError("화면에서 '동영상 추가' 버튼을 찾지 못했습니다.")
 
@@ -206,7 +219,7 @@ class InsuranceMBSReelsPublisher:
                 text_input = page.locator("textarea, div[contenteditable='true'], [role='textbox']").first
                 if await text_input.count() > 0:
                     await text_input.scroll_into_view_if_needed()
-                    await text_input.click()
+                    await text_input.click(force=True)
                     await text_input.press("Control+A")
                     await text_input.press("Backspace")
                     await asyncio.sleep(0.3)
@@ -218,30 +231,28 @@ class InsuranceMBSReelsPublisher:
                         await asyncio.sleep(0.008)
                     logger.info("✍️ contenteditable type() 방식 캡션 기입 완료")
 
-
                 await asyncio.sleep(2.0)
 
-                # 📌 4단계: 1차 '다음' 글자 버튼 클릭
-                next_btn_1 = page.locator("div[role='button'], button").filter(has_text="다음").last
+                # 📌 4단계: 1차 '다음'/'Next' 글자 버튼 클릭
+                next_btn_1 = page.locator("div[role='button'], button").filter(has_text=re.compile(r"^Next$|^다음$", re.I)).last
                 if await next_btn_1.count() > 0 and await next_btn_1.is_visible():
                     await next_btn_1.scroll_into_view_if_needed()
                     await asyncio.sleep(1.0)
-                    await next_btn_1.click()
-                    logger.info("👉 1차 [다음] 클릭 완료")
+                    await next_btn_1.click(force=True)
+                    logger.info("👉 1차 [다음/Next] 클릭 완료")
                 await asyncio.sleep(4.0)
 
-                # 📌 5단계: 2차 '다음' 글자 버튼 클릭
-                next_btn_2 = page.locator("div[role='button'], button").filter(has_text="다음").last
+                # 📌 5단계: 2차 '다음'/'Next' 글자 버튼 클릭
+                next_btn_2 = page.locator("div[role='button'], button").filter(has_text=re.compile(r"^Next$|^다음$", re.I)).last
                 if await next_btn_2.count() > 0 and await next_btn_2.is_visible():
                     await next_btn_2.scroll_into_view_if_needed()
                     await asyncio.sleep(1.0)
-                    await next_btn_2.click()
-                    logger.info("👉 2차 [다음] 클릭 완료")
+                    await next_btn_2.click(force=True)
+                    logger.info("👉 2차 [다음/Next] 클릭 완료")
                 await asyncio.sleep(4.0)
 
                 # 🛡️ [계정 무결성 가드] 인스타그램 동시 공유 옵션 검증 (Insurance 전용: goldmomofficial)
                 try:
-                    import re
                     # 화면에 노출된 Instagram 공유 옵션 / 체크박스 탐색
                     for inp in await page.locator("input[type='checkbox']").all():
                         parent_text = await inp.evaluate("el => el.closest('label, div, tr')?.innerText || ''")
@@ -269,22 +280,22 @@ class InsuranceMBSReelsPublisher:
                 except Exception as guard_err:
                     logger.warning(f"⚠️ 인스타그램 계정 가드 점검 중 경고 (계속 진행): {guard_err}")
 
-                # 📌 6단계: '공유하기' 글자 버튼 클릭
-                share_btn = page.locator("div[role='button'], button").filter(has_text="공유하기").last
+                # 📌 6단계: '공유하기'/'Share' 글자 버튼 클릭
+                share_btn = page.locator("div[role='button'], button").filter(has_text=re.compile(r"^Share$|^공유하기$|^공유$|^Publish$", re.I)).last
                 if await share_btn.count() > 0 and await share_btn.is_visible():
                     await share_btn.scroll_into_view_if_needed()
                     await asyncio.sleep(1.0)
-                    await share_btn.click()
-                    logger.info("💥 [공유하기] 클릭 집행 완료!")
+                    await share_btn.click(force=True)
+                    logger.info("💥 [공유하기/Share] 클릭 집행 완료!")
                 else:
-                    raise RuntimeError("화면에서 [공유하기] 버튼을 찾지 못했습니다.")
+                    raise RuntimeError("화면에서 [공유하기/Share] 버튼을 찾지 못했습니다.")
 
                 # '릴스 처리 중 [완료]' 팝업 대응
                 await asyncio.sleep(3.0)
-                done_btn = page.locator("div[role='button'], button").filter(has_text="완료").first
+                done_btn = page.locator("div[role='button'], button").filter(has_text=re.compile(r"^완료$|^Done$", re.I)).first
                 if await done_btn.count() > 0 and await done_btn.is_visible():
-                    await done_btn.click()
-                    logger.info("👉 '릴스 처리 중 [완료]' 팝업 클릭")
+                    await done_btn.click(force=True)
+                    logger.info("👉 '릴스 처리 중 [완료/Done]' 팝업 클릭")
 
                 # 📌 7단계: [무인 파이프라인] 메타 릴스 서버 인코딩 및 배포 대기 (정확히 60초 휴식)
                 logger.info("⏳ [메타 릴스 무인 파이프라인] 릴스 인코딩 및 서버 배포 대기 (정확히 60초 휴식 후 실물 확인)...")

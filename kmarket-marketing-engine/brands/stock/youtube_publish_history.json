@@ -238,5 +238,45 @@
     "platform": "youtube_shorts",
     "error": "name 're' is not defined",
     "published_at": "2026-10-13 20:52:41"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "name 're' is not defined",
+    "published_at": "2026-10-15 20:56:32"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "name 're' is not defined",
+    "published_at": "2026-10-17 11:57:25"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "name 're' is not defined",
+    "published_at": "2026-10-17 12:17:07"
+  },
+  {
+    "status": "error",
+    "platform": "youtube_shorts",
+    "error": "name 're' is not defined",
+    "published_at": "2026-10-17 12:21:22"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "brand": "stock",
+    "topic_id": 1,
+    "video_id": "QoArbFcxv4U",
+    "video_url": "https://youtube.com/shorts/QoArbFcxv4U",
+    "title": "[삼성전자 수급] 외인 137만주 쌍끌이 실시간 퀀트 진단 #스톡마스터AI #Shorts",
+    "pinned_comment": "📈 [StockMaster AI] 국내 우량주 350개 실시간 퀀트점수 무료 확인:\n👉 https://stockmaster-ai.vercel.app/\n\n🔍 네이버 검색창에 [스톡마스터 AI]를 검색해보세요!\n\n✨ 10분마다 갱신되는 국내 350개 종목의 AI 퀀트 점수를 즉시 확인해 보세요!\n(네이버 검색: 스톡마스터 AI)",
+    "comment_status": "submitted",
+    "privacy_status": "public",
+    "video_file": "★_Stock_34초숏폼_주제01_삼성전자_완제품.mp4",
+    "published_at": "2026-10-17 21:21:31",
+    "elapsed_sec": 119.7,
+    "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
   }
 ]

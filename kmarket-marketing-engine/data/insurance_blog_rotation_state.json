@@ -1,10 +1,221 @@
 {
-  "current_topic_index": 16,
-  "last_topic_id": 51,
-  "last_run_time": "2026-10-15 19:27:14",
-  "last_title": "매달 25만 원 내던 종신보험 해지하고 3만 원짜리 정기보험 바꾼 40대 가장의 솔직 후기 💸",
-  "published_count": 28,
+  "current_topic_index": 19,
+  "last_topic_id": 4,
+  "last_run_time": "2026-10-17 20:36:35",
+  "last_title": "가슴 뻐근해서 스텐트 넣었는데 보험금 0원? 😱 급성심근경색 특약의 배신과 허혈성 심장질환 팩트체크",
+  "published_count": 31,
   "history": [
+    {
+      "topic_id": 4,
+      "title": "가슴 뻐근해서 스텐트 넣었는데 보험금 0원? 😱 급성심근경색 특약의 배신과 허혈성 심장질환 팩트체크",
+      "title_naver": "가슴 뻐근해서 스텐트 넣었는데 보험금 0원? 😱 급성심근경색 특약의 배신과 허혈성 심장질환 팩트체크",
+      "title_tistory": "허혈성 심장질환 vs 급성심근경색 차이점: 협심증 진단비 100% 챙기는 보장 리모델링 가이드",
+      "title_brunch": "협심증 수술비 1,500만 원, 왜 내 통장엔 한 푼도 들어오지 않았을까",
+      "category": "health_medical",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_004_health_medical_20261017_203435.webp",
+      "published_at": "2026-10-17 20:36:35",
+      "publish_results": {
+        "topic_id": 4,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "가슴 뻐근해서 스텐트 넣었는데 보험금 0원? 😱 급성심근경색 특약의 배신과 허혈성 심장질환 팩트체크",
+            "url": "https://blog.naver.com/thefirst-life/224444926405",
+            "post_url": "https://blog.naver.com/thefirst-life/224444926405",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "허혈성심장질환",
+              "협심증보험",
+              "급성심근경색",
+              "심장보험비교",
+              "실비보험4세대",
+              "실비보험4세대5세대",
+              "실비보험4세대기간",
+              "실비보험4세대보장",
+              "실비보험4세대전환",
+              "실비보험4세대갱신",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "think83157",
+            "title": "허혈성 심장질환 vs 급성심근경색 차이점: 협심증 진단비 100% 챙기는 보장 리모델링 가이드",
+            "url": "https://think83157.tistory.com/18",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "허혈성심장질환",
+              "협심증보험",
+              "급성심근경색",
+              "심장보험비교",
+              "실비보험4세대",
+              "실비보험4세대5세대",
+              "실비보험4세대기간",
+              "실비보험4세대보장",
+              "실비보험4세대전환",
+              "실비보험4세대갱신",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "insurance",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "thefirst-life",
+            "title": "가슴 뻐근해서 스텐트 넣었는데 보험금 0원?  급성심근경색 특약의 배신과 허혈성 심장질환 팩트체크",
+            "real_url": "https://blog.naver.com/thefirst-life/224444926405",
+            "log_no": "224444926405",
+            "pub_date": "Sat, 17 Oct 2026 20:35:08 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_verification\\naver_proof_1792236991.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "think83157",
+            "title": "1&middot;2세대 실손보험 갱신 폭탄, 4세대 전환 손익 비교와 후회 없는 선택 기준",
+            "real_url": "https://think83157.tistory.com/18",
+            "pub_date": "Sat, 17 Oct 2026 15:04:44 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-17 20:36:35"
+        }
+      }
+    },
+    {
+      "topic_id": 83,
+      "title": "월 2만 원짜리 보험의 소름 돋는 배신? 60대에 10배 폭탄 맞기 전에 증권 열어보세요 🚨",
+      "title_naver": "월 2만 원짜리 보험의 소름 돋는 배신? 60대에 10배 폭탄 맞기 전에 증권 열어보세요 🚨",
+      "title_tistory": "갱신형 vs 비갱신형 보험 차이 총정리: 2030 세대가 갱신형 가입하면 노후에 벌어지는 일",
+      "title_brunch": "가계부 지키는 알뜰 살림법: 싸다고 덜컥 가입한 갱신형 보험의 민낯",
+      "category": "remodeling_savings",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_083_remodeling_savings_20261017_142832.webp",
+      "published_at": "2026-10-17 14:33:45",
+      "publish_results": {
+        "topic_id": 83,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "월 2만 원짜리 보험의 소름 돋는 배신? 60대에 10배 폭탄 맞기 전에 증권 열어보세요 🚨",
+            "url": "https://blog.naver.com/thefirst-life/224444677000",
+            "post_url": "https://blog.naver.com/thefirst-life/224444677000",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "갱신형보험폭탄",
+              "비갱신형보험추천",
+              "보험료인상률",
+              "20년납100세만기",
+              "태아보험리모델링",
+              "보험리모델링추천",
+              "보험리모델링후기",
+              "보험리모델링장단점",
+              "보험리모델링뜻",
+              "보험리모델링비용",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "insure-balance",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "insurance",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "thefirst-life",
+            "title": "월 2만 원짜리 보험의 소름 돋는 배신? 60대에 10배 폭탄 맞기 전에 증권 열어보세요 ",
+            "real_url": "https://blog.naver.com/thefirst-life/224444677000",
+            "log_no": "224444677000",
+            "pub_date": "Sat, 17 Oct 2026 14:29:06 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_verification\\naver_proof_1792215221.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "think83157",
+            "title": "암보험 가입 전 필수 체크: 일반암과 유사암 진단비 한도 축소와 최적 리모델링 가이드",
+            "real_url": "https://think83157.tistory.com/17",
+            "pub_date": "Sat, 10 Oct 2026 20:02:18 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-17 14:33:45"
+        }
+      }
+    },
+    {
+      "topic_id": 67,
+      "title": "🚨 보험금 0원 거절 카톡 받고 멘붕 온 날, 1,200만 원 뒤집어 받아낸 실전 3단계",
+      "title_naver": "🚨 보험금 0원 거절 카톡 받고 멘붕 온 날, 1,200만 원 뒤집어 받아낸 실전 3단계",
+      "title_tistory": "보험금 부지급 통보 대처법: 의료자문 동의 거부와 금감원 민원으로 재심사 역전하기",
+      "title_brunch": "10년 부은 보험인데 '지급 불가'라니... 아버지를 위해 싸운 기록",
+      "category": "claims_knowhow",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_067_claims_knowhow_20261017_105219.webp",
+      "published_at": "2026-10-17 10:56:45",
+      "publish_results": {
+        "topic_id": 67,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "🚨 보험금 0원 거절 카톡 받고 멘붕 온 날, 1,200만 원 뒤집어 받아낸 실전 3단계",
+            "url": "https://nid.naver.com/nidlogin.login?mode=form&url=https%3A%2F%2Fblog.naver.com%2Fthefirst-life%3FRedirect=%26categoryNo=",
+            "post_url": "https://nid.naver.com/nidlogin.login?mode=form&url=https%3A%2F%2Fblog.naver.com%2Fthefirst-life%3FRedirect=%26categoryNo=",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "보험금부지급대처",
+              "금감원민원넣는법",
+              "의료자문거부",
+              "보험금재심사",
+              "보험금청구서류",
+              "실비보험금청구서류",
+              "보험금청구서류발급",
+              "보험금청구서류종류",
+              "보험금청구서류없이",
+              "삼성생명보험금청구서류",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "insure-balance",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        }
+      }
+    },
     {
       "topic_id": 51,
       "title": "매달 25만 원 내던 종신보험 해지하고 3만 원짜리 정기보험 바꾼 40대 가장의 솔직 후기 💸",

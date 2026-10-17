@@ -1,19 +1,5 @@
 [
   {
-    "timestamp": "2026-10-12 10:01:02",
-    "slot_id": "morning",
-    "slot_name": "🌅 아침 출근길 쇼츠 (7분)",
-    "target_min": 7,
-    "target_likes": 2,
-    "actual_sec": 5,
-    "likes_given": 0,
-    "shorts_watched": 0,
-    "comments_inspected": 0,
-    "status": "success",
-    "gemini_calls": 0,
-    "brand": "stock"
-  },
-  {
     "timestamp": "2026-10-12 10:03:02",
     "slot_id": "morning",
     "slot_name": "🌅 아침 출근길 쇼츠 (7분)",
@@ -1392,6 +1378,20 @@
     "target_min": 7,
     "target_likes": 2,
     "actual_sec": 12,
+    "likes_given": 0,
+    "shorts_watched": 0,
+    "comments_inspected": 0,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "stock"
+  },
+  {
+    "timestamp": "2026-10-17 14:54:57",
+    "slot_id": "lunch",
+    "slot_name": "🍱 점심시간 쇼츠 (8분)",
+    "target_min": 8,
+    "target_likes": 2,
+    "actual_sec": 14,
     "likes_given": 0,
     "shorts_watched": 0,
     "comments_inspected": 0,

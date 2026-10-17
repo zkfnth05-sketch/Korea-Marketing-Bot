@@ -430,18 +430,43 @@ class StockTistoryPublisher:
 
                 # 최신 포스트 URL 파싱 (리스트 페이지에 있을 경우 최상단 글 링크 획득)
                 post_url = final_url
-                if "manage/posts" in final_url or "manage" in final_url:
-                    first_link = await page.query_selector(".table_post tbody tr:first-child a.link_title, a[class*='link_title'], a.link_post")
-                    if first_link:
-                        href = await first_link.get_attribute("href")
-                        if href:
-                            if href.startswith("http"):
-                                post_url = href
-                            else:
-                                post_url = f"https://{self.blog_name}.tistory.com{href}"
+                import re
 
-                # 관리자 주소가 남아있을 경우 RSS 피드를 통해 실제 공개 글 링크 즉시 획득
-                if "manage" in post_url:
+                # 1. 만약 URL 자체가 바로 공개 포스트 번호인 경우 (예: stockmaster-ai.tistory.com/30)
+                m_direct = re.search(r"tistory\.com/(\d+)$", final_url)
+                if m_direct:
+                    post_url = f"https://{self.blog_name}.tistory.com/{m_direct.group(1)}"
+                else:
+                    # 2. 관리자 페이지로 이동했거나 리다이렉트 대기 중인 경우
+                    if "newpost" in final_url:
+                        await asyncio.sleep(3.0)
+                        final_url = page.url
+
+                    if "manage" in final_url:
+                        try:
+                            if "manage/posts" not in final_url:
+                                await page.goto(f"https://{self.blog_name}.tistory.com/manage/posts", wait_until="domcontentloaded", timeout=15000)
+                                await asyncio.sleep(1.5)
+
+                            # 글 관리 목록에서 최신 글 링크 탐색 (제목 링크, 새창 열기 아이콘 등)
+                            link_el = await page.wait_for_selector(
+                                ".table_post tbody tr:first-child a.link_title, a.link_title, a.link_post, a.link_view, .list_post a",
+                                timeout=10000
+                            )
+                            if link_el:
+                                href = await link_el.get_attribute("href") or ""
+                                m_post = re.search(r"postId=(\d+)", href) or re.search(r"/(\d+)$", href)
+                                if m_post:
+                                    post_url = f"https://{self.blog_name}.tistory.com/{m_post.group(1)}"
+                                elif href.startswith("http"):
+                                    post_url = href
+                                elif href:
+                                    post_url = f"https://{self.blog_name}.tistory.com{href}"
+                        except Exception as parse_err:
+                            logger.debug(f"관리자 목록 파싱 보조: {parse_err}")
+
+                # 3. 만약 여전히 manage가 붙어있다면 RSS 피드 또는 블로그 홈에서 실측 URL 확보
+                if "manage" in post_url or not post_url.startswith("http"):
                     try:
                         import urllib.request
                         import xml.etree.ElementTree as ET
@@ -455,7 +480,7 @@ class StockTistoryPublisher:
                     except Exception as rss_err:
                         logger.debug(f"RSS 링크 조회 통과: {rss_err}")
 
-                if "manage" in post_url:
+                if "manage" in post_url or not post_url.startswith("http"):
                     post_url = f"https://{self.blog_name}.tistory.com/"
 
                 # 🌟 [세션 자동 수명 연장] 살아있는 최신 세션 상태를 디스크 및 .good.json 백업에 즉시 자동 저장

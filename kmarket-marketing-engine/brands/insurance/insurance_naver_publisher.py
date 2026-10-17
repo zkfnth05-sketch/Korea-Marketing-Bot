@@ -363,6 +363,17 @@ class InsuranceNaverPublisher:
                 final_url = page.url
                 logger.info(f"✅ [Naver-Insurance] 발행 후 최종 URL: {final_url}")
 
+                # 🛡️ 가짜 성공 차단 (네이버 로그인 화면 리다이렉트 감지)
+                if "nidlogin" in final_url or "nid.naver.com" in final_url or "login" in final_url:
+                    logger.error(f"❌ [Naver-Insurance] 네이버 로그인 세션 만료 감지 -> 발행 실패: {final_url}")
+                    return {
+                        "status": "error",
+                        "blog_id": self.blog_id,
+                        "title": title,
+                        "message": f"네이버 로그인 만료 (URL: {final_url}) - [1회연동] 세션 갱신 필요",
+                        "url": final_url
+                    }
+
                 post_url = final_url if "blog.naver.com" in final_url and "postwrite" not in final_url else f"https://blog.naver.com/{self.blog_id}"
                 logger.info(f"🎉 [Naver-Insurance] 최종 공개 발행 완료! {post_url}")
                 return {
@@ -373,6 +384,7 @@ class InsuranceNaverPublisher:
                     "post_url": post_url,
                     "tags": clean_tags
                 }
+
 
             except Exception as e:
                 logger.error(f"❌ [Naver-Insurance] 발행 실패: {e}")

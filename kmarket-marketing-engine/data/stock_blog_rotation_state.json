@@ -1,10 +1,258 @@
 {
-  "current_topic_index": 31,
-  "last_topic_id": 35,
-  "last_run_time": "2026-10-15 19:28:11",
-  "last_title": "신용잔고율 5%의 덫: 아침 8시 40분 반대매매 폭탄 피하는 퀀트 생존법",
-  "published_count": 40,
+  "current_topic_index": 34,
+  "last_topic_id": 75,
+  "last_run_time": "2026-10-17 20:36:49",
+  "last_title": "전고점 돌파 종목 매매 전략: 라운드 피겨 마디가 분할 익절과 수급 분석법",
+  "published_count": 43,
   "history": [
+    {
+      "topic_id": 75,
+      "title": "전고점 돌파 종목 매매 전략: 라운드 피겨 마디가 분할 익절과 수급 분석법",
+      "title_naver": "전고점 돌파 종목 매매 전략: 라운드 피겨 마디가 분할 익절과 수급 분석법",
+      "title_tistory": "전고점 돌파 후 1차·2차 마디가 목표선 설정법 (K방산 한화에어로스페이스·유한양행 분석)",
+      "title_brunch": "신고가 영역에서 흔들리지 않는 법: 마디가 분할 매도와 퀀트 리스크 관리",
+      "category": "price_boundary",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_price_boundary_20261017_203405.png",
+      "published_at": "2026-10-17 20:36:49",
+      "publish_results": {
+        "topic_id": 75,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "전고점 돌파 종목 매매 전략: 라운드 피겨 마디가 분할 익절과 수급 분석법",
+            "url": "https://blog.naver.com/stockmaster_ai/224444926799",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224444926799",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "라운드피겨",
+              "전고점돌파목표가",
+              "마디가익절",
+              "분할매도",
+              "1만원5만원10만원",
+              "목표선",
+              "코스피주도주",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "체결강도높으면",
+              "체결강도500%",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "stockmaster-ai",
+            "title": "전고점 돌파 후 1차·2차 마디가 목표선 설정법 (K방산 한화에어로스페이스·유한양행 분석)",
+            "url": "https://stockmaster-ai.tistory.com/33",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "라운드피겨",
+              "전고점돌파목표가",
+              "마디가익절",
+              "분할매도",
+              "1만원5만원10만원",
+              "목표선",
+              "코스피주도주",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "체결강도높으면",
+              "체결강도500%",
+              "주식투자"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 47,
+            "title": "전고점 돌파 종목 매매 전략: 라운드 피겨 마디가 분할 익절과 수급 분석법",
+            "category": "RANK1"
+          }
+        },
+        "verification": {
+          "brand": "stock",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "stockmaster_ai",
+            "title": "전고점 돌파 종목 매매 전략: 라운드 피겨 마디가 분할 익절과 수급 분석법",
+            "real_url": "https://blog.naver.com/stockmaster_ai/224444926799",
+            "log_no": "224444926799",
+            "pub_date": "Sat, 17 Oct 2026 20:35:45 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\naver_proof_1792237006.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "stockmaster-ai",
+            "title": "전고점 돌파 후 1차&middot;2차 마디가 목표선 설정법 (K방산 한화에어로스페이스&middot;유한양행 분석)",
+            "real_url": "https://stockmaster-ai.tistory.com/33",
+            "pub_date": "Sat, 17 Oct 2026 20:36:29 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-17 20:36:49"
+        }
+      }
+    },
+    {
+      "topic_id": 65,
+      "title": "매크로 스트레스 지수 5점 vs 80점: 현금 비중 세팅과 주도주 대응 전략",
+      "title_naver": "매크로 스트레스 지수 5점 vs 80점: 현금 비중 세팅과 주도주 대응 전략",
+      "title_tistory": "시장 매크로 스트레스 지수로 읽는 현금 비중 공식과 주도 우량주 퀀트 분석",
+      "title_brunch": "공포와 탐욕을 수치화하다: 매크로 스트레스 지수별 자산 배분과 주도주 선별법",
+      "category": "macro_stress",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_macro_stress_20261017_162621.png",
+      "published_at": "2026-10-17 16:28:36",
+      "publish_results": {
+        "topic_id": 65,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "매크로 스트레스 지수 5점 vs 80점: 현금 비중 세팅과 주도주 대응 전략",
+            "url": "https://blog.naver.com/stockmaster_ai/224444765560",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224444765560",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "매크로스트레스",
+              "현금비중조절",
+              "시장위험도",
+              "계좌자산배분",
+              "안정국면",
+              "위험관리",
+              "코스피주도주",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "체결강도높으면",
+              "체결강도500%",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "stockmaster-ai",
+            "title": "시장 매크로 스트레스 지수로 읽는 현금 비중 공식과 주도 우량주 퀀트 분석",
+            "url": "https://stockmaster-ai.tistory.com/32",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "매크로스트레스",
+              "현금비중조절",
+              "시장위험도",
+              "계좌자산배분",
+              "안정국면",
+              "위험관리",
+              "코스피주도주",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "체결강도높으면",
+              "체결강도500%",
+              "주식투자"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 46,
+            "title": "매크로 스트레스 지수 5점 vs 80점: 현금 비중 세팅과 주도주 대응 전략",
+            "category": "RANK1"
+          }
+        },
+        "verification": {
+          "brand": "stock",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "stockmaster_ai",
+            "title": "매크로 스트레스 지수 5점 vs 80점: 현금 비중 세팅과 주도주 대응 전략",
+            "real_url": "https://blog.naver.com/stockmaster_ai/224444765560",
+            "log_no": "224444765560",
+            "pub_date": "Sat, 17 Oct 2026 16:27:32 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\naver_proof_1792222112.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "stockmaster-ai",
+            "title": "시장 매크로 스트레스 지수로 읽는 현금 비중 공식과 주도 우량주 퀀트 분석",
+            "real_url": "https://stockmaster-ai.tistory.com/32",
+            "pub_date": "Sat, 17 Oct 2026 16:28:16 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-17 16:28:36"
+        }
+      }
+    },
+    {
+      "topic_id": 50,
+      "title": "쌍바닥 W자 패턴 완성 종목과 2차전지 양극재 반등 변곡점 공략법",
+      "title_naver": "쌍바닥 W자 패턴 완성 종목과 2차전지 양극재 반등 변곡점 공략법",
+      "title_tistory": "쌍바닥 변곡점 포착 전략: 2차전지 양극재 반등 및 밸류업 수혜주 실전 퀀트 매매",
+      "title_brunch": "바닥을 확인한 주식의 신호: 쌍바닥 변곡점과 2차전지 반등의 기회",
+      "category": "turning_point",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_turning_point_20261017_105147.png",
+      "published_at": "2026-10-17 10:56:10",
+      "publish_results": {
+        "topic_id": 50,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "쌍바닥 W자 패턴 완성 종목과 2차전지 양극재 반등 변곡점 공략법",
+            "url": "https://blog.naver.com/stockmaster_ai/224444522710?fromRss=true&trackingCode=rss",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224444522710?fromRss=true&trackingCode=rss",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "이중바닥",
+              "쌍바닥패턴",
+              "반등매매",
+              "W자바닥",
+              "차트패턴",
+              "신뢰도85프로",
+              "코스피주도주",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "체결강도높으면",
+              "체결강도500%",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [백업도 실패] [1회연동]_stock_티스토리_영구로그인.bat 1회 실행 필요",
+            "blog_name": "stockmaster-ai"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 45,
+            "title": "쌍바닥 W자 패턴 완성 종목과 2차전지 양극재 반등 변곡점 공략법",
+            "category": "RANK1"
+          }
+        }
+      }
+    },
     {
       "topic_id": 35,
       "title": "신용잔고율 5%의 덫: 아침 8시 40분 반대매매 폭탄 피하는 퀀트 생존법",

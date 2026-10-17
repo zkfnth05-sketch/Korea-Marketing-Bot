@@ -502,5 +502,19 @@
     "status": "success",
     "gemini_calls": 0,
     "brand": "aura"
+  },
+  {
+    "timestamp": "2026-10-17 21:24:05",
+    "slot_id": "afternoon",
+    "slot_name": "☕ 오후 퇴근길 틱톡 (15분)",
+    "target_min": 15,
+    "target_likes": 3,
+    "actual_sec": 922,
+    "likes_given": 3,
+    "videos_watched": 28,
+    "comments_inspected": 7,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "aura"
   }
 ]

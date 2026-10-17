@@ -194,6 +194,8 @@ class AuraBlogEngine:
             content_md = re.sub(r'\((https?://[^\s\)]+)\)', '', content_md)
             content_md = re.sub(r'https?://[^\s\)]+', '', content_md)
             content_md = content_md.replace("\u00a0", " ")
+            from .aura_link_sanitizer import sanitize_aura_body
+            content_md = sanitize_aura_body(content_md)
             if content_md.startswith("# "):
                 content_md = content_md.split("\n", 1)[-1].strip()
 

@@ -364,5 +364,21 @@
     "platform": "youtube_shorts",
     "error": "name 're' is not defined",
     "published_at": "2026-10-15 20:37:39"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "brand": "insurance",
+    "topic_id": 7,
+    "video_id": "x4E6MX60XU8",
+    "video_url": "https://youtube.com/shorts/x4E6MX60XU8",
+    "title": "[중복특약 삭제] 매달 새는 보험료 80% 줄이는 꿀팁 #보험리밸런스 #Shorts",
+    "pinned_comment": "🛡️ [보험 리밸런스] 34개 보험사 모든 보험 무료조회:\n👉 https://insure-rebalance.vercel.app/\n\n🔍 네이버 검색창에 [보험 리밸런스]를 검색해보세요!\n\n✨ 34개 보험사 비교 및 내 보험료 다이어트를 무료로 즉시 시작해 보세요!\n(네이버 검색: 보험 리밸런스)",
+    "comment_status": "submitted",
+    "privacy_status": "public",
+    "video_file": "Insurance_22초숏폼_주제07_duplicate_coverage_diet_20261012_100027.mp4",
+    "published_at": "2026-10-17 21:17:48",
+    "elapsed_sec": 117.4,
+    "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
   }
 ]

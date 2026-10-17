@@ -15,6 +15,7 @@
 
 import os
 import sys
+import re
 import json
 import time
 import logging
@@ -157,10 +158,8 @@ class InsuranceYouTubeBotPublisher:
             "34개 보험사 비교 견적부터 매달 새는 보험료 다이어트까지!\n\n"
             f"🔍 네이버 검색: {self.OFFICIAL_KEYWORD}\n\n"
         )
-        if "첫 번째 댓글" not in desc_body:
-            desc_body = f"💬 34개 보험사 무료 비교 링크는 [첫 번째 댓글]을 확인해 보세요!\n\n{desc_body}"
-        # 본문 내 모든 URL 전면 제거 (스레드 방식: 본문 URL 0%, 첫 댓글 100% 직결)
-        desc_body = re.sub(r'https?://\S+', '👉 [첫 번째 댓글 링크 참조]', desc_body)
+        # 본문 내 모든 URL 전면 소독 (알고리즘 다운랭킹 방지 및 네이버 공식 검색어 유도)
+        desc_body = re.sub(r'https?://\S+', f'👉 네이버 검색: [{self.OFFICIAL_KEYWORD}]', desc_body)
         full_desc = f"{desc_body.strip()}\n\n{tags_line}".strip()[:5000]
 
         # 고정 댓글 문구 (시청자가 댓글창 열자마자 바로 누르고 조회할 수 있는 직결 통로)

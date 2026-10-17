@@ -102,6 +102,7 @@ class StockLiveTracker:
         today_count = 0
         try:
             import sqlite3
+            import re
             from config import DB_PATH
             if DB_PATH.exists():
                 conn = sqlite3.connect(str(DB_PATH))
@@ -110,7 +111,7 @@ class StockLiveTracker:
                     SELECT id, title, content_text, target_url, created_at
                     FROM marketing_history
                     WHERE service_id = ? AND content_type = 'reddit_reply'
-                    ORDER BY id DESC LIMIT 10
+                    ORDER BY id DESC LIMIT 15
                 """, (self.BRAND_KEY,))
                 rows = cur.fetchall()
                 conn.close()
@@ -119,20 +120,25 @@ class StockLiveTracker:
                     is_today = p_time.startswith(today_str)
                     if is_today:
                         today_count += 1
+                    target_url = r[3] or "https://www.reddit.com/r/stocks/"
+                    sub_match = re.search(r'reddit\.com/r/([^/]+)', target_url)
+                    subreddit = sub_match.group(1) if sub_match else "stocks"
                     posts.append({
                         "id": r[0],
+                        "subreddit": subreddit,
                         "title": r[1] or "레딧 스텔스 답변",
-                        "comment_snippet": (r[2] or "")[:150],
-                        "url": r[3] or "https://www.reddit.com/r/stocks/",
+                        "comment_snippet": (r[2] or "")[:250],
+                        "url": target_url,
                         "time": p_time,
                         "is_today": is_today
                     })
+                posts.sort(key=lambda x: (1 if x["is_today"] else 0, x["time"]), reverse=True)
         except Exception as e:
             logger.warning(f"Failed to read stock reddit history: {e}")
 
         return {
             "today_count": today_count,
-            "target_count": 1,
+            "target_count": 4,
             "posts": posts,
             "last_post": posts[0] if posts else None
         }
@@ -304,6 +310,24 @@ class StockLiveTracker:
         if tistory_status == "session_expired" and has_fresh_session:
             tistory_status = "idle"
             tistory_msg = ""
+
+        # 독립 티스토리 파이프라인 상태 파일(stock_tistory_daily_state.json) 직접 연동
+        tistory_state_file = DATA_DIR / "stock_tistory_daily_state.json"
+        if tistory_state_file.exists():
+            try:
+                with open(tistory_state_file, "r", encoding="utf-8") as tf:
+                    tdata = json.load(tf)
+                    t_last_url = tdata.get("last_url", "")
+                    t_last_title = tdata.get("last_title", "")
+                    t_last_time = tdata.get("last_run_time", "")
+                    if t_last_url and "tistory.com" in t_last_url:
+                        tistory_url = t_last_url
+                        tistory_status = "success"
+                        tistory_title = t_last_title
+                        if t_last_time:
+                            tistory_published_at = t_last_time
+            except Exception:
+                pass
 
         # 티스토리 RSS를 통한 오늘자 최신 발행 글 검증
         if tistory_status != "session_expired" and (not tistory_url or "manage" in tistory_url):

@@ -46,18 +46,8 @@ class ShortsBrandingOverlay:
             "sub_text": "50:50 남녀 황금 성비",
             "sub_color_hex": "#F472B6",
             "sub_color_class": "text-pink-400",
-            "badge_label": "3초 무료 입장",
-            "headline": "아우라 ai 데이팅 모든기능 무료 사용하기",
-            "sub_guide": "👉 아래 댓글창을 누르고 공식 웹사이트에 3초 만에 무료 입장하세요!",
-            "btn_text": "댓글링크 참조 👉",
-            "border_gradient": "linear-gradient(135deg, #F43F5E, #EC4899, #A855F7)",
-            "glow_color": "rgba(244, 63, 94, 0.45)",
-            "accent_color": "#FB7185",
-            "btn_gradient": "linear-gradient(135deg, #F43F5E, #A855F7)",
-            "badge_bg": "rgba(244, 63, 94, 0.2)",
-            "badge_border": "rgba(251, 113, 133, 0.5)",
-            "badge_text": "#FDA4AF",
             "keyword": "아우라AI데이팅",
+            "sub_guide": "👉 네이버에 '아우라AI데이팅' 검색 또는 상단 프로필 링크 클릭!",
             "filename": "aura_branding_overlay_1080x1920.png"
         },
         "insurance": {
@@ -66,18 +56,8 @@ class ShortsBrandingOverlay:
             "sub_text": "34개사 실시간 비교",
             "sub_color_hex": "#34D399",
             "sub_color_class": "text-emerald-400",
-            "badge_label": "34개사 실시간 비교",
-            "headline": "보험리밸런스 34개 보험사 모든 보험 무료조회",
-            "sub_guide": "👉 아래 댓글창을 누르고 내 숨은 보험료 다이어트를 무료로 시작하세요!",
-            "btn_text": "댓글링크 참조 👉",
-            "border_gradient": "linear-gradient(135deg, #10B981, #06B6D4, #3B82F6)",
-            "glow_color": "rgba(16, 185, 129, 0.45)",
-            "accent_color": "#34D399",
-            "btn_gradient": "linear-gradient(135deg, #10B981, #06B6D4)",
-            "badge_bg": "rgba(16, 185, 129, 0.2)",
-            "badge_border": "rgba(52, 211, 153, 0.5)",
-            "badge_text": "#6EE7B7",
             "keyword": "보험 리밸런스",
+            "sub_guide": "👉 네이버에 '보험 리밸런스' 검색 또는 상단 프로필 링크 클릭!",
             "filename": "insurance_branding_overlay_1080x1920.png"
         },
         "stock": {
@@ -86,32 +66,21 @@ class ShortsBrandingOverlay:
             "sub_text": "외인·기관 실시간 수급 포착",
             "sub_color_hex": "#FBBF24",
             "sub_color_class": "text-amber-400",
-            "badge_label": "실시간 퀀트 분석",
-            "headline": "10분마다 국내우량주 350개 종목 실시간 퀀트점수 확인",
-            "sub_guide": "👉 아래 댓글창을 누르고 오늘 급등 유망주 AI 퀀트 점수를 즉시 확인하세요!",
-            "btn_text": "댓글링크 참조 👉",
-            "border_gradient": "linear-gradient(135deg, #F59E0B, #EF4444, #EC4899)",
-            "glow_color": "rgba(245, 158, 11, 0.45)",
-            "accent_color": "#FBBF24",
-            "btn_gradient": "linear-gradient(135deg, #F59E0B, #EF4444)",
-            "badge_bg": "rgba(245, 158, 11, 0.2)",
-            "badge_border": "rgba(251, 191, 36, 0.5)",
-            "badge_text": "#FDE68A",
             "keyword": "스톡마스터 AI",
+            "sub_guide": "👉 네이버에 '스톡마스터 AI' 검색 또는 상단 프로필 링크 클릭!",
             "filename": "stock_branding_overlay_1080x1920.png"
         }
     }
 
     @classmethod
     def build_overlay_html(cls, config: Dict[str, Any]) -> str:
-        """1080x1920 세로 풀HD 투명 오버레이 HTML (다크 글래스모피즘 댓글링크 참조 배너)"""
+        """카드뉴스 디자인을 100% 동일하게 가져온 1080x1920 투명 오버레이 HTML"""
         return f"""<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
   body {{
     background: transparent;
     margin: 0;
@@ -119,37 +88,10 @@ class ShortsBrandingOverlay:
     width: 1080px;
     height: 1920px;
     overflow: hidden;
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Pretendard', 'Noto Sans KR', sans-serif;
   }}
-  .glass-card {{
-    background: rgba(13, 17, 28, 0.94);
-    backdrop-filter: blur(28px);
-    border-radius: 28px;
-    position: relative;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 50px {config['glow_color']};
-  }}
-  .glass-card::before {{
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: 30px;
-    padding: 2.5px;
-    background: {config['border_gradient']};
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-  }}
-  .btn-gradient {{
-    background: {config['btn_gradient']};
-    box-shadow: 0 8px 24px {config['glow_color']};
-  }}
-  .pulse-dot {{
-    animation: pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }}
-  @keyframes pulse {{
-    0%, 100% {{ opacity: 1; transform: scale(1); }}
-    50% {{ opacity: .6; transform: scale(1.15); }}
+  .naver-glow {{
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 35px rgba(3, 199, 90, 0.45);
   }}
 </style>
 </head>
@@ -164,56 +106,35 @@ class ShortsBrandingOverlay:
     </div>
   </div>
 
-  <!-- [2] 하단 골든 세이프존: 신규 다크 글래스모피즘 댓글링크 참조 배너 UI (바닥에서 230px) -->
-  <div style="position:absolute; bottom:230px; left:50%; transform:translateX(-50%); width:960px;">
+  <!-- [2] 하단 골든 세이프존: 카드뉴스 5번 공식 네이버 검색창 UI (바닥에서 310px) -->
+  <div style="position:absolute; bottom:230px; left:50%; transform:translateX(-50%); width:900px;" class="flex flex-col items-center">
     
-    <div class="glass-card w-full p-6 px-8 flex flex-col gap-3">
+    <!-- 네이버 공식 검색창 본체 (화이트 라운드 카드 + 초록 보더 & 글로우) -->
+    <div class="w-full bg-white rounded-3xl p-4 px-6 flex items-center justify-between naver-glow border-2 border-[#03C75A]">
       
-      <!-- 상단 라인: 뱃지 + 헤드라인 + 우측 CTA 버튼 -->
-      <div class="flex items-center justify-between gap-5">
-        
-        <div class="flex items-center gap-4 flex-1 min-w-0">
-          <!-- 💬 댓글 아이콘 박스 -->
-          <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shrink-0" 
-               style="background: {config['badge_bg']}; border: 1.5px solid {config['badge_border']};">
-            💬
-          </div>
-
-          <div class="flex flex-col gap-1 min-w-0">
-            <div class="flex items-center gap-2">
-              <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-black tracking-wide"
-                    style="background: {config['badge_bg']}; color: {config['badge_text']}; border: 1px solid {config['badge_border']};">
-                <span class="w-1.5 h-1.5 rounded-full bg-current pulse-dot"></span>
-                {config['badge_label']}
-              </span>
-              <span class="text-xs font-bold text-slate-400">| 첫 댓글 고정</span>
-            </div>
-            <!-- 대표님 지정 헤드라인 문구 -->
-            <h2 class="text-[25px] font-black text-white tracking-tight leading-tight truncate">
-              {config['headline']}
-            </h2>
-          </div>
+      <!-- 좌측: 네이버 공식 N 로고 + 텍스트 키워드 -->
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-[#03C75A] flex items-center justify-center font-black text-white text-3xl shadow-md">
+          N
         </div>
-
-        <!-- 우측: '댓글링크 참조 👉' 네온 버튼 -->
-        <div class="btn-gradient shrink-0 px-6 py-4 rounded-2xl flex items-center gap-2.5 text-white font-black text-xl tracking-tight shadow-xl">
-          <span>{config['btn_text']}</span>
-        </div>
-
-      </div>
-
-      <!-- 하단 안내 라인 -->
-      <div class="flex items-center justify-between pt-2.5 border-t border-white/10 text-xs font-medium text-slate-300">
-        <div class="flex items-center gap-2">
-          <span class="text-emerald-400 font-bold">● 1초 직결</span>
-          <span>{config['sub_guide']}</span>
-        </div>
-        <div class="flex items-center gap-1.5 text-slate-400 font-bold">
-          <span>무료 혜택 즉시 적용</span>
-          <span>⚡</span>
+        <div class="text-left">
+          <p class="text-xs font-bold text-slate-500 mb-0.5">네이버 검색창에 입력하세요</p>
+          <p class="text-3xl font-black text-slate-900 tracking-tight">{config["keyword"]}</p>
         </div>
       </div>
 
+      <!-- 우측: 네이버 녹색 검색 버튼 -->
+      <div class="bg-[#03C75A] text-white font-black text-xl px-7 py-3.5 rounded-2xl flex items-center gap-2 shadow-lg">
+        <span>검색</span>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </div>
+    </div>
+
+    <!-- 하단 서브 안내 캡슐 바 (다크 글래스모피즘 가이드) -->
+    <div class="inline-flex items-center justify-center gap-2 bg-slate-950/85 backdrop-blur-md border border-white/20 rounded-full py-2.5 px-6 shadow-xl mt-3">
+      <span class="text-sm font-bold {config["sub_color_class"]} tracking-tight">{config["sub_guide"]}</span>
     </div>
 
   </div>

@@ -102,7 +102,8 @@ class AuraCafeReplyWriter:
                             model=model_name,
                             contents=prompt,
                             config=types.GenerateContentConfig(
-                                automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True), system_instruction=system_instruction,
+                                automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
+                                system_instruction=system_instruction,
                                 temperature=0.75,
                                 max_output_tokens=2048
                             )

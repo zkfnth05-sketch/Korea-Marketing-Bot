@@ -59,6 +59,7 @@ class InsuranceKinPipeline:
         self.filter = InsurancePythonFilter()
 
     DAILY_QUOTA = 10  # 하루 상한 등록 목표
+    SAFETY_LOCKED = True  # 🛡️ [네이버 계정 보호 절대 안전핀] 1차 경고에 따른 전면 동면 (0회 답변 영구 보장)
 
     def run_catch_cycle(self, max_catch: int = 10, dry_run: bool = False) -> Dict[str, Any]:
         """
@@ -67,6 +68,15 @@ class InsuranceKinPipeline:
         2. 적합도 심사 (85점 이상 선별)
         3. 합격한 질문 중 성공 등록될 때까지 순차 시도 (하루 10개 할당량 도달 시 중단)
         """
+        if getattr(self, "SAFETY_LOCKED", False) and not dry_run:
+            logger.info("🛡️ [안전핀 작동] 네이버 계정 보호를 위해 InsureBalance 지식iN 낚아채기가 봉인(휴식)되어 있습니다.")
+            return {
+                "success": False,
+                "status": "safety_locked",
+                "message": "🛡️ 네이버 계정 보호를 위해 보험 지식iN 파이프라인이 안전하게 봉인(휴식)되어 있습니다.",
+                "published_count": 0
+            }
+
         logger.info(f"🚀 [Insurance 지식iN 파이프라인] 실시간 낚아채기 사이클 가동 시작... (mode={'DRY-RUN' if dry_run else 'LIVE'})")
 
         # 0. 히스토리 로드 및 100% 영구 중복 방어 집합(done_ids) 구축

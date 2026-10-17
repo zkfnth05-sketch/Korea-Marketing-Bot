@@ -176,6 +176,11 @@ class AuraKinScanner:
                         if not doc_id or doc_id in seen_doc_ids:
                             continue
 
+                        # 🚫 비연애/청소년/가족/직장/금융 카테고리 즉시 배제 (80101 연애·결혼, 데이트코스 등 순수 연애만 허용)
+                        DISALLOWED_DIR_PREFIXES = ("80105", "80104", "80103", "80102", "614", "11", "12", "20", "30", "40", "50", "90")
+                        if dir_id and any(dir_id.startswith(pfx) for pfx in DISALLOWED_DIR_PREFIXES):
+                            continue
+
                         # 날짜 추출 (dd.txt_inline or .txt_date)
                         date_el = await li.query_selector("dd.txt_inline") or await li.query_selector(".txt_date")
                         date_str = (await date_el.inner_text()).strip() if date_el else ""
