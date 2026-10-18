@@ -124,9 +124,9 @@ class InsuranceMBSReelsPublisher:
                         logger.info(f"🎉 [보험 MBS Reel] 시도 {attempt}에서 100% 실물 발행 성공!")
                         # 💬 [자율 파이프라인] 릴스 발행 직후 인스타그램 & 페이스북 단독 첫 댓글 자율 집행
                         try:
-                            from brands.insurance.insurance_meta_comment_pipeline import run_insurance_meta_comments
+                            from brands.insurance.insurance_meta_comment_pipeline import run_insurance_meta_comments_async
                             logger.info("💬 [보험] 인스타그램 & 페이스북 공식 첫 댓글 자율 파이프라인 출동...")
-                            result["comments"] = run_insurance_meta_comments()
+                            result["comments"] = await run_insurance_meta_comments_async()
                         except Exception as ce:
                             logger.warning(f"⚠️ 보험 댓글 파이프라인 실행 중 경고: {ce}")
                         return result

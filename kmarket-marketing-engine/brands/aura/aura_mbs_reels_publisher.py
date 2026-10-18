@@ -118,11 +118,11 @@ class AuraMBSReelsPublisher:
                     result = await self._execute_recipe_once(video_path, clean_caption)
                     if result.get("status") == "success":
                         logger.info(f"🎉 [아우라 MBS Reel] 시도 {attempt}에서 100% 실물 발행 성공!")
-                        # 💬 [자율 파이프라인] 릴스 발행 직후 인스타그램 & 페이스북 단독 첫 댓글 자율 집행
+                        # 💬 [자율 파이프라인] 릴스 발행 직후 인스타그램 & 페이스북 단독 첫 댓글 자율 집행 (비동기 직접 await)
                         try:
-                            from brands.aura.aura_meta_comment_pipeline import run_aura_meta_comments
+                            from brands.aura.aura_meta_comment_pipeline import run_aura_meta_comments_async
                             logger.info("💬 [아우라] 인스타그램 & 페이스북 공식 첫 댓글 자율 파이프라인 출동...")
-                            result["comments"] = run_aura_meta_comments()
+                            result["comments"] = await run_aura_meta_comments_async()
                         except Exception as ce:
                             logger.warning(f"⚠️ 아우라 댓글 파이프라인 실행 중 경고: {ce}")
                         return result
@@ -181,7 +181,6 @@ class AuraMBSReelsPublisher:
                     pass
 
                 logger.info("2. '동영상 추가' 미디어 주입 중...")
-                import re
                 try:
                     await page.wait_for_selector("input[type='file'], [role='button']:has-text('동영상'), [role='button']:has-text('Add video'), button:has-text('동영상'), button:has-text('Add Video')", timeout=15000)
                 except Exception:

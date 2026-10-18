@@ -54,8 +54,52 @@ class StockKinScheduler:
     def __init__(self):
         self.pipeline = StockKinPipeline()
 
+    # =====================================================================
+    # 🚨 지식iN 실물 답변 등록 성공 3중 가드 검증 (허위 성공 표출 원천 차단)
+    # =====================================================================
+    KIN_INVALID_STATUSES = {
+        "publish_unverified",
+        "error",
+        "unverified_unregistered",
+        "dry_run_success",
+        "already_answered",
+        "answer_btn_not_found",
+        "login_required",
+        "editor_not_found",
+        "register_btn_not_found",
+        "naver_rejected",
+    }
+
+    def _is_verified_published(self, item: Dict[str, Any]) -> bool:
+        """지식iN 실물 답변 등록 성공 여부 3중 가드 판정
+
+        가드 1) status == "published" (그 외 상태는 무조건 실패)
+        가드 2) published_url 에 "answerNo=" 포함 또는 answer_no 실값 존재
+        가드 3) status 가 미검증/오류/드라이런/차단 블랙리스트에 속하지 않음
+        """
+        if not isinstance(item, dict):
+            return False
+
+        status = str(item.get("status") or "").strip().lower()
+
+        # 가드 1: status 가 정확히 'published' 인 건만 인정
+        if status != "published":
+            return False
+
+        # 가드 3: 미검증/오류/드라이런/차단 상태 블랙리스트 배제
+        if status in self.KIN_INVALID_STATUSES:
+            return False
+
+        # 가드 2: 실물 답변 번호(answerNo) 실증
+        published_url = str(item.get("published_url") or item.get("answer_url") or "")
+        answer_no = item.get("answer_no") or item.get("answerNo") or item.get("answer_id") or ""
+        if not (("answerno=" in published_url.lower()) or bool(str(answer_no).strip())):
+            return False
+
+        return True
+
     def _load_state(self) -> Dict[str, Any]:
-        """일일 등록 상태 로드 (날짜 바뀌면 자동 리셋 & history 실측 건수 100% 동기화)"""
+        """일일 등록 상태 로드 (날짜 바뀌면 자동 리셋 & history 실측 3중 가드 건수로 자가 치유)"""
         today_str = datetime.now().strftime("%Y-%m-%d")
         state = {
             "date": today_str,
@@ -73,14 +117,24 @@ class StockKinScheduler:
             except Exception:
                 pass
 
-        # 💡 [Rule 5 준수: 100% 정직한 실측 전수 조사] 실제 등록된 history 파일 전수 카운트
+        # 💡 [실측 전수 조사] 오늘자 + 3중 가드 100% 통과한 진짜 실물 답변만 집계
         try:
             history = self.pipeline._load_history()
-            actual_today = sum(1 for h in history if str(h.get("created_at", "")).startswith(today_str))
-            if actual_today > state.get("daily_total", 0):
-                state["daily_total"] = actual_today
-        except Exception:
-            pass
+            actual_today = 0
+            for h in history:
+                if not isinstance(h, dict):
+                    continue
+                if not str(h.get("created_at", "")).startswith(today_str):
+                    continue
+                if self._is_verified_published(h):
+                    actual_today += 1
+
+            # 과거의 오염된 daily_total 을 순수 파생 뷰로 자가 치유 (상향/하향 모두 동기화)
+            state["daily_total"] = actual_today
+            state["date"] = today_str
+            state["target"] = self.DAILY_TARGET
+        except Exception as e:
+            logger.warning(f"⚠️ [Stock 실측 동기화 실패] {e}")
 
         return state
 
@@ -93,17 +147,17 @@ class StockKinScheduler:
     def trigger_scheduled_catch(self) -> Dict[str, Any]:
         """
         24시간 상시 호출 트리거:
-        - 오늘 10개 미만이면 실시간으로 국내 주식 질문을 낚아채어 등록
-        - 10개 완료 시 안전 대기
+        - 오늘 실물 등록 성공 건이 DAILY_TARGET(10개) 미만이면 무조건 낚아채기 사이클 실행
+        - 10개 완료 시에만 안전 대기 (조기 취침/오판 중단 원천 차단)
         """
         state = self._load_state()
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        logger.info(f"⏰ [Stock 지식iN 24시간 레이더] 현재 일일 쿼터: {state['daily_total']}/{self.DAILY_TARGET}개 (시각: {now_str})")
+        logger.info(f"⏰ [Stock 지식iN 24시간 레이더] 현재 실물 등록 쿼터: {state['daily_total']}/{self.DAILY_TARGET}개 (시각: {now_str})")
 
-        # 일일 상한선 10개 체크
+        # 일일 상한선 10개 체크 (실측 3중 가드 통과 건 기준)
         if state["daily_total"] >= self.DAILY_TARGET:
-            logger.info(f"✅ 오늘 목표 {self.DAILY_TARGET}개 낚아채기 완료! 자정까지 안전 대기 모드를 유지합니다.")
+            logger.info(f"✅ 오늘 목표 {self.DAILY_TARGET}개 실물 등록 완료! 자정까지 안전 대기 모드를 유지합니다.")
             return {
                 "success": False,
                 "status": "daily_quota_full",
@@ -112,14 +166,19 @@ class StockKinScheduler:
                 "target": self.DAILY_TARGET
             }
 
-        # 파이프라인 1회 실행
+        # 🚨 쿼터 미달이면 무조건 낚아채기 사이클 실행 (조기 취침 방지)
         res = self.pipeline.run_catch_cycle(max_catch=1)
         if res.get("success"):
-            state["daily_total"] += 1
             state["last_run_at"] = now_str
             state["last_doc_id"] = res.get("record", {}).get("doc_id", "")
             self._save_state(state)
-            logger.info(f"🎉 [Stock 등록 성공] 오늘 누적 쿼터: {state['daily_total']} / {self.DAILY_TARGET}개 달성!")
+
+            # 등록 직후 실측 재집계로 쿼터 자가 치유 (허위 카운트 누적 방지)
+            refreshed = self._load_state()
+            state["daily_total"] = refreshed.get("daily_total", state.get("daily_total", 0))
+            self._save_state(state)
+
+            logger.info(f"🎉 [Stock 등록 성공] 오늘 실물 누적 쿼터: {state['daily_total']} / {self.DAILY_TARGET}개 달성!")
             res["daily_total"] = state["daily_total"]
             res["target"] = self.DAILY_TARGET
 

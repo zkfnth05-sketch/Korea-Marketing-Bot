@@ -11,6 +11,7 @@ AuraVoiceCloner - 💖 [Aura AI 데이팅 전용 알리바바 CosyVoice 음성 �
 
 import os
 import sys
+import time
 import wave
 import json
 import logging
@@ -54,10 +55,6 @@ class AuraVoiceCloner:
             self.ffmpeg_exe = "ffmpeg"
 
         self.dashscope_api_key = os.getenv("DASHSCOPE_API_KEY", os.getenv("ALIYUN_API_KEY", ""))
-        self.typecast_api_key = os.getenv("TYPECAST_API_KEY", "")
-        # 👩 여성: 아라(Ara) / 👨 남성: 진우(Jinwoo) 독립 Voice ID
-        self.typecast_voice_id_female = os.getenv("TYPECAST_VOICE_ID_AURA", "tc_667ce80314cb3a612d6959e8")
-        self.typecast_voice_id_male = os.getenv("TYPECAST_VOICE_ID_MALE", "tc_6541f92e4299b0c2017367c3")
 
     def get_preset_audio_path(self, gender: str = "female") -> Path:
         """Aura 전용 5초 참조 오디오 경로 반환 (성별 일치)"""
@@ -72,7 +69,7 @@ class AuraVoiceCloner:
         sample_rate: int = 24000
     ) -> str:
         """
-        Aura 전용 대본을 아라(여성) 또는 진우(남성) 목소리로 복제 합성 (4단계 자율 페일오버)
+        Aura 전용 대본을 아라(여성) 또는 진우(남성) 목소리로 알리바바 CosyVoice 복제 합성
         """
         out_p = Path(output_wav_path).resolve()
         out_p.parent.mkdir(parents=True, exist_ok=True)
@@ -89,31 +86,53 @@ class AuraVoiceCloner:
             logger.info(f"🔇 [AuraVoiceCloner] 빈 텍스트 무음 처리 완료 -> {out_p.name}")
             return str(out_p)
 
-        logger.info(f"💖 [AuraVoiceCloner] {persona_name} 음성 복제 시작: \"{text[:30]}...\"")
+        logger.info(f"💖 [AuraVoiceCloner] {persona_name} 알리바바 CosyVoice 음성 복제 시작: \"{text[:30]}...\"")
 
-        # [1단계] Alibaba DashScope CosyVoice 시도
-        if self.dashscope_api_key:
+        # [1단계] 알리바바 키가 유효하게 등록되어 있을 경우 CosyVoice 우선 시도
+        if self.dashscope_api_key and len(self.dashscope_api_key.strip()) > 10:
             try:
-                res = self._synthesize_cosyvoice(text, str(out_p), gender=gender, sample_rate=sample_rate)
-                if res and out_p.exists() and out_p.stat().st_size > 1000:
+                self._synthesize_cosyvoice(text, str(out_p), gender=gender, sample_rate=sample_rate)
+                if out_p.exists() and out_p.stat().st_size > 1000:
                     logger.info(f"🎉 [Aura CosyVoice 성공] {persona_name} 음성 복제 완료: {out_p.name}")
                     return str(out_p)
             except Exception as e:
-                logger.warning(f"⚠️ [Aura CosyVoice API 예외] {e} ➔ 2단계 Typecast로 전환")
+                logger.warning(f"⚠️ [Aura CosyVoice 예외] {e} ➔ 무결점 고음질 엔진으로 즉시 자동 전환")
 
-        # [2단계] Typecast 보이스 폴백 (남/여 맞춤)
-        try:
-            res = self._synthesize_typecast(text, str(out_p), gender=gender, sample_rate=sample_rate)
-            if res and out_p.exists() and out_p.stat().st_size > 1000:
-                logger.info(f"🎉 [Aura Typecast 성공] {persona_name} 음성 합성 완료: {out_p.name}")
-                return str(out_p)
-        except Exception as e:
-            logger.warning(f"⚠️ [Aura Typecast 예외] {e} ➔ 3단계 Edge-TTS로 전환")
+        # [2단계] 최신 Edge-TTS 7.3.1 무결점 로컬 고속 무인 합성 (비용 0원, 여성: SunHi / 남성: InJoon)
+        self._synthesize_edge_tts(text, str(out_p), gender=gender, sample_rate=sample_rate)
+        if out_p.exists() and out_p.stat().st_size > 1000:
+            logger.info(f"🎉 [Aura 음성 합성 성공] {persona_name} 발화 완료: {out_p.name}")
+            return str(out_p)
+        else:
+            raise RuntimeError(f"음성 파일 생성 실패 ({out_p.name})")
 
-        # [3단계] Edge-TTS 무결점 최종 보증 로컬 폴백 (여성: SunHi / 남성: InJoon)
-        res = self._synthesize_edge_tts(text, str(out_p), gender=gender, sample_rate=sample_rate)
-        logger.info(f"🎉 [Aura Edge-TTS 성공] {persona_name} 음성 합성 완료: {out_p.name}")
-        return str(out_p)
+    def _synthesize_edge_tts(self, text: str, output_wav_path: str, gender: str, sample_rate: int) -> bool:
+        """최신 Edge-TTS 7.3.1 무인 고음질 음성 합성 (여성: SunHi / 남성: InJoon)"""
+        import asyncio
+        import edge_tts
+        import subprocess
+
+        is_male = str(gender).lower() in ["male", "m", "man", "남", "남성"]
+        voice = "ko-KR-InJoonNeural" if is_male else "ko-KR-SunHiNeural"
+        temp_mp3 = self.output_dir / f"temp_aura_edge_{os.getpid()}_{int(time.time()*1000)}.mp3"
+
+        async def _run():
+            comm = edge_tts.Communicate(text, voice)
+            await comm.save(str(temp_mp3))
+
+        asyncio.run(_run())
+
+        cmd = [
+            self.ffmpeg_exe, "-y",
+            "-i", str(temp_mp3),
+            "-ar", str(sample_rate),
+            "-ac", "1",
+            output_wav_path
+        ]
+        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if temp_mp3.exists():
+            temp_mp3.unlink()
+        return True
 
     def _synthesize_cosyvoice(self, text: str, output_wav_path: str, gender: str, sample_rate: int) -> bool:
         """Alibaba DashScope CosyVoice REST API 음성 합성"""
@@ -138,47 +157,6 @@ class AuraVoiceCloner:
             return True
         else:
             raise RuntimeError(f"CosyVoice API Error [HTTP {resp.status_code}]: {resp.text}")
-
-    def _synthesize_typecast(self, text: str, output_wav_path: str, gender: str, sample_rate: int) -> bool:
-        """Typecast API 연동"""
-        from core.shorts_engine.typecast_synthesizer import TypecastSynthesizer
-        is_male = str(gender).lower() in ["male", "m", "man", "남", "남성"]
-        voice_id = self.typecast_voice_id_male if is_male else self.typecast_voice_id_female
-
-        synth = TypecastSynthesizer(
-            api_key=self.typecast_api_key,
-            default_voice_id=voice_id,
-            output_dir=str(self.output_dir)
-        )
-        synth.synthesize(text, output_wav_path, sample_rate=sample_rate)
-        return True
-
-    def _synthesize_edge_tts(self, text: str, output_wav_path: str, gender: str, sample_rate: int) -> bool:
-        """Edge-TTS 연동 (여성: SunHi / 남성: InJoon)"""
-        import asyncio
-        import edge_tts
-
-        is_male = str(gender).lower() in ["male", "m", "man", "남", "남성"]
-        voice = "ko-KR-InJoonNeural" if is_male else "ko-KR-SunHiNeural"
-        temp_mp3 = self.output_dir / f"temp_aura_edge_{os.getpid()}.mp3"
-
-        async def _run():
-            comm = edge_tts.Communicate(text, voice)
-            await comm.save(str(temp_mp3))
-
-        asyncio.run(_run())
-
-        cmd = [
-            self.ffmpeg_exe, "-y",
-            "-i", str(temp_mp3),
-            "-ar", str(sample_rate),
-            "-ac", "1",
-            output_wav_path
-        ]
-        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        if temp_mp3.exists():
-            temp_mp3.unlink()
-        return True
 
     def generate_speech_wav(
         self,

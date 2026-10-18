@@ -4,7 +4,7 @@ AuraCardnewsS1Topic6Builder - 📱 [Aura 카드뉴스 6번 주제 'AI 첫대화 
 ========================================================================================
 • 역할:
   - 숏폼 6번 주제('AI 첫대화 비서')의 인물, 배경, 의상을 1:1 완벽하게 계승
-  - 26세 K-드라마 남배우급 훈남 모델 + 모던 캐주얼 자켓 남친룩 + 서울 루프탑 야경
+  - 26세 K-드라마 남배우급 훈남 모델 + 모던 캐주얼 자켓 남친룩 + 성수동 낮 통유리 부티크 카페
   - 1080x1350 카드뉴스 규격 초고화질 서브픽셀 타이포그래피 오버레이
   - 상단 50:50 황금 성비 배지 + 헤드라인 + 핵심 불릿 + 하단 넘김 CTA 바 일체형 렌더링
 """
@@ -36,30 +36,57 @@ class AuraCardnewsS1Topic6Builder:
         self.wan_client = WanPipelineClient()
 
     def generate_cover_photo(self, seed: int = None) -> Path:
-        """숏폼 6번 헌법 기반 26세 K-드라마 남주급 훈남 실사 생성"""
+        """숏폼 6번(shorts_character_anchor_aura.py) 최신 규격 1:1 계승 — 단독 1인 26세 K-드라마 남주급 훈남 실사 생성"""
         if seed is None:
             seed = int(time.time() * 1000) % 100000000
 
         pos = (
-            "masterpiece, best quality, ultra-photorealistic portrait, authentic candid mobile snapshot shot on iPhone 15 Pro, "
-            "an exceptionally handsome 26-year-old Korean adult man (K-drama male lead actor visual, delicate handsome idol-actor appearance, refined aesthetic features), "
-            "perfect 8-head-high golden ratio male model proportions, small refined masculine head and face size, slender athletic male physique with broad masculine shoulders, "
-            "soft gentle smile with lips closed together, refined handsome features, sharp sculpted jawline with natural subtle directional shadow, charismatic warm romantic gaze, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
+            "masterpiece, best quality, ultra-photorealistic portrait, authentic candid snapshot shot on iPhone 15 Pro, "
+            "photographed from 2.0 meters directly in front on Apple iPhone 15 Pro, "
+            "solo 1person male, strictly solo single person, no other people in frame, alone in the frame, "
+            "perfectly centered in the middle of frame, perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
+            "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and broad masculine shoulders, "
+            "gentle closed lips, natural lips closed together with a subtle gentle smile, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
+            "candid medium cowboy shot showing chest, waist, broad shoulders, and tall 8-head model silhouette clearly, generous headroom above, "
+            "an exceptionally handsome top 0.5% ultra-sculpted 26-year-old Korean adult man, "
+            "K-drama male lead actor visual, delicately chiseled handsome idol-actor appearance, refined masculine aesthetic features, "
+            "perfect 8-head-high golden ratio male model proportions, small refined masculine head and face size, broad masculine shoulders, slender athletic male physique, sharp sculpted jawline, "
             "neat stylish dark brown natural dandy haircut with subtle parted fringe framing his face, "
-            "authentic real human skin texture with visible fine pores and natural skin tone, "
-            "wearing a stylish, trendy modern casual jacket outfit, sophisticated 2030 Seoul dating fashion with diverse contemporary colors and textures, clean minimalist innerwear, effortless charismatic boyfriend-material date look, "
-            "candid medium cowboy standing shot showing waist, chest, broad shoulders, and tall 8-head model silhouette clearly, generous headroom above, "
-            "upscale modern outdoor open-air rooftop sky lounge terrace in Seoul at night with glowing warm Edison string bulb lights and elegant golden patio lanterns, "
-            "standing beside sleek glass balustrade overlooking vibrant colorful glowing city neon lights and panoramic glittering Seoul night skyline in tack sharp f/11 focus, "
-            "luxurious warm architectural uplighting illuminating the terrace ambiance naturally, "
-            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, realistic skin subsurface scattering, Apple iPhone 15 Pro Smart HDR photo."
+            "authentic real human skin texture with visible fine pores and natural radiant skin tone, "
+            "charismatic warm romantic intelligent gaze, "
+            "wearing a clean sophisticated modern casual jacket outfit with a crisp white innerwear, trendy 2030 Seoul boyfriend-material date look, effortless charismatic styling, "
+            "seated naturally and gracefully alone at the clean polished white marble cafe table in an upright tall 8-head model posture, "
+            "arms resting naturally on the marble cafe tabletop, hands visible on the table, strictly no hands in pockets, strictly no hands in pants, NO smartphone held in hands, "
+            "no partner, no interlocutor, no second person, no foreground shoulder, "
+            "sunlit trendy glasshouse boutique cafe in Seongsu-dong during bright afternoon daylight, "
+            "floor-to-ceiling glass windows, natural daylight, lush green indoor plants, elegant minimalist cafe architectural interior, "
+            "clean polished white marble cafe table in tack sharp f/11 focus, "
+            "dramatic professional home shopping studio fill lighting and 3D volumetric contour lighting, studio key lights and soft rim lighting, "
+            "studio key lights and soft rim lighting highlighting hair, broad shoulders, and jawline silhouette with rich three-dimensional depth, "
+            "bright soft diffused volumetric fill light evenly illuminating the entire face and body with sculpted dimensional volume, "
+            "warm soft natural afternoon daylight streaming through the floor-to-ceiling glass windows, "
+            "zero dark muddy shadows, zero yellow tint, zero red tint, zero orange tint, no harsh shadow, no underexposed areas, no dark night lighting, "
+            "crystal-clear bright radiant illumination, neutral accurate white balance, "
+            "realistic skin subsurface scattering, natural subtle skin highlights, NO flat camera flash look, "
+            "Raw unedited authentic iPhone 15 Pro 48MP mobile camera capture, realistic human skin texture with visible real pores and authentic fine details, "
+            "Apple iPhone 15 Pro Smart HDR photo, authentic mobile camera sensor capture, pristine optical sharpness, rich deep blacks, high micro-contrast, crisp clean highlights, punchy vivid clarity, NO beauty filter, zero skin smoothing, "
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, completely clear background in tack sharp crisp focus."
         )
         neg = (
+            "other people, second person, woman, female, partner, interlocutor, foreground shoulder, talking to someone, "
+            "night, rooftop, dark shadow, yellow tint, red tint, orange tint, "
+            "two people, 2 people, couple, group of people, crowd, background people, blurred person in background, "
+            "date partner, conversation partner, facing another person, talking to a woman, interacting with someone, "
+            "man's back, back of head, over-the-shoulder, obstructed foreground, foreground arm, foreground hand of another person, "
+            "night view, night skyline, dark night background, rooftop terrace, open-air rooftop sky lounge, glass balustrade, city neon lights, "
+            "Edison string bulb lights, string lights, patio lanterns, warm golden patio lamps, architectural uplighting, dark ambient night lighting, "
+            "dark muddy shadow, gloomy, underexposed, dim lighting, warm yellow cast, reddish skin tone, orange color cast, "
+            "hands in pockets, hands in jacket pockets, hands in pants pockets, hidden hands, "
             "open mouth, parted lips, visible teeth, showing teeth, laughing, grinning, smiling wide, "
             "ugly face, old man, middle aged, chubby, fat face, broad jaw, double chin, distorted features, bad eyes, asymmetric face, "
             "doll, doll face, porcelain skin, plastic skin, airbrushed skin, beauty filter, skin smoothing, "
             "blurry, lens blur, out of focus, bokeh blur, shallow depth of field, deformed hands, extra fingers, missing fingers, bad fingers, "
-            "cartoon, anime, 3d render, cgi, illustration, drawing, watermark, text, female, woman"
+            "cartoon, anime, 3d render, cgi, illustration, drawing, watermark, text"
         )
 
         logger.info(f"🎨 [AuraCardnewsS1Topic6] 6번 숏폼 훈남 실사 생성 시작 (Seed={seed})...")

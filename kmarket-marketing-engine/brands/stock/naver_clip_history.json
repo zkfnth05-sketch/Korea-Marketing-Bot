@@ -48,5 +48,45 @@
     "video_file": "[주제03_완성본]_30초_세로풀HD.mp4",
     "channel_url": "https://clip.naver.com/@stockmaster_ai",
     "published_at": "2026-10-10 21:21:20"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 1,
+    "title": "[삼성전자 수급] 외인 137만주 쌍끌이 실시간 퀀트 진단 #스톡마스터AI #Shorts",
+    "video_file": "★_Stock_34초숏폼_주제01_삼성전자_완제품.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-18 16:20:41"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 1,
+    "title": "📈삼성전자 3.33% 급등! 외인·기관 쌍끌이 매집 타점 팩트체크",
+    "video_file": "stock_topic1_cardnews_reels.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-18 18:30:43"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 2,
+    "title": "📈 SK하이닉스 20일선 돌파 포착! 외인/기관 수급 쏠리는 이유",
+    "video_file": "stock_topic2_cardnews_reels.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-18 19:11:00"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 6,
+    "title": "📈 감으로 매매하는 시대 끝, 골든크로스 퀀트가 답이다!",
+    "video_file": "stock_topic6_cardnews_reels.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-18 20:55:06"
   }
 ]

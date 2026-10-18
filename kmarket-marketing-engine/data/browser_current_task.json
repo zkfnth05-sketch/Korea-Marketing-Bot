@@ -1,8 +1,8 @@
 {
-  "current_task": null,
-  "status": "idle",
-  "updated_at": "2026-10-18 00:53:20",
-  "timestamp": 1792252400.1310997,
-  "queue_count": 0,
+  "current_task": "Insurance 틱톡 세션 (☕ 오후 퇴근길 틱톡 (15분))",
+  "status": "running",
+  "updated_at": "2026-10-18 21:37:47",
+  "timestamp": 1792327067.287763,
+  "queue_count": 1,
   "high_priority_waiting": 0
 }

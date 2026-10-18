@@ -174,7 +174,9 @@ class GlobalBrowserLock:
         high_keywords = [
             "업로드", "발행", "publish", "쇼츠", "shorts", "클립", "clip",
             "릴스", "reels", "카드뉴스", "cardnews", "threads", "스레드",
-            "omni", "youtube shorts", "tiktok", "naver clip", "mbs"
+            "omni", "youtube shorts", "tiktok", "naver clip", "mbs",
+            # [확장] 첫 댓글/타래 자동 작성 작업도 고우선순위로 인정
+            "댓글", "comment", "타래", "틱톡"
         ]
         # 단, task_name에 '휴식', '시청', 'behavior'가 들어가면 스텔스 작업임
         if any(w in t for w in ["휴식", "시청", "routine", "behavior", "스텔스", "세션", "출근길", "퇴근길", "점심시간", "야간"]):

@@ -150,14 +150,43 @@ class DaytimeSNSDispatcher:
             date_str = datetime.datetime.now().strftime("%Y-%m-%d")
 
         manifest = self.load_today_manifest(date_str)
-        if not manifest:
-            logger.warning(f"⚠️ {date_str} 매니페스트 부재 - 오늘 새벽 제작 큐를 먼저 확인하십시오.")
-            return {"status": "NO_MANIFEST", "slot": target_slot}
+        tasks = []
+        if manifest:
+            tasks = [t for t in manifest.get("tasks", []) if t.get("slot") == target_slot]
 
-        tasks = [t for t in manifest.get("tasks", []) if t.get("slot") == target_slot]
+        # 🛡️ [자율 무결성 방어벽 - Self-Healing Fallback]
+        # 새벽 팩토리 큐(manifest.json)가 없거나 해당 슬롯이 비어있어도 정시 송출 절대 중단 0% 원천 차단
         if not tasks:
-            logger.warning(f"⚠️ {target_slot} 슬롯에 해당하는 태스크가 매니페스트에 없습니다.")
-            return {"status": "NO_TASKS", "slot": target_slot}
+            logger.info(f"🔄 [{target_slot}] 매니페스트 부재/미등록 감지 ➔ 3대 앱 자율 LRU 순환 태스크 자동 생성 가동")
+            slot_info = next((s for s in self.SCHEDULE_SLOTS if s["slot"] == target_slot), None)
+            c_type = slot_info["type"] if slot_info else ("cardnews" if "cardnews" in target_slot else "shorts")
+            
+            for brand in ["aura", "insurance", "stock"]:
+                # 각 브랜드별 다음 순환 주제 자율 추출
+                try:
+                    if brand == "aura":
+                        from brands.aura.aura_omni_shorts_pilot import AuraOmniShortsPilot
+                        from brands.aura.aura_omni_cardnews_pilot import AuraOmniCardnewsPilot
+                        t_id = AuraOmniShortsPilot().get_next_topic_id() if c_type == "shorts" else AuraOmniCardnewsPilot().get_next_topic_id()
+                    elif brand == "insurance":
+                        from brands.insurance.insurance_omni_shorts_pilot import InsuranceOmniShortsPilot
+                        from brands.insurance.insurance_omni_cardnews_pilot import InsuranceOmniCardnewsPilot
+                        t_id = InsuranceOmniShortsPilot().get_next_topic_id() if c_type == "shorts" else InsuranceOmniCardnewsPilot().get_next_topic_id()
+                    else:
+                        from brands.stock.stock_omni_shorts_pilot import StockOmniShortsPilot
+                        from brands.stock.stock_omni_cardnews_pilot import StockOmniCardnewsPilot
+                        t_id = StockOmniShortsPilot().get_next_topic_id() if c_type == "shorts" else StockOmniCardnewsPilot().get_next_topic_id()
+                except Exception as ex:
+                    logger.warning(f"⚠️ [{brand.upper()}] 순환 주제 추출 예외: {ex} ➔ 기본값 1번 적용")
+                    t_id = 1
+
+                tasks.append({
+                    "brand": brand,
+                    "type": c_type,
+                    "slot": target_slot,
+                    "topic_id": t_id,
+                    "label": f"{brand.upper()} {c_type} ({target_slot})"
+                })
 
         logger.info("\n" + "=" * 70)
         logger.info(f"📢 [주간 SNS 정시 송출 가동] 슬롯: {target_slot} (총 {len(tasks)}개 브랜드)")

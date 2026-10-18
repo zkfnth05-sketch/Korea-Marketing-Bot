@@ -433,5 +433,404 @@
         "message": "3회 재시도 모두 소진, 틱톡 실물 등록 미확인"
       }
     }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-18",
+    "published_at": "2026-10-18 10:59:53",
+    "brand": "aura",
+    "topic_id": 3,
+    "title": "카톡 답장 속도와 말투로 읽는 100% 호감 시그널 4가지",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "aura",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 ✨ 아우라 릴스 순수 브라우저 실물 발행 완료",
+        "video": "aura_topic3_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\aura_mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "error",
+            "message": "asyncio.run() cannot be called from a running event loop"
+          },
+          "facebook": {
+            "status": "error",
+            "message": "asyncio.run() cannot be called from a running event loop"
+          }
+        }
+      },
+      "threads": {
+        "status": "FAIL",
+        "error": "최대 3회 재시도 실패: Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"Post\").or_(locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"게시하기\")).or_(locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"게시\")).first\n    - locator resolved to <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x1c9tyrk xeusxvb x1pahc9y x1ertn4p x78zum5 xc9qbxq xl56j7k x14qfxbe\">…</div>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"__fb-light-mode x1qjc9v5 x9f619 x78zum5 xdt5ytf x1iyjqo2 xl56j7k\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"__fb-light-mode x1qjc9v5 x9f619 x78zum5 xdt5ytf x1iyjqo2 xl56j7k\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    56 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <div class=\"__fb-light-mode x1qjc9v5 x9f619 x78zum5 xdt5ytf x1iyjqo2 xl56j7k\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n",
+        "attempts": 3
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "aura",
+        "topic_id": 3,
+        "video_id": "YybxbtVfjpc",
+        "video_url": "https://youtube.com/shorts/YybxbtVfjpc",
+        "title": "카톡 답장으로 끝난 썸? 🚨 당신만 모르는 호감 시그널 4가지 #아우라AI데이팅 #Shorts",
+        "pinned_comment": "💖 [Aura AI 데이팅] 모든 기능 무료 사용하기 (3초 무료 입장):\n👉 https://aura-ai-dating.vercel.app/\n\n🔍 네이버 검색창에 [아우라AI데이팅]을 검색해보세요!\n\n✨ 50:50 황금 성비 라운지를 3초 만에 무료로 이용해 보세요!\n(네이버 검색: 아우라AI데이팅)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "aura_topic3_cardnews_reels.mp4",
+        "published_at": "2026-10-18 11:06:47",
+        "elapsed_sec": 120.5,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "aura",
+        "topic_id": 3,
+        "title": "카톡 답장으로 끝난 썸? 🚨 당신만 모르는 호감 시그널 4가지",
+        "video_file": "aura_topic3_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@auraaidating",
+        "published_at": "2026-10-18 11:08:04"
+      },
+      "tiktok": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "aura"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-18",
+    "published_at": "2026-10-18 11:10:59",
+    "brand": "aura",
+    "topic_id": 4,
+    "title": "2030 남녀가 뽑은 첫 만남 비호감 행동 1위는?",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "aura",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 ✨ 아우라 릴스 순수 브라우저 실물 발행 완료",
+        "video": "aura_topic4_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\aura_mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "error",
+            "message": "asyncio.run() cannot be called from a running event loop"
+          },
+          "facebook": {
+            "status": "error",
+            "message": "asyncio.run() cannot be called from a running event loop"
+          }
+        }
+      },
+      "threads": {
+        "status": "FAIL",
+        "error": "최대 3회 재시도 실패: Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"Post\").or_(locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"게시하기\")).or_(locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"게시\")).first\n    - locator resolved to <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x1c9tyrk xeusxvb x1pahc9y x1ertn4p x78zum5 xc9qbxq xl56j7k x14qfxbe\">…</div>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"__fb-light-mode x1qjc9v5 x9f619 x78zum5 xdt5ytf x1iyjqo2 xl56j7k\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"__fb-light-mode x1qjc9v5 x9f619 x78zum5 xdt5ytf x1iyjqo2 xl56j7k\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    55 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <div class=\"__fb-light-mode x1qjc9v5 x9f619 x78zum5 xdt5ytf x1iyjqo2 xl56j7k\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n",
+        "attempts": 3
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "aura",
+        "topic_id": 4,
+        "video_id": "z17486l02Dg",
+        "video_url": "https://youtube.com/shorts/z17486l02Dg",
+        "title": "🚨 소개팅 망하는 지름길, 1위는 따로 있다? 제발 이것만 하지 마세요! 🙅‍♀️ #아우라AI데이팅 #Shorts",
+        "pinned_comment": "💖 [Aura AI 데이팅] 모든 기능 무료 사용하기 (3초 무료 입장):\n👉 https://aura-ai-dating.vercel.app/\n\n🔍 네이버 검색창에 [아우라AI데이팅]을 검색해보세요!\n\n✨ 50:50 황금 성비 라운지를 3초 만에 무료로 이용해 보세요!\n(네이버 검색: 아우라AI데이팅)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "aura_topic4_cardnews_reels.mp4",
+        "published_at": "2026-10-18 11:18:17",
+        "elapsed_sec": 120.3,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "aura",
+        "topic_id": 4,
+        "title": "🚨 소개팅 망하는 지름길, 1위는 따로 있다? 제발 이것만 하지 마세요! 🙅‍♀️",
+        "video_file": "aura_topic4_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@auraaidating",
+        "published_at": "2026-10-18 11:19:34"
+      },
+      "tiktok": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "aura"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-18",
+    "published_at": "2026-10-18 12:45:39",
+    "brand": "aura",
+    "topic_id": 6,
+    "title": "MBTI 유형별 절대 실패 없는 소개팅 대화법",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "aura",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 ✨ 아우라 릴스 순수 브라우저 실물 발행 완료",
+        "video": "aura_topic6_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\aura_mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "error",
+            "message": "asyncio.run() cannot be called from a running event loop"
+          },
+          "facebook": {
+            "status": "error",
+            "message": "asyncio.run() cannot be called from a running event loop"
+          }
+        }
+      },
+      "facebook_comment": {
+        "status": "success",
+        "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\aura_facebook_comment_proof.png"
+      },
+      "instagram_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "threads": {
+        "success": true,
+        "brand": "aura",
+        "message": "🎉 [스레드 발행 성공] Aura AI 데이팅 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "aura",
+          "published_at": "2026-10-18T12:49:30.687813",
+          "caption_preview": "소개팅 나갔는데 대화가 겉돌아서 당황했던 기억, 다들 한 번쯤 있으시죠? 🥺\n\n단순히 MBTI를 묻는 게 아...",
+          "media_count": 1,
+          "first_reply": "💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "aura",
+        "topic_id": 6,
+        "video_id": "RI5tqbVjAeA",
+        "video_url": "https://youtube.com/shorts/RI5tqbVjAeA",
+        "title": "MBTI 과몰입러 필독! 💌 소개팅 성공률 200% 올리는 대화 치트키 #아우라AI데이팅 #Shorts",
+        "pinned_comment": "💖 [Aura AI 데이팅] 모든 기능 무료 사용하기 (3초 무료 입장):\n👉 https://aura-ai-dating.vercel.app/\n\n🔍 네이버 검색창에 [아우라AI데이팅]을 검색해보세요!\n\n✨ 50:50 황금 성비 라운지를 3초 만에 무료로 이용해 보세요!\n(네이버 검색: 아우라AI데이팅)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "aura_topic6_cardnews_reels.mp4",
+        "published_at": "2026-10-18 12:51:31",
+        "elapsed_sec": 120.1,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "aura",
+        "topic_id": 6,
+        "title": "MBTI 과몰입러 필독! 💌 소개팅 성공률 200% 올리는 대화 치트키",
+        "video_file": "aura_topic6_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@auraaidating",
+        "published_at": "2026-10-18 12:52:48"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-18",
+    "published_at": "2026-10-18 18:13:05",
+    "brand": "aura",
+    "topic_id": 6,
+    "title": "MBTI 유형별 절대 실패 없는 소개팅 대화법",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "error",
+        "brand": "aura",
+        "message": "3회 재시도 모두 소진, 실물 등록 미확인"
+      },
+      "facebook_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "instagram_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "threads": {
+        "success": true,
+        "brand": "aura",
+        "message": "🎉 [스레드 발행 성공] Aura AI 데이팅 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "aura",
+          "published_at": "2026-10-18T18:14:52.216927",
+          "caption_preview": "“어색해서 숟가락만 만지다 왔어...” 😭\n\n그 느낌 뭔지 알아요. 준비 없이 나간 소개팅은 전쟁터죠.\n\n✅...",
+          "media_count": 1,
+          "first_reply": "💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "aura",
+        "topic_id": 6,
+        "video_id": "Gf-RT7Ih1c4",
+        "video_url": "https://youtube.com/shorts/Gf-RT7Ih1c4",
+        "title": "소개팅 망하기 싫으면 필독! MBTI 유형별 ‘필승’ 대화 치트키 💖 #아우라AI데이팅 #Shorts",
+        "pinned_comment": "📌 영상에서 나온 50:50 완벽 성비 AI 소개팅 라운지는\n네이버에 👉 [ 아우라AI데이팅 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://aura-ai-dating.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "aura_topic6_cardnews_reels.mp4",
+        "published_at": "2026-10-18 18:16:47",
+        "elapsed_sec": 115.1,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "aura",
+        "topic_id": 6,
+        "title": "소개팅 망하기 싫으면 필독! MBTI 유형별 ‘필승’ 대화 치트키 💖",
+        "video_file": "aura_topic6_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@auraaidating",
+        "published_at": "2026-10-18 18:17:02"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-18",
+    "published_at": "2026-10-18 18:49:52",
+    "brand": "aura",
+    "topic_id": 2,
+    "title": "성수동 소개팅 실패 없는 감성 코스 BEST 4",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "error",
+        "brand": "aura",
+        "message": "3회 재시도 모두 소진, 실물 등록 미확인"
+      },
+      "facebook_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "instagram_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "threads": {
+        "success": true,
+        "brand": "aura",
+        "message": "🎉 [스레드 발행 성공] Aura AI 데이팅 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "aura",
+          "published_at": "2026-10-18T18:51:38.704640",
+          "caption_preview": "성수동 소개팅, 분위기 잡으려다 망치지 마세요. ☕️✨\n\n첫 만남에 웨이팅은 독입니다. 대화의 흐름이 끊기지...",
+          "media_count": 1,
+          "first_reply": "💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "aura",
+        "topic_id": 2,
+        "video_id": "4pBZU27CwTc",
+        "video_url": "https://youtube.com/shorts/4pBZU27CwTc",
+        "title": "성수동 소개팅, 여기 모르면 100% 차인다? ☕️ 필승 코스 TOP 4 #아우라AI데이팅 #Shorts",
+        "pinned_comment": "📌 영상에서 나온 50:50 완벽 성비 AI 소개팅 라운지는\n네이버에 👉 [ 아우라AI데이팅 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://aura-ai-dating.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "aura_topic2_cardnews_reels.mp4",
+        "published_at": "2026-10-18 18:53:35",
+        "elapsed_sec": 116.1,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "aura",
+        "topic_id": 2,
+        "title": "성수동 소개팅, 여기 모르면 100% 차인다? ☕️ 필승 코스 TOP 4",
+        "video_file": "aura_topic2_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@auraaidating",
+        "published_at": "2026-10-18 18:53:50"
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-18",
+    "published_at": "2026-10-18 18:50:08",
+    "brand": "aura",
+    "topic_id": 2,
+    "title": "성수동 소개팅 실패 없는 감성 코스 BEST 4",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "error",
+        "brand": "aura",
+        "message": "3회 재시도 모두 소진, 실물 등록 미확인"
+      },
+      "facebook_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "instagram_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "threads": {
+        "success": true,
+        "brand": "aura",
+        "message": "🎉 [스레드 발행 성공] Aura AI 데이팅 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "aura",
+          "published_at": "2026-10-18T18:52:01.401336",
+          "caption_preview": "성수동 소개팅, 오늘 저녁 어디갈지 고민이라면? ☕️\n\n어색한 공기 흐르는 소개팅은 그만! 걷기만 해도 로맨...",
+          "media_count": 1,
+          "first_reply": "💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "aura",
+        "topic_id": 2,
+        "video_id": "Ysra8lxWpxc",
+        "video_url": "https://youtube.com/shorts/Ysra8lxWpxc",
+        "title": "성수동 소개팅, 여기 모르면 100% 까임! 실패 없는 감성 코스 TOP 4 💖 #아우라AI데이팅 #Shorts",
+        "pinned_comment": "📌 영상에서 나온 50:50 완벽 성비 AI 소개팅 라운지는\n네이버에 👉 [ 아우라AI데이팅 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://aura-ai-dating.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "aura_topic2_cardnews_reels.mp4",
+        "published_at": "2026-10-18 18:55:45",
+        "elapsed_sec": 224.2,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "aura",
+        "topic_id": 2,
+        "title": "성수동 소개팅, 여기 모르면 100% 까임! 실패 없는 감성 코스 TOP 4 💖",
+        "video_file": "aura_topic2_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@auraaidating",
+        "published_at": "2026-10-18 18:56:01"
+      }
+    }
   }
 ]

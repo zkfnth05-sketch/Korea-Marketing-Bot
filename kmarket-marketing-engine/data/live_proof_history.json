@@ -1,20 +1,22 @@
 {
-  "updated_at": "2026-10-17 21:07:50",
+  "updated_at": "2026-10-18 19:46:09",
   "brands": {
     "aura": {
       "reddit": {
         "brand": "aura",
         "channel": "reddit",
-        "live_url": null,
-        "title": "r/seoul: Looking for international friends to hang out",
-        "status": "ERROR",
+        "live_url": "https://www.reddit.com/r/Living_in_Korea/comments/1x8u4g6/what_is_the_dating_like_in_korea_i_am_a_foreigner/",
+        "title": "r/Living_in_Korea: What is the dating like in Korea, I am a foreigner from the US",
+        "status": "HEALTHY",
         "is_verified": false,
-        "error_message": "댓글 등록 버튼 클릭 실패",
-        "failed_at": "2026-10-17 20:37:27",
-        "published_at": null,
+        "error_message": null,
         "screenshot_file": null,
         "screenshot_path": null,
-        "extra_meta": {}
+        "published_at": "2026-10-18 19:41:31",
+        "extra_meta": {
+          "comment_preview": "Hey! So cool you're diving into Korean culture and trying to meet people here! ✨ It's definitely a different vibe than back home, but super rewarding. For meeting people, a lot of foreigners use vario",
+          "screenshot_file": "proof_aura_reddit_20261018_194117.png"
+        }
       }
     },
     "insurance": {
@@ -39,17 +41,17 @@
       "reddit": {
         "brand": "stock",
         "channel": "reddit",
-        "live_url": "https://www.reddit.com/r/Daytrading/comments/1x81gzu/trying_to_get_it_back_and_end_up_losing_more/",
-        "title": "r/Daytrading: Trying to get it back and end up losing more!",
+        "live_url": "https://www.reddit.com/r/dividends/comments/1x8jbjx/the_10year_treasury_yields_51_while_schd_pays_32/",
+        "title": "r/dividends: The 10-year Treasury yields 5.1% while SCHD pays 3.2%. Are we underestimating how attractive bonds have become?",
         "status": "HEALTHY",
         "is_verified": false,
         "error_message": null,
         "screenshot_file": null,
         "screenshot_path": null,
-        "published_at": "2026-10-17 20:37:04",
+        "published_at": "2026-10-18 19:46:09",
         "extra_meta": {
-          "comment_preview": "That 'revenge trading' loop after a stop-loss is a profit killer, OP. It signals a breakdown in discipline and proper position sizing. Your risk-per-trade (e.g., 1-2% of capital) must be non-negotiabl",
-          "screenshot_file": "proof_stock_reddit_20261017_203651.png"
+          "comment_preview": "You've hit on a critical point – 5%+ Treasuries demand a higher hurdle for equity income. It's not just the starting yield, but sustainable dividend growth underpinned by robust Free Cash Flow (FCF) t",
+          "screenshot_file": "proof_stock_reddit_20261018_194555.png"
         }
       }
     }

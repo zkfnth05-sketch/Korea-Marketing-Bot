@@ -160,6 +160,10 @@ class InsuranceCardnewsProducer:
             "package_dir": str(target_dir)
         }
 
+    def produce_slide(self, slide_num: int = 1, topic_id: int = 1, **kwargs) -> Dict[str, Any]:
+        """Aura 호환용 별칭 메서드 ➔ produce_single_slide 직결"""
+        return self.produce_single_slide(slide_num=slide_num, topic_id=topic_id)
+
     def produce_full_package(self, topic_id: int = 1) -> Dict[str, Any]:
         """
         🚀 [보험 리밸런스 5장 카드뉴스 풀패키지 완제품 생산 & 바탕화면 저장]
@@ -238,3 +242,8 @@ class InsuranceCardnewsProducer:
             "guide_file": str(guide_file),
             "sns_caption": sns_caption
         }
+
+    def produce_cardnews(self, topic_id: int = 1, **kwargs) -> Dict[str, Any]:
+        """Aura/Stock 러너 호환용 별칭 메서드 ➔ produce_full_package 직결"""
+        return self.produce_full_package(topic_id=topic_id)
+

@@ -547,5 +547,243 @@
         "brand": "aura"
       }
     }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-18",
+    "published_at": "2026-10-18 12:33:53",
+    "brand": "aura",
+    "topic_id": 6,
+    "title": "[AI 첫대화 비서] 마음에 드는 이성한테 첫 메세지 보낼 때, 뭐라고 보낼지 막막했던 적 있",
+    "video_file": "Aura_22초숏폼_주제06_ai_icebreaker_20261018_120913.mp4",
+    "channels": {
+      "youtube": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "aura",
+        "topic_id": 6,
+        "video_id": "40EYQ23b234",
+        "video_url": "https://youtube.com/shorts/40EYQ23b234",
+        "title": "💬 썸 탈 때 첫 톡 뭐 보낼지 30분 고민하는 사람 필독! 🤖 #아우라AI데이팅 #Shorts",
+        "pinned_comment": "💖 [Aura AI 데이팅] 모든 기능 무료 사용하기 (3초 무료 입장):\n👉 https://aura-ai-dating.vercel.app/\n\n🔍 네이버 검색창에 [아우라AI데이팅]을 검색해보세요!\n\n✨ 50:50 황금 성비 라운지를 3초 만에 무료로 이용해 보세요!\n(네이버 검색: 아우라AI데이팅)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "Aura_22초숏폼_주제06_ai_icebreaker_20261018_120913.mp4",
+        "published_at": "2026-10-18 12:36:11",
+        "elapsed_sec": 138.4,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+      },
+      "tiktok": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "aura"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "aura",
+        "topic_id": 6,
+        "title": "💬 썸 탈 때 첫 톡 뭐 보낼지 30분 고민하는 사람 필독! 🤖",
+        "video_file": "Aura_22초숏폼_주제06_ai_icebreaker_20261018_120913.mp4",
+        "channel_url": "https://clip.naver.com/@auraaidating",
+        "published_at": "2026-10-18 12:37:28"
+      },
+      "meta_reels": {
+        "status": "success",
+        "brand": "aura",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 ✨ 아우라 릴스 순수 브라우저 실물 발행 완료",
+        "video": "Aura_22초숏폼_주제06_ai_icebreaker_20261018_120913.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\aura_mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "error",
+            "message": "asyncio.run() cannot be called from a running event loop"
+          },
+          "facebook": {
+            "status": "error",
+            "message": "asyncio.run() cannot be called from a running event loop"
+          }
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-18",
+    "published_at": "2026-10-18 12:34:49",
+    "brand": "aura",
+    "topic_id": 6,
+    "title": "[AI 첫대화 비서] 마음에 드는 이성한테 첫 메세지 보낼 때, 뭐라고 보낼지 막막했던 적 있",
+    "video_file": "Aura_22초숏폼_주제06_ai_icebreaker_20261018_120913.mp4",
+    "channels": {
+      "youtube": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "aura",
+        "topic_id": 6,
+        "video_id": "e9l3PcTecnw",
+        "video_url": "https://youtube.com/shorts/e9l3PcTecnw",
+        "title": "짝녀한테 '뭐해?'라고 보냈다가 읽씹 당한 사람 필독 🫠 AI가 대신 써주면 답장 확률 200% 상승? #아우라AI데이팅 #Shorts",
+        "pinned_comment": "💖 [Aura AI 데이팅] 모든 기능 무료 사용하기 (3초 무료 입장):\n👉 https://aura-ai-dating.vercel.app/\n\n🔍 네이버 검색창에 [아우라AI데이팅]을 검색해보세요!\n\n✨ 50:50 황금 성비 라운지를 3초 만에 무료로 이용해 보세요!\n(네이버 검색: 아우라AI데이팅)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "Aura_22초숏폼_주제06_ai_icebreaker_20261018_120913.mp4",
+        "published_at": "2026-10-18 12:41:33",
+        "elapsed_sec": 404.6,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
+      },
+      "tiktok": {
+        "status": "error",
+        "message": "name 're' is not defined",
+        "brand": "aura"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "aura",
+        "topic_id": 6,
+        "title": "짝녀한테 '뭐해?'라고 보냈다가 읽씹 당한 사람 필독 🫠 AI가 대신 써주면 답장",
+        "video_file": "Aura_22초숏폼_주제06_ai_icebreaker_20261018_120913.mp4",
+        "channel_url": "https://clip.naver.com/@auraaidating",
+        "published_at": "2026-10-18 12:42:52"
+      },
+      "meta_reels": {
+        "status": "success",
+        "brand": "aura",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 ✨ 아우라 릴스 순수 브라우저 실물 발행 완료",
+        "video": "Aura_22초숏폼_주제06_ai_icebreaker_20261018_120913.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\aura_mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "error",
+            "message": "asyncio.run() cannot be called from a running event loop"
+          },
+          "facebook": {
+            "status": "error",
+            "message": "asyncio.run() cannot be called from a running event loop"
+          }
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-18",
+    "published_at": "2026-10-18 21:23:52",
+    "brand": "aura",
+    "topic_id": 3,
+    "title": "[50:50 VIP 게이트] 소개팅 앱 깔았다가 남자가 90%라 음침한 디엠 쏟아져서 바로 지운 사람",
+    "video_file": "Aura_22초숏폼_주제03_vip_gate_20261018_210014.mp4",
+    "channels": {
+      "youtube": {
+        "status": "error",
+        "platform": "youtube_shorts",
+        "error": "Google 계정 로그인 필요 (setup_youtube_profile.py 실행 요망)",
+        "published_at": "2026-10-18 21:23:58"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "aura",
+        "platform": "tiktok",
+        "topic_id": 3,
+        "video_file": "Aura_22초숏폼_주제03_vip_gate_20261018_210014.mp4",
+        "title": "[50:50 VIP 게이트] 소개팅 앱 깔았다가 남자가 90%라 음침한 디엠 쏟아져서 바로 지운 사람",
+        "post_url": "https://www.tiktok.com/@aura_ai_official",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\aura_tiktok_verified_proof_topic03.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음"
+        }
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "aura",
+        "topic_id": 3,
+        "title": "소개팅 앱 깔았다가 삭제한 이유.. 남자가 90%인 앱 쓰지 마세요! 🚫💔",
+        "video_file": "Aura_22초숏폼_주제03_vip_gate_20261018_210014.mp4",
+        "channel_url": "https://clip.naver.com/@auraaidating",
+        "published_at": "2026-10-18 21:25:49"
+      },
+      "meta_reels": {
+        "status": "success",
+        "brand": "aura",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 ✨ 아우라 릴스 순수 브라우저 실물 발행 완료",
+        "video": "Aura_22초숏폼_주제03_vip_gate_20261018_210014.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\aura_mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\aura_facebook_comment_proof.png"
+          }
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-18",
+    "published_at": "2026-10-18 21:24:20",
+    "brand": "aura",
+    "topic_id": 3,
+    "title": "[50:50 VIP 게이트] 소개팅 앱 깔았다가 남자가 90%라 음침한 디엠 쏟아져서 바로 지운 사람",
+    "video_file": "Aura_22초숏폼_주제03_vip_gate_20261018_210014.mp4",
+    "channels": {
+      "youtube": {
+        "status": "error",
+        "platform": "youtube_shorts",
+        "error": "Google 계정 로그인 필요 (setup_youtube_profile.py 실행 요망)",
+        "published_at": "2026-10-18 21:28:28"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "aura",
+        "platform": "tiktok",
+        "topic_id": 3,
+        "video_file": "Aura_22초숏폼_주제03_vip_gate_20261018_210014.mp4",
+        "title": "[50:50 VIP 게이트] 소개팅 앱 깔았다가 남자가 90%라 음침한 디엠 쏟아져서 바로 지운 사람",
+        "post_url": "https://www.tiktok.com/@aura_ai_official",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\aura_tiktok_verified_proof_topic03.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음"
+        }
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "aura",
+        "topic_id": 3,
+        "title": "소개팅 앱 깔았다가 남초 90%라 경악한 썰..🤬 50:50 황금 성비는 어디에?",
+        "video_file": "Aura_22초숏폼_주제03_vip_gate_20261018_210014.mp4",
+        "channel_url": "https://clip.naver.com/@auraaidating",
+        "published_at": "2026-10-18 21:30:19"
+      },
+      "meta_reels": {
+        "status": "success",
+        "brand": "aura",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 ✨ 아우라 릴스 순수 브라우저 실물 발행 완료",
+        "video": "Aura_22초숏폼_주제03_vip_gate_20261018_210014.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\aura_mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\aura_facebook_comment_proof.png"
+          }
+        }
+      }
+    }
   }
 ]

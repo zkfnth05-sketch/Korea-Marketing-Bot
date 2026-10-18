@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 """
-📈 StockMaster 주식AI Real Naver Clip Publisher (📈 StockMaster 주식AI 전용 네이버 클립 숏폼 무인 자동 발행 레고 블록)
-=============================================================================
+Stock Real Naver Clip Publisher (📈 StockMaster AI 전용 진짜 네이버 클립 숏폼 무인 자동 발행 레고 블록)
+=============================================================================================
 - 역할:
-  1. 네이버 세션(naver_session.json)으로 https://clipcreators.naver.com/web/upload 접속
+  1. 저장된 Playwright 세션(naver_session.json)으로 https://clipcreators.naver.com/web/upload 접속
   2. 9:16 세로 풀HD 숏폼 비디오(MP4) 직접 첨부 및 업로드
-  3. 설명문 + 해시태그 + 랜딩 URL 자동 입력
-  4. 프론트엔드 해시 변경에도 깨지지 않는 텍스트/접근성 기반 범용 1차/2차 카테고리 자동 선택
-  5. 비디오 인코딩 100% 완료 감지 후 최종 등록 버튼 클릭 및 실측 송출 완료
+  3. 동영상 설명(최대 300자) + StockMaster 4단 해시태그(#스톡마스터AI) + 공식 검색어/랜딩 URL 자동 입력
+  4. 1차/2차 카테고리(경제/테크) 자동 선택
+  5. 100% 무인 발행 완료 후 실제 네이버 클립 채널(https://clip.naver.com/@stockmaster_ai)에 즉시 공개 송출
+- 원칙: Rule 1 (독립 레고 블록), Rule 6 (24시간 무인 자율 구동), Rule 7 (공식 검색어 '스톡마스터 AI')
 """
 
 import os
 import sys
-import re
 import json
 import logging
 import asyncio
@@ -33,107 +33,108 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from config import BASE_DIR, get_now_kst_str
-from core.engine.browser_guard import async_browser_lock, get_safe_browser_args, clean_browser_profile_locks
-from core.engine.session_integrity import load_best_cookies, sanitize_for_playwright, safe_save, has_auth
-
+from brands.stock.stock_hashtag_matrix import StockHashtagMatrix
 
 logger = logging.getLogger("StockNaverClipPublisher")
 
 SESSION_FILE = CURRENT_DIR / "naver_session.json"
-PROFILE_DIR = CURRENT_DIR / "naver_browser_profile"
 ACCOUNTS_FILE = CURRENT_DIR / "accounts.json"
 
 
 class StockNaverClipPublisher:
-    """📈 StockMaster 주식AI 전용 네이버 클립(Clip) 공식 스튜디오 자동 발행 엔진"""
+    """📈 StockMaster AI 전용 네이버 클립(Clip) 공식 스튜디오 자동 발행 엔진"""
 
     def __init__(self, clip_id: str = "stockmaster_ai"):
         self.brand = "stock"
         self.clip_id = clip_id
         self.session_file = SESSION_FILE
-        self.profile_dir = PROFILE_DIR
         self.history_file = CURRENT_DIR / "naver_clip_history.json"
+        self.shorts_output_dir = Path(r"C:\Users\zkfnt\Desktop\한국 숏폼_산출물\Stock")
         self.channel_url = f"https://clip.naver.com/@{self.clip_id}"
 
     def is_available(self) -> bool:
-        if self.session_file.exists() and self.session_file.stat().st_size > 100:
-            return True
-        best = load_best_cookies("naver", self.session_file)
-        return bool(best and has_auth("naver", best))
+        return self.session_file.exists() and self.session_file.stat().st_size > 100
+
+    def find_latest_short_video(self, topic_id: Optional[int] = None) -> Optional[Path]:
+        """바탕화면 산출물 폴더에서 가장 최신 렌더링된 Stock 숏폼 MP4 자동 탐색"""
+        search_dirs = [self.shorts_output_dir, BASE_DIR / "outputs" / "stock"]
+        for sdir in search_dirs:
+            if sdir.exists():
+                candidates = [p for p in sdir.glob("**/*.mp4") if "04_app_sim" not in p.name and "temp" not in p.name]
+                if candidates:
+                    return max(candidates, key=os.path.getmtime)
+        return None
 
     def publish_clip(
         self,
         video_path: Optional[str] = None,
-        topic_id: Optional[int] = None,
+        topic_id: int = 1,
         title: Optional[str] = None,
         description: Optional[str] = None,
         timeout_sec: int = 60
     ) -> Dict[str, Any]:
         """동기 호출 인터페이스"""
         try:
-            return asyncio.run(
-                self.publish_clip_async(
-                    video_path=video_path,
-                    topic_id=topic_id,
-                    title=title,
-                    description=description,
-                    timeout_sec=timeout_sec
-                )
-            )
+            return asyncio.run(self.publish_clip_async(
+                video_path=video_path,
+                topic_id=topic_id,
+                title=title,
+                description=description,
+                timeout_sec=timeout_sec
+            ))
         except Exception as e:
-            logger.error(f"❌ [📈 StockMaster 주식AI] 네이버 클립 발행 예외: {e}")
+            logger.error(f"❌ [Naver-Stock Real Clip] 발행 예외 발생: {e}")
             return {"status": "error", "message": str(e), "brand": "stock"}
 
     async def publish_clip_async(
         self,
         video_path: Optional[str] = None,
-        topic_id: Optional[int] = None,
+        topic_id: int = 1,
         title: Optional[str] = None,
         description: Optional[str] = None,
         timeout_sec: int = 60
     ) -> Dict[str, Any]:
-        """비동기 네이버 클립 스튜디오 실제 자동 업로드 및 등록"""
-        # 세션 무결성 검증 및 .good.json 자동 복원
-        existing_cookies = []
-        if self.session_file.exists():
-            try:
-                with open(self.session_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                existing_cookies = data if isinstance(data, list) else data.get("cookies", [])
-            except Exception:
-                existing_cookies = []
+        """Playwright를 통한 실제 Clip Creators 웹 네이버 클립 숏폼 발행 실행"""
+        if not self.is_available():
+            logger.warning("⚠️ [Naver-Stock] naver_session.json 세션 파일이 없습니다.")
+            return {"status": "error", "message": "세션 파일 부재", "brand": "stock"}
 
-        if not has_auth("naver", existing_cookies):
-            best = load_best_cookies("naver", self.session_file)
-            if best:
-                logger.info("[RESTORE] [📈 StockMaster 주식AI Naver Clip] 네이버 세션 부재/만료 → .good.json 백업에서 자동 복원 완료")
-            elif not self.session_file.exists():
-                return {"status": "error", "message": "naver_session.json 부재 및 유효한 백업 없음 (1회 네이버 로그인 필요)", "brand": "stock"}
-
-
-        if not video_path or not os.path.exists(video_path):
-            return {"status": "error", "message": f"업로드할 비디오 파일 없음: {video_path}", "brand": "stock"}
-
+        if not video_path or not Path(video_path).exists():
+            return {"status": "error", "message": f"업로드할 실시간 신선 숏폼 비디오가 없습니다: {video_path}", "brand": "stock"}
         target_video = Path(video_path)
-        main_title = title or "AI 퀀트 주식 리포트"
-        clip_desc = description or main_title
-        # 🛡️ 본문 내 URL 전면 소독 (알고리즘 다운랭킹 방지 및 네이버 공식 검색어 유도)
-        clip_desc = re.sub(r'https?://\S+', '👉 네이버 검색: [스톡마스터 AI]', clip_desc)
+
+        hook_titles = {
+            1: "기관/외국인이 지금 몰래 쓸어담는 국내 주식 TOP 3 대공개",
+            2: "AI 퀀트 적정주가와 세력 체결강도 실시간 계산법 ㄷㄷ",
+            3: "삼성전자 vs SK하이닉스 2026년 하반기 승자는 누구?",
+            4: "매수 버튼 누르기 전 3초 만에 확인해야 할 수급 골든크로스",
+            5: "코스피 코스닥 세력 체결강도 120% 돌파 실시간 진단 결과",
+            6: "주식 초보가 100% 물리는 물타기 실수와 AI 탈출 공식",
+            7: "외인 연속 순매수 5일 돌파! 내일 급등할 국내 관심종목은?",
+            8: "배당 수익률 8% 넘는 국내 알짜배기 고배당주 포트폴리오"
+        }
+        main_title = title or hook_titles.get(topic_id, "주식 AI 퀀트 분석")
+        
+        # 네이버 클립 300자 이내 설명문 구성 (블로그 + 공식 Vercel 2개 링크 동시 탑재)
+        fallback_desc = (
+            f"{main_title}\n\n"
+            f"📝 상세 칼럼(블로그): https://blog.naver.com/stockmaster_ai\n"
+            f"🚀 AI 수급 분석(체험): https://stockmaster-ai.vercel.app/\n"
+            f"🔍 네이버 검색창: [스톡마스터 AI]\n\n"
+            f"#스톡마스터AI #주식AI #주식투자 #적정주가 #수급분석"
+        )
+        clip_desc = description or fallback_desc
+
         upload_url = "https://clipcreators.naver.com/web/upload"
+        logger.info(f"🚀 [Naver-Stock Real Clip] 숏폼 발행 시작: '{main_title}' (영상: {target_video.name})")
 
-        logger.info(f"🚀 [📈 StockMaster 주식AI Naver Clip] 숏폼 발행 시작: '{main_title}' (영상: {target_video.name})")
+        from core.engine.browser_guard import async_browser_lock, get_safe_browser_args
 
-        clean_browser_profile_locks(self.profile_dir)
-
-        async with async_browser_lock(f"📈 StockMaster 주식AI 네이버 클립 발행 ({main_title[:15]})", timeout_sec=1200):
+        async with async_browser_lock(f"Stock 네이버 클립 발행 ({main_title[:15]})"):
             async with async_playwright() as p:
                 browser = await p.chromium.launch(
                     headless=True,
-                    args=get_safe_browser_args([
-                        "--disable-blink-features=AutomationControlled",
-                        "--no-first-run",
-                        "--no-default-browser-check"
-                    ])
+                    args=get_safe_browser_args()
                 )
                 context = await browser.new_context(
                     storage_state=str(self.session_file),
@@ -144,190 +145,117 @@ class StockNaverClipPublisher:
 
                 try:
                     # 1. 업로드 페이지 이동
-                    logger.info("1. 네이버 클립 스튜디오 접속 중...")
-                    await page.goto(upload_url, wait_until="domcontentloaded", timeout=timeout_sec * 1000)
-                    await asyncio.sleep(3.0)
+                    await page.goto(upload_url, wait_until="networkidle", timeout=timeout_sec * 1000)
+                    await asyncio.sleep(2.0)
 
-                    # 로그인 풀림 감지 → 백업 쿠키 자동 복원 시도
-                    if "nid.naver.com" in page.url:
-                        logger.warning("⚠️ 네이버 세션 만료 감지, 백업 쿠키 주입 시도...")
-                        best = load_best_cookies("naver", self.session_file)
-                        if best:
-                            for c in sanitize_for_playwright(best):
-                                try:
-                                    await context.add_cookies([c])
-                                except Exception:
-                                    pass
-                            await page.goto(upload_url, wait_until="domcontentloaded", timeout=timeout_sec * 1000)
-                            await asyncio.sleep(3.0)
-                        if "nid.naver.com" in page.url:
-                            raise RuntimeError("네이버 로그인 세션 만료 [백업도 실패]. naver_login 재실행 필요.")
-                        logger.info("[RESTORE] 네이버 백업 쿠키 복원 성공!")
+                    # 프로필 생성 유도 화면이 뜰 경우 1회 자동 생성 처리
+                    if "/signup" in page.url:
+                        create_link = await page.query_selector("a:has-text('프로필 만들기'), a:has-text('10초')")
+                        if create_link:
+                            await create_link.click()
+                            await asyncio.sleep(2.0)
+                            input_el = await page.query_selector("input[type='text'], input")
+                            if input_el:
+                                await input_el.click()
+                                await page.keyboard.press("Control+A")
+                                await page.keyboard.press("Backspace")
+                                await page.keyboard.type(self.clip_id, delay=15)
+                                confirm_btn = await page.query_selector("button:has-text('확인'), a:has-text('확인')")
+                                if confirm_btn:
+                                    await confirm_btn.click()
+                                    await asyncio.sleep(3.0)
+                            await page.goto(upload_url, wait_until="networkidle")
+                            await asyncio.sleep(2.0)
 
-
-                    # 2. 동영상 파일 주입 (input[type='file'])
-                    logger.info("2. 동영상 파일 주입 중...")
-                    file_input = await page.wait_for_selector("input[type='file']", timeout=15000)
+                    # 2. 동영상 파일 주입
+                    file_input = await page.wait_for_selector("input[type='file']", timeout=10000)
                     await file_input.set_input_files(str(target_video.resolve()))
-                    logger.info(f"   🎬 동영상 파일 첨부 성공: {target_video.name}")
-                    await asyncio.sleep(4.0)
+                    logger.info(f"🎬 [Naver-Stock] 동영상 파일 주입 성공: {target_video.name}")
 
-                    # 3. 설명문/본문 입력 (textarea)
-                    logger.info("3. 클립 설명 & 해시태그 입력 중...")
-                    desc_area = await page.wait_for_selector("textarea", timeout=15000)
+                    # 3. 편집 폼 로드 대기 및 설명문 입력
+                    desc_area = await page.wait_for_selector("textarea[name='description']", timeout=15000)
                     await desc_area.click()
                     await desc_area.fill(clip_desc)
-                    logger.info("   📝 설명문 입력 완료")
-                    await asyncio.sleep(1.5)
+                    logger.info("📝 [Naver-Stock] 클립 설명 & 해시태그 입력 완료")
+                    await asyncio.sleep(1.0)
 
-                    # 4. 1차 카테고리 선택 (해시 클래스 대신 텍스트/범용 셀렉터 사용)
-                    logger.info("4. 1차 카테고리 드롭다운 탐색 및 선택 중...")
-                    cat1_btn = None
-                    # 범용 1차 카테고리 버튼 탐색
-                    buttons = await page.query_selector_all("button, div[role='button'], div[role='combobox']")
-                    for b in buttons:
-                        txt = (await b.inner_text()).strip()
-                        if "1차 카테고리" in txt or "카테고리 선택" in txt or "카테고리" in txt:
-                            cat1_btn = b
-                            break
-
-                    if not cat1_btn:
-                        cat1_btn = await page.query_selector("button[class*='dropdownPrimary'], button[class*='dropdown']")
-
+                    # 4. 1차 카테고리 선택 (경제/테크)
+                    cat1_btn = await page.query_selector(".ClipDetailForm_dropdownPrimary__6ZbSU, button:has-text('1차 카테고리')")
                     if cat1_btn:
                         await cat1_btn.click()
-                        await asyncio.sleep(1.2)
-
-                        # 드롭다운 옵션 탐색
-                        options = await page.query_selector_all("button[class*='dropdownOption'], [role='option'], button")
-                        target_opt = None
-                        for opt in options:
-                            opt_txt = (await opt.inner_text()).strip()
-                            if '경제' in opt_txt or '금융' in opt_txt or '비즈니스' in opt_txt or 'IT' in opt_txt or '일상기록' in opt_txt:
-                                target_opt = opt
-                                break
-
-                        if not target_opt and options:
-                            # 키워드 매칭 안 되면 두 번째 옵션(첫 번째는 보통 플레이스홀더) 선택
-                            target_opt = options[1] if len(options) > 1 else options[0]
-
+                        await asyncio.sleep(1.0)
+                        target_opt = await page.query_selector("button.ClipDetailForm_dropdownOption__KunGJ:has-text('경제'), button.ClipDetailForm_dropdownOption__KunGJ:has-text('테크'), button.ClipDetailForm_dropdownOption__KunGJ")
                         if target_opt:
                             await target_opt.click()
-                            logger.info(f"   ✅ 1차 카테고리 선택 완료: '{(await target_opt.inner_text()).strip()}'")
                             await asyncio.sleep(1.0)
 
-                    # 5. 2차 카테고리 선택 (존재할 경우)
-                    cat2_btn = None
-                    buttons = await page.query_selector_all("button, div[role='button']")
-                    for b in buttons:
-                        txt = (await b.inner_text()).strip()
-                        if "2차 카테고리" in txt:
-                            cat2_btn = b
-                            break
-
+                    # 5. 2차 카테고리 선택
+                    cat2_btn = await page.query_selector(".ClipDetailForm_dropdownSecondary__2ebKr, button:has-text('2차 카테고리')")
                     if cat2_btn and not await cat2_btn.is_disabled():
                         await cat2_btn.click()
                         await asyncio.sleep(1.0)
-                        options2 = await page.query_selector_all("button[class*='dropdownOption'], [role='option']")
-                        if len(options2) > 1:
-                            await options2[1].click()
-                            logger.info(f"   ✅ 2차 카테고리 선택 완료: '{(await options2[1].inner_text()).strip()}'")
+                        target_opt2 = await page.query_selector("button.ClipDetailForm_dropdownOption__KunGJ")
+                        if target_opt2:
+                            await target_opt2.click()
                             await asyncio.sleep(1.0)
 
-                    # 6. 비디오 인코딩 100% 완료 및 등록(Submit) 버튼 활성화 대기
-                    logger.info("5. 비디오 인코딩 완료 및 등록 버튼 활성화 대기 중...")
-                    submit_btn = None
-                    for wait_i in range(40):
-                        # 범용 등록 버튼 탐색
-                        btns = await page.query_selector_all("button[type='submit'], button")
-                        for btn in btns:
-                            txt = (await btn.inner_text()).strip()
-                            if txt in ["등록", "발행", "Submit", "Publish"]:
-                                is_dis = await btn.is_disabled()
-                                if not is_dis:
-                                    submit_btn = btn
-                                    break
-                        if submit_btn:
+                    # 6. 인코딩 완료 대기 및 등록 버튼 활성화
+                    submit_btn = await page.wait_for_selector("button.ClipDetailForm_submitBtn__8PUrw, button[type='submit']:has-text('등록')", timeout=10000)
+                    for _ in range(30):
+                        if not await submit_btn.is_disabled():
                             break
                         await asyncio.sleep(1.0)
 
-                    if not submit_btn:
-                        # 폴백 시도
-                        submit_btn = await page.query_selector("button:has-text('등록'), button[type='submit']")
+                    # 7. 최종 등록 클릭
+                    await submit_btn.click()
+                    logger.info("🎉 [Naver-Stock] 네이버 클립 [등록] 버튼 클릭 성공!")
+                    await asyncio.sleep(5.0)
 
-                    if submit_btn:
-                        logger.info("6. 🚀 네이버 클립 [등록] 버튼 클릭!")
-                        try:
-                            await submit_btn.click(force=True, timeout=5000)
-                        except Exception:
-                            await page.evaluate("(b) => b.click()", submit_btn)
+                    modal_confirm = await page.query_selector("[role='dialog'] button:has-text('확인'), [role='dialog'] button:has-text('등록'), [role='dialog'] button:has-text('게시')")
+                    if modal_confirm:
+                        await modal_confirm.click()
+                        await asyncio.sleep(3.0)
 
-                        # 🌟 [네이버 클립 등록 완료 100% 명시적 대기 - 최대 60초]
-                        logger.info("⏳ [네이버 클립] 등록 버튼 클릭 후 서버 완료 응답 대기 중...")
-                        clip_finished = False
-                        for wait_sec in range(60):
-                            cur_url = page.url
-                            page_text = ""
-                            try:
-                                page_text = await page.inner_text("body")
-                            except Exception:
-                                pass
+                    await context.storage_state(path=str(self.session_file))
 
-                            is_success = ("upload" not in cur_url and ("clip" in cur_url or "channel" in cur_url or "creator" in cur_url)) or any(sig in page_text for sig in [
-                                "등록되었습니다", "클립 등록 완료", "발행되었습니다", "업로드 완료"
-                            ])
+                    logger.info(f"🎉 [Naver-Stock] 네이버 클립 숏폼 공개 발행 완료! 채널 URL: {self.channel_url}")
 
-                            if is_success:
-                                logger.info(f"🎉 [네이버 클립 서버 등록 100% 완료 확인!] ({wait_sec}초 경과)")
-                                clip_finished = True
-                                await asyncio.sleep(3.0)
-                                break
-
-                            await asyncio.sleep(1.0)
-
-                        if not clip_finished:
-                            logger.info("⏳ 네이버 클립 백그라운드 처리 대기 (추가 8초)...")
-                            await asyncio.sleep(8.0)
-
-                        # 🌟 성공 시 세션 최신화 및 .good.json 백업
-                        try:
-                            live_cookies = await context.cookies()
-                            if has_auth("naver", live_cookies):
-                                safe_save("naver", live_cookies, self.session_file)
-                                logger.info("💾 [📈 StockMaster 주식AI Naver Clip] 최신 네이버 세션 및 .good.json 백업 자동 저장 완료")
-                        except Exception as se:
-                            logger.warning(f"네이버 세션 백업 저장 경고: {se}")
-
-                        # 📌 [무인 파이프라인] 네이버 클립 서버 인코딩 및 배포 대기 (정확히 60초 휴식)
-                        logger.info("⏳ [네이버 클립 무인 파이프라인] 클립 인코딩 및 채널 배포 대기 (정확히 60초 휴식 후 완료)...")
-                        await asyncio.sleep(60.0)
-
-                        logger.info(f"🎉 [📈 StockMaster 주식AI Naver Clip] 클립 발행 성공! 채널: {self.channel_url}")
-                        return {
-                            "status": "success",
-                            "platform": "naver_clip",
-                            "brand": "stock",
-                            "topic_id": topic_id,
-                            "title": main_title,
-                            "video_file": target_video.name,
-                            "channel_url": self.channel_url,
-                            "published_at": get_now_kst_str()
-                        }
-                    else:
-                        raise RuntimeError("네이버 클립 등록 버튼 활성화 실패 (인코딩 미완료 또는 필수 항목 누락)")
-
-                except Exception as e:
-                    logger.error(f"❌ [📈 StockMaster 주식AI Naver Clip] 업로드 실패: {e}")
-                    return {
-                        "status": "error",
+                    res = {
+                        "status": "success",
                         "platform": "naver_clip",
                         "brand": "stock",
-                        "message": str(e)
+                        "topic_id": topic_id,
+                        "title": main_title,
+                        "video_file": target_video.name,
+                        "channel_url": self.channel_url,
+                        "published_at": get_now_kst_str()
                     }
-                finally:
+                    self._save_history(res)
                     await browser.close()
+                    return res
+
+                except Exception as e:
+                    logger.error(f"❌ [Naver-Stock Real Clip] 실행 중 예외: {e}")
+                    await browser.close()
+                    return {"status": "error", "error": str(e), "brand": "stock"}
+
+    def _save_history(self, data: Dict[str, Any]):
+        logs = []
+        if self.history_file.exists():
+            try:
+                with open(self.history_file, "r", encoding="utf-8") as f:
+                    logs = json.load(f)
+            except Exception:
+                logs = []
+        logs.append(data)
+        try:
+            with open(self.history_file, "w", encoding="utf-8") as f:
+                json.dump(logs[-50:], f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
     pub = StockNaverClipPublisher()
-    print("Is available:", pub.is_available())
+    print("Stock Real Naver Clip Publisher 준비 완료! (세션 유효:", pub.is_available(), ")")

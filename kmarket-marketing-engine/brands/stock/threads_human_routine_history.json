@@ -188,5 +188,15 @@
     "duration_sec": 903,
     "status": "COMPLETED",
     "ended_at": "2026-10-17T22:15:08.572033"
+  },
+  {
+    "brand": "stock",
+    "started_at": "2026-10-18T12:45:28.136016",
+    "posts_read": 49,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 608,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-18T12:55:36.228531"
   }
 ]

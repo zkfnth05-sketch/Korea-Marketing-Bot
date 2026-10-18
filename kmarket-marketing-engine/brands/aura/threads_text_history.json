@@ -484,5 +484,62 @@
       "attempts": 3
     },
     "success": false
+  },
+  {
+    "brand": "aura",
+    "slot": "morning",
+    "topic": "썸녀/썸남 답장 텀으로 알아보는 찐 호감 시그널 3가지",
+    "caption_preview": "카톡 답장 텀 1시간? 5분? 님들, 진짜 호감은 속도보다 '깊이'에 있어요! 😤\n\n첫째, 내 말에 깊이 공...",
+    "published_at": "2026-10-18T09:44:26.733486",
+    "publish_result": {
+      "status": "FAIL",
+      "error": "최대 3회 재시도 실패: Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"Post\").or_(locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"게시하기\")).or_(locator(\"div[role='dialog']\").first.locator(\"div[role='button'], button\").filter(has_text=\"게시\")).first\n    - locator resolved to <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x1c9tyrk xeusxvb x1pahc9y x1ertn4p x78zum5 xc9qbxq xl56j7k x14qfxbe\">…</div>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1fmog5m xu25z0z x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x78zum5 x1iyjqo2 x1dnml7z xl56j7k xpp8er5 xs9wviy\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1fmog5m xu25z0z x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x78zum5 x1iyjqo2 x1dnml7z xl56j7k xpp8er5 xs9wviy\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    56 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <div tabindex=\"0\" role=\"button\" class=\"x1i10hfl xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1fmog5m xu25z0z x1q0g3np x87ps6o x1lku1pv x1a2a7pz x6s0dn4 x78zum5 x1iyjqo2 x1dnml7z xl56j7k xpp8er5 xs9wviy\">…</div> from <div class=\"__fb-light-mode x1n2onr6 xzkaem6\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n",
+      "attempts": 3
+    },
+    "success": false
+  },
+  {
+    "brand": "aura",
+    "slot": "morning",
+    "topic": "썸녀/썸남 답장 텀으로 알아보는 찐 호감 시그널 3가지",
+    "caption_preview": "카톡 답장 텀 1시간? 5분? 속도보다 중요한 찐 호감 시그널 3가지! 팩트 체크 들어갈게요.\n\n솔직히 칼답...",
+    "published_at": "2026-10-18T19:26:02.734137",
+    "publish_result": {
+      "success": true,
+      "brand": "aura",
+      "message": "🎉 [스레드 발행 성공] Aura AI 데이팅 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "aura",
+        "published_at": "2026-10-18T19:26:02.673061",
+        "caption_preview": "카톡 답장 텀 1시간? 5분? 속도보다 중요한 찐 호감 시그널 3가지! 팩트 체크 들어갈게요.\n\n솔직히 칼답...",
+        "media_count": 0,
+        "first_reply": "💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "aura",
+    "slot": "evening",
+    "topic": "남녀가 생각하는 '연락 빈도'의 치명적인 차이점",
+    "caption_preview": "헉, 남친/여친 연락 빈도 때문에 싸워봤다면 이거 꼭 보세요! ㅠㅠ\n\n남자는 연락을 '정보 교환'이나 '용건...",
+    "published_at": "2026-10-18T19:30:56.618697",
+    "publish_result": {
+      "success": true,
+      "brand": "aura",
+      "message": "🎉 [스레드 발행 성공] Aura AI 데이팅 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "aura",
+        "published_at": "2026-10-18T19:30:56.544088",
+        "caption_preview": "헉, 남친/여친 연락 빈도 때문에 싸워봤다면 이거 꼭 보세요! ㅠㅠ\n\n남자는 연락을 '정보 교환'이나 '용건...",
+        "media_count": 0,
+        "first_reply": "💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_live_proof.png"
+      }
+    },
+    "success": true
   }
 ]

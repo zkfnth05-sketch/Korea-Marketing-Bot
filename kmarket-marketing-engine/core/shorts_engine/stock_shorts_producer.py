@@ -131,11 +131,15 @@ class StockShortsProducer(BaseShortsProducer):
         theme_name = scenario["theme_name"]
         theme_code = scenario["theme_code"]
 
+        from brands.stock.stock_shorts_script_writer import STOCK_8_TOPIC_PERSONAS
+        planned_gender = STOCK_8_TOPIC_PERSONAS.get(topic_id, {}).get("gender")
+        effective_gender = gender or planned_gender or "male"
+
         t2i_prompt = self.get_character_prompt(
             topic_id=topic_id,
             custom_char_desc=kwargs.get("custom_char_desc"),
             custom_bg_desc=kwargs.get("custom_bg_desc"),
-            gender=gender
+            gender=effective_gender
         )
         pos_prompt = t2i_prompt["positive"]
         neg_prompt = t2i_prompt["negative"]
@@ -233,7 +237,9 @@ class StockShortsProducer(BaseShortsProducer):
         # 2. 시나리오 대본 준비 (제미나이 자율 최적화 대본 우선 ➔ 실패 시 골든 대본 폴백)
         scenario = self.script_director.get_full_scenario(topic_id=topic_id, gender=gender)
         theme_name = scenario["theme_name"]
-        effective_gender = scenario.get("gender", gender or "male")
+        from brands.stock.stock_shorts_script_writer import STOCK_8_TOPIC_PERSONAS
+        planned_gender = STOCK_8_TOPIC_PERSONAS.get(topic_id, {}).get("gender")
+        effective_gender = gender or planned_gender or scenario.get("gender", "male")
         voice_rate = scenario.get("voice_rate", "+4%")
         voice_pitch = scenario.get("voice_pitch", "+0Hz")
 

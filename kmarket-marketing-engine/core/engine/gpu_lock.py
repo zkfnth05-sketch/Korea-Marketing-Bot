@@ -219,7 +219,10 @@ class GlobalGPULock:
             import urllib.request
             req = urllib.request.Request(
                 "http://127.0.0.1:8188/free",
-                data=json.dumps({"unload_models": True, "free_memory": True}).encode("utf-8"),
+                # 🛡️ unload_models=False 고정: ComfyUI-GGUF ops.py의 0xC0000005 C++ 접근 위반 크래시 방지
+                #    (GGUF 모델 언로드 시 네이티브 텐서 해제 경로에서 치명적 액세스 바이올레이션 발생)
+                #    free_memory=True만으로도 캐시/중간 텐서는 충분히 방출된다.
+                data=json.dumps({"unload_models": False, "free_memory": True}).encode("utf-8"),
                 headers={"Content-Type": "application/json"},
                 method="POST"
             )

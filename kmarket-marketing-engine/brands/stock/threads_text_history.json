@@ -466,5 +466,110 @@
       "attempts": 3
     },
     "success": false
+  },
+  {
+    "brand": "stock",
+    "slot": "morning",
+    "topic": "주식 초보들이 장초반 9시~9시30분에 제일 많이 물리는 패턴",
+    "caption_preview": "장 시작 9시, 갭상승 종목에 눈 돌아가시나요? 📈 개미들이 제일 많이 물리는 패턴입니다.\n\n대부분의 장초반...",
+    "published_at": "2026-10-18T09:42:49.174297",
+    "publish_result": {
+      "status": "FAIL",
+      "error": "최대 3회 재시도 실패: Locator.wait_for: Timeout 10000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").first.locator(\"div[role='textbox']\").first to be visible\n",
+      "attempts": 3
+    },
+    "success": false
+  },
+  {
+    "brand": "stock",
+    "slot": "morning",
+    "topic": "장 시작 전 반드시 체크해야 할 외인/기관 수급 쏠림 섹터",
+    "caption_preview": "개장 직전, 어제 미증시만 보고 계신가요? 퀀트 트레이더는 개장 30분 전부터 외인/기관 수급을 분석합니다....",
+    "published_at": "2026-10-18T18:59:33.855251",
+    "publish_result": {
+      "success": false,
+      "brand": "stock",
+      "error": "스레드 작성창(textbox)을 활성화하지 못했습니다.",
+      "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_error_screenshot.png"
+    },
+    "success": false
+  },
+  {
+    "brand": "stock",
+    "slot": "morning",
+    "topic": "장 시작 전 반드시 체크해야 할 외인/기관 수급 쏠림 섹터",
+    "caption_preview": "개장 직전, 어제 미 증시 마감만 보고 섣부른 매매는 금물입니다. 오늘 국장 주도 테마를 놓칠 수 있거든요....",
+    "published_at": "2026-10-18T19:06:27.890234",
+    "publish_result": {
+      "success": false,
+      "brand": "stock",
+      "error": "스레드 작성창(textbox)을 활성화하지 못했습니다.",
+      "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_error_screenshot.png"
+    },
+    "success": false
+  },
+  {
+    "brand": "stock",
+    "slot": "morning",
+    "topic": "주식 초보들이 장초반 9시~9시30분에 제일 많이 물리는 패턴",
+    "caption_preview": "🚨 장 시작 갭상승 종목, 무작정 추격 매수하다 고점에 물리는 개미들의 공통점 📈 바로 장초반 9시~9시30...",
+    "published_at": "2026-10-18T19:27:46.958077",
+    "publish_result": {
+      "success": false,
+      "brand": "stock",
+      "error": "스레드 작성창(textbox)을 활성화하지 못했습니다.",
+      "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_error_screenshot.png"
+    },
+    "success": false
+  },
+  {
+    "brand": "stock",
+    "slot": "evening",
+    "topic": "수익률 30% 갉아먹는 '손절 타이밍' 놓치는 심리학적 원인",
+    "caption_preview": "계좌 방치하는 당신, -15% 넘어가면 왜 손절 못 할까요? 📈\n\n손실 회피 편향과 본전 심리 때문입니다. ...",
+    "published_at": "2026-10-18T19:30:56.421882",
+    "publish_result": {
+      "success": false,
+      "brand": "stock",
+      "error": "스레드 작성창(textbox)을 활성화하지 못했습니다.",
+      "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_error_screenshot.png"
+    },
+    "success": false
+  },
+  {
+    "brand": "stock",
+    "slot": "morning",
+    "topic": "단타 칠 때 거래량 터지는 양봉 캔들 제대로 해석하는 법",
+    "caption_preview": "거래대금 1,000억 터진 양봉? 무조건 매수했다가 손실 본 경험, 많으실 겁니다. 📈 고점에서 개미 꼬시려...",
+    "published_at": "2026-10-18T20:00:47.174000",
+    "publish_result": {
+      "success": false,
+      "brand": "stock",
+      "error": "스레드 작성창(textbox)을 활성화하지 못했습니다.",
+      "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_error_screenshot.png"
+    },
+    "success": false
+  },
+  {
+    "brand": "stock",
+    "slot": "morning",
+    "topic": "장 시작 전 반드시 체크해야 할 외인/기관 수급 쏠림 섹터",
+    "caption_preview": "아침마다 주도주 놓치는 분들? 📈 개장 30분 전, 미 증시 마감 데이터와 외국인/기관 선물 포지션을 반드시...",
+    "published_at": "2026-10-18T20:06:28.077697",
+    "publish_result": {
+      "success": true,
+      "brand": "stock",
+      "message": "🎉 [스레드 발행 성공] 스톡마스터 AI 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "stock",
+        "published_at": "2026-10-18T20:06:28.009115",
+        "caption_preview": "아침마다 주도주 놓치는 분들? 📈 개장 30분 전, 미 증시 마감 데이터와 외국인/기관 선물 포지션을 반드시...",
+        "media_count": 0,
+        "first_reply": "📈 AI 실시간 수급 & 급등 테마 1분 무료 진단\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_live_proof.png"
+      }
+    },
+    "success": true
   }
 ]

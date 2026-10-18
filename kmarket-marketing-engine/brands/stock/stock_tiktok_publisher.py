@@ -8,10 +8,12 @@
   3. 완료 시 게시물 관리 화면(tiktokstudio/content)으로 이동하여 1등 실물 등록 확인
   4. 실제 라이브 영수증 및 증빙 캡처
   5. 미발견 시 브라우저 풀리셋 후 최대 3회 자가 치유 재시도 (Self-Healing Retry)
+  6. 발행 검증 성공 직후 틱톡 첫 댓글(공식 검색어 & URL) 자율 파이프라인 직결
 """
 
 import os
 import sys
+import re
 import json
 import logging
 import asyncio
@@ -261,7 +263,7 @@ class StockTikTokPublisher:
 
                 if is_verified:
                     logger.info("🎉🎉 [주식 틱톡 실물 검증 100% 합격!] 게시물 관리 최상단에 정상 게시 확인!")
-                    return {
+                    result = {
                         "status": "success",
                         "brand": self.brand,
                         "platform": "tiktok",
@@ -271,6 +273,17 @@ class StockTikTokPublisher:
                         "post_url": self.channel_url,
                         "verified_proof": str(proof_path)
                     }
+                    # 💬 [자율 파이프라인] 발행 검증 성공 직후 틱톡 첫 댓글(공식 검색어 & URL) 자율 집행
+                    try:
+                        from brands.stock.stock_tiktok_commenter import StockTikTokCommenter
+                        logger.info("💬 [주식 틱톡] 공식 검색어 & URL 첫 댓글 파이프라인 출동...")
+                        tk_commenter = StockTikTokCommenter()
+                        # 🔗 [세션 재사용] 이미 열려 있고 인증된 동일 page 세션을 그대로 넘겨
+                        #    추가 브라우저 기동/전역 락 재획득 없이 즉시 첫 댓글 작성 (세션 충돌 원천 차단)
+                        result["comment"] = await tk_commenter.post_comment_on_page(page)
+                    except Exception as tce:
+                        logger.warning(f"⚠️ 틱톡 댓글 작성 예외: {tce}")
+                    return result
                 else:
                     logger.warning("⚠️ 주식 틱톡 게시물 목록 최상단에 아직 반영되지 않았습니다.")
                     return {"status": "pending_or_missing", "message": "틱톡 목록에 실물 미확인"}

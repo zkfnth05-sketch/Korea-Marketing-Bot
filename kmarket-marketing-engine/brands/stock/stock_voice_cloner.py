@@ -11,6 +11,7 @@ StockVoiceCloner - 📈 [StockMaster AI 전용 알리바바 CosyVoice 음성 복
 
 import os
 import sys
+import time
 import wave
 import json
 import logging
@@ -54,10 +55,6 @@ class StockVoiceCloner:
             self.ffmpeg_exe = "ffmpeg"
 
         self.dashscope_api_key = os.getenv("DASHSCOPE_API_KEY", os.getenv("ALIYUN_API_KEY", ""))
-        self.typecast_api_key = os.getenv("TYPECAST_API_KEY", "")
-        # 👨 남성: 진우(Jinwoo) / 👩 여성: 서연(Seoyeon) 독립 Voice ID
-        self.typecast_voice_id_male = os.getenv("TYPECAST_VOICE_ID_STOCK", "tc_6541f92e4299b0c2017367c3")
-        self.typecast_voice_id_female = os.getenv("TYPECAST_VOICE_ID_INSURANCE", "tc_667ce80314cb3a612d6959e8")
 
     def get_preset_audio_path(self, gender: str = "male") -> Path:
         """주식 전용 5초 참조 오디오 경로 반환 (성별 일치)"""
@@ -73,14 +70,13 @@ class StockVoiceCloner:
         rate: Optional[str] = None
     ) -> str:
         """
-        주식 전용 대본을 진우(남성) 또는 서연(여성) 목소리로 복제 합성 (4단계 자율 페일오버)
+        주식 전용 대본을 진우(남성) 또는 서연(여성) 목소리로 알리바바 CosyVoice 복제 합성
         """
         out_p = Path(output_wav_path).resolve()
         out_p.parent.mkdir(parents=True, exist_ok=True)
 
         is_female = str(gender).lower() in ["female", "f", "woman", "여", "여성"]
         persona_name = "서연(Seoyeon - 여성)" if is_female else "진우(Jinwoo - 남성)"
-        effective_rate = rate if rate is not None else ("-5%" if is_female else "+3%")
 
         if not text or not text.strip():
             with wave.open(str(out_p), "wb") as wf:
@@ -91,32 +87,53 @@ class StockVoiceCloner:
             logger.info(f"🔇 [StockVoiceCloner] 빈 텍스트 무음 처리 완료 -> {out_p.name}")
             return str(out_p)
 
-        logger.info(f"📈 [StockVoiceCloner] {persona_name} 음성 복제 시작 (rate={effective_rate}): \"{text[:30]}...\"")
+        logger.info(f"📈 [StockVoiceCloner] {persona_name} 알리바바 CosyVoice 음성 복제 시작: \"{text[:30]}...\"")
 
-        # [1단계] Alibaba DashScope CosyVoice 시도
-        if self.dashscope_api_key:
+        # [1단계] 알리바바 키가 유효하게 등록되어 있을 경우 CosyVoice 우선 시도
+        if self.dashscope_api_key and len(self.dashscope_api_key.strip()) > 10:
             try:
-                res = self._synthesize_cosyvoice(text, str(out_p), gender=gender, sample_rate=sample_rate)
-                if res and out_p.exists() and out_p.stat().st_size > 1000:
+                self._synthesize_cosyvoice(text, str(out_p), gender=gender, sample_rate=sample_rate)
+                if out_p.exists() and out_p.stat().st_size > 1000:
                     logger.info(f"🎉 [주식 CosyVoice 성공] {persona_name} 음성 복제 완료: {out_p.name}")
                     return str(out_p)
             except Exception as e:
-                logger.warning(f"⚠️ [주식 CosyVoice API 예외] {e} ➔ 2단계 Typecast로 전환")
+                logger.warning(f"⚠️ [주식 CosyVoice 예외] {e} ➔ 무결점 고음질 엔진으로 즉시 자동 전환")
 
-        # [2단계] Typecast 보이스 폴백 (남/여 맞춤)
-        if self.typecast_api_key:
-            try:
-                res = self._synthesize_typecast(text, str(out_p), gender=gender, sample_rate=sample_rate)
-                if res and out_p.exists() and out_p.stat().st_size > 1000:
-                    logger.info(f"🎉 [주식 Typecast 성공] {persona_name} 음성 합성 완료: {out_p.name}")
-                    return str(out_p)
-            except Exception as e:
-                logger.warning(f"⚠️ [주식 Typecast 예외] {e} ➔ 3단계 Edge-TTS로 전환")
+        # [2단계] 최신 Edge-TTS 7.3.1 무결점 로컬 고속 무인 합성 (비용 0원, 남성: InJoon / 여성: SunHi)
+        self._synthesize_edge_tts(text, str(out_p), gender=gender, sample_rate=sample_rate)
+        if out_p.exists() and out_p.stat().st_size > 1000:
+            logger.info(f"🎉 [주식 음성 합성 성공] {persona_name} 발화 완료: {out_p.name}")
+            return str(out_p)
+        else:
+            raise RuntimeError(f"음성 파일 생성 실패 ({out_p.name})")
 
-        # [3단계] Edge-TTS 무결점 최종 보증 로컬 폴백 (남성: InJoon / 여성: SunHi)
-        res = self._synthesize_edge_tts(text, str(out_p), gender=gender, sample_rate=sample_rate, rate=effective_rate)
-        logger.info(f"🎉 [주식 Edge-TTS 성공] {persona_name} 음성 합성 완료 (rate={effective_rate}): {out_p.name}")
-        return str(out_p)
+    def _synthesize_edge_tts(self, text: str, output_wav_path: str, gender: str, sample_rate: int) -> bool:
+        """최신 Edge-TTS 7.3.1 무인 고음질 음성 합성 (남성: InJoon / 여성: SunHi)"""
+        import asyncio
+        import edge_tts
+        import subprocess
+
+        is_female = str(gender).lower() in ["female", "f", "woman", "여", "여성"]
+        voice = "ko-KR-SunHiNeural" if is_female else "ko-KR-InJoonNeural"
+        temp_mp3 = self.output_dir / f"temp_stock_edge_{os.getpid()}_{int(time.time()*1000)}.mp3"
+
+        async def _run():
+            comm = edge_tts.Communicate(text, voice)
+            await comm.save(str(temp_mp3))
+
+        asyncio.run(_run())
+
+        cmd = [
+            self.ffmpeg_exe, "-y",
+            "-i", str(temp_mp3),
+            "-ar", str(sample_rate),
+            "-ac", "1",
+            output_wav_path
+        ]
+        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if temp_mp3.exists():
+            temp_mp3.unlink()
+        return True
 
     def _synthesize_cosyvoice(self, text: str, output_wav_path: str, gender: str, sample_rate: int) -> bool:
         """Alibaba DashScope CosyVoice REST API 음성 합성"""
@@ -141,49 +158,6 @@ class StockVoiceCloner:
             return True
         else:
             raise RuntimeError(f"CosyVoice API Error [HTTP {resp.status_code}]: {resp.text}")
-
-    def _synthesize_typecast(self, text: str, output_wav_path: str, gender: str, sample_rate: int) -> bool:
-        """Typecast API 연동"""
-        from core.shorts_engine.typecast_synthesizer import TypecastSynthesizer
-        is_female = str(gender).lower() in ["female", "f", "woman", "여", "여성"]
-        voice_id = self.typecast_voice_id_female if is_female else self.typecast_voice_id_male
-
-        synth = TypecastSynthesizer(
-            api_key=self.typecast_api_key,
-            default_voice_id=voice_id,
-            output_dir=str(self.output_dir)
-        )
-        synth.synthesize(text, output_wav_path, sample_rate=sample_rate)
-        return True
-
-    def _synthesize_edge_tts(self, text: str, output_wav_path: str, gender: str, sample_rate: int, rate: Optional[str] = None) -> bool:
-        """Edge-TTS 연동 (남성: InJoon / 여성: SunHi)"""
-        import asyncio
-        import edge_tts
-
-        is_female = str(gender).lower() in ["female", "f", "woman", "여", "여성"]
-        voice = "ko-KR-SunHiNeural" if is_female else "ko-KR-InJoonNeural"
-        temp_mp3 = self.output_dir / f"temp_stock_edge_{os.getpid()}.mp3"
-
-        effective_rate = rate if (rate and (rate.startswith("+") or rate.startswith("-"))) else ("-5%" if is_female else "+3%")
-
-        async def _run():
-            comm = edge_tts.Communicate(text, voice, rate=effective_rate)
-            await comm.save(str(temp_mp3))
-
-        asyncio.run(_run())
-
-        cmd = [
-            self.ffmpeg_exe, "-y",
-            "-i", str(temp_mp3),
-            "-ar", str(sample_rate),
-            "-ac", "1",
-            output_wav_path
-        ]
-        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        if temp_mp3.exists():
-            temp_mp3.unlink()
-        return True
 
     def generate_speech_wav(
         self,

@@ -1,10 +1,192 @@
 {
-  "current_topic_index": 19,
-  "last_topic_id": 4,
-  "last_run_time": "2026-10-17 20:36:35",
-  "last_title": "가슴 뻐근해서 스텐트 넣었는데 보험금 0원? 😱 급성심근경색 특약의 배신과 허혈성 심장질환 팩트체크",
-  "published_count": 31,
+  "current_topic_index": 21,
+  "last_topic_id": 36,
+  "last_run_time": "2026-10-18 17:03:19",
+  "last_title": "아랫집 누수 수리비 380만 원 날릴 뻔... 단돈 1천 원으로 전액 해결한 실화 💸",
+  "published_count": 33,
   "history": [
+    {
+      "topic_id": 36,
+      "title": "아랫집 누수 수리비 380만 원 날릴 뻔... 단돈 1천 원으로 전액 해결한 실화 💸",
+      "title_naver": "아랫집 누수 수리비 380만 원 날릴 뻔... 단돈 1천 원으로 전액 해결한 실화 💸",
+      "title_tistory": "일상생활배상책임보험(일배책) 총정리: 아랫집 누수·반려견 사고 1억 한도 청구 노하우",
+      "title_brunch": "월 천 원의 기적, 일상생활배상책임 특약으로 지켜낸 가계부",
+      "category": "life_dental_pet",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_036_life_dental_pet_20261018_170120.webp",
+      "published_at": "2026-10-18 17:03:19",
+      "publish_results": {
+        "topic_id": 36,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "아랫집 누수 수리비 380만 원 날릴 뻔... 단돈 1천 원으로 전액 해결한 실화 💸",
+            "url": "https://blog.naver.com/thefirst-life/224445619710",
+            "post_url": "https://blog.naver.com/thefirst-life/224445619710",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "일상생활배상책임",
+              "일배책누수",
+              "반려견사고보상",
+              "1천원특약",
+              "치아보험임플란트",
+              "치아보험임플란트보장",
+              "치아보험임플란트청구",
+              "치아보험임플란트재식립",
+              "치아보험임플란트면책",
+              "치아보험임플란트청구서류",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "think83157",
+            "title": "일상생활배상책임보험(일배책) 총정리: 아랫집 누수·반려견 사고 1억 한도 청구 노하우",
+            "url": "https://think83157.tistory.com/18",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "일상생활배상책임",
+              "일배책누수",
+              "반려견사고보상",
+              "1천원특약",
+              "치아보험임플란트",
+              "치아보험임플란트보장",
+              "치아보험임플란트청구",
+              "치아보험임플란트재식립",
+              "치아보험임플란트면책",
+              "치아보험임플란트청구서류",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "insurance",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "thefirst-life",
+            "title": "아랫집 누수 수리비 380만 원 날릴 뻔... 단돈 1천 원으로 전액 해결한 실화 ",
+            "real_url": "https://blog.naver.com/thefirst-life/224445619710",
+            "log_no": "224445619710",
+            "pub_date": "Sun, 18 Oct 2026 17:01:55 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_verification\\naver_proof_1792310596.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "think83157",
+            "title": "1&middot;2세대 실손보험 갱신 폭탄, 4세대 전환 손익 비교와 후회 없는 선택 기준",
+            "real_url": "https://think83157.tistory.com/18",
+            "pub_date": "Sat, 17 Oct 2026 15:04:44 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-18 17:03:19"
+        }
+      }
+    },
+    {
+      "topic_id": 20,
+      "title": "운전자보험 3만 원 내면서 경찰서 갈 땐 1원도 못 받는다? 🚨 2024년 필수 특약 팩트체크",
+      "title_naver": "운전자보험 3만 원 내면서 경찰서 갈 땐 1원도 못 받는다? 🚨 2024년 필수 특약 팩트체크",
+      "title_tistory": "운전자보험 변호사선임비용, 경찰조사 단계 지원 여부 확인법 (교통사고 형사합의금 최신 비교)",
+      "title_brunch": "초보 운전 3년 차, 통장에서 매달 빠져나가던 운전자보험을 뜯어본 날",
+      "category": "auto_driver",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_020_auto_driver_20261018_100051.webp",
+      "published_at": "2026-10-18 10:02:51",
+      "publish_results": {
+        "topic_id": 20,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "운전자보험 3만 원 내면서 경찰서 갈 땐 1원도 못 받는다? 🚨 2024년 필수 특약 팩트체크",
+            "url": "https://blog.naver.com/thefirst-life/224445297807",
+            "post_url": "https://blog.naver.com/thefirst-life/224445297807",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "경찰조사변호사선임",
+              "교통사고형사합의",
+              "교통사고처리지원금",
+              "운전자보험추천",
+              "운전자보험특약",
+              "운전자보험특약추천",
+              "운전자보험특약추가",
+              "운전자보험특약누수",
+              "운전자보험특약일상생활",
+              "운전자보험특약확인",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "think83157",
+            "title": "운전자보험 변호사선임비용, 경찰조사 단계 지원 여부 확인법 (교통사고 형사합의금 최신 비교)",
+            "url": "https://think83157.tistory.com/18",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "경찰조사변호사선임",
+              "교통사고형사합의",
+              "교통사고처리지원금",
+              "운전자보험추천",
+              "운전자보험특약",
+              "운전자보험특약추천",
+              "운전자보험특약추가",
+              "운전자보험특약누수",
+              "운전자보험특약일상생활",
+              "운전자보험특약확인",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "insurance",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "thefirst-life",
+            "title": "운전자보험 3만 원 내면서 경찰서 갈 땐 1원도 못 받는다?  2024년 필수 특약 팩트체크",
+            "real_url": "https://blog.naver.com/thefirst-life/224445297807",
+            "log_no": "224445297807",
+            "pub_date": "Sun, 18 Oct 2026 10:01:25 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_verification\\naver_proof_1792285367.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "think83157",
+            "title": "1&middot;2세대 실손보험 갱신 폭탄, 4세대 전환 손익 비교와 후회 없는 선택 기준",
+            "real_url": "https://think83157.tistory.com/18",
+            "pub_date": "Sat, 17 Oct 2026 15:04:44 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-18 10:02:51"
+        }
+      }
+    },
     {
       "topic_id": 4,
       "title": "가슴 뻐근해서 스텐트 넣었는데 보험금 0원? 😱 급성심근경색 특약의 배신과 허혈성 심장질환 팩트체크",

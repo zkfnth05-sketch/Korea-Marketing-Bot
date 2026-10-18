@@ -978,5 +978,47 @@
     "status": "success",
     "gemini_calls": 0,
     "brand": "insurance"
+  },
+  {
+    "timestamp": "2026-10-18 11:03:25",
+    "slot_id": "morning",
+    "slot_name": "🌅 아침 출근길 틱톡 (15분)",
+    "target_min": 15,
+    "target_likes": 2,
+    "actual_sec": 81,
+    "likes_given": 2,
+    "videos_watched": 3,
+    "comments_inspected": 1,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "insurance"
+  },
+  {
+    "timestamp": "2026-10-18 11:15:26",
+    "slot_id": "morning",
+    "slot_name": "🌅 아침 출근길 틱톡 (15분)",
+    "target_min": 15,
+    "target_likes": 2,
+    "actual_sec": 51,
+    "likes_given": 1,
+    "videos_watched": 2,
+    "comments_inspected": 0,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "insurance"
+  },
+  {
+    "timestamp": "2026-10-18 11:21:26",
+    "slot_id": "morning",
+    "slot_name": "🌅 아침 출근길 틱톡 (15분)",
+    "target_min": 15,
+    "target_likes": 2,
+    "actual_sec": 919,
+    "likes_given": 2,
+    "videos_watched": 29,
+    "comments_inspected": 8,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "insurance"
   }
 ]

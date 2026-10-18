@@ -4,13 +4,13 @@ title [한국 마케팅봇] 365일 전플랫폼 세션 영구 생명 연장 상�
 cd /d "%~dp0kmarket-marketing-engine"
 
 echo ==============================================================================
-echo  🌟 [한국 마케팅봇] 전 플랫폼 3시간 스텔스 세션 생명 연장 상시 데몬
+echo  [한국 마케팅봇] 전 플랫폼 3시간 스텔스 세션 생명 연장 상시 데몬
 echo ==============================================================================
-echo  - 대상: 3개 브랜드 (보험, 주식, 아우라) × 6대 핵심 플랫폼
+echo  - 대상: 3개 브랜드 (보험, 주식, 아우라) x 6대 핵심 플랫폼
 echo  - 채널: YouTube Shorts, Meta MBS Reels, TikTok, Naver Clip, Threads, Tistory
 echo  - 주기: 3시간마다 백그라운드 스텔스 핑 전송 (토큰 수명 365일 무한 갱신)
 echo  - 효과: 유휴(Inactivity) 만료 원천 차단으로 세션 절대 풀림 방지
 echo ==============================================================================
 echo.
-python core\auto_publishers\omni_session_heartbeat_keeper.py --daemon
+python "%~dp0kmarket-marketing-engine\core\auto_publishers\omni_session_heartbeat_keeper.py" --daemon
 pause

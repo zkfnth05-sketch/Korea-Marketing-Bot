@@ -127,6 +127,7 @@ function initTabs() {
             if (targetTab === "gallery" && typeof loadGallery === "function") loadGallery();
             if (targetTab === "self-learning" && typeof loadGoldenCopies === "function") loadGoldenCopies();
             if (targetTab === "health" && typeof loadHealthStatus === "function") loadHealthStatus();
+            if (targetTab === "live-verification" && typeof fetchVerificationStatus === "function") fetchVerificationStatus();
         });
     });
 }

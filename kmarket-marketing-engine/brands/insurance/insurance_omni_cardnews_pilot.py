@@ -160,6 +160,18 @@ class InsuranceOmniCardnewsPilot:
         logger.info(f"🎨 [보험 카드뉴스 실시간 제작] 쏘기 직전 주제 #{topic_id} 5장 신규 렌더링 시작...")
         logger.info("=" * 70)
 
+        # 1단계: 오늘 완성된 최신 완제품이 이미 바탕화면에 존재하는지 우선 탐색 (중복 GPU 렌더링 방지 & 즉각 송출)
+        today_str = datetime.now().strftime("%Y%m%d")
+        desktop_base = Path(os.environ.get("USERPROFILE", "C:/Users/zkfnt")) / "Desktop" / "한국 카드뉴스_산출물" / "보험"
+        if desktop_base.exists():
+            topic_str = f"{topic_id:02d}"
+            for folder in desktop_base.iterdir():
+                if folder.is_dir() and f"_{topic_str}_" in folder.name and today_str in folder.name:
+                    slides = [str(folder / f"slide_{i}.png") for i in range(1, 6) if (folder / f"slide_{i}.png").exists()]
+                    if len(slides) >= 4:
+                        logger.info(f"✨ [보험 카드뉴스 완제품 즉각 확보] 오늘 완성된 무결점 슬라이드 {len(slides)}장 감지: {folder.name}")
+                        return slides
+
         from brands.insurance.insurance_cardnews_producer import InsuranceCardnewsProducer
         producer = InsuranceCardnewsProducer()
         res = producer.produce_full_package(topic_id=topic_id)

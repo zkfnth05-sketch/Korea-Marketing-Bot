@@ -159,6 +159,18 @@ class AuraOmniCardnewsPilot:
         logger.info(f"🎨 [Aura 카드뉴스 제작] 쏘기 직전 주제 #{topic_id} 5장 신규 렌더링 시작...")
         logger.info("=" * 70)
 
+        # 1단계: 오늘 완성된 최신 완제품이 이미 바탕화면에 존재하는지 우선 탐색 (중복 GPU 렌더링 방지 & 즉각 송출)
+        today_str = datetime.now().strftime("%Y%m%d")
+        desktop_base = Path(os.environ.get("USERPROFILE", "C:/Users/zkfnt")) / "Desktop" / "한국 카드뉴스_산출물" / "아우라"
+        if desktop_base.exists():
+            topic_str = f"{topic_id:02d}"
+            for folder in desktop_base.iterdir():
+                if folder.is_dir() and f"_{topic_str}_" in folder.name and today_str in folder.name:
+                    slides = [str(folder / f"slide_{i}.png") for i in range(1, 6) if (folder / f"slide_{i}.png").exists()]
+                    if len(slides) >= 4:
+                        logger.info(f"✨ [Aura 카드뉴스 완제품 즉각 확보] 오늘 완성된 무결점 슬라이드 {len(slides)}장 감지: {folder.name}")
+                        return slides
+
         try:
             from brands.aura.aura_cardnews_producer import AuraCardnewsProducer
             producer = AuraCardnewsProducer()
@@ -258,6 +270,30 @@ class AuraOmniCardnewsPilot:
                 )
                 results["channels"]["meta_business_suite_reels"] = mbs_res
                 logger.info(f"🎉 [MBS 릴스 발행 완료]: {mbs_res.get('status')}")
+
+                # 💬 [페이스북 첫 댓글 레고 블록 실행]
+                try:
+                    import asyncio
+                    from brands.aura.aura_facebook_commenter import AuraFacebookCommenter
+                    fb_commenter = AuraFacebookCommenter()
+                    fb_c_res = asyncio.run(fb_commenter.post_comment_on_latest_post_async())
+                    results["channels"]["facebook_comment"] = fb_c_res
+                    logger.info(f"💬 [페이스북 첫 댓글 완료]: {fb_c_res.get('status')}")
+                except Exception as fbce:
+                    logger.error(f"❌ 페이스북 댓글 예외: {fbce}")
+                    results["channels"]["facebook_comment"] = {"status": "error", "error": str(fbce)}
+
+                # 💬 [인스타그램 첫 댓글 레고 블록 실행]
+                try:
+                    import asyncio
+                    from brands.aura.aura_instagram_commenter import AuraInstagramCommenter
+                    ig_commenter = AuraInstagramCommenter()
+                    ig_c_res = asyncio.run(ig_commenter.post_comment_on_latest_reel_async())
+                    results["channels"]["instagram_comment"] = ig_c_res
+                    logger.info(f"💬 [인스타그램 첫 댓글 완료]: {ig_c_res.get('status')}")
+                except Exception as igce:
+                    logger.error(f"❌ 인스타그램 댓글 예외: {igce}")
+                    results["channels"]["instagram_comment"] = {"status": "error", "error": str(igce)}
             except Exception as mbse:
                 logger.error(f"❌ [MBS 릴스 발행 예외] {mbse}")
                 results["channels"]["meta_business_suite_reels"] = {"status": "error", "error": str(mbse)}
@@ -314,27 +350,30 @@ class AuraOmniCardnewsPilot:
                 results["channels"]["naver_clip"] = {"status": "error", "error": str(ce)}
 
         
-        # [Channel] 틱톡 카드뉴스 숏폼 무인 송출
-        if cardnews_reels_path and os.path.exists(cardnews_reels_path) and hasattr(self, 'tiktok_pub') and self.tiktok_pub.is_available():
-            logger.info(f"🎵 [틱톡 카드뉴스 릴스 송출] 주제 #{target_topic} 발사...")
-            try:
-                tk_res = self.tiktok_pub.publish_short(
-                    video_path=cardnews_reels_path,
-                    topic_id=target_topic,
-                    caption=pkg.get("tiktok", {}).get("caption", pkg.get("title")),
-                    title=pkg.get("title")
-                )
-                results["channels"]["tiktok"] = tk_res
-                logger.info(f"🎉 [틱톡 카드뉴스 송출 완료]: {tk_res.get('post_url', tk_res.get('status'))}")
-            except Exception as tke:
-                logger.error(f"❌ 틱톡 카드뉴스 숏츠 송출 실패: {tke}")
-                results["channels"]["tiktok"] = {"status": "error", "error": str(tke)}
+        # [Channel] 틱톡 제외 (대표님 지침: 틱톡만 빼고)
+        # 틱톡은 송출 대상에서 제외됩니다.
 
         # 5. 중복 락 및 히스토리 영구 기록
         self._record_history(results)
         logger.info("=" * 70)
         logger.info(f"🎉 [Aura 5장 카드뉴스 1회 단발 송출 완료] 주제 #{target_topic} | 슬라이드 {len(slides)}장")
         logger.info("=" * 70)
+
+        # 6. [100% 무인 자율 실측 감사] 봇 스스로 즉시 5대 플랫폼 게시물 & 첫 댓글 실측 감사 개시 및 대시보드 갱신
+        try:
+            logger.info("🕵️ [자율 무인 실측 감사] 송출 직후 봇 스스로 5대 플랫폼 게시물 & 첫 댓글 실측 감사 개시...")
+            import asyncio
+            from brands.aura.aura_post_comment_verifier import AuraPostCommentVerifier
+            verifier = AuraPostCommentVerifier()
+            if hasattr(verifier, "run_full_verification"):
+                if asyncio.iscoroutinefunction(verifier.run_full_verification):
+                    asyncio.run(verifier.run_full_verification())
+                else:
+                    verifier.run_full_verification()
+            logger.info("🎉 [자율 무인 실측 완료] 대시보드에 실시간 반영되었습니다.")
+        except Exception as ve:
+            logger.warning(f"⚠️ 실측 감사 예외 (송출 성공은 유지됨): {ve}")
+
         return results
 
     def _record_history(self, record: Dict[str, Any]):

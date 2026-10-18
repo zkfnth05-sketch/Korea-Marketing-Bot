@@ -1,10 +1,204 @@
 {
-  "current_topic_index": 34,
-  "last_topic_id": 75,
-  "last_run_time": "2026-10-17 20:36:49",
-  "last_title": "전고점 돌파 종목 매매 전략: 라운드 피겨 마디가 분할 익절과 수급 분석법",
-  "published_count": 43,
+  "current_topic_index": 36,
+  "last_topic_id": 6,
+  "last_run_time": "2026-10-18 17:03:42",
+  "last_title": "청산 손절선 이탈 시 칼손절의 미학: 주도주 맹신 버리고 원금 지키는 퀀트 방탄 룰",
+  "published_count": 45,
   "history": [
+    {
+      "topic_id": 6,
+      "title": "청산 손절선 이탈 시 칼손절의 미학: 주도주 맹신 버리고 원금 지키는 퀀트 방탄 룰",
+      "title_naver": "청산 손절선 이탈 시 칼손절의 미학: 주도주 맹신 버리고 원금 지키는 퀀트 방탄 룰",
+      "title_tistory": "1등 주도주라도 예외 없다: EXIT 손절선 이탈 시 계좌를 지키는 기계적 손절 시스템",
+      "title_brunch": "하락장에서 살아남는 유일한 생존법: 청산 손절선(EXIT SL)과 리스크 관리의 본질",
+      "category": "realtime_rank1",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_rank1_20261018_170045.png",
+      "published_at": "2026-10-18 17:03:42",
+      "publish_results": {
+        "topic_id": 6,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "청산 손절선 이탈 시 칼손절의 미학: 주도주 맹신 버리고 원금 지키는 퀀트 방탄 룰",
+            "url": "https://blog.naver.com/stockmaster_ai/224445620287",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224445620287",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "청산손절선",
+              "원금보호",
+              "기계적손절",
+              "스탑로스",
+              "손절선설정",
+              "계좌방어",
+              "코스피주도주",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "체결강도500%",
+              "체결강도높으면",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "stockmaster-ai",
+            "title": "1등 주도주라도 예외 없다: EXIT 손절선 이탈 시 계좌를 지키는 기계적 손절 시스템",
+            "url": "https://stockmaster-ai.tistory.com/35",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "청산손절선",
+              "원금보호",
+              "기계적손절",
+              "스탑로스",
+              "손절선설정",
+              "계좌방어",
+              "코스피주도주",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "체결강도500%",
+              "체결강도높으면",
+              "주식투자"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 49,
+            "title": "청산 손절선 이탈 시 칼손절의 미학: 주도주 맹신 버리고 원금 지키는 퀀트 방탄 룰",
+            "category": "RANK1"
+          }
+        },
+        "verification": {
+          "brand": "stock",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "stockmaster_ai",
+            "title": "청산 손절선 이탈 시 칼손절의 미학: 주도주 맹신 버리고 원금 지키는 퀀트 방탄 룰",
+            "real_url": "https://blog.naver.com/stockmaster_ai/224445620287",
+            "log_no": "224445620287",
+            "pub_date": "Sun, 18 Oct 2026 17:02:37 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\naver_proof_1792310618.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "stockmaster-ai",
+            "title": "1등 주도주라도 예외 없다: EXIT 손절선 이탈 시 계좌를 지키는 기계적 손절 시스템",
+            "real_url": "https://stockmaster-ai.tistory.com/35",
+            "pub_date": "Sun, 18 Oct 2026 17:03:21 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-18 17:03:42"
+        }
+      }
+    },
+    {
+      "topic_id": 90,
+      "title": "신용잔고율 5% 초과 종목이 절대 상승하지 못하는 이유 (feat. 외국인 기관 순매수 수급)",
+      "title_naver": "신용잔고율 5% 초과 종목이 절대 상승하지 못하는 이유 (feat. 외국인 기관 순매수 수급)",
+      "title_tistory": "개미 빚투의 함정: 신용잔고율 5% 법칙과 악성 매물대 해소 퀀트 분석",
+      "title_brunch": "빚으로 쌓아 올린 주가의 비극: 신용잔고율이 가리키는 냉혹한 진실",
+      "category": "quant_guide",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_quant_guide_20261018_101525.png",
+      "published_at": "2026-10-18 10:17:34",
+      "publish_results": {
+        "topic_id": 90,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "신용잔고율 5% 초과 종목이 절대 상승하지 못하는 이유 (feat. 외국인 기관 순매수 수급)",
+            "url": "https://blog.naver.com/stockmaster_ai/224445307706",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224445307706",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "신용잔고율분석",
+              "빚투종목회피",
+              "매물대부담",
+              "가벼운종목",
+              "신용5프로",
+              "개미빚투",
+              "코스피주도주",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "체결강도500%",
+              "체결강도높으면",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "stockmaster-ai",
+            "title": "개미 빚투의 함정: 신용잔고율 5% 법칙과 악성 매물대 해소 퀀트 분석",
+            "url": "https://stockmaster-ai.tistory.com/34",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "신용잔고율분석",
+              "빚투종목회피",
+              "매물대부담",
+              "가벼운종목",
+              "신용5프로",
+              "개미빚투",
+              "코스피주도주",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "체결강도500%",
+              "체결강도높으면",
+              "주식투자"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 48,
+            "title": "신용잔고율 5% 초과 종목이 절대 상승하지 못하는 이유 (feat. 외국인 기관 순매수 수급)",
+            "category": "RANK1"
+          }
+        },
+        "verification": {
+          "brand": "stock",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "stockmaster_ai",
+            "title": "신용잔고율 5% 초과 종목이 절대 상승하지 못하는 이유 (feat. 외국인 기관 순매수 수급)",
+            "real_url": "https://blog.naver.com/stockmaster_ai/224445307706",
+            "log_no": "224445307706",
+            "pub_date": "Sun, 18 Oct 2026 10:16:29 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\naver_proof_1792286250.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "stockmaster-ai",
+            "title": "개미 빚투의 함정: 신용잔고율 5% 법칙과 악성 매물대 해소 퀀트 분석",
+            "real_url": "https://stockmaster-ai.tistory.com/34",
+            "pub_date": "Sun, 18 Oct 2026 10:17:14 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-18 10:17:34"
+        }
+      }
+    },
     {
       "topic_id": 75,
       "title": "전고점 돌파 종목 매매 전략: 라운드 피겨 마디가 분할 익절과 수급 분석법",

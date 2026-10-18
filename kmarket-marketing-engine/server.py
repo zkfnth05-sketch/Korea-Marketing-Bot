@@ -1895,6 +1895,12 @@ class DashboardHandler(BaseHTTPRequestHandler):
         elif path == "/api/stock/shorts/status" or path.startswith("/api/stock/shorts/status"):
             self._handle_get_stock_shorts_status()
             return
+        elif path == "/api/verification/status" or path.startswith("/api/verification/status"):
+            self._handle_get_verification_status()
+            return
+        elif path == "/verification" or path == "/live_verification":
+            self._serve_file(OUTPUTS_DIR / "live_verification_dashboard.html", "text/html; charset=utf-8")
+            return
 
         self._set_headers("text/plain", 404)
         self.wfile.write(b"Not Found")
@@ -1913,6 +1919,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
         # 듀얼 봇 독립 제어 & 전체 일괄 제어
         if path == "/api/media_engine":
             self._handle_post_media_engine(payload)
+            return
+        elif path == "/api/verification/run":
+            self._handle_post_verification_run(payload)
             return
         elif path == "/api/stock/shorts/run":
             self._handle_post_stock_shorts_run(payload)
@@ -2744,15 +2753,15 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 from brands.aura.aura_kin_scheduler import AuraKinScheduler
                 scheduler = AuraKinScheduler()
 
+            # 🛡️ [단일 진실 원천] scheduler._load_state() 가 history 3중 가드 실측으로
+            #    daily_total 을 자가 치유하여 반환하므로 그 값을 그대로 신뢰한다.
             state = scheduler._load_state()
             if hasattr(scheduler, "get_current_slot"):
                 slot = scheduler.get_current_slot()
             else:
                 slot = {"name": "24시간 실시간 레이더 감시", "target": scheduler.DAILY_TARGET}
             history = scheduler.pipeline._load_history()
-            today_str = datetime.now().strftime("%Y-%m-%d")
-            actual_today = sum(1 for h in history if str(h.get("created_at", "")).startswith(today_str) and h.get("status") == "published")
-            daily_total = max(state.get("daily_total", 0), actual_today)
+            daily_total = state.get("daily_total", 0)
             data = {
                 "success": True,
                 "brand": brand,
@@ -4285,6 +4294,47 @@ class DashboardHandler(BaseHTTPRequestHandler):
         log_event(res.get("message", f"🌐 [{brand.upper()}] 색인 핑 전송 완료"), "success" if res.get("success") else "warning")
         self._set_headers("application/json")
         self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+
+    # ── [🕵️ 실시간 송출 & 댓글 실측 감사 핸들러] ──────────────────────────
+    def _handle_get_verification_status(self):
+        """🕵️ 5대 플랫폼(인스타/페북/스레드/유튜브/네이버클립) 실측 감사 결과 조회"""
+        board_file = OUTPUTS_DIR / "live_verification_board.json"
+        if board_file.exists():
+            try:
+                with open(board_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+            except Exception as e:
+                data = {"success": False, "error": str(e)}
+        else:
+            data = {"success": False, "message": "아직 실측 감사 데이터가 없습니다."}
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+
+    def _handle_post_verification_run(self, payload: dict):
+        """🕵️ 5대 플랫폼 실시간 실측 감사 백그라운드 1회 즉시 실행"""
+        brand = payload.get("brand", "aura")
+        
+        def _verify_job():
+            try:
+                log_event(f"🕵️ [{brand.upper()}] 숏폼 & 카드뉴스 5대 플랫폼 전수 실측 감사 가동 중...", "info")
+                if brand == "aura":
+                    from brands.aura.aura_post_comment_verifier import AuraPostCommentVerifier
+                    verifier = AuraPostCommentVerifier()
+                    res = verifier.run_full_verification()
+                    log_event(f"🎉 [{brand.upper()}] 5대 플랫폼 전수 실측 감사 완료! ({len(res)}개 플랫폼 검증 완료)", "success")
+                else:
+                    log_event(f"⚠️ [{brand.upper()}] 브랜드 검증기 준비 중입니다.", "warning")
+            except Exception as e:
+                log_event(f"❌ [실측 감사 실패] {e}", "error")
+
+        t = threading.Thread(target=_verify_job, daemon=True)
+        t.start()
+        
+        self._set_headers("application/json")
+        self.wfile.write(json.dumps({
+            "success": True, 
+            "message": f"{brand.upper()} 5대 플랫폼 실측 감사가 백그라운드에서 시작되었습니다."
+        }, ensure_ascii=False).encode("utf-8"))
 
     # ── [📈 StockMaster AI] 30초 퀀트 숏폼 자율 스케줄러 핸들러 ─────────
     def _handle_get_stock_shorts_status(self):

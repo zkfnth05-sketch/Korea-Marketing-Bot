@@ -22,6 +22,9 @@
             </div>
 
             <nav class="nav-menu">
+                <button class="nav-item" data-tab="live-verification" style="border-left: 3px solid #EC4899;">
+                    <span class="icon">🕵️</span> 실시간 송출·댓글 실측 감사
+                </button>
                 <button class="nav-item" data-tab="ir-analytics">
                     <span class="icon">💎</span> 실시간 유입 & 성과 관제
                 </button>
@@ -146,6 +149,9 @@
             <section class="tab-content active" id="tab-overview">
                 <!-- 🚨 실시간 비상관제 & ALL CLEAR 가드 배너 -->
                 <div id="emergency-guard-banner-container" style="margin-bottom: 20px;"></div>
+
+                <!-- 🕵️ 5대 플랫폼 실시간 송출 & 첫 댓글 실측 감사 미니 배너 -->
+                <div id="overview-verification-mini-banner"></div>
 
                 <!-- 📜 시스템 핵심 지표 카드 -->
                 <div class="stats-grid">
@@ -578,6 +584,30 @@
 
                 </div>
             </section>
+
+            <!-- 탭 7: 🕵️ 실시간 송출 & 첫 댓글 전수 실측 감사 관제 사령부 -->
+            <section class="tab-content" id="tab-live-verification">
+                <!-- 상단 종합 리포트 배너 -->
+                <div id="verification-summary-banner" style="margin-bottom: 20px;"></div>
+
+                <!-- 필터 및 컨트롤 바 -->
+                <div class="section-card" style="margin-bottom: 20px; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span style="font-weight: 700; font-size: 13px; color: #1E293B;">분류 필터:</span>
+                        <button class="btn verification-filter-btn" onclick="setVerificationFilter('all', this)" style="background: #1E293B; color: #FFFFFF; font-size: 12px; padding: 6px 14px; border-radius: 8px;">전체 (숏폼 + 카드뉴스)</button>
+                        <button class="btn verification-filter-btn" onclick="setVerificationFilter('cardnews', this)" style="background: #F1F5F9; color: #475569; font-size: 12px; padding: 6px 14px; border-radius: 8px;">🎴 카드뉴스 (인스타/페북/스레드)</button>
+                        <button class="btn verification-filter-btn" onclick="setVerificationFilter('shorts', this)" style="background: #F1F5F9; color: #475569; font-size: 12px; padding: 6px 14px; border-radius: 8px;">🎥 숏폼 (유튜브/네이버클립/릴스)</button>
+                    </div>
+                    <div>
+                        <span id="verification-audit-time" style="font-size: 11.5px; color: #64748B; font-weight: 600;">최종 실측 감사 시각: 확인 중...</span>
+                    </div>
+                </div>
+
+                <!-- 5대 채널 실측 검증 카드 그리드 -->
+                <div id="verification-cards-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px;">
+                    <!-- live_verification.js에 의해 동적 렌더링 -->
+                </div>
+            </section>
         </main>
     </div>
 
@@ -611,6 +641,7 @@
     <script src="js/hashtags.js?v=4.1"></script>
     <script src="js/settings.js?v=4.1"></script>
     <script src="js/telegram_manager.js?v=4.1"></script>
+    <script src="js/live_verification.js?v=1.0"></script>
     <script src="app.js?v=4.1"></script>
 </body>
 </html>

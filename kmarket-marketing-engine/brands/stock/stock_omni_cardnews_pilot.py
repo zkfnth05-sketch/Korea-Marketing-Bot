@@ -174,6 +174,11 @@ class StockOmniCardnewsPilot:
 
         folder_name, render_fn = topic_render_map.get(norm_topic, topic_render_map[1])
         out_dir = desktop_base / folder_name
+        # 1단계: 완성된 5장 슬라이드가 이미 존재하는지 우선 탐색
+        existing_slides = [str(out_dir / f"slide_{i}.png") for i in range(1, 6) if (out_dir / f"slide_{i}.png").exists()]
+        if len(existing_slides) >= 5:
+            logger.info(f"✨ [StockMaster 카드뉴스 완제품 즉각 확보] 완성된 무결점 슬라이드 5장 감지: {folder_name}")
+            return existing_slides
 
         try:
             render_fn()
@@ -273,6 +278,30 @@ class StockOmniCardnewsPilot:
                 )
                 results["channels"]["meta_business_suite_reels"] = mbs_res
                 logger.info(f"🎉 [MBS 릴스 발행 완료]: {mbs_res.get('status')}")
+
+                # 💬 [페이스북 첫 댓글 레고 블록 실행]
+                try:
+                    import asyncio
+                    from brands.stock.stock_facebook_commenter import StockFacebookCommenter
+                    fb_commenter = StockFacebookCommenter()
+                    fb_c_res = asyncio.run(fb_commenter.post_comment_on_latest_post_async())
+                    results["channels"]["facebook_comment"] = fb_c_res
+                    logger.info(f"💬 [페이스북 첫 댓글 완료]: {fb_c_res.get('status')}")
+                except Exception as fbce:
+                    logger.error(f"❌ 페이스북 댓글 예외: {fbce}")
+                    results["channels"]["facebook_comment"] = {"status": "error", "error": str(fbce)}
+
+                # 💬 [인스타그램 첫 댓글 레고 블록 실행]
+                try:
+                    import asyncio
+                    from brands.stock.stock_instagram_commenter import StockInstagramCommenter
+                    ig_commenter = StockInstagramCommenter()
+                    ig_c_res = asyncio.run(ig_commenter.post_comment_on_latest_reel_async())
+                    results["channels"]["instagram_comment"] = ig_c_res
+                    logger.info(f"💬 [인스타그램 첫 댓글 완료]: {ig_c_res.get('status')}")
+                except Exception as igce:
+                    logger.error(f"❌ 인스타그램 댓글 예외: {igce}")
+                    results["channels"]["instagram_comment"] = {"status": "error", "error": str(igce)}
             except Exception as mbse:
                 logger.error(f"❌ [MBS 릴스 발행 예외] {mbse}")
                 results["channels"]["meta_business_suite_reels"] = {"status": "error", "error": str(mbse)}
@@ -348,6 +377,22 @@ class StockOmniCardnewsPilot:
         logger.info("=" * 70)
         logger.info(f"🎉 [주식 5장 카드뉴스 1회 단발 송출 완료] 주제 #{target_topic} | 슬라이드 {len(slides)}장")
         logger.info("=" * 70)
+
+        # 6. [100% 무인 자율 실측 감사] 봇 스스로 즉시 5대 플랫폼 게시물 & 첫 댓글 실측 감사 개시 및 대시보드 갱신
+        try:
+            logger.info("🕵️ [자율 무인 실측 감사] 송출 직후 봇 스스로 5대 플랫폼 게시물 & 첫 댓글 실측 감사 개시...")
+            import asyncio
+            from brands.stock.stock_post_comment_verifier import StockPostCommentVerifier
+            verifier = StockPostCommentVerifier()
+            if hasattr(verifier, "run_full_verification"):
+                if asyncio.iscoroutinefunction(verifier.run_full_verification):
+                    asyncio.run(verifier.run_full_verification())
+                else:
+                    verifier.run_full_verification()
+            logger.info("🎉 [자율 무인 실측 완료] 대시보드에 실시간 반영되었습니다.")
+        except Exception as ve:
+            logger.warning(f"⚠️ 실측 감사 예외 (송출 성공은 유지됨): {ve}")
+
         return results
 
     def _record_history(self, record: Dict[str, Any]):

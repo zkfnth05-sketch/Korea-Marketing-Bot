@@ -42,6 +42,21 @@ class AuraLiveTracker:
     NAVER_BLOG_ID = "zkfnth01"
     TISTORY_BLOG_NAME = "aura-magazine"
 
+    # 🚨 지식iN 허위 성공 표출 방지 - 실물 등록 실패/미검증 상태 블랙리스트
+    KIN_INVALID_STATUSES = {
+        "publish_unverified",
+        "error",
+        "unverified_unregistered",
+        "dry_run_success",
+        "failed",
+        "fail",
+        "pending",
+        "idle",
+        "unknown",
+        "skipped",
+        "session_expired",
+    }
+
     def __init__(self):
         self.state_file = DATA_DIR / "aura_blog_rotation_state.json"
         self.kin_history_file = DATA_DIR / "aura_kin_history.json"
@@ -401,24 +416,76 @@ class AuraLiveTracker:
             "channels": channels
         }
 
+    # =====================================================================
+    # 🚨 지식iN 실물 등록 성공 3중 가드 검증 (허위 성공 표출 원천 차단)
+    # =====================================================================
+    def _is_kin_real_published(self, item: Dict[str, Any]) -> bool:
+        """지식iN 실물 답변 등록 성공 여부 3중 가드 판정
+
+        가드 1) status == "published" (그 외 상태는 무조건 실패)
+        가드 2) published_url 에 "answerNo=" 포함 또는 answer_no/answerNo 필드 실값 존재
+        가드 3) status 가 미검증/오류/드라이런 블랙리스트에 속하지 않음
+        """
+        if not isinstance(item, dict):
+            return False
+
+        # 가드 1: status 가 정확히 'published' 인 건만 인정 (기본값 눈가림 금지)
+        status = str(item.get("status") or "").strip().lower()
+        if status != "published":
+            return False
+
+        # 가드 3: 미검증/오류/드라이런 블랙리스트 상태 배제 (이중 안전장치)
+        if status in self.KIN_INVALID_STATUSES:
+            return False
+
+        # 가드 2: 실물 답변 번호(answerNo) 실증
+        published_url = str(item.get("published_url") or item.get("answer_url") or "")
+        answer_no = item.get("answer_no") or item.get("answerNo") or item.get("answer_id") or ""
+        has_answer_no = ("answerno=" in published_url.lower()) or bool(str(answer_no).strip())
+        if not has_answer_no:
+            return False
+
+        return True
+
     def _get_kin_info(self, today_str: str) -> Dict[str, Any]:
+        """💖 Aura 지식iN 실적 집계 (실물 등록 성공 3중 가드 통과 건만 집계)"""
         today_count = 0
         target_count = 10
         recent_answers = []
+        verified_total = 0
+        rejected_count = 0
 
         if self.kin_history_file.exists():
             try:
                 with open(self.kin_history_file, "r", encoding="utf-8") as f:
                     hd = json.load(f)
                     items = hd if isinstance(hd, list) else list(hd.values())
+
+                    # 최신순 정렬 (created_at 내림차순, 값 없으면 뒤로)
+                    items = sorted(
+                        [it for it in items if isinstance(it, dict)],
+                        key=lambda x: str(x.get("created_at") or ""),
+                        reverse=True
+                    )
+
                     for item in items:
-                        c_at = item.get("created_at", "")
-                        if c_at.startswith(today_str):
+                        # 🚨 3중 가드 미통과 건은 집계/목록에서 전면 배제
+                        if not self._is_kin_real_published(item):
+                            rejected_count += 1
+                            continue
+
+                        verified_total += 1
+                        c_at = str(item.get("created_at") or "")
+                        is_today = bool(c_at and c_at.startswith(today_str))
+
+                        # 오늘자 실물 등록 성공 건만 today_count 가산
+                        if is_today:
                             today_count += 1
-                        
+
+                        # 최근 답변 목록은 검증 통과 실물 건만 최대 5건
                         if len(recent_answers) < 5:
                             q_title = item.get("title", "")
-                            q_url = item.get("published_url") or item.get("url") or ""
+                            q_url = item.get("published_url") or item.get("answer_url") or item.get("url") or ""
                             doc_id = item.get("doc_id", "")
                             if not q_url and doc_id:
                                 q_url = f"https://kin.naver.com/qna/detail.naver?docId={doc_id}"
@@ -426,10 +493,12 @@ class AuraLiveTracker:
                                 "title": q_title,
                                 "url": q_url,
                                 "keyword": item.get("keyword", ""),
+                                "doc_id": doc_id,
                                 "created_at": c_at,
                                 "time": c_at,
-                                "is_today": c_at.startswith(today_str),
-                                "status": item.get("status", "published")
+                                "is_today": is_today,
+                                "status": "published",
+                                "verified": True
                             })
             except Exception as e:
                 logger.warning(f"Failed to read aura kin history: {e}")
@@ -438,6 +507,8 @@ class AuraLiveTracker:
             "today_count": today_count,
             "count_today": today_count,
             "target_count": target_count,
+            "verified_total": verified_total,
+            "rejected_count": rejected_count,
             "recent_answers": recent_answers,
             "posts": recent_answers
         }

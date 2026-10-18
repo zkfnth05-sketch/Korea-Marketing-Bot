@@ -1,10 +1,166 @@
 {
-  "current_topic_index": 19,
-  "last_topic_id": 40,
-  "last_run_time": "2026-10-17 20:36:03",
-  "last_title": "소개팅 성공 부르는 대화법: 상대가 '계속 말하고 싶게' 만드는 리액션 3원칙",
-  "published_count": 44,
+  "current_topic_index": 21,
+  "last_topic_id": 74,
+  "last_run_time": "2026-10-18 17:06:52",
+  "last_title": "성수동 소개팅, '센스 있는 셔츠 & 니트'로 첫인상 완벽 공략!",
+  "published_count": 46,
   "history": [
+    {
+      "topic_id": 74,
+      "title": "성수동 소개팅, '센스 있는 셔츠 & 니트'로 첫인상 완벽 공략!",
+      "title_naver": "성수동 소개팅, '센스 있는 셔츠 & 니트'로 첫인상 완벽 공략!",
+      "title_tistory": "[2026 가이드] 계절별(봄/가을) 소개팅 깔끔한 셔츠/니트 코디 조합 핵심 정리",
+      "title_kakao": "계절별(봄/가을) 소개팅 깔끔한 셔츠/니트 코디 조합에 대한 솔직한 이야기",
+      "category": "lookbook_style",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_074_lookbook_style_20261018_170117.webp",
+      "published_at": "2026-10-18 17:06:52",
+      "publish_results": {
+        "topic_id": 74,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-074",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "성수동 소개팅, '센스 있는 셔츠 & 니트'로 첫인상 완벽 공략!",
+            "url": "https://blog.naver.com/zkfnth01/224445620286",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플거리",
+              "성수동핫플",
+              "성수동핫플레이스",
+              "성수동핫플맛집",
+              "성수동핫플카페",
+              "성수동핫플지도",
+              "글로벌썸",
+              "외국인친구",
+              "일본인친구",
+              "언어교환",
+              "AI자막통화",
+              "실시간번역",
+              "성수동데이트"
+            ],
+            "post_url": "https://blog.naver.com/zkfnth01/224445620286"
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-dating",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "aura",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "zkfnth01",
+            "title": "성수동 소개팅, '센스 있는 셔츠 & 니트'로 첫인상 완벽 공략!",
+            "real_url": "https://blog.naver.com/zkfnth01/224445620286",
+            "log_no": "224445620286",
+            "pub_date": "Sun, 18 Oct 2026 17:02:37 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\aura\\blog_verification\\naver_proof_1792310809.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "aura-magazine",
+            "title": "[2026 가이드] 상대방이 끊임없이 말하게 만드는 마법의 '리액션 3원칙' 핵심 정리",
+            "real_url": "https://aura-magazine.tistory.com/22",
+            "pub_date": "Sat, 17 Oct 2026 20:35:51 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-18 17:06:52"
+        }
+      }
+    },
+    {
+      "topic_id": 58,
+      "title": "남자가 '진짜' 반했을 때 무의식적으로 하는 행동 5가지 (2030 심리 분석)",
+      "title_naver": "남자가 '진짜' 반했을 때 무의식적으로 하는 행동 5가지 (2030 심리 분석)",
+      "title_tistory": "[2026 가이드] 남자가 진짜 반했을 때 무의식적으로 하는 행동 5가지 핵심 정리",
+      "title_kakao": "남자가 진짜 반했을 때 무의식적으로 하는 행동 5가지에 대한 솔직한 이야기",
+      "category": "psychology_mbti",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_058_psychology_mbti_20261018_094549.webp",
+      "published_at": "2026-10-18 09:50:45",
+      "publish_results": {
+        "topic_id": 58,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-058",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "남자가 '진짜' 반했을 때 무의식적으로 하는 행동 5가지 (2030 심리 분석)",
+            "url": "https://blog.naver.com/zkfnth01/224445289288",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플거리",
+              "성수동핫플",
+              "성수동핫플레이스",
+              "성수동핫플맛집",
+              "성수동핫플카페",
+              "성수동핫플지도",
+              "글로벌썸",
+              "외국인친구",
+              "일본인친구",
+              "언어교환",
+              "AI자막통화",
+              "실시간번역",
+              "성수동데이트"
+            ],
+            "post_url": "https://blog.naver.com/zkfnth01/224445289288"
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [백업도 실패] 루트의 [1회연동]_aura_티스토리_영구로그인.bat 1회 실행 필요",
+            "blog_name": "aura-magazine"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "aura",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "zkfnth01",
+            "title": "남자가 '진짜' 반했을 때 무의식적으로 하는 행동 5가지 (2030 심리 분석)",
+            "real_url": "https://blog.naver.com/zkfnth01/224445289288",
+            "log_no": "224445289288",
+            "pub_date": "Sun, 18 Oct 2026 09:46:44 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\aura\\blog_verification\\naver_proof_1792284642.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "aura-magazine",
+            "title": "[2026 가이드] 상대방이 끊임없이 말하게 만드는 마법의 '리액션 3원칙' 핵심 정리",
+            "real_url": "https://aura-magazine.tistory.com/22",
+            "pub_date": "Sat, 17 Oct 2026 20:35:51 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-18 09:50:45"
+        }
+      }
+    },
     {
       "topic_id": 40,
       "title": "소개팅 성공 부르는 대화법: 상대가 '계속 말하고 싶게' 만드는 리액션 3원칙",

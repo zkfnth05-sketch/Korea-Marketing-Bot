@@ -44,7 +44,7 @@ def main():
     topic_id = args.topic
 
     logger.info(f"🤖 [Insurance Cardnews Bot] {topic_id}번 주제 5장 풀세트 카드뉴스 무인 생산 가동...")
-    result = producer.produce_cardnews(topic_id=topic_id)
+    result = producer.produce_full_package(topic_id=topic_id)
 
     logger.info("================================================================================")
     logger.info(f"🎉 [성공] {topic_id}번 주제 5장 풀세트 카드뉴스가 완성되었습니다!")

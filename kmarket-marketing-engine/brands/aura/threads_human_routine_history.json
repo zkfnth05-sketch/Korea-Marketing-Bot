@@ -178,5 +178,15 @@
     "duration_sec": 908,
     "status": "COMPLETED",
     "ended_at": "2026-10-17T22:15:13.546042"
+  },
+  {
+    "brand": "aura",
+    "started_at": "2026-10-18T12:45:28.135517",
+    "posts_read": 50,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 607,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-18T12:55:35.902200"
   }
 ]

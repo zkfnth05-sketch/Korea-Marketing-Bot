@@ -8,6 +8,7 @@
   3. 완료 시 게시물 관리 화면(published_posts)으로 이동하여 1등 실물 등록 확인
   4. 실제 라이브 URL 영수증 추출
   5. 미발견 시 브라우저 풀리셋 후 최대 3회 자가 치유 재시도 (Self-Healing Retry)
+  6. 릴스 발행 성공 직후 인스타그램 & 페이스북 첫 댓글 자율 파이프라인 비동기 직결
 """
 
 import os
@@ -118,11 +119,11 @@ class StockMBSReelsPublisher:
                     result = await self._execute_recipe_once(video_path, clean_caption)
                     if result.get("status") == "success":
                         logger.info(f"🎉 [주식 MBS Reel] 시도 {attempt}에서 100% 실물 발행 성공!")
-                        # 💬 [자율 파이프라인] 릴스 발행 직후 인스타그램 & 페이스북 단독 첫 댓글 자율 집행
+                        # 💬 [자율 파이프라인] 릴스 발행 직후 인스타그램 & 페이스북 단독 첫 댓글 자율 집행 (비동기 직결)
                         try:
-                            from brands.stock.stock_meta_comment_pipeline import run_stock_meta_comments
-                            logger.info("💬 [스톡마스터 AI] 인스타그램 & 페이스북 공식 첫 댓글 자율 파이프라인 출동...")
-                            result["comments"] = run_stock_meta_comments()
+                            from brands.stock.stock_meta_comment_pipeline import run_stock_meta_comments_async
+                            logger.info("💬 [주식] 인스타그램 & 페이스북 공식 첫 댓글 자율 파이프라인 출동...")
+                            result["comments"] = await run_stock_meta_comments_async()
                         except Exception as ce:
                             logger.warning(f"⚠️ 주식 댓글 파이프라인 실행 중 경고: {ce}")
                         return result

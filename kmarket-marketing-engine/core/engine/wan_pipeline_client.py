@@ -11,7 +11,9 @@ import sys
 import glob
 import json
 import time
+import socket
 import urllib.request
+import urllib.error
 import urllib.parse
 import subprocess
 import logging
@@ -35,7 +37,15 @@ class WanPipelineClient:
         os.makedirs(self.comfy_output_dir, exist_ok=True)
         os.makedirs(self.cond_cache_dir, exist_ok=True)
 
-    def check_health(self, auto_start: bool = False) -> bool:
+    def check_health(self, auto_start: bool = True) -> bool:
+        """
+        ComfyUI 엔진 응답 여부 확인.
+
+        Args:
+            auto_start: True(기본값)이면 미가동 시 ComfyProcessManager.ensure_running()을
+                        자동 호출하여 백그라운드 자율 기동 후 True 를 반환한다.
+                        False 면 순수 상태 확인만 수행한다.
+        """
         try:
             with urllib.request.urlopen(f"{self.host}/system_stats", timeout=3) as resp:
                 stats = json.loads(resp.read().decode('utf-8'))
@@ -45,22 +55,71 @@ class WanPipelineClient:
             pass
 
         if auto_start:
-            from core.engine.comfy_process_manager import ComfyProcessManager
-            return ComfyProcessManager.ensure_running()
+            try:
+                from core.engine.comfy_process_manager import ComfyProcessManager
+                logger.warning("🚀 [WanPipelineClient] ComfyUI 오프라인 감지 ➔ 자율 기동(ensure_running) 시도...")
+                ok = ComfyProcessManager.ensure_running(wait_timeout=60)
+                if ok:
+                    logger.info("✅ [WanPipelineClient] ComfyUI 자율 기동 성공! 렌더링을 계속 진행합니다.")
+                else:
+                    logger.error("❌ [WanPipelineClient] ComfyUI 자율 기동 실패 (60초 대기 초과).")
+                return bool(ok)
+            except Exception as e:
+                logger.error(f"❌ [WanPipelineClient] ComfyUI 자율 기동 예외: {e}")
+                return False
         return False
 
-    def free_vram(self):
-        """ComfyUI VRAM 정리 및 이전 모델 언로드 (GPU 속도 10배 가속 보장)"""
+    # ------------------------------------------------------------------
+    # 🔌 [재연결 복구 안전장치] 통신 단절 시 ComfyUI 자율 부활
+    # ------------------------------------------------------------------
+    def _recover_connection(self, reason: str = "") -> bool:
+        """
+        ConnectionResetError / URLError 등 통신 단절 발생 시
+        ComfyProcessManager.ensure_running(wait_timeout=60)으로 재연결을 시도한다.
+        """
         try:
+            from core.engine.comfy_process_manager import ComfyProcessManager
+            logger.warning(f"🔌 [WanPipelineClient] ComfyUI 통신 단절 감지({reason}) ➔ 자율 부활/재연결 시도...")
+            ok = ComfyProcessManager.ensure_running(wait_timeout=60)
+            if ok:
+                logger.info("✅ [WanPipelineClient] ComfyUI 재연결 성공!")
+            else:
+                logger.error("❌ [WanPipelineClient] ComfyUI 재연결 실패.")
+            return bool(ok)
+        except Exception as e:
+            logger.error(f"❌ [WanPipelineClient] 재연결 복구 예외: {e}")
+            return False
+
+    def free_vram(self, unload_models: bool = False):
+        """
+        ComfyUI VRAM 캐시 정리 (C++ Access Violation 크래시 100% 회피).
+
+        ⚠️ [핵심 안전장치]
+        unload_models=True를 전송하면 ComfyUI 내부 GGUF 텐서 해제 경로에서
+        C++ unpatch_model 버그가 트리거되어
+        'Windows fatal exception: access violation' (0xC0000005) 으로
+        파이썬 프로세스가 즉사한다.
+        따라서 기본값은 False 이며, free_memory=True 만 전송하여
+        VRAM 캐시만 안전하게 방출한다.
+        모델 캐시가 유지되므로 연속 렌더링 속도도 극대화된다.
+
+        Args:
+            unload_models: True 로 명시할 경우에만 모델 언로드 수행 (기본 False = 크래시 회피)
+        """
+        try:
+            payload = {"unload_models": bool(unload_models), "free_memory": True}
             req = urllib.request.Request(
                 f"{self.host}/free",
-                data=json.dumps({"unload_models": True, "free_memory": True}).encode("utf-8"),
+                data=json.dumps(payload).encode("utf-8"),
                 headers={"Content-Type": "application/json"},
                 method="POST"
             )
             with urllib.request.urlopen(req, timeout=5) as resp:
                 pass
-            logger.info("🧹 [WanPipelineClient] ComfyUI VRAM 캐시 및 모델 완전 정리 완료 (100% GPU 가속 확보)")
+            if unload_models:
+                logger.info("🧹 [WanPipelineClient] ComfyUI VRAM 캐시 + 모델 언로드 완료 (unload_models=True 명시 호출)")
+            else:
+                logger.info("🧹 [WanPipelineClient] ComfyUI VRAM 캐시 안전 방출 완료 (모델 캐시 유지 · C++ 크래시 회피)")
         except Exception as e:
             logger.warning(f"ComfyUI VRAM 정리 예외: {e}")
 
@@ -107,11 +166,30 @@ class WanPipelineClient:
                 except Exception:
                     pass
 
+            # ----------------------------------------------------------
+            # 🔌 [1단계] 프롬프트 제출 (통신 단절 시 자율 부활 후 1회 재시도)
+            # ----------------------------------------------------------
             data = json.dumps({"prompt": prompt_dict}).encode('utf-8')
-            req = urllib.request.Request(f"{self.host}/prompt", data=data, headers={"Content-Type": "application/json"})
-            with urllib.request.urlopen(req) as resp:
-                res = json.loads(resp.read().decode('utf-8'))
-                prompt_id = res.get("prompt_id")
+            prompt_id = None
+            for attempt in range(2):
+                try:
+                    req = urllib.request.Request(
+                        f"{self.host}/prompt",
+                        data=data,
+                        headers={"Content-Type": "application/json"}
+                    )
+                    with urllib.request.urlopen(req, timeout=60) as resp:
+                        res = json.loads(resp.read().decode('utf-8'))
+                        prompt_id = res.get("prompt_id")
+                    break
+                except (ConnectionResetError, urllib.error.URLError, socket.timeout, ConnectionError, OSError) as e:
+                    if attempt == 0 and self._recover_connection(f"프롬프트 제출 실패: {e}"):
+                        time.sleep(3)
+                        continue
+                    raise RuntimeError(f"[WanPipelineClient] ComfyUI 프롬프트 제출 실패 ({prefix}): {e}")
+
+            if not prompt_id:
+                raise RuntimeError(f"[WanPipelineClient] ComfyUI prompt_id 미발급 ({prefix})")
 
             start_time = time.time()
             completed_hist = None
@@ -120,6 +198,7 @@ class WanPipelineClient:
             log_path = VRAMSafetyGuard.get_latest_comfyui_log_path() if check_vram_safety else None
             last_log_pos = os.path.getsize(log_path) if log_path and os.path.exists(log_path) else 0
 
+            consecutive_net_errors = 0
             while time.time() - start_time < timeout_sec:
                 time.sleep(2)
 
@@ -150,7 +229,7 @@ class WanPipelineClient:
                         logger.debug(f"VRAM 로그 모니터링 예외 (무시): {e}")
 
                 try:
-                    with urllib.request.urlopen(f"{self.host}/history/{prompt_id}") as resp:
+                    with urllib.request.urlopen(f"{self.host}/history/{prompt_id}", timeout=30) as resp:
                         hist = json.loads(resp.read().decode('utf-8'))
                         if prompt_id in hist:
                             status = hist[prompt_id].get("status", {})
@@ -159,8 +238,18 @@ class WanPipelineClient:
                                 break
                             if status.get("status_str") == "error":
                                 raise RuntimeError(f"ComfyUI Job Error: {status.get('messages')}")
-                except urllib.error.URLError:
-                    pass
+                    consecutive_net_errors = 0
+                except (ConnectionResetError, urllib.error.URLError, socket.timeout, ConnectionError, OSError) as e:
+                    # 🔌 통신 단절 복구 안전장치: ComfyUI 프로세스가 죽었거나 응답이 끊긴 경우 자율 부활
+                    consecutive_net_errors += 1
+                    logger.warning(
+                        f"🔌 [WanPipelineClient] 폴링 중 통신 단절 ({consecutive_net_errors}회): {e}"
+                    )
+                    if consecutive_net_errors in (1, 3, 6):
+                        if self._recover_connection(f"폴링 통신 단절 {consecutive_net_errors}회: {e}"):
+                            consecutive_net_errors = 0
+                            time.sleep(3)
+                    continue
 
             # 1차: ComfyUI 히스토리의 outputs에서 실제 생성된 파일 목록 직접 추출
             frames = []
@@ -228,8 +317,8 @@ class WanPipelineClient:
             "10": {"class_type": "SaveImage", "inputs": {"images": ["9", 0], "filename_prefix": prefix}}
         }
 
-        # ComfyUI 미실행 또는 접속 불가 시 즉시 중단 (빈 캔버스 폴백 100% 영구 차단)
-        if not self.check_health():
+        # 🛡️ ComfyUI 미실행 시 자율 기동 후 진행 (오프라인 즉사 100% 방지)
+        if not self.check_health(auto_start=True):
             raise RuntimeError(f"[WanPipelineClient] ComfyUI 엔진 오프라인 상태 ({prefix}) - 렌더링 불가")
 
         task_kr = f"🎨 Wan 2.1 실사 T2I 마스터 사진 렌더링 ({prefix})"
@@ -313,6 +402,10 @@ class WanPipelineClient:
             "10": {"class_type": "SaveImage",  "inputs": {"images": ["9", 0], "filename_prefix": prefix}}
         }
 
+        # 🛡️ ComfyUI 미실행 시 자율 기동 후 진행 (오프라인 즉사 100% 방지)
+        if not self.check_health(auto_start=True):
+            raise RuntimeError(f"[WanPipelineClient] ComfyUI 엔진 오프라인 상태 ({prefix}) - 렌더링 불가")
+
         frames = self.submit_and_wait(workflow, prefix=prefix, task_label=f"🎭 💖 Aura 카드뉴스 동일인물 씬전환 렌더링 중 ({prefix})")
         if not frames:
             raise RuntimeError("WAN img2img 동일 인물 씬 전환 생성 실패")
@@ -372,6 +465,10 @@ class WanPipelineClient:
             width=width,
             height=height
         )
+
+        # 🛡️ ComfyUI 미실행 시 자율 기동 후 진행 (오프라인 즉사 100% 방지)
+        if not self.check_health(auto_start=True):
+            raise RuntimeError(f"[WanPipelineClient] ComfyUI 엔진 오프라인 상태 ({prefix}) - 렌더링 불가")
 
         # 3. 제출 및 대기
         frames = self.submit_and_wait(workflow, prefix=prefix, task_label=f"🎭 💖 Aura 카드뉴스 얼굴 보존 인페인팅 렌더링 중 ({prefix})")
@@ -439,6 +536,10 @@ class WanPipelineClient:
             "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，"
             "JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景"
         )
+
+        # 🛡️ ComfyUI 미실행 시 자율 기동 후 진행 (오프라인 즉사 100% 방지)
+        if not self.check_health(auto_start=True):
+            raise RuntimeError(f"[WanPipelineClient] ComfyUI 엔진 오프라인 상태 ({prefix}) - S2V 렌더링 불가")
 
         # 1. 텍스트 임베딩 사전 베이킹 또는 캐시 로드 (텍스트 모델은 여기서 완전히 퇴출됨)
         pos_cond_file, neg_cond_file = self.get_or_bake_conditioning(prompt_text, neg)

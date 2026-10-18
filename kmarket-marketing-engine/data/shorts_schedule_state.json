@@ -20,6 +20,11 @@
     ],
     "2026-10-17": [
       "lunch"
+    ],
+    "2026-10-18": [
+      "morning",
+      "lunch",
+      "evening"
     ]
   },
   "insurance": {
@@ -39,6 +44,11 @@
       "evening"
     ],
     "2026-10-13": [
+      "evening"
+    ],
+    "2026-10-18": [
+      "morning",
+      "lunch",
       "evening"
     ]
   },
@@ -67,6 +77,11 @@
     "2026-10-17": [
       "morning",
       "lunch"
+    ],
+    "2026-10-18": [
+      "morning",
+      "lunch",
+      "evening"
     ]
   }
 }

@@ -4,19 +4,22 @@ Aura Threads Login Helper (아우라 스레드 1회 영구 로그인 연동기 -
 =====================================================================================
 - 브랜드: 아우라 (Aura)
 - 전용 계정: @aura_ai_dating
-- 프로필 디렉토리: brands/aura/meta_chrome_profile/
+- 프로필 디렉토리: brands/aura/threads_chrome_profile/  (🔒 meta_chrome_profile 과 물리적 완전 격리)
 - 세션 파일: brands/aura/threads_session.json
+- 골든 세션: brands/aura/threads_session_GOLDEN.json (불변 스냅샷 · 자가치유 원본)
 - 주요 개선점:
   1. 인스타그램 연동 로그인 특화 (Instagram Web SSO 지원)
   2. 넉넉한 15분(900초) 대기 시간 (스마트폰 2FA / 앱 승인 여유 보장)
-  3. 로그인 완료 즉시 threads_session.json + 디스크 프로필 동시 영구 각인
+  3. 로그인 완료 즉시 threads_session.json + threads_session_GOLDEN.json 동시 원자적 각인
 """
 
 import os
 import sys
 import json
+import shutil
 import asyncio
 import logging
+import tempfile
 from pathlib import Path
 from playwright.async_api import async_playwright
 
@@ -36,10 +39,88 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 
 CURRENT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = CURRENT_DIR.parent.parent
-PROFILE_DIR = CURRENT_DIR / "meta_chrome_profile"
+# 🔒 프로필 물리 격리: meta_chrome_profile 과 완전 분리된 스레드 전용 프로필
+PROFILE_DIR = CURRENT_DIR / "threads_chrome_profile"
 PROFILE_DIR.mkdir(parents=True, exist_ok=True)
 SESSION_FILE = CURRENT_DIR / "threads_session.json"
+# 🧬 불변 골든 세션 스냅샷 (자가치유 원본)
+GOLDEN_SESSION_FILE = CURRENT_DIR / "threads_session_GOLDEN.json"
 ACCOUNTS_FILE = CURRENT_DIR / "accounts.json"
+# 🔑 스레드 로그인 증명 핵심 쿠키
+THREADS_AUTH_COOKIE_NAMES = {"sessionid", "ds_user_id"}
+
+
+# =====================================================================
+# 🧬 원자적 파일 유틸 (temp → fsync → os.replace)
+# =====================================================================
+def _atomic_copy(src: Path, dst: Path) -> bool:
+    """원본 → 대상 원자적 복사 (불변 스냅샷 생성/복원용)
+
+    ⚠️ Windows 주의: 읽기전용("rb") 핸들에 os.fsync() 를 호출하면
+       [Errno 9] Bad file descriptor 가 발생한다.
+       반드시 쓰기 가능 핸들("r+b")에서 fsync 를 수행해야 한다.
+    """
+    try:
+        if not src.exists() or src.stat().st_size < 20:
+            return False
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        fd, tmp_name = tempfile.mkstemp(prefix=f".{dst.stem}_", suffix=".tmp", dir=str(dst.parent))
+        os.close(fd)
+        try:
+            shutil.copyfile(src, tmp_name)
+            # ✅ Windows 안전: 쓰기 가능 핸들에서 fsync
+            with open(tmp_name, "r+b") as f:
+                os.fsync(f.fileno())
+            os.replace(tmp_name, dst)
+            return True
+        except Exception:
+            try:
+                if os.path.exists(tmp_name):
+                    os.unlink(tmp_name)
+            except Exception:
+                pass
+            raise
+    except Exception as e:
+        logger.warning(f"⚠️ 원자적 복사 실패({src.name} → {dst.name}): {e}")
+        return False
+
+
+def _has_threads_auth(path: Path) -> bool:
+    """세션 파일에 스레드 인증 쿠키(sessionid / ds_user_id)가 실제로 존재하는가"""
+    try:
+        if not path.exists() or path.stat().st_size < 20:
+            return False
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if isinstance(data, dict):
+            ck = data.get("cookies")
+            cookies = [c for c in ck if isinstance(c, dict)] if isinstance(ck, list) else []
+        elif isinstance(data, list):
+            cookies = [c for c in data if isinstance(c, dict)]
+        else:
+            cookies = []
+        names = {str(c.get("name", "")).lower() for c in cookies}
+        return bool(names & THREADS_AUTH_COOKIE_NAMES)
+    except Exception:
+        return False
+
+
+def save_session_and_golden() -> bool:
+    """
+    🧬 로그인 완료 직후 세션 + GOLDEN 동시 원자적 저장
+
+    - threads_session.json 이 유효 인증 쿠키를 담고 있을 때만 GOLDEN 스냅샷 생성
+    - GOLDEN 은 temp → fsync → os.replace 로 원자적 교체 (부분 기록 원천 차단)
+    """
+    if not _has_threads_auth(SESSION_FILE):
+        logger.warning("⚠️ GOLDEN 저장 스킵: threads_session.json 에 인증 쿠키가 없습니다.")
+        return False
+    ok = _atomic_copy(SESSION_FILE, GOLDEN_SESSION_FILE)
+    if ok:
+        print(f"💾 2. {GOLDEN_SESSION_FILE.name} 불변 골든 세션 동시 원자적 저장 완료")
+    else:
+        logger.warning("⚠️ GOLDEN 세션 원자적 저장 실패")
+    return ok
 
 
 async def run_threads_login_flow():
@@ -103,7 +184,7 @@ async def run_threads_login_flow():
             try:
                 cookies = await context.cookies()
                 threads_cookies = [
-                    c for c in cookies 
+                    c for c in cookies
                     if ("threads.net" in c.get("domain", "") or "threads.com" in c.get("domain", ""))
                 ]
                 t_names = {c.get("name") for c in threads_cookies}
@@ -121,7 +202,7 @@ async def run_threads_login_flow():
                 try:
                     cookies = await context.cookies()
                     threads_cookies = [
-                        c for c in cookies 
+                        c for c in cookies
                         if ("threads.net" in c.get("domain", "") or "threads.com" in c.get("domain", ""))
                     ]
                     t_names = {c.get("name") for c in threads_cookies}
@@ -190,6 +271,9 @@ async def run_threads_login_flow():
         await context.storage_state(path=str(SESSION_FILE))
         print(f"💾 1. 영구 프로필 및 {SESSION_FILE.name} 세션 동기화 완료")
 
+        # 🧬 GOLDEN 세션 동시 원자적 저장 (자가치유 원본)
+        save_session_and_golden()
+
         vfile = CURRENT_DIR / "threads_session_verified.json"
         with open(vfile, "w", encoding="utf-8") as vf:
             json.dump({"verified_at": "2026-10-11", "brand": "aura", "status": "authenticated"}, vf, indent=2)
@@ -198,7 +282,7 @@ async def run_threads_login_flow():
             cookies = await context.cookies()
             with open(CURRENT_DIR / "threads_cookies.json", "w", encoding="utf-8") as f:
                 json.dump(cookies, f, ensure_ascii=False, indent=2)
-            print("💾 2. threads_cookies.json 영구 쿠키 파일 저장 완료")
+            print("💾 3. threads_cookies.json 영구 쿠키 파일 저장 완료")
         except Exception as ce:
             logger.warning(f"쿠키 파일 저장 경고: {ce}")
 
@@ -210,7 +294,7 @@ async def run_threads_login_flow():
                 acc["credentials"]["threads_username"] = "aura_ai_dating"
                 with open(ACCOUNTS_FILE, "w", encoding="utf-8") as f:
                     json.dump(acc, f, ensure_ascii=False, indent=2)
-                print("💾 3. accounts.json 연동 상태 업데이트 완료")
+                print("💾 4. accounts.json 연동 상태 업데이트 완료")
             except Exception as ex:
                 logger.warning(f"accounts.json 업데이트 경고: {ex}")
 
