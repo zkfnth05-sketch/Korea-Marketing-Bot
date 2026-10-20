@@ -409,5 +409,36 @@
     "status": "success",
     "gemini_calls": 0,
     "brand": "stock"
+  },
+  {
+    "timestamp": "2026-10-19 21:30:09",
+    "slot_id": "night",
+    "slot_name": "🌙 야간 침대 휴식 (11분)",
+    "target_min": 11,
+    "target_likes": 3,
+    "actual_sec": 670,
+    "likes_given": 1,
+    "actions": [
+      {
+        "posts_viewed": 32,
+        "likes": 0,
+        "platform": "instagram",
+        "status": "success"
+      },
+      {
+        "posts_viewed": 22,
+        "platform": "threads",
+        "status": "success"
+      },
+      {
+        "shorts_watched": 12,
+        "likes": 1,
+        "platform": "youtube",
+        "status": "success"
+      }
+    ],
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "stock"
   }
 ]

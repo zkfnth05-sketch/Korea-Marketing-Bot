@@ -4312,20 +4312,31 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
     def _handle_post_verification_run(self, payload: dict):
         """🕵️ 5대 플랫폼 실시간 실측 감사 백그라운드 1회 즉시 실행"""
-        brand = payload.get("brand", "aura")
+        brand = str(payload.get("brand", "aura")).strip().lower()
         
         def _verify_job():
             try:
                 log_event(f"🕵️ [{brand.upper()}] 숏폼 & 카드뉴스 5대 플랫폼 전수 실측 감사 가동 중...", "info")
+                import asyncio
                 if brand == "aura":
                     from brands.aura.aura_post_comment_verifier import AuraPostCommentVerifier
-                    verifier = AuraPostCommentVerifier()
-                    res = verifier.run_full_verification()
-                    log_event(f"🎉 [{brand.upper()}] 5대 플랫폼 전수 실측 감사 완료! ({len(res)}개 플랫폼 검증 완료)", "success")
+                    verifier = AuraPostCommentVerifier(headless=True)
+                    res = asyncio.run(verifier.run_full_verification())
+                    log_event(f"🎉 [{brand.upper()}] 5대 플랫폼 전수 실측 감사 완료!", "success")
+                elif brand == "stock":
+                    from brands.stock.stock_post_comment_verifier import StockPostCommentVerifier
+                    verifier = StockPostCommentVerifier(headless=True)
+                    res = asyncio.run(verifier.run_full_verification())
+                    log_event(f"🎉 [{brand.upper()}] 5대 플랫폼 전수 실측 감사 완료!", "success")
+                elif brand == "insurance":
+                    from brands.insurance.insurance_post_comment_verifier import InsurancePostCommentVerifier
+                    verifier = InsurancePostCommentVerifier(headless=True)
+                    res = asyncio.run(verifier.run_full_verification())
+                    log_event(f"🎉 [{brand.upper()}] 5대 플랫폼 전수 실측 감사 완료!", "success")
                 else:
-                    log_event(f"⚠️ [{brand.upper()}] 브랜드 검증기 준비 중입니다.", "warning")
+                    log_event(f"⚠️ [{brand.upper()}] 지원되지 않는 브랜드입니다: {brand}", "warning")
             except Exception as e:
-                log_event(f"❌ [실측 감사 실패] {e}", "error")
+                log_event(f"❌ [{brand.upper()} 실측 감사 실패] {e}", "error")
 
         t = threading.Thread(target=_verify_job, daemon=True)
         t.start()

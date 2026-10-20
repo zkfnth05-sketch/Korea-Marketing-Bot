@@ -4,11 +4,13 @@ VRAMSafetyGuard - 🛡️ [GPU VRAM 안전 차단 및 과열 방지 가드레일
 - [1] 사전 진입 게이트: 비디오 렌더링 전 순수 가용 VRAM(최소 11.5GB+) 실시간 검증
 - [2] 런타임 킬스위치: 모델 적재 시 CPU 대량 오프로드 감지 시 0.1초 만에 즉시 작업 중단(Interrupt)
 - [3] 대시보드 연동: GPU 과열 및 저속 연산(1시간 이상 지연) 원천 차단 및 명확한 시각적 알림
+- [4] 24시간 무인 자율 회복: VRAM 부족 시 ComfyUI /free 강제 언로드로 잔류 모델(UMT5 등) 자율 정리
 """
 
 import json
 import logging
 import subprocess
+import time
 import urllib.request
 from typing import Dict, Any, Optional, Tuple, Callable
 
@@ -24,6 +26,11 @@ class VRAMSafetyGuard:
     """GPU VRAM 사전 검증 및 실시간 런타임 감시 엔진"""
 
     MIN_S2V_VRAM_GB = 10.0  # Wan 2.2 S2V 14B 모델 VRAM 탑재를 위한 최소 가용 메모리 (GB)
+
+    # 🛡️ [24시간 무인 자율 회복] 강제 언로드 정책 상수
+    FORCE_UNLOAD_WAIT_SEC = 2.0      # /free 전송 후 VRAM 반환 대기 시간(초)
+    FORCE_UNLOAD_MAX_ROUNDS = 2      # 최대 강제 언로드 재시도 횟수
+    FORCE_UNLOAD_MIN_GAIN_GB = 0.3   # 이 이상 확보되면 추가 라운드 생략(불필요한 언로드 방지)
 
     @classmethod
     def get_vram_info(cls, host: str = "http://127.0.0.1:8188") -> Dict[str, float]:
@@ -73,43 +80,214 @@ class VRAMSafetyGuard:
         # 알 수 없는 경우 보수적 반환
         return {"free_gb": 0.0, "total_gb": 16.0, "used_gb": 16.0, "source": "unknown"}
 
+    # ------------------------------------------------------------------
+    # 🛡️ [24시간 무인 자율 회복] ComfyUI 강제 언로드 (/free)
+    # ------------------------------------------------------------------
+    @classmethod
+    def force_unload_comfyui_models(
+        cls,
+        host: str = "http://127.0.0.1:8188",
+        unload_models: bool = True,
+        timeout: float = 5.0,
+    ) -> bool:
+        """
+        ComfyUI /free 엔드포인트로 잔류 모델(UMT5 텍스트 인코더, VAE, 체크포인트)을 강제 언로드.
+
+        [동작]
+          · POST {host}/free  body={"unload_models": True, "free_memory": True}
+          · 성공 시 True, 실패(서버 미기동/타임아웃) 시 False 반환 (예외를 밖으로 던지지 않음)
+
+        [주의]
+          · ComfyUI-GGUF 환경에서 unload_models=True는 네이티브 텐서 해제 경로에서
+            0xC0000005 접근 위반을 유발할 수 있으므로, 호출부에서 unload_models=False로
+            안전 모드를 선택할 수 있도록 파라미터화했다.
+        """
+        payload = json.dumps({
+            "unload_models": bool(unload_models),
+            "free_memory": True,
+        }).encode("utf-8")
+
+        try:
+            req = urllib.request.Request(
+                f"{host}/free",
+                data=payload,
+                headers={"Content-Type": "application/json", "User-Agent": "VRAMSafetyGuard"},
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                resp.read()
+            logger.info(
+                f"🧹 [VRAM 자율회복] ComfyUI /free 강제 언로드 신호 전송 완료 "
+                f"(unload_models={unload_models}, free_memory=True)"
+            )
+            return True
+        except Exception as e:
+            logger.warning(f"⚠️ [VRAM 자율회복] ComfyUI /free 강제 언로드 실패 (서버 미기동/타임아웃): {e}")
+            return False
+
+    @classmethod
+    def _reclaim_vram(
+        cls,
+        host: str,
+        threshold: float,
+        auto_free_fn: Optional[Callable[[], None]] = None,
+    ) -> Tuple[Dict[str, float], Dict[str, Any]]:
+        """
+        [자율 회복 파이프라인] 1차 auto_free_fn -> 2차 ComfyUI /free 강제 언로드 -> 재측정
+
+        반환: (최종 vram_info, 회복 리포트 dict)
+        """
+        report: Dict[str, Any] = {
+            "initial_free_gb": None,
+            "after_auto_free_gb": None,
+            "after_force_unload_gb": None,
+            "auto_free_called": False,
+            "force_unload_called": False,
+            "force_unload_rounds": 0,
+            "recovered": False,
+        }
+
+        info = cls.get_vram_info(host=host)
+        report["initial_free_gb"] = info["free_gb"]
+
+        if info["free_gb"] >= threshold:
+            report["recovered"] = True
+            return info, report
+
+        # ---------------- 1차: auto_free_fn (경량 캐시 정리) ----------------
+        if auto_free_fn:
+            logger.info(
+                f"🧹 [VRAM 자율회복 1차] 가용 VRAM 부족 감지 "
+                f"({info['free_gb']:.2f}GB < {threshold:.1f}GB). auto_free_fn 실행..."
+            )
+            try:
+                auto_free_fn()
+                report["auto_free_called"] = True
+            except Exception as e:
+                logger.warning(f"자동 VRAM 비우기(auto_free_fn) 실패: {e}")
+            time.sleep(1.0)
+            info = cls.get_vram_info(host=host)
+            report["after_auto_free_gb"] = info["free_gb"]
+
+            if info["free_gb"] >= threshold:
+                report["recovered"] = True
+                logger.info(
+                    f"✅ [VRAM 자율회복 1차 성공] auto_free_fn으로 "
+                    f"{info['free_gb']:.2f}GB 확보 (기준 {threshold:.1f}GB 충족)"
+                )
+                return info, report
+
+        # ---------------- 2차: ComfyUI /free 강제 언로드 ----------------
+        logger.warning(
+            f"🔥 [VRAM 자율회복 2차] 1차 정리 후에도 부족 "
+            f"({info['free_gb']:.2f}GB < {threshold:.1f}GB). "
+            f"ComfyUI /free 강제 언로드(UMT5 텍스트 인코더 등 잔류 모델) 시작..."
+        )
+
+        for round_idx in range(1, cls.FORCE_UNLOAD_MAX_ROUNDS + 1):
+            before_gb = info["free_gb"]
+            sent = cls.force_unload_comfyui_models(host=host, unload_models=True)
+            report["force_unload_called"] = True
+            report["force_unload_rounds"] = round_idx
+
+            if not sent:
+                # 서버 미기동이면 추가 라운드는 무의미 -> 즉시 중단
+                logger.warning("⚠️ [VRAM 자율회복 2차] ComfyUI 서버 응답 없음. 강제 언로드 라운드 중단.")
+                break
+
+            # VRAM 반환 대기 (2초)
+            time.sleep(cls.FORCE_UNLOAD_WAIT_SEC)
+            info = cls.get_vram_info(host=host)
+            report["after_force_unload_gb"] = info["free_gb"]
+
+            gained = info["free_gb"] - before_gb
+            logger.info(
+                f"📊 [VRAM 자율회복 2차 {round_idx}라운드] "
+                f"{before_gb:.2f}GB -> {info['free_gb']:.2f}GB (+{gained:.2f}GB)"
+            )
+
+            if info["free_gb"] >= threshold:
+                report["recovered"] = True
+                logger.info(
+                    f"✅ [VRAM 자율회복 2차 성공] ComfyUI 강제 언로드로 "
+                    f"{info['free_gb']:.2f}GB 확보 (기준 {threshold:.1f}GB 충족)"
+                )
+                return info, report
+
+            # 이미 충분히 회수했는데도 임계값 미달이면(물리적 한계) 추가 라운드 무의미
+            if gained >= cls.FORCE_UNLOAD_MIN_GAIN_GB and round_idx >= 1:
+                logger.info(
+                    f"ℹ️ [VRAM 자율회복] {gained:.2f}GB 회수했으나 임계값 미달 "
+                    f"(다른 프로세스가 VRAM 점유 중일 가능성). 추가 라운드 생략."
+                )
+                break
+
+        return info, report
+
     @classmethod
     def assert_vram_headroom(
         cls,
         min_free_gb: Optional[float] = None,
         host: str = "http://127.0.0.1:8188",
-        auto_free_fn: Optional[Callable[[], None]] = None
+        auto_free_fn: Optional[Callable[[], None]] = None,
+        force_unload: bool = True,
     ) -> Dict[str, float]:
         """
-        [1단계: 사전 진입 게이트]
+        [1단계: 사전 진입 게이트 + 24시간 무인 자율 회복]
         비디오 렌더링 시작 전 VRAM 확보 여부 전수 검사.
-        미달 시 auto_free_fn을 1회 호출해 잔류 모델을 비우고 재확인.
+
+        회복 시퀀스:
+          1차) auto_free_fn() 호출 -> 1초 대기 -> 재측정
+          2차) ComfyUI /free 에 {'unload_models': True, 'free_memory': True} 전송
+               -> 2초 대기 -> 재측정 (최대 FORCE_UNLOAD_MAX_ROUNDS 회)
         그래도 미달 시 VRAMSafetyException을 발생시켜 작업 즉각 중단.
+
+        Args:
+            min_free_gb: 안전 기준 가용 VRAM(GB). 미지정 시 MIN_S2V_VRAM_GB
+            host: ComfyUI 서버 주소
+            auto_free_fn: 1차 경량 메모리 정리 콜백
+            force_unload: False면 2차 ComfyUI 강제 언로드를 생략(수동 제어용)
         """
         threshold = min_free_gb or cls.MIN_S2V_VRAM_GB
-        info = cls.get_vram_info(host=host)
 
-        if info["free_gb"] < threshold and auto_free_fn:
-            logger.info(f"🧹 [VRAM 가드레일] 가용 VRAM 부족 감지 ({info['free_gb']}GB < {threshold}GB). 자동 메모리 비우기 1회 실행...")
-            try:
-                auto_free_fn()
-            except Exception as e:
-                logger.warning(f"자동 VRAM 비우기 실패: {e}")
-            import time
-            time.sleep(1.0)
+        if force_unload:
+            info, report = cls._reclaim_vram(host=host, threshold=threshold, auto_free_fn=auto_free_fn)
+        else:
+            # 강제 언로드 비활성: 기존 1차 로직만 수행
             info = cls.get_vram_info(host=host)
+            report = {"initial_free_gb": info["free_gb"], "recovered": info["free_gb"] >= threshold}
+            if info["free_gb"] < threshold and auto_free_fn:
+                logger.info(
+                    f"🧹 [VRAM 가드레일] 가용 VRAM 부족 감지 "
+                    f"({info['free_gb']}GB < {threshold}GB). 자동 메모리 비우기 1회 실행..."
+                )
+                try:
+                    auto_free_fn()
+                except Exception as e:
+                    logger.warning(f"자동 VRAM 비우기 실패: {e}")
+                time.sleep(1.0)
+                info = cls.get_vram_info(host=host)
+                report["after_auto_free_gb"] = info["free_gb"]
+                report["recovered"] = info["free_gb"] >= threshold
 
         if info["free_gb"] < threshold:
             err_msg = (
                 f"🚨 [VRAM 안전 차단] 텍스트 인코더(UMT5) 잔류 등으로 가용 VRAM이 부족합니다 "
                 f"(현재 {info['free_gb']:.2f}GB / 안전 기준 {threshold:.1f}GB 이상). "
+                f"[자율회복 시도: auto_free={report.get('auto_free_called')}, "
+                f"강제언로드 {report.get('force_unload_rounds', 0)}회] "
                 "GPU 과열 및 비정상 지연(스텝당 4분, 총 1시간 20분 이상)을 방지하기 위해 "
                 "작업을 즉시 안전하게 중단했습니다. (ComfyUI 메모리 클린업 필요)"
             )
             logger.error(err_msg)
             raise VRAMSafetyException(err_msg)
 
-        logger.info(f"🛡️ [VRAM 안전 통과] 현재 가용 VRAM {info['free_gb']:.2f}GB / {info['total_gb']:.2f}GB (안전 기준 {threshold:.1f}GB 충족)")
+        logger.info(
+            f"🛡️ [VRAM 안전 통과] 현재 가용 VRAM {info['free_gb']:.2f}GB / {info['total_gb']:.2f}GB "
+            f"(안전 기준 {threshold:.1f}GB 충족, 자율회복 경로: "
+            f"auto_free={report.get('auto_free_called')}, "
+            f"force_unload={report.get('force_unload_rounds', 0)}회)"
+        )
         return info
 
     @classmethod

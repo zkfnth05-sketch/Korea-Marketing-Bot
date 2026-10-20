@@ -541,5 +541,71 @@
       }
     },
     "success": true
+  },
+  {
+    "brand": "aura",
+    "slot": "morning",
+    "topic": "소개팅 첫 카톡에서 90%가 하는 읽씹 유발 실수",
+    "caption_preview": "썸탈 때 상대방 답장 텀 길어진다고 '바쁘세요?' '오늘 뭐해요?' 재촉하는 건 호감도를 깎아먹는 지름길입니...",
+    "published_at": "2026-10-19T09:30:58.930478",
+    "publish_result": {
+      "success": true,
+      "brand": "aura",
+      "message": "🎉 [스레드 발행 성공] Aura AI 데이팅 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "aura",
+        "published_at": "2026-10-19T09:30:58.841351",
+        "caption_preview": "썸탈 때 상대방 답장 텀 길어진다고 '바쁘세요?' '오늘 뭐해요?' 재촉하는 건 호감도를 깎아먹는 지름길입니...",
+        "media_count": 0,
+        "first_reply": "💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "aura",
+    "slot": "evening",
+    "topic": "나랑 진짜 잘 맞는 인연을 5초 만에 알아보는 대화법",
+    "caption_preview": "아무리 이상형 외모라도 '이것' 안 맞으면 무조건 파국입니다.\n\n외모만 보고 설렜다가 후회한 적 많죠? 근데...",
+    "published_at": "2026-10-19T19:31:10.064922",
+    "publish_result": {
+      "success": true,
+      "brand": "aura",
+      "message": "🎉 [스레드 발행 성공] Aura AI 데이팅 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "aura",
+        "published_at": "2026-10-19T19:31:10.004285",
+        "caption_preview": "아무리 이상형 외모라도 '이것' 안 맞으면 무조건 파국입니다.\n\n외모만 보고 설렜다가 후회한 적 많죠? 근데...",
+        "media_count": 0,
+        "first_reply": "💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "aura",
+    "slot": "morning",
+    "topic": "2030 직장인 소개팅 삼프터 성공률 300% 올리는 법",
+    "caption_preview": "애프터까지는 순조롭다? 근데 삼프터에서 유독 까이는 사람들 공통점 있어요. 딱딱하게 미래 계획만 묻거나, 그...",
+    "published_at": "2026-10-20T09:31:43.294257",
+    "publish_result": {
+      "success": true,
+      "brand": "aura",
+      "message": "🎉 [스레드 발행 성공] Aura AI 데이팅 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "aura",
+        "published_at": "2026-10-20T09:31:43.220626",
+        "caption_preview": "애프터까지는 순조롭다? 근데 삼프터에서 유독 까이는 사람들 공통점 있어요. 딱딱하게 미래 계획만 묻거나, 그...",
+        "media_count": 0,
+        "first_reply": "💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_live_proof.png"
+      }
+    },
+    "success": true
   }
 ]

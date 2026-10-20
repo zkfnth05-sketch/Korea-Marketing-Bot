@@ -1,10 +1,322 @@
 {
-  "current_topic_index": 21,
-  "last_topic_id": 74,
-  "last_run_time": "2026-10-18 17:06:52",
-  "last_title": "성수동 소개팅, '센스 있는 셔츠 & 니트'로 첫인상 완벽 공략!",
-  "published_count": 46,
+  "current_topic_index": 25,
+  "last_topic_id": 41,
+  "last_run_time": "2026-10-20 09:50:12",
+  "last_title": "소개팅 어색함 순삭! '밸런스게임' 질문 10가지로 분위기 반전시키는 법",
+  "published_count": 50,
   "history": [
+    {
+      "topic_id": 41,
+      "title": "소개팅 어색함 순삭! '밸런스게임' 질문 10가지로 분위기 반전시키는 법",
+      "title_naver": "소개팅 어색함 순삭! '밸런스게임' 질문 10가지로 분위기 반전시키는 법",
+      "title_tistory": "[2026 가이드] 소개팅 분위기를 화기애애하게 만드는 밸런스게임 질문 10선 핵심 정리",
+      "title_kakao": "소개팅 분위기를 화기애애하게 만드는 밸런스게임 질문 10선에 대한 솔직한 이야기",
+      "category": "conversation_skills",
+      "image_url": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&auto=format&fit=crop&q=80",
+      "published_at": "2026-10-20 09:50:12",
+      "publish_results": {
+        "topic_id": 41,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-041",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "소개팅 어색함 순삭! '밸런스게임' 질문 10가지로 분위기 반전시키는 법",
+            "url": "https://blog.naver.com/zkfnth01/224447422914",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플거리",
+              "성수동핫플",
+              "성수동핫플레이스",
+              "성수동핫플맛집",
+              "성수동핫플카페",
+              "성수동핫플지도",
+              "소개팅탈출",
+              "소개팅긴급탈출",
+              "소개팅매너",
+              "소개팅빌런",
+              "소개팅후기",
+              "소개팅2차",
+              "성수동데이트"
+            ],
+            "post_url": "https://blog.naver.com/zkfnth01/224447422914"
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-dating",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "aura",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "zkfnth01",
+            "title": "소개팅 어색함 순삭! '밸런스게임' 질문 10가지로 분위기 반전시키는 법",
+            "real_url": "https://blog.naver.com/zkfnth01/224447422914",
+            "log_no": "224447422914",
+            "pub_date": "Tue, 20 Oct 2026 09:46:08 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\aura\\blog_verification\\naver_proof_1792457408.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "aura-magazine",
+            "title": "[2026 가이드] 상대방이 끊임없이 말하게 만드는 마법의 '리액션 3원칙' 핵심 정리",
+            "real_url": "https://aura-magazine.tistory.com/22",
+            "pub_date": "Sat, 17 Oct 2026 20:35:51 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-20 09:50:12"
+        }
+      }
+    },
+    {
+      "topic_id": 22,
+      "title": "성수동 감성 펍/바: 소개팅 2차 성공률 높이는 '분위기 맛집' 5선",
+      "title_naver": "성수동 감성 펍/바: 소개팅 2차 성공률 높이는 '분위기 맛집' 5선",
+      "title_tistory": "[2026 가이드] 소개팅 2차로 가기 딱 좋은 분위기 있는 감성 펍/바 핵심 정리",
+      "title_kakao": "소개팅 2차로 가기 딱 좋은 분위기 있는 감성 펍/바에 대한 솔직한 이야기",
+      "category": "date_spots",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_022_date_spots_20261019_194532.webp",
+      "published_at": "2026-10-19 19:50:28",
+      "publish_results": {
+        "topic_id": 22,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-022",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "성수동 감성 펍/바: 소개팅 2차 성공률 높이는 '분위기 맛집' 5선",
+            "url": "https://blog.naver.com/zkfnth01/224446898073",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플거리",
+              "성수동핫플",
+              "성수동핫플레이스",
+              "성수동핫플맛집",
+              "성수동핫플카페",
+              "성수동핫플지도",
+              "소개팅첫마디",
+              "읽씹탈출",
+              "AI대화비서",
+              "센스있는첫인사",
+              "스몰토크",
+              "답장률98프로",
+              "성수동데이트"
+            ],
+            "post_url": "https://blog.naver.com/zkfnth01/224446898073"
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-dating",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "aura",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "zkfnth01",
+            "title": "성수동 감성 펍/바: 소개팅 2차 성공률 높이는 '분위기 맛집' 5선",
+            "real_url": "https://blog.naver.com/zkfnth01/224446898073",
+            "log_no": "224446898073",
+            "pub_date": "Mon, 19 Oct 2026 19:46:24 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\aura\\blog_verification\\naver_proof_1792407024.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "aura-magazine",
+            "title": "[2026 가이드] 상대방이 끊임없이 말하게 만드는 마법의 '리액션 3원칙' 핵심 정리",
+            "real_url": "https://aura-magazine.tistory.com/22",
+            "pub_date": "Sat, 17 Oct 2026 20:35:51 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-19 19:50:28"
+        }
+      }
+    },
+    {
+      "topic_id": 4,
+      "title": "읽씹? 안읽씹? 썸 망치는 카톡 시그널 완벽 해독법 5가지",
+      "title_naver": "읽씹? 안읽씹? 썸 망치는 카톡 시그널 완벽 해독법 5가지",
+      "title_tistory": "[2026 가이드] 읽씹 vs 안읽씹, 상대방의 속마음과 대처법 핵심 정리",
+      "title_kakao": "읽씹 vs 안읽씹, 상대방의 속마음과 대처법에 대한 솔직한 이야기",
+      "category": "kakaotalk_signals",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_004_kakaotalk_signals_20261019_144551.webp",
+      "published_at": "2026-10-19 14:51:04",
+      "publish_results": {
+        "topic_id": 4,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-004",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "읽씹? 안읽씹? 썸 망치는 카톡 시그널 완벽 해독법 5가지",
+            "url": "https://blog.naver.com/zkfnth01/224446572450",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플거리",
+              "성수동핫플",
+              "성수동핫플레이스",
+              "성수동핫플맛집",
+              "성수동핫플카페",
+              "성수동핫플지도",
+              "소개팅프로필",
+              "AI프로필",
+              "청담동스튜디오",
+              "인생샷",
+              "프로필사진",
+              "소개팅사진",
+              "성수동데이트"
+            ],
+            "post_url": "https://blog.naver.com/zkfnth01/224446572450"
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-dating",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "aura",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "zkfnth01",
+            "title": "읽씹? 안읽씹? 썸 망치는 카톡 시그널 완벽 해독법 5가지",
+            "real_url": "https://blog.naver.com/zkfnth01/224446572450",
+            "log_no": "224446572450",
+            "pub_date": "Mon, 19 Oct 2026 14:47:00 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\aura\\blog_verification\\naver_proof_1792389061.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "aura-magazine",
+            "title": "[2026 가이드] 상대방이 끊임없이 말하게 만드는 마법의 '리액션 3원칙' 핵심 정리",
+            "real_url": "https://aura-magazine.tistory.com/22",
+            "pub_date": "Sat, 17 Oct 2026 20:35:51 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-19 14:51:04"
+        }
+      }
+    },
+    {
+      "topic_id": 89,
+      "title": "애프터 성공률 2배! 성수동 핫플 데이트 제안 멘트 5가지",
+      "title_naver": "애프터 성공률 2배! 성수동 핫플 데이트 제안 멘트 5가지",
+      "title_tistory": "[2026 가이드] 애프터 수락 확률을 2배 높이는 구체적인 제안 화법 핵심 정리",
+      "title_kakao": "애프터 수락 확률을 2배 높이는 구체적인 제안 화법에 대한 솔직한 이야기",
+      "category": "after_dating",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_089_after_dating_20261019_094536.webp",
+      "published_at": "2026-10-19 09:50:25",
+      "publish_results": {
+        "topic_id": 89,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-089",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "애프터 성공률 2배! 성수동 핫플 데이트 제안 멘트 5가지",
+            "url": "https://blog.naver.com/zkfnth01/224446237951",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플거리",
+              "성수동핫플",
+              "성수동핫플레이스",
+              "성수동핫플맛집",
+              "성수동핫플카페",
+              "성수동핫플지도",
+              "소개팅탈출",
+              "소개팅긴급탈출",
+              "소개팅매너",
+              "소개팅빌런",
+              "소개팅후기",
+              "소개팅2차",
+              "성수동데이트"
+            ],
+            "post_url": "https://blog.naver.com/zkfnth01/224446237951"
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-dating",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "aura",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "zkfnth01",
+            "title": "애프터 성공률 2배! 성수동 핫플 데이트 제안 멘트 5가지",
+            "real_url": "https://blog.naver.com/zkfnth01/224446237951",
+            "log_no": "224446237951",
+            "pub_date": "Mon, 19 Oct 2026 09:46:20 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\aura\\blog_verification\\naver_proof_1792371021.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "aura-magazine",
+            "title": "[2026 가이드] 상대방이 끊임없이 말하게 만드는 마법의 '리액션 3원칙' 핵심 정리",
+            "real_url": "https://aura-magazine.tistory.com/22",
+            "pub_date": "Sat, 17 Oct 2026 20:35:51 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-19 09:50:25"
+        }
+      }
+    },
     {
       "topic_id": 74,
       "title": "성수동 소개팅, '센스 있는 셔츠 & 니트'로 첫인상 완벽 공략!",

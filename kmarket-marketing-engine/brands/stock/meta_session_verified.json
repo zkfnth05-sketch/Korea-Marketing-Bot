@@ -1,6 +1,382 @@
 {
-  "verified_at": "2026-10-09 17:48:13",
-  "brand": "stock",
-  "account": "stockmaster_ai",
-  "valid": true
+  "cookies": [
+    {
+      "name": "_GRECAPTCHA",
+      "value": "09AKhCRwjM6EqjXjzpmfAyNA3-rBweJAiVL6oLwi5Rd0cT1JbUJaVkBud5LUegUqTmhvNAe84g2mt7ACtU8EVtedU",
+      "domain": "www.google.com",
+      "path": "/recaptcha",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "None",
+      "expires": 1807873494.782104
+    },
+    {
+      "name": "csrftoken",
+      "value": "scYIzN3X3LRQLLT6zFbWIgQczFWyEhoJ",
+      "domain": ".threads.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": false,
+      "sameSite": "Lax",
+      "expires": 1826881584.975021
+    },
+    {
+      "name": "ds_user_id",
+      "value": "26311974089",
+      "domain": ".threads.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": false,
+      "sameSite": "None",
+      "expires": 1800097584.975138
+    },
+    {
+      "name": "ps_n",
+      "value": "1",
+      "domain": ".threads.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "None",
+      "expires": 1825238158.774565
+    },
+    {
+      "name": "ps_l",
+      "value": "1",
+      "domain": ".threads.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "Lax",
+      "expires": 1825238158.774295
+    },
+    {
+      "name": "ps_n",
+      "value": "1",
+      "domain": ".threads.net",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "None",
+      "expires": 1825238158.774565
+    },
+    {
+      "name": "ps_l",
+      "value": "1",
+      "domain": ".threads.net",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "Lax",
+      "expires": 1825238158.774295
+    },
+    {
+      "name": "c_user",
+      "value": "61594447153094",
+      "domain": ".facebook.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": false,
+      "sameSite": "None",
+      "expires": 1823936422.993291
+    },
+    {
+      "name": "datr",
+      "value": "BYDLagc7lx2owr85UuAwljjE",
+      "domain": ".instagram.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "None",
+      "expires": 1826281475.369789
+    },
+    {
+      "name": "datr",
+      "value": "tYfLaq8BPnzTiIjggvLCn8US",
+      "domain": ".facebook.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "None",
+      "expires": 1826283443.366773
+    },
+    {
+      "name": "sb",
+      "value": "t4fLale0YVQMSy-z4cfj8F2d",
+      "domain": ".facebook.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "None",
+      "expires": 1826283445.447459
+    },
+    {
+      "name": "ps_l",
+      "value": "1",
+      "domain": ".facebook.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "Lax",
+      "expires": 1826333740.782783
+    },
+    {
+      "name": "ps_n",
+      "value": "1",
+      "domain": ".facebook.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "None",
+      "expires": 1826333740.782854
+    },
+    {
+      "name": "ig_did",
+      "value": "56AC2491-AD7B-47E2-B02B-047D27D7357C",
+      "domain": ".threads.net",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "None",
+      "expires": 1823846501.16655
+    },
+    {
+      "name": "ig_did",
+      "value": "E3E9E982-8342-418C-87E0-99078E401B0D",
+      "domain": ".threads.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "None",
+      "expires": 1823846501.352854
+    },
+    {
+      "name": "mid",
+      "value": "atR86QALAAG6JHB8IDksQjnUfSQy",
+      "domain": ".threads.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": false,
+      "sameSite": "Lax",
+      "expires": 1826870503.900229
+    },
+    {
+      "name": "ig_did",
+      "value": "82267F4D-F192-424E-8BB6-D2E9C81C07E5",
+      "domain": ".instagram.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "None",
+      "expires": 1823857394.05052
+    },
+    {
+      "name": "wd",
+      "value": "1440x900",
+      "domain": ".instagram.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": false,
+      "sameSite": "Lax",
+      "expires": 1823936460.3006644,
+      "_expires_patched": true,
+      "_patch_reason": "30일 이내 만료"
+    },
+    {
+      "name": "mid",
+      "value": "atSndQALAAFExQ2dTDSo38bFAz4I",
+      "domain": ".instagram.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": false,
+      "sameSite": "Lax",
+      "expires": 1826881394.0
+    },
+    {
+      "name": "ps_l",
+      "value": "1",
+      "domain": ".instagram.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "Lax",
+      "expires": 1826881478.465414
+    },
+    {
+      "name": "ps_n",
+      "value": "1",
+      "domain": ".instagram.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "None",
+      "expires": 1826881478.465527
+    },
+    {
+      "name": "csrftoken",
+      "value": "8mHre9CEJu4zBmEgmOZ3793KBIHYQkSR",
+      "domain": ".instagram.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": false,
+      "sameSite": "Lax",
+      "expires": 1826960448.525506
+    },
+    {
+      "name": "ds_user_id",
+      "value": "42910948931",
+      "domain": ".instagram.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": false,
+      "sameSite": "None",
+      "expires": 1800176448.525581
+    },
+    {
+      "name": "sessionid",
+      "value": "42910948931%3AeaqiBeYk1dtyGa%3A18%3AAYlhCwCC2y-dRXEuMZJGmQErfKoFp79t3GVdjCJ8uw",
+      "domain": ".instagram.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "None",
+      "expires": 1823857499.56672
+    },
+    {
+      "name": "sessionid",
+      "value": "26311974089%3AnmqY1h7iOPGdjk%3A20%3AAYm8copHa_8VdIpiWsz0oUByTHDg8aPppjpJARYzug",
+      "domain": ".threads.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "None",
+      "expires": 1823857502.744441
+    },
+    {
+      "name": "mid",
+      "value": "atR86QALAAG6JHB8IDksQjnUfSQy",
+      "domain": ".threads.net",
+      "path": "/",
+      "secure": true,
+      "httpOnly": false,
+      "sameSite": "Lax",
+      "expires": 1826870503.900229
+    },
+    {
+      "name": "csrftoken",
+      "value": "8mHre9CEJu4zBmEgmOZ3793KBIHYQkSR",
+      "domain": ".threads.net",
+      "path": "/",
+      "secure": true,
+      "httpOnly": false,
+      "sameSite": "None",
+      "expires": 1826881499.566577
+    },
+    {
+      "name": "ds_user_id",
+      "value": "42910948931",
+      "domain": ".threads.net",
+      "path": "/",
+      "secure": true,
+      "httpOnly": false,
+      "sameSite": "None",
+      "expires": 1800097499.566692
+    },
+    {
+      "name": "fr",
+      "value": "1dj5xolqHsOULDaf9.AWexRH6AuXW1CF9EhVv33Gaj-KOowWW-HAY1QgpDENnzG3zjlV4.Bq1dxI..AAA.0.0.Bq1dxI.AWeybly91tsHnJ8-Z2Hk1bbRMQQ",
+      "domain": ".facebook.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "None",
+      "expires": 1800176454.715996
+    },
+    {
+      "name": "xs",
+      "value": "38%3AddTSk3sw-6USEg%3A2%3A1790860881%3A-1%3A-1%3A%3AAcxC21cOLkQ9ZZCwjGznLJTnXc3fg0z-200MFPdbMOM",
+      "domain": ".facebook.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "None",
+      "expires": 1823936422.993403
+    },
+    {
+      "name": "alsfid",
+      "value": "{\"id\":\"f651c0017\",\"timestamp\":1792400447224.1}",
+      "domain": ".facebook.com",
+      "path": "/",
+      "secure": false,
+      "httpOnly": false,
+      "sameSite": "Lax",
+      "expires": 1823936460.3006644,
+      "_expires_patched": true,
+      "_patch_reason": "30일 이내 만료"
+    },
+    {
+      "name": "wd",
+      "value": "1440x900",
+      "domain": ".facebook.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": false,
+      "sameSite": "Lax",
+      "expires": 1823936460.3006644,
+      "_expires_patched": true,
+      "_patch_reason": "30일 이내 만료"
+    },
+    {
+      "name": "rur",
+      "value": "TTX%2C17841442867953868%2C1793610058%3A01ff9dcccec52816fe67807fb6fec28efc5ff0d083e806fe3cb3b8d326f8e0ca6e2b955f",
+      "domain": ".instagram.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "Lax",
+      "expires": 1823936460.3006644,
+      "_expires_patched": true,
+      "_patch_reason": "Session 쿠키"
+    },
+    {
+      "name": "test_cookie",
+      "value": "CheckForPermission",
+      "domain": ".doubleclick.net",
+      "path": "/",
+      "secure": true,
+      "httpOnly": false,
+      "sameSite": "None",
+      "expires": 1823936460.3006644,
+      "_expires_patched": true,
+      "_patch_reason": "30일 이내 만료"
+    }
+  ],
+  "meta": {
+    "brand": "📈 StockMaster AI 주식",
+    "fb_account": "스톡마스터 AI",
+    "ig_account": "stockmaster_ai",
+    "saved_at": "2026-10-19 18:01:00",
+    "saved_at_ts": 1792400460.3006644,
+    "total_cookies": 34,
+    "expires_patched": 13,
+    "source_urls": [
+      "https://business.facebook.com/latest/home",
+      "https://www.instagram.com/"
+    ],
+    "profile_dir": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\meta_chrome_profile",
+    "verification": {
+      "facebook": {
+        "ok": true,
+        "c_user": ".facebook.com",
+        "xs": ".facebook.com"
+      },
+      "instagram": {
+        "ok": true,
+        "sessionid": ".instagram.com",
+        "ds_user_id": ".instagram.com"
+      },
+      "both_ok": true,
+      "any_ok": true
+    }
+  }
 }

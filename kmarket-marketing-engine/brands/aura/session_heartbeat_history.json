@@ -1,593 +1,5 @@
 [
   {
-    "timestamp": "2026-10-17T12:15:40.331245",
-    "brand": "aura",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-17T12:15:40.746915",
-    "brand": "aura",
-    "platform": "naver",
-    "status": "expired",
-    "message": "세션 만료 감지 (재연동 필요, URL: about:blank)"
-  },
-  {
-    "timestamp": "2026-10-17T12:15:44.921535",
-    "brand": "aura",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T12:15:46.962973",
-    "brand": "aura",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T12:20:18.357193",
-    "brand": "aura",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
-  },
-  {
-    "timestamp": "2026-10-17T12:20:23.992457",
-    "brand": "aura",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
-  },
-  {
-    "timestamp": "2026-10-17T12:20:28.826939",
-    "brand": "aura",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-17T12:20:29.265284",
-    "brand": "aura",
-    "platform": "naver",
-    "status": "expired",
-    "message": "세션 만료 감지 (재연동 필요, URL: about:blank)"
-  },
-  {
-    "timestamp": "2026-10-17T12:20:32.534829",
-    "brand": "aura",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T12:20:34.589529",
-    "brand": "aura",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T13:26:10.464692",
-    "brand": "aura",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
-  },
-  {
-    "timestamp": "2026-10-17T13:26:21.375533",
-    "brand": "aura",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
-  },
-  {
-    "timestamp": "2026-10-17T13:26:26.693175",
-    "brand": "aura",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-17T13:26:27.160186",
-    "brand": "aura",
-    "platform": "naver",
-    "status": "expired",
-    "message": "세션 만료 감지 (재연동 필요, URL: about:blank)"
-  },
-  {
-    "timestamp": "2026-10-17T13:26:31.050873",
-    "brand": "aura",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T13:26:33.068140",
-    "brand": "aura",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T14:19:49.630058",
-    "brand": "aura",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
-  },
-  {
-    "timestamp": "2026-10-17T14:19:55.624750",
-    "brand": "aura",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
-  },
-  {
-    "timestamp": "2026-10-17T14:20:00.730348",
-    "brand": "aura",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-17T14:20:01.153762",
-    "brand": "aura",
-    "platform": "naver",
-    "status": "expired",
-    "message": "세션 만료 감지 (재연동 필요, URL: about:blank)"
-  },
-  {
-    "timestamp": "2026-10-17T14:20:05.136473",
-    "brand": "aura",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T14:20:07.190566",
-    "brand": "aura",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T14:27:52.067305",
-    "brand": "aura",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
-  },
-  {
-    "timestamp": "2026-10-17T14:27:58.572531",
-    "brand": "aura",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
-  },
-  {
-    "timestamp": "2026-10-17T14:28:03.803698",
-    "brand": "aura",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-17T14:28:04.210469",
-    "brand": "aura",
-    "platform": "naver",
-    "status": "expired",
-    "message": "세션 만료 감지 (재연동 필요, URL: about:blank)"
-  },
-  {
-    "timestamp": "2026-10-17T14:28:08.506013",
-    "brand": "aura",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T14:28:10.554751",
-    "brand": "aura",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T14:37:06.072346",
-    "brand": "aura",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
-  },
-  {
-    "timestamp": "2026-10-17T14:37:13.428475",
-    "brand": "aura",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
-  },
-  {
-    "timestamp": "2026-10-17T14:37:18.605630",
-    "brand": "aura",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-17T14:37:19.043655",
-    "brand": "aura",
-    "platform": "naver",
-    "status": "expired",
-    "message": "세션 만료 감지 (재연동 필요, URL: about:blank)"
-  },
-  {
-    "timestamp": "2026-10-17T14:37:23.330315",
-    "brand": "aura",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T14:37:30.331752",
-    "brand": "aura",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T14:44:48.726335",
-    "brand": "aura",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
-  },
-  {
-    "timestamp": "2026-10-17T14:44:56.326580",
-    "brand": "aura",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
-  },
-  {
-    "timestamp": "2026-10-17T14:45:01.007160",
-    "brand": "aura",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-17T14:45:01.417213",
-    "brand": "aura",
-    "platform": "naver",
-    "status": "expired",
-    "message": "세션 만료 감지 (재연동 필요, URL: about:blank)"
-  },
-  {
-    "timestamp": "2026-10-17T14:45:05.331529",
-    "brand": "aura",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T14:45:07.371408",
-    "brand": "aura",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T16:27:35.846514",
-    "brand": "aura",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
-  },
-  {
-    "timestamp": "2026-10-17T16:27:48.679237",
-    "brand": "aura",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
-  },
-  {
-    "timestamp": "2026-10-17T16:27:53.579163",
-    "brand": "aura",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-17T16:27:54.000246",
-    "brand": "aura",
-    "platform": "naver",
-    "status": "expired",
-    "message": "세션 만료 감지 (재연동 필요, URL: about:blank)"
-  },
-  {
-    "timestamp": "2026-10-17T16:28:00.382036",
-    "brand": "aura",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T16:28:07.140940",
-    "brand": "aura",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T20:35:04.110974",
-    "brand": "aura",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
-  },
-  {
-    "timestamp": "2026-10-17T20:35:11.273945",
-    "brand": "aura",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
-  },
-  {
-    "timestamp": "2026-10-17T20:35:16.474010",
-    "brand": "aura",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-17T20:35:16.924583",
-    "brand": "aura",
-    "platform": "naver",
-    "status": "expired",
-    "message": "세션 만료 감지 (재연동 필요, URL: about:blank)"
-  },
-  {
-    "timestamp": "2026-10-17T20:35:20.172843",
-    "brand": "aura",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T20:35:27.107431",
-    "brand": "aura",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T23:36:25.783759",
-    "brand": "aura",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
-  },
-  {
-    "timestamp": "2026-10-17T23:36:34.377022",
-    "brand": "aura",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
-  },
-  {
-    "timestamp": "2026-10-17T23:36:39.333568",
-    "brand": "aura",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-17T23:36:39.796547",
-    "brand": "aura",
-    "platform": "naver",
-    "status": "expired",
-    "message": "세션 만료 감지 (재연동 필요, URL: about:blank)"
-  },
-  {
-    "timestamp": "2026-10-17T23:36:43.015564",
-    "brand": "aura",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-17T23:36:57.830783",
-    "brand": "aura",
-    "platform": "tistory",
-    "status": "session_expired",
-    "message": "카카오 세션 만료"
-  },
-  {
-    "timestamp": "2026-10-18T09:42:27.565435",
-    "brand": "aura",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
-  },
-  {
-    "timestamp": "2026-10-18T09:42:34.625527",
-    "brand": "aura",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
-  },
-  {
-    "timestamp": "2026-10-18T09:42:39.535038",
-    "brand": "aura",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-18T09:42:39.993668",
-    "brand": "aura",
-    "platform": "naver",
-    "status": "expired",
-    "message": "세션 만료 감지 (재연동 필요, URL: about:blank)"
-  },
-  {
-    "timestamp": "2026-10-18T09:42:43.221674",
-    "brand": "aura",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-18T09:42:58.004445",
-    "brand": "aura",
-    "platform": "tistory",
-    "status": "session_expired",
-    "message": "카카오 세션 만료"
-  },
-  {
-    "timestamp": "2026-10-18T09:44:58.401326",
-    "brand": "aura",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
-  },
-  {
-    "timestamp": "2026-10-18T09:45:04.599492",
-    "brand": "aura",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
-  },
-  {
-    "timestamp": "2026-10-18T09:45:09.685322",
-    "brand": "aura",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-18T09:45:10.096686",
-    "brand": "aura",
-    "platform": "naver",
-    "status": "expired",
-    "message": "세션 만료 감지 (재연동 필요, URL: about:blank)"
-  },
-  {
-    "timestamp": "2026-10-18T09:45:13.985943",
-    "brand": "aura",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-18T09:45:28.725042",
-    "brand": "aura",
-    "platform": "tistory",
-    "status": "session_expired",
-    "message": "카카오 세션 만료"
-  },
-  {
-    "timestamp": "2026-10-18T09:47:14.537136",
-    "brand": "aura",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
-  },
-  {
-    "timestamp": "2026-10-18T09:47:20.225366",
-    "brand": "aura",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
-  },
-  {
-    "timestamp": "2026-10-18T09:47:24.921963",
-    "brand": "aura",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-18T09:47:25.353156",
-    "brand": "aura",
-    "platform": "naver",
-    "status": "expired",
-    "message": "세션 만료 감지 (재연동 필요, URL: about:blank)"
-  },
-  {
-    "timestamp": "2026-10-18T09:47:28.691965",
-    "brand": "aura",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-18T09:47:49.348164",
-    "brand": "aura",
-    "platform": "tistory",
-    "status": "session_expired",
-    "message": "카카오 세션 만료"
-  },
-  {
-    "timestamp": "2026-10-18T09:56:14.845836",
-    "brand": "aura",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
-  },
-  {
-    "timestamp": "2026-10-18T09:56:20.467100",
-    "brand": "aura",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
-  },
-  {
-    "timestamp": "2026-10-18T09:56:25.212186",
-    "brand": "aura",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-18T09:56:28.687065",
-    "brand": "aura",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-18T09:56:31.760550",
-    "brand": "aura",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-18T09:56:46.496092",
-    "brand": "aura",
-    "platform": "tistory",
-    "status": "session_expired",
-    "message": "카카오 세션 만료"
-  },
-  {
-    "timestamp": "2026-10-18T11:54:34.668082",
-    "brand": "aura",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
-  },
-  {
-    "timestamp": "2026-10-18T11:54:41.052517",
-    "brand": "aura",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
-  },
-  {
     "timestamp": "2026-10-18T11:54:46.237332",
     "brand": "aura",
     "platform": "tiktok",
@@ -694,6 +106,594 @@
   },
   {
     "timestamp": "2026-10-18T20:03:38.255196",
+    "brand": "aura",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-18T23:04:36.406974",
+    "brand": "aura",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
+  },
+  {
+    "timestamp": "2026-10-18T23:04:43.621471",
+    "brand": "aura",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
+  },
+  {
+    "timestamp": "2026-10-18T23:04:48.550482",
+    "brand": "aura",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-18T23:04:52.043261",
+    "brand": "aura",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-18T23:04:55.271591",
+    "brand": "aura",
+    "platform": "threads",
+    "status": "active",
+    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-18T23:04:57.294540",
+    "brand": "aura",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-19T02:05:54.875510",
+    "brand": "aura",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
+  },
+  {
+    "timestamp": "2026-10-19T02:05:58.818585",
+    "brand": "aura",
+    "platform": "meta",
+    "status": "expired",
+    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs)"
+  },
+  {
+    "timestamp": "2026-10-19T02:06:03.705797",
+    "brand": "aura",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-19T02:06:07.148023",
+    "brand": "aura",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-19T02:06:10.283301",
+    "brand": "aura",
+    "platform": "threads",
+    "status": "active",
+    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-19T02:06:12.325936",
+    "brand": "aura",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-19T05:07:09.267412",
+    "brand": "aura",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
+  },
+  {
+    "timestamp": "2026-10-19T05:07:13.117281",
+    "brand": "aura",
+    "platform": "meta",
+    "status": "expired",
+    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs)"
+  },
+  {
+    "timestamp": "2026-10-19T05:07:17.773767",
+    "brand": "aura",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-19T05:07:21.244490",
+    "brand": "aura",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-19T05:07:24.426778",
+    "brand": "aura",
+    "platform": "threads",
+    "status": "active",
+    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-19T05:07:26.440865",
+    "brand": "aura",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-19T08:08:28.783751",
+    "brand": "aura",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
+  },
+  {
+    "timestamp": "2026-10-19T08:08:32.636563",
+    "brand": "aura",
+    "platform": "meta",
+    "status": "expired",
+    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs)"
+  },
+  {
+    "timestamp": "2026-10-19T08:08:37.263747",
+    "brand": "aura",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-19T08:08:40.752770",
+    "brand": "aura",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-19T08:08:43.958242",
+    "brand": "aura",
+    "platform": "threads",
+    "status": "active",
+    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-19T08:08:45.965483",
+    "brand": "aura",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-19T08:14:08.169242",
+    "brand": "aura",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
+  },
+  {
+    "timestamp": "2026-10-19T08:14:12.012144",
+    "brand": "aura",
+    "platform": "meta",
+    "status": "expired",
+    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs) · GOLDEN 롤백 완료"
+  },
+  {
+    "timestamp": "2026-10-19T08:14:16.685330",
+    "brand": "aura",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-19T08:14:20.168379",
+    "brand": "aura",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-19T08:14:23.381048",
+    "brand": "aura",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-19T08:14:25.377386",
+    "brand": "aura",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-19T11:15:27.537318",
+    "brand": "aura",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
+  },
+  {
+    "timestamp": "2026-10-19T11:15:31.458786",
+    "brand": "aura",
+    "platform": "meta",
+    "status": "expired",
+    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs) · GOLDEN 롤백 완료"
+  },
+  {
+    "timestamp": "2026-10-19T11:15:36.305762",
+    "brand": "aura",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-19T11:15:39.808710",
+    "brand": "aura",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-19T11:15:43.075899",
+    "brand": "aura",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-19T11:15:45.080350",
+    "brand": "aura",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-19T14:16:46.882733",
+    "brand": "aura",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
+  },
+  {
+    "timestamp": "2026-10-19T14:16:50.777825",
+    "brand": "aura",
+    "platform": "meta",
+    "status": "expired",
+    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs) · GOLDEN 롤백 완료"
+  },
+  {
+    "timestamp": "2026-10-19T14:16:55.473679",
+    "brand": "aura",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-19T14:16:58.950082",
+    "brand": "aura",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-19T14:17:02.367609",
+    "brand": "aura",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-19T14:17:04.389497",
+    "brand": "aura",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-19T17:18:03.293310",
+    "brand": "aura",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
+  },
+  {
+    "timestamp": "2026-10-19T17:18:08.147502",
+    "brand": "aura",
+    "platform": "meta",
+    "status": "expired",
+    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs) · GOLDEN 롤백 완료"
+  },
+  {
+    "timestamp": "2026-10-19T17:18:13.040353",
+    "brand": "aura",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-19T17:18:16.535575",
+    "brand": "aura",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-19T17:18:20.039939",
+    "brand": "aura",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-19T17:18:22.052521",
+    "brand": "aura",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-19T20:19:22.978621",
+    "brand": "aura",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
+  },
+  {
+    "timestamp": "2026-10-19T20:19:30.205516",
+    "brand": "aura",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
+  },
+  {
+    "timestamp": "2026-10-19T20:19:35.645418",
+    "brand": "aura",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-19T20:19:39.148267",
+    "brand": "aura",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-19T20:19:42.231991",
+    "brand": "aura",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-19T20:19:44.248601",
+    "brand": "aura",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-19T22:57:27.451366",
+    "brand": "aura",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
+  },
+  {
+    "timestamp": "2026-10-19T22:57:34.708089",
+    "brand": "aura",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
+  },
+  {
+    "timestamp": "2026-10-19T22:57:39.513130",
+    "brand": "aura",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-19T22:57:42.992949",
+    "brand": "aura",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-19T22:57:46.367298",
+    "brand": "aura",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-19T22:57:48.362289",
+    "brand": "aura",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-20T01:58:54.042738",
+    "brand": "aura",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
+  },
+  {
+    "timestamp": "2026-10-20T01:59:00.767074",
+    "brand": "aura",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
+  },
+  {
+    "timestamp": "2026-10-20T01:59:05.525049",
+    "brand": "aura",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-20T01:59:09.063441",
+    "brand": "aura",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-20T01:59:12.341582",
+    "brand": "aura",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-20T01:59:14.416211",
+    "brand": "aura",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-20T05:00:20.818158",
+    "brand": "aura",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
+  },
+  {
+    "timestamp": "2026-10-20T05:00:27.442899",
+    "brand": "aura",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
+  },
+  {
+    "timestamp": "2026-10-20T05:00:32.757079",
+    "brand": "aura",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-20T05:00:36.249190",
+    "brand": "aura",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-20T05:00:39.551660",
+    "brand": "aura",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-20T05:00:41.583440",
+    "brand": "aura",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-20T08:01:50.189232",
+    "brand": "aura",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
+  },
+  {
+    "timestamp": "2026-10-20T08:01:57.960597",
+    "brand": "aura",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
+  },
+  {
+    "timestamp": "2026-10-20T08:02:02.934880",
+    "brand": "aura",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-20T08:02:06.414322",
+    "brand": "aura",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-20T08:02:09.692192",
+    "brand": "aura",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-20T08:02:11.680769",
+    "brand": "aura",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-20T11:03:11.291021",
+    "brand": "aura",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
+  },
+  {
+    "timestamp": "2026-10-20T11:03:17.873919",
+    "brand": "aura",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
+  },
+  {
+    "timestamp": "2026-10-20T11:03:22.592068",
+    "brand": "aura",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-20T11:03:26.101423",
+    "brand": "aura",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-20T11:03:29.321888",
+    "brand": "aura",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-20T11:03:31.355162",
     "brand": "aura",
     "platform": "tistory",
     "status": "active",

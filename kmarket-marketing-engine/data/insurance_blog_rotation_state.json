@@ -1,10 +1,374 @@
 {
-  "current_topic_index": 21,
-  "last_topic_id": 36,
-  "last_run_time": "2026-10-18 17:03:19",
-  "last_title": "아랫집 누수 수리비 380만 원 날릴 뻔... 단돈 1천 원으로 전액 해결한 실화 💸",
-  "published_count": 33,
+  "current_topic_index": 25,
+  "last_topic_id": 5,
+  "last_run_time": "2026-10-20 10:02:32",
+  "last_title": "[보험 상식] 수술비 보험 종수술비 vs 질병수술비: 매회 지급되는 특약 고르는 법",
+  "published_count": 37,
   "history": [
+    {
+      "topic_id": 5,
+      "title": "[보험 상식] 수술비 보험 종수술비 vs 질병수술비: 매회 지급되는 특약 고르는 법",
+      "title_naver": "수술비 보험 종수술비 vs 질병수술비: 매회 지급되는 특약 고르는 법 핵심 정리 및 손해 안 보는 팁",
+      "title_tistory": "[InsureBalance] 수술비 보험 종수술비 vs 질병수술비: 매회 지급되는 특약 고르는 법 완벽 가이드",
+      "title_brunch": "우리가 매달 내는 보험료, 수술비 보험 종수술비 vs 질병수술비: 매회 지급되는 특약 고르는 법",
+      "category": "health_medical",
+      "image_url": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1200&auto=format&fit=crop&q=80",
+      "published_at": "2026-10-20 10:02:32",
+      "publish_results": {
+        "topic_id": 5,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "수술비 보험 종수술비 vs 질병수술비: 매회 지급되는 특약 고르는 법 핵심 정리 및 손해 안 보는 팁",
+            "url": "https://blog.naver.com/thefirst-life/224447438444",
+            "post_url": "https://blog.naver.com/thefirst-life/224447438444",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "수술비보험",
+              "1종5종수술비",
+              "질병수술비",
+              "로봇수술보장",
+              "실비보험4세대",
+              "실비보험4세대5세대",
+              "실비보험4세대기간",
+              "실비보험4세대전환",
+              "실비보험4세대갱신",
+              "실비보험4세대가입방법",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "think83157",
+            "title": "[InsureBalance] 수술비 보험 종수술비 vs 질병수술비: 매회 지급되는 특약 고르는 법 완벽 가이드",
+            "url": "https://think83157.tistory.com/18",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "수술비보험",
+              "1종5종수술비",
+              "질병수술비",
+              "로봇수술보장",
+              "실비보험4세대",
+              "실비보험4세대5세대",
+              "실비보험4세대기간",
+              "실비보험4세대전환",
+              "실비보험4세대갱신",
+              "실비보험4세대가입방법",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "insurance",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "thefirst-life",
+            "title": "수술비 보험 종수술비 vs 질병수술비: 매회 지급되는 특약 고르는 법 핵심 정리 및 손해 안 보는 팁",
+            "real_url": "https://blog.naver.com/thefirst-life/224447438444",
+            "log_no": "224447438444",
+            "pub_date": "Tue, 20 Oct 2026 10:01:05 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_verification\\naver_proof_1792458149.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "think83157",
+            "title": "1&middot;2세대 실손보험 갱신 폭탄, 4세대 전환 손익 비교와 후회 없는 선택 기준",
+            "real_url": "https://think83157.tistory.com/18",
+            "pub_date": "Sat, 17 Oct 2026 15:04:44 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-20 10:02:32"
+        }
+      }
+    },
+    {
+      "topic_id": 84,
+      "title": "사회초년생 첫 보험 월 20만원 낸다고요? 💸 월 8만원대로 3대 보장 꽉 채운 살림꾼 세팅 비법",
+      "title_naver": "사회초년생 첫 보험 월 20만원 낸다고요? 💸 월 8만원대로 3대 보장 꽉 채운 살림꾼 세팅 비법",
+      "title_tistory": "사회초년생 첫 보험 가입 가이드: 월 7~10만원으로 끝내는 3대 포트폴리오(실손·3대진단비·운전자)",
+      "title_brunch": "첫 월급 탄 조카에게 지인 설계사 종신보험 찢어버리라고 조언한 이유",
+      "category": "remodeling_savings",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_084_remodeling_savings_20261019_200056.webp",
+      "published_at": "2026-10-19 20:02:55",
+      "publish_results": {
+        "topic_id": 84,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "사회초년생 첫 보험 월 20만원 낸다고요? 💸 월 8만원대로 3대 보장 꽉 채운 살림꾼 세팅 비법",
+            "url": "https://blog.naver.com/thefirst-life/224446911127",
+            "post_url": "https://blog.naver.com/thefirst-life/224446911127",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "사회초년생보험",
+              "첫보험추천",
+              "월7만원보험",
+              "20대재테크",
+              "태아보험리모델링",
+              "보험리모델링추천",
+              "보험리모델링후기",
+              "보험리모델링장단점",
+              "보험리모델링하는법",
+              "보험리모델링이유",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "think83157",
+            "title": "사회초년생 첫 보험 가입 가이드: 월 7~10만원으로 끝내는 3대 포트폴리오(실손·3대진단비·운전자)",
+            "url": "https://think83157.tistory.com/18",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "사회초년생보험",
+              "첫보험추천",
+              "월7만원보험",
+              "20대재테크",
+              "태아보험리모델링",
+              "보험리모델링추천",
+              "보험리모델링후기",
+              "보험리모델링장단점",
+              "보험리모델링하는법",
+              "보험리모델링이유",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "insurance",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "thefirst-life",
+            "title": "사회초년생 첫 보험 월 20만원 낸다고요?  월 8만원대로 3대 보장 꽉 채운 살림꾼 세팅 비법",
+            "real_url": "https://blog.naver.com/thefirst-life/224446911127",
+            "log_no": "224446911127",
+            "pub_date": "Mon, 19 Oct 2026 20:01:30 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_verification\\naver_proof_1792407772.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "think83157",
+            "title": "1&middot;2세대 실손보험 갱신 폭탄, 4세대 전환 손익 비교와 후회 없는 선택 기준",
+            "real_url": "https://think83157.tistory.com/18",
+            "pub_date": "Sat, 17 Oct 2026 15:04:44 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-19 20:02:55"
+        }
+      }
+    },
+    {
+      "topic_id": 68,
+      "title": "보험사가 숨긴 무료 혜택? 내 돈 1원도 안 내고 독립 손해사정사 선임하는 3초 꿀팁 💸",
+      "title_naver": "보험사가 숨긴 무료 혜택? 내 돈 1원도 안 내고 독립 손해사정사 선임하는 3초 꿀팁 💸",
+      "title_tistory": "보험금 깎일 때 내 돈 안 들이고 '독립 손해사정사' 무료 선임하는 법 (보험업법 개정 총정리)",
+      "title_brunch": "보험금 부지급 통보를 받고 알게 된 소비자의 무료 권리",
+      "category": "claims_knowhow",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_068_claims_knowhow_20261019_150039.webp",
+      "published_at": "2026-10-19 15:02:38",
+      "publish_results": {
+        "topic_id": 68,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "보험사가 숨긴 무료 혜택? 내 돈 1원도 안 내고 독립 손해사정사 선임하는 3초 꿀팁 💸",
+            "url": "https://blog.naver.com/thefirst-life/224446590048",
+            "post_url": "https://blog.naver.com/thefirst-life/224446590048",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "독립손해사정사",
+              "손사선임비용보험사부담",
+              "보험금분쟁해결",
+              "소비자권리",
+              "보험금청구서류",
+              "실비보험금청구서류",
+              "보험금청구서류발급",
+              "보험금청구서류없이",
+              "보험금청구서류종류",
+              "삼성생명보험금청구서류",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "think83157",
+            "title": "보험금 깎일 때 내 돈 안 들이고 '독립 손해사정사' 무료 선임하는 법 (보험업법 개정 총정리)",
+            "url": "https://think83157.tistory.com/18",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "독립손해사정사",
+              "손사선임비용보험사부담",
+              "보험금분쟁해결",
+              "소비자권리",
+              "보험금청구서류",
+              "실비보험금청구서류",
+              "보험금청구서류발급",
+              "보험금청구서류없이",
+              "보험금청구서류종류",
+              "삼성생명보험금청구서류",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "insurance",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "thefirst-life",
+            "title": "보험사가 숨긴 무료 혜택? 내 돈 1원도 안 내고 독립 손해사정사 선임하는 3초 꿀팁 ",
+            "real_url": "https://blog.naver.com/thefirst-life/224446590048",
+            "log_no": "224446590048",
+            "pub_date": "Mon, 19 Oct 2026 15:01:13 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_verification\\naver_proof_1792389755.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "think83157",
+            "title": "1&middot;2세대 실손보험 갱신 폭탄, 4세대 전환 손익 비교와 후회 없는 선택 기준",
+            "real_url": "https://think83157.tistory.com/18",
+            "pub_date": "Sat, 17 Oct 2026 15:04:44 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-19 15:02:38"
+        }
+      }
+    },
+    {
+      "topic_id": 52,
+      "title": "사회초년생 적금인 줄 알았더니 종신보험? 15년 지나도 원금 안 되는 충격 진실 🚨",
+      "title_naver": "사회초년생 적금인 줄 알았더니 종신보험? 15년 지나도 원금 안 되는 충격 진실 🚨",
+      "title_tistory": "사회초년생 종신보험 가입 주의보: 저축성 보험 둔갑 불완전판매 대처와 원금 회복 분석",
+      "title_brunch": "첫 월급으로 든 적금이 사망보험금이었다니: 가계부를 위협하는 종신보험 리모델링",
+      "category": "savings_annuity",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_images\\insurance_topic_052_savings_annuity_20261019_100034.webp",
+      "published_at": "2026-10-19 10:02:35",
+      "publish_results": {
+        "topic_id": 52,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "사회초년생 적금인 줄 알았더니 종신보험? 15년 지나도 원금 안 되는 충격 진실 🚨",
+            "url": "https://blog.naver.com/thefirst-life/224446253087",
+            "post_url": "https://blog.naver.com/thefirst-life/224446253087",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "종신보험저축오인",
+              "사회초년생종신보험",
+              "불완전판매민원",
+              "보험해지환급금",
+              "연금저축세액공제",
+              "종합소득세연금저축세액공제",
+              "연금저축세액공제15%",
+              "연금저축세액공제한도",
+              "개인형irp해지",
+              "개인형irp",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "think83157",
+            "title": "사회초년생 종신보험 가입 주의보: 저축성 보험 둔갑 불완전판매 대처와 원금 회복 분석",
+            "url": "https://think83157.tistory.com/18",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "종신보험저축오인",
+              "사회초년생종신보험",
+              "불완전판매민원",
+              "보험해지환급금",
+              "연금저축세액공제",
+              "종합소득세연금저축세액공제",
+              "연금저축세액공제15%",
+              "연금저축세액공제한도",
+              "개인형irp해지",
+              "개인형irp",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "insurance",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "thefirst-life",
+            "title": "사회초년생 적금인 줄 알았더니 종신보험? 15년 지나도 원금 안 되는 충격 진실 ",
+            "real_url": "https://blog.naver.com/thefirst-life/224446253087",
+            "log_no": "224446253087",
+            "pub_date": "Mon, 19 Oct 2026 10:01:08 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_verification\\naver_proof_1792371751.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "think83157",
+            "title": "1&middot;2세대 실손보험 갱신 폭탄, 4세대 전환 손익 비교와 후회 없는 선택 기준",
+            "real_url": "https://think83157.tistory.com/18",
+            "pub_date": "Sat, 17 Oct 2026 15:04:44 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-19 10:02:35"
+        }
+      }
+    },
     {
       "topic_id": 36,
       "title": "아랫집 누수 수리비 380만 원 날릴 뻔... 단돈 1천 원으로 전액 해결한 실화 💸",

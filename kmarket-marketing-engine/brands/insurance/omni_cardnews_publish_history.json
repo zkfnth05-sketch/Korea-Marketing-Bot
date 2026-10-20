@@ -1107,5 +1107,1258 @@
         }
       }
     }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-19",
+    "published_at": "2026-10-19 03:09:22",
+    "brand": "insurance",
+    "topic_id": 4,
+    "title": "뇌졸중 왔는데 보험금 0원? '뇌출혈' 특약 가입자의 비극",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "error",
+        "brand": "insurance",
+        "message": "3회 재시도 모두 소진, 실물 등록 미확인"
+      },
+      "threads": {
+        "success": true,
+        "brand": "insurance",
+        "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "insurance",
+          "published_at": "2026-10-19T03:10:41.476660",
+          "caption_preview": "열심히 납부한 보험료, 정작 필요할 때 도움이 안 된다면 어떨까요? 🏥\n\n'뇌출혈' 특약만 믿고 있다가 뇌졸...",
+          "media_count": 5,
+          "first_reply": "🛡️ 매달 줄줄 새는 숨은 보험료 3분 진단\n네이버에 '보험 리밸런스' 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 4,
+        "video_id": "mY4VvSD062Y",
+        "video_url": "https://youtube.com/shorts/mY4VvSD062Y",
+        "title": "🚨 뇌졸중인데 보험금 0원? 당신의 보험은 '껍데기'일 수 있습니다 #보험 리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "insurance_topic4_cardnews_reels.mp4",
+        "published_at": "2026-10-19 03:11:46",
+        "elapsed_sec": 65.1,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 4,
+        "title": "🚨 뇌졸중인데 보험금 0원? 당신의 보험은 '껍데기'일 수 있습니다",
+        "video_file": "insurance_topic4_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-19 03:12:02"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 4,
+        "video_file": "insurance_topic4_cardnews_reels.mp4",
+        "title": "뇌졸중 왔는데 보험금 0원? '뇌출혈' 특약 가입자의 비극",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic04.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "insurance"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-19",
+    "published_at": "2026-10-19 03:19:40",
+    "brand": "insurance",
+    "topic_id": 5,
+    "title": "옛날 운전자보험 그대로 두면 사고 시 형사합의금 못 받습니다",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "error",
+        "brand": "insurance",
+        "message": "3회 재시도 모두 소진, 실물 등록 미확인"
+      },
+      "threads": {
+        "success": true,
+        "brand": "insurance",
+        "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "insurance",
+          "published_at": "2026-10-19T03:20:57.155402",
+          "caption_preview": "매달 통장에서 사라지는 보험료, '보험 다이어트'는 선택이 아닌 필수입니다. 🛡️\n\n특히 운전자보험은 법적 ...",
+          "media_count": 5,
+          "first_reply": "🛡️ 매달 줄줄 새는 숨은 보험료 3분 진단\n네이버에 '보험 리밸런스' 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 5,
+        "video_id": "bDeY9SUCXmU",
+        "video_url": "https://youtube.com/shorts/bDeY9SUCXmU",
+        "title": "🚨 아직도 옛날 운전자보험? 사고 나면 내 돈 다 깨집니다! #보험 리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "insurance_topic5_cardnews_reels.mp4",
+        "published_at": "2026-10-19 03:22:02",
+        "elapsed_sec": 65.1,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 5,
+        "title": "🚨 아직도 옛날 운전자보험? 사고 나면 내 돈 다 깨집니다!",
+        "video_file": "insurance_topic5_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-19 03:22:17"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 5,
+        "video_file": "insurance_topic5_cardnews_reels.mp4",
+        "title": "옛날 운전자보험 그대로 두면 사고 시 형사합의금 못 받습니다",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic05.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "insurance"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-19",
+    "published_at": "2026-10-19 11:40:11",
+    "brand": "insurance",
+    "topic_id": 6,
+    "title": "하루 15만원 간병비 파산 막는 '간병인 사용일당'의 비밀",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "error",
+        "brand": "insurance",
+        "message": "3회 재시도 모두 소진, 실물 등록 미확인"
+      },
+      "threads": {
+        "success": true,
+        "brand": "insurance",
+        "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "insurance",
+          "published_at": "2026-10-19T11:41:30.178397",
+          "caption_preview": "매달 새나가는 보험료, 혹시 나만 모르고 있을까요? 🛡️\n\n월급은 그대로인데 물가는 오르고, 내 노후와 부모...",
+          "media_count": 5,
+          "first_reply": "🛡️ 매달 줄줄 새는 숨은 보험료 3분 진단\n네이버에 '보험 리밸런스' 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 6,
+        "video_id": "_lutQ2OYRI8",
+        "video_url": "https://youtube.com/shorts/_lutQ2OYRI8",
+        "title": "🚨 보험료 매달 15만원 아끼고 간병비 0원 만드는 법! 🛡️ #보험 리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "insurance_topic6_cardnews_reels.mp4",
+        "published_at": "2026-10-19 11:42:35",
+        "elapsed_sec": 65.4,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 6,
+        "title": "🚨 보험료 매달 15만원 아끼고 간병비 0원 만드는 법! 🛡️",
+        "video_file": "insurance_topic6_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-19 11:42:51"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 6,
+        "video_file": "insurance_topic6_cardnews_reels.mp4",
+        "title": "하루 15만원 간병비 파산 막는 '간병인 사용일당'의 비밀",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic06.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "insurance"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-19",
+    "published_at": "2026-10-19 11:40:17",
+    "brand": "insurance",
+    "topic_id": 6,
+    "title": "하루 15만원 간병비 파산 막는 '간병인 사용일당'의 비밀",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "error",
+        "brand": "insurance",
+        "message": "3회 재시도 모두 소진, 실물 등록 미확인"
+      },
+      "threads": {
+        "success": true,
+        "brand": "insurance",
+        "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "insurance",
+          "published_at": "2026-10-19T11:41:43.458848",
+          "caption_preview": "병원비보다 무서운 간병비, 제대로 대비하고 계신가요? 🏥\n\n매달 나가는 고정지출이 부담스럽다면 보험 리밸런스...",
+          "media_count": 5,
+          "first_reply": "🛡️ 매달 줄줄 새는 숨은 보험료 3분 진단\n네이버에 '보험 리밸런스' 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 6,
+        "video_id": "_lutQ2OYRI8",
+        "video_url": "https://youtube.com/shorts/_lutQ2OYRI8",
+        "title": "🚨 한 달 간병비 450만원? 보험 하나로 막는 법(월 15만원 절약법) #보험 리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "insurance_topic6_cardnews_reels.mp4",
+        "published_at": "2026-10-19 11:45:30",
+        "elapsed_sec": 226.5,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 6,
+        "title": "🚨 한 달 간병비 450만원? 보험 하나로 막는 법(월 15만원 절약법)",
+        "video_file": "insurance_topic6_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-19 11:45:45"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 6,
+        "video_file": "insurance_topic6_cardnews_reels.mp4",
+        "title": "하루 15만원 간병비 파산 막는 '간병인 사용일당'의 비밀",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic06.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "insurance"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-19",
+    "published_at": "2026-10-19 12:36:35",
+    "brand": "insurance",
+    "topic_id": 4,
+    "title": "뇌졸중 왔는데 보험금 0원? '뇌출혈' 특약 가입자의 비극",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "error",
+        "brand": "insurance",
+        "message": "3회 재시도 모두 소진, 실물 등록 미확인"
+      },
+      "threads": {
+        "success": true,
+        "brand": "insurance",
+        "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "insurance",
+          "published_at": "2026-10-19T12:37:52.811918",
+          "caption_preview": "매달 통장에서 빠져나가는 보험료, 제대로 보장받고 계신가요? 💸\n\n지인 권유로 가입한 보험, 막상 진단받으니...",
+          "media_count": 5,
+          "first_reply": "🛡️ 매달 줄줄 새는 숨은 보험료 3분 진단\n네이버에 '보험 리밸런스' 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 4,
+        "video_id": "_lutQ2OYRI8",
+        "video_url": "https://youtube.com/shorts/_lutQ2OYRI8",
+        "title": "🚨 보험금 0원? ‘뇌출혈’만 있으면 뇌졸중은 보장 못 받습니다! 💸 #보험 리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "insurance_topic4_cardnews_reels.mp4",
+        "published_at": "2026-10-19 12:38:58",
+        "elapsed_sec": 65.3,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 4,
+        "title": "🚨 보험금 0원? ‘뇌출혈’만 있으면 뇌졸중은 보장 못 받습니다! 💸",
+        "video_file": "insurance_topic4_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-19 12:39:13"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 4,
+        "video_file": "insurance_topic4_cardnews_reels.mp4",
+        "title": "뇌졸중 왔는데 보험금 0원? '뇌출혈' 특약 가입자의 비극",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic04.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "insurance"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-19",
+    "published_at": "2026-10-19 15:36:31",
+    "brand": "insurance",
+    "topic_id": 7,
+    "title": "중복 가입으로 10년간 줄줄 샌 내 보험료, 1분 만에 찾기",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "error",
+        "brand": "insurance",
+        "message": "3회 재시도 모두 소진, 실물 등록 미확인"
+      },
+      "threads": {
+        "success": true,
+        "brand": "insurance",
+        "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "insurance",
+          "published_at": "2026-10-19T15:39:32.862929",
+          "caption_preview": "월급은 스쳐 지나가는데 보험료만 꼬박꼬박 빠져나가고 있다면? 💸\n\n남들은 다 아는 '보험 리밸런싱'만 제대로...",
+          "media_count": 5,
+          "first_reply": "🛡️ 매달 줄줄 새는 숨은 보험료 3분 진단\n네이버에 '보험 리밸런스' 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 7,
+        "video_id": "_lutQ2OYRI8",
+        "video_url": "https://youtube.com/shorts/_lutQ2OYRI8",
+        "title": "💸 매달 15만 원 증발? 보험 다이어트 1분 컷 솔루션 #보험 리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "insurance_topic7_cardnews_reels.mp4",
+        "published_at": "2026-10-19 15:40:38",
+        "elapsed_sec": 65.5,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 7,
+        "title": "💸 매달 15만 원 증발? 보험 다이어트 1분 컷 솔루션",
+        "video_file": "insurance_topic7_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-19 15:40:54"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 7,
+        "video_file": "insurance_topic7_cardnews_reels.mp4",
+        "title": "중복 가입으로 10년간 줄줄 샌 내 보험료, 1분 만에 찾기",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic07.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "insurance"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-19",
+    "published_at": "2026-10-19 15:36:50",
+    "brand": "insurance",
+    "topic_id": 7,
+    "title": "중복 가입으로 10년간 줄줄 샌 내 보험료, 1분 만에 찾기",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "error",
+        "brand": "insurance",
+        "message": "3회 재시도 모두 소진, 실물 등록 미확인"
+      },
+      "threads": {
+        "success": true,
+        "brand": "insurance",
+        "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "insurance",
+          "published_at": "2026-10-19T15:39:45.938945",
+          "caption_preview": "매달 빠져나가는 보험료, '보험 다이어트'로 15만원 지키세요! 📉\n\n월급날만 되면 줄어드는 통장 잔고, 알...",
+          "media_count": 5,
+          "first_reply": "🛡️ 매달 줄줄 새는 숨은 보험료 3분 진단\n네이버에 '보험 리밸런스' 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 7,
+        "video_id": "_lutQ2OYRI8",
+        "video_url": "https://youtube.com/shorts/_lutQ2OYRI8",
+        "title": "💸 월 15만원 그냥 버리는 중? 1분 보험 다이어트 꿀팁 #보험 리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "insurance_topic7_cardnews_reels.mp4",
+        "published_at": "2026-10-19 15:43:35",
+        "elapsed_sec": 229.2,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 7,
+        "title": "💸 월 15만원 그냥 버리는 중? 1분 보험 다이어트 꿀팁",
+        "video_file": "insurance_topic7_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-19 15:43:51"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 7,
+        "video_file": "insurance_topic7_cardnews_reels.mp4",
+        "title": "중복 가입으로 10년간 줄줄 샌 내 보험료, 1분 만에 찾기",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic07.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "insurance"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-19",
+    "published_at": "2026-10-19 18:43:53",
+    "brand": "insurance",
+    "topic_id": 5,
+    "title": "옛날 운전자보험 그대로 두면 사고 시 형사합의금 못 받습니다",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 🛡️ InsureBalance 보험 릴스 순수 브라우저 실물 발행 완료",
+        "video": "insurance_topic5_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\insurance_facebook_comment_proof.png"
+          }
+        }
+      },
+      "threads": {
+        "success": true,
+        "brand": "insurance",
+        "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "insurance",
+          "published_at": "2026-10-19T18:47:24.434274",
+          "caption_preview": "매달 나가는 보험료, 과연 내 사고 시 '제대로' 보장될까요? 🤔\n\n많은 분이 '보험은 옛날 게 최고'라며 ...",
+          "media_count": 5,
+          "first_reply": "🛡️ 매달 줄줄 새는 숨은 보험료 3분 진단\n네이버에 '보험 리밸런스' 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 5,
+        "video_id": "_lutQ2OYRI8",
+        "video_url": "https://youtube.com/shorts/_lutQ2OYRI8",
+        "title": "🚨 옛날 운전자보험, 사고 나면 보장 0원? 당장 확인하세요! 🛡️ #보험 리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "insurance_topic5_cardnews_reels.mp4",
+        "published_at": "2026-10-19 18:48:30",
+        "elapsed_sec": 66.0,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 5,
+        "title": "🚨 옛날 운전자보험, 사고 나면 보장 0원? 당장 확인하세요! 🛡️",
+        "video_file": "insurance_topic5_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-19 18:48:46"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 5,
+        "video_file": "insurance_topic5_cardnews_reels.mp4",
+        "title": "옛날 운전자보험 그대로 두면 사고 시 형사합의금 못 받습니다",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic05.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "insurance"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-19",
+    "published_at": "2026-10-19 20:30:07",
+    "brand": "insurance",
+    "topic_id": 8,
+    "title": "보험료 부담돼서 해지하려고요? 절대 해지하지 마세요!",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 🛡️ InsureBalance 보험 릴스 순수 브라우저 실물 발행 완료",
+        "video": "insurance_topic8_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          }
+        }
+      },
+      "threads": {
+        "success": true,
+        "brand": "insurance",
+        "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "insurance",
+          "published_at": "2026-10-19T20:33:27.433723",
+          "caption_preview": "매달 통장을 스쳐 지나가는 보험료, 볼 때마다 마음이 무거우셨죠? 💸\n\n보험료가 부담되어 무작정 해지를 고민...",
+          "media_count": 5,
+          "first_reply": "🛡️ 매달 줄줄 새는 숨은 보험료 3분 진단\n네이버에 '보험 리밸런스' 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 8,
+        "video_id": "_lutQ2OYRI8",
+        "video_url": "https://youtube.com/shorts/_lutQ2OYRI8",
+        "title": "🚨 보험료 비싸서 해지하시게요? 딱 3분만 참고하세요! 💸 #보험 리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "insurance_topic8_cardnews_reels.mp4",
+        "published_at": "2026-10-19 20:36:22",
+        "elapsed_sec": 175.4,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 8,
+        "title": "🚨 보험료 비싸서 해지하시게요? 딱 3분만 참고하세요! 💸",
+        "video_file": "insurance_topic8_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-19 20:36:38"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 8,
+        "video_file": "insurance_topic8_cardnews_reels.mp4",
+        "title": "보험료 부담돼서 해지하려고요? 절대 해지하지 마세요!",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic08.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "insurance"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-19",
+    "published_at": "2026-10-19 20:30:17",
+    "brand": "insurance",
+    "topic_id": 8,
+    "title": "보험료 부담돼서 해지하려고요? 절대 해지하지 마세요!",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 🛡️ InsureBalance 보험 릴스 순수 브라우저 실물 발행 완료",
+        "video": "insurance_topic8_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\insurance_facebook_comment_proof.png"
+          }
+        }
+      },
+      "threads": {
+        "success": true,
+        "brand": "insurance",
+        "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "insurance",
+          "published_at": "2026-10-19T20:36:06.062636",
+          "caption_preview": "매달 꼬박꼬박 나가는 보험료, 제대로 보장받고 있는 거 맞을까요? 💸\n\n'보험료가 부담돼서 해지할까?' 고민...",
+          "media_count": 5,
+          "first_reply": "🛡️ 매달 줄줄 새는 숨은 보험료 3분 진단\n네이버에 '보험 리밸런스' 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 8,
+        "video_id": "_lutQ2OYRI8",
+        "video_url": "https://youtube.com/shorts/_lutQ2OYRI8",
+        "title": "보험료 때문에 해지 고민? 멈추세요! 0원으로 월 15만원 아끼는 법 🛡️ #보험 리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "insurance_topic8_cardnews_reels.mp4",
+        "published_at": "2026-10-19 20:39:18",
+        "elapsed_sec": 192.3,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 8,
+        "title": "보험료 때문에 해지 고민? 멈추세요! 0원으로 월 15만원 아끼는 법 🛡️",
+        "video_file": "insurance_topic8_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-19 20:39:33"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 8,
+        "video_file": "insurance_topic8_cardnews_reels.mp4",
+        "title": "보험료 부담돼서 해지하려고요? 절대 해지하지 마세요!",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic08.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "insurance"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-20",
+    "published_at": "2026-10-20 04:56:51",
+    "brand": "insurance",
+    "topic_id": 6,
+    "title": "하루 15만원 간병비 파산 막는 '간병인 사용일당'의 비밀",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 🛡️ InsureBalance 보험 릴스 순수 브라우저 실물 발행 완료",
+        "video": "insurance_topic6_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\insurance_facebook_comment_proof.png"
+          }
+        }
+      },
+      "threads": {
+        "success": true,
+        "brand": "insurance",
+        "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "insurance",
+          "published_at": "2026-10-20T05:00:19.333905",
+          "caption_preview": "매달 빠져나가는 보험료, '내 돈'이 어디로 가는지 알고 계신가요? 💸\n\n갑작스러운 부모님의 병환이나 내 미...",
+          "media_count": 5,
+          "first_reply": "🛡️ 매달 줄줄 새는 숨은 보험료 3분 진단\n네이버에 '보험 리밸런스' 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 6,
+        "video_id": "Yq8jUQdMh50",
+        "video_url": "https://youtube.com/shorts/Yq8jUQdMh50",
+        "title": "🚨 한 달 450만 원 간병비 폭탄? 내 보험은 괜찮을까? 🛡️ #보험 리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "insurance_topic6_cardnews_reels.mp4",
+        "published_at": "2026-10-20 05:01:24",
+        "elapsed_sec": 65.5,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 6,
+        "title": "🚨 한 달 450만 원 간병비 폭탄? 내 보험은 괜찮을까? 🛡️",
+        "video_file": "insurance_topic6_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-20 05:01:40"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 6,
+        "video_file": "insurance_topic6_cardnews_reels.mp4",
+        "title": "하루 15만원 간병비 파산 막는 '간병인 사용일당'의 비밀",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic06.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "insurance"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-20",
+    "published_at": "2026-10-20 05:07:07",
+    "brand": "insurance",
+    "topic_id": 7,
+    "title": "중복 가입으로 10년간 줄줄 샌 내 보험료, 1분 만에 찾기",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 🛡️ InsureBalance 보험 릴스 순수 브라우저 실물 발행 완료",
+        "video": "insurance_topic7_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\insurance_facebook_comment_proof.png"
+          }
+        }
+      },
+      "threads": {
+        "success": true,
+        "brand": "insurance",
+        "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "insurance",
+          "published_at": "2026-10-20T05:10:36.718985",
+          "caption_preview": "매달 월급날만 되면 사라지는 보험료, 사실은 '새는 돈'일 수 있습니다. 💸\n\n'아는 만큼 아낀다'는 말, ...",
+          "media_count": 5,
+          "first_reply": "🛡️ 매달 줄줄 새는 숨은 보험료 3분 진단\n네이버에 '보험 리밸런스' 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 7,
+        "video_id": "WMKBaPeB_AU",
+        "video_url": "https://youtube.com/shorts/WMKBaPeB_AU",
+        "title": "🛡️ 10년째 줄줄 새는 보험료, 매달 15만 원 아끼는 법 #보험 리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "insurance_topic7_cardnews_reels.mp4",
+        "published_at": "2026-10-20 05:11:41",
+        "elapsed_sec": 65.1,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 7,
+        "title": "🛡️ 10년째 줄줄 새는 보험료, 매달 15만 원 아끼는 법",
+        "video_file": "insurance_topic7_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-20 05:11:57"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 7,
+        "video_file": "insurance_topic7_cardnews_reels.mp4",
+        "title": "중복 가입으로 10년간 줄줄 샌 내 보험료, 1분 만에 찾기",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic07.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "insurance"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-20",
+    "published_at": "2026-10-20 11:40:18",
+    "brand": "insurance",
+    "topic_id": 1,
+    "title": "4세대 실손보험 전환하면 호갱? 월 5만원 아끼는 진실",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 🛡️ InsureBalance 보험 릴스 순수 브라우저 실물 발행 완료",
+        "video": "insurance_topic1_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\insurance_facebook_comment_proof.png"
+          }
+        }
+      },
+      "threads": {
+        "success": true,
+        "brand": "insurance",
+        "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "insurance",
+          "published_at": "2026-10-20T11:43:55.284217",
+          "caption_preview": "“분명 가입할 땐 좋았는데, 왜 매달 통장은 텅텅 빌까요?” 💸\n\n직장인들의 가계부를 위협하는 주범, 바로 ...",
+          "media_count": 5,
+          "first_reply": "🛡️ 매달 줄줄 새는 숨은 보험료 3분 진단\n네이버에 '보험 리밸런스' 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 1,
+        "video_id": "bSROIS8U9rc",
+        "video_url": "https://youtube.com/shorts/bSROIS8U9rc",
+        "title": "🚨매달 나가는 보험료 5만원 줄이는 법? 보험 리밸런스 필수 시청!🛡️ #보험 리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "insurance_topic1_cardnews_reels.mp4",
+        "published_at": "2026-10-20 11:46:47",
+        "elapsed_sec": 172.3,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 1,
+        "title": "🚨매달 나가는 보험료 5만원 줄이는 법? 보험 리밸런스 필수 시청!🛡️",
+        "video_file": "insurance_topic1_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-20 11:47:03"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 1,
+        "video_file": "insurance_topic1_cardnews_reels.mp4",
+        "title": "4세대 실손보험 전환하면 호갱? 월 5만원 아끼는 진실",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic01.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "insurance"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-20",
+    "published_at": "2026-10-20 11:40:20",
+    "brand": "insurance",
+    "topic_id": 1,
+    "title": "4세대 실손보험 전환하면 호갱? 월 5만원 아끼는 진실",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 🛡️ InsureBalance 보험 릴스 순수 브라우저 실물 발행 완료",
+        "video": "insurance_topic1_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\insurance_facebook_comment_proof.png"
+          }
+        }
+      },
+      "threads": {
+        "success": true,
+        "brand": "insurance",
+        "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "insurance",
+          "published_at": "2026-10-20T11:46:29.731326",
+          "caption_preview": "숨만 쉬어도 나가는 내 보험료, 꼼꼼하게 따져보셨나요? 🧐\n\n많은 분이 '4세대 실손으로 바꾸면 싸다'는 말...",
+          "media_count": 5,
+          "first_reply": "🛡️ 매달 줄줄 새는 숨은 보험료 3분 진단\n네이버에 '보험 리밸런스' 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 1,
+        "video_id": "bSROIS8U9rc",
+        "video_url": "https://youtube.com/shorts/bSROIS8U9rc",
+        "title": "💸 월 5만 원 더 내고 계세요? 4세대 실손 전환의 소름 돋는 진실 #보험 리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "insurance_topic1_cardnews_reels.mp4",
+        "published_at": "2026-10-20 11:49:43",
+        "elapsed_sec": 193.3,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 1,
+        "title": "💸 월 5만 원 더 내고 계세요? 4세대 실손 전환의 소름 돋는 진실",
+        "video_file": "insurance_topic1_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-20 11:49:58"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 1,
+        "video_file": "insurance_topic1_cardnews_reels.mp4",
+        "title": "4세대 실손보험 전환하면 호갱? 월 5만원 아끼는 진실",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic01.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "insurance"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-20",
+    "published_at": "2026-10-20 12:36:14",
+    "brand": "insurance",
+    "topic_id": 8,
+    "title": "보험료 부담돼서 해지하려고요? 절대 해지하지 마세요!",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 🛡️ InsureBalance 보험 릴스 순수 브라우저 실물 발행 완료",
+        "video": "insurance_topic8_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\insurance_facebook_comment_proof.png"
+          }
+        }
+      },
+      "threads": {
+        "success": true,
+        "brand": "insurance",
+        "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "insurance",
+          "published_at": "2026-10-20T12:39:43.268415",
+          "caption_preview": "월급은 그대로인데 보험료만 꼬박꼬박 나가는 게 아까우신가요? 💸\n\n많은 분이 보험료가 부담스러워 그냥 해지를...",
+          "media_count": 5,
+          "first_reply": "🛡️ 매달 줄줄 새는 숨은 보험료 3분 진단\n네이버에 '보험 리밸런스' 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 8,
+        "video_id": "bSROIS8U9rc",
+        "video_url": "https://youtube.com/shorts/bSROIS8U9rc",
+        "title": "보험료 때문에 해지 고민? 지금 해지하면 무조건 손해입니다! 💸 #보험 리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "insurance_topic8_cardnews_reels.mp4",
+        "published_at": "2026-10-20 12:42:37",
+        "elapsed_sec": 174.1,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 8,
+        "title": "보험료 때문에 해지 고민? 지금 해지하면 무조건 손해입니다! 💸",
+        "video_file": "insurance_topic8_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-20 12:42:52"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 8,
+        "video_file": "insurance_topic8_cardnews_reels.mp4",
+        "title": "보험료 부담돼서 해지하려고요? 절대 해지하지 마세요!",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic08.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "insurance"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-20",
+    "published_at": "2026-10-20 12:36:31",
+    "brand": "insurance",
+    "topic_id": 8,
+    "title": "보험료 부담돼서 해지하려고요? 절대 해지하지 마세요!",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 🛡️ InsureBalance 보험 릴스 순수 브라우저 실물 발행 완료",
+        "video": "insurance_topic8_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\insurance_facebook_comment_proof.png"
+          }
+        }
+      },
+      "threads": {
+        "success": true,
+        "brand": "insurance",
+        "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "insurance",
+          "published_at": "2026-10-20T12:42:20.278800",
+          "caption_preview": "월급은 스쳐 가는데, 보험료는 묵직하게 나가는 당신에게. 💸\n\n“보험료가 너무 비싸서 해지할까 봐요”라고 말...",
+          "media_count": 5,
+          "first_reply": "🛡️ 매달 줄줄 새는 숨은 보험료 3분 진단\n네이버에 '보험 리밸런스' 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 8,
+        "video_id": "bSROIS8U9rc",
+        "video_url": "https://youtube.com/shorts/bSROIS8U9rc",
+        "title": "보험료 때문에 해지 고민? 멈추세요! 💸 월 15만 원 아끼는 법 #보험 리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "insurance_topic8_cardnews_reels.mp4",
+        "published_at": "2026-10-20 12:45:32",
+        "elapsed_sec": 192.1,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 8,
+        "title": "보험료 때문에 해지 고민? 멈추세요! 💸 월 15만 원 아끼는 법",
+        "video_file": "insurance_topic8_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-20 12:45:48"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 8,
+        "video_file": "insurance_topic8_cardnews_reels.mp4",
+        "title": "보험료 부담돼서 해지하려고요? 절대 해지하지 마세요!",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic08.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "insurance"
+        }
+      }
+    }
   }
 ]

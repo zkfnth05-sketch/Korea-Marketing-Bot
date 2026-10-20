@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "updated_at": "2026-10-20 10:56:09",
+  "days": {
+    "2026-10-20": {
+      "receipts": {
+        "aura::cardnews::1": {
+          "brand": "aura",
+          "media_type": "cardnews",
+          "topic_id": 1,
+          "artifact_path": "C:\\Users\\zkfnt\\Desktop\\한국 카드뉴스_산출물\\아우라\\아우라_05_가치관밸런스매칭_20261020_0127\\slide_1.png",
+          "artifact_exists": true,
+          "size_bytes": 1203697,
+          "artifact_mtime": "2026-10-20 01:29:56",
+          "sealed_at": "2026-10-20 10:56:09",
+          "day": "2026-10-20",
+          "dispatch_attempts": 0,
+          "dispatched": false,
+          "dead_letter": false,
+          "last_error": "",
+          "last_attempt_at": "",
+          "dispatched_at": ""
+        },
+        "aura::cardnews::2": {
+          "brand": "aura",
+          "media_type": "cardnews",
+          "topic_id": 2,
+          "artifact_path": "C:\\Users\\zkfnt\\Desktop\\한국 카드뉴스_산출물\\아우라\\아우라_06_AI첫대화비서_20261020_0135\\slide_1.png",
+          "artifact_exists": true,
+          "size_bytes": 1136960,
+          "artifact_mtime": "2026-10-20 01:37:48",
+          "sealed_at": "2026-10-20 10:56:09",
+          "day": "2026-10-20",
+          "dispatch_attempts": 0,
+          "dispatched": false,
+          "dead_letter": false,
+          "last_error": "",
+          "last_attempt_at": "",
+          "dispatched_at": ""
+        }
+      },
+      "counters": {
+        "aura::cardnews": 2
+      },
+      "dispatch_attempts": {},
+      "dead_letters": {}
+    }
+  }
+}

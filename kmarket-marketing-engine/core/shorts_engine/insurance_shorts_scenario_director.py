@@ -14,8 +14,41 @@ from typing import Dict, Any, Optional
 logger = logging.getLogger("InsuranceShortsScenarioDirector")
 
 
+# ==============================================================================
+# 🏆 [5번 골든 규격 검증 완료] 보험 숏폼 S2V 모션 프롬프트 단일 출처(Single Source of Truth)
+# ------------------------------------------------------------------------------
+# • 5번 주제(아는 사람 부탁 보험) 실측 렌더링에서 손 제스처가 살아있고 표정/립싱크가
+#   가장 자연스럽게 나온 프롬프트 조합을 골든 규격으로 승격하여 8대 주제 전체에 통일 적용.
+# • 기존 'subtle hand gestures', 'gentle nodding', 'subtle posture shifts' 등
+#   손 움직임을 억제/축소시키던 묘사를 전면 제거 → 손 억제 요소 0%.
+# ==============================================================================
+GOLDEN_MOTION_INSURE_FEMALE_HANDS = (
+    "speaking clearly with smooth realistic lip sync and articulate mouth motion, "
+    "natural hand and upper body gestures while talking, friendly and dynamic movement, "
+    "articulate trustworthy expression, gentle head nodding, "
+    "no phone in hand, confident trustworthy motion"
+)
+
+GOLDEN_MOTION_INSURE_MALE_HANDS = (
+    "speaking clearly with smooth realistic lip sync and articulate mouth motion, "
+    "natural masculine hand and upper body gestures while talking, confident and dynamic movement, "
+    "honest relatable gaze, subtle head nodding, "
+    "no phone in hand, trustworthy professional motion"
+)
+
+GENDER_MOTION_GOLDEN = {
+    "female": GOLDEN_MOTION_INSURE_FEMALE_HANDS,
+    "male": GOLDEN_MOTION_INSURE_MALE_HANDS
+}
+
+
 class InsuranceShortsScenarioDirector:
     """🛡️ 보험 리밸런스 8대 국민 보험 22초 완결형 숏폼 대본 엔진"""
+
+    # 🏆 골든 모션 템플릿 클래스 참조 (외부 모듈에서도 단일 출처로 접근 가능)
+    GOLDEN_MOTION_INSURE_FEMALE_HANDS = GOLDEN_MOTION_INSURE_FEMALE_HANDS
+    GOLDEN_MOTION_INSURE_MALE_HANDS = GOLDEN_MOTION_INSURE_MALE_HANDS
+    GENDER_MOTION_GOLDEN = GENDER_MOTION_GOLDEN
 
     SCRIPTS_22S = {
         1: {
@@ -31,8 +64,7 @@ class InsuranceShortsScenarioDirector:
             "cta_18_22s": "지금 네이버에 보험 리밸런스 검색해보세요!",
             "s2v_motion_prompt": (
                 "a relatable 42-year-old Korean woman in clean stylish civilian casual clothes sitting comfortably in a bright room, looking directly into camera with genuine friendly expression, "
-                "speaking clearly with precise lip sync and articulate mouth motion, gentle head nodding, subtle hand gestures explaining facts, "
-                "no phone in hand, confident trustworthy motion"
+                + GOLDEN_MOTION_INSURE_FEMALE_HANDS
             ),
             "voice_pitch": "+2Hz",
             "voice_rate": "+3%"
@@ -50,7 +82,7 @@ class InsuranceShortsScenarioDirector:
             "hero_copy": "필수 3대 특약으로 월 13,000원 완성!",
             "s2v_motion_prompt": (
                 "a sharp 36-year-old Korean male commuter driver standing on a modern city street, looking directly into camera with honest relatable gaze, "
-                "speaking articulately with realistic mouth movements and natural lip synchronization, subtle head nodding in urban city background"
+                + GOLDEN_MOTION_INSURE_MALE_HANDS
             ),
             "voice_pitch": "+0Hz",
             "voice_rate": "+4%"
@@ -68,7 +100,7 @@ class InsuranceShortsScenarioDirector:
             "hero_copy": "내가 원하는 진단금으로 34개 암보험 실시간 비교!",
             "s2v_motion_prompt": (
                 "a sensible 45-year-old Korean woman in cream knit sweater, looking directly into camera with articulate trustworthy eyes, "
-                "speaking articulate words with natural lip sync, confident head tilts and subtle hand gestures"
+                + GOLDEN_MOTION_INSURE_FEMALE_HANDS
             ),
             "voice_pitch": "+2Hz",
             "voice_rate": "+3%"
@@ -86,7 +118,7 @@ class InsuranceShortsScenarioDirector:
             "hero_copy": "뇌경색까지 보장하는 뇌혈관보험 객관적 비교!",
             "s2v_motion_prompt": (
                 "a gorgeous and confident 28-year-old Korean female professional in tailored chic blazer, looking directly into camera with engaging captivating expression, "
-                "speaking clearly with smooth natural lip sync, articulate facial articulation, subtle posture shifts and confident nods"
+                + GOLDEN_MOTION_INSURE_FEMALE_HANDS
             ),
             "voice_pitch": "+2Hz",
             "voice_rate": "+3%"
@@ -104,7 +136,7 @@ class InsuranceShortsScenarioDirector:
             "hero_copy": "지인 권유 보험, 객관적 약관 팩트 1초 분석!",
             "s2v_motion_prompt": (
                 "a sincere, polite, and handsome 33-year-old Korean male professional in crisp white oxford shirt, looking directly into camera with genuine engaging expression, "
-                "speaking clearly with smooth natural lip sync, articulate facial articulation, subtle posture shifts"
+                + GOLDEN_MOTION_INSURE_MALE_HANDS
             ),
             "voice_pitch": "+1Hz",
             "voice_rate": "+4%"
@@ -122,7 +154,7 @@ class InsuranceShortsScenarioDirector:
             "hero_copy": "성인 질환 보장 공백 점검 & 비갱신형 리모델링!",
             "s2v_motion_prompt": (
                 "a bright 32-year-old Korean young mother in cozy ivory sweater, looking directly into camera with relatable friendly demeanor, "
-                "speaking naturally with realistic lip sync and dynamic mouth movements, gentle nodding"
+                + GOLDEN_MOTION_INSURE_FEMALE_HANDS
             ),
             "voice_pitch": "+3Hz",
             "voice_rate": "+4%"
@@ -140,7 +172,7 @@ class InsuranceShortsScenarioDirector:
             "hero_copy": "동일 보장 기준 34개사 최저가 정밀 비교!",
             "s2v_motion_prompt": (
                 "a sharp and sensible 37-year-old Korean woman in clean stylish smart-casual daily outfit, looking directly into camera with articulate relatable gaze, "
-                "speaking clearly with smooth natural lip sync and dynamic mouth movements, subtle head gestures, natural confident posture"
+                + GOLDEN_MOTION_INSURE_FEMALE_HANDS
             ),
             "voice_pitch": "+2Hz",
             "voice_rate": "+4%"
@@ -158,7 +190,7 @@ class InsuranceShortsScenarioDirector:
             "hero_copy": "같은 가격엔 더 큰 보장, 같은 보장엔 더 알뜰한 보험!",
             "s2v_motion_prompt": (
                 "a poised 39-year-old Korean woman in clean stylish smart-casual daily outfit, looking directly into camera with genuine reassuring expression, "
-                "speaking clearly with smooth natural lip sync, confident head tilts and subtle hand gestures"
+                + GOLDEN_MOTION_INSURE_FEMALE_HANDS
             ),
             "voice_pitch": "+2Hz",
             "voice_rate": "+3%"
@@ -198,6 +230,12 @@ class InsuranceShortsScenarioDirector:
 
         full_speech = f"{hook_full} {app_speech} {cta_speech}".strip()
 
+        # 🏆 [골든 모션 단일 출처 보장] effective_gender 기준으로 5번 검증 골든 프롬프트를 최종 반환
+        #    - 제미나이 대본 생성 여부와 무관하게 모션 프롬프트는 항상 골든 규격으로 고정
+        golden_motion_prompt = self.GENDER_MOTION_GOLDEN.get(
+            effective_gender, GOLDEN_MOTION_INSURE_FEMALE_HANDS
+        )
+
         visual_dir = {
             "brand_name": "insurance",
             "theme_name": s["theme_name"],
@@ -223,7 +261,7 @@ class InsuranceShortsScenarioDirector:
             "hero_copy": hero_copy,
             "full_speech": full_speech,
             "visual_direction": visual_dir,
-            "s2v_motion_prompt": s["s2v_motion_prompt"],
+            "s2v_motion_prompt": golden_motion_prompt,
             "character_desc": s.get("char_desc", ""),
             "background_desc": s.get("bg_desc", ""),
             "voice_pitch": s.get("voice_pitch", "+2Hz"),

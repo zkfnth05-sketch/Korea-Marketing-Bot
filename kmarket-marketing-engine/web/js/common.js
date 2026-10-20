@@ -137,6 +137,63 @@ function switchTabDirect(tabName) {
     if (btn) btn.click();
 }
 
+// 현재 활성화된 탭 ID 반환 (예: 'overview', 'live-verification')
+function getActiveTabName() {
+    const activeContent = document.querySelector(".tab-content.active");
+    if (activeContent && activeContent.id) {
+        return activeContent.id.replace(/^tab-/, "");
+    }
+    const activeNav = document.querySelector(".nav-item.active");
+    if (activeNav) {
+        const t = activeNav.getAttribute("data-tab");
+        if (t) return t;
+    }
+    return "overview";
+}
+
+// 활성 탭 전용 갱신 함수 즉시 실행 (브랜드 스위칭 직후 화면 정합성 보장)
+function refreshActiveTabContent() {
+    const activeTab = getActiveTabName();
+
+    switch (activeTab) {
+        case "live-verification":
+            if (typeof renderVerificationBoard === "function") renderVerificationBoard();
+            if (typeof fetchVerificationStatus === "function") fetchVerificationStatus();
+            break;
+        case "iframe_viewer":
+            if (typeof switchBrandFrame === "function") switchBrandFrame(currentBrand);
+            break;
+        case "ir-analytics":
+            if (typeof switchIRBrand === "function") switchIRBrand(currentBrand);
+            else if (typeof loadIRAnalytics === "function") loadIRAnalytics();
+            break;
+        case "health":
+            if (typeof loadHealthStatus === "function") loadHealthStatus();
+            break;
+        case "overview":
+            if (typeof renderHubGrid === "function") renderHubGrid();
+            if (typeof fetchStatus === "function") fetchStatus();
+            break;
+        case "hashtags":
+            if (typeof loadHashtags === "function") loadHashtags();
+            break;
+        case "self-learning":
+            if (typeof loadGoldenCopies === "function") loadGoldenCopies();
+            if (typeof loadRecentScenarios === "function") loadRecentScenarios();
+            break;
+        case "platforms":
+            if (typeof loadPlatforms === "function") loadPlatforms();
+            break;
+        case "gallery":
+            if (typeof loadGallery === "function") loadGallery();
+            break;
+        default:
+            break;
+    }
+
+    return activeTab;
+}
+
 // 브랜드 스위칭 (stock ↔ aura ↔ insurance)
 function switchBrand(brand) {
     currentBrand = brand || "aura";
@@ -206,6 +263,7 @@ function switchBrand(brand) {
         if (seoCount) seoCount.innerText = "24개 채널 (InsureBalance)";
     }
 
+    // ── [1단계] 전역 공통 패널 갱신 체인 ──────────────────────────────
     if (typeof fetchStatus === "function") fetchStatus();
     if (typeof renderHubGrid === "function") renderHubGrid();
     if (typeof updateGoldenBatchPanel === "function") updateGoldenBatchPanel();
@@ -226,6 +284,15 @@ function switchBrand(brand) {
     if (typeof filterTimelineBrand === "function") filterTimelineBrand(brand);
     else if (typeof renderMissionTimeline === "function") renderMissionTimeline();
     if (typeof renderEmergencyGuardBanner === "function") renderEmergencyGuardBanner();
+
+    // ── [2단계] 실시간 실측 감사 보드 · iFrame 뷰어 · 시나리오 즉시 갱신 ──
+    if (typeof renderVerificationBoard === "function") renderVerificationBoard();
+    if (typeof fetchVerificationStatus === "function") fetchVerificationStatus();
+    if (typeof switchBrandFrame === "function") switchBrandFrame(currentBrand);
+    if (typeof loadRecentScenarios === "function") loadRecentScenarios();
+
+    // ── [3단계] 현재 활성 탭 전용 갱신 함수 즉각 실행 ──────────────────
+    refreshActiveTabContent();
 }
 
 // 📱 9:16 모바일 iFrame 실시간 뷰어 브랜드 전환
@@ -295,6 +362,7 @@ function switchBrandFrame(brand, btn) {
     showToast(`📱 9:16 모바일 뷰어가 [${brand.toUpperCase()}]로 전환되었습니다!`, "info");
 }
 
+// ── 전역 스코프 등록 (인라인 onclick 및 타 스크립트에서 직접 호출 가능) ──
 window.showToast = showToast;
 window.appendLog = appendLog;
 window.animateRefreshBtn = animateRefreshBtn;
@@ -302,3 +370,5 @@ window.initTabs = initTabs;
 window.switchTabDirect = switchTabDirect;
 window.switchBrand = switchBrand;
 window.switchBrandFrame = switchBrandFrame;
+window.getActiveTabName = getActiveTabName;
+window.refreshActiveTabContent = refreshActiveTabContent;

@@ -12,6 +12,11 @@ StockAppRecorder - 📱 [StockMaster AI 삼성전자 4대 심층 모달 24초 10
   5) [15.5s ~ 19.5s] [리스크 평가] 탭 ➔ 안전 위험도(30/100) + 하단 아킬레스건 안전 박스 풀뷰
   6) [19.5s ~ 24.0s] [기본 정보] 탭 ➔ PER 41.67 / PBR 4.27 / ROE 31.39% + 하단 실적 추이 바 차트 풀뷰
 - 1080x1920 세로 풀HD 9:16 모바일 최적화 고화질 MP4 출력 (CRF 18, 30fps)
+
+[📡 실시간 동적 스크롤 & 하드코딩 종목 폴백 제거 (개편 이력)]
+  · 기존: 4090 / 6590 / 7332 등 4090 고정 픽셀 스크롤 + '한온시스템' / '후성' 하드코딩 폴백
+  · 변경: DOM 요소('계량 전광판') 기반 scrollIntoView 동적 스크롤 + 실패 시에만 고정 픽셀 폴백
+          ➔ 전광판 1번째 종목 텍스트 실시간 파싱, 파싱 실패 시 안전 폴백 '삼성전자'
 """
 
 import os
@@ -42,11 +47,82 @@ class StockAppRecorder:
 
     BASE_URL = "https://stockmaster-ai.vercel.app/"
 
+    # 🎯 하드코딩 종목 폴백 전면 제거 ➔ 최종 안전 폴백은 '삼성전자' 단일화
+    SAFE_FALLBACK_STOCK = "삼성전자"
+
+    # 📡 DOM 요소 기반 동적 스크롤 JS (계량 전광판 요소를 찾아 상단 정렬, 실패 시에만 고정 픽셀 폴백)
+    SCROLL_TO_BOARD_JS = """(fallbackY) => {
+        const boardEl = Array.from(document.querySelectorAll('*')).find(el => el.textContent && el.textContent.includes('계량 전광판') && el.children.length === 0) || Array.from(document.querySelectorAll('*')).find(el => el.textContent && el.textContent.includes('계량 전광판'));
+        if (boardEl) {
+            boardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            window.scrollBy(0, -50);
+            return true;
+        } else {
+            window.scrollTo(0, fallbackY);
+            return false;
+        }
+    }"""
+
+    # 🏆 전광판 1번째 종목 실시간 파싱 JS (하드코딩 종목 없음 ➔ 파싱 실패 시 빈 문자열 반환)
+    DETECT_TOP1_JS = """() => {
+        const text = document.body.innerText || '';
+        const lines = text.split('\\n').map(l => l.trim()).filter(l => l.length > 0);
+        let boardIdx = -1;
+        for (let i = 0; i < lines.length; i++) {
+            if (lines[i].includes('계량 전광판 및 실시간 리스크 센터') || lines[i].includes('계량 전광판')) {
+                boardIdx = i;
+                break;
+            }
+        }
+        if (boardIdx !== -1) {
+            for (let i = boardIdx; i < Math.min(boardIdx + 60, lines.length); i++) {
+                if (lines[i] === '1' && i + 1 < lines.length) {
+                    const cand = (lines[i + 1] || '').trim();
+                    if (cand && cand.length <= 20 && !/^[0-9.,%\\s]+$/.test(cand)) {
+                        return cand;
+                    }
+                }
+            }
+        }
+        return '';
+    }"""
+
     def __init__(self):
         self.ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
         self.presets_dir = Path(__file__).resolve().parent / "presets"
         self.presets_dir.mkdir(parents=True, exist_ok=True)
         logger.info("📱 [StockAppRecorder] 초기화 완료")
+
+    # =========================================================================
+    # 📡 [타깃 종목 확정 헬퍼] 대본 종목명 최우선 ➔ 전광판 1위 실시간 파싱 ➔ '삼성전자' 안전 폴백
+    # =========================================================================
+    def _resolve_target_stock(self, page, target_stock_name: Optional[str], topic_id: int = 1) -> str:
+        """하드코딩 종목('한온시스템'/'후성') 폴백을 완전히 제거한 실시간 종목 확정 로직"""
+        placeholder_tokens = {"", "전광판1위", "리스크센터", "전광판 1위", "None", "none", "null"}
+
+        # 1순위: 대본에서 전달된 실제 종목명 (삼성전자 / SK하이닉스 등)
+        if target_stock_name and str(target_stock_name).strip() not in placeholder_tokens:
+            resolved = str(target_stock_name).strip()
+            logger.info(f"🎯 [StockAppRecorder] 대본 타깃 종목 최우선 적용: {resolved}")
+            return resolved
+
+        # 2순위: 전광판 1번째 종목 텍스트 실시간 파싱
+        try:
+            detected = page.evaluate(self.DETECT_TOP1_JS)
+        except Exception as e:
+            logger.warning(f"⚠️ [StockAppRecorder] 전광판 1위 종목 파싱 예외: {e}")
+            detected = ""
+
+        detected = (detected or "").strip()
+        if detected and detected not in placeholder_tokens:
+            logger.info(f"🏆 [StockAppRecorder] 전광판 1위 종목 실시간 파싱 성공: {detected}")
+            return detected
+
+        # 3순위: 파싱 실패 시 안전 폴백 (하드코딩 종목 대신 '삼성전자')
+        logger.warning(
+            f"🩹 [StockAppRecorder] 전광판 1위 파싱 실패 ➔ 안전 폴백 '{self.SAFE_FALLBACK_STOCK}' 적용 (주제 {topic_id})"
+        )
+        return self.SAFE_FALLBACK_STOCK
 
     def record_simulation_clip(
         self,
@@ -211,6 +287,19 @@ class StockAppRecorder:
                             requestAnimationFrame(step);
                         });
                     };
+
+                    // 📡 [DOM 요소 기반 동적 스크롤] '계량 전광판' 요소를 찾아 상단 정렬 (실패 시에만 고정 픽셀 폴백)
+                    window.scrollToBoard = function(fallbackY = 4090) {
+                        const boardEl = Array.from(document.querySelectorAll('*')).find(el => el.textContent && el.textContent.includes('계량 전광판') && el.children.length === 0) || Array.from(document.querySelectorAll('*')).find(el => el.textContent && el.textContent.includes('계량 전광판'));
+                        if (boardEl) {
+                            boardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            window.scrollBy(0, -50);
+                            return true;
+                        } else {
+                            window.scrollTo(0, fallbackY);
+                            return false;
+                        }
+                    };
                 }""")
                 page.wait_for_timeout(200)
 
@@ -234,8 +323,9 @@ class StockAppRecorder:
                     }""")
                     page.wait_for_timeout(400)
                 else:
-                    # [주제 1, 2] 10분 계량 전광판 위치로 스크롤 이동
-                    page.evaluate("() => window.scrollTo(0, 4090)")
+                    # [주제 1, 2] 10분 계량 전광판 위치로 DOM 요소 기반 동적 스크롤 이동
+                    moved = page.evaluate(self.SCROLL_TO_BOARD_JS, 4090)
+                    logger.info(f"📡 [StockAppRecorder] 전광판 동적 스크롤 {'성공' if moved else '실패 ➔ 고정 픽셀(4090) 폴백'} (주제 {topic_id})")
                     page.wait_for_timeout(300)
 
                 # 정확한 녹화 시작 타임스탬프 계산
@@ -310,31 +400,13 @@ class StockAppRecorder:
                     init_dur_ms = int(target_duration * 0.15 * 1000)
                     remain_ms = max(10000, int(target_duration * 1000 - init_dur_ms))
 
-                    # 10분 계량 전광판으로 스크롤
-                    page.evaluate("() => window.scrollTo(0, 4090)")
+                    # 10분 계량 전광판으로 DOM 요소 기반 동적 스크롤
+                    moved = page.evaluate(self.SCROLL_TO_BOARD_JS, 4090)
+                    logger.info(f"📡 [StockAppRecorder] 주제 3번 전광판 동적 스크롤 {'성공' if moved else '실패 ➔ 고정 픽셀(4090) 폴백'}")
                     page.wait_for_timeout(init_dur_ms)
 
-                    # 당일 1위 종목 자동 감지
-                    detected_top1 = page.evaluate("""() => {
-                        const text = document.body.innerText || '';
-                        const lines = text.split('\\n').map(l => l.trim()).filter(l => l.length > 0);
-                        let boardIdx = -1;
-                        for (let i = 0; i < lines.length; i++) {
-                            if (lines[i].includes('계량 전광판 및 실시간 리스크 센터')) {
-                                boardIdx = i;
-                                break;
-                            }
-                        }
-                        if (boardIdx !== -1) {
-                            for (let i = boardIdx; i < Math.min(boardIdx + 60, lines.length); i++) {
-                                if (lines[i] === '1' && i + 1 < lines.length) {
-                                    return lines[i+1];
-                                }
-                            }
-                        }
-                        return '한온시스템';
-                    }""")
-                    stock_query = detected_top1 or "한온시스템"
+                    # 🏆 당일 1위 종목 실시간 파싱 (하드코딩 '한온시스템' 폴백 전면 제거)
+                    stock_query = self._resolve_target_stock(page, target_stock_name, topic_id=topic_id)
                     logger.info(f"🏆 [StockAppRecorder] 주제 3번 실시간 1위 리스크가드 종목: {stock_query}")
 
                     inp = page.query_selector('input')
@@ -387,29 +459,12 @@ class StockAppRecorder:
                     page.evaluate("() => window.scrollBy({top: 320, behavior: 'smooth'})")
                     page.wait_for_timeout(max(500, top1_dur_ms - 1000))
 
-                    # 1위 종목명 자동 감지
-                    detected_top1 = page.evaluate("""() => {
-                        const text = document.body.innerText || '';
-                        const lines = text.split('\\n').map(l => l.trim()).filter(l => l.length > 0);
-                        let boardIdx = -1;
-                        for (let i = 0; i < lines.length; i++) {
-                            if (lines[i].includes('계량 전광판 및 실시간 리스크 센터')) {
-                                boardIdx = i;
-                                break;
-                            }
-                        }
-                        if (boardIdx === -1) return '후성';
-                        for (let i = boardIdx; i < Math.min(boardIdx + 60, lines.length); i++) {
-                            if (lines[i] === '1' && i + 1 < lines.length) {
-                                return lines[i+1];
-                            }
-                        }
-                        return '후성';
-                    }""")
-                    stock_query = target_stock_name or detected_top1 or "삼성전자"
+                    # 🏆 1위 종목명 실시간 파싱 (하드코딩 '후성' 폴백 전면 제거)
+                    stock_query = self._resolve_target_stock(page, target_stock_name, topic_id=topic_id)
                     logger.info(f"🏆 [StockAppRecorder] 주제 4번 대본-화면 100% 동기화 1위 종목 모달 오픈: {stock_query}")
 
-                    page.evaluate("() => window.scrollTo(0, 4090)")
+                    moved = page.evaluate(self.SCROLL_TO_BOARD_JS, 4090)
+                    logger.info(f"📡 [StockAppRecorder] 주제 4번 전광판 동적 스크롤 {'성공' if moved else '실패 ➔ 고정 픽셀(4090) 폴백'}")
                     page.wait_for_timeout(300)
                     inp = page.query_selector('input')
                     if inp:
@@ -474,7 +529,14 @@ class StockAppRecorder:
 
                     page.wait_for_timeout(init_dur_ms)
 
-                    stock_query = "SK하이닉스" if topic_id == 2 else "삼성전자"
+                    # 📡 대본 타깃 종목 최우선 ➔ 없으면 전광판 1위 실시간 파싱 ➔ '삼성전자' 안전 폴백
+                    if target_stock_name and str(target_stock_name).strip() not in ("", "전광판1위", "리스크센터", "None", "none", "null"):
+                        stock_query = str(target_stock_name).strip()
+                        logger.info(f"🎯 [StockAppRecorder] 주제 {topic_id} 대본 타깃 종목 적용: {stock_query}")
+                    else:
+                        stock_query = self._resolve_target_stock(page, None, topic_id=topic_id)
+                        logger.info(f"🏆 [StockAppRecorder] 주제 {topic_id} 전광판 1위 실시간 파싱 종목: {stock_query}")
+
                     inp = page.query_selector('input')
                     if inp:
                         inp.click()
@@ -540,4 +602,3 @@ class StockAppRecorder:
         if recorded_files:
             return str(recorded_files[0])
         return None
-

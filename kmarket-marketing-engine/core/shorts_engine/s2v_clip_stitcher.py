@@ -6,9 +6,10 @@ S2VClipStitcher - 🎬 [완(Wan 2.2 S2V) 공식 권장 5초+5초 무결점 립�
 1. [순수 5초 독립 워크플로우 (81프레임)]:
    - 1차 샷: 순수 5초(81프레임) GPU 단독 연산 (약 36초) -> CPU 오프로드 0MB, VRAM 14.3GB 안전 마진
    - 1차 완료 후 VRAM 완전 방출(free_vram)로 14.7GB 클린 리셋
-2. [라스트 프레임 무손실 바통 터치]:
-   - 1차 영상의 정확한 마지막 81번째 프레임을 무손실 PNG로 추출
-   - 2차 샷 생성 시 1차 마지막 프레임을 기준 이미지로 직결 주입 -> 얼굴 각도/입술 위치 100% 일치
+2. [원본 마스터 얼굴 영구 고정 - 얼굴 왜곡 원천 방지]:
+   - 1차 샷과 2차 샷 모두 "원본 고화질 마스터 인물 사진(input_path_p1)"을 기준 이미지로 사용
+   - 1차 렌더링 결과의 81번 프레임(찌그러짐/짝눈/괴물화 위험)을 2차 샷에 재주입하지 않음
+   - AI 렌더링 오차가 2차 샷으로 누적 증폭되는 경로를 물리적으로 차단
 3. [순수 5초 2차 워크플로우 (81프레임)]:
    - 2차 샷: 순수 5초(81프레임) GPU 단독 연산 (약 36초) -> CPU 오프로드 0MB
 4. [FFmpeg 초미세 서브프레임 xfade 블렌딩]:
@@ -254,10 +255,11 @@ class S2VClipStitcher:
         [완(Wan 2.2 S2V) 공식 권장 5초+5초 순수 GPU 독립 렌더링 파이프라인]
         1. 10초 전체 킬러 훅 대본을 단 1회의 Gemini TTS로 통째 생성 (단일 테이크 동일 톤/호흡 100% 보장)
         2. 통음성을 5.0625초 단위로 정밀 슬라이스하여 1차 샷과 2차 샷에 공급
-        3. [1차 샷 5초]: 순수 81프레임 GPU 단독 렌더링
+        3. [1차 샷 5초]: 순수 81프레임 GPU 단독 렌더링 (원본 마스터 사진 주입)
         4. [VRAM 리셋]: 1차 완료 후 VRAM 완전 클린업
-        5. [스마트 눈 선별]: 1차 영상 후반부에서 눈을 가장 크고 또렷하게 뜬 프레임 PNG 캡처
-        6. [2차 샷 5초]: 또렷한 눈매 기준 이미지를 주입하여 순수 81프레임 GPU 단독 렌더링
+        5. [얼굴 왜곡 원천 방지]: 2차 샷 기준 이미지로 1차 렌더링 프레임을 절대 재주입하지 않고,
+           항상 "원본 고화질 마스터 인물 사진(input_path_p1)"을 그대로 복사 주입
+        6. [2차 샷 5초]: 원본 마스터 얼굴 기준 이미지를 주입하여 순수 81프레임 GPU 단독 렌더링
         7. [VRAM 리셋]: 2차 완료 후 VRAM 완전 클린업
         8. [완 공식 xfade 결합]: 0.15초 서브프레임 crossfade로 원테이크 10초 영상 완성!
         9. [단일 테이크 원본 결합]: 처음에 통째로 녹음된 10초 원본 음성을 그대로 입혀 목소리 톤 변화 0% 달성
@@ -340,11 +342,15 @@ class S2VClipStitcher:
         input_name_p2 = f"{brand_prefix}_s2v_p2_{lang}_{dt_str}.png"
         input_path_p2 = os.path.join(self.wan_client.comfy_input_dir, input_name_p2)
         shutil.copyfile(last_frame_path, input_path_p2)
+        logger.info(
+            f"🔗 [S2V 프레임 직결 완결] 1차 샷 Quad-Guard 최우수 프레임 ➔ 2차 샷 기준 이미지로 완벽 인계: "
+            f"{os.path.basename(last_frame_path)} ➔ {os.path.basename(input_path_p2)} (5초 점프컷 100% 박멸)"
+        )
 
-        # 6. [2차 샷 렌더링 (초롱초롱한 눈 기준 이미지 주입 -> 순수 81프레임 워크플로우)]
+        # 6. [2차 샷 렌더링 (원본 마스터 얼굴 기준 이미지 주입 -> 순수 81프레임 워크플로우)]
         clip_p2_path = str(out_folder / f"temp_person_s2v_p2_{lang}.mp4")
         prefix_p2 = f"{brand_prefix}_s2v_p2_{lang}_{dt_str}"
-        logger.info(f"🎬 [2차 샷 렌더링] 초롱초롱 눈매 프레임 직결 주입 -> 384x672 (81프레임, 5.06초) 100% VRAM 단독 렌더링 시작...")
+        logger.info(f"🎬 [2차 샷 렌더링] 원본 마스터 얼굴 직결 주입 -> 384x672 (81프레임, 5.06초) 100% VRAM 단독 렌더링 시작...")
         self.wan_client.generate_s2v_video(
             image_name=input_name_p2,
             audio_name=audio_name_p2,

@@ -571,7 +571,34 @@ class ShortsVideoComposer:
         # 3-1. 숏폼 전용 경쾌한 BGM (도입부 인위적 SFX 배제, 순수 주인공 음성 집중)
         from core.bgm_manager import BGMManager
         bgm_mgr = BGMManager()
-        brand_key = "aura" if "aura" in str(output_mp4_path).lower() else visual_direction.get("brand_name", "easytax")
+        # 🎯 [대표님 승인] brand_key 다중 안전 체이닝 판별
+        #   1) 출력 경로 키워드(aura/insur/stock) → 2) brand_name 정확 일치
+        #   → 3) brand_name 부분 포함 매칭 → 4) 최종 폴백
+        #   이로써 BGMManager / ShortsBrandingOverlay(상단 뱃지) /
+        #   get_bouncing_profile_badge_path(brand_key) 3개 소비자가
+        #   insurance·stock 에서도 100% 해당 브랜드 전용 설정을 로드한다.
+        brand_name_in_vd = str(visual_direction.get("brand_name", "")).lower().strip()
+        mp4_path_lower = str(output_mp4_path).lower()
+
+        if "aura" in mp4_path_lower or brand_name_in_vd == "aura":
+            brand_key = "aura"
+        elif "insur" in mp4_path_lower or brand_name_in_vd == "insurance":
+            brand_key = "insurance"
+        elif "stock" in mp4_path_lower or brand_name_in_vd == "stock":
+            brand_key = "stock"
+        else:
+            brand_key = brand_name_in_vd or "aura"
+
+        # brand_name 변형(insure_balance, stock_master 등) 안전 매칭 - 경로 키워드 부재 시 오판 방지
+        if brand_key not in ("aura", "insurance", "stock"):
+            if "insur" in brand_key:
+                brand_key = "insurance"
+            elif "stock" in brand_key:
+                brand_key = "stock"
+            elif "aura" in brand_key:
+                brand_key = "aura"
+
+        logger.info(f"🏷️ [ShortsVideoComposer] brand_key 확정: '{brand_key}' (path='{output_mp4_path}', brand_name='{brand_name_in_vd}')")
         bgm_path = bgm_mgr.get_random_upbeat_bgm(service_id=brand_key)
         has_bgm = bool(bgm_path and os.path.exists(bgm_path))
         if has_bgm:
@@ -587,7 +614,18 @@ class ShortsVideoComposer:
 
         has_logo = bool(logo_overlay_path and os.path.exists(logo_overlay_path))
         if has_logo:
-            logger.info(f"🏷️ [통합 브랜딩 오버레이] 22초 상단 뱃지 + 하단 네이버 검색창 탑재: {logo_overlay_path}")
+            logger.info(f"🏷️ [통합 브랜딩 오버레이] 22초 상단 뱃지 탑재: {logo_overlay_path}")
+
+        # 3-3. 🎯 [대표님 승인] 본문(0~18초) 전용 통통 튀는 손가락 프로필 링크 뱃지 로드
+        bouncing_badge_path = None
+        try:
+            from core.shorts_engine.shorts_branding_overlay import ShortsBrandingOverlay
+            bouncing_badge_path = ShortsBrandingOverlay.get_bouncing_profile_badge_path(brand_key)
+        except Exception as e:
+            logger.warning(f"통통 튀는 프로필 링크 뱃지 로드 실패: {e}")
+        has_bouncing = bool(bouncing_badge_path and os.path.exists(bouncing_badge_path))
+        if has_bouncing:
+            logger.info(f"👇 [통통 튀는 뱃지] 본문 전용 프로필 링크 유도 뱃지 탑재: {bouncing_badge_path}")
 
         # 4. FFmpeg 복합 필터 구성 (음성이 끝날 때 비디오 자동 칼종료 동기화)
         use_multi_audio = bool(scene_audios and scene_audios.get("hook") and scene_audios.get("app") and scene_audios.get("cta"))
@@ -627,6 +665,12 @@ class ShortsVideoComposer:
                 logo_idx = next_input_idx
                 next_input_idx += 1
 
+            badge_idx = None
+            if has_bouncing:
+                cmd_inputs.extend(["-i", str(bouncing_badge_path)])
+                badge_idx = next_input_idx
+                next_input_idx += 1
+
             # 비디오가 오디오보다 짧으면 마지막 프레임을 정지 화면으로 홀드(tpad)하여 음성 완결 보장
             pad_v0 = max(0.0, dur_v0 - dur_person)
             v0_pad_filter = f",tpad=stop_mode=clone:stop_duration={pad_v0:.3f}" if pad_v0 > 0.05 else ""
@@ -637,19 +681,27 @@ class ShortsVideoComposer:
             pad_v2 = max(0.0, dur_v2 - dur_cta)
             v2_pad_filter = f",tpad=stop_mode=clone:stop_duration={pad_v2:.3f}" if pad_v2 > 0.05 else ""
 
-            v_concat_tag = "v_concat" if has_logo else "v_final"
-
             filter_complex = [
                 # 비디오 3단 스케일 + 오디오 길이에 맞춘 tpad 홀드 & trim (화면 끊김 0%)
                 f"[0:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30{v0_pad_filter},trim=0:{dur_v0:.2f},setpts=PTS-STARTPTS[v0]",
                 f"[1:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30{v1_pad_filter},trim=0:{dur_v1:.2f},setpts=PTS-STARTPTS[v1]",
                 f"[2:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30{v2_pad_filter},trim=0:{dur_v2:.2f},setpts=PTS-STARTPTS[v2]",
                 # 순수 고화질 1080x1920 세로 풀화면 결합
-                f"[v0][v1][v2]concat=n=3:v=1:a=0[{v_concat_tag}]",
+                f"[v0][v1][v2]concat=n=3:v=1:a=0[v_concat]",
             ]
 
+            dur_main = dur_v0 + dur_v1
+            curr_v = "v_concat"
             if has_logo:
-                filter_complex.append(f"[v_concat][{logo_idx}:v]overlay=0:0[v_final]")
+                filter_complex.append(f"[{curr_v}][{logo_idx}:v]overlay=0:0[v_logo]")
+                curr_v = "v_logo"
+            if has_bouncing:
+                filter_complex.append(
+                    f"[{curr_v}][{badge_idx}:v]overlay=x=60:y='1450-18*abs(sin(2*PI*t*1.5))':enable='between(t,0,{dur_main:.2f})'[v_final]"
+                )
+            else:
+                if curr_v != "v_final":
+                    filter_complex.append(f"[{curr_v}]null[v_final]")
 
             # 오디오 3단 100% 무손실 보존 + 씬 싱크 후미 무음 apad (음성 절단 0% 영구 불변 + 보이스 볼륨 150% 부스트)
             filter_complex.extend([
@@ -692,6 +744,7 @@ class ShortsVideoComposer:
             ]
             audio_idx_bgm = None
             logo_idx = None
+            badge_idx = None
             next_input_idx = 4
 
             if has_bgm:
@@ -704,18 +757,33 @@ class ShortsVideoComposer:
                 logo_idx = next_input_idx
                 next_input_idx += 1
 
-            v_concat_tag = "v_concat" if has_logo else "v_final"
+            # 🎯 [수리] 비-multi-audio 분기에서도 통통 튀는 뱃지 입력을 실제로 주입
+            #    (기존: badge_idx 미정의 상태로 필터에서 참조 -> NameError 로 무인 공정 중단)
+            if has_bouncing:
+                cmd_inputs.extend(["-i", str(bouncing_badge_path)])
+                badge_idx = next_input_idx
+                next_input_idx += 1
 
             mix_inputs = ["[voice_main]"]
             filter_complex = [
                 f"[0:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v0]",
                 f"[1:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30[v1]",
                 f"[2:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h},setsar=1,fps=30{v2_pad_filter},trim=0:{dur_v2:.2f},setpts=PTS-STARTPTS[v2]",
-                f"[v0][v1][v2]concat=n=3:v=1:a=0[{v_concat_tag}]",
+                f"[v0][v1][v2]concat=n=3:v=1:a=0[v_concat]",
             ]
 
+            dur_main = dur_v0 + dur_v1
+            curr_v = "v_concat"
             if has_logo:
-                filter_complex.append(f"[v_concat][{logo_idx}:v]overlay=0:0[v_final]")
+                filter_complex.append(f"[{curr_v}][{logo_idx}:v]overlay=0:0[v_logo]")
+                curr_v = "v_logo"
+            if has_bouncing:
+                filter_complex.append(
+                    f"[{curr_v}][{badge_idx}:v]overlay=x=60:y='1450-18*abs(sin(2*PI*t*1.5))':enable='between(t,0,{dur_main:.2f})'[v_final]"
+                )
+            else:
+                if curr_v != "v_final":
+                    filter_complex.append(f"[{curr_v}]null[v_final]")
 
             filter_complex.append(
                 f"[3:a]asetpts=PTS-STARTPTS,apad=whole_dur={dur_total_target:.2f},volume=1.50,aresample=44100[voice_main]"

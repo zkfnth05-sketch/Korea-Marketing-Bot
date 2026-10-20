@@ -88,5 +88,145 @@
     "video_file": "stock_topic6_cardnews_reels.mp4",
     "channel_url": "https://clip.naver.com/@stockmaster_ai",
     "published_at": "2026-10-18 20:55:06"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 7,
+    "title": "📉삼성전자 216,000원, 외국인 매집은 진짜일까? 퀀트 팩트체크",
+    "video_file": "stock_topic7_cardnews_reels.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-19 12:00:49"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 3,
+    "title": "🚨 FOMC 직후, 계좌 지키는 퀀트의 생존 전략 4 (환율 1,332원/국채 5",
+    "video_file": "stock_topic3_cardnews_reels.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-19 12:46:43"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 8,
+    "title": "📉 삼성전자 21.8만 원, 외인 수급이 심상치 않다? 퀀트 팩트 체크!",
+    "video_file": "stock_topic8_cardnews_reels.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-19 15:55:45"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 4,
+    "title": "📊 환율 1,331원, 국채 5% 돌파? 지금 SCHD·JEPQ 담아야 할 이유",
+    "video_file": "stock_topic4_cardnews_reels.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-19 19:00:48"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 5,
+    "title": "⚠️ 저PBR주 올라탄 당신, 지금 당장 신용잔고부터 확인하세요! 📈",
+    "video_file": "stock_topic5_cardnews_reels.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-19 20:55:42"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 4,
+    "title": "환율 1,331원, 국채 5% 돌파! 빅테크 vs 반도체 지금 비중 조절 안 하면",
+    "video_file": "Stock_32초숏폼_주제04_top1_leader_radar_20261020_051136.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-20 05:38:58"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 4,
+    "title": "🚨 환율 1,331원, 국채 5% 돌파! 빅테크 비중 조절 안 하면 계좌 녹습니다",
+    "video_file": "Stock_32초숏폼_주제04_top1_leader_radar_20261020_051136.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-20 05:44:17"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 4,
+    "title": "🚨환율 1,331원 돌파? 美 국채 5% 시대, 포트폴리오 지금 당장 리밸런싱하세",
+    "video_file": "Stock_32초숏폼_주제04_top1_leader_radar_20261020_054652.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-20 06:13:54"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 5,
+    "title": "🚨 경고: 신용잔고 급증, 내 계좌는 안전한가? 퀀트 AI가 포착한 위험 신호! ",
+    "video_file": "Stock_32초숏폼_주제05_macro_stress_report_20261020_062141.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-20 06:48:52"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 5,
+    "title": "🚨 경고: 신용잔고 급증, 당신의 계좌가 위험하다? 퀀트 AI 리스크 포착",
+    "video_file": "Stock_32초숏폼_주제05_macro_stress_report_20261020_062141.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-20 06:54:20"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 6,
+    "title": "📈 퀀트가 포착한 실시간 골든크로스! 지금 바로 확인하세요",
+    "video_file": "Stock_32초숏폼_주제06_stockmaster_official_overview_20261020_065637.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-20 07:27:13"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 6,
+    "title": "📈 10분 만에 포착된 골든크로스! 퀀트가 찍어주는 매수 타점 공개",
+    "video_file": "Stock_32초숏폼_주제06_stockmaster_official_overview_20261020_073155.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-20 07:59:25"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 4,
+    "title": "🚨 환율 1,331원, 국채 5% 돌파! 빅테크 vs 반도체, 지금 당장 포트폴리",
+    "video_file": "Stock_32초숏폼_주제04_top1_leader_radar_20261020_054652.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-20 08:45:58"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 1,
+    "title": "📉삼성전자 -1.49% 하락, 외인·기관 쌍끌이 매수 실체는? 📊",
+    "video_file": "stock_topic1_cardnews_reels.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-20 12:00:46"
   }
 ]

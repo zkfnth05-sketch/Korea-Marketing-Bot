@@ -375,19 +375,13 @@ class InsuranceShortsProducer(BaseShortsProducer):
             hero_copy=scenario.get("hero_copy", "객관적 5대 보장 AI 분석!")
         )
 
-        # 8. [Step 6] 22초 하이브리드 완제품 컴포징 (상단 좌측 다크 에메랄드 캡슐 뱃지 탑재)
+        # 8. [Step 6] 22초 하이브리드 완제품 컴포징 (단일 통음성 직결 + 상단 좌측 다크 에메랄드 캡슐 뱃지 탑재)
         final_mp4_name = f"Insurance_22초숏폼_주제{topic_id:02d}_{scenario.get('theme_code', 'topic')}_{dt_str}.mp4"
         final_mp4_path = str(out_folder / final_mp4_name)
         from .shorts_brand_capsule_badge import ShortsBrandCapsuleBadge
         insure_logo_overlay = ShortsBrandCapsuleBadge.get_overlay_path("insurance")
 
-        scene_audios = {
-            "hook": person_audio_path,
-            "app": app_wav_path,
-            "cta": cta_wav_path if (cta_wav_path and os.path.exists(cta_wav_path)) else None
-        }
-
-        logger.info("✨ [Step 6] 1080p 세로 풀HD 22초 하이브리드 비디오 최종 컴포징 (씬별 정밀 음성 동기화 + 상단 캡슐 뱃지)...")
+        logger.info("✨ [Step 6] 1080p 세로 풀HD 22초 하이브리드 비디오 최종 컴포징 (단일 통음성 직결 + 상단 캡슐 뱃지)...")
         self.composer.compose_hybrid_22s_shorts(
             clip_person_path=person_clip_path,
             clip_app_path=app_clip_path,
@@ -395,7 +389,6 @@ class InsuranceShortsProducer(BaseShortsProducer):
             visual_direction=visual_dir,
             output_mp4_path=final_mp4_path,
             lang=voice_lang,
-            scene_audios=scene_audios,
             clip_cta_path=cta_clip_path,
             logo_overlay_path=insure_logo_overlay
         )

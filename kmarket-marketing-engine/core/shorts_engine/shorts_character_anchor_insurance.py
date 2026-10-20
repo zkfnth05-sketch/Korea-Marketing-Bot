@@ -100,32 +100,28 @@ INSURANCE_TOPIC_SPECS = {
     4: {
         "topic_id": 4,
         "title": "뇌·심장 질환 뇌출혈 vs 뇌혈관",
-        "gender": "female",
-        "age": 28,
+        "gender": "male",
+        "age": 42,
         "framing": (
             "photographed from 1.4 meters directly in front on Apple iPhone 15 Pro, "
-            "clear medium bust shot, showing head, graceful slender neck, elegant natural shoulders, chest, and upper torso, "
-            "solo 1person female, standing upright with perfect poise in an upscale luxury boutique cafe, perfectly centered in frame, "
+            "clear medium bust shot, showing head, masculine neck, broad natural shoulders, chest, and upper torso, "
+            "solo 1person male, standing upright in a bright modern luxury living room, perfectly centered in frame, "
             "perfectly upright head posture with zero tilt, natural balanced headroom occupying upper 8% of frame, "
             "perfect centered dark irises and pupils, sharp crystal clear eye contact looking straight and directly into camera lens at horizontal eye level, "
             "gently and firmly closed mouth, natural lips completely closed together, mouth shut tight, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, strictly no visible teeth, "
-            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus, visible fine porcelain skin pores and crisp fabric textures"
+            "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear focus across entire frame, visible fine skin pores and fabric textures"
         ),
         "char_desc": (
-            "an exceptionally gorgeous and glamorous 28-year-old Korean woman (top-tier Korean actress and stunning celebrity influencer look, 8-head-high golden ratio model proportions), "
-            "striking alluring cat-like facial features (captivating feline doe-eyes, sharp elegant inner eye corners, delicate high straight nose bridge, sculpted V-line jawline, warm radiant dark brown eyes), "
-            "strictly no glasses, bare clean face with flawless glowing porcelain glass skin, "
-            "elegant sophisticated salon-styled layered soft wavy dark brown hair with natural volume, "
-            "wearing upscale chic tailored professional attire (crisp cream-white silk blouse paired with a modern stylish tailored blazer, pristine Gangnam high-end young professional fashion), "
-            "looking directly into camera with composed confident gentle closed-mouth expression (lips fully closed together, strictly zero teeth showing), "
-            "modern K-drama wealthy charismatic female financial advisor look"
+            "an exceptionally handsome, stylish, and trustworthy 40s Korean male (youthful handsome look in his early 40s), "
+            "clear smooth healthy skin, sharp masculine jawline, warm honest engaging dark eyes, "
+            "stylish trendy Korean parted perm hairstyle (soft wavy side-parted comma hair with natural textured fringe, thick rich jet-black healthy hair, strictly ZERO grey hair, strictly NO white hair), "
+            "wearing a modern sophisticated charcoal-grey crewneck knit sweater, chic high-end Korean civilian casual look, "
+            "looking directly into camera lens with composed trustworthy closed-mouth expression (lips firmly closed together, strictly zero teeth showing)"
         ),
         "bg_desc": (
-            "chic upscale modern boutique cafe interior with warm ambient architectural lighting, aesthetic marble tables, subtle minimalist indoor greenery in background, "
-            "sculptural 3D dimensional cinematic studio lighting, soft rim light accentuating shoulders and hair, natural soft daylight streaming through window, "
-            "crystal clear edge-to-edge deep pan-focus across entire frame, zero lens blur, vivid authentic luxury indoor atmosphere, zero yellow tint"
+            "bright modern luxury living room with large window showing soft daylight, minimalist Scandinavian wooden furniture, tack sharp focus"
         ),
-        "vibe": "뇌혈관 질환과 뇌경색 보장 범위를 33개사 다이렉트로 똑똑하게 비교해주는 20대 후반 청담동 럭셔리 금융 인플루언서 여신"
+        "vibe": "혈압약 먹기 시작해서 증권 펴봤더니 뇌경색 미보장인 거 알고 뇌혈관으로 제대로 갈아탄 40대 가장"
     },
     5: {
         "topic_id": 5,

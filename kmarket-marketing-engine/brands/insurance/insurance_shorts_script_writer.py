@@ -6,7 +6,8 @@ InsuranceShortsScriptWriter - 🛡️ 보험 8대 주제 전용 제미나이 3.8
   1. 하드코딩 골든 대본 주입 전면 영구 배제 (예시문 베끼기 원천 박멸)
   2. 보험 8대 핵심 기능 명세(기능 개요, 해결하는 고민, 활용 상황, 화자 설정)를 프롬프트에 주입
   3. 금융소비자보호법 준수(자극적 비방 금지, 객관적 팩트 및 최저가 요율 비교)
-  4. 20.0초 완제품 규격 (공백 포함 115~145자) 엄격 준수
+  4. 22.0초 완제품 규격 (공백 포함 150~165자) 엄격 준수
+     - 0~10초 립싱크 구간 70~78자 확보 ➔ Wan 2.2 S2V 10.12초 멍때림 원천 차단
   5. 9개 통합 키 체인(무료 6개 + 유료 2개 + 기본 1개) 무중단 자동 페일오버 연동
 """
 
@@ -16,6 +17,7 @@ import logging
 from typing import Dict, Any, Optional, List
 from google import genai
 from google.genai import types
+from google.genai import types as genai_types
 
 if sys.platform == "win32":
     try:
@@ -112,7 +114,7 @@ class InsuranceShortsScriptWriter:
     def generate_dynamic_script(self, topic_id: int = 1) -> Optional[Dict[str, Any]]:
         """
         주제 ID(1~8)에 맞춰 보험의 실제 기능 명세(기능 개요, 해결 고민, 활용 상황)를 주입하고,
-        제미나이 3.8 Flash가 매번 100% 새롭고 독창적인 상황 설정으로 20초 숏폼 대본을 자율 창작.
+        제미나이 3.8 Flash가 매번 100% 새롭고 독창적인 상황 설정으로 22초 숏폼 대본을 자율 창작.
         """
         norm_id = ((topic_id - 1) % len(INSURANCE_TOPICS_SPECS)) + 1
         spec = INSURANCE_TOPICS_SPECS.get(norm_id, INSURANCE_TOPICS_SPECS[1])
@@ -126,25 +128,28 @@ class InsuranceShortsScriptWriter:
 - 활용 상황: {spec['usage_scenario']}
 
 [★ 지시 사항 (절대 준수)]
-위 보험리밸런스의 기능을 시청자에게 자세하고 신뢰감 있게 설명하는 20초 숏폼 대본을 작성하시오.
+위 보험리밸런스의 기능을 시청자에게 자세하고 신뢰감 있게 설명하는 22초 숏폼 대본을 작성하시오.
 - 🚨 기존에 완성된 예시 대본이 전혀 없으므로, 매번 완전히 새로운 상황 설정과 화자의 내돈내산 꿀팁 관점으로 친절하고 매끄럽게 설명하시오.
 - 주제 #2, #4, #5는 반드시 남성 화자 1인칭 시점으로 작성하시오.
 - 🏛️ 금융소비자보호법 준수: 특정 금액 단정 ❌, 자극적 비방(호갱, 폭탄, 사기 등) ❌, 오직 객관적 보장 범위와 요율 비교로만 신뢰감 있게 서술하세요.
 - 마지막 CTA에는 반드시 "네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"를 자연스럽게 포함하세요.
+- 🚨 22초 완제품 규격: 전체 발화문은 공백 포함 150~165자로 넉넉하게 작성할 것!
+  특히 0~5초(34~38자) + 5~10초(36~40자) 합계가 70~78자가 되도록 채워
+  10.12초 립싱크 구간에서 입이 멈추는 무음 구간이 절대 발생하지 않게 할 것!
 
-[출력 JSON 규격 (20초 완제품 분량, 전체 약 115~140자)]
+[출력 JSON 규격 (22초 완제품 분량, 전체 약 150~165자)]
 {{
   "situation": "이번 설정한 화자 및 상황 (1줄 요약)",
-  "hook_p1": "0~5초: 시선을 확 끄는 첫 질문이나 공감 멘트 (공백 포함 20~28자)",
-  "hook_p2": "5~10초: 보험리밸런스 해당 기능으로 연결되는 멘트 (공백 포함 20~28자)",
-  "app_speech": "10~18초: 핵심 작동 원리와 유저 혜택 설명 (공백 포함 40~55자)",
-  "cta_speech": "18~20초: 댓글 유도 및 '네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!' 포함 (공백 포함 20~30자)",
+  "hook_p1": "0~5초: 시선을 확 끄는 첫 질문이나 공감 멘트 (공백 포함 34~38자)",
+  "hook_p2": "5~10초: 보험리밸런스 해당 기능으로 연결되는 멘트 (공백 포함 36~40자)",
+  "app_speech": "10~18초: 핵심 작동 원리와 유저 혜택 설명 (공백 포함 52~58자)",
+  "cta_speech": "18~22초: 댓글 유도 및 '네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!' 포함 (공백 포함 28~32자)",
   "debate_question": "댓글 창에서 토론을 유도할 센스 있는 10자 내외 질문",
-  "full_speech": "전체 발화문 (공백 포함 115~140자)"
+  "full_speech": "전체 발화문 (공백 포함 150~165자)"
 }}
 """
 
-        models = ["gemini-2.5-flash", "gemini-2.0-flash"]
+        models = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"]
 
         for kd in self.key_dicts:
             key_name = kd["name"]
@@ -195,9 +200,9 @@ class InsuranceShortsScriptWriter:
                         cta_speech = f"{cta_speech} 네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"
                         full_speech = f"{hook_p1} {hook_p2} {app_speech} {cta_speech}".strip()
 
-                    # 🔒 [무결성 게이트 2: 글자 수 검증 (안전 허용 범위: 95자 ~ 165자)]
-                    if len(full_speech) < 95 or len(full_speech) > 165:
-                        logger.warning(f"⚠️ 글자 수 범위 벗어남({len(full_speech)}자, 허용: 95~165자), 다음 시도")
+                    # 🔒 [무결성 게이트 2: 22초 규격 글자 수 검증 (목표 150~165자 / 허용 140~175자)]
+                    if len(full_speech) < 140 or len(full_speech) > 175:
+                        logger.warning(f"⚠️ 글자 수 범위 벗어남({len(full_speech)}자, 목표: 150~165자, 허용: 140~175자), 다음 시도")
                         continue
 
                     logger.info(f"✨ [Gemini 자율 대본 성공] 보험 주제 #{norm_id} ({len(full_speech)}자, key={key_name}, model={model})")

@@ -1,21 +1,21 @@
 {
-  "updated_at": "2026-10-18 19:46:09",
+  "updated_at": "2026-10-20 10:22:21",
   "brands": {
     "aura": {
       "reddit": {
         "brand": "aura",
         "channel": "reddit",
-        "live_url": "https://www.reddit.com/r/Living_in_Korea/comments/1x8u4g6/what_is_the_dating_like_in_korea_i_am_a_foreigner/",
-        "title": "r/Living_in_Korea: What is the dating like in Korea, I am a foreigner from the US",
+        "live_url": "https://www.reddit.com/r/Living_in_Korea/comments/1x96tbw/apartment_announcements/",
+        "title": "r/Living_in_Korea: apartment announcements?",
         "status": "HEALTHY",
         "is_verified": false,
         "error_message": null,
         "screenshot_file": null,
         "screenshot_path": null,
-        "published_at": "2026-10-18 19:41:31",
+        "published_at": "2026-10-19 16:01:19",
         "extra_meta": {
-          "comment_preview": "Hey! So cool you're diving into Korean culture and trying to meet people here! ✨ It's definitely a different vibe than back home, but super rewarding. For meeting people, a lot of foreigners use vario",
-          "screenshot_file": "proof_aura_reddit_20261018_194117.png"
+          "comment_preview": "I totally get the frustration of constantly switching back and forth between Papago and chat apps — it completely kills the conversation vibe. 😭 If you want to practice naturally without copying and p",
+          "screenshot_file": "proof_aura_reddit_20261019_160105.png"
         }
       }
     },
@@ -23,17 +23,17 @@
       "reddit": {
         "brand": "insurance",
         "channel": "reddit",
-        "live_url": "https://www.reddit.com/r/teachinginkorea/comments/1x83cdc/quitting_my_hagwon_job/",
-        "title": "r/teachinginkorea: quitting my hagwon job",
+        "live_url": "https://www.reddit.com/r/Living_in_Korea/comments/1x9u6t0/is_500000_krw_livable_in_seoul/",
+        "title": "r/Living_in_Korea: Is 500,000 krw livable in Seoul?",
         "status": "HEALTHY",
         "is_verified": false,
         "error_message": null,
         "screenshot_file": null,
         "screenshot_path": null,
-        "published_at": "2026-10-17 21:07:50",
+        "published_at": "2026-10-20 10:22:21",
         "extra_meta": {
-          "comment_preview": "Hey there! Ugh, that's such a classic hagwon move, playing dumb then switching to sympathy. Good on you for knowing your contract and calling him out! Your idea to negotiate for all fees waived in exc",
-          "screenshot_file": "proof_insurance_reddit_20261017_210733.png"
+          "comment_preview": "Hey there! So glad you're looking to come to Seoul – it's an amazing city! But let's be super clear about the finances right upfront: 500,000 KRW (about $360 USD) for *everything* beyond tuition, espe",
+          "screenshot_file": "proof_insurance_reddit_20261020_102208.png"
         }
       }
     },
@@ -41,17 +41,17 @@
       "reddit": {
         "brand": "stock",
         "channel": "reddit",
-        "live_url": "https://www.reddit.com/r/dividends/comments/1x8jbjx/the_10year_treasury_yields_51_while_schd_pays_32/",
-        "title": "r/dividends: The 10-year Treasury yields 5.1% while SCHD pays 3.2%. Are we underestimating how attractive bonds have become?",
+        "live_url": "https://www.reddit.com/r/Daytrading/comments/1xa8yj4/resource_for_historical_intraday_price_movements/",
+        "title": "r/Daytrading: Resource for historical intraday price movements from 00’s and 2010’s?",
         "status": "HEALTHY",
         "is_verified": false,
         "error_message": null,
         "screenshot_file": null,
         "screenshot_path": null,
-        "published_at": "2026-10-18 19:46:09",
+        "published_at": "2026-10-20 10:04:18",
         "extra_meta": {
-          "comment_preview": "You've hit on a critical point – 5%+ Treasuries demand a higher hurdle for equity income. It's not just the starting yield, but sustainable dividend growth underpinned by robust Free Cash Flow (FCF) t",
-          "screenshot_file": "proof_stock_reddit_20261018_194555.png"
+          "comment_preview": "Great to hear you're back with a strict risk protocol; historical analysis is crucial for validating strategy robustness and position sizing. For intraday data 10-20 years back, your best bet outside ",
+          "screenshot_file": "proof_stock_reddit_20261020_100404.png"
         }
       }
     }

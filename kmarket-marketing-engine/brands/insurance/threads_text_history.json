@@ -625,5 +625,71 @@
       }
     },
     "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "morning",
+    "topic": "치과 치료 받기 전에 반드시 확인해야 할 숨은 실손 보장",
+    "caption_preview": "치과 치료비 100만원, 그냥 내시나요? 내 실손보험에서 돌려받을 수 있는 돈이 새고 있을지도 모릅니다.\n\n...",
+    "published_at": "2026-10-19T09:31:00.835323",
+    "publish_result": {
+      "success": true,
+      "brand": "insurance",
+      "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "insurance",
+        "published_at": "2026-10-19T09:31:00.778770",
+        "caption_preview": "치과 치료비 100만원, 그냥 내시나요? 내 실손보험에서 돌려받을 수 있는 돈이 새고 있을지도 모릅니다.\n\n...",
+        "media_count": 0,
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "evening",
+    "topic": "운전자보험 가입할 때 호구 안 당하는 필수 3대 특약",
+    "caption_preview": "운전자보험 3만원 내는 분들, 지금 당장 낭비 멈추세요! 딱 1만원이면 충분합니다.\n\n비싼 보험료의 주범은 ...",
+    "published_at": "2026-10-19T19:30:56.482655",
+    "publish_result": {
+      "success": true,
+      "brand": "insurance",
+      "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "insurance",
+        "published_at": "2026-10-19T19:30:56.420709",
+        "caption_preview": "운전자보험 3만원 내는 분들, 지금 당장 낭비 멈추세요! 딱 1만원이면 충분합니다.\n\n비싼 보험료의 주범은 ...",
+        "media_count": 0,
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "morning",
+    "topic": "치과 치료 받기 전에 반드시 확인해야 할 숨은 실손 보장",
+    "caption_preview": "돈 낭비 그만! 치과 치료, 무조건 치아보험만 생각하면 손해입니다. 💡\n\n많은 분이 모르시지만, 실손보험은 ...",
+    "published_at": "2026-10-20T09:31:07.127216",
+    "publish_result": {
+      "success": true,
+      "brand": "insurance",
+      "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "insurance",
+        "published_at": "2026-10-20T09:31:07.068844",
+        "caption_preview": "돈 낭비 그만! 치과 치료, 무조건 치아보험만 생각하면 손해입니다. 💡\n\n많은 분이 모르시지만, 실손보험은 ...",
+        "media_count": 0,
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+      }
+    },
+    "success": true
   }
 ]

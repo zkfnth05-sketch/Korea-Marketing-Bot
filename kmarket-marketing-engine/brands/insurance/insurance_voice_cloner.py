@@ -1,24 +1,39 @@
 # -*- coding: utf-8 -*-
 """
-InsuranceVoiceCloner - 🛡️ [보험 리밸런스 전용 알리바바 CosyVoice 음성 복제 파이프라인]
+InsuranceVoiceCloner - 🛡️ [보험 리밸런스 전용 3단 자율 페일오버 음성 합성 파이프라인]
 ================================================================================
-- 페르소나: 30대 초반 지적이고 신뢰감 높은 금융 아나운서 '서연(Seoyeon)'
+- 페르소나: 30대 초반 지적이고 신뢰감 높은 금융 아나운서 '서연(Seoyeon)' / 남성 '동혁(Donghyuk)'
 - 원천 참조 음성: brands/insurance/assets/insurance_seoyeon_prompt.wav (5초 Zero-shot Voice Cloning)
 - 특징: 차분하고 명확한 딕션, 신뢰감 주는 중저음, 팩트를 단호하게 짚어주는 억양
-- 4단 무결점 자율 페일오버: Alibaba CosyVoice -> Typecast -> Gemini 2.5 Flash -> Edge-TTS
-- Wan 2.2 S2V 립싱크 100% 호환 (16kHz/24kHz Mono WAV 변환 & 무음 정밀 트리밍 탑재)
+
+[6인 합동 회의체 합의안 - 3단 무결점 자율 페일오버]
+  1순위: Google Gemini 2.5 Flash Native Audio
+         (core.shorts_engine.gemini_tts_synthesizer.GeminiTTSSynthesizer 연동)
+         - 9개 멀티키 체인 자율 순환 스위칭
+         - 여성: Kore (서연 - 차분하고 신뢰감 높은 금융 아나운서 톤)
+         - 남성: Charon (동혁 - 중후하고 묵직한 금융 자산가 톤)
+  2순위: Alibaba CosyVoice (DASHSCOPE_API_KEY / ALIYUN_API_KEY 존재 시 작동)
+  3순위: Edge-TTS 비상 백업
+         - 기존 아파트 안내방송 SunHiNeural 전면 퇴출
+         - 여성: ko-KR-HyunsuNeural (자연스러운 대화체) / 남성: ko-KR-InJoonNeural
+
+[호출부 100% 규격 호환]
+  - BaseShortsProducer / S2VClipStitcher 표준 인터페이스 완벽 보존
+  - synthesize(text, output_wav_path, gender, sample_rate) -> str
+  - generate_speech_wav(text, lang, gender, rate, pitch, target_duration,
+                        filename_prefix, output_dir) -> str
+  - Wan 2.2 S2V 립싱크 100% 호환 (16kHz Mono WAV 무손실 변환 & 무음 정밀 트리밍 탑재)
 """
 
 import os
 import sys
 import time
 import wave
-import json
 import logging
-import requests
 import subprocess
 from pathlib import Path
 from typing import Optional, Dict, Any
+
 import imageio_ffmpeg
 
 # Ensure kmarket-marketing-engine root is in sys.path
@@ -31,7 +46,7 @@ logger = logging.getLogger("InsuranceVoiceCloner")
 
 
 class InsuranceVoiceCloner:
-    """🛡️ 보험 리밸런스 전용 알리바바 CosyVoice 음성 복제기 (독립 레고 블록)"""
+    """🛡️ 보험 리밸런스 전용 3단 자율 페일오버 음성 합성기 (독립 레고 블록)"""
 
     BRAND_NAME = "Insurance"
     VOICE_PERSONA = "Seoyeon"
@@ -41,7 +56,15 @@ class InsuranceVoiceCloner:
     REFERENCE_AUDIO_PATH_FEMALE = _current_dir / "assets" / "insurance_seoyeon_prompt.wav"
     REFERENCE_AUDIO_PATH_MALE = _engine_root / "brands" / "stock" / "assets" / "stock_jinwoo_prompt.wav"
 
-    # Alibaba DashScope / CosyVoice API 엔드포인트
+    # [1순위] Google Gemini 2.5 Flash Native Audio 보이스 매핑 (보험 전용 확정)
+    GEMINI_VOICE_FEMALE = "Kore"    # 서연(Seoyeon) - 차분하고 신뢰감 높은 금융 아나운서 톤
+    GEMINI_VOICE_MALE = "Charon"    # 동혁(Donghyuk) - 중후하고 묵직한 금융 자산가 톤
+
+    # [3순위] Edge-TTS 비상 백업 보이스 매핑 (아파트 안내방송 SunHiNeural 전면 퇴출)
+    EDGE_VOICE_FEMALE = "ko-KR-HyunsuNeural"   # 자연스러운 대화체 여성
+    EDGE_VOICE_MALE = "ko-KR-InJoonNeural"     # 자연스러운 대화체 남성
+
+    # [2순위] Alibaba DashScope / CosyVoice API 엔드포인트
     COSYVOICE_API_URL = "https://dashscope.aliyuncs.com/api/v1/services/audio/tts/generation"
     COSYVOICE_MODEL = "cosyvoice-v1"
 
@@ -56,11 +79,70 @@ class InsuranceVoiceCloner:
 
         self.dashscope_api_key = os.getenv("DASHSCOPE_API_KEY", os.getenv("ALIYUN_API_KEY", ""))
 
+        # [1순위] Gemini 2.5 Flash Native Audio 합성기 지연 초기화 (import 실패에도 안전)
+        self._gemini_synth = None
+        self._gemini_init_failed = False
+
+    # ------------------------------------------------------------------
+    # 유틸리티
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _is_male(gender: str) -> bool:
+        """성별 문자열 정규화 (한/영/약어 전부 허용)"""
+        return str(gender).strip().lower() in ["male", "m", "man", "남", "남성", "boy", "groom"]
+
     def get_preset_audio_path(self, gender: str = "female") -> Path:
         """보험 전용 5초 참조 오디오 경로 반환 (성별 일치)"""
-        is_male = str(gender).lower() in ["male", "m", "man", "남", "남성"]
-        return self.REFERENCE_AUDIO_PATH_MALE if is_male else self.REFERENCE_AUDIO_PATH_FEMALE
+        return self.REFERENCE_AUDIO_PATH_MALE if self._is_male(gender) else self.REFERENCE_AUDIO_PATH_FEMALE
 
+    def _get_gemini_synth(self):
+        """GeminiTTSSynthesizer 지연 초기화 (9개 멀티키 체인 내장)"""
+        if self._gemini_synth is not None:
+            return self._gemini_synth
+        if self._gemini_init_failed:
+            return None
+        try:
+            from core.shorts_engine.gemini_tts_synthesizer import GeminiTTSSynthesizer
+            self._gemini_synth = GeminiTTSSynthesizer(
+                default_voice=self.GEMINI_VOICE_FEMALE,
+                output_dir=str(self.output_dir)
+            )
+            if not getattr(self._gemini_synth, "api_keys", None):
+                logger.warning("⚠️ [InsuranceVoiceCloner] Gemini API 키 미등록 ➔ 2순위 CosyVoice로 자동 전환")
+                self._gemini_init_failed = True
+                self._gemini_synth = None
+                return None
+            logger.info(
+                f"✅ [InsuranceVoiceCloner] Gemini 2.5 Flash Native Audio 연동 완료 "
+                f"(멀티키 {len(self._gemini_synth.api_keys)}개 체인)"
+            )
+            return self._gemini_synth
+        except Exception as e:
+            logger.warning(f"⚠️ [InsuranceVoiceCloner] GeminiTTSSynthesizer 초기화 실패: {e} ➔ 2순위로 자동 전환")
+            self._gemini_init_failed = True
+            self._gemini_synth = None
+            return None
+
+    @staticmethod
+    def _write_silent_wav(out_p: Path, sample_rate: int, seconds: float = 0.1) -> None:
+        """빈 텍스트용 무음 WAV 생성"""
+        with wave.open(str(out_p), "wb") as wf:
+            wf.setnchannels(1)
+            wf.setsampwidth(2)
+            wf.setframerate(sample_rate)
+            wf.writeframes(b"\x00" * int(sample_rate * seconds * 2))
+
+    @staticmethod
+    def _is_valid_wav(path: Path, min_bytes: int = 1000) -> bool:
+        """생성된 WAV 파일 유효성 검증"""
+        try:
+            return path.exists() and path.stat().st_size > min_bytes
+        except Exception:
+            return False
+
+    # ------------------------------------------------------------------
+    # 메인 합성 진입점 (호출부 100% 규격 호환)
+    # ------------------------------------------------------------------
     def synthesize(
         self,
         text: str,
@@ -69,58 +151,102 @@ class InsuranceVoiceCloner:
         sample_rate: int = 24000
     ) -> str:
         """
-        보험 전용 대본을 서연(여성) 또는 진우(남성) 목소리로 알리바바 CosyVoice 복제 합성
+        보험 전용 대본을 서연(여성) 또는 동혁(남성) 목소리로 합성
+        [3단 자율 페일오버] Gemini 2.5 Flash ➔ CosyVoice ➔ Edge-TTS
+        반환값: 생성된 WAV 파일의 절대 경로(str)
         """
         out_p = Path(output_wav_path).resolve()
         out_p.parent.mkdir(parents=True, exist_ok=True)
 
-        is_male = str(gender).lower() in ["male", "m", "man", "남", "남성"]
-        persona_name = "진우(Jinwoo - 남성)" if is_male else "서연(Seoyeon - 여성)"
+        is_male = self._is_male(gender)
+        persona_name = "동혁(Donghyuk - 남성)" if is_male else "서연(Seoyeon - 여성)"
 
+        # 빈 텍스트 방어
         if not text or not text.strip():
-            with wave.open(str(out_p), "wb") as wf:
-                wf.setnchannels(1)
-                wf.setsampwidth(2)
-                wf.setframerate(sample_rate)
-                wf.writeframes(b"\x00" * int(sample_rate * 0.1 * 2))
+            self._write_silent_wav(out_p, sample_rate)
             logger.info(f"🔇 [InsuranceVoiceCloner] 빈 텍스트 무음 처리 완료 -> {out_p.name}")
             return str(out_p)
 
-        logger.info(f"🛡️ [InsuranceVoiceCloner] {persona_name} 알리바바 CosyVoice 음성 복제 시작: \"{text[:30]}...\"")
+        logger.info(
+            f"🛡️ [InsuranceVoiceCloner] {persona_name} 음성 합성 시작: \"{text[:30]}...\""
+        )
 
-        # [1단계] 알리바바 키가 유효하게 등록되어 있을 경우 CosyVoice 우선 시도
+        # ==============================================================
+        # [1순위] Google Gemini 2.5 Flash Native Audio (9개 멀티키 체인)
+        # ==============================================================
+        gemini = self._get_gemini_synth()
+        if gemini is not None:
+            voice_name = self.GEMINI_VOICE_MALE if is_male else self.GEMINI_VOICE_FEMALE
+            try:
+                gemini.synthesize(
+                    text=text,
+                    output_wav_path=str(out_p),
+                    voice_name=voice_name,
+                    sample_rate=sample_rate
+                )
+                if self._is_valid_wav(out_p):
+                    logger.info(
+                        f"🎉 [보험 Gemini 성공] {persona_name} '{voice_name}' 음성 합성 완료: {out_p.name}"
+                    )
+                    return str(out_p)
+                logger.warning("⚠️ [보험 Gemini] 생성 파일 검증 실패 ➔ 2순위 CosyVoice로 자동 전환")
+            except Exception as e:
+                logger.warning(f"⚠️ [보험 Gemini 예외] {str(e)[:120]} ➔ 2순위 CosyVoice로 자동 전환")
+
+        # ==============================================================
+        # [2순위] Alibaba CosyVoice (DASHSCOPE_API_KEY / ALIYUN_API_KEY 존재 시)
+        # ==============================================================
         if self.dashscope_api_key and len(self.dashscope_api_key.strip()) > 10:
             try:
                 self._synthesize_cosyvoice(text, str(out_p), gender=gender, sample_rate=sample_rate)
-                if out_p.exists() and out_p.stat().st_size > 1000:
+                if self._is_valid_wav(out_p):
                     logger.info(f"🎉 [보험 CosyVoice 성공] {persona_name} 음성 복제 완료: {out_p.name}")
                     return str(out_p)
+                logger.warning("⚠️ [보험 CosyVoice] 생성 파일 검증 실패 ➔ 3순위 Edge-TTS로 자동 전환")
             except Exception as e:
-                logger.warning(f"⚠️ [보험 CosyVoice 예외] {e} ➔ 무결점 고음질 엔진으로 즉시 자동 전환")
-
-        # [2단계] 최신 Edge-TTS 7.3.1 무결점 로컬 고속 무인 합성 (비용 0원, 여성: SunHi / 남성: InJoon)
-        self._synthesize_edge_tts(text, str(out_p), gender=gender, sample_rate=sample_rate)
-        if out_p.exists() and out_p.stat().st_size > 1000:
-            logger.info(f"🎉 [보험 음성 합성 성공] {persona_name} 발화 완료: {out_p.name}")
-            return str(out_p)
+                logger.warning(f"⚠️ [보험 CosyVoice 예외] {str(e)[:120]} ➔ 3순위 Edge-TTS로 자동 전환")
         else:
-            raise RuntimeError(f"음성 파일 생성 실패 ({out_p.name})")
+            logger.info("ℹ️ [InsuranceVoiceCloner] DashScope 키 미등록 ➔ 3순위 Edge-TTS 비상 백업 사용")
 
+        # ==============================================================
+        # [3순위] Edge-TTS 비상 백업 (자연스러운 대화체 보이스)
+        # ==============================================================
+        self._synthesize_edge_tts(text, str(out_p), gender=gender, sample_rate=sample_rate)
+        if self._is_valid_wav(out_p):
+            logger.info(f"🎉 [보험 Edge-TTS 백업 성공] {persona_name} 발화 완료: {out_p.name}")
+            return str(out_p)
+
+        raise RuntimeError(f"음성 파일 생성 실패 - 3단 엔진 전부 실패 ({out_p.name})")
+
+    # ------------------------------------------------------------------
+    # [3순위] Edge-TTS 비상 백업
+    # ------------------------------------------------------------------
     def _synthesize_edge_tts(self, text: str, output_wav_path: str, gender: str, sample_rate: int) -> bool:
-        """최신 Edge-TTS 7.3.1 무인 고음질 음성 합성 (여성: SunHi / 남성: InJoon)"""
+        """
+        Edge-TTS 비상 백업 합성
+        - 기존 아파트 안내방송 SunHiNeural 전면 퇴출
+        - 여성: ko-KR-HyunsuNeural (자연스러운 대화체) / 남성: ko-KR-InJoonNeural
+        """
         import asyncio
         import edge_tts
-        import subprocess
 
-        is_male = str(gender).lower() in ["male", "m", "man", "남", "남성"]
-        voice = "ko-KR-InJoonNeural" if is_male else "ko-KR-SunHiNeural"
-        temp_mp3 = self.output_dir / f"temp_insure_edge_{os.getpid()}_{int(time.time()*1000)}.mp3"
+        is_male = self._is_male(gender)
+        voice = self.EDGE_VOICE_MALE if is_male else self.EDGE_VOICE_FEMALE
+        temp_mp3 = self.output_dir / f"temp_insure_edge_{os.getpid()}_{int(time.time() * 1000)}.mp3"
 
         async def _run():
             comm = edge_tts.Communicate(text, voice)
             await comm.save(str(temp_mp3))
 
-        asyncio.run(_run())
+        try:
+            asyncio.run(_run())
+        except RuntimeError:
+            # 이미 실행 중인 이벤트 루프가 있는 경우 대응
+            loop = asyncio.new_event_loop()
+            try:
+                loop.run_until_complete(_run())
+            finally:
+                loop.close()
 
         cmd = [
             self.ffmpeg_exe, "-y",
@@ -130,12 +256,21 @@ class InsuranceVoiceCloner:
             output_wav_path
         ]
         subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
         if temp_mp3.exists():
-            temp_mp3.unlink()
+            try:
+                temp_mp3.unlink()
+            except Exception:
+                pass
         return True
 
+    # ------------------------------------------------------------------
+    # [2순위] Alibaba CosyVoice
+    # ------------------------------------------------------------------
     def _synthesize_cosyvoice(self, text: str, output_wav_path: str, gender: str, sample_rate: int) -> bool:
         """Alibaba DashScope CosyVoice REST API 음성 합성"""
+        import requests
+
         headers = {
             "Authorization": f"Bearer {self.dashscope_api_key}",
             "Content-Type": "application/json"
@@ -155,9 +290,11 @@ class InsuranceVoiceCloner:
             with open(output_wav_path, "wb") as f:
                 f.write(resp.content)
             return True
-        else:
-            raise RuntimeError(f"CosyVoice API Error [HTTP {resp.status_code}]: {resp.text}")
+        raise RuntimeError(f"CosyVoice API Error [HTTP {resp.status_code}]: {resp.text[:200]}")
 
+    # ------------------------------------------------------------------
+    # 호출부 표준 인터페이스 (BaseShortsProducer / S2VClipStitcher 100% 호환)
+    # ------------------------------------------------------------------
     def generate_speech_wav(
         self,
         text: str,
@@ -171,18 +308,20 @@ class InsuranceVoiceCloner:
     ) -> str:
         """
         BaseShortsProducer 및 S2VClipStitcher 표준 100% 호환 인터페이스
-        - 여성: 서연(Seoyeon) / 남성: 진우(Jinwoo)
+        - 여성: 서연(Seoyeon) / 남성: 동혁(Donghyuk)
         - 16kHz 무손실 변환 및 무음 정밀 트리밍 적용 (지정된 에피소드 폴더에 100% 캡슐화)
+        반환값: 최종 16kHz Mono WAV 파일의 절대 경로(str)
         """
         eff_dir = Path(output_dir).resolve() if output_dir else self.output_dir
         eff_dir.mkdir(parents=True, exist_ok=True)
+
         out_wav_path = os.path.join(str(eff_dir), f"{filename_prefix}_{lang}.wav")
         temp_wav_path = os.path.join(str(eff_dir), f"{filename_prefix}_{lang}_raw24k.wav")
 
-        # 1. 24kHz 원본 합성
+        # 1. 24kHz 원본 합성 (3단 페일오버)
         self.synthesize(text=text, output_wav_path=temp_wav_path, gender=gender, sample_rate=24000)
 
-        # 2. FFmpeg 16kHz Mono 변환 (Wan 2.2 S2V 완벽 동기화)
+        # 2. FFmpeg 16kHz Mono 무손실 변환 (Wan 2.2 S2V 완벽 동기화)
         cmd = [
             self.ffmpeg_exe, "-y",
             "-i", temp_wav_path,
@@ -201,7 +340,7 @@ class InsuranceVoiceCloner:
             except Exception:
                 pass
 
-        # 3. 무음 정밀 트리밍
+        # 3. 무음 정밀 트리밍 (말끝 음절 무손실 보존)
         try:
             self._strip_silence(out_wav_path)
         except Exception:
@@ -209,6 +348,9 @@ class InsuranceVoiceCloner:
 
         return out_wav_path
 
+    # ------------------------------------------------------------------
+    # 무음 정밀 트리밍 (완벽 보존)
+    # ------------------------------------------------------------------
     @staticmethod
     def _strip_silence(wav_path: str, threshold_ratio: float = 0.015, pad_start_ms: int = 50, pad_end_ms: int = 350):
         """WAV 파일의 선두/후두 무음 정밀 트리밍 및 말끝 보존"""

@@ -44,6 +44,9 @@ class StockShortsPipeline:
             logging.getLogger("StockShortsPipeline").info(f"🚀 [주식 숏폼 일체형 파이프라인] 렌더링 완료 즉시 4대 SNS 봇 자율 송출 시작: {mp4_path}")
             from brands.stock.stock_omni_shorts_pilot import StockOmniShortsPilot
             StockOmniShortsPilot().execute_single_slot(topic_id=topic_id or 1, force=True)
+        elif mp4_path:
+            import logging
+            logging.getLogger("StockShortsPipeline").info(f"🌙 [야간보관 모드] SNS 자동 송출 차단(auto_publish=False) — 렌더링 파일만 보관: {mp4_path}")
         return mp4_path
 
     def produce_master_photo(
@@ -63,16 +66,31 @@ class StockShortsPipeline:
         self,
         start_topic: int = 1,
         end_topic: int = 8,
-        gender: Optional[str] = None
+        gender: Optional[str] = None,
+        auto_publish: bool = True
     ) -> list:
-        """주식 숏폼을 지정 범위까지 100% 무인 순차적으로 연속 렌더링"""
+        """주식 숏폼을 지정 범위까지 100% 무인 순차적으로 연속 렌더링
+
+        Args:
+            start_topic: 시작 주제 ID
+            end_topic: 종료 주제 ID
+            gender: 모델 성별 ("female" / "male" / None)
+            auto_publish: True면 렌더링 완료 즉시 SNS 자동 송출,
+                          False면 순수 렌더링 파일만 저장 (야간보관 모드)
+        """
         import logging
         log = logging.getLogger("StockShortsPipeline")
+        publish_state = "ON" if auto_publish else "OFF(야간보관)"
+        log.info(f"📡 [주식 숏폼 연속 생산] auto_publish = {publish_state} (주제 {start_topic}~{end_topic})")
         results = []
         for t_id in range(start_topic, end_topic + 1):
-            log.info(f"🚀 [주식 숏폼] [{t_id}/{end_topic}] 주제 #{t_id} 무인 렌더링 가동...")
+            log.info(f"🚀 [주식 숏폼] [{t_id}/{end_topic}] 주제 #{t_id} 무인 렌더링 가동... (auto_publish={publish_state})")
             try:
-                res = self._producer.produce(topic_id=t_id, gender=gender)
+                res = self.produce(
+                    topic_id=t_id,
+                    gender=gender,
+                    auto_publish=auto_publish
+                )
                 results.append(res)
                 log.info(f"🎉 [주식 숏폼] [{t_id}/{end_topic}] 주제 #{t_id} 완료: {res.get('output_mp4')}")
             except Exception as e:

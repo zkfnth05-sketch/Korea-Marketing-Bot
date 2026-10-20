@@ -7,6 +7,17 @@ AuraCardnewsS1Topic5Builder - ⚖️ [Aura 카드뉴스 5번 주제 '가치관 �
   - 고양이상 21세 여신 (화이트 골지 스퀘어넥 룩 + 연남동 브런치 카페)
   - 1080x1350 카드뉴스 규격 초고화질 서브픽셀 타이포그래피 오버레이
   - ComfyUI Wan 2.1 가용 시 신규 생성, 오프라인 시 마스터 에셋 기반 100% 무인 자율 렌더링 보장
+
+[조명/레이어 개편 요약 — Balanced Lighting Edition]
+- 🚫 상단 먹칠 덮개 영구 삭제: bg-gradient-to-b from-[#0B0E14]/90 (height 35%) 제거
+  → 머리 위와 천장 배경이 100% 맑고 쨍하게 드러난다.
+- 🎨 상하 균형 조명 주입: soft natural ceiling daylight + warm ambient lighting from above
+  + golden rim light accentuating hair and shoulders + balanced vertical lighting from head to table
+- 🛡️ neg 프롬프트 방어: dark top, dark ceiling, heavy shadow upper half,
+  downward biased lighting, underexposed head, heavy vignette, black shadow
+- 📐 하단 스크림 정밀 분리: inset-0 충돌 제거 → 독립 .scrim-bottom (height 600px, z-index 1)
+  → 인물 얼굴/머리에는 절대 닿지 않고 하단 텍스트 영역만 정확히 감싼다.
+- 🔤 텍스트 가독성 극대화: subtitle/h1_line1 은 text-shadow, h1_line2 는 drop-shadow filter
 """
 
 import os
@@ -49,15 +60,19 @@ class AuraCardnewsS1Topic5Builder:
                     "a stunningly gorgeous 21-year-old Korean college goddess (cat-like facial features, large alluring expressive eyes, delicate feline facial proportions, radiant youthful beauty), "
                     "slender feminine figure with elegant collarbones, natural skin texture with visible pores and subtle healthy glow, "
                     "charming subtle cat-smile with lips gently closed, captivating gaze looking directly at camera, strictly zero open mouth, strictly no teeth showing, "
+                    "bright airy sunlit cafe interior with soft natural ceiling daylight and warm ambient lighting from above, "
                     "stylish glossy soft black shoulder-length wolf cut with airy see-through bangs framing her delicate face, "
+                    "golden rim light accentuating hair and shoulders, "
                     "wearing a chic fitted white ribbed square-neck knit top, sophisticated trendy Yeonnam-dong brunch date fashion, "
-                    "sitting at a stylish aesthetic window-seat cafe table in Yeonnam-dong, warm morning natural golden sunlight streaming through clean sheer glass windows, "
-                    "marble table with iced latte glass and delicate brunch dessert dish in foreground, aesthetic cafe interior background in gentle soft bokeh, "
+                    "sitting at a stylish aesthetic window-seat cafe table in Yeonnam-dong, "
+                    "warm morning natural sunlight illuminating the entire scene evenly, balanced vertical lighting from head to table, "
+                    "marble table with iced latte glass and delicate brunch dessert dish in foreground, aesthetic bright cafe interior background in gentle soft bokeh, "
                     "candid medium bust shot, f/11 deep pan-focus, tack sharp crystal clear edge-to-edge focus across entire frame, realistic skin subsurface scattering, Apple iPhone 15 Pro Smart HDR photo."
                 )
                 neg = (
                     "open mouth, parted lips, visible teeth, showing teeth, laughing, grinning, smiling wide, "
                     "ugly face, old woman, chubby, distorted features, bad eyes, asymmetric face, doll, porcelain skin, plastic skin, "
+                    "dark top, dark ceiling, heavy shadow upper half, downward biased lighting, underexposed head, heavy vignette, black shadow, "
                     "blurry, lens blur, out of focus, bokeh blur, deformed hands, cartoon, anime, 3d render, cgi, watermark, text, male, man"
                 )
 
@@ -129,6 +144,17 @@ class AuraCardnewsS1Topic5Builder:
       overflow: hidden;
       position: relative;
     }}
+    /* 하단 전용 스크림 — 인물 얼굴/머리 위에는 절대 닿지 않고 하단 텍스트 영역만 감싼다 */
+    .scrim-bottom {{
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 600px;
+      background: linear-gradient(0deg, rgba(11, 14, 20, 0.97) 0%, rgba(11, 14, 20, 0.88) 40%, rgba(11, 14, 20, 0.45) 75%, transparent 100%);
+      z-index: 1;
+      pointer-events: none;
+    }}
   </style>
 </head>
 <body class="flex flex-col justify-between">
@@ -136,9 +162,8 @@ class AuraCardnewsS1Topic5Builder:
   <!-- 1. 배경 인물 실사 이미지 레이어 -->
   <div class="absolute inset-0 z-0 overflow-hidden">
     <img src="data:image/png;base64,{photo_b64}" class="w-full h-full object-cover object-center transform scale-[1.02]" alt="Cover Visual" />
-    <!-- 상하단 멀티 레이어 럭셔리 비네팅 그라디언트 -->
-    <div class="absolute inset-0 bg-gradient-to-t from-[#0B0E14] via-[#0B0E14]/40 to-transparent" style="bottom: 0; height: 65%;"></div>
-    <div class="absolute inset-0 bg-gradient-to-b from-[#0B0E14]/90 via-[#0B0E14]/30 to-transparent" style="top: 0; height: 35%;"></div>
+    <!-- 하단 전용 스크림 (상단 먹칠 덮개는 영구 삭제 — 머리 위/천장 배경 100% 맑게 노출) -->
+    <div class="scrim-bottom"></div>
   </div>
 
   <!-- 2. 상단 헤더 영역 (50:50 황금 성비 배지 & 테마 태그) -->
@@ -158,13 +183,13 @@ class AuraCardnewsS1Topic5Builder:
 
     <!-- 메인 헤드라인 (가독성 극대화) -->
     <div class="flex flex-col gap-2">
-      <h2 class="text-white text-4xl font-extrabold leading-tight tracking-tight drop-shadow-md">
+      <h2 class="text-white text-4xl font-extrabold leading-tight tracking-tight" style="text-shadow: 0 3px 12px rgba(0, 0, 0, 0.9);">
         {h1_line1}
       </h2>
-      <h1 class="text-5xl font-black leading-tight tracking-tight bg-gradient-to-r from-[#F43F5E] via-[#FB7185] to-[#FDA4AF] bg-clip-text text-transparent drop-shadow-lg">
+      <h1 class="text-5xl font-black leading-tight tracking-tight bg-gradient-to-r from-[#FF2E63] via-[#FF5252] to-[#FF7597] bg-clip-text text-transparent" style="filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.85));">
         {h1_line2}
       </h1>
-      <p class="text-slate-300 text-2xl font-medium mt-2 leading-relaxed drop-shadow">
+      <p class="text-slate-100 text-2xl font-bold mt-2 leading-relaxed" style="text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.9);">
         {subtitle}
       </p>
     </div>

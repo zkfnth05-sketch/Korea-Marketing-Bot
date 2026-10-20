@@ -161,32 +161,29 @@ AURA_8_TOPIC_SPECS = {
         "title": "AI 첫대화 비서",
         "gender": "male",
         "framing": (
-            "photographed from 2.0 meters directly in front on Apple iPhone 15 Pro, "
-            "solo 1person male, strictly solo single person, no other people in frame, alone in the frame, "
-            "perfectly centered in the middle of frame, perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
+            "authentic candid snapshot shot on Apple iPhone 15 Pro, photographed from 2.0 meters directly across an outdoor rooftop terrace from the date's first-person eye-level perspective, "
+            "solo 1person male, standing gracefully, perfectly centered in the middle of frame, perfectly frontal portrait view looking directly into the camera lens with warm engaging eye contact, "
             "perfectly upright head posture, head held completely straight and level with zero tilt, strictly no head tilt, perfectly aligned neck and broad masculine shoulders, "
-            "gentle closed lips, natural lips closed together with a subtle gentle smile, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
-            "candid medium cowboy shot showing chest, waist, broad shoulders, and tall 8-head model silhouette clearly, generous headroom above, "
+            "gently closed mouth, natural lips closed together, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
+            "arms resting naturally straight down at sides, hands visible outside pockets, strictly no hands in pockets, "
+            "candid medium cowboy standing shot showing waist, chest, broad shoulders, and tall 8-head model silhouette clearly, generous headroom above, "
             "f/11 deep pan-focus, zero lens blur, tack sharp crystal clear edge-to-edge focus across entire frame, visible real pores and individual hair strands"
         ),
         "char_desc": (
-            "an exceptionally handsome top 0.5% ultra-sculpted 26-year-old Korean adult man, "
-            "K-drama male lead actor visual, delicately chiseled handsome idol-actor appearance, refined masculine aesthetic features, "
-            "perfect 8-head-high golden ratio male model proportions, small refined masculine head and face size, broad masculine shoulders, slender athletic male physique, sharp sculpted jawline, "
+            "an exceptionally handsome 26-year-old Korean adult man (K-drama male lead actor visual, delicate handsome idol-actor appearance, refined aesthetic features), perfect 8-head-high golden ratio male model proportions, small refined masculine head and face size, slender athletic male physique with broad masculine shoulders, "
+            "soft gentle smile with lips closed together, refined handsome features, sharp sculpted jawline with natural subtle directional shadow, charismatic warm romantic gaze, strictly no teeth showing, "
             "neat stylish dark brown natural dandy haircut with subtle parted fringe framing his face, "
-            "authentic real human skin texture with visible fine pores and natural radiant skin tone, "
-            "gentle closed lips, natural lips closed together with a subtle gentle smile, charismatic warm romantic intelligent gaze, strictly zero open mouth, strictly no parted lips, absolutely zero teeth showing, "
-            "wearing a clean sophisticated modern casual jacket outfit with a crisp white innerwear, trendy 2030 Seoul boyfriend-material date look, effortless charismatic styling, "
+            "authentic real human skin texture with visible fine pores and natural skin tone, "
+            "wearing a stylish, trendy modern casual jacket outfit, sophisticated 2030 Seoul dating fashion with diverse contemporary colors and textures, clean minimalist innerwear, effortless charismatic boyfriend-material date look, "
+            "arms resting naturally straight down at sides, hands visible outside pockets, strictly no hands in pockets, "
             "authentic candid mobile phone snapshot on Apple iPhone 15 Pro, looking directly into camera lens"
         ),
         "bg_desc": (
-            "sunlit trendy glasshouse boutique cafe in Seongsu-dong during bright afternoon daylight, "
-            "floor-to-ceiling glass windows, natural daylight, lush green indoor plants, elegant minimalist cafe architectural interior, "
-            "clean polished white marble cafe table in tack sharp f/11 focus, "
-            "dramatic professional home shopping studio fill lighting and 3D volumetric contour lighting, studio key lights and soft rim lighting, "
-            "zero dark muddy shadows, zero yellow tint, zero red tint, crystal-clear bright radiant illumination, authentic iPhone 15 Pro mobile photo atmosphere"
+            "upscale modern outdoor open-air rooftop sky lounge terrace in Seoul at night with glowing warm Edison string bulb lights and elegant golden patio lanterns, "
+            "standing beside sleek glass balustrade overlooking vibrant colorful glowing city neon lights and panoramic glittering Seoul night skyline in tack sharp f/11 focus, "
+            "luxurious warm architectural uplighting illuminating the terrace ambiance naturally, authentic iPhone 15 Pro mobile night photo atmosphere"
         ),
-        "vibe": "낮의 채광 가득한 성수동 부티크 통유리 카페에서 홈쇼핑 3D 입체 윤곽 조명을 받으며 카메라를 정면으로 응시하는 상위 0.5% 조각미남 8등신 훈남 남친짤"
+        "vibe": "밤의 야외 루프탑 라운지 테라스에 서서 상대를 바라보며 심쿵을 부르는 세련된 트렌디 남친짤 실사 비주얼"
     },
     7: {
         "topic_id": 7,
@@ -293,13 +290,10 @@ def build_aura_shorts_t2i_character_prompt(
         environment_action = f"seated inside the designer armchair with {bg}. "
     elif norm_id == 6:
         natural_pose = (
-            "seated naturally and gracefully alone at the clean modern marble cafe table in an upright tall 8-head model posture, "
-            "broad masculine shoulders and slender athletic waist, arms resting naturally on the marble cafe tabletop, hands visible on the table, "
-            "strictly no hands in pockets, strictly no hands in pants, NO smartphone held in hands, "
-            "strictly solo single person, no other people in frame, no partner, no interlocutor, no second person, no foreground shoulder, "
-            "handsome male model seated alone pose with natural dating charisma, looking directly into the camera lens. "
+            "standing with an upright tall 8-head model posture by the outdoor rooftop sky lounge glass railing, "
+            "broad masculine shoulders and slender waist, arms resting naturally at sides, hands visible outside pockets, strictly no hands in pockets, strictly no hands in pants, NO smartphone held in hands, handsome male model standing pose. "
         )
-        environment_action = f"seated alone at the clean polished white marble cafe table inside the bright daytime sunlit floor-to-ceiling glass boutique cafe with {bg}. "
+        environment_action = f"standing outdoors on {bg}. "
     elif norm_id == 7:
         natural_pose = (
             "seated comfortably and gracefully in an upright posture at the cafe table, "
@@ -329,18 +323,6 @@ def build_aura_shorts_t2i_character_prompt(
         "subtle warm golden rim light outlining hair strands and jacket shoulders, "
         "realistic skin subsurface scattering, natural subtle skin highlights, NO flat camera flash look, "
     )
-
-    # 💡 [6번 주제 전용: 홈쇼핑 3D 입체 조명 헌법] (야경/루프탑 조명 전면 배제, 낮 통유리 카페 채광 + 홈쇼핑 스튜디오 3D 볼류메트릭 필/림 라이트)
-    if norm_id == 6:
-        lighting_mandate = (
-            "dramatic professional home shopping studio fill lighting and 3D volumetric contour lighting, "
-            "studio key lights and soft rim lighting highlighting hair, broad shoulders, and jawline silhouette with rich three-dimensional depth, "
-            "bright soft diffused volumetric fill light evenly illuminating the entire face and body with sculpted dimensional volume, "
-            "warm soft natural afternoon daylight streaming through the floor-to-ceiling glass windows, "
-            "zero dark muddy shadows, zero yellow tint, zero red tint, zero orange tint, no harsh shadow, no underexposed areas, no dark night lighting, "
-            "crystal-clear bright radiant illumination, neutral accurate white balance, "
-            "realistic skin subsurface scattering, natural subtle skin highlights, NO flat camera flash look, "
-        )
 
     # 긍정 프롬프트 최종 조립 (100% 정면 직립 POV + 8등신 소두 모델 비율 + 입체 조명 + f/11 딥 팬포커스 무필터 실사 규격)
     positive = (
@@ -380,14 +362,6 @@ def build_aura_shorts_t2i_character_prompt(
         )
     elif norm_id == 6:
         topic_specific_neg = (
-            "other people, second person, woman, female, partner, interlocutor, foreground shoulder, talking to someone, "
-            "night, rooftop, dark shadow, yellow tint, red tint, orange tint, "
-            "two people, 2 people, couple, group of people, crowd, background people, blurred person in background, "
-            "date partner, conversation partner, facing another person, talking to a woman, interacting with someone, "
-            "man's back, back of head, over-the-shoulder, obstructed foreground, foreground arm, foreground hand of another person, "
-            "night view, night skyline, dark night background, rooftop terrace, open-air rooftop sky lounge, glass balustrade, city neon lights, "
-            "Edison string bulb lights, string lights, patio lanterns, warm golden patio lamps, architectural uplighting, dark ambient night lighting, "
-            "dark muddy shadow, gloomy, underexposed, dim lighting, warm yellow cast, reddish skin tone, orange color cast, "
             "hands in pockets, hands in jacket pockets, hands in pants pockets, hidden hands, "
             "anime, manga, manhwa, webtoon, cartoon, 3d render, cgi, illustration, drawing, digital art, "
             "doll, plastic skin, porcelain skin, airbrushed skin, skin smoothing, beauty filter, fake face, alien chin, pointed chin, "

@@ -4,9 +4,9 @@ StockShortsScriptWriter - 🤖 [StockMaster AI 8대 주제 100% 순수 자율 �
 ========================================================================================
 - 원칙: 'Ground Truth 주입 & 실시간 최적화'
   - 우리가 검증한 8대 골든 대본을 [기준 원본]으로 제미나이 2.5 Flash에 주입
-  - 핵심 팩트(실시간 외인/기관 수급, 적정주가, 배당 계산기, 저PBR 스크리너 등)와 실제 기능 플로우 100% 보존
-  - 전문 주식/금융 아나운서 어조 및 22초 시간/글자수 규격(10초 립싱크 55~65자 / 12초 앱 시연 75~100자) 정밀 조율
-- 3개 무료키 자율 체인 & 100% 무인 무결성 게이트 탑재 (공식 검색어 '스톡마스터 AI' 필수 검증)
+  - 핵심 팩트(실시간 외인/기관 수급, 적정주가, 체결강도, 10분 전광판 등)와 실제 기능 플로우 100% 보존
+  - 전문 주식/금융 아나운서 어조 및 30초 시간/글자수 규격(0~10초 립싱크 70~78자 / 전체 205~225자) 정밀 조율
+- 9개 키 자율 체인 & 100% 무인 무결성 게이트 탑재 (공식 검색어 '스톡마스터 AI' 필수 검증)
 - API 오류 시 기존 검증된 골든 대본으로 자동 안전 폴백(Fallback) 보장
 """
 
@@ -257,7 +257,7 @@ class StockShortsScriptWriter:
 [★ 핵심 원칙 (절대 불변)]
 1. 화자의 성별({gender})과 캐릭터 시점을 100% 엄격하게 유지하세요. 남성 화자일 경우 절대 여성 말투를 쓰지 마세요.
 2. 첫 마디(hook_p1) 가이드: {hook_hint}
-아래 [실시간 웹앱 라이브 실측 팩트 수치]를 바탕으로, 32초 숏폼 아나운서 대본을 작성해주세요.
+아래 [실시간 웹앱 라이브 실측 팩트 수치]를 바탕으로, 30초 숏폼 아나운서 대본을 작성해주세요.
 
 [★ 핵심 원칙 (절대 불변)]
 1. 아래 [실시간 웹앱 라이브 실측 팩트 수치]를 대본에 자연스럽고 정확하게 반영하여, 오늘 실제 장중 데이터가 살아있는 신뢰도 100% 대본을 작성하세요.
@@ -271,14 +271,14 @@ class StockShortsScriptWriter:
 - 실제 앱 시연 화면: {info['app_sim_visual']}
 - 공식 포털 검색어: {self.OFFICIAL_KEYWORD}
 
-[대본 글자수 절대 규칙 (음성속도 +2% 기준 정확히 30~32초 완독: 총 190~215자 내외 - 초과 시 기각)]
-1. hook_p1 (0~5초): 시선을 끄는 강렬한 1문장 [공백 포함 정확히 25~30자]
-2. hook_p2 (5~10초): 팩트 및 궁금증 해결 [공백 포함 정확히 28~35자]
-   ★ 중요: hook_p1 + hook_p2 합친 전체 훅은 [공백 포함 55~65자] (10초 립싱크 완벽 일치)
-3. app_speech (10~27초): 핵심 실시간 데이터와 퀀트 수치를 알기 쉽게 전달하는 2문장 [공백 포함 반드시 105~125자]
-4. cta_speech (27~32초): "지금 바로 네이버에 '{self.OFFICIAL_KEYWORD}'를 검색하고 무료로 확인하세요!" [공백 포함 28~32자]
+[대본 글자수 절대 규칙 (음성속도 +2% 기준 정확히 30초 완독: 총 205~225자 내외)]
+1. hook_p1 (0~5초): 시선을 끄는 강렬한 1문장 [공백 포함 정확히 34~38자]
+2. hook_p2 (5~10초): 팩트 및 궁금증 해결 [공백 포함 정확히 36~40자]
+   ★ 중요: hook_p1 + hook_p2 합친 전체 훅은 [공백 포함 70~78자] (10.12초 립싱크 멍때림 완전 방지)
+3. app_speech (10~26초): 핵심 실시간 데이터와 퀀트 수치를 알기 쉽게 전달하는 2~3문장 [공백 포함 반드시 105~115자]
+4. cta_speech (26~30초): "지금 바로 네이버에 '{self.OFFICIAL_KEYWORD}'를 검색하고 무료로 확인하세요!" [공백 포함 28~32자]
 
-[★ 글자수 총합 엄수: 전체 대본(훅+앱+CTA) 합계는 공백 포함 반드시 190~215자 범위로 맞추세요. 220자 초과 또는 180자 미달 시 자동 기각됩니다.]
+[★ 글자수 총합 엄수: 전체 대본(훅+앱+CTA) 합계는 공백 포함 반드시 205~225자 범위로 맞추세요. 235자 초과 또는 195자 미달 시 자동 기각됩니다.]
 
 반드시 아래 JSON 포맷으로만 응답하세요:
 {{
@@ -309,8 +309,9 @@ class StockShortsScriptWriter:
 
         from google import genai
         from google.genai import types
+        from google.genai import types as genai_types
 
-        models = ["gemini-2.5-flash", "gemini-2.0-flash"]
+        models = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"]
         for key in self.key_chain:
             try:
                 client = genai.Client(api_key=key, http_options=types.HttpOptions(timeout=35000))
@@ -356,23 +357,23 @@ class StockShortsScriptWriter:
                         cta_speech = f"지금 바로 네이버에 '{self.OFFICIAL_KEYWORD}'를 검색해보세요!"
                         full_speech = f"{hook_full} {app_speech} {cta_speech}".strip()
 
-                    # 🔒 [무결성 게이트 2: +2% 발화 템포 32초 완독 구간별 및 전체 글자수 정밀 검증 (170~220자 엄수)]
-                    # 1) 훅 글자수 검증: 45자 ~ 70자 (Wan 10초 립싱크 완벽 일치)
-                    if len(hook_full) < 45 or len(hook_full) > 70:
-                        logger.warning(f"⚠️ 훅 글자수 범위 벗어남({len(hook_full)}자), 다음 시도")
+                    # 🔒 [무결성 게이트 2: +2% 발화 템포 30초 완독 구간별 및 전체 글자수 정밀 검증]
+                    # 1) 훅 글자수 검증: 60자 ~ 85자 (Wan 10.12초 립싱크 멍때림 완전 방지)
+                    if len(hook_full) < 60 or len(hook_full) > 85:
+                        logger.warning(f"⚠️ 훅 글자수 범위 벗어남({len(hook_full)}자, 목표: 70~78자), 다음 시도")
                         continue
 
-                    # 2) 앱 시연 글자수 검증: 80자 ~ 135자 (18초 웹앱 화면)
-                    if len(app_speech) < 80 or len(app_speech) > 135:
-                        logger.warning(f"⚠️ 앱 시연 글자수 범위 벗어남({len(app_speech)}자), 다음 시도")
+                    # 2) 앱 시연 글자수 검증: 95자 ~ 125자 (16초 웹앱 화면)
+                    if len(app_speech) < 95 or len(app_speech) > 125:
+                        logger.warning(f"⚠️ 앱 시연 글자수 범위 벗어남({len(app_speech)}자, 목표: 105~115자), 다음 시도")
                         continue
 
-                    # 3) 전체 글자수 검증: 170자 ~ 220자 (+2% 속도 기준 정확히 28~31초 완독 규격)
-                    if len(full_speech) < 150 or len(full_speech) > 240:
-                        logger.warning(f"⚠️ 전체 글자수 범위 벗어남({len(full_speech)}자), 다음 시도")
+                    # 3) 전체 글자수 검증: 195자 ~ 235자 (+2% 속도 기준 정확히 30초 완독 규격)
+                    if len(full_speech) < 195 or len(full_speech) > 235:
+                        logger.warning(f"⚠️ 주식 대본 글자수 범위 벗어남({len(full_speech)}자, 목표: 205~225자, 허용: 195~235자), 재시도")
                         continue
 
-                    logger.info(f"✨ [Gemini 주식 32초 자율 대본 성공] 주제 #{norm_id} (훅:{len(hook_full)}자, 앱:{len(app_speech)}자, 전체:{len(full_speech)}자, model={model})")
+                    logger.info(f"✨ [Gemini 주식 30초 자율 대본 성공] 주제 #{norm_id} (훅:{len(hook_full)}자, 앱:{len(app_speech)}자, 전체:{len(full_speech)}자, model={model})")
                     return {
                         "topic_id": norm_id,
                         "title": info["title"],

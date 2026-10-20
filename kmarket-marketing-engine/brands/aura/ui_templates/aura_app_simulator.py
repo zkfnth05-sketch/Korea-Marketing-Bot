@@ -7,6 +7,16 @@ AuraAppSimulator - 📱 [Aura 웹앱 실시간 시뮬레이션 고화질 8초 �
   1) [0.0s ~ 2.5s] Aura 앱 안심 라운지 (1분 뒤 긴급 자동 수신 예약 ON)
   2) [2.5s ~ 5.5s] 실제 전화 수신 벨소리 화면 (팀장님 긴급 호출, 벨소리/진동)
   3) [5.5s ~ 8.0s] 통화 연결 및 화면 탈출 대본 표출 ("어 김대리! 지금 당장 회사 복귀해!")
+
+[🎯 8대 기능 프리셋 1:1 매핑 규칙 — norm_id = ((topic_id - 1) % 8) + 1]
+  1,  9번 -> aura_escape_call_sim.mp4              (소개팅 긴급 탈출 전화)
+  2, 10번 -> aura_subtitles_call_sim.mp4           (실시간 자막 통화)
+  3, 11번 -> aura_vip_5050_card_sim.mp4            (50:50 VIP 게이트)
+  4, 12번 -> aura_cheongdam_before_after_sim.mp4   (실물 손절 방지 화보)
+  5, 13번 -> aura_balance_match_card_sim.mp4       (소개팅 더치페이/가치관 밸런스)
+  6, 14번 -> aura_ai_icebreaker_sim.mp4            (첫 카톡 읽씹 탈출 / AI 첫대화)
+  7, 15번 -> aura_ai_diagnosis_report_sim.mp4      (AI 얼굴 아우라 팩폭)
+  8, 16번 -> aura_safe_radar_map_sim.mp4           (동네 안심 번개 / 500m 안심 레이더)
 """
 
 import os
@@ -25,10 +35,49 @@ logger = logging.getLogger("AuraAppSimulator")
 class AuraAppSimulator:
     """Aura 모바일 앱 실시간 시뮬레이션 비디오 생성기 (1080x1920)"""
 
+    # ==========================================================================
+    # 🎬 [8대 기능 프리셋 마스터 테이블] norm_id(1~8) -> 프리셋 파일명
+    #    - 1~16번 및 임의의 슬롯은 norm_id = ((topic_id - 1) % 8) + 1 로 1:1 매칭
+    # ==========================================================================
+    PRESET_MAP = {
+        1: "aura_escape_call_sim.mp4",              # 소개팅 긴급 탈출 전화
+        2: "aura_subtitles_call_sim.mp4",           # 실시간 자막 통화
+        3: "aura_vip_5050_card_sim.mp4",            # 50:50 VIP 게이트
+        4: "aura_cheongdam_before_after_sim.mp4",   # 실물 손절 방지 화보
+        5: "aura_balance_match_card_sim.mp4",       # 소개팅 더치페이/가치관 밸런스
+        6: "aura_ai_icebreaker_sim.mp4",            # 첫 카톡 읽씹 탈출 / AI 첫대화
+        7: "aura_ai_diagnosis_report_sim.mp4",      # AI 얼굴 아우라 팩폭
+        8: "aura_safe_radar_map_sim.mp4",           # 동네 안심 번개 / 500m 안심 레이더
+    }
+
+    # 동적 녹화(Playwright)가 필요한 프리셋 (파일 미존재/0바이트 시 자동 생성)
+    DYNAMIC_RECORDERS = {
+        7: ("aura_diagnosis_playwright_recorder", "AuraDiagnosisPlaywrightRecorder", "record_8s_diagnosis_simulation"),
+        8: ("aura_map_quest_playwright_recorder", "AuraMapQuestPlaywrightRecorder", "record_8s_map_quest_simulation"),
+    }
+
     def __init__(self):
         self.ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
         self.w = 1080
         self.h = 1920
+
+    # --------------------------------------------------------------------------
+    # 🎯 [핵심] topic_id -> norm_id(1~8) 정규화
+    # --------------------------------------------------------------------------
+    @classmethod
+    def normalize_topic_id(cls, topic_id: Optional[int]) -> int:
+        """임의의 topic_id(1~16, 0, 음수, None)를 8대 기능 프리셋 인덱스(1~8)로 정규화"""
+        try:
+            tid = int(topic_id) if topic_id is not None else 1
+        except (TypeError, ValueError):
+            tid = 1
+        return ((tid - 1) % 8) + 1
+
+    @classmethod
+    def get_preset_filename(cls, topic_id: Optional[int]) -> str:
+        """topic_id에 대응하는 8대 기능 프리셋 파일명 반환 (1:1 완벽 매칭)"""
+        norm_id = cls.normalize_topic_id(topic_id)
+        return cls.PRESET_MAP.get(norm_id, cls.PRESET_MAP[1])
 
     def _get_font(self, size: int, bold: bool = True) -> ImageFont.FreeTypeFont:
         candidates = [
@@ -57,43 +106,51 @@ class AuraAppSimulator:
             pass
         return 8.0
 
+    def _ensure_dynamic_preset(self, norm_id: int, preset_file: Path) -> None:
+        """동적 녹화 대상 프리셋(7번 진단 리포트 / 8번 안심 레이더)이 없으면 Playwright로 즉석 생성"""
+        if norm_id not in self.DYNAMIC_RECORDERS:
+            return
+        if preset_file.exists() and preset_file.stat().st_size > 0:
+            return
+
+        module_name, class_name, method_name = self.DYNAMIC_RECORDERS[norm_id]
+        try:
+            import importlib
+            mod = importlib.import_module(f".{module_name}", package=__package__)
+            recorder_cls = getattr(mod, class_name)
+            recorder = recorder_cls()
+            getattr(recorder, method_name)(str(preset_file))
+            logger.info(f"🎥 [AuraAppSimulator] 동적 프리셋 즉석 녹화 완료 (norm_id={norm_id}): {preset_file.name}")
+        except Exception as e:
+            logger.warning(f"⚠️ [AuraAppSimulator] 동적 프리셋 녹화 실패 (norm_id={norm_id}): {e}")
+
     def record_simulation_clip(
         self,
         topic_id: int = 1,
         duration_sec: float = 8.0,
         output_mp4_path: str = "aura_app_sim.mp4"
     ) -> str:
-        """Aura 앱 시뮬레이션 클립을 오디오 길이에 맞춰 1080x1920 MP4로 렌더링"""
+        """Aura 앱 시뮬레이션 클립을 오디오 길이에 맞춰 1080x1920 MP4로 렌더링
+
+        - topic_id 1~16 및 임의의 슬롯을 8대 기능 프리셋에 1:1 매칭
+          (norm_id = ((topic_id - 1) % 8) + 1)
+        """
         out_p = Path(output_mp4_path).resolve()
         out_p.parent.mkdir(parents=True, exist_ok=True)
 
-        if topic_id == 2:
-            preset_file = Path(__file__).parent / "presets" / "aura_subtitles_call_sim.mp4"
-        elif topic_id == 3:
-            preset_file = Path(__file__).parent / "presets" / "aura_vip_5050_card_sim.mp4"
-        elif topic_id == 4:
-            preset_file = Path(__file__).parent / "presets" / "aura_cheongdam_before_after_sim.mp4"
-        elif topic_id == 5:
-            preset_file = Path(__file__).parent / "presets" / "aura_balance_match_card_sim.mp4"
-        elif topic_id == 6:
-            preset_file = Path(__file__).parent / "presets" / "aura_ai_icebreaker_sim.mp4"
-        elif topic_id == 7:
-            preset_file = Path(__file__).parent / "presets" / "aura_ai_diagnosis_report_sim.mp4"
-            if not preset_file.exists() or preset_file.stat().st_size == 0:
-                from .aura_diagnosis_playwright_recorder import AuraDiagnosisPlaywrightRecorder
-                recorder = AuraDiagnosisPlaywrightRecorder()
-                recorder.record_8s_diagnosis_simulation(str(preset_file))
-        elif topic_id == 8:
-            preset_file = Path(__file__).parent / "presets" / "aura_safe_radar_map_sim.mp4"
-            if not preset_file.exists() or preset_file.stat().st_size == 0:
-                from .aura_map_quest_playwright_recorder import AuraMapQuestPlaywrightRecorder
-                recorder = AuraMapQuestPlaywrightRecorder()
-                recorder.record_8s_map_quest_simulation(str(preset_file))
-        else:
-            preset_file = Path(__file__).parent / "presets" / "aura_escape_call_sim.mp4"
+        # 🎯 [1:1 프리셋 매칭] 1~16번 및 임의 슬롯 -> norm_id(1~8) 정규화
+        norm_id = self.normalize_topic_id(topic_id)
+        preset_name = self.PRESET_MAP.get(norm_id, self.PRESET_MAP[1])
+        preset_file = Path(__file__).parent / "presets" / preset_name
+
+        # 7번/8번은 프리셋 미존재 시 Playwright 즉석 녹화
+        self._ensure_dynamic_preset(norm_id, preset_file)
 
         if preset_file.exists() and preset_file.stat().st_size > 0:
-            logger.info(f"✨ [AuraAppSimulator] 주제 {topic_id} 실기기 프리셋 로드 및 오디오 길이({duration_sec:.2f}s) 1:1 자동 패딩: {preset_file.name}")
+            logger.info(
+                f"✨ [AuraAppSimulator] 주제 {topic_id} -> norm_id {norm_id} 프리셋 로드 "
+                f"및 오디오 길이({duration_sec:.2f}s) 1:1 자동 패딩: {preset_file.name}"
+            )
             preset_dur = self._get_video_duration(str(preset_file))
             if duration_sec > preset_dur:
                 pad_sec = duration_sec - preset_dur
@@ -117,7 +174,10 @@ class AuraAppSimulator:
             subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
             return str(out_p)
 
-        logger.info(f"📱 [AuraAppSimulator] 8초 앱 시뮬레이션 렌더링 시작 (주제={topic_id}, {duration_sec:.2f}s) -> {out_p.name}")
+        logger.info(
+            f"📱 [AuraAppSimulator] 8초 앱 시뮬레이션 렌더링 시작 "
+            f"(주제={topic_id}, norm_id={norm_id}, {duration_sec:.2f}s) -> {out_p.name}"
+        )
 
         temp_dir = Path(tempfile.mkdtemp(prefix="aura_sim_frames_"))
         try:

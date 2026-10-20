@@ -8,6 +8,12 @@ StockShortsProducer - 📈 [StockMaster AI 전용 AI 숏폼 영상 생산 엔진
 - [3단계] 맞춤형 스피치 음성 합성 (Google Gemini 2.5 Flash TTS Aoede) & Wan 2.2 S2V 10초 원테이크 립싱크 (5s+5s xfade)
 - [4단계] 1080x1920 세로 풀HD 업스케일링 + 공식 네이버 검색 CTA ['스톡마스터 AI'] 결합 (심의 100% 프리패스 클린 뷰)
 - 산출물 경로: C:/Users/zkfnt/Desktop/한국 숏폼_산출물/Stock
+
+[🎙️ 무중단 통대본 & 음성 칼종료 체제 (2-1단계 개편 이력)]
+  · 기존: hook / app / cta 3회 분할 TTS 합성 ➔ 톤 단절 + 구간별 무음 패딩 + 멍때림 구간 발생
+  · 변경: full_speech를 단 1회 TTS 합성하여 단일 통음성(full_wav_path) 확보
+          ➔ 하위 반환 딕셔너리 호환성을 위해 audio_hook / audio_app / audio_cta 모두 full_wav_path로 바인딩
+  · 컴포저: scene_audios 3단 분할 인자 완전 제거 ➔ full_audio_path 단일 직결 (음성 종료 = 영상 종료 칼종료)
 """
 
 import os
@@ -287,34 +293,7 @@ class StockShortsProducer(BaseShortsProducer):
 
         # 3. [Step 1] Alibaba CosyVoice 음성 복제 합성 (1순위 알리바바 -> 2순위 Typecast -> 3순위 Edge-TTS)
         voice_lang = "ko"
-        logger.info(f"🎙️ [Step 1] 알리바바 CosyVoice 음성 합성 진행 ({effective_gender})...")
-        hook_wav_path = self.tts.generate_speech_wav(
-            text=speech_hook,
-            lang=voice_lang,
-            gender=effective_gender,
-            rate=voice_rate,
-            pitch=voice_pitch,
-            filename_prefix=f"stock_hook_{topic_id}_{dt_str}",
-            output_dir=str(out_folder)
-        )
-        app_wav_path = self.tts.generate_speech_wav(
-            text=speech_app,
-            lang=voice_lang,
-            gender=effective_gender,
-            rate=voice_rate,
-            pitch=voice_pitch,
-            filename_prefix=f"stock_app_{topic_id}_{dt_str}",
-            output_dir=str(out_folder)
-        )
-        cta_wav_path = self.tts.generate_speech_wav(
-            text=speech_cta,
-            lang=voice_lang,
-            gender=effective_gender,
-            rate=voice_rate,
-            pitch=voice_pitch,
-            filename_prefix=f"stock_cta_{topic_id}_{dt_str}",
-            output_dir=str(out_folder)
-        )
+        logger.info(f"🎙️ [Step 1] 알리바바 CosyVoice 통대본 단일 음성 합성 진행 ({effective_gender})...")
         full_wav_path = self.tts.generate_speech_wav(
             text=full_speech,
             lang=voice_lang,
@@ -324,6 +303,12 @@ class StockShortsProducer(BaseShortsProducer):
             filename_prefix=f"stock_full_{topic_id}_{dt_str}",
             output_dir=str(out_folder)
         )
+
+        # 🔗 [반환 딕셔너리 호환성 유지] 3단 분할 변수는 모두 단일 통음성으로 바인딩
+        hook_wav_path = full_wav_path
+        app_wav_path = full_wav_path
+        cta_wav_path = full_wav_path
+        logger.info(f"🔗 [통음성 일원화 완료] hook/app/cta 오디오 전부 단일 통음성 직결: {os.path.basename(str(full_wav_path))}")
 
         # 4. [Step 2] 숏폼 인물 사진 로드 또는 Wan 2.1 T2I 생성 (순수 100% 인물 마스터컷)
         if custom_hero_image is not None:
@@ -365,11 +350,35 @@ class StockShortsProducer(BaseShortsProducer):
             "no exaggerated hand waving, no wild arm movements, calm and trustworthy upper body posture, authentic lifelike human motion"
         )
 
+        # 🎯 [Wan 2.2 S2V 10초 립싱크 멍때림 0% 보장]
+        #    - S2V는 81프레임 x 2 = 10.12초 고정 길이로 렌더링된다.
+        #    - 주입 음성이 6~7초에서 끊기면 나머지 3~4초는 입을 다문 채 멍때리는 구간이 발생한다.
+        #    - 따라서 speech_hook_full에는 반드시 10.12초 분량(약 95~105자)을 꽉 채워 주입한다.
+        #      1순위: scenario["speech_hook_10s"] (전용 10초 훅 대본)
+        #      2순위: scenario["speech_hook"] (hook_0_10s)
+        #      3순위: 95자 미만일 때만 speech_app으로 안전 보강
+        speech_hook_10s = (
+            scenario.get("speech_hook_10s")
+            or scenario.get("speech_hook")
+            or speech_hook
+            or ""
+        ).strip()
+        if len(speech_hook_10s) < 95 and speech_app:
+            speech_hook_10s = f"{speech_hook_10s} {speech_app}".strip()
+            logger.info(
+                f"🩹 [S2V 멍때림 방지] 10초 훅 대본 분량 보강: {len(speech_hook_10s)}자 "
+                f"(목표 95~105자 / 10.12초 풀 커버)"
+            )
+        logger.info(
+            f"🎯 [S2V 10초 풀 커버] speech_hook_full 주입 분량: {len(speech_hook_10s)}자 "
+            f"(81프레임 x 2 = 10.12초 멍때림 0% 보장)"
+        )
+
         if wan_ready:
             logger.info("🎬 [Step 3] Wan 2.2 S2V 384x672 5초+5초 10초 원테이크 렌더링 시작 (81프레임 x 2, 0.15s xfade)...")
             person_clip_path, person_audio_path = self.stitcher.render_seamless_dual_clip(
                 base_framed_img=framed_img,
-                speech_hook_full=speech_hook,
+                speech_hook_full=speech_hook_10s,
                 lang=voice_lang,
                 gender=effective_gender,
                 out_folder=out_folder,
@@ -393,7 +402,7 @@ class StockShortsProducer(BaseShortsProducer):
             ]
             import subprocess
             subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
-            person_audio_path = hook_wav_path
+            person_audio_path = full_wav_path
 
         # 6. [Step 4] StockMaster AI 실제 웹앱 실시간 시연 클립 (30~32초 완제품 규격: 17.50s)
         app_clip_path = str(out_folder / f"04_app_sim_stock_{topic_id}.mp4")
@@ -423,13 +432,7 @@ class StockShortsProducer(BaseShortsProducer):
         from .shorts_brand_capsule_badge import ShortsBrandCapsuleBadge
         stock_logo_overlay = ShortsBrandCapsuleBadge.get_overlay_path("stock")
 
-        scene_audios = {
-            "hook": person_audio_path,
-            "app": app_wav_path,
-            "cta": cta_wav_path if (cta_wav_path and os.path.exists(cta_wav_path)) else None
-        }
-
-        logger.info("✨ [Step 6] 1080p 세로 풀HD 32초(30~32s) 하이브리드 비디오 최종 컴포징 (씬별 정밀 음성 동기화 + 상단 캡슐 뱃지)...")
+        logger.info("✨ [Step 6] 1080p 세로 풀HD 32초(30~32s) 하이브리드 비디오 최종 컴포징 (단일 통음성 직결 + 상단 캡슐 뱃지)...")
         self.composer.compose_hybrid_22s_shorts(
             clip_person_path=person_clip_path,
             clip_app_path=app_clip_path,
@@ -437,7 +440,6 @@ class StockShortsProducer(BaseShortsProducer):
             visual_direction=visual_dir,
             output_mp4_path=final_mp4_path,
             lang=voice_lang,
-            scene_audios=scene_audios,
             clip_cta_path=cta_clip_path,
             logo_overlay_path=stock_logo_overlay
         )

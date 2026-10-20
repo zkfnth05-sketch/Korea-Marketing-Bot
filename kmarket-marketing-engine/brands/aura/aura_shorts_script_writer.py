@@ -6,7 +6,8 @@ AuraShortsScriptWriter - 💖 Aura 8대 주제 전용 제미나이 3.8 Flash 자
   1. 하드코딩 골든 대본 주입 전면 영구 배제 (예시문 베끼기 원천 박멸)
   2. 아우라 8대 핵심 기능 명세(기능 개요, 해결하는 고민, 활용 상황, 화자 설정)를 프롬프트에 주입
   3. 제미나이가 기능을 2030 시청자에게 직접 설명하는 100% 독창적 숏폼 대본 자율 창작
-  4. 20.0초 완제품 규격 (공백 포함 115~145자) 엄격 준수
+  4. 22.0초 완제품 규격 (공백 포함 150~165자) 엄격 준수
+     - 0~10초 립싱크 구간 70~78자 확보 ➔ Wan 2.2 S2V 10.12초 멍때림 원천 차단
   5. 9개 통합 키 체인(무료 6개 + 유료 2개 + 기본 1개) 무중단 자동 페일오버 연동
 """
 
@@ -16,6 +17,7 @@ import logging
 from typing import Dict, Any, Optional, List
 from google import genai
 from google.genai import types
+from google.genai import types as genai_types
 
 if sys.platform == "win32":
     try:
@@ -89,13 +91,113 @@ AURA_TOPICS_SPECS: Dict[int, Dict[str, str]] = {
 }
 
 
+# ==============================================================================
+# 🏛️ [6인 합의체 도파민 서사 팩 8종 (슬롯 9~16번)] — 기존 1~8번 100% 보존
+# ==============================================================================
+AURA_NARRATIVE_PACKS: Dict[int, Dict[str, Any]] = {
+    9: {
+        "slot": 9,
+        "title": "긴급 탈출 실전편",
+        "speaker": "2030 직장인 여성",
+        "hook_cue": "화장실 거울 발 동동 구르는 장면 + 카톡 진동음",
+        "hook_seed": "하... 2차 가자는데 진짜 어떡하지? 핑계가 안 떠올라...",
+        "conflict": "비매너 소개팅에서 예의상 억지로 앉아 있다가 밥값만 10만원 날린 흑역사 썰",
+        "kakao_lines": ["상대: 2차 와인바 가시죠?", "나: (화장실 도망) 어쩌지 ㅠㅠ"],
+        "twist_solution": "화장실에서 30초 뒤 가짜 호출 예약 걸어둠 ➔ 자리 돌아오자마자 팀장님 진짜 전화 울림 ➔ '죄송해요 회사 서버 터졌대요!' 칼퇴장 성공",
+        "debate_q": "소개팅 중 가짜 탈출 전화, 센스일까 비매너일까?",
+    },
+    10: {
+        "slot": 10,
+        "title": "도쿄 현지인 영통 썰",
+        "speaker": "2030 청년 (여행/덕질러)",
+        "hook_cue": "영상통화 화면 + 일본어 쏼라쏼라 음성",
+        "hook_seed": "스미마셍 말고는 아는 게 없는데... 진짜 통화가 된다고?!",
+        "conflict": "일본 여행 전 현지 친구 사귀려다 번역기 복붙하느라 대화 뚝뚝 끊겨 읽씹당한 굴욕",
+        "kakao_lines": ["현지인: これ好き？ (이거 좋아해?)", "나: (자막 실시간 뜸) 나 그거 완전 좋아해!"],
+        "twist_solution": "한국어로 말하면 상대방 화면에 일본어 자막이, 상대 일본어가 내 화면에 한글 자막으로 1초 만에 뜸 ➔ 밤 12시까지 랜선 술자리 통화 성공",
+        "debate_q": "외국인 찐친 만들기, 번역기 없이 진짜 가능할까?",
+    },
+    11: {
+        "slot": 11,
+        "title": "소개팅앱 삭제하는 이유",
+        "speaker": "2030 세련된 여성",
+        "hook_cue": "경고 사이렌 효과음 + 쏟아지는 음침한 DM 캡처",
+        "hook_seed": "도대체 소개팅 어플에 왜 이렇게 음침한 사람들이 많을까?",
+        "conflict": "남초 90% 앱에서 무차별 음침 디엠과 유령회원에 질려 하루 만에 앱 삭제하던 피로감",
+        "kakao_lines": ["모르는 남: ㅎㅇ 지금 볼래?", "나: (차단) 진짜 질린다 질려"],
+        "twist_solution": "남녀 딱 50:50 안 맞으면 남자는 번호표 뽑고 대기해야 입장 가능한 정원제 라운지 ➔ 물 흐리는 사람 0%에 검증된 매너 회원만 1:1 매칭",
+        "debate_q": "성비 50:50 강제 대기열, 남자 역차별이다 vs 필수 안전장치다?",
+    },
+    12: {
+        "slot": 12,
+        "title": "실물 손절 방지 화보",
+        "speaker": "2030 트렌디한 여성",
+        "hook_cue": "턱 비정상적으로 깎인 외계인 보정 사진 쾅! 효과음",
+        "hook_seed": "사진 보고 설렜다가 실물 보고 도망친 적 있는 사람 손?!",
+        "conflict": "눈 키우고 턱 깎는 인조인간 필터는 실물 보는 순간 '사진 사기'로 낙인찍혀 5분 만에 손절당함",
+        "kakao_lines": ["친구: 야 너 이 사진 실물이랑 너무 다르잖아", "나: 헐... 애프터 까인 이유가 이거였어?"],
+        "twist_solution": "내 이목구비는 1mm도 안 건드리고, 방구석 형광등 폰카를 30만원 스튜디오 조명과 피부톤으로만 바꿔줌 ➔ 이번엔 실물 보고도 아무도 안 도망침",
+        "debate_q": "AI 화보 보정, 어디까지가 매너일까?",
+    },
+    13: {
+        "slot": 13,
+        "title": "소개팅 더치페이 팩폭",
+        "speaker": "2030 캠퍼스/직장인",
+        "hook_cue": "영수증 탁! 내려놓는 소리 + 남녀 동공지진 클로즈업",
+        "hook_seed": "계산대 앞에서 정적 흐를 때, 이 말 한마디로 애프터 확률 3배 갈립니다.",
+        "conflict": "얼굴만 보고 만났다가 연락 주기, 데이트 비용 문제로 3주 만에 싸우고 헤어지는 피로감",
+        "kakao_lines": ["나: 더치페이 어떻게 생각해요?", "상대: 당연히 첫 만남은 반반이죠!"],
+        "twist_solution": "첫 만남 더치페이, 연락 빈도 등 12가지 밸런스 게임을 먼저 풀고 나랑 가치관 100% 일치하는 인연만 골라 매칭해주니 싸울 일이 없음",
+        "debate_q": "첫 소개팅 밥값 더치페이, 여러분의 기준은?",
+    },
+    14: {
+        "slot": 14,
+        "title": "첫 카톡 읽씹 탈출 (남성)",
+        "speaker": "2030 훈남 직장인 남성 (★남성 화자 1인칭 시점 엄수)",
+        "hook_cue": "카톡 숫자 [1] 안 사라지는 화면 + 깊은 한숨 소리",
+        "hook_seed": "형들, 제발 첫마디로 '오늘 날씨 좋네요' 그만 보내... 제발!",
+        "conflict": "매칭만 되면 뭐 하냐고, 첫마디 뭐라고 보낼지 몰라 식은땀 흘리다 12번째 읽씹당한 남자의 리얼한 고통",
+        "kakao_lines": ["나: 프로필 보니 성수동 소금빵 좋아하시네요?", "상대: 헐 거기 제 인생 카페인데 어떻게 아셨어요?!"],
+        "twist_solution": "상대 프로필과 취향 키워드를 분석해 센스 있는 아이스브레이킹 질문 자동 추천 ➔ 3분 만에 칼답 오고 이번 주말 애프터 약속 잡힘",
+        "debate_q": "첫마디 AI 추천, 센스일까 사기일까?",
+    },
+    15: {
+        "slot": 15,
+        "title": "AI 얼굴 아우라 팩폭",
+        "speaker": "2030 감각적인 잇걸",
+        "hook_cue": "셀카 스캔 삐빅! + 상위 3% 아우라 도장 쾅 찍히는 소리",
+        "hook_seed": "친구들이 해주는 외모 칭찬, 솔직히 다 빈말인 거 아시죠?",
+        "conflict": "내 얼굴 분위기가 뭔지 몰라 소개팅 앱 프로필 사진 고르는 데만 3시간 걸리던 답답함",
+        "kakao_lines": ["친구: 너 다정한 여우상이래 완전 찰떡이다", "나: 그거 방금 AI가 1초 만에 알려줬어!"],
+        "twist_solution": "폰카 셀카 한 장 넣었더니 내 이목구비와 눈빛 분위기를 분석해 '다정한 여우상 상위 4%' 팩폭 진단 카드가 발급됨 ➔ 프로필 달았더니 호감도 폭발",
+        "debate_q": "AI 매력 진단, 재미있는 놀이일까 자기 객관화일까?",
+    },
+    16: {
+        "slot": 16,
+        "title": "동네 자취생 안심 번개",
+        "speaker": "2030 건강한 직장인 여성",
+        "hook_cue": "지도 줌인 화면 + 스토킹 경고 사이렌 소리",
+        "hook_seed": "동네 데이팅 앱 썼다가 집 앞 편의점에서 마주칠 뻔한 썰 푼다...",
+        "conflict": "동네 친구 사귀고 싶은데 집 주소 근처까지 노출되는 일반 위치 앱의 소름 돋는 위험성과 스토킹 공포",
+        "kakao_lines": ["상대: 혹시 OO빌라 사세요?", "나: (소름 돋아서 앱 삭제)"],
+        "twist_solution": "내 실제 집 위치를 500m 반경 안에서 랜덤으로 흔들어주는 보안 레이더 ➔ 집 주소 노출 위험 0%로 성수 카페 메이트, 한강 러닝 메이트 안심 번개 성공",
+        "debate_q": "동네 번개 앱에서 500m 위치 난수화, 필수다 vs 오버다?",
+    }
+}
+
+
 class AuraShortsScriptWriter:
-    """💖 Aura 8대 주제 전용 제미나이 3.8 Flash 실시간 자율 창작 대본 생성 엔진"""
+    """💖 Aura 1~16대 전용 제미나이 3.8 Flash 실시간 자율 창작 대본 생성 엔진 (A/B 병렬 지원판)"""
 
     OFFICIAL_KEYWORD = "아우라AI데이팅"
+    LANDING_URL = "https://aura-ai-dating.vercel.app/"
+    DUAL_BANNER_TEXT = "프로필 링크에서 3초 무료 진단! 네이버에 아우라AI데이팅 검색해보세요!"
     FORBIDDEN_WORDS = [
         "한정", "이벤트", "선착순", "마감", "할인", "무료 혜택", "쿠폰", 
         "사은품", "오늘만", "특가", "캐시백", "당첨", "보험", "주식", "투자", "환급"
+    ]
+    EXPLANATORY_PATTERNS = [
+        "해줍니다", "제공합니다", "지원합니다", "가능합니다", "기능입니다"
     ]
 
     def __init__(self):
@@ -103,9 +205,140 @@ class AuraShortsScriptWriter:
 
     def generate_dynamic_script(self, topic_id: int = 1) -> Optional[Dict[str, Any]]:
         """
-        주제 ID(1~8)에 맞춰 아우라의 실제 기능 명세(기능 개요, 해결 고민, 활용 상황)를 주입하고,
-        제미나이 3.8 Flash가 매번 100% 새롭고 독창적인 상황 설정으로 20초 숏폼 대본을 자율 창작.
+        주제 ID(1~16)에 맞춰 자율 대본 창작:
+        - 1~8번: 기존 레거시 기능 명세 기반 대본 (하위 호환 100% 보존)
+        - 9~16번: 6인 합의체 도파민 서사 팩 기반 4분절 실전 썰 대본 (A/B 신규)
         """
+        if 9 <= topic_id <= 16:
+            return self._generate_narrative_script(topic_id)
+        else:
+            return self._generate_legacy_script(topic_id)
+
+    def _generate_narrative_script(self, topic_id: int) -> Optional[Dict[str, Any]]:
+        """🏛️ 6인 합의체 9~16번 서사 팩 전용 4분절 자율 창작 파이프라인"""
+        pack = AURA_NARRATIVE_PACKS.get(topic_id, AURA_NARRATIVE_PACKS[9])
+        kakao_lines_str = "\n".join(f"  - {line}" for line in pack["kakao_lines"])
+        is_male_topic = (topic_id == 14)
+
+        prompt = f"""[서사 팩 (Narrative Pack)]
+- 브랜드: 아우라 (Aura) 데이팅
+- 킬러 슬롯 #{pack['slot']}: {pack['title']}
+- 화자 설정: {pack['speaker']}
+- 0~2초 도입 큐(시청각): {pack['hook_cue']}
+- 0~2초 훅 시드 대사: "{pack['hook_seed']}"
+- 극공감 현실 갈등: {pack['conflict']}
+- 실전 카톡 대사:
+{kakao_lines_str}
+- 8~17초 반전 치트키 (앱 기능): {pack['twist_solution']}
+- 18~20초 2in1 듀얼 스마트 배너: "{self.DUAL_BANNER_TEXT}"
+- 댓글 논쟁 유도 쟁점: {pack['debate_q']}
+
+[★ 절대 준수 지시 사항]
+1. 0~2초 훅은 인사말/배경설명 없이 곧바로 강렬한 대사나 질문으로 시작할 것!
+2. "~해줍니다", "~제공합니다" 같은 설명서 어투는 절대 금지! 1인칭 실전 썰로 이야기할 것!
+3. 카톡 대사 1줄 이상을 대본에 실감 나게 녹여낼 것!
+{"4. 반드시 2030 남성 화자 1인칭('형들', '내가' 등)으로만 작성할 것!" if is_male_topic else ""}
+5. 마지막 18~20초 CTA에는 반드시 "{self.DUAL_BANNER_TEXT}"를 포함할 것!
+6. 허위 이벤트(할인, 쿠폰 등)는 절대 금지.
+7. 🚨 22초 완제품 규격: 전체 발화문은 공백 포함 150~165자로 넉넉하게 작성할 것!
+   특히 0~2초 훅(20~28자) + 2~8초 썰(48~55자) 합계가 70~78자가 되도록 채워
+   10.12초 립싱크 구간에서 입이 멈추는 무음 구간이 절대 발생하지 않게 할 것!
+
+[출력 JSON 규격 (22초 완제품 분량, 공백 포함 전체 150~165자)]
+{{
+  "hook_0_2s": "0~2초 도파민 훅 (대사/질문/충격 멘트, 공백 포함 20~28자)",
+  "story_2_8s": "2~8초 현실 썰 (카톡 대사 포함, 공백 포함 48~55자)",
+  "reveal_8_17s": "8~17초 반전 치트키 (앱 핵심 작동 원리, 공백 포함 52~58자)",
+  "cta_18_20s": "18~22초 CTA (지정된 2in1 배너 문구 포함, 공백 포함 28~32자)",
+  "debate_question": "{pack['debate_q']}",
+  "full_speech": "전체 발화문 (공백 포함 150~165자)"
+}}
+"""
+        models = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"]
+
+        for kd in self.key_dicts:
+            key_name = kd["name"]
+            key_val = kd["key"]
+            try:
+                client = genai.Client(api_key=key_val)
+            except Exception:
+                continue
+
+            for model in models:
+                try:
+                    resp = client.models.generate_content(
+                        model=model,
+                        contents=prompt,
+                        config=types.GenerateContentConfig(
+                            automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True),
+                            response_mime_type="application/json",
+                            temperature=0.95
+                        )
+                    )
+                    if not resp or not resp.text:
+                        continue
+
+                    data = json.loads(resp.text)
+                    hook_0_2 = data.get("hook_0_2s", "").strip()
+                    story_2_8 = data.get("story_2_8s", "").strip()
+                    reveal_8_17 = data.get("reveal_8_17s", "").strip()
+                    cta_18_20 = data.get("cta_18_20s", "").strip()
+                    debate_q = data.get("debate_question", pack["debate_q"]).strip()
+                    full_speech = data.get("full_speech", "").strip()
+
+                    if not full_speech:
+                        full_speech = f"{hook_0_2} {story_2_8} {reveal_8_17} {cta_18_20}".strip()
+
+                    # 🔒 [무결성 게이트 1: 금지어 검증]
+                    has_forbidden = any(bad in full_speech for bad in self.FORBIDDEN_WORDS)
+                    if has_forbidden:
+                        continue
+
+                    # 🔒 [무결성 게이트 2: 설명조 어투 검출]
+                    if any(pat in reveal_8_17 for pat in self.EXPLANATORY_PATTERNS):
+                        logger.warning(f"⚠️ [설명조 감지] 서사 팩 #{topic_id} 설명조 어투 발견, 재시도")
+                        continue
+
+                    # 🔒 [무결성 게이트 3: 2in1 듀얼 배너 누락 시 자동 보정]
+                    if self.OFFICIAL_KEYWORD not in cta_18_20 or "프로필" not in cta_18_20:
+                        cta_18_20 = self.DUAL_BANNER_TEXT
+                        full_speech = f"{hook_0_2} {story_2_8} {reveal_8_17} {cta_18_20}".strip()
+
+                    # 🔒 [무결성 게이트 4: 22초 규격 글자 수 검증 (140~175자)]
+                    if len(full_speech) < 140 or len(full_speech) > 175:
+                        logger.warning(
+                            f"⚠️ [분량 미달] 서사 팩 #{topic_id} 대본 {len(full_speech)}자 "
+                            f"(목표 150~165자 / 허용 140~175자) ➔ 재시도"
+                        )
+                        continue
+
+                    logger.info(f"✨ [6인 합의체 서사 대본 성공] 슬롯 #{topic_id} ({len(full_speech)}자, key={key_name}, model={model})")
+                    return {
+                        "slot": topic_id,
+                        "hook_0_2s": hook_0_2,
+                        "story_2_8s": story_2_8,
+                        "reveal_8_17s": reveal_8_17,
+                        "cta_18_20s": cta_18_20,
+                        "hook_p1_5s": hook_0_2,
+                        "hook_p2_5s": story_2_8,
+                        "hook_0_10s": f"{hook_0_2} {story_2_8}",
+                        "app_10_18s": reveal_8_17,
+                        "cta_18_22s": cta_18_20,
+                        "banner_dual": self.DUAL_BANNER_TEXT,
+                        "debate_question": debate_q,
+                        "full_speech": full_speech,
+                        "is_narrative_v2": True,
+                        "is_ai_generated": True
+                    }
+                except Exception as e:
+                    logger.debug(f"Gemini 서사 호출 실패 ({key_name}, {model}): {e}")
+                    continue
+
+        logger.warning(f"⚠️ [Aura 서사 대본] 제미나이 호출 모두 실패 ➔ 폴백")
+        return None
+
+    def _generate_legacy_script(self, topic_id: int) -> Optional[Dict[str, Any]]:
+        """1~8번 기존 레거시 기능 명세 기반 대본 (하위 호환 100% 보존)"""
         norm_id = ((topic_id - 1) % len(AURA_TOPICS_SPECS)) + 1
         spec = AURA_TOPICS_SPECS.get(norm_id, AURA_TOPICS_SPECS[1])
 
@@ -123,20 +356,22 @@ class AuraShortsScriptWriter:
 - 주제 #6은 반드시 남성 화자 1인칭 시점으로 작성하시오.
 - 🚨 허위 이벤트(무료 쿠폰, 선착순, 할인 등)는 절대 금지합니다.
 - 마지막 CTA에는 반드시 "네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"를 자연스럽게 포함하세요.
+- 🚨 22초 완제품 규격: 전체 발화문은 공백 포함 150~165자로 넉넉하게 작성할 것!
+  특히 0~5초(34~38자) + 5~10초(36~40자) 합계가 70~78자가 되도록 채워
+  10.12초 립싱크 구간에서 입이 멈추는 무음 구간이 절대 발생하지 않게 할 것!
 
-[출력 JSON 규격 (20초 완제품 분량, 전체 약 115~140자)]
+[출력 JSON 규격 (22초 완제품 분량, 전체 약 150~165자)]
 {{
   "situation": "이번 설정한 화자 및 상황 (1줄 요약)",
-  "hook_p1": "0~5초: 시선을 확 끄는 첫 질문이나 공감 멘트 (공백 포함 20~28자)",
-  "hook_p2": "5~10초: 아우라 해당 기능으로 연결되는 멘트 (공백 포함 20~28자)",
-  "app_speech": "10~18초: 핵심 작동 원리와 유저 혜택 설명 (공백 포함 40~55자)",
-  "cta_speech": "18~20초: 댓글 유도 및 '네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!' 포함 (공백 포함 20~30자)",
+  "hook_p1": "0~5초: 시선을 확 끄는 첫 질문이나 공감 멘트 (공백 포함 34~38자)",
+  "hook_p2": "5~10초: 아우라 해당 기능으로 연결되는 멘트 (공백 포함 36~40자)",
+  "app_speech": "10~18초: 핵심 작동 원리와 유저 혜택 설명 (공백 포함 52~58자)",
+  "cta_speech": "18~22초: 댓글 유도 및 '네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!' 포함 (공백 포함 28~32자)",
   "debate_question": "댓글 창에서 토론을 유도할 센스 있는 10자 내외 질문",
-  "full_speech": "전체 발화문 (공백 포함 115~140자)"
+  "full_speech": "전체 발화문 (공백 포함 150~165자)"
 }}
 """
-
-        models = ["gemini-2.5-flash", "gemini-2.0-flash"]
+        models = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"]
 
         for kd in self.key_dicts:
             key_name = kd["name"]
@@ -172,27 +407,23 @@ class AuraShortsScriptWriter:
                     if not full_speech:
                         full_speech = f"{hook_p1} {hook_p2} {app_speech} {cta_speech}".strip()
 
-                    # 🔒 [무결성 게이트 1: 금지어 검증]
-                    has_forbidden = False
-                    for bad_word in self.FORBIDDEN_WORDS:
-                        if bad_word in full_speech:
-                            logger.warning(f"🚫 [금지어 감지 탈락] '{bad_word}' 포함 대본 기각: {full_speech}")
-                            has_forbidden = True
-                            break
+                    has_forbidden = any(bad in full_speech for bad in self.FORBIDDEN_WORDS)
                     if has_forbidden:
                         continue
 
-                    # 공식 검색어 포함 검증 (누락 시 자동 보정)
                     if self.OFFICIAL_KEYWORD not in cta_speech:
                         cta_speech = f"{cta_speech} 네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"
                         full_speech = f"{hook_p1} {hook_p2} {app_speech} {cta_speech}".strip()
 
-                    # 🔒 [무결성 게이트 2: 글자 수 검증 (안전 허용 범위: 95자 ~ 160자)]
-                    if len(full_speech) < 95 or len(full_speech) > 165:
-                        logger.warning(f"⚠️ 글자 수 범위 벗어남({len(full_speech)}자, 허용: 95~165자), 다음 시도")
+                    # 🔒 [무결성 게이트: 22초 규격 글자 수 검증 (140~175자)]
+                    if len(full_speech) < 140 or len(full_speech) > 175:
+                        logger.warning(
+                            f"⚠️ [분량 미달] 주제 #{norm_id} 대본 {len(full_speech)}자 "
+                            f"(목표 150~165자 / 허용 140~175자) ➔ 재시도"
+                        )
                         continue
 
-                    logger.info(f"✨ [Gemini 자율 대본 성공] 주제 #{norm_id} ({len(full_speech)}자, key={key_name}, model={model})")
+                    logger.info(f"✨ [Legacy Gemini 대본 성공] 주제 #{norm_id} ({len(full_speech)}자, key={key_name}, model={model})")
                     return {
                         "hook_p1_5s": hook_p1,
                         "hook_p2_5s": hook_p2,
@@ -202,6 +433,7 @@ class AuraShortsScriptWriter:
                         "debate_question": debate_q or "여러분의 생각은 어떠신가요?",
                         "full_speech": full_speech,
                         "situation": situation,
+                        "is_narrative_v2": False,
                         "is_ai_generated": True
                     }
                 except Exception as e:
@@ -210,3 +442,4 @@ class AuraShortsScriptWriter:
 
         logger.warning(f"⚠️ [Aura 대본] 제미나이 호출 모두 실패 ➔ 폴백")
         return None
+

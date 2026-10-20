@@ -7,15 +7,63 @@
 let currentVerificationFilter = "all"; // 'all', 'shorts', 'cardnews'
 let isVerificationRunning = false;
 
+// 0. 브랜드별 공식 메타 정보 (타 브랜드 데이터 대체/편취 금지 · 정직한 기본값 바인딩)
+const VERIFICATION_BRAND_META = {
+    aura: {
+        brand: "aura",
+        brand_name: "💖 Aura AI 데이팅",
+        keyword: "아우라AI데이팅",
+        landing_url: "https://aura-ai-dating.vercel.app/",
+        theme: "linear-gradient(135deg, #EC4899, #BE185D)",
+        themeShadow: "rgba(236,72,153,0.35)",
+        themeAccent: "#EC4899"
+    },
+    stock: {
+        brand: "stock",
+        brand_name: "📈 Stock Master 주식 AI",
+        keyword: "스톡마스터 AI",
+        landing_url: "https://stockmaster-ai.vercel.app/",
+        theme: "linear-gradient(135deg, #F59E0B, #D97706)",
+        themeShadow: "rgba(245,158,11,0.35)",
+        themeAccent: "#F59E0B"
+    },
+    insurance: {
+        brand: "insurance",
+        brand_name: "🛡️ InsureBalance 보험비교",
+        keyword: "보험 리밸런스",
+        landing_url: "https://insure-rebalance.vercel.app/",
+        theme: "linear-gradient(135deg, #10B981, #059669)",
+        themeShadow: "rgba(16,185,129,0.35)",
+        themeAccent: "#10B981"
+    }
+};
+
+// 현재 브랜드 키 안전 해석
+function resolveVerificationBrand() {
+    const b = (typeof currentBrand !== "undefined" && currentBrand) ? currentBrand : "aura";
+    return VERIFICATION_BRAND_META[b] ? b : "aura";
+}
+
+// 브랜드 테마 메타 반환
+function getVerificationBrandMeta(brandKey) {
+    return VERIFICATION_BRAND_META[brandKey] || VERIFICATION_BRAND_META["aura"];
+}
+
 // 1. 실측 감사 데이터 가져오기 및 렌더링
 async function fetchVerificationStatus() {
     try {
         const res = await fetch("/api/verification/status");
         if (!res.ok) throw new Error("네트워크 응답 오류");
         const data = await res.json();
+        // 서버 응답 데이터 전역 캐싱 (즉시 재렌더링 지원)
+        window.cachedVerificationData = data;
         renderVerificationBoard(data);
     } catch (err) {
         console.warn("실측 데이터 조회 대기 중:", err);
+        // 통신 실패 시에도 캐시된 데이터로 보드 유지
+        if (window.cachedVerificationData) {
+            renderVerificationBoard(window.cachedVerificationData);
+        }
     }
 }
 
@@ -24,16 +72,27 @@ function renderVerificationBoard(boardData) {
     const container = document.getElementById("verification-cards-container");
     const summaryContainer = document.getElementById("verification-summary-banner");
     const auditTimeEl = document.getElementById("verification-audit-time");
-    
+
     if (!container) return;
 
-    // 현재 브랜드 (기본: aura)
-    const brand = typeof currentBrand !== "undefined" ? currentBrand : "aura";
-    const brandData = boardData[brand] || boardData["aura"] || {};
+    // 인자 없이 호출되면 전역 캐시 사용
+    const source = boardData || window.cachedVerificationData || {};
+
+    // 현재 브랜드 (기본: aura) — 타 브랜드 데이터 대체(fallback) 절대 금지
+    const brand = resolveVerificationBrand();
+    const meta = getVerificationBrandMeta(brand);
+    const brandData = (source && source[brand]) ? source[brand] : {};
+
+    // 브랜드 공식 기본값 정직 바인딩 (데이터 미수신 시에도 해당 브랜드 정보만 표출)
+    const brandName = brandData.brand_name || meta.brand_name;
+    const brandKeyword = brandData.keyword || meta.keyword;
+    const brandLandingUrl = brandData.landing_url || meta.landing_url;
     const platforms = brandData.platforms || {};
 
-    if (auditTimeEl && brandData.audit_time) {
-        auditTimeEl.innerText = `최종 실측 감사 시각: ${brandData.audit_time} (KST)`;
+    if (auditTimeEl) {
+        auditTimeEl.innerText = brandData.audit_time
+            ? `최종 실측 감사 시각: ${brandData.audit_time} (KST)`
+            : `최종 실측 감사 시각: 데이터 수집 대기 중 (${brandName})`;
     }
 
     // 5대 채널 기본 정보 매핑
@@ -86,7 +145,7 @@ function renderVerificationBoard(boardData) {
     ];
 
     // 상태 요약 계산
-    let totalCount = platformDefs.length;
+    const totalCount = platformDefs.length;
     let aliveCount = 0;
     let perfectCommentCount = 0;
 
@@ -98,7 +157,7 @@ function renderVerificationBoard(boardData) {
         const commentStatus = item.comment_status || "PENDING";
         const isPerfect = commentStatus === "VERIFIED_PERFECT" || commentStatus === "VERIFIED_IN_CLIP";
         const isPartial = commentStatus === "VERIFIED_PARTIAL";
-        
+
         if (isAlive) aliveCount++;
         if (isPerfect || isPartial) perfectCommentCount++;
 
@@ -109,7 +168,7 @@ function renderVerificationBoard(boardData) {
         // 증빙 스크린샷 웹 경로 변환
         let proofWebUrl = "";
         if (item.proof_screenshot) {
-            const rawPath = item.proof_screenshot.replace(/\\/g, "/");
+            const rawPath = String(item.proof_screenshot).replace(/\\/g, "/");
             const relPart = rawPath.split("/outputs/")[1];
             if (relPart) {
                 proofWebUrl = `/outputs/${relPart}`;
@@ -117,7 +176,7 @@ function renderVerificationBoard(boardData) {
         }
 
         // 상태 뱃지
-        const statusBadge = isAlive 
+        const statusBadge = isAlive
             ? `<span style="background:#ECFDF5;color:#059669;padding:4px 8px;border-radius:6px;font-weight:700;font-size:11px;border:1px solid #A7F3D0;">🟢 게시물 ALIVE</span>`
             : `<span style="background:#FEF2F2;color:#DC2626;padding:4px 8px;border-radius:6px;font-weight:700;font-size:11px;border:1px solid #FECACA;">🔴 점검 대기</span>`;
 
@@ -150,7 +209,7 @@ function renderVerificationBoard(boardData) {
                     <!-- 실측 감사 정보 리스트 -->
                     <div style="background:#F8FAFC;border:1px solid #EEF2F6;border-radius:10px;padding:12px;margin-bottom:14px;font-size:12px;">
                         <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-                            <span style="color:#64748B;">공식 검색어 ('${brandData.keyword || '아우라AI데이팅'}'):</span>
+                            <span style="color:#64748B;">공식 검색어 ('${brandKeyword}'):</span>
                             <span style="font-weight:700;color:${item.keyword_matched ? '#059669' : '#94A3B8'};">
                                 ${item.keyword_matched ? '✅ 일치 확인' : '⚪ 미포함/해당없음'}
                             </span>
@@ -203,17 +262,18 @@ function renderVerificationBoard(boardData) {
 
     container.innerHTML = cardsHtml;
 
-    // 요약 배너 업데이트
+    // 요약 배너 업데이트 (브랜드 테마 색상 적용)
     if (summaryContainer) {
         summaryContainer.innerHTML = `
             <div style="background:linear-gradient(135deg, #1E1B18, #2D2721);color:#FFFFFF;border-radius:14px;padding:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;box-shadow:0 8px 24px rgba(0,0,0,0.12);">
                 <div>
                     <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
                         <span style="font-size:24px;">🛡️</span>
-                        <h3 style="margin:0;font-size:17px;font-weight:800;color:#FFFFFF;">5대 플랫폼 실시간 송출 & 댓글 실측 감사 종합 리포트</h3>
+                        <h3 style="margin:0;font-size:17px;font-weight:800;color:#FFFFFF;">${brandName} · 5대 플랫폼 실시간 송출 & 댓글 실측 감사 종합 리포트</h3>
                     </div>
                     <p style="margin:0;font-size:12.5px;color:#A8A29E;">
                         봇이 작성한 글과 첫 댓글이 실제 사용자에게 노출되는지 브라우저 DOM을 직접 긁어 전수 감사를 완료했습니다.
+                        <span style="color:${meta.themeAccent};font-weight:700;">공식 검색어: ${brandKeyword}</span>
                     </p>
                 </div>
                 <div style="display:flex;gap:14px;align-items:center;">
@@ -223,9 +283,9 @@ function renderVerificationBoard(boardData) {
                     </div>
                     <div style="text-align:center;background:rgba(255,255,255,0.08);padding:10px 18px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);">
                         <span style="font-size:11px;color:#D6D3D1;display:block;">첫 댓글 박힘</span>
-                        <strong style="font-size:18px;color:#F59E0B;font-weight:800;">${perfectCommentCount} / ${totalCount} 완료</strong>
+                        <strong style="font-size:18px;color:${meta.themeAccent};font-weight:800;">${perfectCommentCount} / ${totalCount} 완료</strong>
                     </div>
-                    <button class="btn" onclick="triggerLiveVerification()" style="background:linear-gradient(135deg, #EC4899, #BE185D);color:#FFFFFF;border:none;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 12px rgba(236,72,153,0.35);" id="btn-trigger-verify">
+                    <button class="btn" onclick="triggerLiveVerification()" style="background:${meta.theme};color:#FFFFFF;border:none;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 12px ${meta.themeShadow};" id="btn-trigger-verify">
                         🔍 즉시 전수 실측 재실행
                     </button>
                 </div>
@@ -233,19 +293,19 @@ function renderVerificationBoard(boardData) {
         `;
     }
 
-    // 메인 대시보드(tab-overview) 상단 미니 배너 연동
+    // 메인 대시보드(tab-overview) 상단 미니 배너 연동 (브랜드 테마 색상 적용)
     const overviewMiniBanner = document.getElementById("overview-verification-mini-banner");
     if (overviewMiniBanner) {
         overviewMiniBanner.innerHTML = `
-            <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-left:4px solid #EC4899;border-radius:12px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,0.04);margin-bottom:20px;">
+            <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-left:4px solid ${meta.themeAccent};border-radius:12px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,0.04);margin-bottom:20px;">
                 <div style="display:flex;align-items:center;gap:12px;">
                     <span style="font-size:22px;">🕵️</span>
                     <div>
                         <div style="display:flex;align-items:center;gap:8px;">
-                            <strong style="font-size:13.5px;color:#1E293B;">5대 채널 실시간 송출 & 첫 댓글 실측 감사</strong>
+                            <strong style="font-size:13.5px;color:#1E293B;">${brandName} · 5대 채널 실시간 송출 & 첫 댓글 실측 감사</strong>
                             <span style="background:#ECFDF5;color:#059669;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid #A7F3D0;">전 플랫폼 정상 🟢</span>
                         </div>
-                        <span style="font-size:11.5px;color:#64748B;">인스타·페북·스레드 카드뉴스 & 유튜브·네이버 숏폼 공식 링크 댓글 100% 매칭 검증됨</span>
+                        <span style="font-size:11.5px;color:#64748B;">인스타·페북·스레드 카드뉴스 & 유튜브·네이버 숏폼 공식 링크 댓글 100% 매칭 검증됨 · 공식 검색어 '${brandKeyword}'</span>
                     </div>
                 </div>
                 <div style="display:flex;gap:8px;">
@@ -271,7 +331,12 @@ function setVerificationFilter(filter, btn) {
         btn.style.color = "#FFFFFF";
         btn.style.fontWeight = "700";
     }
-    fetchVerificationStatus();
+    // 캐시된 데이터로 즉시 재렌더링 (불필요한 네트워크 왕복 제거)
+    if (window.cachedVerificationData) {
+        renderVerificationBoard(window.cachedVerificationData);
+    } else {
+        fetchVerificationStatus();
+    }
 }
 
 // 4. 즉시 전수 실측 감사 재실행
@@ -290,7 +355,7 @@ async function triggerLiveVerification() {
     if (typeof showToast === "function") showToast("🕵️ 5대 플랫폼 실시간 실측 감사를 시작합니다...", "info");
 
     try {
-        const brand = typeof currentBrand !== "undefined" ? currentBrand : "aura";
+        const brand = resolveVerificationBrand();
         const res = await fetch("/api/verification/run", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -355,6 +420,15 @@ function openProofModal(imgSrc, title) {
     `;
     modal.style.display = "flex";
 }
+
+// 6. 전역 스코프 등록 (인라인 onclick 및 타 스크립트에서 직접 호출 가능)
+window.fetchVerificationStatus = fetchVerificationStatus;
+window.renderVerificationBoard = renderVerificationBoard;
+window.triggerLiveVerification = triggerLiveVerification;
+window.setVerificationFilter = setVerificationFilter;
+window.openProofModal = openProofModal;
+window.getVerificationBrandMeta = getVerificationBrandMeta;
+window.VERIFICATION_BRAND_META = VERIFICATION_BRAND_META;
 
 // 초기화
 document.addEventListener("DOMContentLoaded", () => {

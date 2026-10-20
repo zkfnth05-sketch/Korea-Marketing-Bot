@@ -14,10 +14,25 @@
   • 엄격한 5분(300초) GPU 냉각 휴식 타이머 (실시간 온도/VRAM 모니터링)
   • 65℃ 안전 차단벽 & 저쪽 컴퓨터(KTRS) 작업 시 자율 양보
 
-[아키텍처 재편 요약]
-- 브랜드 단위 격리 경계: Aura / Insurance / Stock 각각 독립 try/except 파이프라인
-- 태스크 단위 실행 유닛: 사전점검 → 실행 → 산출물 실물 검증 → 정리 → 백오프 → 즉시 1회 재시도
-- 멱등 상태 저장: task_id 기반, 매 태스크 완료 즉시 원자적 flush
+[아키텍처 재편 요약 — Round-Robin Interleaving Edition]
+- 🔀 교차 라운드로빈 인터리빙 큐 (브랜드별 직렬 실행 전면 폐지):
+    Round 1: aura:shorts:1   → insurance:shorts:1   → stock:shorts:1
+    Round 2: aura:cardnews:1 → insurance:cardnews:1 → stock:cardnews:1
+    Round 3: aura:shorts:2   → insurance:shorts:2   → stock:shorts:2
+    Round 4: aura:cardnews:2 → insurance:cardnews:2 → stock:cardnews:2
+    Round 5: aura:shorts:3   → insurance:shorts:3   → stock:shorts:3
+  → 어떤 지점에서 중단되어도 3개 브랜드가 균등하게 확보된다.
+- 🧾 DailyReceiptGuard 사전 검사: 태스크 착수 직전 당일 쿼터(숏폼 3 / 카드뉴스 2)를
+  확인하여 이미 충족된 경우 서브프로세스를 0회 기동하고
+  status="SKIPPED_QUOTA_SATISFIED" 로 즉시 통과 처리한다.
+- ⏰ 07:00 KTRS 주간 양보 마감 인지 안전 가드:
+  07:00~23:59 주간 양보 시간대이거나, 06:25(숏폼 35분) / 06:50(카드뉴스 10분) 이후로
+  07:00 마감을 넘기게 되는 경우 강제 컷오프 없이
+  status="DEFERRED_DAYTIME_YIELD" 로 품격 있게 안전 이월한다.
+- 🧯 에러 원문 보존: GPUSafetyGuard.run_isolated_step 결과의 res["error"] /
+  res["reason"] 을 그대로 보존한다. ("프로세스 비정상 종료"로 덮어쓰지 않음)
+- 💾 원자적 저장: 매니페스트/상태 모두 tmp → flush → fsync → os.replace.
+- 🧱 완전 격리: 태스크 1건이 실패/지연되어도 다른 브랜드·타입 태스크는 계속 실행.
 - 24시간 무인 안전장치: 타임아웃, 지수 백오프, 좀비 회수, 데몬 예외 격리
 """
 
@@ -51,6 +66,7 @@ if str(CURRENT_DIR) not in sys.path:
     sys.path.insert(0, str(CURRENT_DIR))
 
 from core.gpu_safety_guard import GPUSafetyGuard
+from core.receipt_engine.daily_receipt_guard import DailyReceiptGuard
 
 
 # ============================================================================
@@ -74,7 +90,7 @@ BRAND_META: Dict[str, Dict[str, Any]] = {
         "name": "보험 리밸런스",
         "shorts_script": "run_insurance_shorts.py",
         "cardnews_script": "run_insurance_cardnews.py",
-        "shorts_extra": [],
+        "shorts_extra": ["--no-publish"],
         "cardnews_extra": [],
         "shorts_max_topics": 8,
         "cardnews_max_topics": 8,
@@ -86,7 +102,7 @@ BRAND_META: Dict[str, Dict[str, Any]] = {
         "name": "StockMaster AI",
         "shorts_script": "run_stock_shorts.py",
         "cardnews_script": "run_stock_cardnews.py",
-        "shorts_extra": [],
+        "shorts_extra": ["--no-publish"],
         "cardnews_extra": [],
         "shorts_max_topics": 8,
         "cardnews_max_topics": 6,
@@ -108,10 +124,41 @@ class MidnightContentFactory:
     BACKOFF_BASE_SEC = 15            # 재시도 백오프 기본값
     BACKOFF_MAX_SEC = 120            # 재시도 백오프 상한
 
+    # ------------------------------------------------------------------
+    # 07:00 KTRS 주간 양보 마감 인지 안전 가드 상수
+    # ------------------------------------------------------------------
+    DEADLINE_HOUR = 7                # 07:00 KTRS 주간 양보 시작
+    DAYTIME_YIELD_START_HOUR = 7     # 07:00 ~ 23:59 주간 양보 시간대
+
+    # 태스크 타입별 예상 소요 시간(분) — 마감 가드 판정에 사용
+    # 숏폼: 30분 렌더 + 5분 쿨다운 = 35분 / 카드뉴스: 5분 렌더 + 5분 쿨다운 = 10분
+    ESTIMATED_MINUTES: Dict[str, int] = {
+        "shorts": 35,
+        "cardnews": 10,
+    }
+
+    # ------------------------------------------------------------------
+    # 교차 라운드로빈 인터리빙 실행 계획 (5라운드 × 3브랜드 = 15태스크)
+    # ------------------------------------------------------------------
+    BRAND_ORDER: List[str] = ["aura", "insurance", "stock"]
+    ROUND_ROBIN_PLAN: List[Dict[str, Any]] = [
+        {"round": 1, "type": "shorts",   "slot_idx": 1, "title": "숏폼 #1 교차 선점"},
+        {"round": 2, "type": "cardnews", "slot_idx": 1, "title": "카드뉴스 #1 교차 선점"},
+        {"round": 3, "type": "shorts",   "slot_idx": 2, "title": "숏폼 #2 교차"},
+        {"round": 4, "type": "cardnews", "slot_idx": 2, "title": "카드뉴스 #2 완료"},
+        {"round": 5, "type": "shorts",   "slot_idx": 3, "title": "숏폼 #3 완료"},
+    ]
+
     def __init__(self, cooldown_sec: int = 300):
         self.cooldown_sec = cooldown_sec
         self.QUEUE_DIR.mkdir(parents=True, exist_ok=True)
         self.STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        # 일일 쿼터/영수증 가드
+        try:
+            self.receipt_guard = DailyReceiptGuard()
+        except Exception as e:
+            logger.warning(f"⚠️ [DailyReceiptGuard 초기화 경고] {e}")
+            self.receipt_guard = None
 
     # ------------------------------------------------------------------
     # 상태 저장 (원자적 쓰기)
@@ -176,11 +223,12 @@ class MidnightContentFactory:
                         continue
                     is_today = (today_str in f.name)
                     slides = [s for s in f.glob("slide_*.png") if s.stat().st_size >= 10240]
-                    if brand == "stock" and slides:
+                    if slides:
                         mod_date = datetime.datetime.fromtimestamp(
                             slides[0].stat().st_mtime
                         ).strftime("%Y%m%d")
-                        is_today = (mod_date == today_str)
+                        if mod_date == today_str:
+                            is_today = True
                     if is_today and len(slides) >= 5:
                         parts = f.name.replace("[", "_").replace("]", "_").split("_")
                         for p in parts:
@@ -196,11 +244,12 @@ class MidnightContentFactory:
                         continue
                     mp4s = [m for m in f.glob("*.mp4") if m.stat().st_size >= 1024 * 1024]
                     is_today = (today_str in f.name)
-                    if not is_today and mp4s:
+                    if mp4s:
                         mod_date = datetime.datetime.fromtimestamp(
                             mp4s[0].stat().st_mtime
                         ).strftime("%Y%m%d")
-                        is_today = (mod_date == today_str)
+                        if mod_date == today_str:
+                            is_today = True
                     if is_today and len(mp4s) >= 1:
                         parts = f.name.replace("[", "_").replace("]", "_").split("_")
                         for p in parts:
@@ -210,11 +259,129 @@ class MidnightContentFactory:
                                 break
         return sorted(list(created))
 
-    def _verify_artifact(self, brand: str, content_type: str, topic_id: int) -> bool:
-        """특정 주제 산출물이 실제로 완성되었는지 실물 검증"""
+    # ------------------------------------------------------------------
+    # 완제품 실물 탐색 & 직인 영수증(READY_FOR_DISPATCH.json) 발급
+    # ------------------------------------------------------------------
+    def find_and_tag_ready_artifact(
+        self, brand: str, content_type: str, topic_id: int, slot: str
+    ) -> Tuple[bool, Optional[str], Optional[List[str]]]:
+        """오늘자 완제품 실물을 탐색하고, 확인 시 READY_FOR_DISPATCH.json 직인을 원자적으로 기록.
+
+        반환:
+            (True, mp4_path, None)      숏폼 완성본 확인
+            (True, None, slide_paths)   카드뉴스 완성본 확인
+            (False, None, None)         미완성
+        """
         try:
-            done = set(self.get_today_created_topics(brand, content_type))
-            return topic_id in done
+            today_str = datetime.datetime.now().strftime("%Y%m%d")
+            desktop = Path(os.environ.get("USERPROFILE", "C:/Users/zkfnt")) / "Desktop"
+            meta = BRAND_META.get(brand, {})
+
+            mp4_path: Optional[Path] = None
+            slides: List[Path] = []
+            artifact_dir: Optional[Path] = None
+
+            if content_type == "shorts":
+                brand_dir = desktop / "한국 숏폼_산출물" / meta.get("shorts_folder", brand)
+                if not brand_dir.exists():
+                    return (False, None, None)
+                candidates: List[Path] = []
+                for f in brand_dir.iterdir():
+                    if not f.is_dir():
+                        continue
+                    for m in f.glob("*.mp4"):
+                        try:
+                            st = m.stat()
+                        except Exception:
+                            continue
+                        if st.st_size < 1024 * 1024:
+                            continue
+                        mod_date = datetime.datetime.fromtimestamp(st.st_mtime).strftime("%Y%m%d")
+                        if mod_date != today_str:
+                            continue
+                        candidates.append(m)
+                if not candidates:
+                    return (False, None, None)
+                candidates.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+                mp4_path = candidates[0]
+                artifact_dir = mp4_path.parent
+            else:  # cardnews
+                brand_dir = desktop / "한국 카드뉴스_산출물" / meta.get("cardnews_folder", brand)
+                if not brand_dir.exists():
+                    return (False, None, None)
+                best: Optional[List[Path]] = None
+                best_mtime = 0.0
+                for f in brand_dir.iterdir():
+                    if not f.is_dir():
+                        continue
+                    today_slides: List[Path] = []
+                    for s in f.glob("slide_*.png"):
+                        try:
+                            st = s.stat()
+                        except Exception:
+                            continue
+                        if st.st_size < 10240:
+                            continue
+                        mod_date = datetime.datetime.fromtimestamp(st.st_mtime).strftime("%Y%m%d")
+                        if mod_date != today_str:
+                            continue
+                        today_slides.append(s)
+                    if len(today_slides) >= 5:
+                        latest = max(s.stat().st_mtime for s in today_slides)
+                        if latest > best_mtime:
+                            best_mtime = latest
+                            best = sorted(today_slides)
+                if not best:
+                    return (False, None, None)
+                slides = best
+                artifact_dir = slides[0].parent
+
+            if artifact_dir is None:
+                return (False, None, None)
+
+            # 직인 영수증 원자적 기록
+            receipt = {
+                "brand": brand,
+                "type": content_type,
+                "slot": slot,
+                "topic_id": topic_id,
+                "artifact_path": str(mp4_path) if mp4_path else None,
+                "slide_paths": [str(s) for s in slides] if slides else None,
+                "status": "VERIFIED_READY",
+                "created_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            }
+            receipt_file = artifact_dir / "READY_FOR_DISPATCH.json"
+            tmp_file = artifact_dir / "READY_FOR_DISPATCH.json.tmp"
+            with open(tmp_file, "w", encoding="utf-8") as fp:
+                json.dump(receipt, fp, ensure_ascii=False, indent=2)
+                fp.flush()
+                os.fsync(fp.fileno())
+            os.replace(tmp_file, receipt_file)
+
+            logger.info(
+                "[직인 발급] %s/%s #%d (%s) → %s"
+                % (brand, content_type, topic_id, slot, receipt_file)
+            )
+
+            if mp4_path:
+                return (True, str(mp4_path), None)
+            return (True, None, [str(s) for s in slides])
+
+        except Exception as e:
+            logger.warning(
+                "완제품 탐색 예외(%s/%s/#%s): %s" % (brand, content_type, topic_id, e)
+            )
+            return (False, None, None)
+
+    def _verify_artifact(
+        self, brand: str, content_type: str, topic_id: int, slot: str = "verify"
+    ) -> bool:
+        """특정 주제 산출물이 실제로 완성되었는지 실물 검증 (find_and_tag_ready_artifact 경유 일원화)"""
+        try:
+            ok, _art, _slides = self.find_and_tag_ready_artifact(
+                brand, content_type, topic_id, slot
+            )
+            return bool(ok)
         except Exception as e:
             logger.warning(f"산출물 검증 예외({brand}/{content_type}/#{topic_id}): {e}")
             return False
@@ -349,6 +516,150 @@ class MidnightContentFactory:
             })
         return tasks
 
+
+    # ------------------------------------------------------------------
+    # 🔀 교차 라운드로빈 인터리빙 태스크 큐 빌더 (핵심 개편)
+    # ------------------------------------------------------------------
+    def _build_interleaved_tasks(self, state: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """
+        3개 브랜드를 공평하게 교차 순환시키는 15개 태스크 큐 생성.
+
+        Round 1: aura:shorts:1   → insurance:shorts:1   → stock:shorts:1
+        Round 2: aura:cardnews:1 → insurance:cardnews:1 → stock:cardnews:1
+        Round 3: aura:shorts:2   → insurance:shorts:2   → stock:shorts:2
+        Round 4: aura:cardnews:2 → insurance:cardnews:2 → stock:cardnews:2
+        Round 5: aura:shorts:3   → insurance:shorts:3   → stock:shorts:3
+
+        [설계 의도]
+        - 브랜드별 직렬 실행(Aura 5개 → Insure 5개 → Stock 5개) 구조를 폐기한다.
+        - 어떤 이유로 중간에 중단되더라도 3개 브랜드가 최대한 균등하게
+          확보되도록(예: 6개 완료 시 각 브랜드 2개씩) 순서를 강제한다.
+        - 각 브랜드의 topic_id 는 pick_smart_rotating_topics() 로 오프셋 순환 선정한다.
+        """
+        # 1) 브랜드별 태스크를 먼저 생성하고 slot 기준으로 인덱싱
+        per_brand: Dict[str, Dict[str, Dict[str, Any]]] = {}
+        for brand in self.BRAND_ORDER:
+            try:
+                tasks = self._build_brand_tasks(brand, state)
+            except Exception as e:
+                logger.error(f"❌ [{brand}] 태스크 빌드 실패: {e}")
+                logger.debug(traceback.format_exc())
+                tasks = []
+            slot_map: Dict[str, Dict[str, Any]] = {}
+            for t in tasks:
+                slot_map[t["slot"]] = t
+            per_brand[brand] = slot_map
+
+        # 2) 라운드 × 브랜드 순서로 인터리빙 큐 구성 (평탄화)
+        queue: List[Dict[str, Any]] = []
+        for plan in self.ROUND_ROBIN_PLAN:
+            slot_key = "%s_%d" % (plan["type"], plan["slot_idx"])
+            for brand in self.BRAND_ORDER:
+                task = per_brand.get(brand, {}).get(slot_key)
+                if not task:
+                    logger.warning(
+                        "⚠️ [큐 빌드] %s / %s 태스크 없음 — 건너뜀" % (brand, slot_key)
+                    )
+                    continue
+                task = dict(task)
+                task["round"] = plan["round"]
+                task["round_title"] = plan["title"]
+                queue.append(task)
+
+        logger.info(
+            "🔀 [인터리빙 큐 구성] 총 %d개 태스크 / %d라운드 × %d브랜드"
+            % (len(queue), len(self.ROUND_ROBIN_PLAN), len(self.BRAND_ORDER))
+        )
+        for i, t in enumerate(queue, 1):
+            logger.info(
+                "   %02d. [R%d·%s] %s"
+                % (i, t["round"], t["round_title"], t["label"])
+            )
+        return queue
+
+    # ------------------------------------------------------------------
+    # 🧾 DailyReceiptGuard 사전 검사 (당일 쿼터 충족 여부)
+    # ------------------------------------------------------------------
+    def _is_quota_reached(self, brand: str, content_type: str) -> bool:
+        """
+        당일 쿼터(숏폼 3 / 카드뉴스 2) 도달 여부 판정.
+
+        DailyReceiptGuard 는 can_produce() / get_remaining_quota() 를 공식 API로
+        제공한다. (is_quota_reached 라는 이름의 메서드는 존재하지 않으므로 위임)
+        판정 불가/예외 시에는 안전하게 False(생산 진행) 를 반환한다.
+        """
+        guard = self.receipt_guard
+        if guard is None:
+            return False
+        try:
+            can_produce = getattr(guard, "can_produce", None)
+            if callable(can_produce):
+                return not bool(can_produce(brand, content_type))
+            remaining = getattr(guard, "get_remaining_quota", None)
+            if callable(remaining):
+                return int(remaining(brand, content_type)) <= 0
+        except Exception as e:
+            logger.warning(
+                f"⚠️ [쿼터 검사 예외] {brand}/{content_type}: {e} — 생산 진행으로 안전 폴백"
+            )
+            return False
+        return False
+
+    # ------------------------------------------------------------------
+    # ⏰ 07:00 KTRS 주간 양보 마감 인지 안전 가드
+    # ------------------------------------------------------------------
+    def _check_deadline_guard(
+        self,
+        content_type: str,
+        now: Optional[datetime.datetime] = None,
+    ) -> Tuple[bool, Optional[str]]:
+        """
+        07:00 KTRS 주간 양보 마감 인지 판정.
+
+        반환: (진행 가능 여부, 이월 사유)
+
+        판정 규칙:
+          (1) hour >= 7 (07:00 ~ 23:59)
+              → KTRS 주간 GPU 양보 시간대이므로 진행 불가
+          (2) 06:00 <= hour < 7
+              · 숏폼: 06:25 이후면 35분(30분 렌더 + 5분 쿨다운) 소요 시 07:00 초과
+              · 카드뉴스: 06:50 이후면 10분(5분 렌더 + 5분 쿨다운) 소요 시 07:00 초과
+          (3) 그 외 시간(00:00 ~ 06:25) → 정상 진행 허용
+        """
+        now = now or datetime.datetime.now()
+        hour = now.hour
+        minute = now.minute
+        hhmm = now.strftime("%H:%M")
+
+        # (1) 07:00 ~ 23:59 주간 GPU 양보 시간대
+        if hour >= self.DAYTIME_YIELD_START_HOUR:
+            return (
+                False,
+                "07:00~23:59 주간 GPU 양보 시간대(야간 제작 시간 초과)",
+            )
+
+        # (2) 06:00 ~ 06:59 마감 임박 구간
+        if 6 <= hour < self.DEADLINE_HOUR:
+            if content_type == "shorts":
+                # 06:25 이후 → 35분 소요 시 07:00 초과
+                if minute >= 25:
+                    return (
+                        False,
+                        f"현재 {hhmm} — 07:00 주간 양보 전 "
+                        f"숏폼 렌더 시간(35분) 부족으로 안전 이월",
+                    )
+            elif content_type == "cardnews":
+                # 06:50 이후 → 10분 소요 시 07:00 초과
+                if minute >= 50:
+                    return (
+                        False,
+                        f"현재 {hhmm} — 07:00 주간 양보 전 "
+                        f"카드뉴스 렌더 시간(10분) 부족으로 안전 이월",
+                    )
+
+        # (3) 00:00 ~ 06:25 정상 진행
+        return (True, None)
+
     # ------------------------------------------------------------------
     # 사전점검: ComfyUI 기동 보장
     # ------------------------------------------------------------------
@@ -410,6 +721,42 @@ class MidnightContentFactory:
             "timestamp": started_at,
         }
 
+        # ------------------------------------------------------------------
+        # (A) DailyReceiptGuard 사전 검사 — 당일 쿼터 이미 충족 시 서브프로세스 0회 기동
+        # ------------------------------------------------------------------
+        try:
+            if self._is_quota_reached(task["brand"], task["type"]):
+                logger.info(
+                    f"🧾 [쿼터 충족 스킵] {task['label']} — 당일 쿼터 이미 달성, 기동 생략"
+                )
+                record.update({
+                    "success": True,
+                    "verified": True,
+                    "status": "SKIPPED_QUOTA_SATISFIED",
+                    "attempts": 0,
+                    "elapsed_sec": 0.0,
+                    "error": None,
+                })
+                return record
+        except Exception as e:
+            logger.warning(f"⚠️ [쿼터 사전검사 예외] {task['label']}: {e} — 계속 진행")
+
+        # ------------------------------------------------------------------
+        # (B) 07:00 KTRS 주간 양보 마감 인지 안전 가드
+        # ------------------------------------------------------------------
+        can_run, deadline_reason = self._check_deadline_guard(task["type"])
+        if not can_run:
+            logger.warning(
+                f"⏰ [안전 이월] {task['label']} — {deadline_reason}"
+            )
+            record.update({
+                "success": False,
+                "verified": False,
+                "status": "DEFERRED_DAYTIME_YIELD",
+                "error": deadline_reason,
+            })
+            return record
+
         if dry_run:
             logger.info(f"[DRY-RUN] {task['cmd']} 가상 실행 (2초)")
             time.sleep(2)
@@ -430,13 +777,14 @@ class MidnightContentFactory:
             )
             logger.info(f"▶️ {attempt_label} 실행")
 
+            res: Dict[str, Any] = {}
             try:
                 res = GPUSafetyGuard.run_isolated_step(
                     cmd=task["cmd"],
                     label=attempt_label,
                     cwd=str(CURRENT_DIR),
                     cooldown_sec=self.cooldown_sec,
-                )
+                ) or {}
                 elapsed = float(res.get("elapsed_sec", 0) or 0)
                 total_elapsed += elapsed
                 exit_ok = bool(res.get("success", False))
@@ -446,12 +794,18 @@ class MidnightContentFactory:
                 record["error"] = f"{type(e).__name__}: {e}"
                 exit_ok = False
 
-            # 종료코드 0이어도 산출물 실물 검증
-            verified = self._verify_artifact(task["brand"], task["type"], task["topic_id"])
+            # 종료코드 0이어도 산출물 실물 검증 (완제품 탐색 + 직인 발급 일원화)
+            art_ok, art_path, slide_paths = self.find_and_tag_ready_artifact(
+                task["brand"], task["type"], task["topic_id"], task["slot"]
+            )
+            verified = bool(art_ok)
             record["verified"] = verified
 
             if exit_ok and verified:
                 record["success"] = True
+                record["artifact_path"] = art_path
+                record["slide_paths"] = slide_paths
+                record["ready_for_dispatch"] = True
                 record["elapsed_sec"] = round(total_elapsed, 2)
                 record["timestamp"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 logger.info(f"✅ [완료] {task['label']} (검증 통과, {record['elapsed_sec']}s)")
@@ -462,7 +816,13 @@ class MidnightContentFactory:
                 record["error"] = "프로세스 종료코드 0이지만 산출물 실물 검증 실패"
                 logger.warning(f"⚠️ [검증 실패] {task['label']} — 산출물 미완성")
             elif not exit_ok:
-                record["error"] = record["error"] or "프로세스 비정상 종료"
+                # 🧯 에러 원문 보존: GPUSafetyGuard 가 돌려준 실제 사유를 그대로 기록
+                record["error"] = (
+                    record["error"]
+                    or res.get("error")
+                    or res.get("reason")
+                    or "프로세스 비정상 종료"
+                )
 
             # 백오프 후 재시도
             if attempt < max_attempts:
@@ -489,8 +849,11 @@ class MidnightContentFactory:
         dry_run: bool,
     ) -> None:
         """
-        브랜드 1개 파이프라인. 예외는 여기서 흡수되어 다른 브랜드에 영향 없음.
-        태스크 완료 즉시 매니페스트 flush + 오프셋 멱등 저장.
+        [레거시 · DEPRECATED] 브랜드 단위 직렬 파이프라인.
+
+        ⚠️ run_nightly_production 은 더 이상 이 메서드를 호출하지 않는다.
+           현재는 _build_interleaved_tasks() + _execute_single_task() 인터리빙
+           순회로 대체되었다. 수동 디버깅/단일 브랜드 재현용으로만 보존한다.
         """
         meta = BRAND_META[brand]
         logger.info(f"\n{'='*70}\n🏭 [브랜드 파이프라인 시작] {meta['emoji']} {meta['name']}\n{'='*70}")
@@ -570,30 +933,103 @@ class MidnightContentFactory:
         logger.info(f"🎯 생산 계획: 3대 앱 × (숏폼 3개 + 카드뉴스 2개) = 총 15개 콘텐츠")
         logger.info("=" * 70 + "\n")
 
-        # 총 태스크 수 사전 계산 (진행률 표시용)
-        total_tasks = 0
-        for brand in BRAND_META:
-            meta = BRAND_META[brand]
-            total_tasks += 3 + 2  # 숏폼 3 + 카드뉴스 2
+        # ------------------------------------------------------------------
+        # 🔀 교차 라운드로빈 인터리빙 큐 생성 (브랜드별 직렬 루프 전면 폐지)
+        # ------------------------------------------------------------------
+        try:
+            tasks = self._build_interleaved_tasks(state)
+        except Exception as e:
+            logger.error(f"❌❌ [인터리빙 큐 빌드 치명 예외] {e}")
+            logger.debug(traceback.format_exc())
+            tasks = []
 
+        total_tasks = len(tasks)
         results: List[Dict[str, Any]] = []
+        deferred_count = 0
 
-        # 브랜드 단위 격리 실행
-        for brand in ["aura", "insurance", "stock"]:
+        # 인터리빙 순서대로 하나씩 실행
+        for task in tasks:
+            step_idx = len(results) + 1
             try:
-                self._run_brand_pipeline(
-                    brand=brand,
-                    state=state,
-                    manifest_file=manifest_file,
-                    date_str=date_str,
-                    results=results,
-                    total_tasks=total_tasks,
-                    dry_run=dry_run,
-                )
+                record = self._execute_single_task(task, step_idx, total_tasks, dry_run)
             except Exception as e:
-                # 브랜드 파이프라인 전체 예외도 흡수 → 다음 브랜드 계속
-                logger.error(f"❌❌ [{brand}] 브랜드 파이프라인 치명 예외: {e}")
+                # 실행 유닛 자체가 예외를 흘리더라도 큐 순회는 계속
+                logger.error(f"❌ [태스크 실행 유닛 예외] {task.get('label')}: {e}")
                 logger.debug(traceback.format_exc())
+                record = {
+                    "step": step_idx,
+                    "task_id": task.get("task_id"),
+                    "brand": task.get("brand"),
+                    "type": task.get("type"),
+                    "slot": task.get("slot"),
+                    "topic_id": task.get("topic_id"),
+                    "label": task.get("label"),
+                    "success": False,
+                    "verified": False,
+                    "attempts": 0,
+                    "elapsed_sec": 0.0,
+                    "error": f"{type(e).__name__}: {e}",
+                    "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                }
+
+            results.append(record)
+
+            # 매 태스크 완료 즉시 매니페스트 원자적 flush
+            self._write_manifest(manifest_file, {
+                "date": date_str,
+                "completed_tasks": len(results),
+                "total_tasks": total_tasks,
+                "tasks": results,
+            })
+
+            # 성공 시 오프셋 멱등 저장
+            if record.get("success"):
+                brand = task.get("brand")
+                ctype = task.get("type")
+                topic_id = task.get("topic_id")
+                if brand and ctype and topic_id is not None:
+                    meta = BRAND_META.get(brand, {})
+                    max_t = (
+                        meta.get("cardnews_max_topics", 8)
+                        if ctype == "cardnews"
+                        else meta.get("shorts_max_topics", 8)
+                    )
+                    state[f"{brand}_{ctype}_offset"] = int(topic_id) % max_t
+                    self._save_state(state)
+
+            # 07:00 마감 이월 발생 시 후속 태스크도 동일하게 안전 이월 처리
+            if record.get("status") == "DEFERRED_DAYTIME_YIELD":
+                deferred_count += 1
+                remaining = total_tasks - len(results)
+                if remaining > 0:
+                    logger.warning(
+                        f"⏰ [마감 이월 감지] 남은 {remaining}개 태스크를 안전 이월 처리합니다."
+                    )
+                    for rest in tasks[len(results):]:
+                        results.append({
+                            "step": len(results) + 1,
+                            "task_id": rest.get("task_id"),
+                            "brand": rest.get("brand"),
+                            "type": rest.get("type"),
+                            "slot": rest.get("slot"),
+                            "topic_id": rest.get("topic_id"),
+                            "label": rest.get("label"),
+                            "success": False,
+                            "verified": False,
+                            "status": "DEFERRED_DAYTIME_YIELD",
+                            "attempts": 0,
+                            "elapsed_sec": 0.0,
+                            "error": record.get("error"),
+                            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        })
+                        deferred_count += 1
+                    self._write_manifest(manifest_file, {
+                        "date": date_str,
+                        "completed_tasks": len(results),
+                        "total_tasks": total_tasks,
+                        "tasks": results,
+                    })
+                break
 
         # 최종 상태 기록
         state["last_run_date"] = date_str
@@ -608,6 +1044,7 @@ class MidnightContentFactory:
             "total_tasks": total_tasks,
             "success_count": success_count,
             "failed_count": len(failed),
+            "deferred_count": deferred_count,
             "tasks": results,
         })
 

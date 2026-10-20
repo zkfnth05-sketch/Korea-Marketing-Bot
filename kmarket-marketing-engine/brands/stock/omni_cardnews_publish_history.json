@@ -896,5 +896,557 @@
         }
       }
     }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-19",
+    "published_at": "2026-10-19 11:55:21",
+    "brand": "stock",
+    "topic_id": 7,
+    "title": "주린이 탈출: 손절매와 익절 구간 설정하는 절대 공식",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "stock",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 📈 주식 릴스 순수 브라우저 실물 발행 완료",
+        "video": "stock_topic7_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_facebook_comment_proof.png"
+          }
+        }
+      },
+      "facebook_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "instagram_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "threads": {
+        "success": true,
+        "brand": "stock",
+        "message": "🎉 [스레드 발행 성공] 스톡마스터 AI 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "stock",
+          "published_at": "2026-10-19T11:59:24.329929",
+          "caption_preview": "📉 삼성전자 216,000원의 진실\n\n외국인과 기관의 수급 패턴, 단순 감으로 하시나요?\n\n현재 시장 종합 ...",
+          "media_count": 5,
+          "first_reply": "📈 AI 실시간 수급 & 급등 테마 1분 무료 진단\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "stock",
+        "topic_id": 7,
+        "video_id": "eWAq0dXSl0E",
+        "video_url": "https://youtube.com/shorts/eWAq0dXSl0E",
+        "title": "📉삼성전자 216,000원, 외국인 매집은 진짜일까? 퀀트 팩트체크 #스톡마스터 AI #Shorts",
+        "pinned_comment": "📌 실시간 외인·기관 쌍끌이 수급 포착 & AI 퀀트 리스크 가드는\n네이버에 👉 [ 스톡마스터 AI ] 검색하시면 바로 나옵니다!\n(공식 링크: https://stockmaster-ai.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "stock_topic7_cardnews_reels.mp4",
+        "published_at": "2026-10-19 12:00:32",
+        "elapsed_sec": 68.4,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "stock",
+        "topic_id": 7,
+        "title": "📉삼성전자 216,000원, 외국인 매집은 진짜일까? 퀀트 팩트체크",
+        "video_file": "stock_topic7_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@stockmaster_ai",
+        "published_at": "2026-10-19 12:00:49"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "stock",
+        "platform": "tiktok",
+        "topic_id": 7,
+        "video_file": "stock_topic7_cardnews_reels.mp4",
+        "title": "주린이 탈출: 손절매와 익절 구간 설정하는 절대 공식",
+        "post_url": "https://www.tiktok.com/@stockmaster_ai",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_tiktok_verified_proof_topic07.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "stock"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-19",
+    "published_at": "2026-10-19 12:41:15",
+    "brand": "stock",
+    "topic_id": 3,
+    "title": "FOMC 금리 결정 후 코스피/코스닥 대응 전략 4대 핵심 포인트",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "stock",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 📈 주식 릴스 순수 브라우저 실물 발행 완료",
+        "video": "stock_topic3_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_facebook_comment_proof.png"
+          }
+        }
+      },
+      "facebook_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "instagram_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "threads": {
+        "success": true,
+        "brand": "stock",
+        "message": "🎉 [스레드 발행 성공] 스톡마스터 AI 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "stock",
+          "published_at": "2026-10-19T12:45:19.966483",
+          "caption_preview": "📊 시장 스트레스 지수 55점, 당신의 계좌는 안녕하십니까?\n\n외국인과 기관의 수급은 거짓말을 하지 않습니다...",
+          "media_count": 5,
+          "first_reply": "📈 AI 실시간 수급 & 급등 테마 1분 무료 진단\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "stock",
+        "topic_id": 3,
+        "video_id": "J37s4I7lepY",
+        "video_url": "https://youtube.com/shorts/J37s4I7lepY",
+        "title": "🚨 FOMC 직후, 계좌 지키는 퀀트의 생존 전략 4 (환율 1,332원/국채 5.09%) #스톡마스터 AI #Shorts",
+        "pinned_comment": "📌 실시간 외인·기관 쌍끌이 수급 포착 & AI 퀀트 리스크 가드는\n네이버에 👉 [ 스톡마스터 AI ] 검색하시면 바로 나옵니다!\n(공식 링크: https://stockmaster-ai.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "stock_topic3_cardnews_reels.mp4",
+        "published_at": "2026-10-19 12:46:27",
+        "elapsed_sec": 67.7,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "stock",
+        "topic_id": 3,
+        "title": "🚨 FOMC 직후, 계좌 지키는 퀀트의 생존 전략 4 (환율 1,332원/국채 5",
+        "video_file": "stock_topic3_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@stockmaster_ai",
+        "published_at": "2026-10-19 12:46:43"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "stock",
+        "platform": "tiktok",
+        "topic_id": 3,
+        "video_file": "stock_topic3_cardnews_reels.mp4",
+        "title": "FOMC 금리 결정 후 코스피/코스닥 대응 전략 4대 핵심 포인트",
+        "post_url": "https://www.tiktok.com/@stockmaster_ai",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_tiktok_verified_proof_topic03.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "stock"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-19",
+    "published_at": "2026-10-19 15:50:22",
+    "brand": "stock",
+    "topic_id": 8,
+    "title": "24시간 글로벌 시황 & 외신 속보 실시간 레이더 활용법",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "stock",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 📈 주식 릴스 순수 브라우저 실물 발행 완료",
+        "video": "stock_topic8_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_facebook_comment_proof.png"
+          }
+        }
+      },
+      "facebook_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "instagram_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "threads": {
+        "success": true,
+        "brand": "stock",
+        "message": "🎉 [스레드 발행 성공] 스톡마스터 AI 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "stock",
+          "published_at": "2026-10-19T15:54:23.478901",
+          "caption_preview": "오늘의 장, 삼성전자가 218,000원을 기록하며 1.16% 상승 중입니다.\n\n단순 차트 분석은 잊으세요. ...",
+          "media_count": 5,
+          "first_reply": "📈 AI 실시간 수급 & 급등 테마 1분 무료 진단\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "stock",
+        "topic_id": 8,
+        "video_id": "7jO8uK96MY4",
+        "video_url": "https://youtube.com/shorts/7jO8uK96MY4",
+        "title": "📉 삼성전자 21.8만 원, 외인 수급이 심상치 않다? 퀀트 팩트 체크! #스톡마스터 AI #Shorts",
+        "pinned_comment": "📌 실시간 외인·기관 쌍끌이 수급 포착 & AI 퀀트 리스크 가드는\n네이버에 👉 [ 스톡마스터 AI ] 검색하시면 바로 나옵니다!\n(공식 링크: https://stockmaster-ai.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "stock_topic8_cardnews_reels.mp4",
+        "published_at": "2026-10-19 15:55:30",
+        "elapsed_sec": 66.3,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "stock",
+        "topic_id": 8,
+        "title": "📉 삼성전자 21.8만 원, 외인 수급이 심상치 않다? 퀀트 팩트 체크!",
+        "video_file": "stock_topic8_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@stockmaster_ai",
+        "published_at": "2026-10-19 15:55:45"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "stock",
+        "platform": "tiktok",
+        "topic_id": 8,
+        "video_file": "stock_topic8_cardnews_reels.mp4",
+        "title": "24시간 글로벌 시황 & 외신 속보 실시간 레이더 활용법",
+        "post_url": "https://www.tiktok.com/@stockmaster_ai",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_tiktok_verified_proof_topic08.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "stock"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-19",
+    "published_at": "2026-10-19 18:51:06",
+    "brand": "stock",
+    "topic_id": 4,
+    "title": "미국 배당 ETF(SCHD·JEPQ) 월 100만원 파이프라인 구축법",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "stock",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 📈 주식 릴스 순수 브라우저 실물 발행 완료",
+        "video": "stock_topic4_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_facebook_comment_proof.png"
+          }
+        }
+      },
+      "facebook_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "instagram_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "threads": {
+        "success": true,
+        "brand": "stock",
+        "message": "🎉 [스레드 발행 성공] 스톡마스터 AI 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "stock",
+          "published_at": "2026-10-19T18:55:08.289845",
+          "caption_preview": "환율 1,331.3원, 10년물 국채 5.098%.\n\n시장은 지금 숫자로 말하고 있습니다. 📊\n\n시장 종합 ...",
+          "media_count": 5,
+          "first_reply": "📈 AI 실시간 수급 & 급등 테마 1분 무료 진단\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "stock",
+        "topic_id": 4,
+        "video_id": "neGEe0heKx8",
+        "video_url": "https://youtube.com/shorts/neGEe0heKx8",
+        "title": "📊 환율 1,331원, 국채 5% 돌파? 지금 SCHD·JEPQ 담아야 할 이유 #스톡마스터 AI #Shorts",
+        "pinned_comment": "📌 실시간 외인·기관 쌍끌이 수급 포착 & AI 퀀트 리스크 가드는\n네이버에 👉 [ 스톡마스터 AI ] 검색하시면 바로 나옵니다!\n(공식 링크: https://stockmaster-ai.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "stock_topic4_cardnews_reels.mp4",
+        "published_at": "2026-10-19 19:00:33",
+        "elapsed_sec": 325.0,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "stock",
+        "topic_id": 4,
+        "title": "📊 환율 1,331원, 국채 5% 돌파? 지금 SCHD·JEPQ 담아야 할 이유",
+        "video_file": "stock_topic4_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@stockmaster_ai",
+        "published_at": "2026-10-19 19:00:48"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "stock",
+        "platform": "tiktok",
+        "topic_id": 4,
+        "video_file": "stock_topic4_cardnews_reels.mp4",
+        "title": "미국 배당 ETF(SCHD·JEPQ) 월 100만원 파이프라인 구축법",
+        "post_url": "https://www.tiktok.com/@stockmaster_ai",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_tiktok_verified_proof_topic04.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "stock"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-19",
+    "published_at": "2026-10-19 20:50:14",
+    "brand": "stock",
+    "topic_id": 5,
+    "title": "저PBR 밸류업 프로그램 수혜 금융주 & 배당주 스크리닝",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "stock",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 📈 주식 릴스 순수 브라우저 실물 발행 완료",
+        "video": "stock_topic5_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_facebook_comment_proof.png"
+          }
+        }
+      },
+      "facebook_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "instagram_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "threads": {
+        "success": true,
+        "brand": "stock",
+        "message": "🎉 [스레드 발행 성공] 스톡마스터 AI 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "stock",
+          "published_at": "2026-10-19T20:54:20.698886",
+          "caption_preview": "📈 지금 시장, 감으로 매매하다간 큰일 납니다.\n\n현재 시장 종합 스트레스 지수 45점. 코스피 5,755....",
+          "media_count": 5,
+          "first_reply": "📈 AI 실시간 수급 & 급등 테마 1분 무료 진단\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "stock",
+        "topic_id": 5,
+        "video_id": "TX5RtMS34kg",
+        "video_url": "https://youtube.com/shorts/TX5RtMS34kg",
+        "title": "⚠️ 저PBR주 올라탄 당신, 지금 당장 신용잔고부터 확인하세요! 📈 #스톡마스터 AI #Shorts",
+        "pinned_comment": "📌 실시간 외인·기관 쌍끌이 수급 포착 & AI 퀀트 리스크 가드는\n네이버에 👉 [ 스톡마스터 AI ] 검색하시면 바로 나옵니다!\n(공식 링크: https://stockmaster-ai.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "stock_topic5_cardnews_reels.mp4",
+        "published_at": "2026-10-19 20:55:27",
+        "elapsed_sec": 66.4,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "stock",
+        "topic_id": 5,
+        "title": "⚠️ 저PBR주 올라탄 당신, 지금 당장 신용잔고부터 확인하세요! 📈",
+        "video_file": "stock_topic5_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@stockmaster_ai",
+        "published_at": "2026-10-19 20:55:42"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "stock",
+        "platform": "tiktok",
+        "topic_id": 5,
+        "video_file": "stock_topic5_cardnews_reels.mp4",
+        "title": "저PBR 밸류업 프로그램 수혜 금융주 & 배당주 스크리닝",
+        "post_url": "https://www.tiktok.com/@stockmaster_ai",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_tiktok_verified_proof_topic05.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "stock"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-20",
+    "published_at": "2026-10-20 11:55:24",
+    "brand": "stock",
+    "topic_id": 1,
+    "title": "오늘 외인·기관이 쌍끌이 매수한 주도 섹터 TOP 4 분석",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "stock",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 📈 주식 릴스 순수 브라우저 실물 발행 완료",
+        "video": "stock_topic1_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_facebook_comment_proof.png"
+          }
+        }
+      },
+      "facebook_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "instagram_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "threads": {
+        "success": true,
+        "brand": "stock",
+        "message": "🎉 [스레드 발행 성공] 스톡마스터 AI 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "stock",
+          "published_at": "2026-10-20T11:59:25.337103",
+          "caption_preview": "📉 삼성전자 -1.49% 하락, 스마트 투자자는 지금 데이터에 집중합니다.\n\n현재가 214,750원, 시장 ...",
+          "media_count": 5,
+          "first_reply": "📈 AI 실시간 수급 & 급등 테마 1분 무료 진단\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "stock",
+        "topic_id": 1,
+        "video_id": "jzkYJ55E0ZE",
+        "video_url": "https://youtube.com/shorts/jzkYJ55E0ZE",
+        "title": "📉삼성전자 -1.49% 하락, 외인·기관 쌍끌이 매수 실체는? 📊 #스톡마스터 AI #Shorts",
+        "pinned_comment": "📌 실시간 외인·기관 쌍끌이 수급 포착 & AI 퀀트 리스크 가드는\n네이버에 👉 [ 스톡마스터 AI ] 검색하시면 바로 나옵니다!\n(공식 링크: https://stockmaster-ai.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "stock_topic1_cardnews_reels.mp4",
+        "published_at": "2026-10-20 12:00:31",
+        "elapsed_sec": 65.7,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "stock",
+        "topic_id": 1,
+        "title": "📉삼성전자 -1.49% 하락, 외인·기관 쌍끌이 매수 실체는? 📊",
+        "video_file": "stock_topic1_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@stockmaster_ai",
+        "published_at": "2026-10-20 12:00:46"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "stock",
+        "platform": "tiktok",
+        "topic_id": 1,
+        "video_file": "stock_topic1_cardnews_reels.mp4",
+        "title": "오늘 외인·기관이 쌍끌이 매수한 주도 섹터 TOP 4 분석",
+        "post_url": "https://www.tiktok.com/@stockmaster_ai",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_tiktok_verified_proof_topic01.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "stock"
+        }
+      }
+    }
   }
 ]

@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-AuraCTACard - 🏷️ [Aura 숏폼 8대 주제 전용 럭셔리 에디토리얼 찬반 투표 & 공식 네이버 검색 CTA 카드]
+AuraCTACard - 🏷️ [Aura 숏폼 16대 주제 전용 럭셔리 에디토리얼 찬반 투표 & 프로필 링크 직터치 CTA 카드]
 - 1080x1920 세로 풀HD 규격
 - 카드뉴스 5번 카드의 최고급 글래스모피즘 에디토리얼 디자인을 숏폼 9:16 비율로 완벽 이식
 - 8대 주제별 찬반 투표 질문 및 1번 찬성 vs 2번 반대 맞춤형 옵션 완벽 탑재
 - Playwright Chromium 초고화질 서브픽셀 렌더링 + FFmpeg 4초 무손실 MP4 인코딩
+
+[🎯 주제 레지스트리 확장 이력]
+  · 1~8번  : 원본 8대 킬러 주제 (100% 무손실 보존)
+  · 9~16번 : 6인 합의체 도파민 팩 8종 정식 탑재 (1~8번과 1:1 대응하는 확장 슬롯)
+  · 범위 초과 시 norm_id = ((topic_id - 1) % len(TOPIC_DEBATE_REGISTRY)) + 1 로 안전 정규화
 """
 
 import os
@@ -145,8 +150,151 @@ class AuraCTACard:
             "opt2_desc": "운동이나 커피 목적이면 성별 상관없이 편하게 가능하다!",
             "opt2_icon": "👫",
             "tagline": "500m 안심 레이더 당일 번개 매칭"
+        },
+        # ======================================================================
+        # 🚀 [9~16번] 6인 합의체 도파민 팩 8종 정식 탑재 (1~8번과 1:1 대응 확장 슬롯)
+        # ======================================================================
+        9: {
+            "theme_name": "소개팅 탈출 실전편",
+            "topic_sub": "소개팅 빌런 긴급 구원 전화 • AURA",
+            "hero_copy": "30초 만에 합법 칼탈출! 📞",
+            "debate_badge": "🔥 2030 핫이슈 찬반 토론",
+            "debate_question": '"소개팅 중 가짜 탈출 전화, 센스다 vs 비매너다?"',
+            "callout_text": "여러분의 솔직한 생각을 댓글(1번 vs 2번)로 남겨주세요! 👇",
+            "opt1_title": "1번 센스다",
+            "opt1_desc": "시간 낭비 막고 서로에게 깔끔하니 완전 센스!",
+            "opt1_icon": "💡",
+            "opt2_title": "2번 비매너다",
+            "opt2_desc": "눈앞에서 거짓말 전화로 탈출은 예의가 아니다!",
+            "opt2_icon": "🙅‍♂️",
+            "tagline": "30초 긴급 탈출 솔루션"
+        },
+        10: {
+            "theme_name": "도쿄 현지인 영통 썰",
+            "topic_sub": "언어 장벽 제로 글로벌 매칭 • AURA",
+            "hero_copy": "실시간 번역 자막으로 소통 끝! 🌐",
+            "debate_badge": "🔥 2030 핫이슈 찬반 토론",
+            "debate_question": '"외국인 찐친 만들기, 번역기 없이 진짜 가능할까?"',
+            "callout_text": "여러분의 솔직한 생각을 댓글(1번 vs 2번)로 남겨주세요! 👇",
+            "opt1_title": "1번 가능하다",
+            "opt1_desc": "실시간 AI 자막이면 언어 장벽 없이 친구 쌉가능!",
+            "opt1_icon": "👍",
+            "opt2_title": "2번 어렵다",
+            "opt2_desc": "미묘한 감정 전달이 안 돼서 깊은 관계는 무리!",
+            "opt2_icon": "👎",
+            "tagline": "넷플릭스급 실시간 번역 영상통화"
+        },
+        11: {
+            "theme_name": "소개팅앱 삭제하는 이유",
+            "topic_sub": "남녀 성비 50:50 정원제 • AURA",
+            "hero_copy": "50:50 안 맞으면 문 닫습니다! 👑",
+            "debate_badge": "🔥 2030 핫이슈 찬반 토론",
+            "debate_question": '"성비 50:50 강제 대기열, 남자 역차별이다 vs 필수 안전장치다?"',
+            "callout_text": "여러분의 솔직한 생각을 댓글(1번 vs 2번)로 남겨주세요! 👇",
+            "opt1_title": "1번 필수 안전장치",
+            "opt1_desc": "음침한 남탕 스트레스 없고 진성 회원만 모이니 필수!",
+            "opt1_icon": "🛡️",
+            "opt2_title": "2번 역차별이다",
+            "opt2_desc": "남자만 대기 걸어버리는 건 너무 과하다!",
+            "opt2_icon": "⚠️",
+            "tagline": "50:50 남녀 정원제 프리미엄 라운지"
+        },
+        12: {
+            "theme_name": "실물 손절 방지 화보",
+            "topic_sub": "본판 100% 보존 스튜디오 화보 • AURA",
+            "hero_copy": "내 본판 100% 보존 스튜디오 화보! ✨",
+            "debate_badge": "🔥 2030 핫이슈 찬반 토론",
+            "debate_question": '"AI 화보 보정, 어디까지가 매너일까?"',
+            "callout_text": "여러분의 솔직한 생각을 댓글(1번 vs 2번)로 남겨주세요! 👇",
+            "opt1_title": "1번 조명/피부톤까지",
+            "opt1_desc": "이목구비 안 건드리고 조명만 살린 건 센스 있는 자기관리!",
+            "opt1_icon": "💄",
+            "opt2_title": "2번 완전 무보정만",
+            "opt2_desc": "조금이라도 보정하면 실물 봤을 때 결국 사진 사기다!",
+            "opt2_icon": "🚫",
+            "tagline": "본판 100% 보존 자연스러운 스튜디오 화보"
+        },
+        13: {
+            "theme_name": "소개팅 더치페이 팩폭",
+            "topic_sub": "생각 통하는 사람만 연결 • AURA",
+            "hero_copy": "가치관 100% 일치자 우선 매칭! 🎯",
+            "debate_badge": "🔥 2030 핫이슈 찬반 토론",
+            "debate_question": '"첫 소개팅 밥값 더치페이, 여러분의 기준은?"',
+            "callout_text": "여러분의 솔직한 생각을 댓글(1번 vs 2번)로 남겨주세요! 👇",
+            "opt1_title": "1번 첫 만남 칼반띵",
+            "opt1_desc": "첫 만남엔 정확히 반반 나눠야 서로 부담 없고 뒤탈 없다!",
+            "opt1_icon": "💳",
+            "opt2_title": "2번 번갈아 내기",
+            "opt2_desc": "밥 사면 커피 사는 식으로 자연스럽게 이어가야 호감이다!",
+            "opt2_icon": "☕",
+            "tagline": "가치관 12문항 100% 일치 매칭"
+        },
+        14: {
+            "theme_name": "첫 카톡 읽씹 탈출 (남성)",
+            "topic_sub": "읽씹 제로 첫인사 AI 코칭 • AURA",
+            "hero_copy": "읽씹 없는 첫 대화 치트키 가동! 💬",
+            "debate_badge": "🔥 2030 핫이슈 찬반 토론",
+            "debate_question": '"첫마디 AI 추천, 센스일까 사기일까?"',
+            "callout_text": "여러분의 솔직한 생각을 댓글(1번 vs 2번)로 남겨주세요! 👇",
+            "opt1_title": "1번 센스다",
+            "opt1_desc": "어색한 날씨 얘기보다 센스 있는 맞춤형 질문이 훨씬 호감!",
+            "opt1_icon": "🤖",
+            "opt2_title": "2번 사기다",
+            "opt2_desc": "AI가 써준 멘트로 첫 대화하는 건 진정성이 부족하다!",
+            "opt2_icon": "🙅‍♂️",
+            "tagline": "읽씹 제로 맞춤형 아이스브레이킹"
+        },
+        15: {
+            "theme_name": "AI 얼굴 아우라 팩폭",
+            "topic_sub": "인스타 화제의 얼굴 분위기 분석 • AURA",
+            "hero_copy": "AI 얼굴 분위기 상위 3% 진단! 🔮",
+            "debate_badge": "🔥 2030 핫이슈 찬반 토론",
+            "debate_question": '"AI 매력 진단, 재미있는 놀이일까 자기 객관화일까?"',
+            "callout_text": "여러분의 솔직한 생각을 댓글(1번 vs 2번)로 남겨주세요! 👇",
+            "opt1_title": "1번 자기 객관화",
+            "opt1_desc": "친구들의 빈말보다 AI의 객관적 분위기 분석이 도움 된다!",
+            "opt1_icon": "🦊",
+            "opt2_title": "2번 단순 놀이",
+            "opt2_desc": "재미로만 보고 실제 인연은 직접 대화해봐야 안다!",
+            "opt2_icon": "🐣",
+            "tagline": "Gemini Vision AI 얼굴 분위기 진단"
+        },
+        16: {
+            "theme_name": "동네 자취생 안심 번개",
+            "topic_sub": "스토킹 걱정 제로 500m 안심 레이더 • AURA",
+            "hero_copy": "집 주소 노출 제로 500m 안심 레이더! 🛡️",
+            "debate_badge": "🔥 2030 핫이슈 찬반 토론",
+            "debate_question": '"동네 친구 매칭, 500m 지터링 안전한가?"',
+            "callout_text": "여러분의 솔직한 생각을 댓글(1번 vs 2번)로 남겨주세요! 👇",
+            "opt1_title": "1번 충분히 안전",
+            "opt1_desc": "집 주소 500m 오차로 가려주니 스토킹 위험 완벽 차단!",
+            "opt1_icon": "🏃‍♀️",
+            "opt2_title": "2번 그래도 불안",
+            "opt2_desc": "동네 자체를 공유하는 것 자체가 여전히 불안하다!",
+            "opt2_icon": "⚠️",
+            "tagline": "500m 랜덤 보안 지터링 당일 안심 번개"
         }
     }
+
+    # --------------------------------------------------------------------------
+    # 🎯 [핵심] topic_id -> 레지스트리 키 정규화 (1~16 정확 매칭 + 범위 초과 안전 폴백)
+    # --------------------------------------------------------------------------
+    @classmethod
+    def normalize_topic_id(cls, topic_id: Optional[int]) -> int:
+        """임의의 topic_id를 TOPIC_DEBATE_REGISTRY 유효 키로 정규화
+
+        - 1 <= topic_id <= 16 : 원본 그대로 정확 매칭
+        - 범위 초과/0/음수/None : ((topic_id - 1) % len(REGISTRY)) + 1 로 순환 정규화
+        """
+        registry_len = len(cls.TOPIC_DEBATE_REGISTRY)
+        try:
+            tid = int(topic_id) if topic_id is not None else 1
+        except (TypeError, ValueError):
+            tid = 1
+
+        if 1 <= tid <= registry_len:
+            return tid
+        return ((tid - 1) % registry_len) + 1
 
     def __init__(self):
         self.ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
@@ -160,11 +308,13 @@ class AuraCTACard:
         debate_question: str = "",
         hero_copy: str = ""
     ) -> Dict[str, Any]:
-        """주제 번호나 텍스트로부터 최적의 토론 데이터 도출"""
-        matched_id = 3 # 기본값: 3번
+        """주제 번호나 텍스트로부터 최적의 토론 데이터 도출 (1~16번 전 범위 지원)"""
+        registry_len = len(self.TOPIC_DEBATE_REGISTRY)
+        matched_id = 3  # 기본값: 3번
 
-        if topic_id is not None and 1 <= topic_id <= 8:
-            matched_id = topic_id
+        if topic_id is not None:
+            # 1~16 범위 정확 매칭 + 범위 초과 시 순환 정규화
+            matched_id = self.normalize_topic_id(topic_id)
         elif topic_title:
             for tid, data in self.TOPIC_DEBATE_REGISTRY.items():
                 if data["theme_name"] in topic_title or topic_title in data["theme_name"]:
@@ -175,6 +325,10 @@ class AuraCTACard:
                 if data["debate_question"] in debate_question or debate_question in data["debate_question"]:
                     matched_id = tid
                     break
+
+        # 레지스트리에 반드시 존재하는 키로 최종 보정
+        if matched_id not in self.TOPIC_DEBATE_REGISTRY:
+            matched_id = ((matched_id - 1) % registry_len) + 1
 
         base_data = dict(self.TOPIC_DEBATE_REGISTRY.get(matched_id, self.TOPIC_DEBATE_REGISTRY[3]))
 
@@ -349,42 +503,37 @@ class AuraCTACard:
 
     </div>
 
-    <!-- 3. Glow Naver Search Bar (The Core CTA) -->
-    <div class="w-full max-w-[980px] flex flex-col items-center space-y-3 pt-2">
-      <div class="w-full bg-white rounded-2xl p-4.5 flex items-center justify-between naver-glow border-2 border-[#03C75A]">
-        <!-- Naver N Logo & Keyword -->
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-[#03C75A] flex items-center justify-center font-black text-white text-2xl shadow-md">
-            N
-          </div>
-          <div class="text-left">
-            <p class="text-xs font-bold text-slate-500">네이버 검색창에 입력하세요</p>
-            <p class="text-3xl font-black text-slate-900 tracking-tight">{search_keyword}</p>
-          </div>
+    <!-- 3. Mega Profile Link Direct Touch Card (The Core Viral CTA) -->
+    <div class="w-full max-w-[980px] flex flex-col items-center space-y-4 pt-3">
+      <!-- Mega Neon Pulsing Button -->
+      <div class="w-full rounded-3xl p-6 bg-gradient-to-r from-pink-600 via-rose-500 to-amber-500 shadow-[0_0_50px_rgba(244,63,94,0.6)] border-2 border-white/50 flex flex-col items-center justify-center space-y-2">
+        <div class="flex items-center gap-3">
+          <span class="text-4xl animate-bounce">👉</span>
+          <span class="text-3xl md:text-4xl font-black text-white tracking-tight drop-shadow-lg">
+            @aura_ai_dating 프로필 링크 터치!
+          </span>
         </div>
-
-        <!-- Search Button with Magnifier -->
-        <div class="bg-[#03C75A] text-white font-black text-lg px-8 py-3.5 rounded-xl flex items-center gap-2 shadow-lg">
-          <span>검색</span>
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-          </svg>
-        </div>
+        <p class="text-lg font-bold text-amber-100 tracking-wide drop-shadow">
+          ✨ 3초 만에 내 매력 점수 & 이상형 무료 매칭 바로가기 ✨
+        </p>
       </div>
       
-      <!-- Sub CTA text -->
-      <p class="text-sm text-amber-300 font-bold tracking-wide pt-1">
-        👉 프로필 링크에서 3초 만에 나랑 꼭 맞는 이상형 & 연애 성향 확인하기
-      </p>
+      <!-- Visual Pulse Pointer Guide -->
+      <div class="flex items-center gap-2 text-rose-300 font-extrabold text-base animate-pulse">
+        <span>👇</span>
+        <span>화면 좌측 하단 계정 프로필(@aura_ai_dating)을 누르면 즉시 연결됩니다!</span>
+      </div>
     </div>
 
   </div>
 
-  <!-- 4. Bottom Footer (Official Landing URL & Copyright) -->
+  <!-- 4. Bottom Footer (Official Landing URL & Sub Search Guide) -->
   <div class="flex justify-between items-center z-10 w-full px-6 pt-3 border-t border-white/10 text-xs text-slate-400 font-medium">
     <div>
       <span class="text-slate-500">Official Web:</span>
       <span class="text-amber-400 font-bold ml-1">https://aura-ai-dating.vercel.app/</span>
+      <span class="text-slate-500 ml-2">| 네이버 검색:</span>
+      <span class="text-slate-300 font-semibold ml-1">{search_keyword}</span>
     </div>
     <div class="text-slate-500 text-xs">
       © 2026 AURA AI Dating. All rights reserved.
@@ -472,12 +621,13 @@ class AuraCTACard:
                 "-i", str(master_png),
                 "-vf", "scale=1080:1920,fps=30",
                 "-c:v", "libx264",
+                "-preset", "fast", "-crf", "20",
                 "-tune", "stillimage",
                 "-pix_fmt", "yuv420p",
                 "-t", str(duration_sec),
                 str(out_p)
             ]
-            subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+            subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True, timeout=30)
             logger.info(f"✨ [AuraCTACard] 럭셔리 엔딩 CTA 비디오 완료: {out_p.name}")
             return str(out_p)
         finally:
