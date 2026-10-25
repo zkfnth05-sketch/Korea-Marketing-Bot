@@ -1898,6 +1898,12 @@ class DashboardHandler(BaseHTTPRequestHandler):
         elif path == "/api/verification/status" or path.startswith("/api/verification/status"):
             self._handle_get_verification_status()
             return
+        elif path == "/api/seal/status" or path.startswith("/api/seal/status"):
+            from core.seal_manager import seal_manager
+            st = seal_manager.get_status()
+            self._set_headers("application/json")
+            self.wfile.write(json.dumps({"success": True, "data": st}, ensure_ascii=False).encode("utf-8"))
+            return
         elif path == "/verification" or path == "/live_verification":
             self._serve_file(OUTPUTS_DIR / "live_verification_dashboard.html", "text/html; charset=utf-8")
             return
@@ -2071,6 +2077,26 @@ class DashboardHandler(BaseHTTPRequestHandler):
             return
         elif path == "/api/settings":
             self._handle_save_settings(payload)
+            return
+        elif path == "/api/seal/toggle" or path.startswith("/api/seal/toggle"):
+            from core.seal_manager import seal_manager
+            target = "insurance_blog"
+            if payload and isinstance(payload, dict) and payload.get("target"):
+                target = payload.get("target")
+            elif "target=" in path:
+                target = path.split("target=")[-1].split("&")[0]
+            
+            res = seal_manager.toggle_sealed(target=target, actor="대시보드 사용자")
+            if res.get("sealed"):
+                global running_channels
+                if target == "insurance_blog":
+                    running_channels["insurance_blog"] = False
+                    running_channels["insurance_omni_blog"] = False
+                elif target == "insurance_kin":
+                    running_channels["insurance_naver_kin"] = False
+                    running_channels["insurance_kin"] = False
+            self._set_headers("application/json")
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
             return
         elif path == "/api/telegram/toggle-manager":
             self._handle_telegram_toggle_manager(payload)
@@ -2372,6 +2398,19 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self._set_headers("application/json")
             self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
             return
+        # 🔒 [보험 블로그 안전핀 봉인 차단]
+        if module_name in ["insurance_blog", "insurance_omni_blog", "insurance_naver_blog", "insurance_tistory", "insurance_brunch"]:
+            from core.seal_manager import seal_manager
+            if seal_manager.is_sealed("insurance_blog"):
+                res = {
+                    "success": False,
+                    "message": "🔒 [안전핀 작동] 보험 블로그는 대표님 지시로 발행이 안전 봉인(차단)되어 있습니다. 대시보드의 [봉인 해제] 버튼을 먼저 눌러주세요.",
+                    "running_channels": running_channels,
+                    "sealed": True
+                }
+                self._set_headers("application/json")
+                self.wfile.write(json.dumps(res, ensure_ascii=False).encode("utf-8"))
+                return
 
         if not running_channels.get(module_name, False):
             running_channels[module_name] = True

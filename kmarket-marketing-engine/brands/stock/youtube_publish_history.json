@@ -598,5 +598,37 @@
     "published_at": "2026-10-20 12:00:31",
     "elapsed_sec": 65.7,
     "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "brand": "stock",
+    "topic_id": 5,
+    "video_id": "1jlEbbX-_vM",
+    "video_url": "https://youtube.com/shorts/1jlEbbX-_vM",
+    "title": "⚠️ 신용잔고 폭주? 저PBR 금융주 지금 타면 ‘지옥’ 갑니다 | 스톡마스터 AI #스톡마스터 AI #Shorts",
+    "pinned_comment": "📌 실시간 외인·기관 쌍끌이 수급 포착 & AI 퀀트 리스크 가드는\n네이버에 👉 [ 스톡마스터 AI ] 검색하시면 바로 나옵니다!\n(공식 링크: https://stockmaster-ai.vercel.app/)",
+    "comment_status": "submitted",
+    "privacy_status": "public",
+    "video_file": "stock_topic5_cardnews_reels.mp4",
+    "published_at": "2026-10-20 12:52:32",
+    "elapsed_sec": 65.9,
+    "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "brand": "stock",
+    "topic_id": 1,
+    "video_id": "Ur5OdgKM808",
+    "video_url": "https://youtube.com/shorts/Ur5OdgKM808",
+    "title": "📉 삼성전자 -4.13% 폭락의 실체, 외국인 수급 데이터로 팩트체크 #스톡마스터 AI #Shorts",
+    "pinned_comment": "📌 실시간 외인·기관 쌍끌이 수급 포착 & AI 퀀트 리스크 가드는\n네이버에 👉 [ 스톡마스터 AI ] 검색하시면 바로 나옵니다!\n(공식 링크: https://stockmaster-ai.vercel.app/)",
+    "comment_status": "submitted",
+    "privacy_status": "public",
+    "video_file": "Stock_32초숏폼_주제06_stockmaster_official_overview_20261020_073155.mp4",
+    "published_at": "2026-10-20 21:07:58",
+    "elapsed_sec": 65.8,
+    "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
   }
 ]

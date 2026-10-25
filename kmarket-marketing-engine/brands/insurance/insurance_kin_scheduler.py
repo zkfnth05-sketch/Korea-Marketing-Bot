@@ -152,6 +152,22 @@ class InsuranceKinScheduler:
         - 안전핀 해제 상태에서 오늘 실물 등록 건이 DAILY_TARGET(10개) 미만이면 무조건 낚아채기 실행
         - 10개 완료 시에만 안전 대기 (조기 취침/오판 중단 원천 차단)
         """
+        # 🔒 [대표님 지시: 보험 지식iN 중앙 안전핀 봉인 검사]
+        try:
+            from core.seal_manager import seal_manager
+            if seal_manager.is_sealed("insurance_kin"):
+                msg = "🔒 [관리자 봉인] 보험 지식iN은 대표님 지시로 가동이 안전 봉인(차단)되어 있습니다. 대시보드에서 봉인 해제 시 가동됩니다."
+                logger.info(msg)
+                return {
+                    "success": False,
+                    "status": "SEALED",
+                    "message": msg,
+                    "daily_total": 0,
+                    "target": 0
+                }
+        except Exception as e:
+            logger.warning(f"⚠️ [보험 지식iN 봉인 검사 예외] {e}")
+
         # 🛡️ [최우선 안전핀] 계정 보호 절대 원칙 - 어떤 경우에도 이 체크보다 앞서 실행 금지
         if getattr(self, "SAFETY_LOCKED", False):
             logger.info("🛡️ [안전핀 작동] 네이버 계정 보호를 위해 InsureBalance 지식iN 무인 답변이 완전 봉인(휴식)되어 있습니다.")

@@ -1,131 +1,5 @@
 [
   {
-    "timestamp": "2026-10-18T11:54:46.237332",
-    "brand": "aura",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-18T11:54:49.771054",
-    "brand": "aura",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-18T11:54:53.042396",
-    "brand": "aura",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-18T11:54:55.205665",
-    "brand": "aura",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-18T17:01:56.422893",
-    "brand": "aura",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
-  },
-  {
-    "timestamp": "2026-10-18T17:02:00.403105",
-    "brand": "aura",
-    "platform": "meta",
-    "status": "expired",
-    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs)"
-  },
-  {
-    "timestamp": "2026-10-18T17:02:05.413458",
-    "brand": "aura",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-18T17:02:08.917209",
-    "brand": "aura",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-18T17:02:12.047093",
-    "brand": "aura",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-18T17:02:14.438143",
-    "brand": "aura",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-18T20:03:16.310341",
-    "brand": "aura",
-    "platform": "youtube",
-    "status": "expired",
-    "message": "세션 만료 감지 (재연동 필요, URL: https://accounts.google.com/v3/signin/accountchooser?continue=https://www.youtube.com/signin?action_handle_signin%3Dtrue%26app%3Ddesktop%26hl%3Dko%26next%3Dhttps%253A%252F%252Fstudio.youtube.com%252F%26feature%3Dredirect_login&hl=ko&passive=true&service=youtube&uilel=3&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S1963397764:1792321396225967)"
-  },
-  {
-    "timestamp": "2026-10-18T20:03:24.136118",
-    "brand": "aura",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
-  },
-  {
-    "timestamp": "2026-10-18T20:03:29.534662",
-    "brand": "aura",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-18T20:03:33.014945",
-    "brand": "aura",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-18T20:03:36.254533",
-    "brand": "aura",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-18T20:03:38.255196",
-    "brand": "aura",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-18T23:04:36.406974",
-    "brand": "aura",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
-  },
-  {
-    "timestamp": "2026-10-18T23:04:43.621471",
-    "brand": "aura",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
-  },
-  {
     "timestamp": "2026-10-18T23:04:48.550482",
     "brand": "aura",
     "platform": "tiktok",
@@ -694,6 +568,132 @@
   },
   {
     "timestamp": "2026-10-20T11:03:31.355162",
+    "brand": "aura",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-20T12:56:23.999489",
+    "brand": "aura",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
+  },
+  {
+    "timestamp": "2026-10-20T12:56:36.668136",
+    "brand": "aura",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
+  },
+  {
+    "timestamp": "2026-10-20T12:56:41.397981",
+    "brand": "aura",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-20T12:56:44.900525",
+    "brand": "aura",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-20T12:56:48.128703",
+    "brand": "aura",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-20T12:56:50.154577",
+    "brand": "aura",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-20T15:57:49.932615",
+    "brand": "aura",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
+  },
+  {
+    "timestamp": "2026-10-20T15:57:55.831786",
+    "brand": "aura",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
+  },
+  {
+    "timestamp": "2026-10-20T15:58:01.249947",
+    "brand": "aura",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-20T15:58:04.830046",
+    "brand": "aura",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-20T15:58:08.692142",
+    "brand": "aura",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-20T15:58:10.751068",
+    "brand": "aura",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-20T18:59:10.172469",
+    "brand": "aura",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UC6w6T-lImiwyC4VIEOx)"
+  },
+  {
+    "timestamp": "2026-10-20T18:59:16.698096",
+    "brand": "aura",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1356)"
+  },
+  {
+    "timestamp": "2026-10-20T18:59:21.412762",
+    "brand": "aura",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-20T18:59:24.961657",
+    "brand": "aura",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-20T18:59:28.604008",
+    "brand": "aura",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-20T18:59:30.606022",
     "brand": "aura",
     "platform": "tistory",
     "status": "active",

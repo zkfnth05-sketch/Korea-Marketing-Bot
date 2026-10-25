@@ -637,5 +637,27 @@
       }
     },
     "success": true
+  },
+  {
+    "brand": "stock",
+    "slot": "evening",
+    "topic": "수익률 30% 갉아먹는 '손절 타이밍' 놓치는 심리학적 원인",
+    "caption_preview": "계좌에 -3%는 잘라내면서 -15%는 방치하는 아이러니, 경험해보셨나요?\n\n이는 '손실 회피 편향' 때문입니...",
+    "published_at": "2026-10-20T19:31:12.104761",
+    "publish_result": {
+      "success": true,
+      "brand": "stock",
+      "message": "🎉 [스레드 발행 성공] 스톡마스터 AI 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "stock",
+        "published_at": "2026-10-20T19:31:12.042000",
+        "caption_preview": "계좌에 -3%는 잘라내면서 -15%는 방치하는 아이러니, 경험해보셨나요?\n\n이는 '손실 회피 편향' 때문입니...",
+        "media_count": 0,
+        "first_reply": "📈 AI 실시간 수급 & 급등 테마 1분 무료 진단\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_live_proof.png"
+      }
+    },
+    "success": true
   }
 ]

@@ -3,26 +3,6 @@
     "status": "success",
     "platform": "naver_clip",
     "brand": "insurance",
-    "topic_id": 2,
-    "title": "운전자보험 1만원대로 민식이법 벌금/변호사 완벽 방어하는 법",
-    "video_file": "Insurance_10초_순수인물_원테이크_주제02_driver_insurance_20260928_183950.mp4",
-    "channel_url": "https://clip.naver.com/@thefirst-life",
-    "published_at": "2026-10-03 12:15:57"
-  },
-  {
-    "status": "success",
-    "platform": "naver_clip",
-    "brand": "insurance",
-    "topic_id": 2,
-    "title": "운전자보험 1만원대로 민식이법 벌금/변호사 완벽 방어하는 법",
-    "video_file": "Insurance_22초숏폼_주제02_driver_insurance_20261003_153447.mp4",
-    "channel_url": "https://clip.naver.com/@thefirst-life",
-    "published_at": "2026-10-03 16:07:11"
-  },
-  {
-    "status": "success",
-    "platform": "naver_clip",
-    "brand": "insurance",
     "topic_id": 1,
     "title": "[실손의료비 4세대 전환 손익] 보험 리밸런스 #1",
     "video_file": "Insurance_22초숏폼_주제01_silbi_gen4_20261010_114916.mp4",
@@ -478,5 +458,45 @@
     "video_file": "insurance_topic8_cardnews_reels.mp4",
     "channel_url": "https://clip.naver.com/@thefirst-life",
     "published_at": "2026-10-20 12:45:48"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "insurance",
+    "topic_id": 2,
+    "title": "🚗 운전자보험, 2만원 내고 계신가요? 1만원으로 줄이는 법",
+    "video_file": "Insurance_22초숏폼_주제08_coverage_score_gap_diagnosis_20261020_041547.mp4",
+    "channel_url": "https://clip.naver.com/@thefirst-life",
+    "published_at": "2026-10-20 15:40:02"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "insurance",
+    "topic_id": 1,
+    "title": "💸 월 15만원 아끼는 보험 다이어트, 실손보험부터 점검하세요!",
+    "video_file": "Insurance_22초숏폼_주제08_coverage_score_gap_diagnosis_20261020_041547.mp4",
+    "channel_url": "https://clip.naver.com/@thefirst-life",
+    "published_at": "2026-10-20 18:33:15"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "insurance",
+    "topic_id": 2,
+    "title": "🚨 암보험 갱신 폭탄 예고! 60세에 월 35만 원 내시겠습니까?",
+    "video_file": "insurance_topic2_cardnews_reels.mp4",
+    "channel_url": "https://clip.naver.com/@thefirst-life",
+    "published_at": "2026-10-20 18:40:41"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "insurance",
+    "topic_id": 3,
+    "title": "🚨 암보험, 아직도 모르세요? 일반암 vs 유사암 진실 공개! 💸",
+    "video_file": "Insurance_22초숏폼_주제08_coverage_score_gap_diagnosis_20261020_041547.mp4",
+    "channel_url": "https://clip.naver.com/@thefirst-life",
+    "published_at": "2026-10-20 21:03:39"
   }
 ]

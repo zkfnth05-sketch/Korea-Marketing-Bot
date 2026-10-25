@@ -1,6 +1,73 @@
 // ==========================================
 // [모듈 2] overview.js: 대시보드 & 8대 AI 허브 24시간 무인 관제 전담 모듈
 // ==========================================
+// 🔒 [보험 블로그 안전핀 봉인 실시간 관리]
+window.isInsuranceBlogSealed = true; // 기본값 안전 봉인
+window.isInsuranceKinSealed = true; // 🔒 보험 지식iN 기본값 안전 봉인
+
+async function fetchSealStatus() {
+    try {
+        const res = await fetch("/api/seal/status");
+        const json = await res.json();
+        if (json && json.data) {
+            window.isInsuranceBlogSealed = Boolean(json.data.insurance_blog_sealed);
+            window.isInsuranceKinSealed = Boolean(json.data.insurance_kin_sealed);
+        }
+    } catch (e) {
+        console.warn("봉인 상태 조회 실패:", e);
+    }
+}
+
+async function toggleInsuranceBlogSeal(btn) {
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = "⏳ 처리 중...";
+    }
+    try {
+        const res = await fetch("/api/seal/toggle", { method: "POST" });
+        const data = await res.json();
+        window.isInsuranceBlogSealed = Boolean(data.sealed);
+        const msg = data.sealed 
+            ? "🔒 보험 블로그 발행이 안전 봉인(차단)되었습니다." 
+            : "🔓 보험 블로그 발행 봉인이 해제되었습니다! (정상 가동 가능)";
+        if (typeof showToast === "function") showToast(msg, data.sealed ? "warning" : "success");
+        if (typeof appendLog === "function") appendLog(msg, data.sealed ? "warning" : "success");
+        await fetchSealStatus();
+        if (typeof fetchStatus === "function") fetchStatus();
+    } catch (e) {
+        if (typeof showToast === "function") showToast("봉인 토글 통신 실패", "error");
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+window.fetchSealStatus = fetchSealStatus;
+window.toggleInsuranceBlogSeal = toggleInsuranceBlogSeal;
+
+async function toggleInsuranceKinSeal(btn) {
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = "⏳ 처리 중...";
+    }
+    try {
+        const res = await fetch("/api/seal/toggle?target=insurance_kin", { method: "POST" });
+        const data = await res.json();
+        window.isInsuranceKinSealed = Boolean(data.sealed);
+        const msg = data.sealed 
+            ? "🔒 보험 지식iN 답변이 안전 봉인(차단)되었습니다." 
+            : "🔓 보험 지식iN 답변 봉인이 해제되었습니다! (정상 가동 가능)";
+        if (typeof showToast === "function") showToast(msg, data.sealed ? "warning" : "success");
+        if (typeof appendLog === "function") appendLog(msg, data.sealed ? "warning" : "success");
+        await fetchSealStatus();
+        if (typeof fetchStatus === "function") fetchStatus();
+    } catch (e) {
+        if (typeof showToast === "function") showToast("봉인 토글 통신 실패", "error");
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+window.toggleInsuranceKinSeal = toggleInsuranceKinSeal;
+
+
 
 
 
@@ -1349,6 +1416,40 @@ function updateChannelBadges(runningChannels = {}, liveFeed = {}, channelErrors 
     const blogErr = channelErrors && (channelErrors[`${brand}_omni_blog`] || channelErrors[`${brand}_blog`]);
 
     if (blogBadge && blogCard) {
+        // 🔒 [보험 블로그 대표님 봉인 우선 처리]
+        if (brand === "insurance" && window.isInsuranceBlogSealed) {
+            blogBadge.innerHTML = "🔒 관리자 봉인됨 (발행 차단)";
+            blogBadge.style.background = "#FEF3C7";
+            blogBadge.style.color = "#B45309";
+            blogBadge.style.border = "1.5px solid #F59E0B";
+            blogCard.style.border = "1.5px solid #F59E0B";
+            blogCard.style.boxShadow = "0 4px 14px rgba(245, 158, 11, 0.2)";
+
+            let sealBox = document.getElementById("seal-box-insurance-omni_blog");
+            if (!sealBox) {
+                sealBox = document.createElement("div");
+                sealBox.id = "seal-box-insurance-omni_blog";
+                sealBox.style.cssText = "background:#FFFBEB;border:1px solid #FDE68A;color:#92400E;padding:10px 12px;border-radius:10px;font-size:12px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;";
+                blogBadge.parentElement.after(sealBox);
+            }
+            sealBox.innerHTML = `
+                <div>
+                    <strong>🔒 대표님 지시로 발행 봉인 중</strong><br>
+                    <span style="color:#B45309;font-size:11px;">스케줄러/데몬 자동 발행이 100% 차단되어 있습니다.</span>
+                </div>
+                <button onclick="toggleInsuranceBlogSeal(this)" style="background:#2563EB;color:#FFF;border:none;padding:6px 14px;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px;box-shadow:0 2px 6px rgba(37,99,235,0.3);">
+                    🔓 봉인 해제
+                </button>
+            `;
+            const errBox = document.getElementById("err-box-insurance-omni_blog");
+            if (errBox) errBox.remove();
+            return;
+        } else if (brand === "insurance" && !window.isInsuranceBlogSealed) {
+            // 봉인 해제된 상태면 봉인 안내박스 제거
+            const sealBox = document.getElementById("seal-box-insurance-omni_blog");
+            if (sealBox) sealBox.remove();
+        }
+
         if (blogErr) {
             blogBadge.innerHTML = "🚨 오류 발생";
             blogBadge.style.background = "#FEF2F2";
@@ -1470,20 +1571,45 @@ function updateChannelBadges(runningChannels = {}, liveFeed = {}, channelErrors 
         const isKinRunning = runningChannels[`${brand}_naver_kin`] || runningChannels[`${brand}_kin`];
         const kinBtn = document.getElementById(`btn-start-${brand}-naver_kin`) || document.getElementById(`btn-start-${brand}-kin`);
 
-        if (brand === "insurance") {
-            // 🔒 보험 지식iN 전용 완전 봉인 안전핀 표시
-            kinBadge.innerHTML = "🔒 안전핀 봉인 중 (대기)";
-            kinBadge.style.background = "#F1F5F9";
-            kinBadge.style.color = "#475569";
-            kinBadge.style.border = "1px solid #CBD5E1";
-            if (kinCard) kinCard.style.border = "1px dashed #94A3B8";
+        if (brand === "insurance" && window.isInsuranceKinSealed) {
+            // 🔒 보험 지식iN 대표님 봉인 우선 처리
+            kinBadge.innerHTML = "🔒 관리자 봉인됨 (가동 차단)";
+            kinBadge.style.background = "#FEF3C7";
+            kinBadge.style.color = "#B45309";
+            kinBadge.style.border = "1.5px solid #F59E0B";
+            if (kinCard) {
+                kinCard.style.border = "1.5px solid #F59E0B";
+                kinCard.style.boxShadow = "0 4px 14px rgba(245, 158, 11, 0.2)";
+            }
 
+            let sealBox = document.getElementById("seal-box-insurance-naver_kin");
+            if (!sealBox && kinBadge.parentElement) {
+                sealBox = document.createElement("div");
+                sealBox.id = "seal-box-insurance-naver_kin";
+                sealBox.style.cssText = "background:#FFFBEB;border:1px solid #FDE68A;color:#92400E;padding:10px 12px;border-radius:10px;font-size:12px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;";
+                kinBadge.parentElement.after(sealBox);
+            }
+            if (sealBox) {
+                sealBox.innerHTML = `
+                    <div>
+                        <strong>🔒 대표님 지시로 지식iN 봉인 중</strong><br>
+                        <span style="color:#B45309;font-size:11px;">답변 등록 및 낚아채기가 100% 원천 차단되어 있습니다.</span>
+                    </div>
+                    <button onclick="toggleInsuranceKinSeal(this)" style="background:#2563EB;color:#FFF;border:none;padding:6px 14px;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px;box-shadow:0 2px 6px rgba(37,99,235,0.3);">
+                        🔓 봉인 해제
+                    </button>
+                `;
+            }
             if (kinBtn) {
-                kinBtn.innerHTML = "🔒 안전핀 봉인됨";
+                kinBtn.innerHTML = "🔒 봉인 차단됨";
                 kinBtn.style.background = "#64748B";
                 kinBtn.style.cursor = "not-allowed";
-                kinBtn.title = "네이버 제재 방지를 위해 안전핀(Safety Lock)으로 완전 봉인되어 있습니다.";
+                kinBtn.onclick = null;
             }
+            return;
+        } else if (brand === "insurance" && !window.isInsuranceKinSealed) {
+            const sealBox = document.getElementById("seal-box-insurance-naver_kin");
+            if (sealBox) sealBox.remove();
         } else if (kinErr) {
             kinBadge.innerHTML = "🚨 오류 발생";
             kinBadge.style.background = "#FEF2F2";
@@ -1613,6 +1739,7 @@ function updateChannelBadges(runningChannels = {}, liveFeed = {}, channelErrors 
 let lastSeenLogKeys = new Set();
 
 async function fetchStatus() {
+    fetchSealStatus();
     try {
         const res = await fetch("/api/status");
         if (!res.ok) return;

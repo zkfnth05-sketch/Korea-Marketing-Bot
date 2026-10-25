@@ -1,10 +1,192 @@
 {
-  "current_topic_index": 25,
-  "last_topic_id": 5,
-  "last_run_time": "2026-10-20 10:02:32",
-  "last_title": "[보험 상식] 수술비 보험 종수술비 vs 질병수술비: 매회 지급되는 특약 고르는 법",
-  "published_count": 37,
+  "current_topic_index": 27,
+  "last_topic_id": 37,
+  "last_run_time": "2026-10-20 20:02:10",
+  "last_title": "[보험 상식] 아파트 누수 사고 시 일배책 청구 가이드: 아랫집 도배 비용과 우리집 방수공사비",
+  "published_count": 39,
   "history": [
+    {
+      "topic_id": 37,
+      "title": "[보험 상식] 아파트 누수 사고 시 일배책 청구 가이드: 아랫집 도배 비용과 우리집 방수공사비",
+      "title_naver": "아파트 누수 사고 시 일배책 청구 가이드: 아랫집 도배 비용과 우리집 방수공사비 핵심 정리 및 손해 안 보는 팁",
+      "title_tistory": "[InsureBalance] 아파트 누수 사고 시 일배책 청구 가이드: 아랫집 도배 비용과 우리집 방수공사비 완벽 가이드",
+      "title_brunch": "우리가 매달 내는 보험료, 아파트 누수 사고 시 일배책 청구 가이드: 아랫집 도배 비용과 우리집 방수공사비",
+      "category": "life_dental_pet",
+      "image_url": "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=1200&auto=format&fit=crop&q=80",
+      "published_at": "2026-10-20 20:02:10",
+      "publish_results": {
+        "topic_id": 37,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "아파트 누수 사고 시 일배책 청구 가이드: 아랫집 도배 비용과 우리집 방수공사비 핵심 정리 및 손해 안 보는 팁",
+            "url": "https://blog.naver.com/thefirst-life/224448107772",
+            "post_url": "https://blog.naver.com/thefirst-life/224448107772",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "누수보험청구",
+              "일배책손해방지비용",
+              "아파트누수도배",
+              "방수공사보상",
+              "치아보험임플란트",
+              "치아보험임플란트보장",
+              "치아보험임플란트면책기간",
+              "치아보험임플란트청구",
+              "치아보험임플란트가격",
+              "치아보험임플란트기간",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "think83157",
+            "title": "[InsureBalance] 아파트 누수 사고 시 일배책 청구 가이드: 아랫집 도배 비용과 우리집 방수공사비 완벽 가이드",
+            "url": "https://think83157.tistory.com/18",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "누수보험청구",
+              "일배책손해방지비용",
+              "아파트누수도배",
+              "방수공사보상",
+              "치아보험임플란트",
+              "치아보험임플란트보장",
+              "치아보험임플란트면책기간",
+              "치아보험임플란트청구",
+              "치아보험임플란트가격",
+              "치아보험임플란트기간",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "insurance",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "thefirst-life",
+            "title": "아파트 누수 사고 시 일배책 청구 가이드: 아랫집 도배 비용과 우리집 방수공사비 핵심 정리 및 손해 안 보는 팁",
+            "real_url": "https://blog.naver.com/thefirst-life/224448107772",
+            "log_no": "224448107772",
+            "pub_date": "Tue, 20 Oct 2026 20:00:46 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_verification\\naver_proof_1792494127.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "think83157",
+            "title": "1&middot;2세대 실손보험 갱신 폭탄, 4세대 전환 손익 비교와 후회 없는 선택 기준",
+            "real_url": "https://think83157.tistory.com/18",
+            "pub_date": "Sat, 17 Oct 2026 15:04:44 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-20 20:02:10"
+        }
+      }
+    },
+    {
+      "topic_id": 21,
+      "title": "[보험 상식] 자동차보험 대물배상 한도 10억원 설정해야 하는 진짜 이유 (포르쉐·슈퍼카 사고)",
+      "title_naver": "자동차보험 대물배상 한도 10억원 설정해야 하는 진짜 이유 (포르쉐·슈퍼카 사고) 핵심 정리 및 손해 안 보는 팁",
+      "title_tistory": "[InsureBalance] 자동차보험 대물배상 한도 10억원 설정해야 하는 진짜 이유 (포르쉐·슈퍼카 사고) 완벽 가이드",
+      "title_brunch": "우리가 매달 내는 보험료, 자동차보험 대물배상 한도 10억원 설정해야 하는 진짜 이유 (포르쉐·슈퍼카 사고)",
+      "category": "auto_driver",
+      "image_url": "https://images.unsplash.com/photo-1502877338535-766e1452684a?w=1200&auto=format&fit=crop&q=80",
+      "published_at": "2026-10-20 15:02:08",
+      "publish_results": {
+        "topic_id": 21,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "thefirst-life",
+            "title": "자동차보험 대물배상 한도 10억원 설정해야 하는 진짜 이유 (포르쉐·슈퍼카 사고) 핵심 정리 및 손해 안 보는 팁",
+            "url": "https://blog.naver.com/thefirst-life/224447770622",
+            "post_url": "https://blog.naver.com/thefirst-life/224447770622",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "대물배상10억",
+              "슈퍼카사고보험",
+              "자동차보험한도",
+              "대물배상비교",
+              "운전자보험특약",
+              "운전자보험특약추가",
+              "운전자보험특약추천",
+              "운전자보험특약누수",
+              "운전자보험특약일상생활",
+              "운전자보험특약확인",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "think83157",
+            "title": "[InsureBalance] 자동차보험 대물배상 한도 10억원 설정해야 하는 진짜 이유 (포르쉐·슈퍼카 사고) 완벽 가이드",
+            "url": "https://think83157.tistory.com/18",
+            "tags": [
+              "보험리밸런스",
+              "InsureBalance",
+              "대물배상10억",
+              "슈퍼카사고보험",
+              "자동차보험한도",
+              "대물배상비교",
+              "운전자보험특약",
+              "운전자보험특약추가",
+              "운전자보험특약추천",
+              "운전자보험특약누수",
+              "운전자보험특약일상생활",
+              "운전자보험특약확인",
+              "보험다이어트",
+              "보험료줄이기",
+              "보험"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_보험비교_브런치_영구로그인.bat 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "insurance",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "thefirst-life",
+            "title": "자동차보험 대물배상 한도 10억원 설정해야 하는 진짜 이유 (포르쉐·슈퍼카 사고) 핵심 정리 및 손해 안 보는 팁",
+            "real_url": "https://blog.naver.com/thefirst-life/224447770622",
+            "log_no": "224447770622",
+            "pub_date": "Tue, 20 Oct 2026 15:00:44 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\insurance\\blog_verification\\naver_proof_1792476125.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "think83157",
+            "title": "1&middot;2세대 실손보험 갱신 폭탄, 4세대 전환 손익 비교와 후회 없는 선택 기준",
+            "real_url": "https://think83157.tistory.com/18",
+            "pub_date": "Sat, 17 Oct 2026 15:04:44 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-20 15:02:08"
+        }
+      }
+    },
     {
       "topic_id": 5,
       "title": "[보험 상식] 수술비 보험 종수술비 vs 질병수술비: 매회 지급되는 특약 고르는 법",

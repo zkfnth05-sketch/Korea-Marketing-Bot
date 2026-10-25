@@ -16,7 +16,76 @@ from typing import Dict, Any, List, Optional
 import imageio_ffmpeg
 from PIL import Image, ImageDraw, ImageFont
 
+# 🎯 [SSOT 위임] 기하/설정 상수는 shorts_engine.geometry 단일 모듈에서만 정의한다.
+#   - 이 파일에서 상수를 재정의하면 SSOT 위반(두 개의 진실) → 절대 금지.
+#   - 레거시 PILL 이름은 geometry 쪽 임시 호환층에서만 흡수한다.
+#   - 임포트 실패는 조용히 삼키지 않는다: 잘못된 기본값으로 렌더링되는 사고를 원천 차단.
+try:
+    from core.shorts_engine.geometry import (  # noqa: F401
+        BOUNCING_BADGE_X_EXPR,
+        BOUNCING_BADGE_Y_EXPR,
+        BOUNCING_BADGE_AMPLITUDE,
+        BOUNCING_BADGE_BASE_Y,
+        BOUNCING_BADGE_FREQ_HZ,
+        # 🎯 [SSOT] 레거시 PILL 별칭도 geometry 단일 창구에서 흡수 (값 재정의 금지)
+        BOUNCING_PILL_X_EXPR,
+        BOUNCING_PILL_Y_EXPR,
+        FFMPEG_TIMEOUT_SEC,
+        BRAND_KEY_ALIASES,
+        run_ffmpeg_safe,
+        resolve_brand_key,
+    )
+except ImportError as _ssot_import_err:  # pragma: no cover - 로드 시점 계약 검증
+    raise ImportError(
+        "[ShortsVideoComposer] SSOT 모듈(core.shorts_engine.geometry) 로드 실패. "
+        "상수 재정의로 우회하지 말고 의존성/경로/배포 상태를 먼저 점검하십시오. "
+        f"원인: {_ssot_import_err!r}"
+    ) from _ssot_import_err
+
+# 🎯 [SSOT 계약 검증] 필수 심볼이 실제로 존재하는지 로드 시점에 명시적으로 확인.
+#   - BADGE(신규)와 PILL(레거시) 별칭을 모두 계약에 포함하여 조용한 누락을 원천 차단.
+_REQUIRED_SSOT_SYMBOLS = (
+    "BOUNCING_BADGE_X_EXPR",
+    "BOUNCING_BADGE_Y_EXPR",
+    "BOUNCING_PILL_X_EXPR",
+    "BOUNCING_PILL_Y_EXPR",
+    "FFMPEG_TIMEOUT_SEC",
+    "run_ffmpeg_safe",
+    "resolve_brand_key",
+)
+_missing = [s for s in _REQUIRED_SSOT_SYMBOLS if s not in globals()]
+if _missing:
+    raise ImportError(
+        f"[ShortsVideoComposer] SSOT 계약 위반: geometry 모듈에 필수 심볼 누락 {_missing}. "
+        "기본값으로 눈감지 말고 즉시 중단·보고하십시오."
+    )
+
+# 🎯 [SSOT 파생 규칙 코드 강제] PILL 별칭이 BADGE 상수에서 파생되었는지 값 동일성으로 검증.
+#   - 별도 값 정의로 인한 두 개의 진실(SSOT 위반)을 로드 시점에 즉시 차단.
+if BOUNCING_PILL_X_EXPR != BOUNCING_BADGE_X_EXPR:
+    raise ImportError(
+        "[ShortsVideoComposer] SSOT 파생 규칙 위반: BOUNCING_PILL_X_EXPR이 "
+        "BOUNCING_BADGE_X_EXPR에서 파생되지 않았습니다(값 불일치). "
+        "geometry.py에서 별칭은 반드시 BADGE 상수 대입으로만 정의하십시오."
+    )
+if BOUNCING_PILL_Y_EXPR != BOUNCING_BADGE_Y_EXPR:
+    raise ImportError(
+        "[ShortsVideoComposer] SSOT 파생 규칙 위반: BOUNCING_PILL_Y_EXPR이 "
+        "BOUNCING_BADGE_Y_EXPR에서 파생되지 않았습니다(값 불일치). "
+        "geometry.py에서 별칭은 반드시 BADGE 상수 대입으로만 정의하십시오."
+    )
+
 logger = logging.getLogger("ShortsVideoComposer")
+
+
+def _run_ffmpeg_safe(cmd: List[str], timeout: int = FFMPEG_TIMEOUT_SEC) -> subprocess.CompletedProcess:
+    """FFmpeg 서브프로세스 실행 - SSOT 안전장치(run_ffmpeg_safe)로 위임 (단일 경로 강제)"""
+    return run_ffmpeg_safe(cmd, timeout=timeout)
+
+
+def _resolve_brand_key(output_mp4_path: str, brand_name_in_vd: str) -> str:
+    """브랜드 키 정규화 - SSOT(resolve_brand_key)로 위임"""
+    return resolve_brand_key(output_mp4_path, brand_name_in_vd)
 
 
 class ShortsVideoComposer:
@@ -187,7 +256,8 @@ class ShortsVideoComposer:
         ]
 
         logger.info(f"🚀 [ShortsVideoComposer] FFmpeg 1080p 고화질 렌더링 시작 -> {output_mp4_path}")
-        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        # 🎯 [SSOT] 타임아웃/좀비 회수/종료코드 검증 통합 안전장치 사용
+        _run_ffmpeg_safe(cmd)
         logger.info(f"✅ [ShortsVideoComposer] 1080p 숏폼 완성: {output_mp4_path}")
 
         # 임시 오버레이 정리
@@ -463,7 +533,8 @@ class ShortsVideoComposer:
             "-crf", "18",
             output_path
         ]
-        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        # 🎯 [SSOT] 타임아웃/좀비 회수/종료코드 검증 통합 안전장치 사용
+        _run_ffmpeg_safe(cmd)
         if os.path.exists(temp_png):
             try:
                 os.remove(temp_png)
@@ -472,11 +543,24 @@ class ShortsVideoComposer:
         return output_path
 
     def _get_video_duration(self, video_path: str) -> float:
-        """비디오 파일의 실제 재생 시간(초)을 정밀 추출"""
+        """비디오 파일의 실제 재생 시간(초)을 정밀 추출
+
+        🎯 [SSOT] 직접 subprocess.run 호출 금지.
+        모든 서브프로세스 실행은 run_ffmpeg_safe 단일 경로를 경유하여
+        타임아웃·좀비 회수·종료코드 검증을 통일한다.
+        """
         try:
             cmd = [self.ffmpeg_exe, "-i", video_path]
-            res = subprocess.run(cmd, stderr=subprocess.PIPE, stdout=subprocess.DEVNULL)
-            out = res.stderr.decode("utf-8", errors="ignore")
+            # ffmpeg -i 는 정상적으로도 비-제로 종료코드를 반환하므로
+            # 안전 실행기에서 예외가 나더라도 stderr 파싱을 위해 결과를 확보한다.
+            try:
+                res = _run_ffmpeg_safe(cmd)
+            except subprocess.CalledProcessError as cpe:
+                res = getattr(cpe, "output", None)
+                if res is None:
+                    raise
+            stderr_bytes = getattr(res, "stderr", None) or b""
+            out = stderr_bytes.decode("utf-8", errors="ignore")
             for line in out.split("\n"):
                 if "Duration:" in line:
                     dur_str = line.split("Duration:")[1].split(",")[0].strip()
@@ -571,32 +655,9 @@ class ShortsVideoComposer:
         # 3-1. 숏폼 전용 경쾌한 BGM (도입부 인위적 SFX 배제, 순수 주인공 음성 집중)
         from core.bgm_manager import BGMManager
         bgm_mgr = BGMManager()
-        # 🎯 [대표님 승인] brand_key 다중 안전 체이닝 판별
-        #   1) 출력 경로 키워드(aura/insur/stock) → 2) brand_name 정확 일치
-        #   → 3) brand_name 부분 포함 매칭 → 4) 최종 폴백
-        #   이로써 BGMManager / ShortsBrandingOverlay(상단 뱃지) /
-        #   get_bouncing_profile_badge_path(brand_key) 3개 소비자가
-        #   insurance·stock 에서도 100% 해당 브랜드 전용 설정을 로드한다.
+        # 🎯 [SSOT] brand_key 정규화는 _resolve_brand_key 단일 함수로 위임
         brand_name_in_vd = str(visual_direction.get("brand_name", "")).lower().strip()
-        mp4_path_lower = str(output_mp4_path).lower()
-
-        if "aura" in mp4_path_lower or brand_name_in_vd == "aura":
-            brand_key = "aura"
-        elif "insur" in mp4_path_lower or brand_name_in_vd == "insurance":
-            brand_key = "insurance"
-        elif "stock" in mp4_path_lower or brand_name_in_vd == "stock":
-            brand_key = "stock"
-        else:
-            brand_key = brand_name_in_vd or "aura"
-
-        # brand_name 변형(insure_balance, stock_master 등) 안전 매칭 - 경로 키워드 부재 시 오판 방지
-        if brand_key not in ("aura", "insurance", "stock"):
-            if "insur" in brand_key:
-                brand_key = "insurance"
-            elif "stock" in brand_key:
-                brand_key = "stock"
-            elif "aura" in brand_key:
-                brand_key = "aura"
+        brand_key = _resolve_brand_key(output_mp4_path, brand_name_in_vd)
 
         logger.info(f"🏷️ [ShortsVideoComposer] brand_key 확정: '{brand_key}' (path='{output_mp4_path}', brand_name='{brand_name_in_vd}')")
         bgm_path = bgm_mgr.get_random_upbeat_bgm(service_id=brand_key)
@@ -696,8 +757,9 @@ class ShortsVideoComposer:
                 filter_complex.append(f"[{curr_v}][{logo_idx}:v]overlay=0:0[v_logo]")
                 curr_v = "v_logo"
             if has_bouncing:
+                # 🎯 [SSOT] 바운싱 뱃지 공식 수식은 모듈 상수 참조 (하드코딩 금지)
                 filter_complex.append(
-                    f"[{curr_v}][{badge_idx}:v]overlay=x=60:y='1450-18*abs(sin(2*PI*t*1.5))':enable='between(t,0,{dur_main:.2f})'[v_final]"
+                    f"[{curr_v}][{badge_idx}:v]overlay=x={BOUNCING_BADGE_X_EXPR}:y='{BOUNCING_BADGE_Y_EXPR}':enable='between(t,0,{dur_main:.2f})'[v_final]"
                 )
             else:
                 if curr_v != "v_final":
@@ -778,8 +840,9 @@ class ShortsVideoComposer:
                 filter_complex.append(f"[{curr_v}][{logo_idx}:v]overlay=0:0[v_logo]")
                 curr_v = "v_logo"
             if has_bouncing:
+                # 🎯 [SSOT] 바운싱 뱃지 공식 수식은 모듈 상수 참조 (하드코딩 금지)
                 filter_complex.append(
-                    f"[{curr_v}][{badge_idx}:v]overlay=x=60:y='1450-18*abs(sin(2*PI*t*1.5))':enable='between(t,0,{dur_main:.2f})'[v_final]"
+                    f"[{curr_v}][{badge_idx}:v]overlay=x={BOUNCING_BADGE_X_EXPR}:y='{BOUNCING_BADGE_Y_EXPR}':enable='between(t,0,{dur_main:.2f})'[v_final]"
                 )
             else:
                 if curr_v != "v_final":
@@ -817,11 +880,8 @@ class ShortsVideoComposer:
         ]
 
         logger.info("⚙️ [ShortsVideoComposer] FFmpeg 3단 비디오 + 씬별 무결점 오디오 + 제미나이 분할 박스 최종 결합 중...")
-        res = subprocess.run(cmd, capture_output=True)
-        if res.returncode != 0:
-            err_msg = res.stderr.decode("utf-8", errors="ignore")
-            logger.error(f"❌ FFmpeg 컴포징 에러: {err_msg}")
-            raise RuntimeError(f"FFmpeg 결합 실패: {err_msg}")
+        # 🎯 [SSOT] 타임아웃/좀비 회수/종료코드 검증 통합 안전장치 사용
+        _run_ffmpeg_safe(cmd)
 
         logger.info(f"🎉 [ShortsVideoComposer] 22초 완제품 숏폼 생성 완료: {output_mp4_path} ({os.path.getsize(output_mp4_path):,} bytes)")
 

@@ -228,5 +228,25 @@
     "video_file": "stock_topic1_cardnews_reels.mp4",
     "channel_url": "https://clip.naver.com/@stockmaster_ai",
     "published_at": "2026-10-20 12:00:46"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 5,
+    "title": "⚠️ 신용잔고 폭주? 저PBR 금융주 지금 타면 ‘지옥’ 갑니다 | 스톡마스터 A",
+    "video_file": "stock_topic5_cardnews_reels.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-20 12:52:48"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 1,
+    "title": "📉 삼성전자 -4.13% 폭락의 실체, 외국인 수급 데이터로 팩트체크",
+    "video_file": "Stock_32초숏폼_주제06_stockmaster_official_overview_20261020_073155.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-20 21:09:49"
   }
 ]

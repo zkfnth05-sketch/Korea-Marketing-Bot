@@ -278,6 +278,16 @@ class InsuranceBlogEngine:
     def publish_now(self, topic_id: Optional[int] = None) -> Dict[str, Any]:
         """제미나이 1회 호출 + 이미지 1회 생성 ➔ 4대 채널(본진, 네이버, 티스토리, 브런치) 동시 배포"""
         logger.info("🎬 [InsuranceBlog] 1회 원고/이미지 생성 ➔ 4대 채널 동시 옴니 배포 시작")
+        # 🔒 [대표님 지시: 보험 블로그 안전핀 봉인 검사]
+        try:
+            from core.seal_manager import seal_manager
+            if seal_manager.is_sealed("insurance_blog"):
+                msg = "🔒 [관리자 봉인] 보험 블로그는 대표님 지시로 발행이 안전 봉인(차단)되어 있습니다. 대시보드에서 봉인 해제 시 가동됩니다."
+                logger.warning(msg)
+                return {"status": "SEALED", "message": msg, "publishing_results": {}}
+        except Exception as e:
+            logger.warning(f"⚠️ [봉인 검사 예외] {e}")
+
         pkg = self.build_article_package(topic_id=topic_id)
         publisher = self._get_publisher()
         pub_results = publisher.publish_all(pkg, landing_url=self.LANDING_URL)

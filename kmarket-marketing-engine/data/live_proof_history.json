@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-20 10:22:21",
+  "updated_at": "2026-10-20 15:53:51",
   "brands": {
     "aura": {
       "reddit": {
@@ -23,17 +23,17 @@
       "reddit": {
         "brand": "insurance",
         "channel": "reddit",
-        "live_url": "https://www.reddit.com/r/Living_in_Korea/comments/1x9u6t0/is_500000_krw_livable_in_seoul/",
-        "title": "r/Living_in_Korea: Is 500,000 krw livable in Seoul?",
+        "live_url": "https://www.reddit.com/r/korea/comments/1xaa3rr/hypothetically_speaking_if_kim_jong_un_died_for/",
+        "title": "r/korea: Hypothetically speaking, if Kim Jong Un \"died for real\" tomorrow, what ramifications would that leave for North Korea and the entire Korean peninsula as a whole?",
         "status": "HEALTHY",
         "is_verified": false,
         "error_message": null,
         "screenshot_file": null,
         "screenshot_path": null,
-        "published_at": "2026-10-20 10:22:21",
+        "published_at": "2026-10-20 15:53:51",
         "extra_meta": {
-          "comment_preview": "Hey there! So glad you're looking to come to Seoul – it's an amazing city! But let's be super clear about the finances right upfront: 500,000 KRW (about $360 USD) for *everything* beyond tuition, espe",
-          "screenshot_file": "proof_insurance_reddit_20261020_102208.png"
+          "comment_preview": "Hey everyone, that's certainly a weighty topic, and one that gets us expats thinking about stability here on the peninsula! While geopolitical shifts are unpredictable, we *can* control our personal w",
+          "screenshot_file": "proof_insurance_reddit_20261020_155337.png"
         }
       }
     },
@@ -41,17 +41,17 @@
       "reddit": {
         "brand": "stock",
         "channel": "reddit",
-        "live_url": "https://www.reddit.com/r/Daytrading/comments/1xa8yj4/resource_for_historical_intraday_price_movements/",
-        "title": "r/Daytrading: Resource for historical intraday price movements from 00’s and 2010’s?",
+        "live_url": "https://www.reddit.com/r/dividends/comments/1xacjos/if_youre_truly_an_income_investor/",
+        "title": "r/dividends: If you’re truly an income investor…",
         "status": "HEALTHY",
         "is_verified": false,
         "error_message": null,
         "screenshot_file": null,
         "screenshot_path": null,
-        "published_at": "2026-10-20 10:04:18",
+        "published_at": "2026-10-20 13:25:44",
         "extra_meta": {
-          "comment_preview": "Great to hear you're back with a strict risk protocol; historical analysis is crucial for validating strategy robustness and position sizing. For intraday data 10-20 years back, your best bet outside ",
-          "screenshot_file": "proof_stock_reddit_20261020_100404.png"
+          "comment_preview": "The appeal of enhanced current income from covered call strategies on dividend/bond funds like KNG or LQDW for cash flow-focused investors is undeniable, especially post-accumulation. 📈 However, this ",
+          "screenshot_file": "proof_stock_reddit_20261020_132530.png"
         }
       }
     }

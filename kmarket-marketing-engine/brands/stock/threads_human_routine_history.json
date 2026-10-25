@@ -258,5 +258,25 @@
     "duration_sec": 608,
     "status": "COMPLETED",
     "ended_at": "2026-10-20T08:55:35.265157"
+  },
+  {
+    "brand": "stock",
+    "started_at": "2026-10-20T12:55:08.325599",
+    "posts_read": 50,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 611,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-20T13:05:19.924819"
+  },
+  {
+    "brand": "stock",
+    "started_at": "2026-10-20T16:00:20.146136",
+    "posts_read": 52,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 604,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-20T16:10:24.664277"
   }
 ]

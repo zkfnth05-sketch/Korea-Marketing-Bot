@@ -103,6 +103,16 @@ class InsuranceBlogScheduler:
         주제 1개에 대해 안전 검증 후 수동 1회 발행
         (하루 최대 3건 엄격 제한 & 도배 원천 차단, force=True 시 강제 즉시 실행)
         """
+        # 🔒 [대표님 지시: 보험 블로그 안전핀 봉인 검사]
+        try:
+            from core.seal_manager import seal_manager
+            if seal_manager.is_sealed("insurance_blog"):
+                msg = "🔒 [관리자 봉인] 보험 블로그는 대표님 지시로 발행이 안전 봉인(차단)되어 있습니다. 대시보드에서 봉인 해제 시 가동됩니다."
+                logger.warning(msg)
+                return {"status": "SEALED", "message": msg}
+        except Exception as e:
+            logger.warning(f"⚠️ [봉인 검사 예외] {e}")
+
         if not force and force_topic_id is None:
             can_pub, reason = self.can_publish_today(max_daily_posts=3)
             if not can_pub:

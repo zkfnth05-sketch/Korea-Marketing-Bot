@@ -697,5 +697,75 @@
         }
       }
     }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-20",
+    "published_at": "2026-10-20 21:06:52",
+    "brand": "stock",
+    "topic_id": 1,
+    "title": "[StockMaster AI] 퀀트 주식 AI 분석 #1",
+    "video_file": "Stock_32초숏폼_주제06_stockmaster_official_overview_20261020_073155.mp4",
+    "channels": {
+      "youtube": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "stock",
+        "topic_id": 1,
+        "video_id": "Ur5OdgKM808",
+        "video_url": "https://youtube.com/shorts/Ur5OdgKM808",
+        "title": "📉 삼성전자 -4.13% 폭락의 실체, 외국인 수급 데이터로 팩트체크 #스톡마스터 AI #Shorts",
+        "pinned_comment": "📌 실시간 외인·기관 쌍끌이 수급 포착 & AI 퀀트 리스크 가드는\n네이버에 👉 [ 스톡마스터 AI ] 검색하시면 바로 나옵니다!\n(공식 링크: https://stockmaster-ai.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "Stock_32초숏폼_주제06_stockmaster_official_overview_20261020_073155.mp4",
+        "published_at": "2026-10-20 21:07:58",
+        "elapsed_sec": 65.8,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "stock",
+        "platform": "tiktok",
+        "topic_id": 1,
+        "video_file": "Stock_32초숏폼_주제06_stockmaster_official_overview_20261020_073155.mp4",
+        "title": "[StockMaster AI] 퀀트 주식 AI 분석 #1",
+        "post_url": "https://www.tiktok.com/@stockmaster_ai",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_tiktok_verified_proof_topic01.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "stock"
+        }
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "stock",
+        "topic_id": 1,
+        "title": "📉 삼성전자 -4.13% 폭락의 실체, 외국인 수급 데이터로 팩트체크",
+        "video_file": "Stock_32초숏폼_주제06_stockmaster_official_overview_20261020_073155.mp4",
+        "channel_url": "https://clip.naver.com/@stockmaster_ai",
+        "published_at": "2026-10-20 21:09:49"
+      },
+      "meta_reels": {
+        "status": "success",
+        "brand": "stock",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 📈 주식 릴스 순수 브라우저 실물 발행 완료",
+        "video": "Stock_32초숏폼_주제06_stockmaster_official_overview_20261020_073155.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\stock_facebook_comment_proof.png"
+          }
+        }
+      }
+    }
   }
 ]

@@ -1,10 +1,206 @@
 {
-  "current_topic_index": 40,
-  "last_topic_id": 66,
-  "last_run_time": "2026-10-20 10:16:48",
-  "last_title": "매크로 스트레스 지수가 '극단적 공포(80점+)'일 때 역발상 분할 매수의 기술 주가 전망 및 핵심 투자 포인트",
-  "published_count": 49,
+  "current_topic_index": 42,
+  "last_topic_id": 91,
+  "last_run_time": "2026-10-20 20:17:20",
+  "last_title": "8대 지표 ⑥ [ROE(자기자본이익률) 15% 룰]: 워런 버핏이 극찬한 돈 잘 버는 기업 주가 전망 및 핵심 투자 포인트",
+  "published_count": 51,
   "history": [
+    {
+      "topic_id": 91,
+      "title": "8대 지표 ⑥ [ROE(자기자본이익률) 15% 룰]: 워런 버핏이 극찬한 돈 잘 버는 기업 주가 전망 및 핵심 투자 포인트",
+      "title_naver": "8대 지표 ⑥ [ROE(자기자본이익률) 15% 룰]: 워런 버핏이 극찬한 돈 잘 버는 기업 주가 전망 및 핵심 투자 포인트",
+      "title_tistory": "[StockMaster] 8대 지표 ⑥ [ROE(자기자본이익률) 15% 룰]: 워런 버핏이 극찬한 돈 잘 버는 기업 실전 매매 전략",
+      "title_brunch": "시장의 소음을 넘어선 투자, 8대 지표 ⑥ [ROE(자기자본이익률) 15% 룰]: 워런 버핏이 극찬한 돈 잘 버는 기업",
+      "category": "quant_guide",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_quant_guide_20261020_201528.png",
+      "published_at": "2026-10-20 20:17:20",
+      "publish_results": {
+        "topic_id": 91,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "8대 지표 ⑥ [ROE(자기자본이익률) 15% 룰]: 워런 버핏이 극찬한 돈 잘 버는 기업 주가 전망 및 핵심 투자 포인트",
+            "url": "https://blog.naver.com/stockmaster_ai/224448120833",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224448120833",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "ROE15퍼센트",
+              "워런버핏투자법",
+              "복리성장주",
+              "우량기업발굴",
+              "자기자본이익률",
+              "돈버는기업",
+              "코스피주도주",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "체결강도높으면",
+              "체결강도500%",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "stockmaster-ai",
+            "title": "[StockMaster] 8대 지표 ⑥ [ROE(자기자본이익률) 15% 룰]: 워런 버핏이 극찬한 돈 잘 버는 기업 실전 매매 전략",
+            "url": "https://stockmaster-ai.tistory.com/41",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "ROE15퍼센트",
+              "워런버핏투자법",
+              "복리성장주",
+              "우량기업발굴",
+              "자기자본이익률",
+              "돈버는기업",
+              "코스피주도주",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "체결강도높으면",
+              "체결강도500%",
+              "주식투자"
+            ],
+            "post_url": "https://stockmaster-ai.tistory.com/41"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 55,
+            "title": "8대 지표 ⑥ [ROE(자기자본이익률) 15% 룰]: 워런 버핏이 극찬한 돈 잘 버는 기업 주가 전망 및 핵심 투자 포인트",
+            "category": "RANK1"
+          }
+        },
+        "verification": {
+          "brand": "stock",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "stockmaster_ai",
+            "title": "8대 지표 ⑥ [ROE(자기자본이익률) 15% 룰]: 워런 버핏이 극찬한 돈 잘 버는 기업 주가 전망 및 핵심 투자 포인트",
+            "real_url": "https://blog.naver.com/stockmaster_ai/224448120833",
+            "log_no": "224448120833",
+            "pub_date": "Tue, 20 Oct 2026 20:16:08 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\naver_proof_1792495032.png"
+          },
+          "tistory": {
+            "verified": true,
+            "channel": "tistory",
+            "blog_name": "stockmaster-ai",
+            "title": "[StockMaster] 8대 지표 ⑥ [ROE(자기자본이익률) 15% 룰]: 워런 버핏이 극찬한 돈 잘 버는 기업 실전 매매 전략",
+            "real_url": "https://stockmaster-ai.tistory.com/41",
+            "pub_date": "Tue, 20 Oct 2026 20:16:53 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\tistory_proof_1792495035.png"
+          },
+          "timestamp": "2026-10-20 20:17:20"
+        }
+      }
+    },
+    {
+      "topic_id": 76,
+      "title": "분할 매수 3단계 진입 시 최종 평단가에 맞춘 손절선 재조정 공식 주가 전망 및 핵심 투자 포인트",
+      "title_naver": "분할 매수 3단계 진입 시 최종 평단가에 맞춘 손절선 재조정 공식 주가 전망 및 핵심 투자 포인트",
+      "title_tistory": "[StockMaster] 분할 매수 3단계 진입 시 최종 평단가에 맞춘 손절선 재조정 공식 실전 매매 전략",
+      "title_brunch": "시장의 소음을 넘어선 투자, 분할 매수 3단계 진입 시 최종 평단가에 맞춘 손절선 재조정 공식",
+      "category": "price_boundary",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_price_boundary_20261020_151508.png",
+      "published_at": "2026-10-20 15:16:57",
+      "publish_results": {
+        "topic_id": 76,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "분할 매수 3단계 진입 시 최종 평단가에 맞춘 손절선 재조정 공식 주가 전망 및 핵심 투자 포인트",
+            "url": "https://blog.naver.com/stockmaster_ai/224447789702",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224447789702",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "분할매수손절선",
+              "평단가재조정",
+              "비중조절",
+              "체계적매매",
+              "3단계분할",
+              "최종손절가",
+              "코스피주도주",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "체결강도높으면",
+              "체결강도500%",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "stockmaster-ai",
+            "title": "[StockMaster] 분할 매수 3단계 진입 시 최종 평단가에 맞춘 손절선 재조정 공식 실전 매매 전략",
+            "url": "https://stockmaster-ai.tistory.com/40",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "분할매수손절선",
+              "평단가재조정",
+              "비중조절",
+              "체계적매매",
+              "3단계분할",
+              "최종손절가",
+              "코스피주도주",
+              "체결강도",
+              "주식체결강도",
+              "체결강도란",
+              "체결강도높으면",
+              "체결강도500%",
+              "주식투자"
+            ],
+            "post_url": "https://stockmaster-ai.tistory.com/40"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 54,
+            "title": "분할 매수 3단계 진입 시 최종 평단가에 맞춘 손절선 재조정 공식 주가 전망 및 핵심 투자 포인트",
+            "category": "RANK1"
+          }
+        },
+        "verification": {
+          "brand": "stock",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "stockmaster_ai",
+            "title": "분할 매수 3단계 진입 시 최종 평단가에 맞춘 손절선 재조정 공식 주가 전망 및 핵심 투자 포인트",
+            "real_url": "https://blog.naver.com/stockmaster_ai/224447789702",
+            "log_no": "224447789702",
+            "pub_date": "Tue, 20 Oct 2026 15:15:47 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\naver_proof_1792477008.png"
+          },
+          "tistory": {
+            "verified": true,
+            "channel": "tistory",
+            "blog_name": "stockmaster-ai",
+            "title": "[StockMaster] 분할 매수 3단계 진입 시 최종 평단가에 맞춘 손절선 재조정 공식 실전 매매 전략",
+            "real_url": "https://stockmaster-ai.tistory.com/40",
+            "pub_date": "Tue, 20 Oct 2026 15:16:31 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\tistory_proof_1792477012.png"
+          },
+          "timestamp": "2026-10-20 15:16:57"
+        }
+      }
+    },
     {
       "topic_id": 66,
       "title": "매크로 스트레스 지수가 '극단적 공포(80점+)'일 때 역발상 분할 매수의 기술 주가 전망 및 핵심 투자 포인트",

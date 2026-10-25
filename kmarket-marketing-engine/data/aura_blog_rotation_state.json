@@ -1,10 +1,166 @@
 {
-  "current_topic_index": 25,
-  "last_topic_id": 41,
-  "last_run_time": "2026-10-20 09:50:12",
-  "last_title": "소개팅 어색함 순삭! '밸런스게임' 질문 10가지로 분위기 반전시키는 법",
-  "published_count": 50,
+  "current_topic_index": 27,
+  "last_topic_id": 75,
+  "last_run_time": "2026-10-20 19:50:25",
+  "last_title": "여름 소개팅, 땀 흘리지 않는 남친룩? 린넨 셔츠 & 슬랙스 코디 필승법!",
+  "published_count": 52,
   "history": [
+    {
+      "topic_id": 75,
+      "title": "여름 소개팅, 땀 흘리지 않는 남친룩? 린넨 셔츠 & 슬랙스 코디 필승법!",
+      "title_naver": "여름 소개팅, 땀 흘리지 않는 남친룩? 린넨 셔츠 & 슬랙스 코디 필승법!",
+      "title_tistory": "[2026 가이드] 여름 소개팅 린넨 셔츠와 슬랙스 쾌적한 스타일링 핵심 정리",
+      "title_kakao": "여름 소개팅 린넨 셔츠와 슬랙스 쾌적한 스타일링에 대한 솔직한 이야기",
+      "category": "lookbook_style",
+      "image_url": "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=1200&auto=format&fit=crop&q=80",
+      "published_at": "2026-10-20 19:50:25",
+      "publish_results": {
+        "topic_id": 75,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-075",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "여름 소개팅, 땀 흘리지 않는 남친룩? 린넨 셔츠 & 슬랙스 코디 필승법!",
+            "url": "https://blog.naver.com/zkfnth01/224448095827",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플거리",
+              "성수동핫플",
+              "성수동핫플레이스",
+              "성수동핫플맛집",
+              "성수동핫플카페",
+              "성수동핫플지도",
+              "50대50황금성비",
+              "성비50대50",
+              "소개팅앱추천",
+              "데이팅앱추천",
+              "남초탈출",
+              "유령회원제로",
+              "성수동데이트"
+            ],
+            "post_url": "https://blog.naver.com/zkfnth01/224448095827"
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-dating",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "aura",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "zkfnth01",
+            "title": "여름 소개팅, 땀 흘리지 않는 남친룩? 린넨 셔츠 & 슬랙스 코디 필승법!",
+            "real_url": "https://blog.naver.com/zkfnth01/224448095827",
+            "log_no": "224448095827",
+            "pub_date": "Tue, 20 Oct 2026 19:46:22 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\aura\\blog_verification\\naver_proof_1792493422.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "aura-magazine",
+            "title": "[2026 가이드] 상대방이 끊임없이 말하게 만드는 마법의 '리액션 3원칙' 핵심 정리",
+            "real_url": "https://aura-magazine.tistory.com/22",
+            "pub_date": "Sat, 17 Oct 2026 20:35:51 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-20 19:50:25"
+        }
+      }
+    },
+    {
+      "topic_id": 59,
+      "title": "그녀가 당신에게 '진심'일 때? 절대 놓치지 말아야 할 4가지 비언어 시그널!",
+      "title_naver": "그녀가 당신에게 '진심'일 때? 절대 놓치지 말아야 할 4가지 비언어 시그널!",
+      "title_tistory": "[2026 가이드] 여자가 호감 있을 때 보내는 은밀한 비언어적 시그널 핵심 정리",
+      "title_kakao": "여자가 호감 있을 때 보내는 은밀한 비언어적 시그널에 대한 솔직한 이야기",
+      "category": "psychology_mbti",
+      "image_url": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&auto=format&fit=crop&q=80",
+      "published_at": "2026-10-20 14:50:29",
+      "publish_results": {
+        "topic_id": 59,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-059",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "그녀가 당신에게 '진심'일 때? 절대 놓치지 말아야 할 4가지 비언어 시그널!",
+            "url": "https://blog.naver.com/zkfnth01/224447753180",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플거리",
+              "성수동핫플",
+              "성수동핫플레이스",
+              "성수동핫플맛집",
+              "성수동핫플카페",
+              "성수동핫플지도",
+              "50대50황금성비",
+              "성비50대50",
+              "소개팅앱추천",
+              "데이팅앱추천",
+              "남초탈출",
+              "유령회원제로",
+              "성수동데이트"
+            ],
+            "post_url": "https://blog.naver.com/zkfnth01/224447753180"
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-dating",
+            "message": "티스토리 제목 입력 필드를 찾을 수 없습니다."
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "aura",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "zkfnth01",
+            "title": "그녀가 당신에게 '진심'일 때? 절대 놓치지 말아야 할 4가지 비언어 시그널!",
+            "real_url": "https://blog.naver.com/zkfnth01/224447753180",
+            "log_no": "224447753180",
+            "pub_date": "Tue, 20 Oct 2026 14:46:27 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\aura\\blog_verification\\naver_proof_1792475426.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "aura-magazine",
+            "title": "[2026 가이드] 상대방이 끊임없이 말하게 만드는 마법의 '리액션 3원칙' 핵심 정리",
+            "real_url": "https://aura-magazine.tistory.com/22",
+            "pub_date": "Sat, 17 Oct 2026 20:35:51 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-20 14:50:29"
+        }
+      }
+    },
     {
       "topic_id": 41,
       "title": "소개팅 어색함 순삭! '밸런스게임' 질문 10가지로 분위기 반전시키는 법",
@@ -2823,66 +2979,6 @@
           }
         }
       }
-    },
-    {
-      "topic_id": 2,
-      "title": "소개팅 후 카톡 답장 1시간, 이거 썸인가요? 상대방 심리 완벽 분석",
-      "title_naver": "소개팅 후 카톡 답장 1시간, 이거 썸인가요? 상대방 심리 완벽 분석",
-      "title_tistory": "소개팅 카톡 답장 텀 1시간의 진짜 의미: 심리학적 분석과 대화 전략 총정리",
-      "title_kakao": "1시간 뒤에 오는 카톡, 설렘일까 예의일까? 당신이 몰랐던 소개팅 카톡의 온도",
-      "category": "kakaotalk_signals",
-      "image_url": "/outputs/aura/blog_images/aura_topic_002_kakaotalk_signals_20260920_131831.webp",
-      "published_at": "2026-09-20 13:18:36",
-      "publish_results": {
-        "topic_id": 2,
-        "channels": {
-          "aura_app": {
-            "status": "success",
-            "feed_post_id": "mag-2-1789877915",
-            "lounge_url": "https://aura-ai-dating.vercel.app/"
-          },
-          "naver_blog": {
-            "status": "success",
-            "mode": "dry_run",
-            "blog_id": "",
-            "title": "소개팅 후 카톡 답장 1시간, 이거 썸인가요? 상대방 심리 완벽 분석",
-            "tags": [
-              "소개팅카톡첫대화",
-              "소개팅카톡",
-              "소개팅카톡대화",
-              "소개팅카톡텀",
-              "소개팅카톡주제",
-              "소개팅카톡답장",
-              "소개팅카톡첫인사",
-              "소개팅카톡노잼"
-            ],
-            "images_count": 1,
-            "url": "https://blog.naver.com//999999"
-          },
-          "tistory": {
-            "status": "success",
-            "mode": "dry_run",
-            "blog_name": "",
-            "title": "소개팅 카톡 답장 텀 1시간의 진짜 의미: 심리학적 분석과 대화 전략 총정리",
-            "url": "https://.tistory.com/test-preview",
-            "tags": "소개팅카톡첫대화,소개팅카톡,소개팅카톡대화,소개팅카톡텀,소개팅카톡주제,소개팅카톡답장,소개팅카톡첫인사,소개팅카톡노잼"
-          },
-          "brunch": {
-            "status": "success",
-            "mode": "dry_run",
-            "title": "1시간 뒤에 오는 카톡, 설렘일까 예의일까? 당신이 몰랐던 소개팅 카톡의 온도",
-            "subtitle": "소개팅 후 1시간 간격으로 오는 카톡, 밀당일까 무관심일까? 2030 연애 고민을 해결할 심리 분석과 Aura AI의 대화 코칭 솔루션을 지금 확인하세요.",
-            "url": "https://brunch.co.kr/@expert_author/999"
-          }
-        }
-      }
-    },
-    {
-      "topic_id": 1,
-      "title": "소개팅 카톡 첫 대화, 읽씹 피하는 호감형 첫인사 멘트 5가지(feat. 대화 이어가는 법)",
-      "category": "kakaotalk_signals",
-      "image_url": "/outputs/aura/blog_images/aura_topic_001_kakaotalk_signals_20260920_130206.webp",
-      "published_at": "2026-09-20 13:02:11"
     }
   ]
 }

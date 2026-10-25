@@ -3,22 +3,6 @@
     "status": "success",
     "platform": "youtube_shorts",
     "brand": "aura",
-    "topic_id": 1,
-    "video_id": "ysaBU4nH0aM",
-    "video_url": "https://youtube.com/shorts/ysaBU4nH0aM",
-    "title": "소개팅 첫 만남, 어색함 3초 만에 깨는 대화 치트키 4선 #아우라AI데이팅 #Shorts",
-    "pinned_comment": "📌 영상에서 나온 50:50 완벽 성비 AI 소개팅 라운지는\n네이버에 👉 [ 아우라AI데이팅 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://aura-ai-dating.vercel.app/)",
-    "comment_status": "skipped",
-    "privacy_status": "public",
-    "video_file": "aura_topic1_cardnews_reels.mp4",
-    "published_at": "2026-10-10 15:15:46",
-    "elapsed_sec": 469.4,
-    "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 완료"
-  },
-  {
-    "status": "success",
-    "platform": "youtube_shorts",
-    "brand": "aura",
     "topic_id": 3,
     "video_id": "-WzXX0wVlhE",
     "video_url": "https://youtube.com/shorts/-WzXX0wVlhE",
@@ -717,6 +701,22 @@
     "video_file": "Aura_22초숏폼_주제07_aura_diagnosis_20261020_000049.mp4",
     "published_at": "2026-10-20 08:32:09",
     "elapsed_sec": 116.0,
+    "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+  },
+  {
+    "status": "success",
+    "platform": "youtube_shorts",
+    "brand": "aura",
+    "topic_id": 3,
+    "video_id": "8oIHGScqprM",
+    "video_url": "https://youtube.com/shorts/8oIHGScqprM",
+    "title": "소개팅 망했을 때 5분 만에 탈출하는 꿀팁? 🤫 긴급 상황 대처법 #아우라AI데이팅 #Shorts",
+    "pinned_comment": "📌 영상에서 나온 50:50 완벽 성비 AI 소개팅 라운지는\n네이버에 👉 [ 아우라AI데이팅 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://aura-ai-dating.vercel.app/)",
+    "comment_status": "submitted",
+    "privacy_status": "public",
+    "video_file": "Aura_22초숏폼_주제01_escape_call_20261020_005851.mp4",
+    "published_at": "2026-10-20 15:32:09",
+    "elapsed_sec": 116.4,
     "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
   }
 ]

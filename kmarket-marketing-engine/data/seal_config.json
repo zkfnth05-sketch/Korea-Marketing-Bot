@@ -1,0 +1,73 @@
+{
+  "insurance_blog_sealed": true,
+  "sealed_at": "2026-10-20 13:39:27",
+  "sealed_by": "대표님(대시보드클릭)",
+  "reason": "대시보드 원클릭 토글 요청",
+  "history": [
+    {
+      "action": "SEAL",
+      "target": "insurance_blog",
+      "sealed": true,
+      "actor": "대표님 지시",
+      "reason": "최초 초기화 안전 봉인 체결",
+      "timestamp": "2026-10-20 13:21:24"
+    },
+    {
+      "action": "UNSEAL",
+      "target": "insurance_blog",
+      "sealed": false,
+      "actor": "대시보드",
+      "reason": "대시보드 원클릭 토글 요청",
+      "timestamp": "2026-10-20 13:28:48"
+    },
+    {
+      "action": "SEAL",
+      "target": "insurance_blog",
+      "sealed": true,
+      "actor": "테스트초기화",
+      "reason": "대표님 명령에 따른 발행 안전 봉인",
+      "timestamp": "2026-10-20 13:29:03"
+    },
+    {
+      "action": "UNSEAL",
+      "target": "insurance_blog",
+      "sealed": false,
+      "actor": "대표님(대시보드클릭)",
+      "reason": "대시보드 원클릭 토글 요청",
+      "timestamp": "2026-10-20 13:29:03"
+    },
+    {
+      "action": "SEAL",
+      "target": "insurance_blog",
+      "sealed": true,
+      "actor": "대표님(대시보드클릭)",
+      "reason": "대시보드 원클릭 토글 요청",
+      "timestamp": "2026-10-20 13:29:03"
+    },
+    {
+      "action": "SEAL",
+      "target": "insurance_kin",
+      "sealed": true,
+      "actor": "대표님 지시",
+      "reason": "대표님 명령에 따른 보험 지식iN 완전 봉인 체결",
+      "timestamp": "2026-10-20 13:38:00"
+    },
+    {
+      "action": "UNSEAL",
+      "target": "insurance_kin",
+      "sealed": false,
+      "actor": "대표님(대시보드클릭)",
+      "reason": "대시보드 원클릭 토글 요청",
+      "timestamp": "2026-10-20 13:39:27"
+    },
+    {
+      "action": "SEAL",
+      "target": "insurance_kin",
+      "sealed": true,
+      "actor": "대표님(대시보드클릭)",
+      "reason": "대시보드 원클릭 토글 요청",
+      "timestamp": "2026-10-20 13:39:27"
+    }
+  ],
+  "insurance_kin_sealed": true
+}
