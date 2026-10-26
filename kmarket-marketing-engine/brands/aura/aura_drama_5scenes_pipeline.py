@@ -366,22 +366,15 @@ def ensure_fresh_episode_characters(run_id: str) -> Dict[str, Path]:
 def resolve_character_asset(scene_idx: int, run_id: str = "") -> Path:
     """씬 인덱스 → 화자 마스터 에셋 경로를 결정론적으로 해석한다.
 
-    우선순위:
-      1) run_id 가 주어지면 회차 전용 신규 주인공 마스터(ensure_fresh_episode_characters)
-      2) 회차 마스터 확보 실패 시 기존 정적 마스터(CHARACTER_ASSET_DIR)
+    ★ 대표님 확정 지시 (2026-10-25): 회차별 신규 주인공 즉석 생성 경로를 전면 폐기하고,
+      정적 마스터 에셋(CHARACTER_ASSET_DIR)만 결정론적으로 반환한다.
 
-    실패 시 AdapterError 로 표면화(검은 박스 폴백 금지).
+    · run_id 인자는 호출부(ImagePort.generate 시그니처) 하위 호환을 위해 유지하되,
+      내부 분기에서는 사용하지 않는다(ensure_fresh_episode_characters 호출 제거).
+    · 씬 1/3/5 → 서연 마스터, 씬 2/4 → 민준 마스터 (SCENE_CHARACTER_MAP SSOT).
+    · 실패 시 AdapterError 로 표면화(검은 박스 폴백 금지).
     """
     who = SCENE_CHARACTER_MAP.get(scene_idx, "seoyeon")
-
-    if run_id:
-        try:
-            episode = ensure_fresh_episode_characters(run_id)
-            path = episode.get(who)
-            if path is not None and path.exists() and path.stat().st_size > 0:
-                return path
-        except Exception as e:
-            log.warning("회차 주인공 마스터 해석 실패(run=%s) — 정적 마스터 폴백: %r", run_id, e)
 
     path = CHARACTER_ASSET_DIR / CHARACTER_MASTER_FILES[who]
     if not path.exists() or path.stat().st_size == 0:
@@ -615,18 +608,30 @@ class GeminiImageAdapter(ImagePort):
         atmosphere = atmosphere_for(tod)
 
         # ------------------------------------------------------------------
-        # [구도 SSOT] 씬 1~5 전 구간 100% 단독 정면 1인 샷 (Clean Solo Frontal)
-        #   대표님 절대 지시 (2026-10-25):
-        #   "애는 또 누구랑 말하고 있냐... 정면만 나오게 하든가!
-        #    2번씬이 남자 주인공인데 왠 또 여자랑 말하고 있냐!"
+        # [구도 SSOT — 1인칭 맞은편 관전 시점] 대표님 확정 지시 (2026-10-25):
+        #   "맞은편에 앉아서 바라보는 1인칭 시점, 상반신 전체가 보이는 미디엄 샷,
+        #    하단에 테이블 상판 앞 모서리만 살짝, 전경에 빈 의자/등받이 절대 금지"
         #
-        #   · 오버더숄더(앞사람 어깨/뒤통수 걸치기), 2인 대화 구도 전량 영구 퇴출.
-        #   · 홀수 씬(1/3/5) = 서연(20대 한국 여성) 단독 1인 정면 샷.
-        #   · 짝수 씬(2/4)   = 민준(20대 한국 남성) 단독 1인 정면 샷.
-        #   · 전 씬 공통: 카메라 렌즈를 정면으로 똑바로 응시(eye-level, straight into lens).
-        #   · "EXACTLY ONE PERSON" + "NO second person / NO shoulder / NO back of head"
-        #     네거티브를 프롬프트 레벨에서 물리적으로 봉인한다.
+        #   ★ 왜 이 구도인가: 기존 '정면 응시 클로즈업'은 인물이 카메라를 뚫어지게
+        #     쳐다보는 부자연스러운 구도였고, 전경에 빈 의자 등받이가 걸려 "누가
+        #     앉아서 찍은 거냐"는 위화감을 유발했다. 이제 카메라는 테이블 맞은편에
+        #     앉은 관전자의 눈높이가 되어, 인물을 자연스럽게 마주보는 1인칭 POV 로 전환한다.
+        #
+        #   · POV: First-person eye-level POV of someone sitting directly across the table.
+        #   · 샷: waist-up medium shot — 상반신 전체(어깨/가슴/몸통/팔)가 프레임에 담긴다.
+        #   · 하단: 테이블 상판 '앞 모서리'만 살짝 노출(과도한 테이블 면적 금지).
+        #   · 전경 봉인: 빈 의자/등받이/가구를 네거티브로 물리적 차단.
+        #   · 2인 대화 구도(OTS)는 여전히 영구 퇴출 — 화면에는 오직 1인만 존재한다.
         # ------------------------------------------------------------------
+        pov_frame = (
+            "First-person eye-level POV of someone sitting directly across the table, "
+            "waist-up medium shot showing full upper body, torso, and relaxed arms, "
+            "the subject is seated across the table facing the camera at eye level, "
+            "The bottom edge of the frame shows only the clean front edge of the dining table surface, "
+            "ABSOLUTELY NO empty chair in foreground, NO chair backrest blocking the frame, "
+            "NO empty seat in front of camera, NO foreground furniture"
+        )
+
         # ------------------------------------------------------------------
         # [입모양 봉인 SSOT] 키프레임은 반드시 입을 완전히 다문 상태로 생성한다.
         #   대표님 절대 지침 (2026-10-25):
@@ -672,7 +677,7 @@ class GeminiImageAdapter(ImagePort):
         #
         #   · 씬 3 한정: 양손으로 스마트폰을 가슴 앞쪽에 들고, 시선은 화면을 내려다보며
         #     감탄/놀람 표정. 테이블 위 정적 폰은 네거티브로 물리적 봉인.
-        #   · 씬 1/2/4/5: 기존대로 카메라 렌즈를 정면 응시하는 1인 단독 샷 유지.
+        #   · 씬 1/2/4/5: 맞은편 1인칭 POV + 중립 팔 자세 유지.
         #   · 입모양 봉인(mouth_seal)은 씬 3에서도 100% 유지 — Wan S2V 립싱크 대기.
         # ------------------------------------------------------------------
         if scene_idx == 3:
@@ -688,7 +693,7 @@ class GeminiImageAdapter(ImagePort):
             )
             composition = (
                 f"Solo single person portrait of {name_ko} sitting at {loc}, "
-                "centered in frame, upper body shot, "
+                f"{pov_frame}, "
                 f"{phone_hold}, {emotion}, {mouth_seal}. "
                 "STRICTLY EXACTLY ONE PERSON in the entire image. "
                 "ABSOLUTELY NO other people, NO companion, NO foreground person, "
@@ -704,21 +709,22 @@ class GeminiImageAdapter(ImagePort):
             #   ★ 왜 필수인가: 키프레임에 손/팔 동작을 유도하는 어떤 지시도 넣지 않는다.
             #     Wan 2.2 S2V 는 키프레임의 팔 위치를 시작 포즈로 삼기 때문에,
             #     키프레임에 손이 크게 잡히면 영상에서 팔이 로봇처럼 삐걱거린다.
-            #     따라서 상반신 단독 정면 샷 + 팔을 프레임 아래로 내린 중립 자세를
-            #     포지티브로 고정하고, 손/팔/제스처를 네거티브로 물리적 봉인한다.
+            #     따라서 상반신 단독 샷 + 팔을 편안히 내린 중립 자세를 포지티브로
+            #     고정하고, 손/팔/제스처를 네거티브로 물리적 봉인한다.
             #
             #   · 오직 씬 3 만 phone_hold(양손으로 스마트폰 쥐기) 를 유지한다.
             #   · 씬 1/2/4/5 는 손을 화면에 끌어들이지 않는 중립 상반신 샷이다.
+            #   · [POV 결속] 맞은편 1인칭 시점이므로 '프레임 밖으로 팔이 나감' 대신
+            #     '편안히 내린 팔'로 서술한다(미디엄 샷에서 팔이 화면에 보여야 자연스럽다).
             # ------------------------------------------------------------------
             hands_neutral = (
-                "arms relaxed down and out of frame, hands not visible in frame, "
-                "calm neutral resting posture, no gesturing"
+                "arms relaxed naturally at her sides, calm neutral resting posture, "
+                "no gesturing"
             )
             composition = (
                 f"Solo single person portrait of {name_ko} sitting at {loc}, "
-                "centered in frame, upper body shot, "
-                "looking straight ahead directly into the camera lens, "
-                f"eye-level angle, {hands_neutral}, {emotion}, {mouth_seal}. "
+                f"{pov_frame}, "
+                f"{hands_neutral}, {emotion}, {mouth_seal}. "
                 "STRICTLY EXACTLY ONE PERSON in the entire image. "
                 "ABSOLUTELY NO other people, NO companion, NO foreground person, "
                 "NO shoulder in foreground, NO back of head, NO silhouette, "
@@ -1530,6 +1536,20 @@ class WanS2VVideoAdapter(VideoPort):
             log.warning("Wan S2V 헬스체크 예외 — 사용 불가 판정: %r", e)
             return False
 
+    def _resolve_binary(self) -> str:
+        """FFmpeg 바이너리 경로를 폴백 어댑터에 위임하여 반환한다.
+
+        ★ 왜 위임인가: PipelineOrchestrator._render_ending_cta_clip /
+          _apply_branding_overlay 는 `getattr(self.video, "_resolve_binary", ...)`
+          로 비디오 어댑터에서 ffmpeg 경로를 조회한다. Wan S2V 가 선택된 경우
+          이 메서드가 없으면 조용히 문자열 "ffmpeg" 로 낙하하여, PATH 미등록
+          Windows 환경에서 WinError 2 로 즉사한다.
+        · 경로 해석 SSOT 는 FFmpegVideoAdapter._resolve_binary 단일 소유자다.
+          본 메서드는 재구현하지 않고 위임만 수행한다(드리프트 0건).
+        · 해석 실패는 BinaryResolutionError 로 그대로 표면화된다(은폐 금지).
+        """
+        return self._fallback_ffmpeg._resolve_binary()
+
     # ------------------------------------------------------------------
     # 오디오 실측 길이 (S2V 프레임 수 산출용)
     # ------------------------------------------------------------------
@@ -1849,6 +1869,57 @@ class PipelineOrchestrator:
                 raise SceneTimeoutError(f"씬 {scene.index} 타임아웃({self.cfg.scene_timeout_sec}s)")
 
     # ------------------------------------------------------------------
+    # [FFmpeg 경로 3중 안전망 SSOT] 대표님 지적 사항 (2026-10-25):
+    #   "_render_ending_cta_clip / _apply_branding_overlay 에서
+    #    getattr(self.video, "_resolve_binary", lambda: "ffmpeg")() 로 인해
+    #    Windows 환경에서 PATH 에 ffmpeg 가 없을 때 [WinError 2] 로 폭사하는
+    #    취약점을 영구 방어하라."
+    #
+    #   ★ 왜 기존 방식이 취약했는가:
+    #     getattr 의 기본값 lambda: "ffmpeg" 는 어댑터에 _resolve_binary 가
+    #     없거나 예외를 던지는 순간 조용히 문자열 "ffmpeg" 로 낙하한다.
+    #     PATH 미등록 Windows 에서는 subprocess.Popen 이 WinError 2 로 즉사하고,
+    #     그 결과 엔딩 CTA 카드와 브랜딩 오버레이가 통째로 소실된다.
+    #
+    #   ★ 3중 안전망 (앞 단계가 성공하면 즉시 반환, 실패는 다음 단계로 위임):
+    #     1) video 어댑터의 _resolve_binary() — SSOT 단일 소유자(설정→PATH→번들)
+    #     2) imageio_ffmpeg 번들 절대경로 — PATH 미등록 환경의 최후 방어선
+    #     3) shutil.which("ffmpeg") — 시스템 PATH 탐색
+    #   · 1단계 예외는 삼키지 않고 로그로 남긴 뒤 2단계로 위임한다(은폐 금지 원칙).
+    #   · 3단계까지 모두 실패하면 마지막 수단으로 "ffmpeg" 문자열을 반환하되,
+    #     이 경우에도 호출부의 _run_guarded 가 예외를 표면화하므로 조용한 실패는 없다.
+    # ------------------------------------------------------------------
+    def _resolve_ffmpeg(self) -> str:
+        """FFmpeg 바이너리 절대 경로를 3중 안전망(video어댑터 -> imageio_ffmpeg 번들 -> shutil.which)으로 100% 확보한다."""
+        # 1) 비디오 어댑터 위임 (FFmpegVideoAdapter / WanS2VVideoAdapter 공통 SSOT)
+        if hasattr(self.video, "_resolve_binary"):
+            try:
+                exe = self.video._resolve_binary()
+                if exe and Path(exe).exists():
+                    return str(exe)
+            except Exception as e:
+                log.warning("ffmpeg 경로 해석 실패(video 어댑터) — 다음 안전망으로 위임: %r", e)
+
+        # 2) imageio_ffmpeg 번들 (Windows PATH 미등록 케이스 핵심 방어선)
+        try:
+            import imageio_ffmpeg  # type: ignore
+            exe = imageio_ffmpeg.get_ffmpeg_exe()
+            if exe and Path(exe).exists():
+                log.info("ffmpeg 경로 확보(imageio_ffmpeg 번들): %s", exe)
+                return str(exe)
+        except Exception as e:
+            log.warning("ffmpeg 경로 해석 실패(imageio_ffmpeg 번들): %r", e)
+
+        # 3) 시스템 PATH 탐색
+        found = shutil.which("ffmpeg")
+        if found:
+            log.info("ffmpeg 경로 확보(PATH): %s", found)
+            return found
+
+        log.error("ffmpeg 경로 3중 안전망 전건 실패 — 'ffmpeg' 문자열로 최후 시도(호출부에서 표면화됨)")
+        return "ffmpeg"
+
+    # ------------------------------------------------------------------
     # [엔딩 CTA 카드 클립 렌더러 SSOT] 대표님 승인 지시 (2026-10-25):
     #   "사진 속 2개(엔딩 CTA 카드 + 상단/하단 브랜딩 오버레이)
     #    최종 조립 단계에 100% 연결"
@@ -1877,7 +1948,7 @@ class PipelineOrchestrator:
             if not cta_img_path.exists() and im is not None:
                 im.save(cta_img_path, format="PNG")
 
-            ffmpeg_exe = getattr(self.video, "_resolve_binary", lambda: "ffmpeg")()
+            ffmpeg_exe = self._resolve_ffmpeg()
             cmd = [
                 ffmpeg_exe, "-y",
                 "-loop", "1", "-i", str(cta_img_path),
@@ -1998,7 +2069,7 @@ class PipelineOrchestrator:
         cutoff = body_duration_sec if body_duration_sec > 0 else 22.0
         enable_expr = f":enable='lt(t\\,{cutoff:.2f})'"
 
-        ffmpeg_exe = getattr(self.video, "_resolve_binary", lambda: "ffmpeg")()
+        ffmpeg_exe = self._resolve_ffmpeg()
         inputs = [ffmpeg_exe, "-y", "-i", str(input_mp4)]
         v_idx = 0
         filters = []
