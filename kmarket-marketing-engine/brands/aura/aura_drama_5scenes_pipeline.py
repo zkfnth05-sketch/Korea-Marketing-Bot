@@ -2324,67 +2324,324 @@ DEFAULT_OUTPUT_PREFIX = "Aura_drama_5s"
 SUBPROCESS_TIMEOUT_SEC = 600
 MAX_OUTPUT_DIR_RETRY = 50
 
-# 브랜드/로테이션 상수 (하드코딩 대본 금지 — 상태 파일 기반 자율 로테이션)
-BRAND_NAME = "아우라AI데이팅"
-ROTATION_STATE_FILENAME = ".aura_rotation_state.json"
-TOPICS: Tuple[str, ...] = (
-    "소개팅 호구조사 빌런", "카톡 읽씹 5시간의 멘붕", "자만추 꿈꾸는 방구석 솔로",
-    "더치페이 100원 단위 계산 빌런", "어색한 침묵 30초 뚝딱거림", "MBTI 과몰입 소개팅",
-    "삼프터인데 고백 안 하는 썸남", "프로필 사진 사기 당한 날", "첫마디 질문 대화 공포증",
-    "주말에 혼밥하는 솔로 3년차", "친구들은 다 연애중", "소개팅 애프터 신청 타이밍",
-    "전여친 무용담 떠드는 빌런", "연애 세포 바짝 마른 청춘", "이상형 눈만 높은 프로 불만러",
-    "소개팅 파토 나고 멘붕 온 날",
-)
-GENRES: Tuple[str, ...] = (
-    "로맨틱 코미디", "멜로드라마", "청춘 성장", "판타지 로맨스",
-    "스릴러 로맨스", "일상 힐링", "시대극", "SF 로맨스",
-)
 # ---------------------------------------------------------------------------
-# [장소 로테이션 SSOT] 2030 청춘 데이팅 16대 핫플레이스
+# [브랜드 중립 계약] BrandProfile — 오케스트레이터는 이 인터페이스에만 의존한다.
+#   ★ 왜 필수인가(감사 재심): 기존 파일은 BRAND_NAME/ROTATION_STATE_FILENAME/
+#     TOPICS/GENRES/LOCATIONS_*/NARRATIVE_MATRIX/SCENE_CHARACTER_MAP/보이스 상수/
+#     CTA 카드 import/뱃지 경로 "aura" 하드코딩이 오케스트레이션·인프라와 뒤섞여
+#     있어, 보험/주식 브랜드 복제 시 파일 복사 → 문자열 치환 → 드리프트가 재발했다.
+#   · 이제 브랜드는 BrandProfile 구현체로만 주입된다.
+#   · 오케스트레이터/어댑터는 브랜드 문자열을 직접 참조하지 않는다.
+#   · 상태 파일/산출물 네임스페이스/에셋 경로/보이스/감정/서사는 전부 팩 소유다.
+# ---------------------------------------------------------------------------
+class BrandProfile(ABC):
+    """브랜드 콘텐츠 팩 계약 — 선언적 설정의 단일 진입점."""
+
+    # --- 식별/네임스페이스 ---
+    @property
+    @abstractmethod
+    def brand_id(self) -> str: ...
+
+    @property
+    @abstractmethod
+    def brand_name(self) -> str: ...
+
+    @property
+    @abstractmethod
+    def output_namespace(self) -> str: ...
+
+    @property
+    @abstractmethod
+    def rotation_state_filename(self) -> str: ...
+
+    # --- 서사/로테이션 풀 ---
+    @property
+    @abstractmethod
+    def topics(self) -> Tuple[str, ...]: ...
+
+    @property
+    @abstractmethod
+    def genres(self) -> Tuple[str, ...]: ...
+
+    @property
+    @abstractmethod
+    def locations_ko(self) -> Tuple[str, ...]: ...
+
+    @property
+    @abstractmethod
+    def locations_en(self) -> Tuple[str, ...]: ...
+
+    @abstractmethod
+    def narrative_matrix(self) -> Dict[str, Tuple[Tuple[str, str], ...]]: ...
+
+    # --- 캐릭터/보이스/감정 ---
+    @abstractmethod
+    def scene_character_map(self) -> Dict[int, str]: ...
+
+    @abstractmethod
+    def character_master_files(self) -> Dict[str, str]: ...
+
+    @abstractmethod
+    def character_asset_dir(self) -> Path: ...
+
+    @abstractmethod
+    def scene_emotion_ssot(self) -> Dict[int, str]: ...
+
+    @abstractmethod
+    def scene_plan(self) -> Tuple[Tuple[float, str], ...]: ...
+
+    # --- CTA/오버레이 에셋 (포트) ---
+    @abstractmethod
+    def render_cta_image(self, out_path: Path) -> Optional[Path]: ...
+
+    @abstractmethod
+    def resolve_capsule_badge_path(self) -> Optional[Path]: ...
+
+    @abstractmethod
+    def resolve_profile_pill_badge_path(self) -> Optional[Path]: ...
+
+    @abstractmethod
+    def resolve_bouncing_pill_overlay_expr(self) -> Tuple[str, str]: ...
+
+    # --- 엔딩 CTA 문구 규격 ---
+    @property
+    @abstractmethod
+    def brand_search_keyword(self) -> str: ...
+
+    @property
+    @abstractmethod
+    def brand_cta(self) -> str: ...
+
+
+class BrandProfileError(PipelineError):
+    """브랜드 팩 계약 위반 — 은폐 금지, 즉시 표면화."""
+
+
+class AuraBrandProfile(BrandProfile):
+    """아우라AI데이팅 브랜드 팩 — 기존 하드코딩 상수를 선언적으로 이관한 구현체.
+
+    ★ 이 클래스는 '콘텐츠'만 소유한다. 인프라(이미지/TTS/비디오/프로세스)는
+      절대 여기에 넣지 않는다. 보험/주식 브랜드는 이 클래스를 복제하여
+      문자열/에셋 경로만 교체하면 되고, 오케스트레이터는 수정 불필요하다.
+    """
+
+    _TOPICS: Tuple[str, ...] = (
+        "소개팅 호구조사 빌런", "카톡 읽씹 5시간의 멘붕", "자만추 꿈꾸는 방구석 솔로",
+        "더치페이 100원 단위 계산 빌런", "어색한 침묵 30초 뚝딱거림", "MBTI 과몰입 소개팅",
+        "삼프터인데 고백 안 하는 썸남", "프로필 사진 사기 당한 날", "첫마디 질문 대화 공포증",
+        "주말에 혼밥하는 솔로 3년차", "친구들은 다 연애중", "소개팅 애프터 신청 타이밍",
+        "전여친 무용담 떠드는 빌런", "연애 세포 바짝 마른 청춘", "이상형 눈만 높은 프로 불만러",
+        "소개팅 파토 나고 멘붕 온 날",
+    )
+    _GENRES: Tuple[str, ...] = (
+        "로맨틱 코미디", "멜로드라마", "청춘 성장", "판타지 로맨스",
+        "스릴러 로맨스", "일상 힐링", "시대극", "SF 로맨스",
+    )
+
+    @property
+    def brand_id(self) -> str:
+        return "aura"
+
+    @property
+    def brand_name(self) -> str:
+        return "아우라AI데이팅"
+
+    @property
+    def output_namespace(self) -> str:
+        return "Aura"
+
+    @property
+    def rotation_state_filename(self) -> str:
+        # ★ 브랜드별 상태 파일 격리 — 기존 .aura_rotation_state.json 단일 공유 폐기.
+        return ".aura_rotation_state.json"
+
+    @property
+    def topics(self) -> Tuple[str, ...]:
+        return self._TOPICS
+
+    @property
+    def genres(self) -> Tuple[str, ...]:
+        return self._GENRES
+
+    @property
+    def locations_ko(self) -> Tuple[str, ...]:
+        return LOCATIONS_KO
+
+    @property
+    def locations_en(self) -> Tuple[str, ...]:
+        return LOCATIONS_EN
+
+    def narrative_matrix(self) -> Dict[str, Tuple[Tuple[str, str], ...]]:
+        return NARRATIVE_MATRIX
+
+    def scene_character_map(self) -> Dict[int, str]:
+        return SCENE_CHARACTER_MAP
+
+    def character_master_files(self) -> Dict[str, str]:
+        return CHARACTER_MASTER_FILES
+
+    def character_asset_dir(self) -> Path:
+        return CHARACTER_ASSET_DIR
+
+    def scene_emotion_ssot(self) -> Dict[int, str]:
+        return SCENE_EMOTION_SSOT
+
+    def scene_plan(self) -> Tuple[Tuple[float, str], ...]:
+        return SCENE_PLAN
+
+    def render_cta_image(self, out_path: Path) -> Optional[Path]:
+        # ★ 브랜드 UI 템플릿 import 는 팩 내부로 격리 — 오케스트레이터는 이 메서드만 호출.
+        try:
+            from brands.aura.ui_templates.aura_drama_cta_card import AuraDramaCTACard
+            card = AuraDramaCTACard()
+            im = card.render_cta_image(out_path)
+            if not out_path.exists() and im is not None:
+                im.save(out_path, format="PNG")
+            return out_path if out_path.exists() else None
+        except Exception as e:
+            raise BrandProfileError(f"CTA 카드 렌더 실패(brand={self.brand_id}): {e!r}") from e
+
+    def resolve_capsule_badge_path(self) -> Optional[Path]:
+        try:
+            from core.shorts_engine.shorts_brand_capsule_badge import ShortsBrandCapsuleBadge
+            bp = ShortsBrandCapsuleBadge.get_overlay_path(self.brand_id)
+            if bp and Path(bp).exists():
+                return Path(bp).resolve()
+        except Exception as e:
+            raise BrandProfileError(f"캡슐 뱃지 해석 실패(brand={self.brand_id}): {e!r}") from e
+        return None
+
+    def resolve_profile_pill_badge_path(self) -> Optional[Path]:
+        try:
+            from core.shorts_engine.shorts_branding_overlay import ShortsBrandingOverlay
+            pp = ShortsBrandingOverlay.get_bouncing_profile_badge_path(self.brand_id)
+            if pp and Path(pp).exists():
+                return Path(pp).resolve()
+        except Exception as e:
+            raise BrandProfileError(f"프로필 필 뱃지 해석 실패(brand={self.brand_id}): {e!r}") from e
+        return None
+
+    def resolve_bouncing_pill_overlay_expr(self) -> Tuple[str, str]:
+        # ★ 오버레이 수식 SSOT 조회는 팩 내부로 격리 — 오케스트레이터는 리터럴 0건 유지.
+        return resolve_bouncing_pill_overlay_expr()
+
+    @property
+    def brand_search_keyword(self) -> str:
+        return "아우라AI데이팅"
+
+    @property
+    def brand_cta(self) -> str:
+        return "네이버에 아우라AI데이팅 한번 검색해보세요"
+# ---------------------------------------------------------------------------
+# [아우라 3대 공간 & 포즈 앵커 SSOT] 대표님 지시 (2026-10-26)
+#   ★ 핵심 원칙: "매일 실내 카페 테이블에만 앉아있지 않고, 공원에서 서서 대화하거나
+#     삼청동 돌담길을 나란히 걸으며 티키타카를 나누는" 역동적 2030 데이팅 연출!
+#   · Mode A (INDOOR_SEATED): 실내 핫플 카페/와인바 마주 앉기, 수평 시선
+#   · Mode B (OUTDOOR_STANDING): 공원/한강 산책로 나란히 서서 테이크아웃 커피 대화, 수평 시선
+#   · Mode C (STREET_WALKING): 삼청동 돌담길/성수동 골목길 나란히 걸으며 활기찬 대화, 수평 시선
+#   · 단일 회차(1~5씬) 내에서는 남녀가 100% 동일한 공간 앵커를 공유하여 포즈/시선 붕괴를 원천 방지한다.
+# ---------------------------------------------------------------------------
+AURA_SPATIAL_POSTURE_MODES: Dict[str, Dict[str, str]] = {
+    "INDOOR_SEATED": {
+        "mode_id": "INDOOR_SEATED",
+        "name_ko": "실내 핫플 카페/와인바 좌식 모드 (Mode A)",
+        "desc": "감성 카페/와인바 원목 테이블에 마주 앉아 티키타카 대화",
+        "couple_shot": (
+            "two-shot composition, stylish young Korean woman and handsome man in their mid-20s "
+            "seated facing each other across a cafe table, relaxed posture, upper-body shot, "
+            "natural eye-line exchange at same seated eye level, warm ambient lighting"
+        ),
+        "female_posture": "seated at stylish cafe table, natural relaxed sitting posture, upper body, eye level matching seated partner",
+        "male_posture": "seated at stylish cafe table, natural relaxed sitting posture, upper body, eye level matching seated partner",
+        "eye_line_anchor": "eye_level_seated_horizontal",
+    },
+    "OUTDOOR_STANDING": {
+        "mode_id": "OUTDOOR_STANDING",
+        "name_ko": "야외 공원/한강 산책로 입식 모드 (Mode B)",
+        "desc": "서울숲 잔디밭 산책로나 한강 수변 난간에서 테이크아웃 커피를 들고 나란히 서서 대화",
+        "couple_shot": (
+            "two-shot composition, stylish young Korean woman and handsome man standing side by side "
+            "in a lush green city park, holding takeout coffee cups, upright natural posture, "
+            "upper-body shot, natural eye-line exchange at same standing eye level, bright natural daylight"
+        ),
+        "female_posture": "standing in lush green city park path, natural standing posture, holding takeout coffee, upper body, eye level matching standing partner",
+        "male_posture": "standing in lush green city park path, natural standing posture, upright upper body, eye level matching standing partner",
+        "eye_line_anchor": "eye_level_standing_horizontal",
+    },
+    "STREET_WALKING": {
+        "mode_id": "STREET_WALKING",
+        "name_ko": "삼청동 돌담길/거리 산책 워킹 모드 (Mode C)",
+        "desc": "삼청동 감성 한옥 돌담길이나 성수동 골목길을 나란히 걸어가며 활기차게 대화",
+        "couple_shot": (
+            "two-shot composition, stylish young Korean couple walking naturally together side by side "
+            "along picturesque Samcheong-dong stone wall alley, natural walking posture, upper-body shot, "
+            "glancing at each other with cheerful smile, matching eye level, soft daylight"
+        ),
+        "female_posture": "walking along picturesque traditional stone wall street, natural walking posture, upper body, eye level matching walking partner",
+        "male_posture": "walking along picturesque traditional stone wall street, natural walking posture, upright upper body, eye level matching walking partner",
+        "eye_line_anchor": "eye_level_walking_horizontal",
+    },
+}
+
+_AURA_POSTURE_CYCLE: Tuple[str, ...] = ("INDOOR_SEATED", "OUTDOOR_STANDING", "STREET_WALKING")
+
+
+def get_aura_spatial_anchor(run_no: int) -> Dict[str, str]:
+    """회차 번호(run_no)에 따라 아우라 공간 앵커(실내좌식 ↔ 공원입식 ↔ 거리워킹)를 3주기 결정론적으로 순환 반환한다."""
+    idx = (run_no - 1) % len(_AURA_POSTURE_CYCLE) if run_no > 0 else 0
+    return AURA_SPATIAL_POSTURE_MODES[_AURA_POSTURE_CYCLE[idx]]
+
+
+# ---------------------------------------------------------------------------
+# [장소 로테이션 SSOT] 2030 청춘 데이팅 16대 핫플레이스 (실내 6 / 공원야외 5 / 거리산책 5 균형 배치)
 #   · LOCATIONS_KO : 로그/매니페스트/리포트용 한국어 표기
 #   · LOCATIONS_EN : Gemini 이미지 프롬프트 주입용 영문 표기
-#   · 두 튜플은 반드시 같은 인덱스로 1:1 대응한다(길이 불일치 시 즉시 실패).
-#   · 매 회차 location 인덱스를 +1 전진시켜 16회 주기로 100% 다른 장소를 보장한다.
+#   · 두 튜플은 반드시 같은 인덱스로 1:1 대응한다(길이 16 불일치 시 즉시 실패).
 # ---------------------------------------------------------------------------
 LOCATIONS_KO: Tuple[str, ...] = (
+    # [1~6: 실내 핫플 카페/바/라운지]
     "성수동 에스프레소 바 원목 카운터",
     "한남동 내추럴 와인바 시티뷰 창가석",
     "익선동 한옥 티하우스 원목 좌식 테이블",
-    "연남동 루프탑 카페 노을 야외 테라스",
-    "도산공원 미니멀 브런치 카페 대리석 테이블",
-    "을지로 LP 바 빈티지 원목 테이블",
-    "양재 플랜테리어 온실 카페 유리 테이블",
-    "망원동 독립서점 심야 북카페 창가석",
-    "청담동 럭셔리 라운지 가죽 소파 테이블",
-    "반포 한강공원 잠수교 야경 테라스",
-    "삼청동 돌담길 갤러리 카페 중정 테이블",
-    "문래동 감성 철공소 개조 펍 테이블",
-    "송리단길 호수뷰 베이커리 카페 창가석",
-    "서촌 골목 심야 재즈 카페 원형 테이블",
-    "압구정 로데오 힙한 젤라또 카페 파스텔 테이블",
-    "북촌 한옥마을 다도 다락방 원목 테이블",
+    "청담동 프라이빗 라운지 가죽 소파",
+    "을지로 빈티지 LP 바 네온 카운터석",
+    "서촌 심야 재즈 카페 아늑한 원형 테이블",
+    # [7~11: 야외 공원/한강 산책로]
+    "서울숲 잔디밭 산책로 벤치 앞",
+    "반포 한강공원 잠수교 야경 수변 난간",
+    "도산공원 은행나무 산책로 잔디마당",
+    "여의도 한강공원 물빛광장 야외 테라스",
+    "송리단길 석촌호수 수변 산책로 난간",
+    # [12~16: 삼청동/성수동 감성 거리 워킹]
+    "삼청동 감성 한옥 돌담길 산책로",
+    "성수동 감성 벽화 아뜰리에 골목길",
+    "연남동 경의선 숲길 철길 산책로",
+    "북촌 한옥마을 고즈넉한 오르막 골목길",
+    "망원동 포토제닉 소품샵 감성 거리",
 )
 
 LOCATIONS_EN: Tuple[str, ...] = (
+    # [1~6: Indoor Hotspots]
     "cozy Seongsu-dong espresso bar wooden counter table",
     "stylish Hannam-dong natural wine bar window table with Seoul city night view",
-    "traditional Ikseon-dong Hanok tea house wooden table",
-    "sunset Yeonnam-dong rooftop cafe outdoor terrace table",
-    "chic Dosan Park minimalist brunch cafe marble table",
-    "vibrant Euljiro vinyl record lounge vintage wooden table with warm neon accents",
-    "sunlit Yangjae greenhouse cafe glass table surrounded by lush plants",
-    "quiet Mangwon-dong bookstore cafe cozy window nook table",
-    "luxurious Cheongdam-dong lounge leather sofa table",
-    "Banpo Han River night view riverside terrace table",
-    "Samcheong-dong gallery cafe courtyard wooden table",
-    "Mullae-dong industrial vintage pub steel-wood table",
-    "Songridan-gil lake view bakery cafe sunlit window table",
-    "Seochon alley stylish midnight jazz lounge sleek round table",
-    "trendy Apgujeong Rodeo gelato cafe pastel colorful table",
-    "Bukchon Hanok village traditional tea attic wooden low table",
+    "traditional Ikseon-dong Hanok tea house wooden low table",
+    "luxurious Cheongdam-dong private lounge leather sofa",
+    "vibrant Euljiro vinyl record lounge vintage wooden bar table with warm neon accents",
+    "cozy Seochon midnight jazz cafe sleek round table",
+    # [7~11: Outdoor Parks & Riverside]
+    "lush green Seoul Forest park lawn pathway, standing near bench with takeout coffee",
+    "Banpo Han River riverside railing with glowing bridge night view",
+    "chic Dosan Park sunlit promenade under ginkgo trees",
+    "Yeouido Han River Mulbit Square breezy riverside open plaza",
+    "Songridan-gil Seokchon Lake waterfront walking path with clear sky",
+    # [12~16: Street & Alley Walking]
+    "picturesque Samcheong-dong traditional Hanok stone wall alleyway",
+    "vibrant Seongsu-dong trendy brick atelier alley street",
+    "sunset Yeonnam-dong Gyeongui Line Forest Park green trail",
+    "historic Bukchon Hanok village picturesque scenic sloped alley",
+    "charming Mangwon-dong boutique street with warm retro vibes",
 )
 
-# 1:1 대응 불변식 — 두 풀의 길이가 어긋나면 인덱스 매핑이 조용히 오염된다.
 if len(LOCATIONS_KO) != len(LOCATIONS_EN):
     raise SpecValidationError(
         f"장소 로테이션 풀 길이 불일치: KO={len(LOCATIONS_KO)} / EN={len(LOCATIONS_EN)}"
@@ -2401,29 +2658,39 @@ SCENE_PLAN: Tuple[Tuple[float, str], ...] = (
 )
 
 
-def _rotation_state_path() -> Path:
-    return Path.home() / ROTATION_STATE_FILENAME
+def _rotation_state_path(profile: BrandProfile) -> Path:
+    """브랜드별 로테이션 상태 파일 경로를 반환한다.
+
+    ★ 왜 필수인가(감사 재심): 기존에는 사용자 홈의 단일 파일(.aura_rotation_state.json)을
+      모든 브랜드가 공유하여, 보험/주식 브랜드 복제 시 상태가 서로 오염되고
+      동시 실행 시 인덱스가 충돌했다. 이제 브랜드별 서브디렉터리로 격리한다.
+    """
+    base = Path.home() / ".brand_rotation_state"
+    base.mkdir(parents=True, exist_ok=True)
+    return base / profile.rotation_state_filename
 
 
-def _load_rotation_state() -> Dict[str, int]:
-    p = _rotation_state_path()
+def _load_rotation_state(profile: BrandProfile) -> Dict[str, int]:
+    p = _rotation_state_path(profile)
     if not p.exists():
         return {"topic": 0, "genre": 0, "location": 0, "run": 0}
     try:
         data = json.loads(p.read_text(encoding="utf-8"))
         return {
-            "topic": int(data.get("topic", 0)) % len(TOPICS),
-            "genre": int(data.get("genre", 0)) % len(GENRES),
-            "location": int(data.get("location", 0)) % len(LOCATIONS_EN),
+            "topic": int(data.get("topic", 0)) % len(profile.topics),
+            "genre": int(data.get("genre", 0)) % len(profile.genres),
+            "location": int(data.get("location", 0)) % len(profile.locations_en),
             "run": int(data.get("run", 0)),
         }
-    except Exception:
-        log.exception("로테이션 상태 파일 손상 — 초기화")
-        return {"topic": 0, "genre": 0, "location": 0, "run": 0}
+    except Exception as e:
+        # ★ 은폐 금지: 손상 상태는 조용히 초기화하지 않고 표면화한다.
+        raise SpecValidationError(
+            f"로테이션 상태 파일 손상(brand={profile.brand_id}, path={p}): {e!r}"
+        ) from e
 
 
-def _save_rotation_state(state: Dict[str, int]) -> None:
-    p = _rotation_state_path()
+def _save_rotation_state(profile: BrandProfile, state: Dict[str, int]) -> None:
+    p = _rotation_state_path(profile)
     tmp = p.with_suffix(".tmp")
     tmp.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
     tmp.replace(p)
@@ -2651,39 +2918,114 @@ def _collect_gemini_keys() -> List[str]:
     return keys
 
 
-def _build_gemini_prompt(topic: str, genre: str, run_no: int) -> str:
+def _build_gemini_prompt(profile: BrandProfile, topic: str, genre: str, run_no: int) -> str:
+    """Gemini 자율 집필 프롬프트를 브랜드 팩(profile) 기반으로 생성한다.
+
+    ★ 시그니처 정합성 교정 (2026-10-26):
+      기존 정의부는 (topic, genre, run_no) 3인자였으나 호출부(L2893)는
+      (profile, topic, genre, run_no) 4인자로 호출하여 매 호출마다 TypeError 로
+      즉사 → Gemini 자율 집필이 100% 실패하고 매트릭스 폴백으로만 낙하했다.
+      정의부를 호출부에 맞춰 4인자로 승격하고, 내부 하드코딩 상수
+      (BRAND_NAME / BRAND_SEARCH_KEYWORD / BRAND_CTA)를 전량 profile 조회로 이관한다.
+
+    ★ 브랜드 중립 계약:
+      · 브랜드명/검색어/CTA 는 반드시 profile 에서만 조회한다(하드코딩 0건).
+      · 캐릭터 이름(서연/민준)도 profile.scene_character_map() 으로 해석하여
+        보험/주식 브랜드 복제 시 인물명이 그대로 새는 것을 원천 차단한다.
+      · 씬별 duration 은 profile.scene_plan() 에서 조회한다(스펙 드리프트 0건).
+    """
+    brand_name = profile.brand_name
+    keyword = profile.brand_search_keyword
+    cta = profile.brand_cta
+
+    # [캐릭터명 브랜드 중립 해석] 씬 1/3/4/5 = 여성 화자, 씬 2 = 남성 화자.
+    #   · scene_character_map() 이 없거나 조회 실패 시 안전 기본 라벨로 폴백한다.
+    try:
+        char_map = profile.scene_character_map() or {}
+    except Exception:
+        char_map = {}
+    female_key = str(char_map.get(1, "female"))
+    male_key = str(char_map.get(2, "male"))
+    female_label = f"{female_key}(여)"
+    male_label = f"{male_key}(남)"
+
+    # [씬 길이 브랜드 중립 해석] scene_plan() 의 duration 을 초 단위로 표기.
+    try:
+        plan = profile.scene_plan() or ()
+    except Exception:
+        plan = ()
+    durations: List[float] = []
+    for item in plan:
+        try:
+            durations.append(float(item[0]))
+        except Exception:
+            durations.append(0.0)
+    while len(durations) < 5:
+        durations.append(0.0)
+    d1, d2, d3, d4, d5 = (f"{durations[i]:g}" for i in range(5))
+
+    # [아우라 공간 및 포즈 앵커 SSOT] 대표님 지시 (2026-10-26)
+    #   · 회차별 3주기 로테이션: 실내 좌식 Mode A ↔ 공원 입식 Mode B ↔ 삼청동 거리 워킹 Mode C
+    try:
+        anchor = get_aura_spatial_anchor(run_no)
+    except Exception as e:
+        log.warning("아우라 공간 앵커 조회 실패(run_no=%s) — 실내 모드로 진행: %r", run_no, e)
+        anchor = AURA_SPATIAL_POSTURE_MODES["INDOOR_SEATED"]
+
+    anchor_name = anchor["name_ko"]
+    anchor_desc = anchor["desc"]
+    female_posture = anchor["female_posture"]
+    male_posture = anchor["male_posture"]
+    couple_shot = anchor["couple_shot"]
+
     return (
-        f"너는 한국 2030 데이팅 앱 '{BRAND_NAME}'의 숏폼 드라마 작가다. "
+        f"너는 한국 2030 숏폼 드라마 작가다. 브랜드='{brand_name}'. "
         f"주제='{topic}', 장르='{genre}', 회차={run_no}. "
         "5씬 시나리오를 JSON으로만 출력하라. 설명/마크다운 금지.\n"
         "★ 절대 금지: 오페라, 소설, 인생 명언, 3인칭 나레이션, 시적 비유, 문어체. "
         "2030 유튜브 쇼츠 감성의 날것 그대로의 극사실주의 구어체 대화로만 작성하라. "
         "실제 카톡/전화 통화에서 할 법한 말투(반말/존댓말 혼용, ㅋㅋ, ㅠㅠ, 헐, 대박)를 써라.\n"
+        # ------------------------------------------------------------------
+        # [아우라 공간 및 시선 일치 안전장치 블록]
+        # ------------------------------------------------------------------
+        f"★★ [이번 회차 아우라 공간 & 포즈 앵커 — {anchor_name}] ★★\n"
+        f"  · 전체 공간 연출: {anchor_desc}\n"
+        "  · 5개 씬 공통 규칙: 남녀의 자세와 공간이 한 편 내에서 100% 일치해야 한다(한 명만 서 있거나 앉는 시선 왜곡 절대 금지).\n"
+        f"  · 서연(여, 씬1/3/4/5) image_prompt 필수 지시: '{female_posture}'\n"
+        f"  · 민준(남, 씬2) image_prompt 필수 지시: '{male_posture}'\n"
+        f"  · 투샷 연출 시 구도: '{couple_shot}'\n"
         "씬 구성(고정):\n"
-        "  씬1 = 서연(여) 한숨 훅 — 현실 소개팅/연애의 황당한 상황 (3초)\n"
-        "  씬2 = 민준(남) 팩폭 티키타카 — 남사친의 경악/탈출 권유 (4초)\n"
-        "  씬3 = 서연(여) 아우라 솔루션 체감 — AI 취향 매칭/대화 비서 감탄 (4초)\n"
-        "  씬4 = 서연(여) 데이트 약속 성사 — 티키타카 폭발, 주말 약속 (5초)\n"
-        "  씬5 = 서연(여) 검색유도 엔딩 — 사이다 클로징 (4초)\n"
+        f"  씬1 = {female_label} 한숨 훅 — 현실의 황당한 상황 ({d1}초)\n"
+        f"  씬2 = {male_label} 팩폭 티키타카 — 남사친의 경악/탈출 권유 ({d2}초)\n"
+        f"  씬3 = {female_label} {brand_name} 솔루션 체감 — AI 매칭/비서 감탄 ({d3}초)\n"
+        f"  씬4 = {female_label} 약속 성사 — 티키타카 폭발, 주말 약속 ({d4}초)\n"
+        f"  씬5 = {female_label} 검색유도 엔딩 — 사이다 클로징 ({d5}초)\n"
         "각 씬 narration은 한국어 실제 대사 1~2문장(25~80자). "
-        "image_prompt는 영어 시네마틱 프롬프트(카메라/조명/렌즈 포함).\n"
-        f"씬5 narration에는 반드시 '{BRAND_SEARCH_KEYWORD}'와 '{BRAND_CTA}' 문구를 포함하라.\n"
+        "image_prompt는 영어 시네마틱 프롬프트(카메라/조명/렌즈 포함, 위 공간 앵커 필수 반영).\n"
+        f"씬5 narration에는 반드시 '{keyword}'와 '{cta}' 문구를 포함하라.\n"
+        "★★ [출력 완결성 절대 규칙] ★★\n"
+        "  - 반드시 5개 씬 전부(index 1부터 5까지) 누락 없이 출력하라.\n"
+        "  - 대사(narration) 내부에는 큰따옴표(\")를 절대 쓰지 말고 작은따옴표(')만 사용하라.\n"
         '출력 스키마: {"scenes":[{"index":1,"narration":"...","image_prompt":"..."}, ... 5개]}'
     )
 
 
-def _call_gemini_scenario(topic: str, genre: str, run_no: int) -> Optional[List[Dict[str, str]]]:
-    """Gemini Flash 호출로 5씬 시나리오를 자율 집필한다. 실패 시 None(폴백 유도)."""
+def _call_gemini_scenario(profile: BrandProfile, topic: str, genre: str,
+                          run_no: int) -> Optional[List[Dict[str, str]]]:
+    """Gemini Flash 호출로 5씬 시나리오를 자율 집필한다. 실패 시 None(폴백 유도).
+
+    ★ 감사 재심: 프롬프트의 브랜드명/검색어/CTA 를 profile 에서 조회하도록 이관.
+    """
     keys = _collect_gemini_keys()
     if not keys:
-        log.info("Gemini 키 부재 — 자율 서사 매트릭스 폴백 사용")
+        log.info("Gemini 키 부재 — profile 서사 매트릭스 폴백 사용(brand=%s)", profile.brand_id)
         return None
 
     import urllib.error
     import urllib.request
 
     payload = json.dumps({
-        "contents": [{"parts": [{"text": _build_gemini_prompt(topic, genre, run_no)}]}],
+        "contents": [{"parts": [{"text": _build_gemini_prompt(profile, topic, genre, run_no)}]}],
         "generationConfig": {"temperature": 1.0, "maxOutputTokens": 2048, "responseMimeType": "application/json"},
     }).encode("utf-8")
 
@@ -2714,22 +3056,33 @@ def _call_gemini_scenario(topic: str, genre: str, run_no: int) -> Optional[List[
     return None
 
 
-def _compose_from_matrix(topic: str, genre: str, run_no: int) -> List[Dict[str, str]]:
-    """16주제 극사실주의 매트릭스 1:1 조회 — 문장 이어붙이기 레거시 완전 폐기.
+def _compose_from_matrix(profile: BrandProfile, topic: str, genre: str,
+                         run_no: int) -> List[Dict[str, str]]:
+    """profile 서사 매트릭스 1:1 조회 — 문장 이어붙이기 레거시 완전 폐기.
+
+    ★ 감사 재심: 전역 NARRATIVE_MATRIX/TOPICS 참조를 제거하고 profile 로 이관.
 
     불변식:
-      1) NARRATIVE_MATRIX[topic] 은 정확히 5개의 (대사, 프롬프트) 튜플이다.
+      1) profile.narrative_matrix()[topic] 은 정확히 5개의 (대사, 프롬프트) 튜플이다.
       2) 조합/변주/문장 결합을 하지 않는다. 튜플을 그대로 1:1 매핑한다.
-      3) 미등록 주제는 로테이션 인덱스로 결정론적 대체(자리표시자 금지).
+      3) 미등록 주제는 profile 로테이션 인덱스로 결정론적 대체(자리표시자 금지).
     """
-    scenes = NARRATIVE_MATRIX.get(topic)
+    matrix = profile.narrative_matrix()
+    scenes = matrix.get(topic)
     if scenes is None:
-        scenes = NARRATIVE_MATRIX[TOPICS[run_no % len(TOPICS)]]
-        log.warning("주제 '%s' 매트릭스 미등록 — 대체 주제 사용", topic)
+        fallback_topic = profile.topics[run_no % len(profile.topics)]
+        scenes = matrix.get(fallback_topic)
+        if scenes is None:
+            raise SpecValidationError(
+                f"서사 매트릭스 미등록(brand={profile.brand_id}): "
+                f"topic='{topic}', fallback='{fallback_topic}'"
+            )
+        log.warning("주제 '%s' 매트릭스 미등록 — 대체 주제 '%s' 사용", topic, fallback_topic)
 
     if len(scenes) != 5:
         raise SpecValidationError(
-            f"매트릭스 씬 개수 위반: topic='{topic}' → {len(scenes)}개 (정확히 5 필요)"
+            f"매트릭스 씬 개수 위반(brand={profile.brand_id}): "
+            f"topic='{topic}' → {len(scenes)}개 (정확히 5 필요)"
         )
 
     return [
@@ -2738,30 +3091,56 @@ def _compose_from_matrix(topic: str, genre: str, run_no: int) -> List[Dict[str, 
     ]
 
 
-def _build_autonomous_scenes(topic: str, genre: str, run_no: int,
+def _build_autonomous_scenes(profile: BrandProfile, topic: str, genre: str, run_no: int,
                              location_en: str = "") -> List[SceneSpec]:
-    """자율 시나리오 생성 엔진 — Gemini 우선, 실패 시 16주제 서사 매트릭스 폴백.
+    """자율 시나리오 생성 엔진 — Gemini 우선, 실패 시 profile 서사 매트릭스 폴백.
+
+    ★ 감사 재심: 기존에는 SCENE_PLAN/BRAND_SEARCH_KEYWORD/BRAND_CTA/NARRATIVE_MATRIX
+      전역 상수에 결합되어 브랜드 복제 시 드리프트가 발생했다. 이제 profile 이 소유한다.
 
     불변식:
-      1) SCENE_PLAN(3/4/4/5/4, Aoede-Puck-Aoede-Puck-Aoede) 규격 엄수.
-      2) 씬5 narration에 '아우라AI데이팅' + 네이버 검색 유도 문구 강제 주입.
+      1) profile.scene_plan() 규격 엄수.
+      2) 씬5 narration에 profile.brand_search_keyword + profile.brand_cta 강제 주입.
       3) 자리표시자/더미 텍스트 생성 금지.
       4) location_en 은 5씬 전건에 동일 주입 — 한 편 안의 공간 연속성 100% 보장.
     """
-    drafted = _call_gemini_scenario(topic, genre, run_no)
+    drafted = _call_gemini_scenario(profile, topic, genre, run_no)
     if drafted is None:
-        drafted = _compose_from_matrix(topic, genre, run_no)
+        drafted = _compose_from_matrix(profile, topic, genre, run_no)
+
+    plan = profile.scene_plan()
+    if len(plan) != 5:
+        raise SpecValidationError(
+            f"scene_plan 길이 위반(brand={profile.brand_id}): {len(plan)} (정확히 5 필요)"
+        )
+
+    # [아우라 공간 & 포즈 앵커 SSOT 결속]
+    # 회차별 앵커(실내좌식 ↔ 공원입식 ↔ 거리워킹)를 5씬 전건의 image_prompt에 최종 결속하여
+    # Gemini 생성본 및 폴백 매트릭스 전건에서 시선·포즈 불일치가 발생하지 않도록 2중 방어한다.
+    try:
+        anchor = get_aura_spatial_anchor(run_no)
+    except Exception:
+        anchor = AURA_SPATIAL_POSTURE_MODES["INDOOR_SEATED"]
 
     scenes: List[SceneSpec] = []
-    for i, ((dur, voice), item) in enumerate(zip(SCENE_PLAN, drafted), start=1):
+    for i, ((dur, voice), item) in enumerate(zip(plan, drafted), start=1):
         narr = item["narration"].strip()
         prm = item["image_prompt"].strip()
+
+        # 화자별(서연:1,3,4,5 / 민준:2) 자세 앵커 결속 (현재 회차 모드 자세 토큰 보장)
+        posture_tok = anchor["male_posture"] if (i == 2) else anchor["female_posture"]
+        mode_id_low = anchor["mode_id"].lower()
+        required_pose = "seated" if "seated" in mode_id_low else ("standing" if "standing" in mode_id_low else "walking")
+        if required_pose not in prm.lower():
+            prm = f"{prm}, {posture_tok}"
+
         if i == 5:
-            # 엔딩 규격 강제: 공식 검색어 + 네이버 검색 유도 문구 100% 포함
-            if BRAND_SEARCH_KEYWORD not in narr:
-                narr = f"{narr} {BRAND_SEARCH_KEYWORD}."
-            if "네이버" not in narr or BRAND_SEARCH_KEYWORD not in narr:
-                narr = f"{narr} {BRAND_CTA}."
+            kw = profile.brand_search_keyword
+            cta = profile.brand_cta
+            if kw not in narr:
+                narr = f"{narr} {kw}."
+            if "네이버" not in narr or kw not in narr:
+                narr = f"{narr} {cta}."
         scenes.append(SceneSpec(
             index=i,
             narration=narr,
@@ -2774,35 +3153,49 @@ def _build_autonomous_scenes(topic: str, genre: str, run_no: int,
     return scenes
 
 
-def build_default_5scenes_spec() -> List[SceneSpec]:
+def build_default_5scenes_spec(profile: Optional[BrandProfile] = None) -> List[SceneSpec]:
     """상태 파일 기반 자율 로테이션 5씬 스펙 팩토리 (SSOT 진입점).
+
+    ★ 감사 재심: 기존에는 전역 TOPICS/GENRES/LOCATIONS_*/NARRATIVE_MATRIX 와
+      사용자 홈 단일 상태 파일에 결합되어 브랜드 복제 시 상태·서사가 섞였다.
+      이제 모든 로테이션 풀과 상태 파일은 profile 이 소유한다.
+
+    ★ 시그니처 계약 (2026-10-26 교정):
+      profile 을 Optional 기본값(None)으로 승격하여 무인자 호출을 정식 허용한다.
+      · resolve_run_inputs() 는 CLI 인자가 없을 때 build_default_5scenes_spec() 을
+        무인자로 호출한다. 기존 필수 인자 시그니처에서는 TypeError 로 즉사하여
+        "인자 없음 → 자동 실행" 경로가 100% 실패했다.
+      · profile 미지정 시 AuraBrandProfile() 로 결정론적 기본 팩을 주입한다.
+      · AST 시그니처 검사 기준 min_args=0 / max_args=1 로 정합된다.
 
     불변식:
       1) 반환 타입은 반드시 List[SceneSpec].
       2) 반환 전 SpecValidator.validate_all 통과 (fail-fast).
-      3) 하드코딩 정적 대본 금지 — 16주제/8장르/16장소 3축 로테이션.
+      3) 하드코딩 정적 대본 금지 — profile 의 3축 로테이션.
       4) 상태 파일 갱신은 성공 반환 직전에만 수행.
       5) location_en 은 5씬 전건 동일 주입 → 한 편 내 공간 연속성 100%.
     """
-    state = _load_rotation_state()
-    topic = TOPICS[state["topic"]]
-    genre = GENRES[state["genre"]]
-    location_idx = state.get("location", 0) % len(LOCATIONS_EN)
-    location_ko = LOCATIONS_KO[location_idx]
-    location_en = LOCATIONS_EN[location_idx]
+    if profile is None:
+        profile = AuraBrandProfile()
+    state = _load_rotation_state(profile)
+    topic = profile.topics[state["topic"]]
+    genre = profile.genres[state["genre"]]
+    location_idx = state.get("location", 0) % len(profile.locations_en)
+    location_ko = profile.locations_ko[location_idx]
+    location_en = profile.locations_en[location_idx]
     run_no = state["run"] + 1
 
-    scenes = _build_autonomous_scenes(topic, genre, run_no, location_en=location_en)
-    SpecValidator.validate_all(scenes, 0.0, "default_5scenes")
+    scenes = _build_autonomous_scenes(profile, topic, genre, run_no, location_en=location_en)
+    SpecValidator.validate_all(scenes, 0.0, f"{profile.brand_id}_default_5scenes")
 
-    _save_rotation_state({
-        "topic": (state["topic"] + 1) % len(TOPICS),
-        "genre": (state["genre"] + 1) % len(GENRES),
-        "location": (location_idx + 1) % len(LOCATIONS_EN),
+    _save_rotation_state(profile, {
+        "topic": (state["topic"] + 1) % len(profile.topics),
+        "genre": (state["genre"] + 1) % len(profile.genres),
+        "location": (location_idx + 1) % len(profile.locations_en),
         "run": run_no,
     })
-    log.info("자율 로테이션: run=%d topic='%s' genre='%s' location='%s'",
-             run_no, topic, genre, location_ko)
+    log.info("자율 로테이션(brand=%s): run=%d topic='%s' genre='%s' location='%s'",
+             profile.brand_id, run_no, topic, genre, location_ko)
     return scenes
 
 

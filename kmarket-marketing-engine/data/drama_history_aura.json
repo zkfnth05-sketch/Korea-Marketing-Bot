@@ -7,5 +7,14 @@
     "script_hash": "8c8f8c195beaab0c1610430412a797e9e42d40ea5b18fdb8f8700f6042dee290",
     "hook_hash": "4a09d8ab480bd9b9a936991e361a43644f2e96745eab801638e33704a2a797d3",
     "recorded_at": "2026-10-25T14:59:24"
+  },
+  {
+    "date": "2026-10-26",
+    "genre_id": "firsttalk",
+    "location": "클래식 인테리어와 잔잔한 샹송이 흐르는 서래마을 클래식 비스트로",
+    "template_id": "fp_firsttalk_01",
+    "script_hash": "4dff68238357aa23bc89d61c258dd9b78e8967e8f40a6ee063522cb64bdfee88",
+    "hook_hash": "dcf302c8b34cfda3708d244d92bb4293d51cb13b51e8bd9c86480fd0675386cc",
+    "recorded_at": "2026-10-26T08:19:31"
   }
 ]

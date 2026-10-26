@@ -195,6 +195,7 @@ class DramaDialogueSynthesizer:
         output_filename: str,
         lead_gender: str = "female",
         force_speaker: Optional[str] = None,
+        voice_override: Optional[str] = None,
     ) -> Tuple[Path, float]:
         """
         2인 핑퐁 대화를 화자별로 합성하고 결합하여 최종 MP3 파일과 재생 시간을 반환한다.
@@ -204,6 +205,7 @@ class DramaDialogueSynthesizer:
             output_filename: 출력 파일명
             lead_gender: 기본 리드 성별
             force_speaker: 지정 시 해당 컷의 모든 턴을 이 성별 1명으로 강제 단일화 (컷별 화자 100% 단일화)
+            voice_override: 특정 Gemini 보이스명(Aoede/Charon/Fenrir/Puck 등) 직접 강제 지정
         """
         turns = self.parse_dialogue_turns(dialogue_text)
 
@@ -227,7 +229,11 @@ class DramaDialogueSynthesizer:
                 success = False
                 # ── [1순위: Google Gemini 2.5 Flash Native Audio] ────────────────
                 if self._gemini_tts is not None:
-                    v_name = GEMINI_VOICES.get(speaker, GEMINI_VOICES["female"])
+                    # voice_override 가 유효한 Gemini 보이스면 최우선 적용
+                    if voice_override and voice_override in ("Aoede", "Charon", "Fenrir", "Puck", "Kore", "Orus"):
+                        v_name = voice_override
+                    else:
+                        v_name = GEMINI_VOICES.get(speaker, GEMINI_VOICES["female"])
                     try:
                         self._gemini_tts.synthesize(text, str(temp_wav), voice_name=v_name)
                         if temp_wav.exists() and temp_wav.stat().st_size > 1000:

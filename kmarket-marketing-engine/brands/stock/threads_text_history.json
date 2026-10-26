@@ -659,5 +659,27 @@
       }
     },
     "success": true
+  },
+  {
+    "brand": "stock",
+    "slot": "morning",
+    "topic": "주식 초보들이 장초반 9시~9시30분에 제일 많이 물리는 패턴",
+    "caption_preview": "장 시작 갭상승 종목, 쫓아가면 높은 확률로 물립니다. 📈\n\n초보 투자자들이 9시 30분 전 고점 매수하는 ...",
+    "published_at": "2026-10-26T10:53:21.669709",
+    "publish_result": {
+      "success": true,
+      "brand": "stock",
+      "message": "🎉 [스레드 발행 성공] 스톡마스터 AI 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "stock",
+        "published_at": "2026-10-26T10:53:21.612196",
+        "caption_preview": "장 시작 갭상승 종목, 쫓아가면 높은 확률로 물립니다. 📈\n\n초보 투자자들이 9시 30분 전 고점 매수하는 ...",
+        "media_count": 0,
+        "first_reply": "📈 AI 실시간 수급 & 급등 테마 1분 무료 진단\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_live_proof.png"
+      }
+    },
+    "success": true
   }
 ]
