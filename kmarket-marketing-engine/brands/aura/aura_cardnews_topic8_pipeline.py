@@ -111,12 +111,17 @@ class AuraCardnewsTopic8Pipeline:
         guide_path.write_text(guide_content, encoding="utf-8")
 
         result = {
+            "success": True,
             "status": "SUCCESS",
             "theme": "safe_radar_500m",
+            "theme_name": "500m 안심 레이더",
             "outfit": selected_outfit,
             "copy_data": copy_data,
+            "output_dir": str(out_dir),
             "target_directory": str(out_dir),
+            "total_slides": 5,
             "slides": [s1_path, s2_path, s3_path, s4_path, s5_path],
+            "slide_paths": [s1_path, s2_path, s3_path, s4_path, s5_path],
             "guide_path": str(guide_path)
         }
         logger.info(f"🎉 [AuraTopic8Pipeline] 8번 카드뉴스 5장 풀세트 생성 완결!")

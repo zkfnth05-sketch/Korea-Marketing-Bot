@@ -5,7 +5,7 @@
 - 브랜드: StockMaster AI (전광판, VETO 리스크, 변곡점, 매크로 스트레스, 손절선, 8대 퀀트)
 - 역할:
   1. Gemini가 투자 칼럼 맥락에 맞춰 기획한 visual_prompt를 100% 최우선 반영하여 16:9 고화질 실사 사진 1장 생성
-  2. gemini-3.1-flash-lite-image 모델로 트레이딩룸, 여의도 금융가, 모니터 차트, 스마트폰 자가진단 등 본문과 일치하는 실사 렌더링
+  2. gemini-2.5-flash-image 모델로 트레이딩룸, 여의도 금융가, 모니터 차트, 스마트폰 자가진단 등 본문과 일치하는 실사 렌더링
   3. 유료키 체인 스마트 롤오버 투입 (100% 무중단 생성)
   4. WebP 고압축(1200px, quality 82) 변환 및 outputs/stock/blog_images/ 저장
   5. ⚡ Cache-First: 이미 고화질 사진이 존재하면 재사용 (비용 0원)
@@ -116,7 +116,7 @@ class StockImageGenerator:
     """
     📈 StockMaster AI 전용 16:9 실사 맞춤 사진 생성 엔진
     - Gemini 스토리 visual_prompt 100% 최우선 반영
-    - gemini-3.1-flash-lite-image 모델로 실사 렌더링
+    - gemini-2.5-flash-image 모델로 실사 렌더링
     - 유료키 체인 스마트 롤오버
     - WebP 고압축 최적화 저장
     """
@@ -229,9 +229,9 @@ class StockImageGenerator:
                 if not client:
                     break
 
-                # 🌟 [공식 검증 완료] gemini-3.1-flash-lite-image로 실사 이미지 직접 생성
+                # 🌟 [공식 검증 완료] gemini-2.5-flash-image로 실사 이미지 직접 생성 (표준 최저가 이미지 모델)
                 response = client.models.generate_content(
-                    model="gemini-3.1-flash-lite-image",
+                    model="gemini-2.5-flash-image",
                     contents=prompt
                 )
 

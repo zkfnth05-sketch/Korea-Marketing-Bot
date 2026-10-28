@@ -388,5 +388,25 @@
     "video_file": "Aura_22초숏폼_주제01_escape_call_20261020_005851.mp4",
     "channel_url": "https://clip.naver.com/@auraaidating",
     "published_at": "2026-10-20 15:33:58"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "aura",
+    "topic_id": 6,
+    "title": "🚨 소개팅 망친 MBTI 궁합? 이제 그만! 썸확률 100% 대화법!",
+    "video_file": "aura_topic6_cardnews_reels.mp4",
+    "channel_url": "https://clip.naver.com/@auraaidating",
+    "published_at": "2026-10-28 12:03:44"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "aura",
+    "topic_id": 8,
+    "title": "[안전 레이더] 호감도 1위 소개팅 앱 #아우라AI데이팅 #Shorts",
+    "video_file": "Aura_drama_5s_20261027_222408.mp4",
+    "channel_url": "https://clip.naver.com/@auraaidating",
+    "published_at": "2026-10-28 17:28:16"
   }
 ]

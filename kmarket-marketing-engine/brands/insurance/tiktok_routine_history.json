@@ -1244,5 +1244,19 @@
     "status": "success",
     "gemini_calls": 0,
     "brand": "insurance"
+  },
+  {
+    "timestamp": "2026-10-28 11:42:49",
+    "slot_id": "morning",
+    "slot_name": "🌅 아침 출근길 틱톡 (15분)",
+    "target_min": 15,
+    "target_likes": 3,
+    "actual_sec": 925,
+    "likes_given": 3,
+    "videos_watched": 28,
+    "comments_inspected": 9,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "insurance"
   }
 ]

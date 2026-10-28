@@ -77,20 +77,135 @@ class AuraTikTokCommenter:
           -> COMMENT_TEXT 타이핑(Shift+Enter 줄바꿈) -> [게시/Post] 클릭
           -> self.proof_img 스크린샷 캡처 후 결과 딕셔너리 반환
         """
+        COMMENT_BOX_SEL = (
+            "div[data-e2e='comment-input'], div.public-DraftEditor-content, "
+            "div[contenteditable='true'], div[data-e2e='comment-input-area'] div[contenteditable='true']"
+        )
+        COMMENT_ITEM_SEL = (
+            "div[data-e2e='comment-item'], div[data-e2e='comment-level-1'], "
+            "p[data-e2e='comment-level-1'], div[class*='DivCommentItemContainer'], "
+            "div[class*='DivCommentContentContainer']"
+        )
+
+        async def _find_comment_box():
+            """댓글 입력창을 (Playwright 로케이터 ➔ JS querySelector) 2중으로 탐색한다."""
+            box = page.locator(COMMENT_BOX_SEL).first
+            try:
+                if await box.count() > 0 and await box.is_visible():
+                    return box
+            except Exception:
+                pass
+            try:
+                handle = await page.evaluate_handle("""(sel) => {
+                    const el = document.querySelector(sel);
+                    return el || null;
+                }""", COMMENT_BOX_SEL)
+                element = handle.as_element()
+                if element is not None:
+                    return element
+            except Exception:
+                pass
+            return None
+
+        async def _open_comment_drawer() -> bool:
+            """댓글 서랍이 닫혀 있으면 댓글 아이콘을 클릭해 개방한다."""
+            try:
+                open_btn = page.locator(
+                    "button[data-e2e='comment-icon'], [data-e2e='comment-icon'], "
+                    "[aria-label*='댓글'], [aria-label*='Comment']"
+                ).first
+                if await open_btn.count() > 0 and await open_btn.is_visible():
+                    await open_btn.click()
+                    logger.info("💬 [Aura 틱톡] 댓글 아이콘 클릭 ➔ 댓글 서랍 개방")
+                    return True
+                clicked = await page.evaluate("""() => {
+                    const btn = document.querySelector("button[data-e2e='comment-icon']") ||
+                                document.querySelector("[data-e2e='comment-icon']") ||
+                                Array.from(document.querySelectorAll('button, [role="button"]'))
+                                    .find(el => {
+                                        const a = (el.getAttribute('aria-label') || '');
+                                        return a.includes('댓글') || a.includes('Comment');
+                                    });
+                    if (btn) { btn.click(); return true; }
+                    return false;
+                }""")
+                if clicked:
+                    logger.info("💬 [Aura 틱톡] 댓글 아이콘 클릭(JS 폴백) ➔ 댓글 서랍 개방")
+                return bool(clicked)
+            except Exception as oe:
+                logger.warning(f"⚠️ [Aura 틱톡] 댓글 아이콘 클릭 예외: {oe}")
+                return False
+
+        async def _verify_comment_rendered() -> bool:
+            """DOM 실물 검증: 댓글 목록에 공식 검색어가 실제로 렌더링되었는지 확인한다."""
+            try:
+                # 1차: 댓글 아이템 노드 내부 텍스트만 정밀 검사 (본문/설명란 오탐 차단)
+                found = await page.evaluate("""(args) => {
+                    const [itemSel, keyword] = args;
+                    const nodes = Array.from(document.querySelectorAll(itemSel));
+                    for (const n of nodes) {
+                        const t = (n.innerText || '');
+                        if (t.includes(keyword)) { return true; }
+                    }
+                    return false;
+                }""", [COMMENT_ITEM_SEL, OFFICIAL_KEYWORD])
+                if found:
+                    return True
+                # 2차: 댓글 리스트 컨테이너 전체 텍스트 검사
+                found2 = await page.evaluate("""(keyword) => {
+                    const containers = Array.from(document.querySelectorAll(
+                        "div[data-e2e='comment-list'], div[class*='DivCommentListContainer'], div[class*='CommentList']"
+                    ));
+                    for (const c of containers) {
+                        if ((c.innerText || '').includes(keyword)) { return true; }
+                    }
+                    return false;
+                }""", OFFICIAL_KEYWORD)
+                return bool(found2)
+            except Exception as ve:
+                logger.warning(f"⚠️ [Aura 틱톡] 댓글 렌더링 검증 예외: {ve}")
+                return False
+
         try:
             target_url = video_url
             if not target_url:
+                # ★ 섣부른 4초 단정 결함 절단:
+                #   업로드 직후 틱톡 서버는 영상을 인코딩/배포하는 동안 프로필 그리드에
+                #   해당 영상을 노출하지 않는다. 4초 한 번 보고 "게시물 없음"으로 단정하면
+                #   무인 파이프라인이 100% 실패한다. 최대 4회(회당 15초 대기 + 새로고침)
+                #   폴링으로 최신 영상이 실제 그리드에 뜰 때까지 끈기 있게 대기한다.
                 logger.info(f"1. 틱톡 내 프로필 접속: {PROFILE_URL}")
                 await page.goto(PROFILE_URL, wait_until="domcontentloaded", timeout=40000)
                 await asyncio.sleep(4.0)
 
-                # 최신 동영상 1등 탐색
-                video_link = page.locator("div[data-e2e='user-post-item'] a, a[href*='/video/']").first
-                if not await video_link.is_visible():
-                    logger.warning("틱톡 프로필에서 동영상 링크를 찾지 못했습니다.")
-                    return {"status": "skipped", "message": "게시물 없음"}
+                href = None
+                for attempt in range(1, 5):
+                    video_link = page.locator("div[data-e2e='user-post-item'] a, a[href*='/video/']").first
+                    try:
+                        if await video_link.count() > 0 and await video_link.is_visible():
+                            href = await video_link.get_attribute("href")
+                            if href:
+                                logger.info(f"✅ [Aura 틱톡] 최신 영상 노출 확인 (시도 {attempt}/4): {href}")
+                                break
+                    except Exception as le:
+                        logger.debug(f"영상 링크 탐색 예외(시도 {attempt}/4): {le}")
 
-                href = await video_link.get_attribute("href")
+                    if attempt < 4:
+                        logger.info(
+                            f"⏳ [Aura 틱톡] 최신 영상 미노출 — 서버 인코딩/배포 대기 후 재시도 "
+                            f"({attempt}/4, 15초 대기 + 새로고침)"
+                        )
+                        await asyncio.sleep(15.0)
+                        try:
+                            await page.reload(wait_until="domcontentloaded", timeout=40000)
+                        except Exception as re_err:
+                            logger.debug(f"프로필 새로고침 예외: {re_err}")
+                        await asyncio.sleep(4.0)
+
+                if not href:
+                    logger.warning("틱톡 프로필에서 4회 폴링 후에도 동영상 링크를 찾지 못했습니다.")
+                    return {"status": "skipped", "message": "게시물 없음 (4회 폴링 실패)"}
+
                 target_url = href if href.startswith("http") else f"https://www.tiktok.com{href}"
 
             logger.info(f"2. 틱톡 영상 상세 접속: {target_url}")
@@ -103,22 +218,32 @@ class AuraTikTokCommenter:
                 logger.info("ℹ️ 이미 공식 URL 또는 검색어 댓글이 등록되어 있습니다. (도배 방지 스킵)")
                 return {"status": "already_commented", "message": "중복 댓글 방지 스킵"}
 
-            # 댓글 입력창 탐색
+            # 댓글 입력창 탐색 (닫혀 있으면 댓글 아이콘 클릭하여 서랍 개방)
             logger.info("3. 틱톡 댓글 입력창 활성화 중...")
-            comment_box = page.locator("div[data-e2e='comment-input'], div.public-DraftEditor-content, div[contenteditable='true']").first
-            if not await comment_box.is_visible():
-                # 모바일 뷰어일 경우 댓글 서랍 열기
-                open_btn = page.locator("button[data-e2e='comment-icon'], [aria-label*='댓글']").first
-                if await open_btn.is_visible():
-                    await open_btn.click()
-                    await asyncio.sleep(2.0)
-                comment_box = page.locator("div[data-e2e='comment-input'], div.public-DraftEditor-content, div[contenteditable='true']").first
+            comment_box = await _find_comment_box()
+            if comment_box is None:
+                await _open_comment_drawer()
+                await asyncio.sleep(2.5)
+                comment_box = await _find_comment_box()
 
-            if await comment_box.is_visible():
+            if comment_box is None:
+                logger.warning("틱톡 댓글 입력창을 찾지 못했습니다.")
+                return {"status": "error", "message": "댓글 입력창 미발견", "brand": "aura", "platform": "tiktok"}
+
+            # 댓글 본문 타이핑 (press_sequentially + Shift+Enter 줄바꿈)
+            try:
                 await comment_box.click()
-                await asyncio.sleep(1.0)
+            except Exception:
+                try:
+                    await comment_box.evaluate("el => el.focus()")
+                except Exception:
+                    pass
+            await asyncio.sleep(1.0)
 
-                # 댓글 본문 타이핑
+            try:
+                await comment_box.press_sequentially(COMMENT_TEXT, delay=12)
+            except Exception as te:
+                logger.warning(f"⚠️ [Aura 틱톡] press_sequentially 실패 — 키보드 타이핑 폴백: {te}")
                 for char in COMMENT_TEXT:
                     if char == "\n":
                         await page.keyboard.press("Shift+Enter")
@@ -126,32 +251,79 @@ class AuraTikTokCommenter:
                         await page.keyboard.type(char)
                     await asyncio.sleep(0.01)
 
-                await asyncio.sleep(1.5)
+            await asyncio.sleep(1.5)
 
-                # [게시] 버튼 클릭
-                post_btn = page.locator("div[data-e2e='comment-post'], button:has-text('게시'), button:has-text('Post')").first
-                if await post_btn.is_visible():
+            # [게시/Post] 버튼 확실히 클릭
+            posted = False
+            post_btn = page.locator(
+                "div[data-e2e='comment-post'], button[data-e2e='comment-post'], "
+                "button:has-text('게시'), button:has-text('Post')"
+            ).first
+            try:
+                if await post_btn.count() > 0 and await post_btn.is_visible():
                     await post_btn.click()
+                    posted = True
                     logger.info("🎉 [Aura 틱톡] 공식 URL 첫 댓글 게시 버튼 클릭 완료!")
-                    await asyncio.sleep(3.0)
+            except Exception as pe:
+                logger.warning(f"⚠️ [Aura 틱톡] 게시 버튼 클릭 예외: {pe}")
 
-                    await page.screenshot(path=str(self.proof_img))
-                    return {
-                        "status": "success",
-                        "brand": "aura",
-                        "platform": "tiktok",
-                        "comment_text": COMMENT_TEXT,
-                        "video_url": target_url,
-                        "proof_screenshot": str(self.proof_img)
-                    }
-                else:
-                    # 엔터 키 폴백
-                    await page.keyboard.press("Enter")
-                    await asyncio.sleep(2.0)
-                    return {"status": "success", "message": "엔터 전송 완료", "video_url": target_url}
-            else:
-                logger.warning("틱톡 댓글 입력창을 찾지 못했습니다.")
-                return {"status": "error", "message": "댓글 입력창 미발견"}
+            if not posted:
+                try:
+                    posted = bool(await page.evaluate("""() => {
+                        const btn = document.querySelector("div[data-e2e='comment-post']") ||
+                                    document.querySelector("button[data-e2e='comment-post']") ||
+                                    Array.from(document.querySelectorAll('button, div[role="button"]'))
+                                        .find(el => {
+                                            const t = (el.innerText || '').trim();
+                                            return t === '게시' || t === 'Post';
+                                        });
+                        if (btn) { btn.click(); return true; }
+                        return false;
+                    }"""))
+                except Exception:
+                    posted = False
+
+            if not posted:
+                # 엔터 키 폴백
+                await page.keyboard.press("Enter")
+                logger.info("↩️ [Aura 틱톡] 게시 버튼 미발견 — 엔터 키 전송 폴백 실행")
+
+            # 4초 대기 후 DOM 실물 검증 (성공 위조 금지)
+            await asyncio.sleep(4.0)
+            verified = await _verify_comment_rendered()
+            if not verified:
+                logger.info("⏳ [Aura 틱톡] 댓글 미확인 — 2초 추가 대기 후 재검증...")
+                await asyncio.sleep(2.0)
+                verified = await _verify_comment_rendered()
+
+            try:
+                await page.screenshot(path=str(self.proof_img))
+            except Exception as se:
+                logger.warning(f"⚠️ [Aura 틱톡] 증빙 스크린샷 저장 예외: {se}")
+
+            if verified:
+                logger.info("✅ [Aura 틱톡] 댓글 DOM 실물 검증 통과 — 공식 검색어 렌더링 확인!")
+                return {
+                    "status": "success",
+                    "brand": "aura",
+                    "platform": "tiktok",
+                    "comment_text": COMMENT_TEXT,
+                    "video_url": target_url,
+                    "verified": True,
+                    "proof_screenshot": str(self.proof_img)
+                }
+
+            logger.error("❌ [Aura 틱톡] 게시 클릭 후에도 댓글이 DOM에 렌더링되지 않았습니다. (성공 위조 금지)")
+            return {
+                "status": "unverified",
+                "brand": "aura",
+                "platform": "tiktok",
+                "comment_text": COMMENT_TEXT,
+                "video_url": target_url,
+                "verified": False,
+                "message": "게시 클릭 후 댓글 DOM 렌더링 미확인 (6초 재검증 실패)",
+                "proof_screenshot": str(self.proof_img)
+            }
 
         except Exception as e:
             logger.error(f"❌ [Aura 틱톡] page 기반 댓글 작성 중 예외: {e}")

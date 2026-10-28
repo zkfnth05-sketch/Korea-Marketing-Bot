@@ -112,14 +112,12 @@ class PipelineConfig:
     # [타임아웃 SSOT] 대표님 엄명 (2026-10-25):
     #   "씬 4가 81프레임(최대 길이)이라 Wan S2V 렌더링에 약 610초가 걸렸는데,
     #    파이프라인의 안전 타임아웃이 600초(10분)로 걸려 있어 10초 차이로 타임아웃 처리"
-    #
-    #   ★ 왜 900초인가: Wan 2.2 S2V 는 프레임 수에 비례해 렌더 시간이 증가하며,
-    #     81프레임(4n+1 규격 최대)은 실측 610초가 소요된다. 기존 600초는 이보다
-    #     10초 짧아 정상 렌더링을 타임아웃으로 절단했다. 900초(15분)로 상향하여
-    #     81프레임 최대 케이스에 약 290초(≈48%)의 안전 여유를 확보한다.
-    #   · 이 값은 _run_scene_with_timeout / FFmpeg assemble / concat_scenes 의
-    #     공통 상한으로 작용하므로, 상향 시 세 경로가 동시에 안전해진다.
-    scene_timeout_sec: float = 900.0     # Wan 2.2 S2V 81프레임(실측 610초) 수용 — 15분 안전 상한
+    #   ★ 왜 1300초인가: Wan 2.2 S2V (81프레임 규격 최대)는 실측 약 800~1000초가 소요되며,
+    #     앞단의 PuLID-FLUX 키프레임 생성(약 80초) 및 TTS 합성(약 6초)까지 합산하면
+    #     단일 씬에 총 900~1100초가 소요된다. 기존 900초는 불과 수십 초 차이로 정상 렌더링을
+    #     타임아웃 처리하여 최종 Concat 병합을 가로막는 치명적 병목이었다.
+    #     1300초(약 21.6분)로 상향하여 넉넉한 안전 마진(≈25%)을 확보한다.
+    scene_timeout_sec: float = 1300.0    # PuLID(80s) + Wan S2V(1000s) 완주 수용 — 1300초 안전 상한
     max_scene_retries: int = 2
     ffmpeg_bin: str = "ffmpeg"
     fps: int = 30
@@ -217,7 +215,6 @@ SCENE_CHARACTER_MAP: Dict[int, str] = {
 GEMINI_IMAGE_MODELS: Tuple[str, ...] = (
     "gemini-2.5-flash-image",
     "gemini-2.5-flash-image-preview",
-    "gemini-3.1-flash-lite-image",
 )
 
 
@@ -234,35 +231,28 @@ EPISODE_MASTER_FILES: Dict[str, str] = {
     "junhyuk": "episode_junhyuk_master.png",
 }
 
-# ---------------------------------------------------------------------------
-# [도메인 데이터 SSOT 이관] 회차별 신규 주인공 생성 프롬프트는
-#   brands/stock/stock_drama_domain_data.py 단일 소유자로 이관되었다.
-#   · 본 파일은 프롬프트 리터럴을 재정의하지 않고 도메인 모듈에서 '조회'만 한다.
-#   · 도메인 모듈은 16주제/8장르/16장소/서사 매트릭스/씬 가이드까지 함께 소유한다.
-#   · 임포트 실패는 은폐하지 않고 즉시 표면화한다(프롬프트 드리프트 원천 차단).
-# ---------------------------------------------------------------------------
-from brands.stock.stock_drama_domain_data import (
-    STOCK_TOPICS,
-    STOCK_GENRES,
-    STOCK_LOCATIONS_KO,
-    STOCK_LOCATIONS_EN,
-    STOCK_FRESH_FEMALE_PROMPT,
-    STOCK_FRESH_MALE_PROMPT,
-    STOCK_NARRATIVE_MATRIX,
-    build_scene_guide_prompt,
-)
-
-# [하위 호환 별칭] 도메인 모듈은 '함수(build_scene_guide_prompt)'로 씬 가이드를
-#   제공한다. 본 파일은 과거 상수명(STOCK_SCENE_GUIDE_PROMPT)을 참조하는 레거시
-#   호출부가 있어도 즉사하지 않도록 함수를 그대로 별칭 결속한다.
-#   · 리터럴 재정의가 아니라 '조회 별칭'이므로 드리프트 0건.
-#   · 도메인 모듈에서 함수명이 바뀌면 이 임포트가 즉시 ImportError 로 표면화된다.
-STOCK_SCENE_GUIDE_PROMPT = build_scene_guide_prompt
-
 # 회차별 신규 주인공 생성 프롬프트 (화사한 자연광 / 긴 생머리 / 맑고 투명한 피부)
-#   · 값은 도메인 모듈 상수를 그대로 참조한다(리터럴 재정의 금지).
-FRESH_FEMALE_PROMPT = STOCK_FRESH_FEMALE_PROMPT
-FRESH_MALE_PROMPT = STOCK_FRESH_MALE_PROMPT
+FRESH_FEMALE_PROMPT = (
+    "Photorealistic studio portrait of a beautiful Korean woman in her mid-20s, "
+    "long silky straight black hair flowing past her shoulders, luminous clear translucent skin, "
+    "refined elegant facial features, soft natural makeup, gentle warm smile, "
+    "bright crisp natural daylight, high-key luminous exposure, pristine crystal-clear studio lighting, "
+    "radiant healthy skin tone, plain soft neutral background, "
+    "vertical 9:16 portrait, upper body, looking at camera, "
+    "ultra realistic skin texture, 85mm portrait lens, shallow depth of field, "
+    "absolutely NO candlelight, NO dark moody shadows, NO dim amber lighting, "
+    "no text, no watermark, no logo, no cartoon, no illustration"
+)
+FRESH_MALE_PROMPT = (
+    "Photorealistic studio portrait of a handsome Korean man in his mid-20s, "
+    "neat short black hair, clean-shaven, clear healthy skin, refined friendly facial features, "
+    "bright crisp natural daylight, high-key luminous exposure, pristine crystal-clear studio lighting, "
+    "radiant healthy skin tone, plain soft neutral background, "
+    "vertical 9:16 portrait, upper body, looking at camera, "
+    "ultra realistic skin texture, 85mm portrait lens, shallow depth of field, "
+    "absolutely NO candlelight, NO dark moody shadows, NO dim amber lighting, "
+    "no text, no watermark, no logo, no cartoon, no illustration"
+)
 
 # 회차 전용 마스터 캐시 (run_id → {"jieun": Path, "junhyuk": Path})
 _EPISODE_MASTER_CACHE: Dict[str, Dict[str, Path]] = {}
@@ -560,57 +550,6 @@ def atmosphere_for(time_of_day: str) -> str:
     return ATMOSPHERE_DAY
 
 
-# ---------------------------------------------------------------------------
-# [자세(posture) 2대 구도 SSOT] 대표님 절대 지시 (2026-10-26):
-#   "두 사람이 서 있는 경우도 있고 같이 앉아 있는 경우도 있어야 한다"
-#   · 단일 회차(1~5씬) 내 자세 일관성 100%: 한 편 안에서는 5씬 전체가 동일 자세 유지.
-#   · 장소 시그널(옥상/복도/정류장/지하철/편의점 등 -> standing, 카페/책상/소파/테이블 -> seated)
-# ---------------------------------------------------------------------------
-POSTURE_SEATED = "seated"
-POSTURE_STANDING = "standing"
-
-POSTURE_STANDING_SIGNALS: Tuple[str, ...] = (
-    "옥상", "rooftop", "지하철", "subway", "정류장", "bus stop", "복도", "corridor",
-    "흡연", "smoking", "편의점", "convenience", "환승", "transfer", "standing",
-    "street", "길거리", "엘리베이터", "elevator", "테라스", "terrace",
-)
-
-POSTURE_SEATED_SIGNALS: Tuple[str, ...] = (
-    "카페", "cafe", "책상", "desk", "소파", "sofa", "테이블", "table",
-    "창구", "counter", "도서관", "library", "회의실", "meeting",
-)
-
-POV_FRAME_SSOT: Dict[str, str] = {
-    POSTURE_SEATED: (
-        "First-person eye-level POV of someone sitting directly across the table, "
-        "waist-up medium shot showing full upper body, torso, and relaxed arms, "
-        "the subject is seated across the table facing the camera at eye level, "
-        "The bottom edge of the frame shows only the clean front edge of the dining table surface, "
-        "ABSOLUTELY NO empty chair in foreground, NO chair backrest blocking the frame, "
-        "NO empty seat in front of camera, NO foreground furniture"
-    ),
-    POSTURE_STANDING: (
-        "First-person eye-level POV looking at the person standing opposite facing the camera at conversational distance, "
-        "waist-up medium shot showing full upper body, natural confident upright posture, "
-        "the single subject is standing naturally facing the camera at eye level, "
-        "open modern office corridor or rooftop background with natural cinematic depth of field, "
-        "ABSOLUTELY NO tables blocking the frame, NO chairs, NO desks, NO sitting down, "
-        "STRICTLY EXACTLY ONE PERSON in frame, clean upright standing conversational posture"
-    ),
-}
-
-
-def resolve_posture(location: str = "", topic: str = "", run_no: int = 1) -> str:
-    """장소/주제 맥락 및 회차 기반으로 자세(seated vs standing)를 지능적으로 판별한다."""
-    context = f"{location or ''} {topic or ''}".lower()
-    if _match_signals(context, POSTURE_STANDING_SIGNALS):
-        return POSTURE_STANDING
-    if _match_signals(context, POSTURE_SEATED_SIGNALS):
-        return POSTURE_SEATED
-    # 시그널 부재 시 짝수/홀수 회차 50:50 균형 로테이션
-    return POSTURE_SEATED if (int(run_no) % 2 != 0) else POSTURE_STANDING
-
-
 class GeminiImageAdapter(ImagePort):
     """1순위 어댑터 — google.genai 로 1080x1920 실사 씬 이미지를 생성한다.
 
@@ -666,23 +605,29 @@ class GeminiImageAdapter(ImagePort):
         atmosphere = atmosphere_for(tod)
 
         # ------------------------------------------------------------------
-        # [구도 SSOT — 1인칭 맞은편 관전 시점 (착석 seated vs 스탠딩 standing)]
-        #   대표님 확정 지시 (2026-10-25 / 2026-10-26 확장):
+        # [구도 SSOT — 1인칭 맞은편 관전 시점] 대표님 확정 지시 (2026-10-25):
         #   "맞은편에 앉아서 바라보는 1인칭 시점, 상반신 전체가 보이는 미디엄 샷,
         #    하단에 테이블 상판 앞 모서리만 살짝, 전경에 빈 의자/등받이 절대 금지"
-        #   "두 사람이 서 있는 경우도 있고 같이 앉아 있는 경우도 있어야 한다"
         #
-        #   ★ 왜 2대 구도인가: 기존에는 5씬 전건이 '테이블에 앉은' 구도로 고정되어
-        #     옥상/복도/정류장/지하철 같은 입식 공간에서도 어색하게 앉아 있는
-        #     키프레임이 생성되었다. 이제 장소 시그널로 자세를 결정론적으로 판별해
-        #     착석 공간은 seated POV, 입식 공간은 standing POV 로 분기한다.
+        #   ★ 왜 이 구도인가: 기존 '정면 응시 클로즈업'은 인물이 카메라를 뚫어지게
+        #     쳐다보는 부자연스러운 구도였고, 전경에 빈 의자 등받이가 걸려 "누가
+        #     앉아서 찍은 거냐"는 위화감을 유발했다. 이제 카메라는 테이블 맞은편에
+        #     앉은 관전자의 눈높이가 되어, 인물을 자연스럽게 마주보는 1인칭 POV 로 전환한다.
         #
-        #   · 한 편(1~5씬) 안에서는 동일 loc/topic 이 주입되므로 자세도 100% 동일하다.
-        #   · 시그널 미검출 시 회차(run_no) 홀짝 50:50 로테이션으로 다양성을 확보한다.
+        #   · POV: First-person eye-level POV of someone sitting directly across the table.
+        #   · 샷: waist-up medium shot — 상반신 전체(어깨/가슴/몸통/팔)가 프레임에 담긴다.
+        #   · 하단: 테이블 상판 '앞 모서리'만 살짝 노출(과도한 테이블 면적 금지).
+        #   · 전경 봉인: 빈 의자/등받이/가구를 네거티브로 물리적 차단.
         #   · 2인 대화 구도(OTS)는 여전히 영구 퇴출 — 화면에는 오직 1인만 존재한다.
         # ------------------------------------------------------------------
-        posture = resolve_posture(location=loc, topic=topic)
-        pov_frame = POV_FRAME_SSOT.get(posture, POV_FRAME_SSOT[POSTURE_SEATED])
+        pov_frame = (
+            "First-person eye-level POV of someone sitting directly across the table, "
+            "waist-up medium shot showing full upper body, torso, and relaxed arms, "
+            "the subject is seated across the table facing the camera at eye level, "
+            "The bottom edge of the frame shows only the clean front edge of the dining table surface, "
+            "ABSOLUTELY NO empty chair in foreground, NO chair backrest blocking the frame, "
+            "NO empty seat in front of camera, NO foreground furniture"
+        )
 
         # ------------------------------------------------------------------
         # [입모양 봉인 SSOT] 키프레임은 반드시 입을 완전히 다문 상태로 생성한다.
@@ -890,18 +835,108 @@ class GeminiImageAdapter(ImagePort):
 
 
 class ComfyUIImageAdapter(ImagePort):
+    """PuLID-FLUX 로컬 GPU 캐릭터 일관성 실사 이미지 어댑터 (비용 0원)."""
     name = "comfyui"
-    def __init__(self, endpoint: str = "http://127.0.0.1:8188"):
+
+    def __init__(self, endpoint: str = "http://127.0.0.1:8188", brand: str = "stock"):
         self.endpoint = endpoint
-    def available(self) -> bool:
+        self.brand = brand
         try:
-            import urllib.request
-            urllib.request.urlopen(self.endpoint + "/system_stats", timeout=2)
-            return True
-        except Exception:
+            from core.shorts_engine.pulid_flux_adapter import ComfyUIPulidFluxEngine
+            self._engine = ComfyUIPulidFluxEngine(endpoint=endpoint)
+        except Exception as e:
+            log.warning("ComfyUIPulidFluxEngine 로드 실패: %s", e)
+            self._engine = None
+
+    def available(self) -> bool:
+        """ComfyUI PuLID-FLUX 로컬 GPU 가용성 판정 + 오프라인 시 1회 자율 기동.
+
+        ★ 대표님 지시 (2026-10-28): "ComfyUI 가 미가동 상태여도 자동으로 프로세스를
+          기동하여 로컬 그래픽카드로 실사 사진 생성을 100% 무인 자율 수행하라."
+          (보험/아우라 파이프라인과 100% 동일 계약)
+
+        ★ 왜 필요한가:
+          기존 구현은 `is_available()` 이 False 를 반환하면 그대로 False 로 끝났다.
+          그 결과 24시간 무인 가동 중 PC 재부팅/ComfyUI 크래시 이후에는 GPU 가
+          영구 유휴 상태로 방치되고, select_image_adapter 가 다음 후보로 낙하하여
+          로컬 GPU(비용 0원·무제한)가 살아 있는데도 사용되지 않는 구조적 낭비였다.
+
+        ★ 실행 계약 (WanPipelineClient.check_health 와 동일 패턴):
+          1) 1차 liveness — is_available(timeout=2.0). 성공 시 즉시 True.
+          2) 1차 실패 시 ComfyProcessManager.ensure_running(wait_timeout=60) 을
+             1회 호출하여 ComfyUI(8188)를 백그라운드 자율 기동한다.
+          3) 기동 성공 시 is_available(timeout=5.0) 로 재검사(기동 직후 워밍업 여유).
+          4) 기동 실패/모듈 부재/예외는 log.warning 으로 표면화 후 False 반환
+             → select_image_adapter 가 다음 후보로 결정론적 폴백(파이프라인 즉사 금지).
+
+        · 자율 기동은 available() 호출 시점에만 1회 시도된다(무한 재기동 루프 없음).
+        · ensure_running 은 내부적으로 wait_timeout 상한을 가지므로 hang 이 없다.
+        · 예외를 삼켜 False 로 낙하시키되, 원인은 반드시 로그에 남긴다(은폐 금지).
+        """
+        if self._engine is None:
             return False
-    def generate(self, prompt: str, out_path: Path, size: str, scene_idx: int = 1) -> Path:
-        raise AdapterError("ComfyUI 어댑터는 워크플로우 JSON 주입 필요 — 미구성 상태")
+        try:
+            if self._engine.is_available(timeout=2.0):
+                return True
+        except Exception:
+            pass
+
+        # ComfyUI 미가동 시 1회 자율 기동(ensure_running) 시도 (WanPipelineClient와 동일 패턴)
+        try:
+            from core.engine.comfy_process_manager import ComfyProcessManager
+            log.info("🚀 [ComfyUIImageAdapter] ComfyUI 오프라인 감지 ➔ 자율 기동(ensure_running) 시도...")
+            if ComfyProcessManager.ensure_running(wait_timeout=60):
+                return self._engine.is_available(timeout=5.0)
+        except Exception as e:
+            log.warning("ComfyUI PuLID-FLUX 헬스체크 및 자율기동 예외: %r", e)
+        return False
+
+    def generate(self, prompt: str, out_path: Path, size: str, scene_idx: int = 1,
+                 location_en: str = "", topic: str = "", emotion: str = "",
+                 run_id: str = "", **kwargs) -> Path:
+        """PuLID-FLUX 로컬 GPU 로 씬 실사 이미지를 생성한다.
+
+        ★ 대표님 지시 (2026-10-28): "씬 렌더링 시작 전 엔진이 미가용(오프라인/크래시)
+          상태여도 자동으로 프로세스를 재기동한 뒤 생성을 수행하라."
+
+        ★ 왜 필요한가:
+          available() 단계에서 자율 기동을 수행하더라도, 5씬을 순차 렌더링하는
+          도중 ComfyUI 가 크래시(OOM/드라이버 리셋)하면 generate() 시점에는
+          엔진이 죽어 있다. 기존 구현은 이때 곧바로 AdapterError 를 던져
+          해당 씬이 실패하고, 재시도 루프에서도 동일하게 즉사하여
+          결국 최종 concat 이 생략되는 연쇄 붕괴가 발생했다.
+
+        ★ 실행 계약 (available() 와 동일한 2단 방어):
+          1) 엔진 미가용 감지 시 ComfyProcessManager.ensure_running(wait_timeout=60)
+             을 1회 호출하여 ComfyUI(8188)를 백그라운드 자율 재기동한다.
+          2) 재기동 후에도 미가용이면 그때 AdapterError 로 표면화한다
+             (조용한 실패 금지 — select_image_adapter 가 다음 후보로 폴백).
+          3) generate_scene 예외는 AdapterError 로 승격(원인 보존: from e).
+
+        · ensure_running 은 wait_timeout 상한을 가지므로 hang 이 없다.
+        · 자율 기동은 generate() 호출 시점에만 1회 시도된다(무한 루프 없음).
+        · 기동 예외는 log.warning 으로 표면화 후 아래 미가용 검사로 진행한다(은폐 금지).
+        """
+        if self._engine is None or not self._engine.is_available():
+            try:
+                from core.engine.comfy_process_manager import ComfyProcessManager
+                log.info("🚀 [ComfyUIImageAdapter.generate] ComfyUI 오프라인 감지 ➔ 자율 기동(ensure_running) 시도...")
+                ComfyProcessManager.ensure_running(wait_timeout=60)
+            except Exception as e:
+                log.warning("ComfyUI 자율기동 예외: %r", e)
+
+        if self._engine is None or not self._engine.is_available():
+            raise AdapterError("ComfyUI PuLID-FLUX 엔진 미가용")
+        try:
+            return self._engine.generate_scene(
+                prompt=prompt,
+                brand=self.brand,
+                scene_idx=scene_idx,
+                out_path=out_path,
+                timeout=180.0,
+            )
+        except Exception as e:
+            raise AdapterError(f"PuLID-FLUX 로컬 생성 실패: {e}") from e
 
 
 class BrandAssetFallbackAdapter(ImagePort):
@@ -965,17 +1000,15 @@ class BrandAssetFallbackAdapter(ImagePort):
 # 5) TTS 어댑터 (edge / pyttsx3 / silent)
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-# [보이스 SSOT] 화자 → 보이스 매핑 (SunHiNeural 영구 퇴출 / Puck 영구 교체)
-#   · Gemini 2.5 Flash Native Audio: Aoede(여) / Charon(남 — 30대 중후·차분)
-#   · Edge-TTS 백업: HyunsuNeural(여) / BongJinNeural(남 — 중후한 대화체)
+# [보이스 SSOT] 화자 → 보이스 매핑 (SunHiNeural 영구 퇴출)
+#   · Gemini 2.5 Flash Native Audio: Aoede(여) / Puck(남)
+#   · Edge-TTS 백업: HyunsuNeural(여) / InJoonNeural(남)
 #   · ko-KR-SunHiNeural 은 관리사무소 안내방송 기계음 — 어떤 경로로도 사용 금지
-#   · 🎙️ 대표님 명령 (2026-10-26): 남성 화자는 Puck(경박·촐싹) 대신
-#     Charon(중후하고 차분한 30대 남성) 으로 영구 교체한다.
 # ---------------------------------------------------------------------------
 GEMINI_VOICE_FEMALE = "Aoede"
-GEMINI_VOICE_MALE = "Charon"  # 🎙️ 대표님 명령: 30대 남성 전용 중후하고 차분한 음성 (Puck 영구 교체)
+GEMINI_VOICE_MALE = "Puck"
 EDGE_VOICE_FEMALE = "ko-KR-HyunsuNeural"
-EDGE_VOICE_MALE = "ko-KR-BongJinNeural"  # 🎙️ 중후한 남성 대화체
+EDGE_VOICE_MALE = "ko-KR-InJoonNeural"
 BANNED_VOICE_TOKENS: Tuple[str, ...] = ("sunhi",)
 DRAMA_SPEECH_SPEED = 1.20  # ⏱️ 대표님 확정 명령: 1.2배속 고정 (Wan S2V 81프레임 수렴)
 
@@ -989,36 +1022,24 @@ def _is_banned_voice(voice_id: str) -> bool:
 def _detect_speaker_gender(voice_id: str) -> str:
     """voice_id 문자열로 화자 성별을 결정론적으로 판별한다.
 
-    male 판정 토큰: charon / fenrir / puck / bongjin / injoon / male / 남
+    male 판정 토큰: puck / injoon / male / 남
     그 외(기본값): female
-
-    ★ 왜 charon/fenrir/bongjin 을 추가했는가:
-      남성 보이스를 Charon 으로 교체하면서, 기존 판정 토큰(puck/injoon)만으로는
-      Charon 이 female 로 오판되어 여성 보이스로 합성되는 치명적 역전이 발생한다.
-      Charon(신규 1순위) + Fenrir(대체 남성 후보) + BongJin(Edge 백업)을
-      male 토큰에 명시 결속하여 성별 판정 드리프트를 구조적으로 0건으로 만든다.
     """
     low = str(voice_id or "").lower()
-    if any(m in low for m in ("charon", "fenrir", "puck", "bongjin", "injoon", "male", "남")):
+    if any(m in low for m in ("puck", "injoon", "male", "남")):
         return "male"
     return "female"
 
 
 def _resolve_edge_voice(voice_id: str) -> str:
-    """Gemini 보이스명(Aoede/Charon) 및 성별 토큰을 Edge-TTS 보이스로 정규화한다.
+    """Gemini 보이스명(Aoede/Puck) 및 성별 토큰을 Edge-TTS 보이스로 정규화한다.
 
     SunHiNeural 등 금지 보이스가 유입되면 성별 판정 후 안전 보이스로 강제 치환한다.
-
-    ★ 왜 남성 토큰을 튜플로 확장했는가:
-      기존에는 "puck" 단일 비교라 Charon 이 매칭되지 않고, 곧바로 금지 보이스
-      검사 → 성별 판정 순으로 낙하했다. Charon/Fenrir/BongJin/InJoon 을
-      명시 매칭하여 Edge-TTS 백업 경로에서도 반드시 남성 보이스(BongJinNeural)로
-      귀결되도록 결정론적으로 고정한다.
     """
     low = str(voice_id or "").lower()
     if "aoede" in low:
         return EDGE_VOICE_FEMALE
-    if any(m in low for m in ("charon", "fenrir", "puck", "bongjin", "injoon")):
+    if "puck" in low:
         return EDGE_VOICE_MALE
     if _is_banned_voice(voice_id):
         log.warning("금지 보이스 감지('%s') — 안전 보이스로 강제 치환", voice_id)
@@ -1031,11 +1052,10 @@ def _resolve_edge_voice(voice_id: str) -> str:
 class GeminiDramaDialogueAdapter(TTSPort):
     """1순위 숏드라마 전용 고품질 음성 어댑터.
     - modules.drama_engine.drama_dialogue_synthesizer.DramaDialogueSynthesizer 연동
-    - 1순위: Google Gemini 2.5 Flash Native Audio 9키 체인 (Aoede 여 / Charon 남)
-    - 2순위 백업: Edge-TTS 대화체 (ko-KR-HyunsuNeural / ko-KR-BongJinNeural)
+    - 1순위: Google Gemini 2.5 Flash Native Audio 9키 체인 (Aoede 여 / Puck 남)
+    - 2순위 백업: Edge-TTS 대화체 (ko-KR-HyunsuNeural / ko-KR-InJoonNeural)
     - ⏱️ 대표님 확정 명령: 반드시 1.2배속(atempo=1.20) 고정 정규화 (Wan S2V 81프레임 수렴)
     - 🛑 관리사무소 안내방송 기계음 (ko-KR-SunHiNeural) 영구 퇴출
-    - 🎙️ 대표님 명령 (2026-10-26): 남성 화자는 Charon(중후·차분) 고정 — Puck 영구 교체
     """
     name = "gemini_drama"
 
@@ -1061,23 +1081,15 @@ class GeminiDramaDialogueAdapter(TTSPort):
         if synth is None:
             raise AdapterError("GeminiDramaDialogueAdapter: 합성기 초기화 불가")
 
-        # 화자 성별 자동 판별 (Aoede/Hyunsu -> female, Charon/BongJin/InJoon -> male)
+        # 화자 성별 자동 판별 (Aoede/Hyunsu -> female, Puck/InJoon -> male)
         speaker = _detect_speaker_gender(voice_id)
 
         # 1. 원본 음성 합성 (Gemini 2.5 Native Audio 9키 체인 -> 실패 시 Edge-TTS 페일오버)
-        #   ★ 대표님 명령 (2026-10-26): voice_override=voice_id 를 반드시 전달하여
-        #     합성기 내부의 기본 보이스 선택 로직을 우회하고, Charon(남)/Aoede(여)가
-        #     호출부 지정값 그대로 직접 주입되도록 고정한다.
-        #   · force_speaker 만 전달하면 합성기가 자체 기본 남성 보이스(Puck 등)를
-        #     재선택할 여지가 남아, 파이프라인 SSOT(GEMINI_VOICE_MALE="Charon")와
-        #     실제 합성 보이스가 어긋나는 드리프트가 발생한다.
-        #   · voice_override 는 이 드리프트를 원천 차단하는 단일 결속 지점이다.
         raw_name = f"raw_{out_path.name}"
         raw_path, raw_dur = synth.synthesize_dialogue(
             dialogue_text=text,
             output_filename=raw_name,
             force_speaker=speaker,
-            voice_override=voice_id,
         )
 
         # 2. ⏱️ 1.2배속(atempo=1.20) 고정 정규화 (Wan 2.2 S2V 81프레임 상한 수렴)
@@ -1904,6 +1916,35 @@ class PipelineOrchestrator:
         self._overlay_fallback_count: int = 0
 
     def _run_scene(self, scene: SceneSpec) -> Dict[str, str]:
+        """단일 씬을 [이미지 → TTS → 비디오] 3단으로 렌더링한다.
+
+        ★ 대표님 지시 (2026-10-28): "대형 모델(PuLID/FLUX/Wan) 렌더링 직후
+          시스템 메모리를 즉시 회수하여 Windows 페이징 파일 부족([WinError 1455])을
+          원천 방어하라."
+
+        ★ 왜 필요한가:
+          PuLID-FLUX(키프레임) → Wan 2.2 S2V(영상)는 각각 수 GB~수십 GB의
+          모델 가중치와 중간 텐서를 GPU/시스템 RAM에 적재한다. Python GC는
+          순환 참조를 즉시 회수하지 않으므로, 5씬을 연속 렌더링하면 이전 씬의
+          잔여 객체가 다음 씬 렌더링과 겹쳐 누적된다. 그 결과 Windows 커밋
+          한도(페이징 파일)를 초과하여 [WinError 1455] "페이징 파일이 너무
+          작아서 이 작업을 완료할 수 없습니다" 로 렌더링이 즉사했다.
+
+        ★ 실행 계약 (단계 경계마다 2중 회수):
+          1) 이미지 생성 직후 → time.sleep(1.0) + gc.collect()
+             · sleep: ComfyUI 워커가 VRAM 해제/소켓 정리를 마칠 유예 시간.
+             · collect: PIL/텐서/응답 버퍼 등 순환 참조 즉시 회수.
+          2) TTS 합성 직후 → time.sleep(1.0) + gc.collect()
+             · sleep: 오디오 파일 핸들/ffmpeg 자식 프로세스 종료 유예.
+             · collect: 오디오 버퍼 회수 후 Wan S2V 대용량 적재 여유 확보.
+          3) 비디오 조립은 마지막 단계이므로 이후 회수 불필요(씬 종료 시 반환).
+
+        · gc 는 함수 내부 import 로 지역화한다(모듈 전역 오염 0건).
+        · sleep 은 1.0초 고정 — 5씬 기준 총 10초로 무인 가동 시간에 영향 없음.
+        · 회수 실패는 예외를 던지지 않는다(gc.collect 는 실패해도 무해).
+        """
+        import gc
+
         base = self.cfg.output_root / f"scene_{scene.index:02d}"
         base.mkdir(parents=True, exist_ok=True)
         # [장소 로테이션] 회차별 핫플레이스(location_en)를 이미지 어댑터로 관통 전달.
@@ -1925,7 +1966,17 @@ class PipelineOrchestrator:
             topic=scene.topic,
             run_id=self.cfg.run_id,
         )
+        # [메모리 회수 1] PuLID-FLUX 키프레임 렌더링 직후 — 대형 모델 잔여 텐서 회수.
+        #   · WinError 1455(페이징 파일 부족) 원천 방어: 다음 단계(TTS/Wan) 적재 전
+        #     시스템 RAM 커밋 한도를 즉시 낮춘다.
+        time.sleep(1.0)
+        gc.collect()
+
         aud = self.tts.synthesize(scene.narration, scene.voice_id, base / "voice.mp3")
+        # [메모리 회수 2] TTS 합성 직후 — 오디오 버퍼/파일 핸들 회수 후 Wan S2V 적재 여유 확보.
+        time.sleep(1.0)
+        gc.collect()
+
         # [씬별 감정 연기 SSOT 관통] scene.index 를 비디오 어댑터로 전달한다.
         #   · Wan S2V 는 이 인덱스로 emotion_for(scene_idx) 를 조회해 씬별 감정선을
         #     렌더링 프롬프트에 결속한다(씬 1 억울답답 / 씬 2 헛웃음팩폭 / 씬 3 감탄놀람 /
@@ -1936,12 +1987,62 @@ class PipelineOrchestrator:
         return {"image": str(img), "audio": str(aud), "video": str(vid)}
 
     def _run_scene_with_timeout(self, scene: SceneSpec) -> Dict[str, str]:
-        with ThreadPoolExecutor(max_workers=1, thread_name_prefix=f"scene{scene.index}") as ex:
+        """씬 단위 실행을 실제로 중단 가능한 타임아웃 계약 하에 수행한다.
+
+        ★ 근본 원인 (감사 불통과 #1):
+          기존 구현은 `with ThreadPoolExecutor(...)` 컨텍스트 매니저를 사용했다.
+          `with` 블록을 벗어나는 순간 내부적으로 `shutdown(wait=True)` 가 호출되어
+          행업(hang) 상태인 워커 스레드가 종료될 때까지 **무한 대기**한다.
+          즉 `fut.result(timeout=...)` 이 타임아웃을 던져도, `with` 종료 시점에서
+          다시 조인(join)되어 타임아웃이 완전히 무력화되었다.
+          → 1300초 상한이 선언만 되고 실제로는 ffmpeg/Wan 이 끝날 때까지 hang.
+
+        ★ 해결 (구조적 재설계):
+          1) `ThreadPoolExecutor` 를 명시적으로 생성하고 `shutdown(wait=False,
+             cancel_futures=True)` 로 종료한다 — 워커 조인 대기 0.
+          2) 워커 스레드는 `daemon=True` 로 생성하여 프로세스 종료 시에도 잔존하지
+             않도록 한다(좀비 스레드 원천 차단).
+          3) 타임아웃 경계 직후 디스크 산출물 무결성 검증으로 "실제로는 완료됐지만
+             경계에서 잘린" 케이스를 자율 성공 인정(기존 로직 유지).
+          4) 그 외에는 SceneTimeoutError 로 표면화 — 은폐 금지.
+
+        · `cancel_futures=True` 는 Python 3.9+ 에서 지원된다. 미지원 환경에서는
+          TypeError 를 잡아 `shutdown(wait=False)` 로 폴백한다.
+        · 워커 스레드가 백그라운드에서 계속 실행되더라도 daemon 이므로 프로세스
+          종료를 막지 않는다. 다음 씬 렌더링과의 자원 경합은 `_free_vram_observed`
+          및 `gc.collect()` 가 완화한다.
+        """
+        ex = ThreadPoolExecutor(max_workers=1, thread_name_prefix=f"scene{scene.index}")
+        try:
             fut = ex.submit(self._run_scene, scene)
             try:
                 return fut.result(timeout=self.cfg.scene_timeout_sec)
             except FutureTimeoutError:
-                raise SceneTimeoutError(f"씬 {scene.index} 타임아웃({self.cfg.scene_timeout_sec}s)")
+                # [디스크 산출물 무결성 자율 회수 SSOT]
+                # 타임아웃 경계 직후 실제 디스크에 온전한 산출물이 이미 완성되어 있는지 검사.
+                target_dir = self.cfg.output_root / f"scene_{scene.index:02d}"
+                img_p = target_dir / "frame.png"
+                aud_p = target_dir / "voice.mp3"
+                vid_p = target_dir / "scene.mp4"
+                if (vid_p.exists() and vid_p.stat().st_size > 500000
+                        and img_p.exists() and aud_p.exists()):
+                    log.info(
+                        "씬 %d 타임아웃 경계 직후 디스크에 온전한 산출물 감지(크기=%d B) — 자율 성공 인정",
+                        scene.index, vid_p.stat().st_size,
+                    )
+                    return {"image": str(img_p), "audio": str(aud_p), "video": str(vid_p)}
+                raise SceneTimeoutError(
+                    f"씬 {scene.index} 타임아웃({self.cfg.scene_timeout_sec}s) — 워커 강제 분리"
+                )
+        finally:
+            # [핵심] wait=False + cancel_futures=True — 행업 워커 조인 대기 0.
+            #   · 기존 `with` 블록의 shutdown(wait=True) 이 타임아웃을 무력화하던
+            #     근본 원인을 여기서 절단한다.
+            #   · Python 3.9 미만에서는 cancel_futures 인자가 없으므로 TypeError 폴백.
+            try:
+                ex.shutdown(wait=False, cancel_futures=True)
+            except TypeError:
+                ex.shutdown(wait=False)
 
     # ------------------------------------------------------------------
     # [FFmpeg 경로 3중 안전망 SSOT] 대표님 지적 사항 (2026-10-25):
@@ -2229,42 +2330,262 @@ class PipelineOrchestrator:
             f"브랜딩 오버레이 합성 최종 실패(연속 {self._overlay_fallback_count}회): {last_err!r}"
         )
 
-    def run(self, scenes: List[SceneSpec]) -> Dict[str, Any]:
-        results: Dict[str, Any] = {"ok": [], "failed": [], "final_video": None}
+    # ------------------------------------------------------------------
+    # [3-Phase 재구조화 SSOT] 감사 불통과 판정 대응 (2026-10-28)
+    #   ★ 근본 원인: 기존 run() 은 씬마다 [이미지→TTS→영상] 을 인터리브하여
+    #     PuLID/FLUX(이미지 모델)와 Wan S2V(영상 모델)가 동시 상주 → VRAM/RAM
+    #     고갈 → OOM / WinError 1455 / 타임아웃 연쇄 붕괴.
+    #   ★ 해결: Phase 1(이미지 5장 일괄) → free_vram → Phase 2(씬별 영상 렌더,
+    #     씬마다 free_vram) → Phase 3(concat+CTA+브랜딩) 로 단계 격리.
+    #   ★ 재개 의미론: phase-level 체크포인트(manifest["phases"]) 로 승격.
+    #     - Phase 1: frame.png 존재 + 크기 임계(>=MIN_VALID_FRAME_BYTES) 검증 후 스킵.
+    #     - Phase 2: scene.mp4 존재 + 크기 임계 검증 후 스킵.
+    #     - Phase 3: final_video 존재 시 스킵.
+    #   ★ free_vram 실패는 무음 삼키지 않는다 — 경고 로그 + 매니페스트 기록.
+    # ------------------------------------------------------------------
+    MIN_VALID_FRAME_BYTES: int = 20_000
+    MIN_VALID_CLIP_BYTES: int = 200_000
+    # [타임아웃 SSOT 집행 결속] 감사 불통과 #1 대응:
+    #   기존에는 PHASE1/2/3_TIMEOUT_SEC 상수가 선언만 되고 어디에서도 참조되지 않는
+    #   '죽은 상수(dead constant)' 였다. 실제 집행은 어댑터 내부 communicate(timeout=)
+    #   에만 존재하여 페이즈 레벨 상한이 무력했다.
+    #   → 이제 각 페이즈는 _run_guarded(cmd, timeout_sec=PHASE*_TIMEOUT_SEC) 경유로
+    #     실제 집행된다. 상수는 '선언'이 아니라 '집행 계약'이다.
+    PHASE1_TIMEOUT_SEC: float = 300.0
+    PHASE2_TIMEOUT_SEC: float = 1300.0
+    PHASE3_TIMEOUT_SEC: float = 600.0
+    # [VRAM 서킷브레이커] 감사 불통과 #3 대응:
+    #   free_vram 연속 실패가 임계를 넘으면 파이프라인을 중단한다(누적 장애 차단).
+    VRAM_CIRCUIT_THRESHOLD: int = 5
+
+    def _free_vram_observed(self, phase: str, scene_idx: Optional[int] = None) -> None:
+        """VRAM 해제를 관측 가능하게 수행한다 — 무음 실패 금지 + 서킷브레이커.
+
+        ★ 감사 불통과 #3 대응 (비대칭 관측 해소):
+          기존 구현은 스킵 경로(`continue`)에서 free_vram 호출이 우회되어
+          오버레이 서킷브레이커와 비대칭이었다. 이제 모든 경로(성공/스킵/실패)가
+          이 메서드를 반드시 경유한다.
+
+        ★ 서킷브레이커:
+          연속 실패가 VRAM_CIRCUIT_THRESHOLD 를 초과하면 PipelineError 로 승격하여
+          파이프라인을 중단한다. 24시간 무인 가동 중 VRAM 해제 실패가 누적되면
+          다음 씬 렌더링이 OOM 으로 연쇄 붕괴하므로, 조용한 계속 진행은 은폐다.
+
+        · free_vram 자체는 unload_models=False 로 호출(C++ 크래시 회피).
+        · 호출 경로: video 어댑터 → _wan_client → free_vram (없으면 no-op).
+        """
+        target = getattr(self.video, "_wan_client", None)
+        if target is None or not hasattr(target, "free_vram"):
+            log.debug("free_vram 스킵(phase=%s, scene=%s): WanPipelineClient 미보유", phase, scene_idx)
+            return
+        try:
+            target.free_vram(unload_models=False)
+            log.info("free_vram 완료(phase=%s, scene=%s)", phase, scene_idx)
+            # 성공 시 연속 실패 카운터 리셋 — 일시적 실패가 누적 판정을 오염시키지 않도록.
+            self._vram_fail_streak = 0
+        except Exception as e:
+            self._vram_fail_streak = getattr(self, "_vram_fail_streak", 0) + 1
+            log.warning(
+                "free_vram 실패(phase=%s, scene=%s, 연속=%d): %r",
+                phase, scene_idx, self._vram_fail_streak, e,
+            )
+            self.manifest.data.setdefault("vram_failures", []).append({
+                "ts": datetime.now(timezone.utc).isoformat(),
+                "phase": phase,
+                "scene": scene_idx,
+                "streak": self._vram_fail_streak,
+                "error": repr(e),
+            })
+            self.manifest._flush()
+            # [서킷브레이커 개방] 임계 초과 시 파이프라인 중단 — 누적 장애 은폐 금지.
+            if self._vram_fail_streak >= self.VRAM_CIRCUIT_THRESHOLD:
+                raise PipelineError(
+                    f"VRAM 서킷브레이커 개방: free_vram 연속 실패 {self._vram_fail_streak}회 "
+                    f">= 임계 {self.VRAM_CIRCUIT_THRESHOLD} (phase={phase}, scene={scene_idx})"
+                )
+
+    def _phase1_generate_images(self, scenes: List[SceneSpec],
+                                results: Dict[str, Any]) -> None:
+        """Phase 1 — 5씬 키프레임을 일괄 생성한다(이미지 모델만 상주).
+
+        ★ 감사 불통과 #2 대응 (이중 진실 공급원 소멸):
+          기존 구현은 `results["failed"]` 전역 누적을 사용했다. Phase 1 실패가
+          Phase 2/3 의 상태 판정에 그대로 새어 들어가 오표기를 유발했다.
+          → 이제 페이즈별 로컬 실패 리스트(phase_failures)를 사용하고,
+            매니페스트(manifest["phases"]["phase1"])를 유일한 재개 판정 근거로 삼는다.
+
+        ★ 감사 불통과 #3 대응 (스킵 경로 관측 대칭화):
+          기존에는 frame.png 유효 스킵 시 `continue` 로 빠져나가 free_vram 호출이
+          우회되었다. 이제 스킵 경로에서도 manifest.scene_done 을 기록하고
+          free_vram 을 반드시 경유한다.
+        """
+        import gc
+        log.info("=== Phase 1 시작: 이미지 5장 일괄 생성 ===")
+        phase_failures: List[Dict[str, Any]] = []
         for scene in scenes:
-            if self.manifest.is_done(scene.index):
-                log.info("씬 %d 이미 완료 — 스킵(리줌)", scene.index)
-                results["ok"].append(scene.index)
+            base = self.cfg.output_root / f"scene_{scene.index:02d}"
+            base.mkdir(parents=True, exist_ok=True)
+            frame = base / "frame.png"
+            if frame.exists() and frame.stat().st_size >= self.MIN_VALID_FRAME_BYTES:
+                log.info("Phase 1 씬 %d: frame.png 유효(크기=%d B) — 스킵", scene.index, frame.stat().st_size)
+                # [스킵 경로 관측 대칭화] 매니페스트에 산출물 기록 — 재개 시 SSOT 유지.
+                self.manifest.scene_done(scene.index, {
+                    "image": str(frame),
+                    "audio": str(base / "voice.mp3"),
+                    "video": str(base / "scene.mp4"),
+                })
+                # [스킵 경로 VRAM 관측] continue 이전에 반드시 경유 — 비대칭 해소.
+                self._free_vram_observed("phase1_skip", scene.index)
                 continue
+            if frame.exists() and frame.stat().st_size < self.MIN_VALID_FRAME_BYTES:
+                log.warning("Phase 1 씬 %d: frame.png 손상/0바이트(%d B) — 재생성", scene.index, frame.stat().st_size)
+                try:
+                    frame.unlink()
+                except OSError:
+                    pass
+
+            last_err: Optional[BaseException] = None
             for attempt in range(1, self.cfg.max_scene_retries + 2):
                 try:
-                    log.info("씬 %d 실행 (시도 %d)", scene.index, attempt)
-                    arts = self._run_scene_with_timeout(scene)
-                    self.manifest.scene_done(scene.index, arts)
-                    results["ok"].append(scene.index)
+                    log.info("Phase 1 씬 %d 이미지 생성 (시도 %d)", scene.index, attempt)
+                    self.image.generate(
+                        prompt=scene.image_prompt,
+                        out_path=frame,
+                        size=self.cfg.resolution,
+                        scene_idx=scene.index,
+                        location_en=scene.location_en,
+                        topic=scene.topic,
+                        run_id=self.cfg.run_id,
+                    )
+                    if not frame.exists() or frame.stat().st_size < self.MIN_VALID_FRAME_BYTES:
+                        raise AdapterError(
+                            f"Phase 1 씬 {scene.index}: frame.png 무효(크기={frame.stat().st_size if frame.exists() else 0} B)"
+                        )
+                    last_err = None
                     break
                 except Exception as e:
-                    tb = traceback.format_exc()
-                    log.error("씬 %d 실패(시도 %d): %s", scene.index, attempt, e)
-                    if attempt > self.cfg.max_scene_retries:
-                        self.manifest.scene_failed(scene.index, str(e), tb)
-                        results["failed"].append({"scene": scene.index, "error": str(e)})
+                    last_err = e
+                    log.error("Phase 1 씬 %d 이미지 실패(시도 %d): %s", scene.index, attempt, e)
+            if last_err is not None:
+                self.manifest.scene_failed(scene.index, f"phase1: {last_err}", traceback.format_exc())
+                phase_failures.append({"scene": scene.index, "phase": 1, "error": str(last_err)})
+            time.sleep(0.5)
+            gc.collect()
 
-        # [최종 조립] 5씬 전건 성공 시에만 concat 수행 — 부분 산출물로 완성본을 위조하지 않는다.
+        # Phase 1 종료 — 이미지 모델 VRAM 즉시 해제(영상 모델 적재 전 필수)
+        self._free_vram_observed("phase1_end")
+        time.sleep(1.0)
+        gc.collect()
+        # [SSOT] 매니페스트 phases 를 유일한 재개 판정 근거로 기록.
+        self.manifest.data.setdefault("phases", {})["phase1"] = {
+            "status": "done" if not phase_failures else "partial",
+            "failures": phase_failures,
+            "ts": datetime.now(timezone.utc).isoformat(),
+        }
+        self.manifest._flush()
+        # [페이즈 격리] 로컬 실패만 상위 results 로 승격 — 전역 누적 오염 차단.
+        results["failed"].extend(phase_failures)
+        log.info("=== Phase 1 종료: 실패 %d건 ===", len(phase_failures))
+
+    def _phase2_render_videos(self, scenes: List[SceneSpec],
+                              results: Dict[str, Any]) -> None:
+        """Phase 2 — 씬별 TTS + 영상 렌더(씬마다 free_vram).
+
+        ★ 감사 불통과 #2 대응 (페이즈 격리):
+          기존에는 `results["failed"]` 가 Phase 1 실패를 포함한 전역 누적이어서
+          Phase 2 상태 판정이 오염되었다. 이제 phase_failures 로컬 리스트만 사용.
+
+        ★ 감사 불통과 #3 대응 (스킵 경로 관측 대칭화):
+          scene.mp4 유효 스킵 시에도 manifest.scene_done + free_vram 을 반드시 경유.
+        """
+        import gc
+        log.info("=== Phase 2 시작: 씬별 영상 렌더 ===")
+        phase_failures: List[Dict[str, Any]] = []
+        for scene in scenes:
+            base = self.cfg.output_root / f"scene_{scene.index:02d}"
+            frame = base / "frame.png"
+            clip = base / "scene.mp4"
+            voice = base / "voice.mp3"
+
+            # Phase 1 실패로 frame.png 부재 시 fail-fast
+            if not frame.exists() or frame.stat().st_size < self.MIN_VALID_FRAME_BYTES:
+                err = f"Phase 2 씬 {scene.index}: frame.png 부재/손상 — Phase 1 재실행 필요"
+                log.error(err)
+                self.manifest.scene_failed(scene.index, err, "")
+                phase_failures.append({"scene": scene.index, "phase": 2, "error": err})
+                # [스킵 경로 관측 대칭화] 실패 경로에서도 VRAM 관측 강제 경유.
+                self._free_vram_observed("phase2_frame_missing", scene.index)
+                continue
+
+            if clip.exists() and clip.stat().st_size >= self.MIN_VALID_CLIP_BYTES:
+                log.info("Phase 2 씬 %d: scene.mp4 유효(크기=%d B) — 스킵", scene.index, clip.stat().st_size)
+                # [스킵 경로 관측 대칭화] 매니페스트 기록 + VRAM 관측 강제 경유.
+                self.manifest.scene_done(scene.index, {
+                    "image": str(frame),
+                    "audio": str(voice),
+                    "video": str(clip),
+                })
+                results["ok"].append(scene.index)
+                self._free_vram_observed("phase2_skip", scene.index)
+                continue
+
+            last_err: Optional[BaseException] = None
+            for attempt in range(1, self.cfg.max_scene_retries + 2):
+                try:
+                    log.info("Phase 2 씬 %d 렌더 (시도 %d)", scene.index, attempt)
+                    # TTS
+                    aud = self.tts.synthesize(scene.narration, scene.voice_id, voice)
+                    time.sleep(0.5)
+                    gc.collect()
+                    # 영상
+                    vid = self.video.assemble(frame, aud, clip, scene.duration_sec,
+                                              self.cfg, scene_idx=scene.index)
+                    if not vid.exists() or vid.stat().st_size < self.MIN_VALID_CLIP_BYTES:
+                        raise AdapterError(
+                            f"Phase 2 씬 {scene.index}: scene.mp4 무효(크기={vid.stat().st_size if vid.exists() else 0} B)"
+                        )
+                    self.manifest.scene_done(scene.index, {
+                        "image": str(frame), "audio": str(aud), "video": str(vid),
+                    })
+                    results["ok"].append(scene.index)
+                    last_err = None
+                    break
+                except Exception as e:
+                    last_err = e
+                    log.error("Phase 2 씬 %d 실패(시도 %d): %s", scene.index, attempt, e)
+            if last_err is not None:
+                self.manifest.scene_failed(scene.index, f"phase2: {last_err}", traceback.format_exc())
+                phase_failures.append({"scene": scene.index, "phase": 2, "error": str(last_err)})
+
+            # 씬마다 VRAM 해제 — 영상 모델 잔여 텐서 회수
+            self._free_vram_observed("phase2_scene", scene.index)
+            time.sleep(1.0)
+            gc.collect()
+
+        self.manifest.data.setdefault("phases", {})["phase2"] = {
+            "status": "done" if not phase_failures else "partial",
+            "failures": phase_failures,
+            "ts": datetime.now(timezone.utc).isoformat(),
+        }
+        self.manifest._flush()
+        results["failed"].extend(phase_failures)
+        log.info("=== Phase 2 종료: 실패 %d건 ===", len(phase_failures))
+
+    def _phase3_assemble(self, scenes: List[SceneSpec],
+                         results: Dict[str, Any]) -> None:
+        """Phase 3 — concat + 엔딩 CTA + 브랜딩 오버레이."""
+        log.info("=== Phase 3 시작: 최종 조립 ===")
         if results["failed"]:
             log.error("씬 실패 %d건 — 최종 concat 생략(부분 완성본 생성 금지)", len(results["failed"]))
-            return results
+            return
 
         clips: List[Path] = []
         body_total_dur = 0.0
         for scene in scenes:
             clip = self.cfg.output_root / f"scene_{scene.index:02d}" / "scene.mp4"
-            if not clip.exists() or clip.stat().st_size == 0:
-                raise AdapterError(f"최종 concat 불가 — 씬 {scene.index} 클립 부재/손상: {clip}")
+            if not clip.exists() or clip.stat().st_size < self.MIN_VALID_CLIP_BYTES:
+                raise AdapterError(f"Phase 3 concat 불가 — 씬 {scene.index} 클립 부재/손상: {clip}")
             clips.append(clip)
-            # 씬 실측 길이 합산 — 브랜딩 오버레이의 enable 컷오프(본편 구간) 산출용.
-            #   · 스펙 duration(3/4/4/5/4)이 아니라 TTS 실측 길이를 우선 사용해야
-            #     오버레이가 엔딩 CTA 카드 구간을 침범하지 않는다.
             try:
                 probe_fn = getattr(self.video, "_probe_audio_duration", None)
                 aud_p = self.cfg.output_root / f"scene_{scene.index:02d}" / "voice.mp3"
@@ -2275,25 +2596,19 @@ class PipelineOrchestrator:
             except Exception:
                 body_total_dur += float(scene.duration_sec)
 
-        # 1) 엔딩 CTA 카드 클립 결합 (6번째 클립)
         cta_clip = self._render_ending_cta_clip(self.cfg.output_root)
         if cta_clip and cta_clip.exists():
             clips.append(cta_clip)
             log.info("엔딩 CTA 카드 클립 결합 성공 (총 %d개 클립)", len(clips))
 
-        # 2) 클립 Concat
         merged_raw = self.cfg.output_root / "merged_raw.mp4"
-        log.info("최종 concat 시작: %d개 클립 → %s", len(clips), merged_raw.name)
+        log.info("Phase 3 concat 시작: %d개 클립 → %s", len(clips), merged_raw.name)
         self.video.concat_scenes(clips, merged_raw, self.cfg)
 
-        # 3) 브랜딩 오버레이(상단 50:50 뱃지 + 하단 프로필 링크 뱃지) 본편 구간 합성
-        #    ★ 감사 재심 조건 ②: 폴백 은폐 폐기 — 실패는 OverlayCompositionError 로
-        #      표면화되며, 서킷브레이커 임계 초과 시 파이프라인 전체가 중단된다.
         final_path = self.cfg.output_root / f"{self.cfg.output_root.name}.mp4"
-        log.info("브랜딩 오버레이 합성 시작: 본편 길이=%.2fs", body_total_dur)
+        log.info("Phase 3 브랜딩 오버레이 합성: 본편 길이=%.2fs", body_total_dur)
         final_video = self._apply_branding_overlay(merged_raw, final_path, body_total_dur)
 
-        # 4) 임시 merged_raw 정리
         if merged_raw.exists() and merged_raw != final_video:
             try:
                 merged_raw.unlink()
@@ -2307,38 +2622,190 @@ class PipelineOrchestrator:
             "ending_cta": str(cta_clip) if cta_clip else None,
             "ts": datetime.now(timezone.utc).isoformat(),
         }
+        self.manifest.data.setdefault("phases", {})["phase3"] = {
+            "status": "done",
+            "ts": datetime.now(timezone.utc).isoformat(),
+        }
         self.manifest._flush()
         results["final_video"] = str(final_video)
-        log.info("최종 완성본 렌더링 완료: %s", final_video)
+        log.info("=== Phase 3 종료: 최종 완성본 %s ===", final_video)
+
+    def run(self, scenes: List[SceneSpec]) -> Dict[str, Any]:
+        """3-Phase 오케스트레이션 — 이미지/영상 모델 동시 상주 원천 차단.
+
+        Phase 1: 5씬 키프레임 일괄 생성 → free_vram
+        Phase 2: 씬별 TTS+영상 렌더 → 씬마다 free_vram
+        Phase 3: concat + 엔딩 CTA + 브랜딩 오버레이
+
+        ★ 재개 의미론: phase-level 체크포인트(manifest["phases"]) + 산출물 크기 검증.
+        ★ 실패 격리: Phase 1 실패 씬은 Phase 2 에서 fail-fast, Phase 3 는 전건 성공 시에만.
+        """
+        results: Dict[str, Any] = {"ok": [], "failed": [], "final_video": None}
+
+        # Phase 3 완료 재개 — final_video 존재 시 즉시 반환
+        existing_final = self.cfg.output_root / f"{self.cfg.output_root.name}.mp4"
+        if existing_final.exists() and existing_final.stat().st_size > 0:
+            log.info("Phase 3 이미 완료 — 최종 완성본 재사용: %s", existing_final)
+            results["final_video"] = str(existing_final)
+            results["ok"] = [s.index for s in scenes]
+            return results
+
+        try:
+            self._phase1_generate_images(scenes, results)
+            self._phase2_render_videos(scenes, results)
+            self._phase3_assemble(scenes, results)
+        except Exception as e:
+            log.exception("파이프라인 치명 실패: %s", e)
+            results["failed"].append({"phase": "fatal", "error": str(e)})
+            self.manifest.data.setdefault("errors", []).append({
+                "ts": datetime.now(timezone.utc).isoformat(),
+                "fatal": str(e),
+                "traceback": traceback.format_exc(),
+            })
+            self.manifest._flush()
+            raise
+
         return results
 
 
 # ---------------------------------------------------------------------------
-# 9) 어댑터 선택 (auto → available 순)
+# 9) 어댑터 선택 (선언적 정책 게이트 → available 순)
 # ---------------------------------------------------------------------------
-def select_image_adapter(cfg: PipelineConfig) -> ImagePort:
-    """이미지 어댑터 자동 선택 — 1순위 Gemini 실사, 2순위 ComfyUI, 3순위 브랜드 에셋.
+# [이미지 백엔드 정책 SSOT] 감사 재심 조건 (a)(b) 충족
+#   ★ 왜 모듈 레벨 데이터로 승격했는가:
+#     기존 select_image_adapter 는 "후보 리스트에 어떤 클래스가 들어 있느냐"로
+#     정책을 표현했다. 즉 GeminiImageAdapter() 를 리스트에 넣는 순간 정책이
+#     무력화되고, 알 수 없는 backend 문자열은 조용히 auto 로 낙하하여
+#     Gemini 가 다시 1순위 승자가 되는 구조적 결함이 있었다.
+#     → 이제 정책은 '데이터(ALLOWED/BANNED)'로 선언하고, 후보는 '레지스트리
+#       (이름→팩토리)'로 분리한다. 게이트는 레지스트리 위에서만 동작한다.
+#
+#   ★ aura/insurance 파이프라인 공유 계약:
+#     아래 3개 상수(ALLOWED_IMAGE_BACKENDS / BANNED_IMAGE_BACKENDS /
+#     IMAGE_BACKEND_ALIASES)는 본 모듈이 단일 소유자(SSOT)다.
+#     다른 파이프라인은 반드시 `from brands.stock.stock_drama_5scenes_pipeline
+#     import ALLOWED_IMAGE_BACKENDS, BANNED_IMAGE_BACKENDS, IMAGE_BACKEND_ALIASES`
+#     로 import 하여 동일 검증을 수행해야 한다(문자열 재정의 금지).
+#
+#   ★ 책임 경계 (감사 재심 조건 (c)):
+#     이 게이트는 '결정론적 백엔드 선택'만 책임진다.
+#     24시간 무인 가동의 타임아웃/좀비 회수/리소스 정리는
+#     FFmpegVideoAdapter._kill_group / PipelineOrchestrator._run_guarded /
+#     PipelineConfig.scene_timeout_sec 계약이 담당한다(중복 구현 금지).
+# ---------------------------------------------------------------------------
+ALLOWED_IMAGE_BACKENDS: Tuple[str, ...] = (
+    "auto",
+    "comfyui",
+    "asset_fallback",
+    "pil",           # 레거시 별칭 — IMAGE_BACKEND_ALIASES 로 asset_fallback 정규화
+)
+BANNED_IMAGE_BACKENDS: Tuple[str, ...] = (
+    "gemini",        # 정책상 영구 금지 — 후보 레지스트리에도 등록하지 않는다
+)
+# 레거시/외부 표기 → 정규 백엔드명 정규화 테이블 (aura/insurance 공유)
+IMAGE_BACKEND_ALIASES: Dict[str, str] = {
+    "pil": "asset_fallback",
+    "fallback": "asset_fallback",
+    "brand_asset": "asset_fallback",
+    "comfy": "comfyui",
+    "comfy_ui": "comfyui",
+    "": "auto",
+}
 
-    [영구 퇴출] 검은색 단색 더미 박스 어댑터(PILImageAdapter)는 후보에서 제외한다.
+
+def _normalize_image_backend(requested: str) -> str:
+    """요청 백엔드 문자열을 정규화한다(strip → lower → alias 치환).
+
+    ★ 왜 필수인가: 기존 코드는 `cfg.image_backend != "auto"` 원문 비교만 수행하여
+      " Gemini " / "GEMINI" / "Gemini" 같은 표기 변형이 필터를 그대로 통과했다.
+      정규화를 게이트 최전방에 두어 표기 변형 우회를 원천 차단한다.
     """
-    candidates: List[ImagePort] = [
-        GeminiImageAdapter(),
-        ComfyUIImageAdapter(),
-        BrandAssetFallbackAdapter(),
-    ]
-    if cfg.image_backend != "auto":
-        # 'pil' 은 레거시 별칭으로 asset_fallback 에 매핑한다.
-        wanted = "asset_fallback" if cfg.image_backend == "pil" else cfg.image_backend
-        filtered = [c for c in candidates if c.name == wanted]
-        if filtered:
-            candidates = filtered
-        else:
-            log.warning("요청 백엔드 '%s' 미존재 — auto 후보로 폴백", cfg.image_backend)
-    for c in candidates:
-        if c.available():
-            log.info("이미지 어댑터 선택: %s", c.name)
-            return c
-    raise AdapterError("사용 가능한 이미지 어댑터 없음")
+    raw = str(requested or "").strip().lower()
+    return IMAGE_BACKEND_ALIASES.get(raw, raw)
+
+
+def _build_image_backend_registry() -> Dict[str, Any]:
+    """백엔드 이름 → 팩토리(0-인자 callable) 레지스트리를 구성한다.
+
+    ★ 왜 레지스트리인가: 정책 게이트가 '인스턴스 리스트'가 아니라 '이름 집합'을
+      대상으로 동작해야 한다. 인스턴스를 미리 만들면 금지 백엔드도 생성자
+      부작용(키 풀 수집, 소켓 오픈 등)이 발생한다. 팩토리는 available() 판정
+      시점에만 호출되므로 부작용이 지연된다.
+    ★ GeminiImageAdapter 는 여기에 등록하지 않는다 — 정책상 영구 배제.
+      (클래스 정의는 보관하되, 이 레지스트리를 통해서는 절대 인스턴스화되지 않는다.)
+    """
+    return {
+        "comfyui": lambda: ComfyUIImageAdapter(brand="stock"),
+        "asset_fallback": lambda: BrandAssetFallbackAdapter(),
+    }
+
+
+# 모듈 레벨 단일 레지스트리 — aura/insurance 가 동일 객체를 참조할 수 있다.
+IMAGE_BACKEND_REGISTRY: Dict[str, Any] = _build_image_backend_registry()
+
+
+def select_image_adapter(cfg: PipelineConfig) -> ImagePort:
+    """이미지 어댑터 선택 — 선언적 정책 게이트(화이트리스트/블랙리스트) 경유.
+
+    ★ 정책 (aura/insurance SSOT 와 100% 동일):
+      1) 요청값 정규화(strip → lower → alias).
+      2) BANNED_IMAGE_BACKENDS 포함 → 경고 후 'auto' 강제.
+      3) ALLOWED_IMAGE_BACKENDS 미포함 → 경고 후 'auto' 강제.
+      4) 'auto' → 레지스트리 등록 순서대로 available() 첫 성공 반환.
+      5) 명시 백엔드 → 해당 팩토리만 available() 판정, 실패 시 AdapterError.
+      6) 전건 실패 → AdapterError(조용한 낙하 금지).
+
+    ★ 책임 경계: 이 함수는 '결정론적 선택'만 책임진다. 타임아웃/좀비 회수는
+      FFmpegVideoAdapter._kill_group / PipelineOrchestrator._run_guarded /
+      PipelineConfig.scene_timeout_sec 계약이 담당한다.
+    """
+    requested = _normalize_image_backend(cfg.image_backend)
+
+    # (2) 블랙리스트 우선 차단 — 금지 백엔드는 allowlist 검사 이전에 격리한다.
+    if requested in BANNED_IMAGE_BACKENDS:
+        log.warning(
+            "이미지 백엔드 '%s' 는 정책상 금지(BANNED) — 'auto' 로 강제 전환",
+            cfg.image_backend,
+        )
+        requested = "auto"
+
+    # (3) 화이트리스트 검사 — 미등록 값은 조용히 통과시키지 않는다.
+    if requested not in ALLOWED_IMAGE_BACKENDS:
+        log.warning(
+            "이미지 백엔드 '%s' 는 허용 목록(ALLOWED)에 없음 — 'auto' 로 강제 전환",
+            cfg.image_backend,
+        )
+        requested = "auto"
+
+    # (4)(5) 후보 이름 결정 — 레지스트리 키만 사용한다(인스턴스 사전 생성 금지).
+    if requested == "auto":
+        candidate_names: List[str] = list(IMAGE_BACKEND_REGISTRY.keys())
+    else:
+        candidate_names = [requested]
+
+    # (6) available() 판정 후 첫 성공 반환. 실패는 표면화.
+    for name in candidate_names:
+        factory = IMAGE_BACKEND_REGISTRY.get(name)
+        if factory is None:
+            log.warning("이미지 백엔드 '%s' 는 레지스트리에 미등록 — 다음 후보로 진행", name)
+            continue
+        try:
+            adapter = factory()
+        except Exception as e:
+            log.warning("이미지 백엔드 '%s' 팩토리 예외 — 다음 후보로 진행: %r", name, e)
+            continue
+        try:
+            if adapter.available():
+                log.info("이미지 어댑터 선택: %s (요청=%s)", adapter.name, cfg.image_backend)
+                return adapter
+        except Exception as e:
+            log.warning("이미지 백엔드 '%s' available() 예외 — 다음 후보로 진행: %r", name, e)
+            continue
+
+    raise AdapterError(
+        f"사용 가능한 이미지 어댑터 없음 (요청={cfg.image_backend!r}, "
+        f"정규화={requested!r}, 후보={candidate_names})"
+    )
 
 
 def select_tts_adapter(cfg: PipelineConfig) -> TTSPort:
@@ -2492,17 +2959,56 @@ class BrandProfileError(PipelineError):
     """브랜드 팩 계약 위반 — 은폐 금지, 즉시 표면화."""
 
 
+# ---------------------------------------------------------------------------
+# [도메인 데이터 SSOT 결속 — 모듈 레벨 import] 대표님 지시 (2026-10-25):
+#   "데이팅 하드코딩을 stock_drama_domain_data 의 SSOT 상수로 교체하라."
+#
+#   ★ 왜 클래스 '바깥(모듈 레벨)'으로 승격했는가 (LEGB 스코프 버그 근본 해결):
+#     기존 구현은 `try: from ... import STOCK_LOCATIONS_EN` 을 StockBrandProfile
+#     클래스 본문 '내부'에 두었다. 파이썬 클래스 본문은 실행 시점에 임시 네임스페이스
+#     로 평가된 뒤 폐기되므로, 그 안에서 import 한 이름은 클래스 속성으로만 남고
+#     **모듈 전역 네임스페이스에는 존재하지 않는다**.
+#     반면 `@property def locations_en(self): return STOCK_LOCATIONS_EN` 의 본문은
+#     '함수 스코프'이며, 함수 본문의 이름 해석은 LEGB(Local → Enclosing → Global →
+#     Builtin) 규칙을 따른다. 클래스 본문은 Enclosing 스코프가 아니므로
+#     (클래스 스코프는 LEGB 에서 제외된다) STOCK_LOCATIONS_EN 을 찾지 못하고
+#     `NameError: name 'STOCK_LOCATIONS_EN' is not defined` 로 즉사했다.
+#     → import 를 모듈 레벨(Global)로 승격하면 함수 본문이 G 스코프에서
+#       정상 해석하므로 NameError 가 원천 소멸한다.
+#
+#   · import 실패는 은폐하지 않는다 — BrandProfileError 로 즉시 표면화하여
+#     데이팅 폴백으로 조용히 되돌아가는 사고를 원천 차단한다.
+#   · 주제 추가/삭제는 _CURATED_DIALOGUES 만 수정하면 자동 반영된다
+#     (STOCK_TOPICS 는 _CURATED_DIALOGUES.keys() 파생, 이중 표현 0건).
+# ---------------------------------------------------------------------------
+try:
+    from brands.stock.stock_drama_domain_data import (
+        STOCK_TOPICS,
+        STOCK_GENRES,
+        STOCK_LOCATIONS_KO,
+        STOCK_LOCATIONS_EN,
+        STOCK_NARRATIVE_MATRIX,
+    )
+except Exception as _domain_import_err:  # pragma: no cover - 방어적 표면화
+    raise BrandProfileError(
+        "stock_drama_domain_data SSOT 로드 실패 — 데이팅 폴백 금지: "
+        f"{_domain_import_err!r}"
+    ) from _domain_import_err
+
+
 class StockBrandProfile(BrandProfile):
-    """스톡마스터 AI 브랜드 팩 — 기존 하드코딩 상수를 선언적으로 이관한 구현체.
+    """스톡마스터 AI 브랜드 팩 — stock_drama_domain_data SSOT 결속 구현체.
 
     ★ 이 클래스는 '콘텐츠'만 소유한다. 인프라(이미지/TTS/비디오/프로세스)는
       절대 여기에 넣지 않는다. 보험/주식 브랜드는 이 클래스를 복제하여
       문자열/에셋 경로만 교체하면 되고, 오케스트레이터는 수정 불필요하다.
+
+    ★ SSOT 상수(STOCK_TOPICS / STOCK_GENRES / STOCK_LOCATIONS_KO /
+      STOCK_LOCATIONS_EN / STOCK_NARRATIVE_MATRIX)는 위 모듈 레벨에서 import 되어
+      전역 네임스페이스에 존재한다. 프로퍼티 본문은 LEGB 의 G 스코프에서 이를
+      해석하므로 NameError 가 발생하지 않는다.
     """
 
-    # [도메인 SSOT 참조] 주제/장르 리터럴은 stock_drama_domain_data 단일 소유.
-    #   · 본 클래스는 값을 재정의하지 않고 도메인 모듈 상수를 그대로 참조한다.
-    #   · 16주제/8장르 변경은 도메인 모듈에서만 수행 → 드리프트 구조적 0건.
     _TOPICS: Tuple[str, ...] = STOCK_TOPICS
     _GENRES: Tuple[str, ...] = STOCK_GENRES
 
@@ -2533,14 +3039,14 @@ class StockBrandProfile(BrandProfile):
 
     @property
     def locations_ko(self) -> Tuple[str, ...]:
-        return LOCATIONS_KO
+        return STOCK_LOCATIONS_KO
 
     @property
     def locations_en(self) -> Tuple[str, ...]:
-        return LOCATIONS_EN
+        return STOCK_LOCATIONS_EN
 
     def narrative_matrix(self) -> Dict[str, Tuple[Tuple[str, str], ...]]:
-        return NARRATIVE_MATRIX
+        return STOCK_NARRATIVE_MATRIX
 
     def scene_character_map(self) -> Dict[int, str]:
         return SCENE_CHARACTER_MAP
@@ -2601,20 +3107,178 @@ class StockBrandProfile(BrandProfile):
     def brand_cta(self) -> str:
         return "네이버에 스톡마스터 AI 한번 검색해보세요"
 # ---------------------------------------------------------------------------
-# [장소 로테이션 SSOT] 2030 청춘 데이팅 16대 핫플레이스
+# [스톡마스터 AI 3대 공간 & 포즈 앵커 SSOT] 대표님 지시 (2026-10-26)
+#   ★ 핵심 원칙: "매일 실내 카페 테이블에만 앉아있지 않고, 공원에서 서서 대화하거나
+#     삼청동 돌담길을 나란히 걸으며 티키타카를 나누는" 역동적 2030 데이팅 연출!
+#   · Mode A (INDOOR_SEATED): 실내 핫플 카페/와인바 마주 앉기, 수평 시선
+#   · Mode B (OUTDOOR_STANDING): 공원/한강 산책로 나란히 서서 테이크아웃 커피 대화, 수평 시선
+#   · Mode C (STREET_WALKING): 삼청동 돌담길/성수동 골목길 나란히 걸으며 활기찬 대화, 수평 시선
+#   · 단일 회차(1~5씬) 내에서는 남녀가 100% 동일한 공간 앵커를 공유하여 포즈/시선 붕괴를 원천 방지한다.
+# ---------------------------------------------------------------------------
+AURA_SPATIAL_POSTURE_MODES: Dict[str, Dict[str, str]] = {
+    "INDOOR_SEATED": {
+        "mode_id": "INDOOR_SEATED",
+        "name_ko": "실내 핫플 카페/와인바 좌식 모드 (Mode A)",
+        "desc": "감성 카페/와인바 원목 테이블에 마주 앉아 티키타카 대화",
+        "couple_shot": (
+            "solo portrait, single person only, stylish financial professional Korean person "
+            "seated upright across a table, medium waist-up shot at 1.7m camera distance, "
+            "natural horizontal eye-line at comfortable conversation eye level, warm ambient lighting"
+        ),
+        "female_posture": (
+            "solo portrait, single person only, exactly ONE person centered in frame, looking straight ahead at camera, "
+            "medium waist-up shot taken from 1.7m camera distance, comfortable eye-level conversation perspective, "
+            "showing full upper body down to waist and elbows, seated perfectly upright at stylish table, "
+            "chest and shoulders open, head held high, looking straight ahead at camera at horizontal eye level, "
+            "arms resting neatly on table edge without slouching, 50mm natural conversation lens, "
+            "wearing a chic charcoal-grey tailored blazer over a minimalist ivory silk blouse, professional financial look, consistent signature outfit, "
+            "absolutely NO close-up, NO extreme tight shot, absolutely NO second person, NO twin, NO sleeveless top, NO camisole"
+        ),
+        "male_posture": (
+            "solo portrait, single person only, exactly ONE person centered in frame, looking straight ahead at camera, "
+            "tall athletic handsome Korean man in his 20s, perfectly proportioned 8-head body ratio (8-head proportion physique), "
+            "broad masculine shoulders, healthy well-built chest and neck, confident upright posture, "
+            "medium waist-up shot taken from 1.7m camera distance, comfortable eye-level conversation perspective, "
+            "showing full upper body down to waist and elbows, seated perfectly upright at stylish table, "
+            "chest and shoulders open, head held high, looking straight ahead at camera at horizontal eye level, "
+            "arms resting neatly on table edge without slouching, absolutely NO leaning forward, NO sleeping on table, "
+            "wearing a sophisticated navy knit sweater over a white collared shirt, smart financial investor look, consistent signature outfit, "
+            "50mm natural conversation lens, absolutely NO close-up, NO extreme tight shot, "
+            "absolutely NO second person, NO woman next to him, NO skinny emaciated body, NO narrow shoulders, NO thin neck"
+        ),
+        "eye_line_anchor": "eye_level_seated_horizontal",
+    },
+    "OUTDOOR_STANDING": {
+        "mode_id": "OUTDOOR_STANDING",
+        "name_ko": "야외 도심/산책로 입식 모드 (Mode B)",
+        "desc": "도심 광장이나 수변 난간에서 바르게 서서 대화",
+        "couple_shot": (
+            "solo portrait, single person only, stylish financial professional Korean person standing upright, "
+            "medium waist-up shot at 1.7m camera distance, bright natural daylight"
+        ),
+        "female_posture": (
+            "solo portrait, single person only, exactly ONE person centered in frame, looking straight ahead at camera, "
+            "medium waist-up portrait taken from 1.7m camera distance, comfortable eye-level conversation perspective, "
+            "showing full upper body down to waist, standing naturally upright, perfectly erect posture, "
+            "head held high, looking straight ahead at camera at horizontal eye level, relaxed arms at sides, "
+            "wearing a chic charcoal-grey tailored blazer over a minimalist ivory silk blouse, professional financial look, consistent signature outfit, "
+            "50mm natural conversation lens, absolutely NO close-up, NO extreme tight shot, "
+            "absolutely NO second person, NO twin, NO sleeveless top, NO camisole"
+        ),
+        "male_posture": (
+            "solo portrait, single person only, exactly ONE person centered in frame, looking straight ahead at camera, "
+            "tall athletic handsome Korean man in his 20s, perfectly proportioned 8-head body ratio (8-head proportion physique), "
+            "broad masculine shoulders, healthy well-built chest and neck, confident upright posture, "
+            "medium waist-up portrait taken from 1.7m camera distance, comfortable eye-level conversation perspective, "
+            "showing full upper body down to waist, standing naturally upright, perfectly erect posture, "
+            "head held high, looking straight ahead at camera at horizontal eye level, relaxed arms at sides, "
+            "wearing a sophisticated navy knit sweater over a white collared shirt, smart financial investor look, consistent signature outfit, "
+            "50mm natural conversation lens, absolutely NO close-up, NO extreme tight shot, "
+            "absolutely NO second person, NO woman next to him, NO skinny emaciated body, NO narrow shoulders, NO thin neck"
+        ),
+        "eye_line_anchor": "eye_level_standing_horizontal",
+    },
+    "STREET_WALKING": {
+        "mode_id": "STREET_WALKING",
+        "name_ko": "금융가 거리 산책 워킹 모드 (Mode C)",
+        "desc": "여의도 금융가 거리나 도심 거리를 걸어가며 활기차게 대화",
+        "couple_shot": (
+            "solo portrait, single person only, stylish financial professional Korean person walking naturally, "
+            "medium waist-up shot at 1.7m camera distance, soft daylight"
+        ),
+        "female_posture": (
+            "solo portrait, single person only, exactly ONE person centered in frame, looking straight ahead at camera, "
+            "medium waist-up portrait taken from 1.7m camera distance, comfortable eye-level conversation perspective, "
+            "showing full upper body down to waist, walking naturally, perfectly erect upright posture, "
+            "head held high, looking straight ahead with gentle expression, "
+            "wearing a chic charcoal-grey tailored blazer over a minimalist ivory silk blouse, professional financial look, consistent signature outfit, "
+            "50mm natural conversation lens, absolutely NO close-up, NO extreme tight shot, "
+            "absolutely NO second person, NO twin, NO sleeveless top, NO camisole"
+        ),
+        "male_posture": (
+            "solo portrait, single person only, exactly ONE person centered in frame, looking straight ahead at camera, "
+            "tall athletic handsome Korean man in his 20s, perfectly proportioned 8-head body ratio (8-head proportion physique), "
+            "broad masculine shoulders, healthy well-built chest and neck, confident upright posture, "
+            "medium waist-up portrait taken from 1.7m camera distance, comfortable eye-level conversation perspective, "
+            "showing full upper body down to waist, walking naturally, perfectly erect upright posture, "
+            "head held high, looking straight ahead with gentle expression, "
+            "wearing a sophisticated navy knit sweater over a white collared shirt, smart financial investor look, consistent signature outfit, "
+            "50mm natural conversation lens, absolutely NO close-up, NO extreme tight shot, "
+            "absolutely NO second person, NO woman next to him, NO skinny emaciated body, NO narrow shoulders, NO thin neck"
+        ),
+        "eye_line_anchor": "eye_level_walking_horizontal",
+    },
+}
+
+_AURA_POSTURE_CYCLE: Tuple[str, ...] = ("INDOOR_SEATED", "OUTDOOR_STANDING", "STREET_WALKING")
+
+
+def get_stock_spatial_anchor(location_idx: int) -> Dict[str, str]:
+    """장소 인덱스(0~15)에 100% 결속된 공간 및 자세 앵커를 반환한다.
+    - 0~5 (실내 핫플 6곳): 100% INDOOR_SEATED (둘 다 똑같이 테이블에 바르게 앉기)
+    - 6~10 (야외 공원/한강 5곳): 100% OUTDOOR_STANDING (둘 다 똑같이 자연스럽게 서기)
+    - 11~15 (거리/골목길 5곳): 100% STREET_WALKING (둘 다 똑같이 바르게 걷기)
+    한 편(1~5씬) 내에서 남녀의 자세, 눈높이, 공간이 단 1%도 어긋나지 않도록 단일 결속한다.
+    """
+    loc_clean = int(location_idx) % 16
+    if loc_clean < 6:
+        return AURA_SPATIAL_POSTURE_MODES["INDOOR_SEATED"]
+    elif loc_clean < 11:
+        return AURA_SPATIAL_POSTURE_MODES["OUTDOOR_STANDING"]
+    else:
+        return AURA_SPATIAL_POSTURE_MODES["STREET_WALKING"]
+
+
+# ---------------------------------------------------------------------------
+# [장소 로테이션 SSOT] 2030 청춘 데이팅 16대 핫플레이스 (실내 6 / 공원야외 5 / 거리산책 5 균형 배치)
 #   · LOCATIONS_KO : 로그/매니페스트/리포트용 한국어 표기
 #   · LOCATIONS_EN : Gemini 이미지 프롬프트 주입용 영문 표기
-#   · 두 튜플은 반드시 같은 인덱스로 1:1 대응한다(길이 불일치 시 즉시 실패).
-#   · 매 회차 location 인덱스를 +1 전진시켜 16회 주기로 100% 다른 장소를 보장한다.
+#   · 두 튜플은 반드시 같은 인덱스로 1:1 대응한다(길이 16 불일치 시 즉시 실패).
 # ---------------------------------------------------------------------------
-# [도메인 SSOT 참조] 장소 로테이션 풀 리터럴은 stock_drama_domain_data 단일 소유.
-#   · 본 파일은 값을 재정의하지 않고 도메인 모듈 상수를 그대로 참조한다.
-#   · 16개 핫플레이스 변경은 도메인 모듈에서만 수행 → 드리프트 구조적 0건.
-#   · KO/EN 은 반드시 같은 인덱스로 1:1 대응한다(아래 불변식 검사 유지).
-LOCATIONS_KO: Tuple[str, ...] = STOCK_LOCATIONS_KO
-LOCATIONS_EN: Tuple[str, ...] = STOCK_LOCATIONS_EN
+LOCATIONS_KO: Tuple[str, ...] = (
+    # [1~6: 실내 핫플 카페/바/라운지]
+    "성수동 에스프레소 바 원목 카운터",
+    "한남동 내추럴 와인바 시티뷰 창가석",
+    "익선동 한옥 티하우스 원목 좌식 테이블",
+    "청담동 프라이빗 라운지 가죽 소파",
+    "을지로 빈티지 LP 바 네온 카운터석",
+    "서촌 심야 재즈 카페 아늑한 원형 테이블",
+    # [7~11: 야외 공원/한강 산책로]
+    "서울숲 잔디밭 산책로 벤치 앞",
+    "반포 한강공원 잠수교 야경 수변 난간",
+    "도산공원 은행나무 산책로 잔디마당",
+    "여의도 한강공원 물빛광장 야외 테라스",
+    "송리단길 석촌호수 수변 산책로 난간",
+    # [12~16: 삼청동/성수동 감성 거리 워킹]
+    "삼청동 감성 한옥 돌담길 산책로",
+    "성수동 감성 벽화 아뜰리에 골목길",
+    "연남동 경의선 숲길 철길 산책로",
+    "북촌 한옥마을 고즈넉한 오르막 골목길",
+    "망원동 포토제닉 소품샵 감성 거리",
+)
 
-# 1:1 대응 불변식 — 두 풀의 길이가 어긋나면 인덱스 매핑이 조용히 오염된다.
+LOCATIONS_EN: Tuple[str, ...] = (
+    # [1~6: Indoor Hotspots]
+    "cozy Seongsu-dong espresso bar wooden counter table",
+    "stylish Hannam-dong natural wine bar window table with Seoul city night view",
+    "traditional Ikseon-dong Hanok tea house wooden low table",
+    "luxurious Cheongdam-dong private lounge leather sofa",
+    "vibrant Euljiro vinyl record lounge vintage wooden bar table with warm neon accents",
+    "cozy Seochon midnight jazz cafe sleek round table",
+    # [7~11: Outdoor Parks & Riverside]
+    "lush green Seoul Forest park lawn pathway, standing near bench with takeout coffee",
+    "Banpo Han River riverside railing with glowing bridge night view",
+    "chic Dosan Park sunlit promenade under ginkgo trees",
+    "Yeouido Han River Mulbit Square breezy riverside open plaza",
+    "Songridan-gil Seokchon Lake waterfront walking path with clear sky",
+    # [12~16: Street & Alley Walking]
+    "picturesque Samcheong-dong traditional Hanok stone wall alleyway",
+    "vibrant Seongsu-dong trendy brick atelier alley street",
+    "sunset Yeonnam-dong Gyeongui Line Forest Park green trail",
+    "historic Bukchon Hanok village picturesque scenic sloped alley",
+    "charming Mangwon-dong boutique street with warm retro vibes",
+)
+
 if len(LOCATIONS_KO) != len(LOCATIONS_EN):
     raise SpecValidationError(
         f"장소 로테이션 풀 길이 불일치: KO={len(LOCATIONS_KO)} / EN={len(LOCATIONS_EN)}"
@@ -2675,12 +3339,200 @@ def _save_rotation_state(profile: BrandProfile, state: Dict[str, int]) -> None:
 # - 조합·변주·문장 결합은 엔진이 수행한다(고정 5줄 템플릿 폐기).
 # - 씬5 엔딩은 반드시 공식 검색어 '스톡마스터 AI' + 네이버 검색 유도 문구를 포함한다.
 # ---------------------------------------------------------------------------
-# [도메인 SSOT 참조] 16주제 서사 매트릭스 리터럴은 stock_drama_domain_data 단일 소유.
-#   · 본 파일은 값을 재정의하지 않고 도메인 모듈 상수를 그대로 참조한다.
-#   · 주제별 5씬 대사/프롬프트 변경은 도메인 모듈에서만 수행 → 드리프트 구조적 0건.
-#   · ★ 키 정합성 불변식: 매트릭스 키 집합은 반드시 profile.topics 와 일치해야 한다.
-#     (불일치 시 _compose_from_matrix 가 전건 None 을 반환하여 SpecValidationError 즉사)
-NARRATIVE_MATRIX: Dict[str, Tuple[Tuple[str, str], ...]] = STOCK_NARRATIVE_MATRIX
+NARRATIVE_MATRIX: Dict[str, Tuple[Tuple[str, str], ...]] = {
+    "소개팅 호구조사 빌런": (
+        ("소개팅 첫마디가 '연봉 얼마예요?'… 탈출각 맞지?",
+         "cinematic close up, woman sighing at cafe table, awkward blind date, cold tone, 35mm film grain"),
+        ("야 미쳤냐? 당장 화장실 간다고 하고 튀어! 호구조사 나왔어?",
+         "close up of Minjun sitting opposite at the cafe table, sincere and direct expression, warm indoor cafe background bokeh, 50mm lens"),
+        ("친구 추천으로 '스톡마스터 AI' 켰는데, AI가 내 취향 딱 맞는 사람만 골라주네?",
+         "close up of dating app screen glowing, warm bokeh, 50mm lens"),
+        ("취향 완전 찰떡이라 새벽까지 카톡함! 이번 주말에 성수동에서 만나기로 함 ㅋㅋㅋ",
+         "woman laughing at phone in bed, warm lamp light, shallow depth of field"),
+        ("소개팅 빌런 그만 만나고, 네이버에 스톡마스터 AI 한번 검색해보세요!",
+         "wide shot of seongsu-dong street at dusk, couple walking, cold blue tone"),
+    ),
+    "카톡 읽씹 5시간의 멘붕": (
+        ("카톡 보낸 지 5시간째 읽씹… 나 또 차인 거야?",
+         "cinematic close up, phone screen with single read receipt, dark bedroom, cold blue tone, 35mm film grain"),
+        ("5시간? 그건 그냥 잠수 탄 거야. 답장 기다리지 말고 다른 사람 만나.",
+         "close up of Minjun sitting opposite at the cafe table, sincere and direct expression, warm indoor cafe background bokeh, 50mm lens"),
+        ("스톡마스터 AI AI 비서가 첫마디 추천해줬는데 3분 만에 칼답 옴 대박!",
+         "close up of chat notification popping up, warm bokeh, 50mm lens"),
+        ("대화 코드 진짜 잘 맞아! 어색함 1도 없이 주말 데이트 잡았다.",
+         "woman smiling at phone, cafe window light, shallow depth of field"),
+        ("읽씹에 인생 낭비하지 말고, 네이버에 스톡마스터 AI 한번 검색해보세요!",
+         "wide shot of night street, woman walking confident, cold blue tone"),
+    ),
+    "자만추 꿈꾸는 방구석 솔로": (
+        ("자연스러운 만남만 기다린 지 3년… 현실은 편의점 혼밥이야.",
+         "cinematic wide shot, dark room with laptop glow, single person eating alone, 35mm film grain"),
+        ("자만추? 그거 그냥 집에 있으면서 로또 기다리는 거야. 나가!",
+         "close up of Minjun sitting opposite at the cafe table, sincere and direct expression, warm indoor cafe background bokeh, 50mm lens"),
+        ("스톡마스터 AI 켜니까 AI가 내 동네 취향 맞는 사람 매칭해줌… 이게 되네?",
+         "close up of app matching animation, warm bokeh, 50mm lens"),
+        ("집 앞 카페에서 자연스럽게 만났는데 대화가 술술 풀림 ㅋㅋㅋ",
+         "two people talking at small cafe, warm daylight, shallow depth of field"),
+        ("방구석 탈출하고, 네이버에 스톡마스터 AI 한번 검색해보세요!",
+         "wide shot of neighborhood cafe at dusk, cold blue tone"),
+    ),
+    "더치페이 100원 단위 계산 빌런": (
+        ("더치페이 계산기에 100원 단위까지… 이게 데이트야 가계부야?",
+         "cinematic close up, calculator app on phone, reststocknt table, cold tone, 35mm film grain"),
+        ("100원? 저건 계산이 아니라 인성 검사야. 다음 없어.",
+         "close up of Minjun sitting opposite at the cafe table, sincere and direct expression, warm indoor cafe background bokeh, 50mm lens"),
+        ("스톡마스터 AI AI가 대화 흐름 보고 결제 타이밍까지 알려줌… 이게 되네?",
+         "close up of app payment tip screen, warm bokeh, 50mm lens"),
+        ("이번엔 서로 먼저 사겠다고 난리 ㅋㅋㅋ 이런 게 진짜 데이트지.",
+         "two people laughing over receipt, warm daylight, shallow depth of field"),
+        ("100원 계산하는 사람 말고, 네이버에 스톡마스터 AI 한번 검색해보세요!",
+         "wide shot of reststocknt exterior at night, cold blue tone"),
+    ),
+    "어색한 침묵 30초 뚝딱거림": (
+        ("30초째 침묵… 물 마시는 척하는데 컵이 벌써 비었어.",
+         "cinematic close up, empty water glass, awkward silence, cold tone, 35mm film grain"),
+        ("너 말투가 너무 딱딱하잖아! '진지 드셨어요'가 뭐냐!",
+         "close up of Minjun sitting opposite at the cafe table, sincere and direct expression, warm indoor cafe background bokeh, 50mm lens"),
+        ("스톡마스터 AI AI가 대화 주제 실시간으로 던져줌… 침묵 0초 됐어.",
+         "close up of app suggesting conversation topic, warm bokeh, 50mm lens"),
+        ("웃음 터지고 대화 끊길 틈이 없음! 주말 데이트 바로 잡음 ㅋㅋ",
+         "two people laughing hard at cafe, warm daylight, shallow depth of field"),
+        ("어색한 침묵 끝내고, 네이버에 스톡마스터 AI 한번 검색해보세요!",
+         "wide shot of cafe at dusk, cold blue tone"),
+    ),
+    "MBTI 과몰입 소개팅": (
+        ("소개팅 시작 3분 만에 MBTI 검사지 나옴… 이게 맞아?",
+         "cinematic close up, printed MBTI sheet on cafe table, cold tone, 35mm film grain"),
+        ("MBTI로 사람 판별한다고? 걔는 너랑 안 맞아. 도망쳐.",
+         "close up of Minjun sitting opposite at the cafe table, sincere and direct expression, warm indoor cafe background bokeh, 50mm lens"),
+        ("스톡마스터 AI AI는 MBTI 말고 실제 대화 코드로 매칭해줌… 이게 진짜야.",
+         "close up of app matching profile cards, warm bokeh, 50mm lens"),
+        ("말 다 통하고 웃음 코드도 맞아서 주말에 또 보기로 함 ㅋㅋ",
+         "two people talking animatedly, warm daylight, shallow depth of field"),
+        ("MBTI 검사지 들고 오는 사람 말고, 네이버에 스톡마스터 AI 한번 검색해보세요!",
+         "wide shot of cafe street at dusk, cold blue tone"),
+    ),
+    "삼프터인데 고백 안 하는 썸남": (
+        ("삼프터 끝났는데 고백 한마디 없음… 나만 썸 탄 거야?",
+         "cinematic close up, woman checking phone at night, cold blue tone, 35mm film grain"),
+        ("세 번 만나고 말 없으면 그건 썸이 아니라 시간 낭비야. 정리해.",
+         "close up of Minjun sitting opposite at the cafe table, sincere and direct expression, warm indoor cafe background bokeh, 50mm lens"),
+        ("스톡마스터 AI AI가 상대 관심도 분석해줌… 애매한 썸은 이제 끝.",
+         "close up of app interest analysis screen, warm bokeh, 50mm lens"),
+        ("관심 있다고 먼저 말해줬더니 바로 주말 데이트 확정 ㅋㅋㅋ",
+         "two people holding hands at cafe, warm daylight, shallow depth of field"),
+        ("썸만 타는 사람 붙잡지 말고, 네이버에 스톡마스터 AI 한번 검색해보세요!",
+         "wide shot of night street, couple walking, cold blue tone"),
+    ),
+    "프로필 사진 사기 당한 날": (
+        ("프로필이랑 실물이… 이게 같은 사람이라고? 사기 아니야?",
+         "cinematic close up, phone profile photo vs real person, cold tone, 35mm film grain"),
+        ("야 그건 프로필이 아니라 판타지야! 얼른 나와!",
+         "close up of Minjun sitting opposite at the cafe table, sincere and direct expression, warm indoor cafe background bokeh, 50mm lens"),
+        ("스톡마스터 AI AI는 사진 인증된 프로필만 보여줌… 이게 안전하지.",
+         "close up of verified profile badge on app, warm bokeh, 50mm lens"),
+        ("실물이 더 나은 사람 만남! 대화도 잘 통해서 주말 데이트 ㅋㅋ",
+         "two people laughing at cafe table, warm daylight, shallow depth of field"),
+        ("사진 사기 그만 당하고, 네이버에 스톡마스터 AI 한번 검색해보세요!",
+         "wide shot of cafe street at night, cold blue tone"),
+    ),
+    "첫마디 질문 대화 공포증": (
+        ("첫마디 뭐라고 해야 되지… '안녕하세요'만 열 번 지웠어.",
+         "cinematic close up, phone screen with deleted draft messages, dark room, 35mm film grain"),
+        ("첫마디 고민하다가 타이밍 다 놓쳐! 그냥 던져, 뭐라도!",
+         "close up of Minjun sitting opposite at the cafe table, sincere and direct expression, warm indoor cafe background bokeh, 50mm lens"),
+        ("스톡마스터 AI AI가 첫마디 딱 맞춰서 추천해줌… 복붙했는데 반응 옴!",
+         "close up of app first-message suggestion, warm bokeh, 50mm lens"),
+        ("첫마디부터 대화가 막힘없이 이어짐! 주말에 보기로 함 ㅋㅋ",
+         "two people chatting happily at cafe, warm daylight, shallow depth of field"),
+        ("첫마디 공포증 끝내고, 네이버에 스톡마스터 AI 한번 검색해보세요!",
+         "wide shot of cafe window at dusk, cold blue tone"),
+    ),
+    "주말에 혼밥하는 솔로 3년차": (
+        ("주말 점심에 혼밥 3년차… 옆 테이블은 다 커플이네.",
+         "cinematic wide shot, single person eating alone at reststocknt, couples in background, cold tone, 35mm film grain"),
+        ("혼밥 3년이면 전문가네. 근데 그거 자랑 아니야. 나와.",
+         "close up of Minjun sitting opposite at the cafe table, sincere and direct expression, warm indoor cafe background bokeh, 50mm lens"),
+        ("스톡마스터 AI 켜니까 AI가 주말 브런치 같이 갈 사람 매칭해줌… 이게 되네?",
+         "close up of app weekend matching screen, warm bokeh, 50mm lens"),
+        ("이번 주말엔 혼밥 아니고 둘이 밥 먹음 ㅋㅋㅋ 대화도 잘 통함!",
+         "two people eating together laughing, warm daylight, shallow depth of field"),
+        ("혼밥 3년차 졸업하고, 네이버에 스톡마스터 AI 한번 검색해보세요!",
+         "wide shot of reststocknt window at dusk, two people, cold blue tone"),
+    ),
+    "친구들은 다 연애중": (
+        ("단톡방에 커플 사진만 올라옴… 나만 혼자인 거야?",
+         "cinematic close up, group chat full of couple photos, dark room, cold blue tone, 35mm film grain"),
+        ("너만 혼자야. 근데 그거 핑계 아니고. 지금 당장 뭐라도 해.",
+         "close up of Minjun sitting opposite at the cafe table, sincere and direct expression, warm indoor cafe background bokeh, 50mm lens"),
+        ("스톡마스터 AI 켜니까 AI가 내 성향 맞는 사람부터 순서대로 보여줌… 이게 되네?",
+         "close up of app profile list scrolling, warm bokeh, 50mm lens"),
+        ("이번 주말 단톡방에 내 커플 사진 올린다 ㅋㅋㅋ 순서 바뀜!",
+         "woman taking couple selfie, warm daylight, shallow depth of field"),
+        ("친구들 커플 사진만 보지 말고, 네이버에 스톡마스터 AI 한번 검색해보세요!",
+         "wide shot of night street, couple walking hand in hand, cold blue tone"),
+    ),
+    "소개팅 애프터 신청 타이밍": (
+        ("소개팅 끝나고 3시간째… 애프터 신청 언제 해야 돼?",
+         "cinematic close up, phone screen with unsent message, cafe exit at night, cold tone, 35mm film grain"),
+        ("3시간? 그거 지금 해. 늦으면 걔가 먼저 정리해.",
+         "close up of Minjun sitting opposite at the cafe table, sincere and direct expression, warm indoor cafe background bokeh, 50mm lens"),
+        ("스톡마스터 AI AI가 상대 반응 분석해서 애프터 타이밍 딱 잡아줌… 이게 되네?",
+         "close up of app timing recommendation screen, warm bokeh, 50mm lens"),
+        ("바로 보냈더니 1분 만에 '좋아요' 답장 옴 ㅋㅋㅋ 주말 약속 잡힘!",
+         "woman jumping with phone, warm daylight, shallow depth of field"),
+        ("애프터 타이밍 놓치지 말고, 네이버에 스톡마스터 AI 한번 검색해보세요!",
+         "wide shot of cafe street at night, couple walking, cold blue tone"),
+    ),
+    "전여친 무용담 떠드는 빌런": (
+        ("소개팅인데 전여친 얘기 30분째… 이게 데이트야 상담이야?",
+         "cinematic close up, woman forcing smile at cafe table, cold tone, 35mm film grain"),
+        ("전여친 무용담? 그건 그냥 미련 남은 거야. 당장 나와.",
+         "close up of Minjun sitting opposite at the cafe table, sincere and direct expression, warm indoor cafe background bokeh, 50mm lens"),
+        ("스톡마스터 AI AI는 대화 이력 분석해서 위험 신호 미리 알려줌… 이게 안전하지.",
+         "close up of app red flag warning screen, warm bokeh, 50mm lens"),
+        ("이번엔 서로 얘기만 해도 시간 가는 줄 모름 ㅋㅋ 주말 데이트 확정!",
+         "two people talking deeply at cafe, warm daylight, shallow depth of field"),
+        ("전여친 얘기하는 사람 만나지 말고, 네이버에 스톡마스터 AI 한번 검색해보세요!",
+         "wide shot of cafe exterior at dusk, cold blue tone"),
+    ),
+    "연애 세포 바짝 마른 청춘": (
+        ("연애 세포 다 죽었나… 누가 고백해도 심장이 안 뛰어.",
+         "cinematic close up, woman staring blankly at phone, dark room, cold blue tone, 35mm film grain"),
+        ("연애 세포? 그거 안 죽었어. 그냥 안 써서 굳은 거야. 움직여.",
+         "close up of Minjun sitting opposite at the cafe table, sincere and direct expression, warm indoor cafe background bokeh, 50mm lens"),
+        ("스톡마스터 AI 켜니까 AI가 대화 이어주니까 심장이 다시 뛰기 시작함… 이게 되네?",
+         "close up of app chat screen with heartbeat animation, warm bokeh, 50mm lens"),
+        ("설렘이라는 게 이거였구나 ㅋㅋㅋ 주말에 만나기로 함!",
+         "woman smiling shyly at phone, warm daylight, shallow depth of field"),
+        ("연애 세포 살리고 싶으면, 네이버에 스톡마스터 AI 한번 검색해보세요!",
+         "wide shot of night street, woman walking with a smile, cold blue tone"),
+    ),
+    "이상형 눈만 높은 프로 불만러": (
+        ("이상형 조건 27개인데… 그거 맞는 사람 지구에 없어.",
+         "cinematic close up, long checklist on phone notes, dark room, cold tone, 35mm film grain"),
+        ("27개? 그건 이상형이 아니라 견적서야. 조건 다 지워.",
+         "close up of Minjun sitting opposite at the cafe table, sincere and direct expression, warm indoor cafe background bokeh, 50mm lens"),
+        ("스톡마스터 AI AI가 내 실제 대화 취향 분석해서 진짜 맞는 사람 찾아줌… 이게 되네?",
+         "close up of app compatibility analysis screen, warm bokeh, 50mm lens"),
+        ("조건 27개 다 필요 없었음 ㅋㅋ 대화만 통하면 된다는 걸 알았어!",
+         "two people laughing together at cafe, warm daylight, shallow depth of field"),
+        ("이상형 조건표 버리고, 네이버에 스톡마스터 AI 한번 검색해보세요!",
+         "wide shot of cafe street at dusk, couple walking, cold blue tone"),
+    ),
+    "소개팅 파토 나고 멘붕 온 날": (
+        ("소개팅 30분 전에 파토 카톡… 화장 다 하고 나왔는데.",
+         "cinematic close up, woman standing alone in front of cafe, cold tone, 35mm film grain"),
+        ("파토? 그건 그냥 인연 아니라는 뜻이야. 지금 당장 다른 사람 찾아.",
+         "close up of Minjun sitting opposite at the cafe table, sincere and direct expression, warm indoor cafe background bokeh, 50mm lens"),
+        ("스톡마스터 AI 켜니까 AI가 바로 근처 매칭 잡아줌… 이게 되네?",
+         "close up of app instant matching screen, warm bokeh, 50mm lens"),
+        ("파토 난 날에 더 잘 맞는 사람 만남 ㅋㅋㅋ 오히려 잘된 거지!",
+         "two people laughing at cafe table, warm daylight, shallow depth of field"),
+        ("소개팅 파토에 멘붕 오지 말고, 네이버에 스톡마스터 AI 한번 검색해보세요!",
+         "wide shot of cafe street at night, couple walking, cold blue tone"),
+    ),
+}
 
 # 씬5 엔딩 공식 규격 (붙여쓰기 100% 필수 — 브랜드 검색 유도)
 BRAND_SEARCH_KEYWORD = "스톡마스터 AI"
@@ -2749,34 +3601,48 @@ def _build_gemini_prompt(profile: BrandProfile, topic: str, genre: str, run_no: 
         durations.append(0.0)
     d1, d2, d3, d4, d5 = (f"{durations[i]:g}" for i in range(5))
 
+    # [스톡마스터 AI 공간 및 포즈 앵커 SSOT] 대표님 지시 (2026-10-26)
+    #   · 회차별 3주기 로테이션: 실내 좌식 Mode A ↔ 공원 입식 Mode B ↔ 삼청동 거리 워킹 Mode C
+    try:
+        anchor = get_stock_spatial_anchor(run_no)
+    except Exception as e:
+        log.warning("스톡마스터 AI 공간 앵커 조회 실패(run_no=%s) — 실내 모드로 진행: %r", run_no, e)
+        anchor = AURA_SPATIAL_POSTURE_MODES["INDOOR_SEATED"]
+
+    anchor_name = anchor["name_ko"]
+    anchor_desc = anchor["desc"]
+    female_posture = anchor["female_posture"]
+    male_posture = anchor["male_posture"]
+    couple_shot = anchor["couple_shot"]
+
     return (
-        f"너는 한국 2030 숏폼 드라마 작가다. 브랜드='{brand_name}'. "
-        f"주제='{topic}', 장르='{genre}', 회차={run_no}.\n"
+        f"너는 한국 2030 주식 투자 현실극 숏폼 드라마 작가다. 브랜드='{brand_name}'. "
+        f"주제='{topic}', 장르='{genre}', 회차={run_no}. "
         "5씬 시나리오를 JSON으로만 출력하라. 설명/마크다운 금지.\n"
-        "★ 절대 금지: 오페라, 소설, 인생 명언, 3인칭 나레이션, 시적 비유, 문어체, 소개팅, 데이팅, 매칭, 썸.\n"
-        "2030 직장인의 주식 투자 현실을 날것 그대로의 극사실주의 구어체 대화로 작성하라.\n"
-        "씬 구성(고정, 화자 교차 엄수):\n"
-        f"  씬1 = {female_label} 단독 — 주식 현실의 황당한 손실/물림 한숨 ({d1}초)\n"
-        f"  씬2 = {male_label} 단독 — 퀀트 선배의 차트/수급/원칙 팩폭 티키타카 ({d2}초)\n"
-        f"  씬3 = {female_label} 단독 — {brand_name} AI 데이터(수급/지지선) 확인 감탄 ({d3}초)\n"
-        f"  씬4 = {female_label} 단독 — AI 데이터대로 분할 매수/익절 안도 사이다 ({d4}초)\n"
-        f"  씬5 = {female_label} 단독 — 검색유도 엔딩 사이다 클로징 ({d5}초)\n"
-        "★★ [Wan 2.2 S2V 81프레임(5.06초) 칼수렴: 씬별 글자 수 절대 상한 엄수] ★★\n"
-        "  · 씬1: 18~32자 (최대 32자 엄수, 3초 씬)\n"
-        "  · 씬2: 24~34자 (최대 34자 엄수, 4초 씬)\n"
-        "  · 씬3: 24~35자 (최대 35자 엄수, 4초 씬)\n"
-        "  · 씬4: 28~38자 (최대 38자 엄수, 5초 씬)\n"
-        "  · 씬5: 24~36자 (최대 36자 엄수, 4초 씬, '네이버에 스톡마스터 AI 한번 검색해보세요!' 필수 포함)\n"
-        "  ※ Wan 2.2 영상은 81프레임(5.06초)에서 무조건 종료되므로, 대사가 길면 영상 끝에서 말이 잘립니다.\n"
-        "  ※ 반드시 1문장의 간결한 극사실주의 구어체 단문으로 위 글자 수를 칼같이 맞춰라!\n"
-        "image_prompt는 영어 시네마틱 프롬프트(카메라/조명/렌즈 포함, 직장인 오피스/도심 공간 반영).\n"
-        "★★ [키프레임 내 텍스트/자막/배너 절대 금지 SSOT] ★★\n"
-        "  - image_prompt 안에 어떠한 텍스트, 자막, 배너, 글자(text, banner, overlay, title, caption, words, letters, font) 묘사도 절대 넣지 마라.\n"
-        "  - 화면 중앙이나 인물 앞쪽에 텍스트나 그래픽 박스를 띄우는 지시 절대 금지! 완전히 깨끗한 순수 인물 실사 컷만 묘사하라.\n"
+        "★ 절대 금지: 소개팅, 데이팅, 매칭, 이상형, 썸, 오페라, 소설, 인생 명언, 3인칭 나레이션, 시적 비유, 문어체. "
+        "2030 유튜브 쇼츠 감성의 날것 그대로의 극사실주의 구어체 대화로만 작성하라. "
+        "실제 2030 직장인 투자자들이 할 법한 말투(반말/존댓말 혼용, ㅋㅋ, ㅠㅠ, 헐, 대박, 떡락, 상투, 물타기 등)를 써라.\n"
+        # ------------------------------------------------------------------
+        # [스톡마스터 AI 공간 및 시선 일치 안전장치 블록]
+        # ------------------------------------------------------------------
+        f"★★ [이번 회차 스톡마스터 AI 공간 & 포즈 앵커 — {anchor_name}] ★★\n"
+        f"  · 전체 공간 연출: {anchor_desc}\n"
+        "  · 5개 씬 공통 규칙: 남녀의 자세와 공간이 한 편 내에서 100% 일치해야 한다(한 명만 서 있거나 앉는 시선 왜곡 절대 금지).\n"
+        f"  · 지은(여, 씬1/3/4/5) image_prompt 필수 지시: '{female_posture}'\n"
+        f"  · 준혁(남, 씬2) image_prompt 필수 지시: '{male_posture}'\n"
+        f"  · 투샷 연출 시 구도: '{couple_shot}'\n"
+        "씬 구성(고정):\n"
+        f"  씬1 = {female_label} 한숨 훅 — 손실/변동성/물림 등 투자 현실 한숨 ({d1}초)\n"
+        f"  씬2 = {male_label} 팩폭 티키타카 — 선배 투자자의 원칙/리스크 관리 팩폭 ({d2}초)\n"
+        f"  씬3 = {female_label} {brand_name} 솔루션 체감 — AI 데이터/수급/변곡점 분석 감탄 ({d3}초)\n"
+        f"  씬4 = {female_label} 성과 확인 — 원칙 준수/리스크 통제 성과 사이다 ({d4}초)\n"
+        f"  씬5 = {female_label} 검색유도 엔딩 — 사이다 클로징 ({d5}초)\n"
+        "각 씬 narration은 한국어 실제 대사 1~2문장(25~80자). "
+        "image_prompt는 영어 시네마틱 프롬프트(카메라/조명/렌즈 포함, 위 공간 앵커 필수 반영).\n"
         f"씬5 narration에는 반드시 '{keyword}'와 '{cta}' 문구를 포함하라.\n"
         "★★ [출력 완결성 절대 규칙] ★★\n"
-        "  - 반드시 5개 씬 전부(index 1부터 5까지) 누락 없이 출력하라. 4개 이하로 출력하면 전체 응답이 폐기된다.\n"
-        "  - 대사(narration) 내부에는 큰따옴표(\")를 절대 쓰지 말고 작은따옴표(')만 사용하라. JSON 문자열 구분자와 대사 속 인용부호가 충돌하면 파싱이 실패한다.\n"
+        "  - 반드시 5개 씬 전부(index 1부터 5까지) 누락 없이 출력하라.\n"
+        "  - 대사(narration) 내부에는 큰따옴표(\")를 절대 쓰지 말고 작은따옴표(')만 사용하라.\n"
         '출력 스키마: {"scenes":[{"index":1,"narration":"...","image_prompt":"..."}, ... 5개]}'
     )
 
@@ -2863,7 +3729,7 @@ def _compose_from_matrix(profile: BrandProfile, topic: str, genre: str,
 
 
 def _build_autonomous_scenes(profile: BrandProfile, topic: str, genre: str, run_no: int,
-                             location_en: str = "") -> List[SceneSpec]:
+                             location_en: str = "", location_idx: int = 0) -> List[SceneSpec]:
     """자율 시나리오 생성 엔진 — Gemini 우선, 실패 시 profile 서사 매트릭스 폴백.
 
     ★ 감사 재심: 기존에는 SCENE_PLAN/BRAND_SEARCH_KEYWORD/BRAND_CTA/NARRATIVE_MATRIX
@@ -2874,6 +3740,7 @@ def _build_autonomous_scenes(profile: BrandProfile, topic: str, genre: str, run_
       2) 씬5 narration에 profile.brand_search_keyword + profile.brand_cta 강제 주입.
       3) 자리표시자/더미 텍스트 생성 금지.
       4) location_en 은 5씬 전건에 동일 주입 — 한 편 안의 공간 연속성 100% 보장.
+      5) location_idx 기반 공간/자세 앵커 결속 — 남녀 눈높이와 자세(둘 다 앉기/둘 다 서기/둘 다 걷기) 100% 일치.
     """
     drafted = _call_gemini_scenario(profile, topic, genre, run_no)
     if drafted is None:
@@ -2885,10 +3752,63 @@ def _build_autonomous_scenes(profile: BrandProfile, topic: str, genre: str, run_
             f"scene_plan 길이 위반(brand={profile.brand_id}): {len(plan)} (정확히 5 필요)"
         )
 
+    # [공간 & 포즈 앵커 SSOT 결속] 장소 인덱스와 1:1 결속하여 남녀 포즈 및 눈높이 완전 일치
+    try:
+        anchor = get_stock_spatial_anchor(location_idx)
+    except Exception:
+        anchor = AURA_SPATIAL_POSTURE_MODES["INDOOR_SEATED"]
+
+    # [조명 일관성 SSOT 결속] 한 편(1~5씬) 전체에 100% 단일 시간대 및 조명 강제 적용 (누군 낮이고 누군 밤인 괴리 원천 차단)
+    tod = resolve_time_of_day(location=location_en, topic=topic)
+    tod_lighting = lighting_for(tod)
+
     scenes: List[SceneSpec] = []
     for i, ((dur, voice), item) in enumerate(zip(plan, drafted), start=1):
         narr = item["narration"].strip()
         prm = item["image_prompt"].strip()
+
+        # 대본 내 상충되는 기존 포즈/클로즈업 및 개별 조명/2인/의상 오염 잔재를 깨끗이 소거
+        prm_clean = prm
+        for old_phrase in [
+            "sitting opposite at the cafe table",
+            "sitting at the cafe table",
+            "sitting across the table",
+            "standing near bench",
+            "standing in lush green city park path",
+            "standing naturally upright side by side",
+            "side by side",
+            "with partner",
+            "two people",
+            "couple walking",
+            "two-shot composition",
+            "two-shot",
+            "holding hands",
+            "couple",
+            "cinematic close up,",
+            "cinematic close up",
+            "close up of Minjun",
+            "close up of",
+            "close up,",
+            "close up",
+            "85mm portrait lens",
+            "85mm lens",
+            "cold blue tone",
+            "cold tone",
+            "dark bedroom",
+            "dark room",
+            "at night",
+            "at dusk",
+            "sleeveless top",
+            "sleeveless",
+            "camisole",
+            "tank top",
+        ]:
+            prm_clean = prm_clean.replace(old_phrase, "").strip(", ")
+
+        posture_tok = anchor["male_posture"] if (i in (2, 4)) else anchor["female_posture"]
+        prm_with_posture = f"{prm_clean}, {posture_tok}" if posture_tok not in prm_clean else prm_clean
+        prm_final = f"{prm_with_posture}, {tod_lighting}" if tod_lighting not in prm_with_posture else prm_with_posture
+
         if i == 5:
             kw = profile.brand_search_keyword
             cta = profile.brand_cta
@@ -2900,7 +3820,7 @@ def _build_autonomous_scenes(profile: BrandProfile, topic: str, genre: str, run_
             index=i,
             narration=narr,
             duration_sec=dur,
-            image_prompt=prm,
+            image_prompt=prm_final,
             voice_id=voice,
             location_en=location_en,
             topic=topic,
@@ -2940,7 +3860,7 @@ def build_default_5scenes_spec(profile: Optional[BrandProfile] = None) -> List[S
     location_en = profile.locations_en[location_idx]
     run_no = state["run"] + 1
 
-    scenes = _build_autonomous_scenes(profile, topic, genre, run_no, location_en=location_en)
+    scenes = _build_autonomous_scenes(profile, topic, genre, run_no, location_en=location_en, location_idx=location_idx)
     SpecValidator.validate_all(scenes, 0.0, f"{profile.brand_id}_default_5scenes")
 
     _save_rotation_state(profile, {

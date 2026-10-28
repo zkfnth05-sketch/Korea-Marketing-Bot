@@ -669,7 +669,25 @@ class AuraShortsScenarioDirector:
             except Exception as e:
                 logger.warning(f"⚠️ [Aura 시나리오] 제미나이 대본 생성 중 예외 발생, 골든 대본 유지: {e}")
 
-        full_speech = f"{hook_full} {app_speech} {cta_speech}"
+        # 🧩 [2단 통대본 정규화] 0~10초 인물 립싱크 통대본 + 10초 이후 나머지 통대본
+        #    - 4초/5초 난분할 금지: 아바타가 10.12초 S2V 구간에서 말을 멈추고 노는 현상 원천 차단
+        #    - 제미나이 자율 창작 대본이 hook_10s / remainder_speech 를 직접 반환하면 최우선 채택
+        hook_10s = (
+            ai_script.get("hook_10s") if use_ai_script and ai_script else None
+        ) or hook_full
+        hook_10s = (hook_10s or "").strip()
+
+        remainder_speech = (
+            ai_script.get("remainder_speech") if use_ai_script and ai_script else None
+        )
+        if not remainder_speech:
+            remainder_speech = f"{app_speech} {cta_speech}".strip()
+        remainder_speech = (remainder_speech or "").strip()
+
+        # 하위 호환: 기존 speech_hook 소비자는 10초 통대본을 그대로 받음
+        hook_full = hook_10s
+
+        full_speech = f"{hook_10s} {remainder_speech}".strip()
 
         visual_dir = {
             "top_header": s.get("top_header", ""),
@@ -685,7 +703,9 @@ class AuraShortsScenarioDirector:
             "theme_name": s["theme_name"],
             "theme_code": s["theme_code"],
             "gender": effective_gender,
-            "speech_hook": hook_full,
+            "hook_10s": hook_10s,
+            "remainder_speech": remainder_speech,
+            "speech_hook": hook_10s,
             "speech_hook_part1": hook_p1,
             "speech_hook_part2": hook_p2,
             "speech_app": app_speech,

@@ -271,21 +271,26 @@ class StockShortsScriptWriter:
 - 실제 앱 시연 화면: {info['app_sim_visual']}
 - 공식 포털 검색어: {self.OFFICIAL_KEYWORD}
 
-[대본 글자수 절대 규칙 (음성속도 +2% 기준 정확히 30초 완독: 총 205~225자 내외)]
-1. hook_p1 (0~5초): 시선을 끄는 강렬한 1문장 [공백 포함 정확히 34~38자]
-2. hook_p2 (5~10초): 팩트 및 궁금증 해결 [공백 포함 정확히 36~40자]
-   ★ 중요: hook_p1 + hook_p2 합친 전체 훅은 [공백 포함 70~78자] (10.12초 립싱크 멍때림 완전 방지)
-3. app_speech (10~26초): 핵심 실시간 데이터와 퀀트 수치를 알기 쉽게 전달하는 2~3문장 [공백 포함 반드시 105~115자]
-4. cta_speech (26~30초): "지금 바로 네이버에 '{self.OFFICIAL_KEYWORD}'를 검색하고 무료로 확인하세요!" [공백 포함 28~32자]
+[대본 글자수 절대 규칙 (Gemini 2.5 Flash TTS 기준 정확히 10초 립싱크 + 나머지 시간 통대본 무중단 발화)]
+1. Part 1: hook_10s (0~10.12초 인물 원테이크 립싱크 통대본) [공백 포함 반드시 98~105자]
+   - 인물이 10초(81프레임x2) 동안 1초도 안 쉬고 자연스럽게 말할 수 있는 완성형 통문장.
+   - 5초 지점 분할을 위해 hook_p1(48~52자) + hook_p2(48~52자)로 구성되어 합계가 98~105자.
+   - hook_p1은 시선을 끄는 강렬한 도입 문장, hook_p2는 팩트/궁금증 해결 문장으로 자연스럽게 이어지세요.
+2. Part 2: remainder_speech (10초 이후 앱 시연 + 네이버 검색 CTA 통대본) [공백 포함 반드시 160~180자]
+   - 앱 시연 퀀트 팩트 전달(app_speech, 130~145자) + 공식 검색어 CTA(cta_speech, 30~35자)
+   - CTA에 "네이버에 '{self.OFFICIAL_KEYWORD}'를 검색해보세요" 필수 포함 (공식 검색어 띄어쓰기 엄수).
+3. 전체 통대본 (full_speech = hook_10s + remainder_speech): 공백 포함 총 260~285자 내외.
 
-[★ 글자수 총합 엄수: 전체 대본(훅+앱+CTA) 합계는 공백 포함 반드시 205~225자 범위로 맞추세요. 235자 초과 또는 195자 미달 시 자동 기각됩니다.]
+[★ 글자수 총합 엄수: 300자 초과 또는 250자 미달 시 자동 기각됩니다.]
 
 반드시 아래 JSON 포맷으로만 응답하세요:
 {{
-  "hook_p1": "...",
-  "hook_p2": "...",
-  "app_speech": "...",
-  "cta_speech": "...",
+  "hook_p1": "48~52자",
+  "hook_p2": "48~52자",
+  "hook_10s": "98~105자",
+  "app_speech": "130~145자",
+  "cta_speech": "30~35자",
+  "remainder_speech": "160~180자",
   "hero_copy": "15자 내외 핵심 헤드라인",
   "debate_question": "10자 내외 질문"
 }}"""
@@ -339,8 +344,23 @@ class StockShortsScriptWriter:
                     hero_copy = data.get("hero_copy", "").strip()
                     debate_q = data.get("debate_question", "").strip()
 
-                    hook_full = f"{hook_p1} {hook_p2}".strip()
-                    full_speech = f"{hook_full} {app_speech} {cta_speech}".strip()
+                    # 🎬 [2단 통대본 구조] Part 1: 0~10.12초 인물 원테이크 립싱크 통대본
+                    hook_10s = data.get("hook_10s", "").strip()
+                    if not hook_10s:
+                        hook_10s = f"{hook_p1} {hook_p2}".strip()
+
+                    # 🎬 [2단 통대본 구조] Part 2: 10초 이후 앱 시연 + CTA 무중단 통대본
+                    remainder_speech = data.get("remainder_speech", "").strip()
+                    if not remainder_speech:
+                        remainder_speech = f"{app_speech} {cta_speech}".strip()
+
+                    # 공식 검색어 포함 검증 (누락 시 자동 보정)
+                    if self.OFFICIAL_KEYWORD not in cta_speech:
+                        cta_speech = f"지금 바로 네이버에 '{self.OFFICIAL_KEYWORD}'를 검색해보세요!"
+                    if self.OFFICIAL_KEYWORD not in remainder_speech:
+                        remainder_speech = f"{app_speech} {cta_speech}".strip()
+
+                    full_speech = f"{hook_10s} {remainder_speech}".strip()
 
                     # 🔒 [무결성 게이트 1: 금지어 / 허위 이벤트 검증]
                     has_forbidden = False
@@ -352,37 +372,34 @@ class StockShortsScriptWriter:
                     if has_forbidden:
                         continue
 
-                    # 공식 검색어 포함 검증 (누락 시 자동 보정)
-                    if self.OFFICIAL_KEYWORD not in cta_speech:
-                        cta_speech = f"지금 바로 네이버에 '{self.OFFICIAL_KEYWORD}'를 검색해보세요!"
-                        full_speech = f"{hook_full} {app_speech} {cta_speech}".strip()
-
-                    # 🔒 [무결성 게이트 2: +2% 발화 템포 30초 완독 구간별 및 전체 글자수 정밀 검증]
-                    # 1) 훅 글자수 검증: 60자 ~ 85자 (Wan 10.12초 립싱크 멍때림 완전 방지)
-                    if len(hook_full) < 60 or len(hook_full) > 85:
-                        logger.warning(f"⚠️ 훅 글자수 범위 벗어남({len(hook_full)}자, 목표: 70~78자), 다음 시도")
+                    # 🔒 [무결성 게이트 2: 2단 통대본 글자수 정밀 검증]
+                    # 1) Part 1 (0~10.12초 립싱크 통대본): 95자 ~ 110자 허용 (목표 98~105자)
+                    if len(hook_10s) < 95 or len(hook_10s) > 110:
+                        logger.warning(f"⚠️ hook_10s 글자수 범위 벗어남({len(hook_10s)}자, 목표: 98~105자, 허용: 95~110자), 다음 시도")
                         continue
 
-                    # 2) 앱 시연 글자수 검증: 95자 ~ 125자 (16초 웹앱 화면)
-                    if len(app_speech) < 95 or len(app_speech) > 125:
-                        logger.warning(f"⚠️ 앱 시연 글자수 범위 벗어남({len(app_speech)}자, 목표: 105~115자), 다음 시도")
+                    # 2) Part 2 (10초 이후 앱 시연 + CTA 통대본): 150자 ~ 190자 허용 (목표 160~180자)
+                    if len(remainder_speech) < 150 or len(remainder_speech) > 190:
+                        logger.warning(f"⚠️ remainder_speech 글자수 범위 벗어남({len(remainder_speech)}자, 목표: 160~180자, 허용: 150~190자), 다음 시도")
                         continue
 
-                    # 3) 전체 글자수 검증: 195자 ~ 235자 (+2% 속도 기준 정확히 30초 완독 규격)
-                    if len(full_speech) < 195 or len(full_speech) > 235:
-                        logger.warning(f"⚠️ 주식 대본 글자수 범위 벗어남({len(full_speech)}자, 목표: 205~225자, 허용: 195~235자), 재시도")
+                    # 3) 전체 통대본: 250자 ~ 300자 허용 (목표 260~285자)
+                    if len(full_speech) < 250 or len(full_speech) > 300:
+                        logger.warning(f"⚠️ 주식 대본 전체 글자수 범위 벗어남({len(full_speech)}자, 목표: 260~285자, 허용: 250~300자), 재시도")
                         continue
 
-                    logger.info(f"✨ [Gemini 주식 30초 자율 대본 성공] 주제 #{norm_id} (훅:{len(hook_full)}자, 앱:{len(app_speech)}자, 전체:{len(full_speech)}자, model={model})")
+                    logger.info(f"✨ [Gemini 주식 2단 통대본 성공] 주제 #{norm_id} (hook_10s:{len(hook_10s)}자, remainder:{len(remainder_speech)}자, 전체:{len(full_speech)}자, model={model})")
                     return {
                         "topic_id": norm_id,
                         "title": info["title"],
                         "target_stock_name": actual_target_stock_name,
                         "hook_p1": hook_p1,
                         "hook_p2": hook_p2,
+                        "hook_10s": hook_10s,
+                        "remainder_speech": remainder_speech,
                         "hook_p1_5s": hook_p1,
                         "hook_p2_5s": hook_p2,
-                        "hook_0_10s": hook_full,
+                        "hook_0_10s": hook_10s,
                         "app_speech": app_speech,
                         "app_10_20s": app_speech,
                         "app_10_30s": app_speech,

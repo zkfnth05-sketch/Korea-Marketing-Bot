@@ -681,5 +681,71 @@
       }
     },
     "success": true
+  },
+  {
+    "brand": "stock",
+    "slot": "morning",
+    "topic": "장 시작 전 반드시 체크해야 할 외인/기관 수급 쏠림 섹터",
+    "caption_preview": "🚨 개장 전, 오늘도 무작정 추격 매수 준비 중이신가요? 미 증시 마감 후, 핵심은 외국인/기관의 시그널 포...",
+    "published_at": "2026-10-27T10:08:36.064876",
+    "publish_result": {
+      "success": true,
+      "brand": "stock",
+      "message": "🎉 [스레드 발행 성공] 스톡마스터 AI 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "stock",
+        "published_at": "2026-10-27T10:08:36.011377",
+        "caption_preview": "🚨 개장 전, 오늘도 무작정 추격 매수 준비 중이신가요? 미 증시 마감 후, 핵심은 외국인/기관의 시그널 포...",
+        "media_count": 0,
+        "first_reply": "📈 AI 실시간 수급 & 급등 테마 1분 무료 진단\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "stock",
+    "slot": "evening",
+    "topic": "뇌동매매와 추격매수 끊어내는 AI 퀀트 분할 매매 원칙",
+    "caption_preview": "뇌동매매와 추격매수로 번번이 좌절하셨나요? 📉 꾸준히 수익 내는 상위 1%는 절대 감정 매매에 흔들리지 않습...",
+    "published_at": "2026-10-27T19:31:09.980580",
+    "publish_result": {
+      "success": true,
+      "brand": "stock",
+      "message": "🎉 [스레드 발행 성공] 스톡마스터 AI 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "stock",
+        "published_at": "2026-10-27T19:31:09.925081",
+        "caption_preview": "뇌동매매와 추격매수로 번번이 좌절하셨나요? 📉 꾸준히 수익 내는 상위 1%는 절대 감정 매매에 흔들리지 않습...",
+        "media_count": 0,
+        "first_reply": "📈 AI 실시간 수급 & 급등 테마 1분 무료 진단\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "stock",
+    "slot": "morning",
+    "topic": "주식 초보들이 장초반 9시~9시30분에 제일 많이 물리는 패턴",
+    "caption_preview": "장 시작 갭상승 종목, 쫓는 순간 당신은 곧바로 고점에 물립니다. 📈\n\n9시~9시30분, 초보 투자자들이 가...",
+    "published_at": "2026-10-28T09:31:17.517338",
+    "publish_result": {
+      "success": true,
+      "brand": "stock",
+      "message": "🎉 [스레드 발행 성공] 스톡마스터 AI 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "stock",
+        "published_at": "2026-10-28T09:31:17.432792",
+        "caption_preview": "장 시작 갭상승 종목, 쫓는 순간 당신은 곧바로 고점에 물립니다. 📈\n\n9시~9시30분, 초보 투자자들이 가...",
+        "media_count": 0,
+        "first_reply": "📈 AI 실시간 수급 & 급등 테마 1분 무료 진단\n네이버에 '스톡마스터 AI' 한번 검색해보세요!\n👉 https://stockmaster-ai.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\stock\\threads_live_proof.png"
+      }
+    },
+    "success": true
   }
 ]

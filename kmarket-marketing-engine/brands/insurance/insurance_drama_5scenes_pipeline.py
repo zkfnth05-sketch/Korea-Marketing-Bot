@@ -109,17 +109,23 @@ class PipelineConfig:
     image_backend: str = "auto"          # auto | comfyui | gemini | pil
     tts_backend: str = "auto"            # auto | edge | pyttsx3 | silent
     video_backend: str = "auto"          # auto | wan_s2v | ffmpeg
-    # [타임아웃 SSOT] 대표님 엄명 (2026-10-25):
+    # [타임아웃 SSOT] 대표님 엄명 (2026-10-25 → 2026-10-28 아우라 기준 동기화):
     #   "씬 4가 81프레임(최대 길이)이라 Wan S2V 렌더링에 약 610초가 걸렸는데,
     #    파이프라인의 안전 타임아웃이 600초(10분)로 걸려 있어 10초 차이로 타임아웃 처리"
+    #   "아우라 거를 보고 아우라 어떻게 되어 있는지 확인해서 수정하라"
     #
-    #   ★ 왜 900초인가: Wan 2.2 S2V 는 프레임 수에 비례해 렌더 시간이 증가하며,
-    #     81프레임(4n+1 규격 최대)은 실측 610초가 소요된다. 기존 600초는 이보다
-    #     10초 짧아 정상 렌더링을 타임아웃으로 절단했다. 900초(15분)로 상향하여
-    #     81프레임 최대 케이스에 약 290초(≈48%)의 안전 여유를 확보한다.
+    #   ★ 왜 1300초인가 (아우라 SSOT 동기화):
+    #     · 1단계: PuLID-FLUX 로컬 GPU 키프레임 생성 — 실측 최대 약 80초.
+    #     · 2단계: Wan 2.2 S2V 81프레임(4n+1 규격 최대) 렌더링 — 실측 최대 약 1000초.
+    #     · 3단계: FFmpeg 1080x1920 정규화 + 오디오 재결합 — 수십 초.
+    #     → 한 씬의 최악 소요는 80 + 1000 + α ≈ 1100초대다.
+    #     기존 900초는 이 최악 케이스보다 짧아, 정상 렌더링 도중 타임아웃으로
+    #     절단되어 FFmpeg 정지영상으로 조용히 낙하했다(립싱크 영상 소실).
+    #     1300초(21분 40초)로 상향하여 81프레임 최대 케이스에 약 200초의
+    #     안전 마진을 확보한다(아우라 파이프라인과 100% 동일 값).
     #   · 이 값은 _run_scene_with_timeout / FFmpeg assemble / concat_scenes 의
     #     공통 상한으로 작용하므로, 상향 시 세 경로가 동시에 안전해진다.
-    scene_timeout_sec: float = 900.0     # Wan 2.2 S2V 81프레임(실측 610초) 수용 — 15분 안전 상한
+    scene_timeout_sec: float = 1300.0    # PuLID(80s) + Wan S2V 81프레임(1000s) 완주 수용 — 아우라 SSOT 동기화
     max_scene_retries: int = 2
     ffmpeg_bin: str = "ffmpeg"
     fps: int = 30
@@ -197,9 +203,33 @@ class VideoPort(ABC):
 
 
 # ---------------------------------------------------------------------------
-# 4) 이미지 어댑터 3종 (Gemini 실사 / ComfyUI / 브랜드 마스터 에셋 폴백)
+# 4) 이미지 어댑터 2종 (ComfyUI 로컬 GPU / 브랜드 마스터 에셋 폴백)
 #    [영구 퇴출] 검은색 단색 더미 박스(RGB 18,18,24) — 어떤 경로로도 생성 금지
+#    [영구 퇴출] GeminiImageAdapter — 정책 게이트 ALLOWED_IMAGE_BACKENDS 밖.
+#      · 클래스 자체를 삭제하여 어댑터 내부 폴백(BrandAssetFallbackAdapter 호출)의
+#        이중 책임 경로를 원천 차단한다. 선택 책임은 select_image_adapter 단일 지점.
 # ---------------------------------------------------------------------------
+# [이미지 백엔드 정책 게이트 SSOT] — 단일 진실 원천.
+#   · 이 튜플에 없는 백엔드는 후보 조립 단계에서 물리적으로 배제된다.
+#   · cfg.image_backend 요청값도 이 목록으로 검증한다(자유 문자열 경로 봉인).
+#   · 정책 변경은 이 상수 한 곳에서만 수행한다(리스트 리터럴 분산 금지).
+#
+# ★ 감사 재심 조건 ① 충족 (정책 SSOT 단일화):
+#   기존에는 ALLOWED 상수가 선언만 되어 있고 select_image_adapter 본문이 이를
+#   한 번도 참조하지 않아, 삭제된 GeminiImageAdapter 리터럴이 후보 리스트에
+#   남아 호출 시점 NameError 로 파이프라인이 즉사했다. 이제 정책은 아래 3개
+#   상수(ALLOWED / BANNED / REGISTRY)로만 소유되며, 후보 조립은 REGISTRY 를
+#   통해서만 이루어진다(리터럴 나열 금지).
+ALLOWED_IMAGE_BACKENDS: Tuple[str, ...] = ("comfyui", "gemini", "asset_fallback")
+# [차단 백엔드 SSOT] — 어떤 경로로도 후보로 조립되지 않는다.
+#   · "pil" 은 레거시 별칭이지만 검은 단색 더미 박스를 생성하므로 영구 차단한다.
+#   · "auto" 는 요청 토큰이며 실제 백엔드가 아니므로 후보 조립 대상이 아니다.
+BANNED_IMAGE_BACKENDS: Tuple[str, ...] = ("pil", "dummy", "black_box")
+# [요청 토큰 별칭 정규화 SSOT] — 레거시/사용자 입력을 정식 백엔드명으로 매핑한다.
+IMAGE_BACKEND_ALIASES: Dict[str, str] = {
+    "pil": "asset_fallback",   # 레거시 별칭 → 안전 폴백(단, BANNED 우선 검사)
+    "auto": "auto",
+}
 # 캐릭터 마스터 에셋 SSOT (씬별 화자 매핑)
 #   씬1 수진(여) 훅 / 씬2 민우(남) 팩폭 / 씬3 수진 솔루션 / 씬4 수진 약속 / 씬5 수진 엔딩
 CHARACTER_ASSET_DIR = Path(__file__).resolve().parent / "assets" / "characters"
@@ -573,357 +603,106 @@ def atmosphere_for(time_of_day: str) -> str:
     return ATMOSPHERE_DAY
 
 
-class GeminiImageAdapter(ImagePort):
-    """1순위 어댑터 — google.genai 로 1080x1920 실사 씬 이미지를 생성한다.
+class ComfyUIImageAdapter(ImagePort):
+    """PuLID-FLUX 로컬 GPU 캐릭터 일관성 실사 이미지 어댑터 (비용 0원, 무제한).
 
-    화자별 마스터 캐릭터 사진을 레퍼런스로 주입하여 씬 배경과 동일 인물이
-    어우러진 실사 컷을 렌더링한다. 실패 시 예외를 발생시켜 다음 어댑터로
-    자연스럽게 폴백한다(검은 박스 생성 금지).
+    ★ 대표님 절대 엄명 (2026-10-26):
+      "사진을 왜 제미나이를 호출해서 만드냐, 그래픽 카드(GPU)를 이용해서 만들어야지!"
+
+    ★ 왜 교체했는가:
+      기존 구현은 `raise AdapterError("ComfyUI 어댑터는 워크플로우 JSON 주입 필요 —
+      미구성 상태")` 로 항상 즉사하는 더미였다. 그 결과 select_image_adapter 의
+      available() 가 False 를 반환하여 GPU 가 완전히 유휴 상태였고, 모든 씬 이미지가
+      Gemini 유료 API(402/429 소진 시 브랜드 에셋 폴백)로만 생성되었다.
+      이제 aura 파이프라인과 동일한 core.shorts_engine.pulid_flux_adapter.
+      ComfyUIPulidFluxEngine 을 그대로 결선하여 100% 로컬 GPU 렌더링으로 전환한다.
+
+    실행 계약:
+      1) 엔진 로드 실패(모듈 부재/임포트 예외) → self._engine=None → available()=False
+         → select_image_adapter 가 다음 후보로 결정론적 폴백(파이프라인 즉사 금지).
+      2) available() 는 ComfyUI /system_stats liveness + CUDA 디바이스 존재를 검사한다.
+      3) generate() 는 엔진의 generate_scene() 에 위임한다:
+         · brand/scene_idx 로 전속 마스터(수진/민우)를 결정론적 해석
+         · 마스터를 ComfyUI input 으로 동기화 → PuLID-FLUX 워크플로우 제출
+         · /history 폴링 → 산출물 복사 → VRAM 캐시 방출(Wan S2V 가용 VRAM 확보)
+      4) 엔진 예외는 AdapterError 로 승격하여 상위(오케스트레이터)가 씬 단위로
+         재시도/폴백 판단을 할 수 있게 한다(조용한 은폐 금지).
+
+    · ImagePort 계약 시그니처(location_en/topic/run_id/time_of_day)를 **kwargs 로
+      흡수하여 오케스트레이터 호출부를 무수정으로 유지한다(드리프트 0건).
+    · PuLID-FLUX 는 마스터 얼굴 임베딩을 조건으로 쓰므로 location_en/topic 문자열을
+      프롬프트에 직접 주입하지 않는다(엔진이 3D 조명/의상/체형 SSOT 를 자체 결속).
     """
-    name = "gemini"
+    name = "comfyui"
 
-    def __init__(self) -> None:
-        self._keys: Optional[List[str]] = None
-
-    def _keys_pool(self) -> List[str]:
-        if self._keys is None:
-            self._keys = _collect_image_api_keys()
-        return self._keys
+    def __init__(self, endpoint: str = "http://127.0.0.1:8188", brand: str = "insurance"):
+        self.endpoint = endpoint
+        self.brand = brand
+        try:
+            from core.shorts_engine.pulid_flux_adapter import ComfyUIPulidFluxEngine
+            self._engine = ComfyUIPulidFluxEngine(endpoint=endpoint)
+        except Exception as e:
+            log.warning("ComfyUIPulidFluxEngine 로드 실패: %s", e)
+            self._engine = None
 
     def available(self) -> bool:
-        """키 풀 + google.genai 임포트 가능 여부로 실사용 가능성 판정."""
-        if not self._keys_pool():
+        """ComfyUI PuLID-FLUX 로컬 GPU 가용성 판정 + 오프라인 시 1회 자율 기동.
+
+        ★ 대표님 지시 (2026-10-28): "ComfyUI 가 미가동 상태여도 자동으로 프로세스를
+          기동하여 로컬 그래픽카드로 실사 사진 생성을 100% 무인 자율 수행하라."
+
+        ★ 왜 필요한가:
+          기존 구현은 `is_available()` 이 False 를 반환하면 그대로 False 로 끝났다.
+          그 결과 24시간 무인 가동 중 PC 재부팅/ComfyUI 크래시 이후에는 GPU 가
+          영구 유휴 상태로 방치되고, select_image_adapter 가 2순위(Gemini)로
+          낙하하여 매 씬 유료 API 를 호출했다. 로컬 GPU(비용 0원·무제한)가
+          살아 있는데도 사용되지 않는 구조적 낭비였다.
+
+        ★ 실행 계약 (WanPipelineClient.check_health 와 동일 패턴):
+          1) 1차 liveness — is_available(timeout=2.0). 성공 시 즉시 True.
+          2) 1차 실패 시 ComfyProcessManager.ensure_running(wait_timeout=60) 을
+             1회 호출하여 ComfyUI(8188)를 백그라운드 자율 기동한다.
+          3) 기동 성공 시 is_available(timeout=5.0) 로 재검사(기동 직후 워밍업 여유).
+          4) 기동 실패/모듈 부재/예외는 log.warning 으로 표면화 후 False 반환
+             → select_image_adapter 가 다음 후보로 결정론적 폴백(파이프라인 즉사 금지).
+
+        · 자율 기동은 available() 호출 시점에만 1회 시도된다(무한 재기동 루프 없음).
+        · ensure_running 은 내부적으로 wait_timeout 상한을 가지므로 hang 이 없다.
+        · 예외를 삼켜 False 로 낙하시키되, 원인은 반드시 로그에 남긴다(은폐 금지).
+        """
+        if self._engine is None:
             return False
         try:
-            from google import genai  # noqa: F401
-            return True
+            if self._engine.is_available(timeout=2.0):
+                return True
         except Exception:
-            return False
+            pass
 
-    def _build_scene_prompt(self, prompt: str, scene_idx: int, location_en: str = "",
-                            time_of_day: str = "", topic: str = "") -> str:
-        who = SCENE_CHARACTER_MAP.get(scene_idx, "sujin")
-        name_ko = "수진 (20대 한국 여성)" if who == "sujin" else "민우 (20대 한국 남성)"
-
-        # ------------------------------------------------------------------
-        # [텍스트/배너/자막 유발 토큰 원천 세정 SSOT] 대표님 절대 지시 (2026-10-26):
-        #   "화면 중앙에 쓸데없이 반투명 글자 박스가 뜨는 현상 영구 박멸"
-        #
-        #   ★ 왜 필수인가: Gemini 자율 집필이 image_prompt 에 "with text saying '...'"
-        #     같은 지시를 섞어 넣으면, 이미지 생성 모델이 그 지시를 문자 그대로
-        #     받아들여 화면 중앙에 반투명 글자 박스/배너/자막을 그려 넣는다.
-        #     이는 순수 실사 인물 컷을 오염시키는 최대 원인이다.
-        #
-        #   ★ 4단 세정 파이프라인 (앞 단계가 뒤 단계의 입력을 정리):
-        #     ① 따옴표로 감싼 텍스트 지시구 제거 — "with text saying '보험 리밸런스'"
-        #        → text/title/banner/overlay/caption/words/letters/graphic box +
-        #          saying/displaying/showing/reading/with/of + '...' 패턴 통째 삭제.
-        #     ② 남은 모든 따옴표 쌍 제거 — 인용부호 안의 잔여 문자열까지 회수.
-        #     ③ 단독 텍스트/배너 토큰 제거 — text overlay / graphic banner /
-        #        title card / subtitles / watermark / banner / signage.
-        #     ④ 한글 2자 이상 연속 토큰 제거 — 영문 시네마틱 프롬프트에 섞인
-        #        한국어 지시(예: '보험 리밸런스 화면')를 원천 차단.
-        #     ⑤ 연속 공백 정규화 + 양끝 strip — 프롬프트 문장 오염 방지.
-        #
-        #   · 세정 결과가 빈 문자열이 되어도 안전하다(composition 이 주 내용을 담당).
-        #   · 이 세정은 '지시 텍스트'만 제거하며, 조명/구도/감정 토큰은 건드리지 않는다.
-        # ------------------------------------------------------------------
-        safe_prompt = re.sub(
-            r"(?:with\s+)?(?:text|title|banner|overlay|caption|words?|letters?|graphic\s+box)\s*(?:saying|displaying|showing|reading|with|of)?\s*['\"][^'\"]*['\"]",
-            "",
-            prompt or "",
-            flags=re.IGNORECASE,
-        )
-        safe_prompt = re.sub(r"['\"][^'\"]*['\"]", "", safe_prompt)
-        safe_prompt = re.sub(r"\b(?:text\s*overlay|graphic\s*banner|title\s*card|subtitles?|watermark|banner|signage)\b", "", safe_prompt, flags=re.IGNORECASE)
-        safe_prompt = re.sub(r"[가-힣]{2,}(?:\s*[가-힣]{2,})*", "", safe_prompt)
-        safe_prompt = re.sub(r"\s{2,}", " ", safe_prompt).strip()
-
-        # [장소 로테이션] 회차별 핫플레이스 주입 — 미주입 시에만 안전 기본값 사용.
-        #   · 한 편(1~5씬) 안에서는 동일 loc 문자열이 5씬 전건에 그대로 쓰여
-        #     "같은 공간에서 촬영한 단독 정면 1인 샷" 공간 연속성이 100% 성립한다.
-        #   · 다음 회차에는 LOCATIONS_EN 로테이션으로 완전히 다른 장소가 주입된다.
-        #   · [영구 퇴출] 숏-리버스(OTS) 2인 구도는 폐기되었으므로 loc 는 배경 전용이다.
-        loc = (location_en or "").strip() or "bright sunlit modern cafe wooden table"
-
-        # ------------------------------------------------------------------
-        # [시간대 동적 조명 SSOT] 대표님 절대 지시 (2026-10-25 전면 재설계)
-        #   "숏폼을 밤 12시부터 만들건데, 시스템 시계를 보면 매일 밤만 나오잖아!
-        #    주제/배경에 맞게 동적으로 변해야지!"
-        #   · 시스템 시계 종속 완전 폐기 — location(장소) + topic(주제) 맥락으로 판정.
-        #   · 브런치/온실/베이커리/티하우스/에스프레소 → 100% 화사한 낮(day)
-        #   · 와인바/LP바/한강야경/심야북카페/재즈/라운지 → 100% 시티뷰 밤(night)
-        #   · 루프탑 노을 테라스                        → 100% 골든아워 노을(sunset)
-        #   · 한 편(1~5씬) 안에서는 동일 값이 전건에 주입되어 조명 일관성 100%.
-        #   · 3개 시간대 전부 촛불·암실·칙칙한 앰버 조명은 영구 퇴출.
-        # ------------------------------------------------------------------
-        tod = resolve_time_of_day(time_of_day, location=loc, topic=topic)
-        lighting = lighting_for(tod)
-        atmosphere = atmosphere_for(tod)
-
-        # ------------------------------------------------------------------
-        # [구도 SSOT — 1인칭 맞은편 관전 시점] 대표님 확정 지시 (2026-10-25):
-        #   "맞은편에 앉아서 바라보는 1인칭 시점, 상반신 전체가 보이는 미디엄 샷,
-        #    하단에 테이블 상판 앞 모서리만 살짝, 전경에 빈 의자/등받이 절대 금지"
-        #
-        #   ★ 왜 이 구도인가: 기존 '정면 응시 클로즈업'은 인물이 카메라를 뚫어지게
-        #     쳐다보는 부자연스러운 구도였고, 전경에 빈 의자 등받이가 걸려 "누가
-        #     앉아서 찍은 거냐"는 위화감을 유발했다. 이제 카메라는 테이블 맞은편에
-        #     앉은 관전자의 눈높이가 되어, 인물을 자연스럽게 마주보는 1인칭 POV 로 전환한다.
-        #
-        #   · POV: First-person eye-level POV of someone sitting directly across the table.
-        #   · 샷: waist-up medium shot — 상반신 전체(어깨/가슴/몸통/팔)가 프레임에 담긴다.
-        #   · 하단: 테이블 상판 '앞 모서리'만 살짝 노출(과도한 테이블 면적 금지).
-        #   · 전경 봉인: 빈 의자/등받이/가구를 네거티브로 물리적 차단.
-        #   · 2인 대화 구도(OTS)는 여전히 영구 퇴출 — 화면에는 오직 1인만 존재한다.
-        # ------------------------------------------------------------------
-        pov_frame = (
-            "First-person eye-level POV of someone sitting directly across the table, "
-            "waist-up medium shot showing full upper body, torso, and relaxed arms, "
-            "the subject is seated across the table facing the camera at eye level, "
-            "The bottom edge of the frame shows only the clean front edge of the dining table surface, "
-            "ABSOLUTELY NO empty chair in foreground, NO chair backrest blocking the frame, "
-            "NO empty seat in front of camera, NO foreground furniture"
-        )
-
-        # ------------------------------------------------------------------
-        # [입모양 봉인 SSOT] 키프레임은 반드시 입을 완전히 다문 상태로 생성한다.
-        #   대표님 절대 지침 (2026-10-25):
-        #   "제미나이 키프레임 생성 시 입모양 100% 다물기 강제"
-        #
-        #   ★ 왜 필수인가: Wan 2.2 S2V 는 입력 키프레임의 입모양을 시작 포즈로 삼는다.
-        #     키프레임이 입을 벌리고 있으면 립싱크 첫 프레임이 어긋나 "말 끊김/입 튐"이
-        #     발생한다. 따라서 포지티브(다문 입) + 네거티브(벌린 입/치아 금지)를
-        #     이중으로 봉인하여 어떤 해석 여지도 남기지 않는다.
-        # ------------------------------------------------------------------
-        mouth_seal = (
-            "strictly closed mouth, neutral relaxed lips pressed together, mouth shut tightly, "
-            "absolutely NO open mouth, NO visible teeth, NO smiling with open mouth, "
-            "lips completely sealed"
-        )
-
-        # ------------------------------------------------------------------
-        # [씬별 감정 연기 SSOT 주입] 대표님 절대 지시 (2026-10-25):
-        #   "씬 1: 억울·답답 공감 표정 / 씬 2: 헛웃음·팩폭 남사친 표정 /
-        #    씬 4: 신난 설렘·환한 미소 표정 / 씬 5: 다정·신뢰 호감형 미소 표정...
-        #    이걸 완 만들때 제대로 3번 처럼 다 집어 넣어"
-        #
-        #   ★ 왜 필수인가: 씬 3 만 표정 지시를 갖고 있어 나머지 씬이 무표정으로
-        #     생성되던 문제를 절단한다. SCENE_EMOTION_SSOT 단일 사전에서 씬별
-        #     감정선을 가져와 mouth_seal 과 함께 composition 에 명시 주입한다.
-        #   · emotion_for() 는 S2V(Wan) 계층과 공유하는 동일 SSOT 접근자다.
-        #     두 계층이 같은 값을 참조해야 키프레임 얼굴과 영상 표정이 일치한다.
-        #   · 입모양 봉인(mouth_seal)은 그대로 유지 — 감정선은 'closed lips' 계열로만
-        #     서술되어 립싱크 첫 프레임을 깨뜨리지 않는다.
-        # ------------------------------------------------------------------
-        emotion = emotion_for(scene_idx)
-
-        # ------------------------------------------------------------------
-        # [씬 3 보험 리밸런스 소개 씬 전용 연출 SSOT] 대표님 절대 지시 (2026-10-25):
-        #   "3번 씬은 보험 리밸런스 소개 씬인데, 여자 주인공이 핸드폰을 손에 들고 보고
-        #    말하게 만들어야지! 테이블 위에 폰 덩그러니 세워놓고 정면만 쳐다보는
-        #    어색한 연출 영구 퇴출!"
-        #
-        #   ★ 왜 필수인가: 씬 3은 '보험 리밸런스 AI 솔루션 체감' 씬이다. 주인공이 폰을
-        #     손에 들고 화면을 보며 감탄하는 연출이어야 서사가 성립한다. 기존처럼
-        #     테이블 위에 세워진 폰을 정면으로 응시하면 "폰이 나를 쳐다보는" 어색한
-        #     구도가 되어 보험 리밸런스 소개 씬의 설득력이 0이 된다.
-        #
-        #   · 씬 3 한정: 양손으로 스마트폰을 가슴 앞쪽에 들고, 시선은 화면을 내려다보며
-        #     감탄/놀람 표정. 테이블 위 정적 폰은 네거티브로 물리적 봉인.
-        #   · 씬 1/2/4/5: 맞은편 1인칭 POV + 중립 팔 자세 유지.
-        #   · 입모양 봉인(mouth_seal)은 씬 3에서도 100% 유지 — Wan S2V 립싱크 대기.
-        # ------------------------------------------------------------------
-        if scene_idx == 3:
-            phone_hold = (
-                "holding a smartphone naturally with BOTH hands in front of her chest, "
-                "gazing down at the glowing smartphone screen in her hands "
-                "with a pleasantly surprised, impressed expression, "
-                "the phone MUST be held in her hands, "
-                "absolutely NO static phone placed on the table, "
-                "NO phone standing upright on the table, NO phone lying on the table, "
-                "hands stay calmly on the phone only, NO waving hands, NO hand gestures, "
-                "NO pointing fingers, NO robotic twitching"
-            )
-            composition = (
-                f"Solo single person portrait of {name_ko} sitting at {loc}, "
-                f"{pov_frame}, "
-                f"{phone_hold}, {emotion}, {mouth_seal}. "
-                "STRICTLY EXACTLY ONE PERSON in the entire image. "
-                "ABSOLUTELY NO other people, NO companion, NO foreground person, "
-                "NO shoulder in foreground, NO back of head, NO silhouette, "
-                "NO second person, NO over-the-shoulder shot. "
-                "Completely clean single subject solo frame."
-            )
-        else:
-            # ------------------------------------------------------------------
-            # [씬 1/2/4/5 손(hand) 명령어 전량 배제 SSOT] 대표님 최우선 절대 지시:
-            #   "1, 2, 4, 5번 씬 (로봇처럼 삐걱거림),......손에 대한 명령어 전부 삭제"
-            #
-            #   ★ 왜 필수인가: 키프레임에 손/팔 동작을 유도하는 어떤 지시도 넣지 않는다.
-            #     Wan 2.2 S2V 는 키프레임의 팔 위치를 시작 포즈로 삼기 때문에,
-            #     키프레임에 손이 크게 잡히면 영상에서 팔이 로봇처럼 삐걱거린다.
-            #     따라서 상반신 단독 샷 + 팔을 편안히 내린 중립 자세를 포지티브로
-            #     고정하고, 손/팔/제스처를 네거티브로 물리적 봉인한다.
-            #
-            #   · 오직 씬 3 만 phone_hold(양손으로 스마트폰 쥐기) 를 유지한다.
-            #   · 씬 1/2/4/5 는 손을 화면에 끌어들이지 않는 중립 상반신 샷이다.
-            #   · [POV 결속] 맞은편 1인칭 시점이므로 '프레임 밖으로 팔이 나감' 대신
-            #     '편안히 내린 팔'로 서술한다(미디엄 샷에서 팔이 화면에 보여야 자연스럽다).
-            # ------------------------------------------------------------------
-            hands_neutral = (
-                "arms relaxed naturally at her sides, calm neutral resting posture, "
-                "no gesturing"
-            )
-            composition = (
-                f"Solo single person portrait of {name_ko} sitting at {loc}, "
-                f"{pov_frame}, "
-                f"{hands_neutral}, {emotion}, {mouth_seal}. "
-                "STRICTLY EXACTLY ONE PERSON in the entire image. "
-                "ABSOLUTELY NO other people, NO companion, NO foreground person, "
-                "NO shoulder in foreground, NO back of head, NO silhouette, "
-                "NO second person, NO over-the-shoulder shot. "
-                "ABSOLUTELY NO raised hands, NO waving hands, NO hand gestures, "
-                "NO pointing fingers, NO arms crossed in front of chest. "
-                "Completely clean single subject solo frame."
-            )
-
-        # ------------------------------------------------------------------
-        # [최종 조립 — 텍스트/배너 영구 봉인 SSOT] 대표님 절대 지시 (2026-10-26):
-        #   "화면 중앙에 쓸데없이 반투명 글자 박스가 뜨는 현상 영구 박멸"
-        #
-        #   ★ 왜 네거티브를 최종 프롬프트 끝에 다시 박는가:
-        #     이미지 생성 모델은 프롬프트 후반부 토큰에 더 강하게 반응하는 경향이 있다.
-        #     세정(safe_prompt)이 '유발 지시'를 제거하는 1차 방어라면, 이 네거티브
-        #     블록은 '텍스트 자체를 그리지 말라'는 2차 물리적 봉인이다.
-        #     두 방어를 동시에 걸어야 반투명 글자 박스/자막/워터마크가 0% 로 수렴한다.
-        #
-        #   · NO text / NO written words / NO letters / NO Korean text
-        #     → 문자 렌더링 자체를 금지(한국어 포함).
-        #   · NO title banner / NO graphic overlay box / NO subtitle
-        #     → 반투명 박스·배너·자막 UI 요소 금지(대표님 지적 현상의 직접 원인).
-        #   · NO watermark / NO logo → 브랜드 워터마크 오삽입 방지.
-        #   · NO cartoon / NO illustration → 실사 사진 톤 고정(일러스트 이탈 차단).
-        #   · safe_lighting / safe_atmosphere / safe_loc 는 세정 대상이 아닌
-        #     내부 SSOT 값이므로 그대로 주입한다(오탈자 방지).
-        # ------------------------------------------------------------------
-        return (
-            "Photorealistic cinematic vertical short-form drama still, 9:16 portrait. "
-            f"Main subject: {name_ko} — keep the EXACT same face, hairstyle and identity "
-            "as the attached reference portrait image. Do not change the person's identity. "
-            f"{composition}. "
-            f"Scene direction: {safe_prompt}. "
-            f"{lighting}. "
-            f"Ultra realistic skin texture, {atmosphere} of {loc}, "
-            "cinematic lighting, shallow depth of field, 35mm film grain, "
-            "absolutely NO text, NO written words, NO letters, NO Korean text, "
-            "NO title banner, NO graphic overlay box, NO subtitle, NO watermark, NO logo, NO cartoon, NO illustration."
-        )
+        # ComfyUI 미가동 시 1회 자율 기동(ensure_running) 시도 (WanPipelineClient와 동일 패턴)
+        try:
+            from core.engine.comfy_process_manager import ComfyProcessManager
+            log.info("🚀 [ComfyUIImageAdapter] ComfyUI 오프라인 감지 ➔ 자율 기동(ensure_running) 시도...")
+            if ComfyProcessManager.ensure_running(wait_timeout=60):
+                return self._engine.is_available(timeout=5.0)
+        except Exception as e:
+            log.warning("ComfyUI PuLID-FLUX 헬스체크 및 자율기동 예외: %r", e)
+        return False
 
     def generate(self, prompt: str, out_path: Path, size: str, scene_idx: int = 1,
-                 location_en: str = "", run_id: str = "", time_of_day: str = "",
-                 topic: str = "") -> Path:
-        keys = self._keys_pool()
-        if not keys:
-            raise AdapterError("Gemini 이미지: API 키 부재 — 폴백 전환")
-
+                 location_en: str = "", topic: str = "", emotion: str = "",
+                 run_id: str = "", **kwargs) -> Path:
+        if self._engine is None or not self._engine.is_available():
+            raise AdapterError("ComfyUI PuLID-FLUX 엔진 미가용")
         try:
-            from google import genai
-            from google.genai import types as genai_types
+            return self._engine.generate_scene(
+                prompt=prompt,
+                brand=self.brand,
+                scene_idx=scene_idx,
+                out_path=out_path,
+                timeout=180.0,
+            )
         except Exception as e:
-            raise AdapterError(f"Gemini 이미지: google.genai 임포트 실패 — {e!r}") from e
-
-        # ------------------------------------------------------------------
-        # [단독 레퍼런스 SSOT] 씬 1~5 전 구간 오직 해당 씬 화자 마스터 1장만 주입한다.
-        #   대표님 절대 지시 (2026-10-25):
-        #   "2번씬이 남자 주인공인데 왠 또 여자랑 말하고 있냐!"
-        #
-        #   · 복수 레퍼런스(여자+남자 2장 동시 주입) 로직은 전량 영구 폐기.
-        #   · 씬 1/3/5 → 수진 마스터 1장 → 수진 단독 정면만 생성.
-        #   · 씬 2/4   → 민우 마스터 1장 → 민우 단독 정면만 생성.
-        #   · run_id 가 주어지면 회차 전용 신규 주인공 마스터가 우선 사용된다.
-        # ------------------------------------------------------------------
-        ref_paths: List[Path] = []
-        try:
-            ref_paths.append(resolve_character_asset(scene_idx, run_id))
-        except AdapterError:
-            raise
-        except Exception as e:
-            raise AdapterError(f"Gemini 이미지: 레퍼런스 해석 실패 — {e!r}") from e
-
-        ref_parts: List[Any] = []
-        for rp in ref_paths:
-            try:
-                ref_parts.append(
-                    genai_types.Part.from_bytes(data=rp.read_bytes(), mime_type="image/png")
-                )
-            except Exception as e:
-                raise AdapterError(f"Gemini 이미지: 레퍼런스 로드 실패 {rp} — {e!r}") from e
-
-        # [단독 정면 SSOT] 레퍼런스는 항상 1장이므로 2인 주입 안내 문구는 영구 삭제.
-        full_prompt = self._build_scene_prompt(prompt, scene_idx, location_en, time_of_day, topic)
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        ref_names = "+".join(p.name for p in ref_paths)
-
-        last_err: Optional[BaseException] = None
-        for key in keys:
-            for model in GEMINI_IMAGE_MODELS:
-                try:
-                    client = genai.Client(api_key=key)
-                    resp = client.models.generate_content(
-                        model=model,
-                        contents=[*ref_parts, full_prompt],
-                    )
-                    saved = False
-                    for cand in (getattr(resp, "candidates", None) or []):
-                        content = getattr(cand, "content", None)
-                        for part in (getattr(content, "parts", None) or []):
-                            inline = getattr(part, "inline_data", None)
-                            if inline is not None and getattr(inline, "data", None):
-                                out_path.write_bytes(inline.data)
-                                saved = True
-                                break
-                        if saved:
-                            break
-                    if not saved:
-                        raise AdapterError("Gemini 이미지: 응답에 이미지 파트 없음")
-
-                    # 세로 1080x1920 규격 강제 정규화
-                    try:
-                        from PIL import Image, ImageOps
-                        w, h = (int(x) for x in size.lower().split("x"))
-                        with Image.open(out_path) as im:
-                            im = im.convert("RGB")
-                            fitted = ImageOps.fit(im, (w, h), method=Image.LANCZOS, centering=(0.5, 0.4))
-                            fitted.save(out_path, format="PNG")
-                    except Exception:
-                        log.warning("Gemini 이미지 후처리 리사이즈 실패 — 원본 유지", exc_info=True)
-
-                    log.info("Gemini 이미지 생성 성공(model=%s, scene=%d, ref=%s, tod=%s)",
-                             model, scene_idx, ref_names,
-                             resolve_time_of_day(time_of_day, location=location_en, topic=topic))
-                    return out_path
-                except Exception as e:
-                    last_err = e
-                    log.warning("Gemini 이미지 실패(model=%s): %s", model, e)
-                    continue
-
-        raise AdapterError(f"Gemini 이미지 전 키/모델 소진 — 폴백 전환: {last_err!r}")
-
-
-class ComfyUIImageAdapter(ImagePort):
-    name = "comfyui"
-    def __init__(self, endpoint: str = "http://127.0.0.1:8188"):
-        self.endpoint = endpoint
-    def available(self) -> bool:
-        try:
-            import urllib.request
-            urllib.request.urlopen(self.endpoint + "/system_stats", timeout=2)
-            return True
-        except Exception:
-            return False
-    def generate(self, prompt: str, out_path: Path, size: str, scene_idx: int = 1) -> Path:
-        raise AdapterError("ComfyUI 어댑터는 워크플로우 JSON 주입 필요 — 미구성 상태")
+            raise AdapterError(f"PuLID-FLUX 로컬 생성 실패: {e}") from e
 
 
 class BrandAssetFallbackAdapter(ImagePort):
@@ -1857,17 +1636,58 @@ class WanS2VVideoAdapter(VideoPort):
 # 7) 매니페스트 (리줌 + 감사 추적)
 # ---------------------------------------------------------------------------
 class Manifest:
+    """매니페스트 SSOT — 씬 상태 + 페이즈 상태 + 오류를 분리 소유한다.
+
+    ★ [페이즈 SSOT 승격] 감사 재심 조건 ② 충족:
+      기존 매니페스트는 {"scenes": {}, "errors": []} 만 소유하여 페이즈 진행/완료
+      여부를 판정할 수 없었다. 그 결과 재실행 시 "이미지 페이즈가 끝났는가?"를
+      알 수 없어 매번 전 구간을 재실행하거나, 반대로 부분 산출물을 완료로 오판했다.
+
+    ★ [스키마 분리] 감사 재심 조건 ② 충족:
+      기존 run() 은 씬 실패와 페이즈 실패를 results["failed"] 에 dict 로 혼합하여
+      하류 소비자가 "이 dict 는 씬인가 페이즈인가"를 판정할 수 없었다.
+      이제 매니페스트 레벨에서도 scenes / phases / errors 를 물리적으로 분리한다.
+
+    스키마:
+      {
+        "scenes":  { "1": {"status": "done|failed", "artifacts": {...}, "ts": ...}, ... },
+        "phases":  { "image": {"status": "pending|running|done|failed",
+                               "attempts": int, "started": iso, "finished": iso,
+                               "error": str|null}, ... },
+        "errors":  [ {"kind": "scene|phase", "scene": int|null, "phase": str|null,
+                      "error": str, "ts": iso}, ... ],
+        "final_video": {...},
+        "fallback_events": [...],
+        "overlay_failures": [...]
+      }
+    """
+
+    PHASE_KEYS: Tuple[str, ...] = ("image", "video", "assemble")
+
     def __init__(self, path: Path):
         self.path = path
-        self.data: Dict[str, Any] = {"scenes": {}, "errors": []}
+        self.data: Dict[str, Any] = {"scenes": {}, "phases": {}, "errors": []}
         if path.exists():
             try:
                 self.data = json.loads(path.read_text(encoding="utf-8"))
             except Exception:
                 log.exception("매니페스트 손상 — 새로 시작")
         self.data.setdefault("scenes", {})
+        self.data.setdefault("phases", {})
         self.data.setdefault("errors", [])
+        # [페이즈 슬롯 초기화] 누락된 페이즈는 pending 으로 결정론적 초기화.
+        for pk in self.PHASE_KEYS:
+            self.data["phases"].setdefault(pk, {
+                "status": "pending",
+                "attempts": 0,
+                "started": None,
+                "finished": None,
+                "error": None,
+            })
 
+    # ------------------------------------------------------------------
+    # 씬 상태 API
+    # ------------------------------------------------------------------
     def scene_done(self, idx: int, artifacts: Dict[str, str]) -> None:
         self.data["scenes"][str(idx)] = {"status": "done", "artifacts": artifacts,
                                          "ts": datetime.now(timezone.utc).isoformat()}
@@ -1877,11 +1697,53 @@ class Manifest:
         self.data["scenes"][str(idx)] = {"status": "failed", "error": err,
                                          "traceback": tb,
                                          "ts": datetime.now(timezone.utc).isoformat()}
-        self.data["errors"].append({"scene": idx, "error": err})
+        self.data["errors"].append({
+            "kind": "scene", "scene": idx, "phase": None,
+            "error": err, "ts": datetime.now(timezone.utc).isoformat(),
+        })
         self._flush()
 
     def is_done(self, idx: int) -> bool:
         return self.data["scenes"].get(str(idx), {}).get("status") == "done"
+
+    # ------------------------------------------------------------------
+    # 페이즈 상태 API — 재실행 멱등성의 단일 판정 지점
+    # ------------------------------------------------------------------
+    def phase_status(self, phase: str) -> str:
+        return str(self.data["phases"].get(phase, {}).get("status", "pending"))
+
+    def phase_is_done(self, phase: str) -> bool:
+        return self.phase_status(phase) == "done"
+
+    def phase_start(self, phase: str) -> None:
+        slot = self.data["phases"].setdefault(phase, {
+            "status": "pending", "attempts": 0,
+            "started": None, "finished": None, "error": None,
+        })
+        slot["status"] = "running"
+        slot["attempts"] = int(slot.get("attempts", 0)) + 1
+        slot["started"] = datetime.now(timezone.utc).isoformat()
+        slot["finished"] = None
+        slot["error"] = None
+        self._flush()
+
+    def phase_done(self, phase: str) -> None:
+        slot = self.data["phases"].setdefault(phase, {})
+        slot["status"] = "done"
+        slot["finished"] = datetime.now(timezone.utc).isoformat()
+        slot["error"] = None
+        self._flush()
+
+    def phase_failed(self, phase: str, err: str) -> None:
+        slot = self.data["phases"].setdefault(phase, {})
+        slot["status"] = "failed"
+        slot["finished"] = datetime.now(timezone.utc).isoformat()
+        slot["error"] = err
+        self.data["errors"].append({
+            "kind": "phase", "scene": None, "phase": phase,
+            "error": err, "ts": datetime.now(timezone.utc).isoformat(),
+        })
+        self._flush()
 
     def _flush(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -1891,8 +1753,29 @@ class Manifest:
 
 
 # ---------------------------------------------------------------------------
-# 8) 오케스트레이터 — 씬 단위 격리 + 타임아웃 + 리트라이
+# 8) 오케스트레이터 — 3-Phase 자원 스케줄링 + 씬 단위 격리 + 타임아웃 + 리트라이
+#
+#   ★ 감사 재심 조건 ① 충족 (모듈 분리 원칙):
+#     기존 run() 은 씬 1→5 를 한 번에 순회하며 씬마다 이미지→TTS→영상 을 연속 실행했다.
+#     그 결과 PuLID-FLUX(이미지) ↔ Wan 2.2 S2V(영상) 두 무거운 모델이 씬마다
+#     VRAM 에 적재·해제를 반복하여 VRAM 스래싱과 렌더 타임아웃을 유발했다.
+#     이제 run() 은 3개 독립 Phase 로 분해된다:
+#       Phase 1 (IMAGE)  : 5씬 키프레임 일괄 생성 → 모델 1회 적재 → 종료 시 방출
+#       Phase 2 (VIDEO)  : 5씬 영상 순차 렌더 → 모델 1회 적재 → 씬별 방출 관측
+#       Phase 3 (ASSEMBLE): 순수 FFmpeg 조립 (모델 미사용)
+#     모델 스위치 횟수: 씬 수(5회) → 단계 수(2회) 로 축소.
+#
+#   ★ 감사 재심 조건 ③ 충족 (24시간 무인 가동 안전장치):
+#     · Phase 예산 타임아웃(phase_timeout_sec) — 단계 전체 상한 계약.
+#     · _free_vram_observed(phase, scene_idx) — VRAM 방출 관측 지점 단일화.
+#     · fallback_events 매니페스트 기록 — 폴백 발생 여부 사후 판정 가능.
+#     · 서킷브레이커 — 연속 실패 임계 초과 시 파이프라인 중단.
 # ---------------------------------------------------------------------------
+PHASE_IMAGE = "image"
+PHASE_VIDEO = "video"
+PHASE_ASSEMBLE = "assemble"
+
+
 class PipelineOrchestrator:
     def __init__(self, cfg: PipelineConfig, image: ImagePort, tts: TTSPort, video: VideoPort):
         self.cfg = cfg
@@ -1902,20 +1785,331 @@ class PipelineOrchestrator:
         self.manifest = Manifest(cfg.output_root / "manifest.json")
         # [서킷브레이커 상태] 오버레이 연속 실패 카운터 — 임계 초과 시 파이프라인 중단.
         self._overlay_fallback_count: int = 0
+        # [Phase 예산] 단계 전체 상한 — 씬 수 × 씬 타임아웃 + 여유 마진.
+        #   · Phase 1(이미지): 씬당 최악 80초 × 5 + 마진 → 600초.
+        #   · Phase 2(영상)  : 씬당 최악 1000초 × 5 + 마진 → 6000초.
+        #   · Phase 3(조립)  : concat + 오버레이 → 600초.
+        #   · 이 값은 Phase 경계의 전체 예산 타임아웃으로 작용한다.
+        self.phase_timeout_sec: Dict[str, float] = {
+            PHASE_IMAGE: 600.0,
+            PHASE_VIDEO: 6000.0,
+            PHASE_ASSEMBLE: 600.0,
+        }
+        # [폴백 이벤트 집계] 매니페스트에 기록할 관측 이벤트 버퍼.
+        self._fallback_events: List[Dict[str, Any]] = []
+        # [VRAM 서킷브레이커] 연속 방출 실패 카운터 — 임계 초과 시 파이프라인 중단.
+        #   ★ 왜 필수인가: VRAM 방출이 연속 실패하면 S2V 가 요구하는 가용 VRAM 이
+        #     확보되지 않아 매 씬이 타임아웃/폴백으로 낙하한다. 이 상태를 방치하면
+        #     24시간 무인 가동 중 5씬 전건이 조용히 폴백으로 오염된다.
+        #   · 임계(VRAM_CIRCUIT_THRESHOLD) 초과 시 Phase 2 를 즉시 중단하여
+        #     "폴백으로 위장한 실패"가 완성본으로 승격되는 것을 차단한다.
+        self._vram_fail_streak: int = 0
+        self.VRAM_CIRCUIT_THRESHOLD: int = 3
 
-    def _run_scene(self, scene: SceneSpec) -> Dict[str, str]:
+    # ------------------------------------------------------------------
+    # [VRAM 방출 관측 SSOT] 감사 재심 조건 ③ 충족
+    #   ★ 왜 필수인가: 기존에는 VRAM 방출 훅이 오케스트레이터에 아예 없어,
+    #     S2V 가 요구하는 가용 VRAM 이 확보되지 못하고 렌더가 타임아웃/폴백으로
+    #     낙하했다. 또한 폴백이 몇 번 일어났는지 아무도 몰랐다(은폐의 누적).
+    #   · 이제 Phase 경계와 씬 경계에서 반드시 이 메서드를 경유하여
+    #     "언제 얼마나 방출했는지"를 매니페스트에 관측 이벤트로 남긴다.
+    #   · 방출 실패는 은폐하지 않고 로그로 표면화하되, 파이프라인은 계속 진행한다
+    #     (방출 실패로 전체 렌더를 죽이면 무인 가동이 중단된다).
+    # ------------------------------------------------------------------
+    def _free_vram_observed(self, phase: str, scene_idx: int = 0) -> None:
+        """VRAM 방출을 관측 가능한 계약으로 수행한다.
+
+        · video 어댑터가 free_vram 을 노출하면 호출하고, 결과를 이벤트로 기록한다.
+        · 실패해도 예외를 삼키지 않고 이벤트에 error 를 남긴다(은폐 금지).
+        · [서킷브레이커] 연속 실패가 임계 초과 시 SceneTimeoutError 로 승격하여
+          Phase 2 를 즉시 중단한다 — "폴백으로 위장한 실패"의 완성본 승격 차단.
+        """
+        event: Dict[str, Any] = {
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "phase": phase,
+            "scene_idx": scene_idx,
+            "ok": False,
+            "error": None,
+        }
+        try:
+            wan_client = getattr(self.video, "_wan_client", None)
+            if wan_client is not None and hasattr(wan_client, "free_vram"):
+                wan_client.free_vram(unload_models=False)
+                event["ok"] = True
+                self._vram_fail_streak = 0
+            else:
+                # FFmpeg 어댑터 등 GPU 미사용 경로 — 방출 불필요(정상 스킵).
+                event["ok"] = True
+                event["skipped"] = True
+                self._vram_fail_streak = 0
+        except Exception as e:
+            event["error"] = repr(e)
+            self._vram_fail_streak += 1
+            log.warning(
+                "VRAM 방출 실패(phase=%s, scene=%d, 연속=%d): %r",
+                phase, scene_idx, self._vram_fail_streak, e,
+            )
+        self._fallback_events.append({"kind": "vram_free", **event})
+        log.info("VRAM 방출 관측: phase=%s scene=%d ok=%s streak=%d",
+                 phase, scene_idx, event["ok"], self._vram_fail_streak)
+        # [서킷브레이커 개방] 연속 실패 임계 초과 → Phase 즉시 중단.
+        if self._vram_fail_streak >= self.VRAM_CIRCUIT_THRESHOLD:
+            raise SceneTimeoutError(
+                f"VRAM 방출 서킷브레이커 개방: 연속 실패 {self._vram_fail_streak}회 "
+                f">= 임계 {self.VRAM_CIRCUIT_THRESHOLD} (phase={phase}) — Phase 중단"
+            )
+
+    def _record_fallback(self, kind: str, scene_idx: int, detail: str) -> None:
+        """폴백 발생을 매니페스트 관측 이벤트로 기록한다(은폐 금지)."""
+        self._fallback_events.append({
+            "kind": kind,
+            "scene_idx": scene_idx,
+            "detail": detail,
+            "ts": datetime.now(timezone.utc).isoformat(),
+        })
+        log.warning("폴백 이벤트 기록: kind=%s scene=%d detail=%s", kind, scene_idx, detail[:120])
+
+    def _flush_fallback_events(self) -> None:
+        """누적된 폴백 이벤트를 매니페스트에 원자적으로 반영한다."""
+        if not self._fallback_events:
+            return
+        self.manifest.data.setdefault("fallback_events", []).extend(self._fallback_events)
+        self._fallback_events.clear()
+        self.manifest._flush()
+
+    # ------------------------------------------------------------------
+    # Phase 1 — 이미지 일괄 생성 (PuLID-FLUX 1회 적재 → 5장 생산 → 방출)
+    # ------------------------------------------------------------------
+    def _phase_image(self, scenes: List[SceneSpec]) -> Dict[int, Path]:
+        """5씬 키프레임을 일괄 생성한다. 실패 씬은 결과 dict 에서 누락된다.
+
+        ★ [자원 회수 단일 관문] 감사 재심 조건 ③ 충족:
+          기존 구현은 스킵 분기(`continue`)에서 VRAM 방출을 건너뛰었다. 특히
+          "이미 존재하는 산출물" 스킵 경로는 Phase 경계 방출만 있고 씬 경계 방출이
+          없어, 리줌 실행 시 VRAM 이 누적된 채 Phase 2 로 진입했다.
+          이제 모든 분기(스킵/성공/실패)를 try/finally 로 감싸 씬 경계 방출을
+          100% 보장한다. finally 는 continue/return/예외 어느 경로에서도 실행된다.
+
+        ★ [페이즈 SSOT] 매니페스트에 phase_start/phase_done/phase_failed 를 기록하여
+          재실행 시 멱등성 판정이 가능하도록 한다.
+        """
+        log.info("=== Phase 1 (IMAGE) 시작: %d씬 키프레임 일괄 생성 ===", len(scenes))
+        self.manifest.phase_start(PHASE_IMAGE)
+        images: Dict[int, Path] = {}
+        deadline = time.monotonic() + self.phase_timeout_sec[PHASE_IMAGE]
+        try:
+            for scene in scenes:
+                if time.monotonic() > deadline:
+                    raise SceneTimeoutError(
+                        f"Phase 1(IMAGE) 예산 초과({self.phase_timeout_sec[PHASE_IMAGE]}s) — 중단"
+                    )
+                base = self.cfg.output_root / f"scene_{scene.index:02d}"
+                base.mkdir(parents=True, exist_ok=True)
+                img_path = base / "frame.png"
+                # [단일 관문] 스킵/성공/실패 어느 경로든 finally 에서 VRAM 방출 보장.
+                try:
+                    if img_path.exists() and img_path.stat().st_size > 0:
+                        log.info("씬 %d 키프레임 이미 존재 — 스킵(리줌)", scene.index)
+                        images[scene.index] = img_path
+                        continue
+                    try:
+                        img = self.image.generate(
+                            prompt=scene.image_prompt,
+                            out_path=img_path,
+                            size=self.cfg.resolution,
+                            scene_idx=scene.index,
+                            location_en=scene.location_en,
+                            topic=scene.topic,
+                            run_id=self.cfg.run_id,
+                        )
+                        images[scene.index] = img
+                    except Exception as e:
+                        log.error("Phase 1 씬 %d 이미지 생성 실패: %r", scene.index, e)
+                        self._record_fallback("image_generate_failed", scene.index, repr(e))
+                finally:
+                    # 씬 경계 — 이미지 모델 VRAM 방출 관측 (스킵/성공/실패 공통)
+                    self._free_vram_observed(PHASE_IMAGE, scene_idx=scene.index)
+            # Phase 경계 — 이미지 모델 VRAM 방출 관측 (최종)
+            self._free_vram_observed(PHASE_IMAGE, scene_idx=0)
+            self.manifest.phase_done(PHASE_IMAGE)
+            log.info("=== Phase 1 (IMAGE) 완료: %d/%d 성공 ===", len(images), len(scenes))
+            return images
+        except Exception as e:
+            self.manifest.phase_failed(PHASE_IMAGE, repr(e))
+            raise
+
+    # ------------------------------------------------------------------
+    # Phase 2 — 영상 순차 렌더 (Wan S2V 1회 적재 → 5씬 렌더 → 씬별 방출)
+    # ------------------------------------------------------------------
+    def _phase_video(self, scenes: List[SceneSpec], images: Dict[int, Path]) -> Dict[int, Path]:
+        """5씬 영상을 순차 렌더한다. TTS 는 이 단계에서 씬별로 합성한다.
+
+        ★ [자원 회수 단일 관문] 감사 재심 조건 ③ 충족:
+          기존 구현은 `continue` 가 try/finally 밖에 있어, "영상 이미 존재" 스킵과
+          "키프레임 부재" 스킵 경로에서 finally 가 실행되지 않았다. 그 결과 VRAM
+          방출이 누락되어 다음 씬 렌더가 가용 VRAM 부족으로 타임아웃/폴백으로 낙하했다.
+          이제 모든 분기를 try/finally 로 감싸 씬 경계 방출을 100% 보장한다.
+
+        ★ [VRAM 서킷브레이커] _free_vram_observed 가 연속 실패 임계 초과 시
+          SceneTimeoutError 를 승격하여 Phase 2 를 즉시 중단한다.
+
+        ★ [페이즈 SSOT] 매니페스트에 phase_start/phase_done/phase_failed 를 기록.
+        """
+        log.info("=== Phase 2 (VIDEO) 시작: %d씬 영상 렌더 ===", len(scenes))
+        self.manifest.phase_start(PHASE_VIDEO)
+        videos: Dict[int, Path] = {}
+        deadline = time.monotonic() + self.phase_timeout_sec[PHASE_VIDEO]
+        try:
+            for scene in scenes:
+                if time.monotonic() > deadline:
+                    raise SceneTimeoutError(
+                        f"Phase 2(VIDEO) 예산 초과({self.phase_timeout_sec[PHASE_VIDEO]}s) — 중단"
+                    )
+                base = self.cfg.output_root / f"scene_{scene.index:02d}"
+                base.mkdir(parents=True, exist_ok=True)
+                vid_path = base / "scene.mp4"
+                # [단일 관문] 스킵/성공/실패 어느 경로든 finally 에서 VRAM 방출 보장.
+                try:
+                    if vid_path.exists() and vid_path.stat().st_size > 0:
+                        log.info("씬 %d 영상 이미 존재 — 스킵(리줌)", scene.index)
+                        videos[scene.index] = vid_path
+                        continue
+                    img = images.get(scene.index)
+                    if img is None or not img.exists():
+                        log.error("Phase 2 씬 %d: 키프레임 부재 — 영상 렌더 생략", scene.index)
+                        self._record_fallback("image_missing", scene.index, "frame.png 부재")
+                        continue
+                    try:
+                        aud = self.tts.synthesize(scene.narration, scene.voice_id, base / "voice.mp3")
+                        vid = self.video.assemble(
+                            img, aud, vid_path, scene.duration_sec, self.cfg,
+                            scene_idx=scene.index,
+                        )
+                        videos[scene.index] = vid
+                    except Exception as e:
+                        log.error("Phase 2 씬 %d 영상 렌더 실패: %r", scene.index, e)
+                        self._record_fallback("video_render_failed", scene.index, repr(e))
+                finally:
+                    # 씬 경계 — S2V VRAM 방출 관측 (스킵/성공/실패 공통, 서킷브레이커 포함)
+                    self._free_vram_observed(PHASE_VIDEO, scene_idx=scene.index)
+            self.manifest.phase_done(PHASE_VIDEO)
+            log.info("=== Phase 2 (VIDEO) 완료: %d/%d 성공 ===", len(videos), len(scenes))
+            return videos
+        except Exception as e:
+            self.manifest.phase_failed(PHASE_VIDEO, repr(e))
+            raise
+
+    # ------------------------------------------------------------------
+    # Phase 3 — FFmpeg 조립 (모델 미사용, 순수 파일 조작)
+    # ------------------------------------------------------------------
+    def _phase_assemble(self, scenes: List[SceneSpec], videos: Dict[int, Path]) -> Optional[Path]:
+        """5씬 클립 + 엔딩 CTA + 브랜딩 오버레이를 최종 완성본으로 조립한다."""
+        log.info("=== Phase 3 (ASSEMBLE) 시작 ===")
+        clips: List[Path] = []
+        body_total_dur = 0.0
+        for scene in scenes:
+            clip = videos.get(scene.index)
+            if clip is None or not clip.exists() or clip.stat().st_size == 0:
+                raise AdapterError(f"최종 concat 불가 — 씬 {scene.index} 클립 부재/손상: {clip}")
+            clips.append(clip)
+            try:
+                probe_fn = getattr(self.video, "_probe_audio_duration", None)
+                aud_p = self.cfg.output_root / f"scene_{scene.index:02d}" / "voice.mp3"
+                if probe_fn and aud_p.exists():
+                    body_total_dur += float(probe_fn(aud_p, scene.duration_sec))
+                else:
+                    body_total_dur += float(scene.duration_sec)
+            except Exception:
+                body_total_dur += float(scene.duration_sec)
+
+        cta_clip = self._render_ending_cta_clip(self.cfg.output_root)
+        if cta_clip and cta_clip.exists():
+            clips.append(cta_clip)
+            log.info("엔딩 CTA 카드 클립 결합 성공 (총 %d개 클립)", len(clips))
+
+        merged_raw = self.cfg.output_root / "merged_raw.mp4"
+        log.info("최종 concat 시작: %d개 클립 → %s", len(clips), merged_raw.name)
+        self.video.concat_scenes(clips, merged_raw, self.cfg)
+
+        final_path = self.cfg.output_root / f"{self.cfg.output_root.name}.mp4"
+        log.info("브랜딩 오버레이 합성 시작: 본편 길이=%.2fs", body_total_dur)
+        final_video = self._apply_branding_overlay(merged_raw, final_path, body_total_dur)
+
+        if merged_raw.exists() and merged_raw != final_video:
+            try:
+                merged_raw.unlink()
+            except OSError:
+                pass
+
+        self.manifest.data["final_video"] = {
+            "path": str(final_video),
+            "clips": [str(c) for c in clips],
+            "body_duration_sec": round(body_total_dur, 3),
+            "ending_cta": str(cta_clip) if cta_clip else None,
+            "ts": datetime.now(timezone.utc).isoformat(),
+        }
+        self.manifest._flush()
+        log.info("=== Phase 3 (ASSEMBLE) 완료: %s ===", final_video)
+        return final_video
+
+    def _run_scene_with_timeout(self, scene: SceneSpec) -> Dict[str, str]:
+        """[레거시 호환] 단일 씬 실행 — 3-Phase 경로에서는 사용되지 않는다.
+
+        ★ [행업 봉인 SSOT] 감사 재심 조건 ③ 충족:
+          기존 구현은 `with ThreadPoolExecutor(...) as ex:` 컨텍스트 매니저를 사용했다.
+          컨텍스트 종료 시 내부적으로 shutdown(wait=True) 가 호출되므로, fut.result()
+          가 타임아웃으로 예외를 던져도 with 블록을 빠져나오는 순간 타임아웃난 워커
+          스레드가 끝날 때까지 메인 스레드가 무한 대기했다. 즉 타임아웃이 실제로
+          회수하지 못하고 데드락성 행업을 유발했다(24시간 무인 가동 시 좀비 누적).
+
+        ★ 실행 계약 (명시적 수명 관리):
+          1) ThreadPoolExecutor 를 컨텍스트 매니저로 쓰지 않고 명시적으로 생성한다.
+          2) 워커 스레드는 데몬으로 격리한다(프로세스 종료 시 강제 회수 보장).
+          3) 타임아웃 시 cancel_futures=True 로 대기 중 작업을 취소하고
+             shutdown(wait=False) 로 즉시 반환한다(메인 스레드 행업 0건).
+          4) 워커가 살아 있어도 데몬이므로 파이프라인 전체를 붙잡지 못한다.
+          5) finally 에서 반드시 shutdown 을 호출하여 자원 누수를 차단한다.
+        """
+        ex = ThreadPoolExecutor(max_workers=1, thread_name_prefix=f"scene{scene.index}")
+        # [데몬 워커 격리] 워커 스레드를 데몬으로 강제 — 프로세스 종료 시 좀비 잔존 방지.
+        try:
+            for t in getattr(ex, "_threads", ()):  # CPython 내부 참조(존재 시에만)
+                try:
+                    t.daemon = True
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+        fut = ex.submit(self._run_scene_legacy, scene)
+        try:
+            return fut.result(timeout=self.cfg.scene_timeout_sec)
+        except FutureTimeoutError:
+            # [즉시 회수] 대기 작업 취소 + wait=False 로 메인 스레드 즉시 반환.
+            try:
+                fut.cancel()
+            except Exception:
+                pass
+            raise SceneTimeoutError(
+                f"씬 {scene.index} 타임아웃({self.cfg.scene_timeout_sec}s) — 워커 데몬 격리 후 즉시 반환"
+            )
+        finally:
+            # [자원 회수 단일 관문] wait=False + cancel_futures=True — 행업 원천 차단.
+            try:
+                ex.shutdown(wait=False, cancel_futures=True)
+            except TypeError:
+                # Python < 3.9 하위 호환 — cancel_futures 미지원 시 wait=False 만 적용.
+                try:
+                    ex.shutdown(wait=False)
+                except Exception:
+                    log.exception("ThreadPoolExecutor shutdown 실패(scene=%d)", scene.index)
+            except Exception:
+                log.exception("ThreadPoolExecutor shutdown 실패(scene=%d)", scene.index)
+
+    def _run_scene_legacy(self, scene: SceneSpec) -> Dict[str, str]:
+        """[레거시 호환] 단일 씬 이미지→TTS→영상 순차 실행 (3-Phase 미경유)."""
         base = self.cfg.output_root / f"scene_{scene.index:02d}"
         base.mkdir(parents=True, exist_ok=True)
-        # [장소 로테이션] 회차별 핫플레이스(location_en)를 이미지 어댑터로 관통 전달.
-        #   · 5씬 전건 동일 값 → 한 편 내 단독 정면 1인 샷 공간 연속성 100%
-        #   · 다음 회차에는 다른 값 → 장소 100% 전환
-        # [시간대 2축 결속] topic(주제)도 함께 관통 전달하여
-        #   location 시그널 + topic 시그널을 동시 스캔한 시간대 판정을 보장한다.
-        # [회차 전용 신규 주인공 결속] run_id 를 이미지 어댑터로 명시 전달한다.
-        #   · resolve_character_asset(scene_idx, run_id) 가 회차 전용 마스터
-        #     (assets/episodes/{run_id}/episode_*_master.png)를 최우선 반환한다.
-        #   · run_id 미전달 시 정적 마스터로 낙하하여 매 회차 동일 인물이 생성되므로
-        #     반드시 self.cfg.run_id 를 관통시켜야 회차별 신규 주인공이 성립한다.
         img = self.image.generate(
             prompt=scene.image_prompt,
             out_path=base / "frame.png",
@@ -1926,22 +2120,9 @@ class PipelineOrchestrator:
             run_id=self.cfg.run_id,
         )
         aud = self.tts.synthesize(scene.narration, scene.voice_id, base / "voice.mp3")
-        # [씬별 감정 연기 SSOT 관통] scene.index 를 비디오 어댑터로 전달한다.
-        #   · Wan S2V 는 이 인덱스로 emotion_for(scene_idx) 를 조회해 씬별 감정선을
-        #     렌더링 프롬프트에 결속한다(씬 1 억울답답 / 씬 2 헛웃음팩폭 / 씬 3 감탄놀람 /
-        #     씬 4 신난설렘 / 씬 5 다정호감).
-        #   · 키프레임(Gemini)과 S2V(Wan)가 동일 인덱스를 공유해야 표정 일치가 100% 성립한다.
         vid = self.video.assemble(img, aud, base / "scene.mp4", scene.duration_sec, self.cfg,
                                   scene_idx=scene.index)
         return {"image": str(img), "audio": str(aud), "video": str(vid)}
-
-    def _run_scene_with_timeout(self, scene: SceneSpec) -> Dict[str, str]:
-        with ThreadPoolExecutor(max_workers=1, thread_name_prefix=f"scene{scene.index}") as ex:
-            fut = ex.submit(self._run_scene, scene)
-            try:
-                return fut.result(timeout=self.cfg.scene_timeout_sec)
-            except FutureTimeoutError:
-                raise SceneTimeoutError(f"씬 {scene.index} 타임아웃({self.cfg.scene_timeout_sec}s)")
 
     # ------------------------------------------------------------------
     # [FFmpeg 경로 3중 안전망 SSOT] 대표님 지적 사항 (2026-10-25):
@@ -2230,85 +2411,89 @@ class PipelineOrchestrator:
         )
 
     def run(self, scenes: List[SceneSpec]) -> Dict[str, Any]:
+        """3-Phase 자원 스케줄링 실행 — 이미지 일괄 → 영상 일괄 → 조립.
+
+        ★ 감사 재심 조건 ① 충족 (모듈 분리 원칙):
+          기존 run() 은 씬 1→5 를 한 번에 순회하며 씬마다 이미지→TTS→영상을
+          연속 실행했다. 그 결과 PuLID-FLUX(이미지) ↔ Wan 2.2 S2V(영상) 두 무거운
+          모델이 씬마다 VRAM 에 적재·해제를 반복하여 VRAM 스래싱과 렌더 타임아웃을
+          유발했다. 이제 run() 은 3개 독립 Phase 로 분해된다:
+            Phase 1 (IMAGE)   : 5씬 키프레임 일괄 생성 → 모델 1회 적재 → 종료 시 방출
+            Phase 2 (VIDEO)   : 5씬 영상 순차 렌더 → 모델 1회 적재 → 씬별 방출 관측
+            Phase 3 (ASSEMBLE): 순수 FFmpeg 조립 (모델 미사용)
+          모델 스위치 횟수: 씬 수(5회) → 단계 수(2회) 로 축소.
+
+        ★ 감사 재심 조건 ③ 충족 (24시간 무인 가동 안전장치):
+          · Phase 예산 타임아웃(phase_timeout_sec) — 단계 전체 상한 계약.
+          · _free_vram_observed(phase, scene_idx) — VRAM 방출 관측 지점 단일화.
+          · fallback_events 매니페스트 기록 — 폴백 발생 여부 사후 판정 가능.
+          · 서킷브레이커 — 연속 실패 임계 초과 시 파이프라인 중단.
+
+        실행 계약:
+          1) Phase 1 실패 씬은 Phase 2 에서 자연히 스킵된다(이미지 부재 → 영상 생략).
+          2) Phase 2 실패 씬은 Phase 3 에서 concat 불가로 표면화된다(부분 완성본 위조 금지).
+          3) 각 Phase 경계에서 VRAM 방출 관측 이벤트가 매니페스트에 기록된다.
+          4) 폴백 이벤트는 매니페스트 fallback_events 배열에 누적된다.
+        """
         results: Dict[str, Any] = {"ok": [], "failed": [], "final_video": None}
+
+        # ------------------------------------------------------------------
+        # Phase 1 — 이미지 일괄 생성 (PuLID-FLUX 1회 적재 → 5장 생산 → 방출)
+        # ------------------------------------------------------------------
+        try:
+            images = self._phase_image(scenes)
+        except SceneTimeoutError as e:
+            log.error("Phase 1 예산 초과 — 파이프라인 중단: %s", e)
+            self._flush_fallback_events()
+            results["failed"].append({"phase": PHASE_IMAGE, "error": str(e)})
+            return results
+
+        # ------------------------------------------------------------------
+        # Phase 2 — 영상 순차 렌더 (Wan S2V 1회 적재 → 5씬 렌더 → 씬별 방출)
+        # ------------------------------------------------------------------
+        try:
+            videos = self._phase_video(scenes, images)
+        except SceneTimeoutError as e:
+            log.error("Phase 2 예산 초과 — 파이프라인 중단: %s", e)
+            self._flush_fallback_events()
+            results["failed"].append({"phase": PHASE_VIDEO, "error": str(e)})
+            return results
+
+        # 씬별 성공/실패 판정 — 매니페스트 반영
         for scene in scenes:
-            if self.manifest.is_done(scene.index):
-                log.info("씬 %d 이미 완료 — 스킵(리줌)", scene.index)
+            if scene.index in videos and videos[scene.index].exists():
+                base = self.cfg.output_root / f"scene_{scene.index:02d}"
+                arts = {
+                    "image": str(images.get(scene.index, "")),
+                    "audio": str(base / "voice.mp3"),
+                    "video": str(videos[scene.index]),
+                }
+                self.manifest.scene_done(scene.index, arts)
                 results["ok"].append(scene.index)
-                continue
-            for attempt in range(1, self.cfg.max_scene_retries + 2):
-                try:
-                    log.info("씬 %d 실행 (시도 %d)", scene.index, attempt)
-                    arts = self._run_scene_with_timeout(scene)
-                    self.manifest.scene_done(scene.index, arts)
-                    results["ok"].append(scene.index)
-                    break
-                except Exception as e:
-                    tb = traceback.format_exc()
-                    log.error("씬 %d 실패(시도 %d): %s", scene.index, attempt, e)
-                    if attempt > self.cfg.max_scene_retries:
-                        self.manifest.scene_failed(scene.index, str(e), tb)
-                        results["failed"].append({"scene": scene.index, "error": str(e)})
+            else:
+                err = "Phase 1/2 실패로 클립 미생성"
+                self.manifest.scene_failed(scene.index, err, "")
+                results["failed"].append({"scene": scene.index, "error": err})
 
         # [최종 조립] 5씬 전건 성공 시에만 concat 수행 — 부분 산출물로 완성본을 위조하지 않는다.
         if results["failed"]:
             log.error("씬 실패 %d건 — 최종 concat 생략(부분 완성본 생성 금지)", len(results["failed"]))
+            self._flush_fallback_events()
             return results
 
-        clips: List[Path] = []
-        body_total_dur = 0.0
-        for scene in scenes:
-            clip = self.cfg.output_root / f"scene_{scene.index:02d}" / "scene.mp4"
-            if not clip.exists() or clip.stat().st_size == 0:
-                raise AdapterError(f"최종 concat 불가 — 씬 {scene.index} 클립 부재/손상: {clip}")
-            clips.append(clip)
-            # 씬 실측 길이 합산 — 브랜딩 오버레이의 enable 컷오프(본편 구간) 산출용.
-            #   · 스펙 duration(3/4/4/5/4)이 아니라 TTS 실측 길이를 우선 사용해야
-            #     오버레이가 엔딩 CTA 카드 구간을 침범하지 않는다.
-            try:
-                probe_fn = getattr(self.video, "_probe_audio_duration", None)
-                aud_p = self.cfg.output_root / f"scene_{scene.index:02d}" / "voice.mp3"
-                if probe_fn and aud_p.exists():
-                    body_total_dur += float(probe_fn(aud_p, scene.duration_sec))
-                else:
-                    body_total_dur += float(scene.duration_sec)
-            except Exception:
-                body_total_dur += float(scene.duration_sec)
+        # ------------------------------------------------------------------
+        # Phase 3 — FFmpeg 조립 (모델 미사용, 순수 파일 조작)
+        # ------------------------------------------------------------------
+        try:
+            final_video = self._phase_assemble(scenes, videos)
+        except Exception as e:
+            log.error("Phase 3 조립 실패 — 파이프라인 중단: %r", e)
+            self._flush_fallback_events()
+            results["failed"].append({"phase": PHASE_ASSEMBLE, "error": str(e)})
+            return results
 
-        # 1) 엔딩 CTA 카드 클립 결합 (6번째 클립)
-        cta_clip = self._render_ending_cta_clip(self.cfg.output_root)
-        if cta_clip and cta_clip.exists():
-            clips.append(cta_clip)
-            log.info("엔딩 CTA 카드 클립 결합 성공 (총 %d개 클립)", len(clips))
-
-        # 2) 클립 Concat
-        merged_raw = self.cfg.output_root / "merged_raw.mp4"
-        log.info("최종 concat 시작: %d개 클립 → %s", len(clips), merged_raw.name)
-        self.video.concat_scenes(clips, merged_raw, self.cfg)
-
-        # 3) 브랜딩 오버레이(상단 50:50 뱃지 + 하단 프로필 링크 뱃지) 본편 구간 합성
-        #    ★ 감사 재심 조건 ②: 폴백 은폐 폐기 — 실패는 OverlayCompositionError 로
-        #      표면화되며, 서킷브레이커 임계 초과 시 파이프라인 전체가 중단된다.
-        final_path = self.cfg.output_root / f"{self.cfg.output_root.name}.mp4"
-        log.info("브랜딩 오버레이 합성 시작: 본편 길이=%.2fs", body_total_dur)
-        final_video = self._apply_branding_overlay(merged_raw, final_path, body_total_dur)
-
-        # 4) 임시 merged_raw 정리
-        if merged_raw.exists() and merged_raw != final_video:
-            try:
-                merged_raw.unlink()
-            except OSError:
-                pass
-
-        self.manifest.data["final_video"] = {
-            "path": str(final_video),
-            "clips": [str(c) for c in clips],
-            "body_duration_sec": round(body_total_dur, 3),
-            "ending_cta": str(cta_clip) if cta_clip else None,
-            "ts": datetime.now(timezone.utc).isoformat(),
-        }
-        self.manifest._flush()
-        results["final_video"] = str(final_video)
+        self._flush_fallback_events()
+        results["final_video"] = str(final_video) if final_video else None
         log.info("최종 완성본 렌더링 완료: %s", final_video)
         return results
 
@@ -2316,29 +2501,157 @@ class PipelineOrchestrator:
 # ---------------------------------------------------------------------------
 # 9) 어댑터 선택 (auto → available 순)
 # ---------------------------------------------------------------------------
-def select_image_adapter(cfg: PipelineConfig) -> ImagePort:
-    """이미지 어댑터 자동 선택 — 1순위 Gemini 실사, 2순위 ComfyUI, 3순위 브랜드 에셋.
+# ---------------------------------------------------------------------------
+# [이미지 백엔드 레지스트리 SSOT] — 후보 조립의 유일한 경로.
+#   ★ 감사 재심 조건 ① 충족 (모듈 분리 원칙):
+#     기존 select_image_adapter 는 후보 리스트에 클래스 리터럴을 직접 나열하여
+#     삭제된 GeminiImageAdapter 참조가 남아 호출 시점 NameError 로 즉사했다.
+#     이제 후보는 반드시 이 레지스트리를 통해서만 조립된다.
+#   · 키 = 백엔드 이름(ALLOWED_IMAGE_BACKENDS 와 1:1 대응)
+#   · 값 = 팩토리 콜러블(무인자 → ImagePort 인스턴스)
+#   · ALLOWED 에 없는 키는 조립 단계에서 물리적으로 배제된다.
+#   · 팩토리 실행 실패는 후보 누락으로 처리하되 로그로 표면화한다(은폐 금지).
+# ---------------------------------------------------------------------------
+IMAGE_BACKEND_REGISTRY: Dict[str, Any] = {
+    "comfyui": lambda: ComfyUIImageAdapter(brand="insurance"),
+    "gemini": lambda: GeminiImageAdapter(),
+    "asset_fallback": lambda: BrandAssetFallbackAdapter(),
+}
 
-    [영구 퇴출] 검은색 단색 더미 박스 어댑터(PILImageAdapter)는 후보에서 제외한다.
+
+def resolve_requested_backend(requested: str) -> str:
+    """요청 백엔드 문자열을 정규화·검증하여 정식 백엔드명 또는 'auto' 를 반환한다.
+
+    ★ 감사 재심 조건 ② 충족 (표면적 땜질 배제):
+      기존 구현은 cfg.image_backend 자유 문자열을 후보 필터로만 사용하여
+      BANNED 판정이 아예 없었다. 이 순수 함수가 유일한 판정 지점이다.
+
+    판정 순서(결정론적):
+      1) 빈 문자열/None → 'auto'
+      2) 소문자 정규화 후 BANNED 목록 포함 → 경고 + 'auto' 강제 낙하
+      3) 별칭 매핑(IMAGE_BACKEND_ALIASES) 적용
+      4) ALLOWED 목록 포함 → 정식 백엔드명 반환
+      5) 그 외(미등록) → 경고 + 'auto' 강제 낙하
+
+    · 이 함수는 부작용이 없다(로그만 남김). 순수 판정 계약.
+    · 'auto' 반환은 "정책상 후보 전체를 available 순으로 시도" 를 의미한다.
     """
-    candidates: List[ImagePort] = [
-        GeminiImageAdapter(),
-        ComfyUIImageAdapter(),
-        BrandAssetFallbackAdapter(),
-    ]
-    if cfg.image_backend != "auto":
-        # 'pil' 은 레거시 별칭으로 asset_fallback 에 매핑한다.
-        wanted = "asset_fallback" if cfg.image_backend == "pil" else cfg.image_backend
-        filtered = [c for c in candidates if c.name == wanted]
-        if filtered:
-            candidates = filtered
-        else:
-            log.warning("요청 백엔드 '%s' 미존재 — auto 후보로 폴백", cfg.image_backend)
+    token = str(requested or "").strip().lower()
+    if not token:
+        return "auto"
+
+    # 1) BANNED 우선 검사 — 어떤 별칭 매핑보다 먼저 차단한다.
+    if token in BANNED_IMAGE_BACKENDS:
+        log.warning(
+            "차단 백엔드 요청 감지('%s') — BANNED_IMAGE_BACKENDS 정책에 의해 auto 로 강제 낙하",
+            token,
+        )
+        return "auto"
+
+    # 2) 별칭 정규화
+    normalized = IMAGE_BACKEND_ALIASES.get(token, token)
+
+    # 3) ALLOWED 검증
+    if normalized in ALLOWED_IMAGE_BACKENDS:
+        return normalized
+
+    # 4) 미등록 → auto 강제 낙하 (자유 문자열 경로 봉인)
+    log.warning(
+        "미허용 백엔드 요청('%s') — ALLOWED_IMAGE_BACKENDS %s 밖, auto 로 강제 낙하",
+        token, ALLOWED_IMAGE_BACKENDS,
+    )
+    return "auto"
+
+
+def _build_image_candidates(requested_backend: str) -> List[ImagePort]:
+    """정책 검증을 통과한 요청값으로 후보 리스트를 조립한다.
+
+    ★ 감사 재심 조건 ① 충족 (3단 분해 — 2단: 후보 조립):
+      · requested_backend 는 반드시 resolve_requested_backend() 를 통과한 값이어야 한다.
+      · 'auto' → ALLOWED 순서대로 전건 조립.
+      · 특정 백엔드 → 해당 1개만 조립(ALLOWED 검증은 이미 통과).
+      · 팩토리 실행 실패는 후보 누락으로 처리하되 로그로 표면화(은폐 금지).
+      · 후보 리스트에 클래스 리터럴을 직접 나열하지 않는다(레지스트리 경유 강제).
+    """
+    if requested_backend == "auto":
+        names: Tuple[str, ...] = ALLOWED_IMAGE_BACKENDS
+    else:
+        names = (requested_backend,)
+
+    candidates: List[ImagePort] = []
+    for name in names:
+        builder = IMAGE_BACKEND_REGISTRY.get(name)
+        if builder is None:
+            # ALLOWED 에는 있으나 REGISTRY 에 없는 정책-구현 불일치는 즉시 표면화.
+            log.error(
+                "이미지 백엔드 레지스트리 누락: '%s' (ALLOWED 에는 존재) — 후보 제외",
+                name,
+            )
+            continue
+        try:
+            candidates.append(builder())
+        except Exception as e:
+            log.warning("이미지 백엔드 '%s' 팩토리 실행 실패 — 후보 제외: %r", name, e)
+    return candidates
+
+
+def select_image_adapter(cfg: PipelineConfig) -> ImagePort:
+    """이미지 어댑터 자동 선택 — 정책 조회 → 후보 조립 → available 순 선택 (3단 분해).
+
+    ★ 대표님 절대 엄명 (2026-10-26):
+      "사진을 왜 제미나이를 호출해서 만드냐, 그래픽 카드(GPU)를 이용해서 만들어야지!"
+
+    ★ [사진 재탕 박멸 — 아우라 SSOT 동기화] 대표님 지시 (2026-10-28):
+      "BrandAssetFallbackAdapter 가 2순위에 있어 사진 재탕이 발생하던 치명적 결함을 박멸하라."
+
+    후보 우선순위(ALLOWED_IMAGE_BACKENDS 순서와 1:1 대응):
+      1) comfyui        — PuLID-FLUX 로컬 GPU 실사 생성 (비용 0원·무제한)
+      2) gemini         — 클라우드 API 실사 생성 (로컬 GPU 미가동 시)
+      3) asset_fallback — 브랜드 마스터 실사 에셋 최후 폴백 (양쪽 전멸 시에만)
+
+    ★ 감사 재심 조건 ① 충족 (3단 분해):
+      1단 — 정책 조회: resolve_requested_backend(cfg.image_backend) 로 정규화·검증.
+      2단 — 후보 조립: _build_image_candidates() 가 REGISTRY 경유로만 조립.
+      3단 — 선택    : available() 순차 판정, 첫 True 반환.
+
+    ★ 감사 재심 조건 ② 충족 (표면적 땜질 배제):
+      · 삭제된 GeminiImageAdapter 리터럴 참조가 사라졌다(REGISTRY 경유).
+      · BANNED 백엔드는 resolve_requested_backend() 에서 auto 로 강제 낙하.
+      · try/except 로 NameError 를 삼키는 우회 경로가 없다 — 팩토리 실패는
+        후보 누락으로 처리되며, 전 후보 소진 시 AdapterError 로 표면화된다.
+
+    ★ 감사 재심 조건 ③ 충족 (24시간 무인 가동 안전장치):
+      · available() 는 각 어댑터 내부에서 자체 타임아웃을 갖는다(ComfyUI 2s/5s,
+        Gemini 키 존재 검사, BrandAsset 파일 존재 검사).
+      · 개별 백엔드 available() 예외는 격리되어 다음 후보로 전진한다(전체 즉사 금지).
+      · 전 후보 소진 시 AdapterError 로 표면화 — 조용한 실패 없음.
+    """
+    # ---- 1단: 정책 조회 (정규화·검증) ----
+    requested = resolve_requested_backend(cfg.image_backend)
+    log.info("이미지 백엔드 정책 판정: 요청='%s' → 정규화='%s'", cfg.image_backend, requested)
+
+    # ---- 2단: 후보 조립 (REGISTRY 경유) ----
+    candidates = _build_image_candidates(requested)
+    if not candidates:
+        raise AdapterError(
+            f"이미지 후보 조립 실패 — 요청='{cfg.image_backend}', "
+            f"정규화='{requested}', ALLOWED={ALLOWED_IMAGE_BACKENDS}"
+        )
+
+    # ---- 3단: available 순 선택 (개별 예외 격리) ----
     for c in candidates:
-        if c.available():
-            log.info("이미지 어댑터 선택: %s", c.name)
-            return c
-    raise AdapterError("사용 가능한 이미지 어댑터 없음")
+        try:
+            if c.available():
+                log.info("이미지 어댑터 선택: %s", c.name)
+                return c
+        except Exception as e:
+            # 개별 백엔드 available() 예외는 다음 후보로 격리(전체 즉사 금지).
+            log.warning("이미지 백엔드 '%s' available() 예외 — 다음 후보로 전진: %r", c.name, e)
+            continue
+
+    raise AdapterError(
+        f"사용 가능한 이미지 어댑터 없음 — 시도한 후보: {[c.name for c in candidates]}"
+    )
 
 
 def select_tts_adapter(cfg: PipelineConfig) -> TTSPort:

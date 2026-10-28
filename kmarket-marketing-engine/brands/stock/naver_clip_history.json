@@ -248,5 +248,15 @@
     "video_file": "Stock_32초숏폼_주제06_stockmaster_official_overview_20261020_073155.mp4",
     "channel_url": "https://clip.naver.com/@stockmaster_ai",
     "published_at": "2026-10-20 21:09:49"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "stock",
+    "topic_id": 1,
+    "title": "[삼성전자 수급] 외인 137만주 쌍끌이 실시간 퀀트 진단 #스톡마스터AI #Shorts",
+    "video_file": "Stock_drama_5s_20261028_163348.mp4",
+    "channel_url": "https://clip.naver.com/@stockmaster_ai",
+    "published_at": "2026-10-28 17:39:40"
   }
 ]

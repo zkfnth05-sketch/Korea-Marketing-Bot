@@ -384,7 +384,7 @@ class InsuranceOmniShortsPilot:
                 pass
         return False
 
-    def produce_fresh_short(self, topic_id: int, force_render: bool = False) -> str:
+    def produce_fresh_short(self, topic_id: int, force_render: bool = False, slot: Optional[str] = None, subtype: Optional[str] = None) -> Optional[str]:
         """
         🎬 [쏘기 직전 1편 실시간 100% 신선 제작 - 봇 자율 파이프라인]
 
@@ -395,9 +395,17 @@ class InsuranceOmniShortsPilot:
                    KTRS에 GPU를 100% 양보해야 하므로 InsuranceShortsPipeline().produce_topics() 호출을
                    100% 차단하고 DaytimeRenderForbidden 예외 발생
           · 3단계: 야간 골든타임(00~06시)에만 InsuranceShortsPipeline().produce_topics() 신규 렌더링 허용
+
+        🎭 [드라마 슬롯 분기]
+          - subtype == "drama" 또는 slot in ("shorts_2", "shorts_3") ➔ 드라마 산출물 폴더만 탐색
+          - 그 외 ➔ 기존 22초 숏폼(*22초*.mp4) 탐색 100% 유지
         """
+        is_drama = (subtype == "drama") or (slot in ["shorts_2", "shorts_3"])
         logger.info("=" * 70)
-        logger.info(f"🎬 [보험 숏폼 제작/감지] 주제 #{topic_id} 완제품 확인 및 파이프라인 가동...")
+        logger.info(
+            f"🎬 [보험 숏폼 제작/감지] 주제 #{topic_id} 완제품 확인 및 파이프라인 가동... "
+            f"(slot={slot or '-'}, subtype={subtype or '-'}, drama={is_drama})"
+        )
         logger.info("=" * 70)
 
         # 0단계: 🆕 [영수증 상한 가드] 당일 생산 쿼터(3개) 달성 시 신규 렌더링 원천 차단
@@ -420,6 +428,33 @@ class InsuranceOmniShortsPilot:
         # ------------------------------------------------------------------
         today_str = datetime.now().strftime("%Y%m%d")
         desktop_base = Path(os.environ.get("USERPROFILE", "C:/Users/zkfnt")) / "Desktop" / "한국 숏폼_산출물" / "Insurance"
+
+        # 🎭 [드라마 슬롯 전용 탐색] 폴더명에 drama 포함 + 오늘자 + mp4 실물 (2MB 초과)
+        if is_drama:
+            drama_candidates = []
+            if desktop_base.exists():
+                for folder in desktop_base.iterdir():
+                    if folder.is_dir() and today_str in folder.name and "drama" in folder.name.lower():
+                        for mp4 in folder.glob("*.mp4"):
+                            name_lower = mp4.name.lower()
+                            # 🚨 temp/중간 생성물 배제
+                            if any(w in name_lower for w in ["temp", "clip_", "person_"]):
+                                continue
+                            if mp4.stat().st_size > 2 * 1024 * 1024:
+                                drama_candidates.append((mp4.stat().st_mtime, mp4))
+            if drama_candidates:
+                drama_candidates.sort(key=lambda x: x[0], reverse=True)
+                latest_drama = str(drama_candidates[0][1])
+                logger.info(f"🎭 [보험 숏폼 드라마 완제품 즉각 확보] 오늘 완성된 드라마 완제품 감지: {latest_drama}")
+                # 🆕 기존 완제품도 영수증 봉인 (쿼터 카운트에 반영)
+                self._guard_seal(topic_id, latest_drama)
+                return latest_drama
+            logger.info("🎭 [드라마 완제품 미발견] 오늘자 drama 폴더에 송출 가능한 mp4가 없습니다.")
+
+        # ------------------------------------------------------------------
+        # [1단계] 오늘자 바탕화면 완제품 검색 (기존 로직 100% 유지)
+        #   · 완제품이 있으면 GPU 렌더링 0회로 즉시 반환 ➔ 주간에도 송출 가능
+        # ------------------------------------------------------------------
         if not force_render and desktop_base.exists():
             topic_str = f"{topic_id:02d}"
             candidates = []
@@ -474,11 +509,28 @@ class InsuranceOmniShortsPilot:
 
         raise RuntimeError(f"🚨 [보험] 주제 #{topic_id} 실시간 숏폼 렌더링 실패! 엉뚱한 과거 파일 주워오기 0% 전면 차단 및 발사 즉각 안전 중단.")
 
-    def build_meta_packages(self, topic_id: int, fresh_video: Optional[str] = None) -> Dict[str, Any]:
-        """[제미나이 100% 실시간 카피 + 8대 기능 주입 명세 직결] 4대 채널 텍스트 패키지"""
+    def build_meta_packages(self, topic_id: int, fresh_video: Optional[str] = None, subtype: Optional[str] = None) -> Dict[str, Any]:
+        """
+        [제미나이 100% 실시간 카피 + 8대 기능 주입 명세 직결] 4대 채널 텍스트 패키지
+
+        🎭 [드라마 편 메타 분기]
+          - subtype == "drama" 이거나 파일/폴더명에 drama 포함 ➔ 숏드라마 전용 타이틀 규격 적용
+          - 공식 검색어 '보험 리밸런스' 띄어쓰기 필수 탑재 (대표님 절대 수칙)
+        """
         from brands.insurance.insurance_shorts_script_writer import INSURANCE_TOPICS_SPECS
         concept = INSURANCE_TOPICS_SPECS.get(topic_id, {})
         feature_name = concept.get("title", f"보험 리밸런스 핵심 기능 #{topic_id}")
+
+        # 🎭 드라마 여부 판정 (subtype 우선, 없으면 파일/폴더명으로 자동 감지)
+        is_drama = bool(subtype == "drama")
+        if not is_drama and fresh_video:
+            try:
+                _vp = Path(fresh_video)
+                if "drama" in _vp.name.lower() or "drama" in _vp.parent.name.lower():
+                    is_drama = True
+            except Exception:
+                pass
+
         guide_hook = ''
         guide_tags = ''
         if fresh_video and os.path.exists(fresh_video):
@@ -493,21 +545,71 @@ class InsuranceOmniShortsPilot:
                                 guide_tags = gline.split('추천 통합 해시태그:', 1)[1].strip()
                 except Exception:
                     pass
-        if guide_hook:
+
+        # 🎭 [드라마 편] 가이드 부재 시 manifest.json 폴백 조회 (발화 훅/해시태그 보강)
+        if is_drama and not guide_hook and fresh_video:
+            try:
+                manifest_file = Path(fresh_video).parent / 'manifest.json'
+                if manifest_file.exists():
+                    with open(manifest_file, 'r', encoding='utf-8', errors='ignore') as mf:
+                        mdata = json.load(mf)
+                    if isinstance(mdata, dict):
+                        guide_hook = guide_hook or str(mdata.get("hook") or mdata.get("guide_hook") or "").strip()
+                        guide_tags = guide_tags or str(mdata.get("hashtags") or mdata.get("tags_line") or "").strip()
+            except Exception:
+                pass
+
+        if is_drama:
+            # 🎬 숏드라마 전용 타이틀 규격 (공식 검색어 '보험 리밸런스' 띄어쓰기 필수)
+            drama_hook = guide_hook or '보험금 미지급 분쟁 vs AI 리밸런스'
+            main_title = f"[보험 리밸런스 숏드라마] {drama_hook[:40]}"
+            logger.info(f"🎭 [드라마 메타 패키징] {main_title}")
+        elif guide_hook:
             main_title = f'[{feature_name}] {guide_hook[:40]}'
         else:
             main_title = f'[{feature_name}] 보험 리밸런스 #{topic_id}'
+
         from brands.insurance.insurance_domestic_sns_copywriter import InsuranceDomesticSNSCopywriter
         copywriter = InsuranceDomesticSNSCopywriter()
         pkg = copywriter.generate_full_package(topic_id=topic_id, topic_title=main_title, media_type='shorts')
         pkg['main_title'] = main_title
         if guide_tags:
             pkg['tags_line'] = guide_tags
+
+        # 🎭 [드라마 편] 4대 채널 패키지 누락 방어 (youtube/tiktok/naver_clip/meta_reels)
+        if is_drama:
+            if not isinstance(pkg.get("youtube"), dict):
+                pkg["youtube"] = {}
+            pkg["youtube"].setdefault("title", main_title[:100])
+            if not isinstance(pkg.get("tiktok"), dict):
+                pkg["tiktok"] = {}
+            pkg["tiktok"].setdefault("caption", f"{main_title}\n{pkg.get('tags_line', '')}".strip())
+            if not isinstance(pkg.get("naver_clip"), dict):
+                pkg["naver_clip"] = {}
+            pkg["naver_clip"].setdefault("title", main_title[:100])
+            pkg["naver_clip"].setdefault("description", pkg.get("tags_line", ""))
+            if not isinstance(pkg.get("meta_reels"), dict):
+                pkg["meta_reels"] = {}
+            pkg["meta_reels"].setdefault("caption", f"{main_title}\n{pkg.get('tags_line', '')}".strip())
+            pkg["is_drama"] = True
+
         return pkg
 
-    def execute_single_slot(self, topic_id: Optional[int] = None, force: bool = False, force_render: bool = False) -> Dict[str, Any]:
+    def execute_single_slot(
+        self,
+        topic_id: Optional[int] = None,
+        force: bool = False,
+        force_render: bool = False,
+        slot: Optional[str] = None,
+        subtype: Optional[str] = None,
+        video_path: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         🚀 [정시 1회 단발 실행] 쏘기 직전 1편 제작 ➔ 4대 채널 즉시 1회 발사 ➔ 중복 락
+
+        🎬 [완제품 직행 송출]
+          - video_path가 전달되고 실제 파일이 존재하면 새벽 팩토리 생산 완제품을 그대로 수령하여
+            produce_fresh_short() 호출을 100% 생략하고 실물 검증 ➔ 4대 채널 송출로 직행 (GPU 소모 0%)
 
         🚨 [주간 GPU 양보 가드]
           - produce_fresh_short()가 DaytimeRenderForbidden을 발생시키면
@@ -533,17 +635,29 @@ class InsuranceOmniShortsPilot:
             )
             return {"status": "circuit_open", "message": "송출 재시도 3회 초과 차단"}
 
-        # 쏘기 직전 1편 신선 제작 (주간 GPU 양보 시간대는 여기서 안전 스킵)
-        try:
-            fresh_video = self.produce_fresh_short(target_topic, force_render=force_render)
-        except DaytimeRenderForbidden as dfe:
-            logger.warning(f"🌙 [주간 GPU 양보] 보험 숏폼 주제 #{target_topic} 신규 렌더링 스킵 — {dfe}")
-            return {"status": "daytime_skipped", "message": "주간 GPU 양보 시간대(신규 렌더링 스킵)"}
-        except Exception as e:
-            logger.error(f"❌ [보험 숏폼 제작 실패] {e}")
-            # 🆕 제작 실패도 송출 실패로 기록 (3회 누적 시 서킷브레이커 작동)
-            self._guard_record_result(target_topic, success=False, error_msg=f"제작 실패: {e}")
-            return {"status": "error", "error": f"제작 실패: {e}"}
+        # 2. 🎬 [완제품 직행] 새벽 팩토리 산출물이 넘어온 경우 재렌더링 0%로 즉시 확보
+        fresh_video: Optional[str] = None
+        if video_path and Path(str(video_path)).exists():
+            fresh_video = str(video_path)
+            logger.info(f"✨ [완제품 직행 송출] 새벽 팩토리 생산 완제품 즉각 수령: {fresh_video}")
+            # 🆕 완제품 수령 ➔ 영수증 봉인 (쿼터 카운트 반영)
+            self._guard_seal(target_topic, fresh_video)
+        else:
+            if video_path:
+                logger.warning(f"⚠️ [완제품 경로 무효] 전달된 video_path가 존재하지 않습니다 ➔ 신규 제작 경로로 폴백: {video_path}")
+            # 2-1. 쏘기 직전 1편 신선 제작 (주간 GPU 양보 시간대는 여기서 안전 스킵)
+            try:
+                fresh_video = self.produce_fresh_short(
+                    target_topic, force_render=force_render, slot=slot, subtype=subtype
+                )
+            except DaytimeRenderForbidden as dfe:
+                logger.warning(f"🌙 [주간 GPU 양보] 보험 숏폼 주제 #{target_topic} 신규 렌더링 스킵 — {dfe}")
+                return {"status": "daytime_skipped", "message": "주간 GPU 양보 시간대(신규 렌더링 스킵)"}
+            except Exception as e:
+                logger.error(f"❌ [보험 숏폼 제작 실패] {e}")
+                # 🆕 제작 실패도 송출 실패로 기록 (3회 누적 시 서킷브레이커 작동)
+                self._guard_record_result(target_topic, success=False, error_msg=f"제작 실패: {e}")
+                return {"status": "error", "error": f"제작 실패: {e}"}
 
         # 🆕 [영수증 상한 달성 + 재사용 완제품 없음] ➔ 신규 렌더링 없이 스킵
         if not fresh_video:
@@ -567,13 +681,15 @@ class InsuranceOmniShortsPilot:
         logger.info(f"✅ [3단계 파이썬 완제품 검증 100% 합격] {verify_msg} -> 4단계 외부 API 발사(쏘기) 개시!")
 
         # 4. 메타데이터 패키징 & 외부 API 발사
-        pkg = self.build_meta_packages(target_topic, fresh_video)
+        pkg = self.build_meta_packages(target_topic, fresh_video, subtype=subtype)
         results = {
             "status": "success",
             "date": today_str,
             "published_at": get_now_kst_str(),
             "brand": self.BRAND,
             "topic_id": target_topic,
+            "slot": slot,
+            "subtype": subtype,
             "title": pkg["main_title"],
             "video_file": os.path.basename(fresh_video),
             "channels": {}

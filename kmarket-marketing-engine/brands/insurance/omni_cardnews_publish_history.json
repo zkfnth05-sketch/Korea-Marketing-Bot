@@ -2444,5 +2444,157 @@
         }
       }
     }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-28",
+    "published_at": "2026-10-28 11:35:38",
+    "brand": "insurance",
+    "topic_id": 2,
+    "title": "10년 갱신형 암보험의 함정: 60세에 35만원 폭탄 맞습니다",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 🛡️ InsureBalance 보험 릴스 순수 브라우저 실물 발행 완료",
+        "video": "insurance_topic2_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\insurance_facebook_comment_proof.png"
+          }
+        }
+      },
+      "threads": {
+        "success": false,
+        "brand": "insurance",
+        "error": "스레드 작성창(textbox)을 활성화하지 못했습니다.",
+        "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_error_screenshot.png"
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 2,
+        "video_id": "bSROIS8U9rc",
+        "video_url": "https://youtube.com/shorts/bSROIS8U9rc",
+        "title": "60세에 35만원 보험료 폭탄?! 🤯 갱신형 암보험 함정 피하는 법! #보험 리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "pinned",
+        "privacy_status": "public",
+        "video_file": "insurance_topic2_cardnews_reels.mp4",
+        "published_at": "2026-10-28 11:40:30",
+        "elapsed_sec": 65.7,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 2,
+        "title": "60세에 35만원 보험료 폭탄?! 🤯 갱신형 암보험 함정 피하는 법!",
+        "video_file": "insurance_topic2_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-28 11:40:45"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 2,
+        "video_file": "insurance_topic2_cardnews_reels.mp4",
+        "title": "10년 갱신형 암보험의 함정: 60세에 35만원 폭탄 맞습니다",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic02.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "insurance"
+        }
+      }
+    }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-28",
+    "published_at": "2026-10-28 12:05:00",
+    "brand": "insurance",
+    "topic_id": 8,
+    "title": "보험료 부담돼서 해지하려고요? 절대 해지하지 마세요!",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "meta_business_suite",
+        "message": "Meta Business Suite를 통한 🛡️ InsureBalance 보험 릴스 순수 브라우저 실물 발행 완료",
+        "video": "insurance_topic8_cardnews_reels.mp4",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\mbs_verified_proof.png",
+        "comments": {
+          "instagram": {
+            "status": "failed",
+            "message": "댓글창 미발견"
+          },
+          "facebook": {
+            "status": "success",
+            "proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\insurance_facebook_comment_proof.png"
+          }
+        }
+      },
+      "threads": {
+        "success": false,
+        "brand": "insurance",
+        "error": "스레드 작성창(textbox)을 활성화하지 못했습니다.",
+        "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_error_screenshot.png"
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "insurance",
+        "topic_id": 8,
+        "video_id": "KbHAzRDAXmI",
+        "video_url": "https://youtube.com/shorts/KbHAzRDAXmI",
+        "title": "보험 해지 고민 NO! 🙅‍♀️ 월 15만원 절약 비법 대공개! #보험 리밸런스 #Shorts",
+        "pinned_comment": "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n네이버에 👉 [ 보험 리밸런스 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://insure-rebalance.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "insurance_topic8_cardnews_reels.mp4",
+        "published_at": "2026-10-28 12:09:39",
+        "elapsed_sec": 66.2,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "insurance",
+        "topic_id": 8,
+        "title": "보험 해지 고민 NO! 🙅‍♀️ 월 15만원 절약 비법 대공개!",
+        "video_file": "insurance_topic8_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@thefirst-life",
+        "published_at": "2026-10-28 12:09:56"
+      },
+      "tiktok": {
+        "status": "success",
+        "brand": "insurance",
+        "platform": "tiktok",
+        "topic_id": 8,
+        "video_file": "insurance_topic8_cardnews_reels.mp4",
+        "title": "보험료 부담돼서 해지하려고요? 절대 해지하지 마세요!",
+        "post_url": "https://www.tiktok.com/@insure_balance",
+        "verified_proof": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\tiktok_verified_proof_topic08.png",
+        "comment": {
+          "status": "skipped",
+          "message": "게시물 없음",
+          "brand": "insurance"
+        }
+      }
+    }
   }
 ]

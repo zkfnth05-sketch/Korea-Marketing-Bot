@@ -172,18 +172,34 @@ class GeminiTTSSynthesizer:
         pitch: Optional[str] = None,
         target_duration: Optional[float] = None,
         filename_prefix: str = "speech",
-        voice_name: Optional[str] = None
+        voice_name: Optional[str] = None,
+        output_dir: Optional[str] = None,
+        **kwargs
     ) -> str:
         """
         BaseShortsProducer 및 S2VClipStitcher 표준 100% 호환 인터페이스
-        - Aoede (맑고 차분한 20대 여성) / Puck (세련된 2030 훈남 중저음 남성)
+        - Aoede (맑고 차분한 20대 여성) / Charon (대표님 확정 숏폼 드라마 남성 보이스)
         - 16kHz 무손실 변환 및 무음 정밀 트리밍 적용
+        - output_dir 인자 지원 (미지정 시 self.output_dir 사용) + **kwargs 하위 호환
+        - 보이스 결정 우선순위: voice_name > self.default_voice > 성별 기본값(Aoede/Charon)
         """
         is_female = str(gender).lower() in ["female", "f", "여", "여성", "woman"]
-        v_name = voice_name or ("Aoede" if is_female else "Fenrir")
 
-        out_wav_path = os.path.join(self.output_dir, f"{filename_prefix}_{lang}.wav")
-        temp_wav_path = os.path.join(self.output_dir, f"{filename_prefix}_{lang}_raw24k.wav")
+        # 🎙️ [보이스 결정 3단 우선순위]
+        #   1순위: 호출측이 명시한 voice_name
+        #   2순위: 인스턴스 기본 보이스(self.default_voice)
+        #   3순위: 성별 기본값 (여성=Aoede / 남성=Charon)
+        v_name = (
+            (voice_name or "").strip()
+            or (getattr(self, "default_voice", None) or "").strip()
+            or ("Aoede" if is_female else "Charon")
+        )
+
+        effective_out_dir = output_dir or self.output_dir
+        os.makedirs(effective_out_dir, exist_ok=True)
+
+        out_wav_path = os.path.join(effective_out_dir, f"{filename_prefix}_{lang}.wav")
+        temp_wav_path = os.path.join(effective_out_dir, f"{filename_prefix}_{lang}_raw24k.wav")
 
         # 1. 24kHz 원본 생성
         self.synthesize(text=text, output_wav_path=temp_wav_path, voice_name=v_name, sample_rate=24000)
@@ -209,9 +225,9 @@ class GeminiTTSSynthesizer:
 
         # 3. 무음 정밀 제거
         try:
-            self._strip_silence(out_wav_path, threshold_ratio=0.02, pad_ms=10)
-        except Exception:
-            pass
+            self._strip_silence(out_wav_path, threshold_ratio=0.015, pad_start_ms=50, pad_end_ms=350)
+        except Exception as se:
+            logger.warning(f"무음 정밀 제거 실패(무해): {se}")
 
         return out_wav_path
 

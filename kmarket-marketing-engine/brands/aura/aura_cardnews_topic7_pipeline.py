@@ -114,11 +114,16 @@ class AuraCardnewsTopic7Pipeline:
         )
 
         result = {
+            "success": True,
             "status": "SUCCESS",
             "theme": "ai_charm_scanner",
+            "theme_name": "AI 매력 분석 리포트",
             "outfit": selected_outfit,
+            "output_dir": str(out_dir),
             "target_directory": str(out_dir),
+            "total_slides": 5,
             "slides": [s1_path, s2_path, s3_path, s4_path, s5_path],
+            "slide_paths": [s1_path, s2_path, s3_path, s4_path, s5_path],
             "guide_path": str(guide_path),
             "metadata_path": str(meta_path)
         }

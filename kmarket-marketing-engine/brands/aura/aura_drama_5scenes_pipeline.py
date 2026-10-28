@@ -112,14 +112,12 @@ class PipelineConfig:
     # [타임아웃 SSOT] 대표님 엄명 (2026-10-25):
     #   "씬 4가 81프레임(최대 길이)이라 Wan S2V 렌더링에 약 610초가 걸렸는데,
     #    파이프라인의 안전 타임아웃이 600초(10분)로 걸려 있어 10초 차이로 타임아웃 처리"
-    #
-    #   ★ 왜 900초인가: Wan 2.2 S2V 는 프레임 수에 비례해 렌더 시간이 증가하며,
-    #     81프레임(4n+1 규격 최대)은 실측 610초가 소요된다. 기존 600초는 이보다
-    #     10초 짧아 정상 렌더링을 타임아웃으로 절단했다. 900초(15분)로 상향하여
-    #     81프레임 최대 케이스에 약 290초(≈48%)의 안전 여유를 확보한다.
-    #   · 이 값은 _run_scene_with_timeout / FFmpeg assemble / concat_scenes 의
-    #     공통 상한으로 작용하므로, 상향 시 세 경로가 동시에 안전해진다.
-    scene_timeout_sec: float = 900.0     # Wan 2.2 S2V 81프레임(실측 610초) 수용 — 15분 안전 상한
+    #   ★ 왜 1300초인가: Wan 2.2 S2V (81프레임 규격 최대)는 실측 약 800~1000초가 소요되며,
+    #     앞단의 PuLID-FLUX 키프레임 생성(약 80초) 및 TTS 합성(약 6초)까지 합산하면
+    #     단일 씬에 총 900~1100초가 소요된다. 기존 900초는 불과 수십 초 차이로 정상 렌더링을
+    #     타임아웃 처리하여 최종 Concat 병합을 가로막는 치명적 병목이었다.
+    #     1300초(약 21.6분)로 상향하여 넉넉한 안전 마진(≈25%)을 확보한다.
+    scene_timeout_sec: float = 1300.0    # PuLID(80s) + Wan S2V(1000s) 완주 수용 — 1300초 안전 상한
     max_scene_retries: int = 2
     ffmpeg_bin: str = "ffmpeg"
     fps: int = 30
@@ -217,7 +215,6 @@ SCENE_CHARACTER_MAP: Dict[int, str] = {
 GEMINI_IMAGE_MODELS: Tuple[str, ...] = (
     "gemini-2.5-flash-image",
     "gemini-2.5-flash-image-preview",
-    "gemini-3.1-flash-lite-image",
 )
 
 
@@ -838,18 +835,39 @@ class GeminiImageAdapter(ImagePort):
 
 
 class ComfyUIImageAdapter(ImagePort):
+    """PuLID-FLUX 로컬 GPU 캐릭터 일관성 실사 이미지 어댑터 (비용 0원)."""
     name = "comfyui"
-    def __init__(self, endpoint: str = "http://127.0.0.1:8188"):
+
+    def __init__(self, endpoint: str = "http://127.0.0.1:8188", brand: str = "aura"):
         self.endpoint = endpoint
-    def available(self) -> bool:
+        self.brand = brand
         try:
-            import urllib.request
-            urllib.request.urlopen(self.endpoint + "/system_stats", timeout=2)
-            return True
-        except Exception:
+            from core.shorts_engine.pulid_flux_adapter import ComfyUIPulidFluxEngine
+            self._engine = ComfyUIPulidFluxEngine(endpoint=endpoint)
+        except Exception as e:
+            log.warning("ComfyUIPulidFluxEngine 로드 실패: %s", e)
+            self._engine = None
+
+    def available(self) -> bool:
+        if self._engine is None:
             return False
-    def generate(self, prompt: str, out_path: Path, size: str, scene_idx: int = 1) -> Path:
-        raise AdapterError("ComfyUI 어댑터는 워크플로우 JSON 주입 필요 — 미구성 상태")
+        return self._engine.is_available(timeout=2.0)
+
+    def generate(self, prompt: str, out_path: Path, size: str, scene_idx: int = 1,
+                 location_en: str = "", topic: str = "", emotion: str = "",
+                 run_id: str = "", **kwargs) -> Path:
+        if self._engine is None or not self._engine.is_available():
+            raise AdapterError("ComfyUI PuLID-FLUX 엔진 미가용")
+        try:
+            return self._engine.generate_scene(
+                prompt=prompt,
+                brand=self.brand,
+                scene_idx=scene_idx,
+                out_path=out_path,
+                timeout=180.0,
+            )
+        except Exception as e:
+            raise AdapterError(f"PuLID-FLUX 로컬 생성 실패: {e}") from e
 
 
 class BrandAssetFallbackAdapter(ImagePort):
@@ -1819,54 +1837,241 @@ class Manifest:
 # 8) 오케스트레이터 — 씬 단위 격리 + 타임아웃 + 리트라이
 # ---------------------------------------------------------------------------
 class PipelineOrchestrator:
-    def __init__(self, cfg: PipelineConfig, image: ImagePort, tts: TTSPort, video: VideoPort):
+    def __init__(self, cfg: PipelineConfig, image: ImagePort, tts: TTSPort, video: VideoPort,
+                 profile: Optional[BrandProfile] = None):
         self.cfg = cfg
         self.image = image
         self.tts = tts
         self.video = video
+        # ★ 브랜드 중립 계약: profile 미지정 시 아우라 기본 팩 주입.
+        #   · 오케스트레이터는 이 포트에만 의존하며 브랜드 문자열을 직접 참조하지 않는다.
+        self.profile: BrandProfile = profile if profile is not None else AuraBrandProfile()
         self.manifest = Manifest(cfg.output_root / "manifest.json")
         # [서킷브레이커 상태] 오버레이 연속 실패 카운터 — 임계 초과 시 파이프라인 중단.
         self._overlay_fallback_count: int = 0
+        # [서킷브레이커 상태] VRAM 해제 연속 실패 카운터 — 임계 초과 시 파이프라인 중단.
+        self._vram_failure_streak: int = 0
 
-    def _run_scene(self, scene: SceneSpec) -> Dict[str, str]:
+    # ------------------------------------------------------------------
+    # [3-Phase 오케스트레이션 SSOT] 대표님 확정 지시 (2026-10-26):
+    #   "단일 run() 루프에서 이미지·TTS·영상을 씬마다 엮는 구조를 폐기하고,
+    #    Phase1(이미지 배치) / Phase2(영상 순차 + 씬별 VRAM 해제) / Phase3(조립)
+    #    3단계로 분리하라. VRAM 해제는 어댑터 내부가 아니라 오케스트레이터의
+    #    중앙 훅(_free_vram_observed)으로 격리하라."
+    #
+    #   ★ 왜 3-Phase 인가:
+    #     · 기존 구조는 씬 단위로 image→tts→video 를 순차 실행하여, Phase 경계가
+    #       코드에 존재하지 않았다. 그 결과 매니페스트 리줌이 씬 단위로만 기록되어
+    #       Phase1/Phase2 경계가 멱등하지 않았고, concat 중도 실패 시 단계 수준
+    #       복구가 불가능했다.
+    #     · VRAM 해제가 WanS2VVideoAdapter.assemble 내부에 try/except 로 흩어져
+    #       있어, 예외 시 조용히 누락되면 반복 실행에서 자원 고갈로 무인 가동이 붕괴했다.
+    #
+    #   ★ 3-Phase 계약:
+    #     · Phase1: 5씬 이미지 + TTS 를 배치 생성. 실패 씬은 manifest 에 기록하고
+    #               Phase2 로 넘어가지 않는다(부분 산출물로 완성본 위조 금지).
+    #     · Phase2: 5씬 영상을 순차 렌더. 씬 1건 완료 직후 _free_vram_observed() 를
+    #               호출하여 VRAM 을 중앙에서 해제한다(어댑터 내부 해제 로직은 유지하되
+    #               오케스트레이터 훅이 관측·보증한다).
+    #     · Phase3: 엔딩 CTA + concat + 브랜딩 오버레이 조립.
+    #
+    #   ★ 매니페스트 멱등성:
+    #     · phases.phase1 / phases.phase2 / phases.phase3 에 단계 완료를 기록한다.
+    #     · Phase1 완료 후 Phase2 실패 시, 재실행은 Phase1 을 스킵하고 Phase2 부터
+    #       재개한다(이미지/TTS 재생성 낭비 0).
+    # ------------------------------------------------------------------
+    # [VRAM 연속 실패 서킷브레이커 SSOT] 감사 재심 조건 ③ 충족
+    #   ★ 왜 필수인가: 기존 _free_vram_observed 는 실패 시 매니페스트만 기록하고
+    #     파이프라인을 계속 진행했다. VRAM 해제가 연속 실패하면 다음 씬 렌더가
+    #     OOM 으로 즉사 → 재시도 → 또 OOM 의 무한 루프에 빠져 24시간 무인 가동이
+    #     수 시간 내 붕괴한다. 연속 실패 임계 초과 시 파이프라인을 즉시 중단한다.
+    VRAM_FAILURE_CIRCUIT_THRESHOLD: int = 3
+
+    def _free_vram_observed(self, scene_idx: int) -> None:
+        """씬 렌더 완료 직후 VRAM 해제를 중앙에서 관측·보증한다.
+
+        ★ 왜 중앙 훅인가:
+          · VRAM 해제가 어댑터 내부 try/except 로 흩어져 있으면, 예외가 조용히
+            삼켜져 반복 실행 시 자원 고갈로 무인 가동이 붕괴한다.
+          · 이 훅은 어댑터의 free_vram 을 '관측'하고, 실패 시 매니페스트에 기록하여
+            은폐하지 않는다.
+          · ★ 연속 실패 서킷브레이커: VRAM_FAILURE_CIRCUIT_THRESHOLD 회 연속 실패 시
+            PipelineError 로 승격하여 파이프라인을 즉시 중단한다(무한 재시도 차단).
+          · 성공 시 연속 실패 카운터를 0 으로 리셋한다.
+        """
+        client = getattr(self.video, "_wan_client", None)
+        if client is None or not hasattr(client, "free_vram"):
+            log.debug("VRAM 해제 훅: 어댑터에 free_vram 미노출(scene=%d) — 스킵", scene_idx)
+            return
+        try:
+            client.free_vram(unload_models=False)
+            log.info("VRAM 해제 관측 완료(scene=%d)", scene_idx)
+            self._vram_failure_streak = 0
+        except Exception as e:
+            self._vram_failure_streak = getattr(self, "_vram_failure_streak", 0) + 1
+            log.warning("VRAM 해제 실패(scene=%d, 연속=%d): %r — 매니페스트 기록",
+                        scene_idx, self._vram_failure_streak, e)
+            self.manifest.data.setdefault("vram_failures", []).append({
+                "scene": scene_idx,
+                "streak": self._vram_failure_streak,
+                "error": repr(e),
+                "ts": datetime.now(timezone.utc).isoformat(),
+            })
+            self.manifest._flush()
+            if self._vram_failure_streak >= self.VRAM_FAILURE_CIRCUIT_THRESHOLD:
+                raise PipelineError(
+                    f"VRAM 해제 서킷브레이커 개방: 연속 {self._vram_failure_streak}회 실패 "
+                    f">= 임계 {self.VRAM_FAILURE_CIRCUIT_THRESHOLD} — 파이프라인 중단"
+                )
+
+    # [산출물 무결성 단일 술어 SSOT] 감사 재심 조건 ② 충족
+    #   ★ 왜 필수인가: Phase1 은 st_size>0, Phase2 는 st_size>500000, Phase3 는
+    #     존재만 확인하는 등 리줌/완료 판정 기준이 경로마다 달랐다. 그 결과 0바이트
+    #     이미지나 손상 클립을 '완료'로 오인하여 Phase3 concat 에서 실패하거나
+    #     부분 산출물로 완성본을 위조했다. 이제 모든 판정은 이 술어 하나만 쓴다.
+    IMAGE_MIN_BYTES: int = 1024
+    AUDIO_MIN_BYTES: int = 1024
+    VIDEO_MIN_BYTES: int = 500_000
+    FINAL_MIN_BYTES: int = 1_000_000
+
+    @staticmethod
+    def _is_valid_artifact(path: Path, min_bytes: int) -> bool:
+        """산출물이 존재하고 최소 크기 이상인지 결정론적으로 판정한다."""
+        try:
+            return path.exists() and path.is_file() and path.stat().st_size >= min_bytes
+        except OSError:
+            return False
+
+    def _phase1_generate_assets(self, scenes: List[SceneSpec]) -> Dict[int, Dict[str, str]]:
+        """Phase1 — 5씬 이미지 + TTS 를 배치 생성한다.
+
+        반환: {scene_idx: {"image": path, "audio": path}}
+        실패 씬은 manifest.scene_failed 에 기록되고 결과 dict 에서 제외된다.
+        """
+        assets: Dict[int, Dict[str, str]] = {}
+        for scene in scenes:
+            base = self.cfg.output_root / f"scene_{scene.index:02d}"
+            base.mkdir(parents=True, exist_ok=True)
+            img_path = base / "frame.png"
+            aud_path = base / "voice.mp3"
+
+            # [리줌] 이미지/TTS 가 이미 온전히 존재하면 재생성 스킵.
+            #   ★ 단일 술어(_is_valid_artifact)로 판정 — 0바이트 파일을 성공으로 오인 금지.
+            if self._is_valid_artifact(img_path, self.IMAGE_MIN_BYTES) and \
+               self._is_valid_artifact(aud_path, self.AUDIO_MIN_BYTES):
+                log.info("Phase1 씬 %d 이미지/TTS 이미 존재 — 스킵(리줌)", scene.index)
+                assets[scene.index] = {"image": str(img_path), "audio": str(aud_path)}
+                continue
+
+            try:
+                img = self.image.generate(
+                    prompt=scene.image_prompt,
+                    out_path=img_path,
+                    size=self.cfg.resolution,
+                    scene_idx=scene.index,
+                    location_en=scene.location_en,
+                    topic=scene.topic,
+                    run_id=self.cfg.run_id,
+                )
+                aud = self.tts.synthesize(scene.narration, scene.voice_id, aud_path)
+                assets[scene.index] = {"image": str(img), "audio": str(aud)}
+                log.info("Phase1 씬 %d 이미지/TTS 완료", scene.index)
+            except Exception as e:
+                tb = traceback.format_exc()
+                log.error("Phase1 씬 %d 실패: %s", scene.index, e)
+                self.manifest.scene_failed(scene.index, f"phase1: {e}", tb)
+        return assets
+
+    def _phase2_render_videos(self, scenes: List[SceneSpec],
+                              assets: Dict[int, Dict[str, str]]) -> Dict[int, str]:
+        """Phase2 — 5씬 영상을 순차 렌더하고 씬별 VRAM 해제를 중앙 관측한다.
+
+        반환: {scene_idx: video_path}
+        """
+        videos: Dict[int, str] = {}
+        for scene in scenes:
+            if scene.index not in assets:
+                log.warning("Phase2 씬 %d 스킵 — Phase1 산출물 부재", scene.index)
+                continue
+            base = self.cfg.output_root / f"scene_{scene.index:02d}"
+            vid_path = base / "scene.mp4"
+
+            # [리줌] 영상이 이미 온전히 존재하면 재렌더 스킵.
+            #   ★ 단일 술어(_is_valid_artifact)로 판정 — Phase1 과 기준 통일.
+            if self._is_valid_artifact(vid_path, self.VIDEO_MIN_BYTES):
+                log.info("Phase2 씬 %d 영상 이미 존재 — 스킵(리줌)", scene.index)
+                videos[scene.index] = str(vid_path)
+                self._free_vram_observed(scene.index)
+                continue
+
+            try:
+                # ★ 타임아웃 방어 배선 — _run_scene_with_timeout 경유(죽은 코드 부활).
+                result = self._run_scene_with_timeout(scene, assets)
+                videos[scene.index] = result["video"]
+                log.info("Phase2 씬 %d 영상 완료", scene.index)
+            except Exception as e:
+                tb = traceback.format_exc()
+                log.error("Phase2 씬 %d 실패: %s", scene.index, e)
+                self.manifest.scene_failed(scene.index, f"phase2: {e}", tb)
+            finally:
+                # ★ 씬 1건 완료/실패 직후 반드시 VRAM 해제 관측 — 자원 고갈 원천 차단.
+                #   · 서킷브레이커 개방 시 PipelineError 로 승격되어 파이프라인 중단.
+                self._free_vram_observed(scene.index)
+        return videos
+
+    def _run_scene_with_timeout(self, scene: SceneSpec,
+                                assets: Dict[int, Dict[str, str]]) -> Dict[str, str]:
+        """씬 1건을 워커 스레드에서 실행하되, 타임아웃 시 워커를 '기다리지 않고' 회수한다.
+
+        ★ 감사 재심 조건 ③ 충족 — 기존 결함 3건 동시 교정:
+          1) `with ThreadPoolExecutor(...)` 는 타임아웃 시 __exit__ 에서
+             shutdown(wait=True) 로 행업 워커를 무한 대기 → 파이프라인 정지.
+             → shutdown(wait=False, cancel_futures=True) 로 즉시 반환.
+          2) `self._run_scene` 은 정의되지 않은 유령 호출(AttributeError).
+             → 실제 존재하는 어댑터 호출(self.video.assemble)로 배선.
+          3) 이 함수 자체가 run() 에서 호출되지 않는 죽은 코드였다.
+             → _phase2_render_videos 가 이 함수를 경유하도록 배선.
+
+        반환: {"image": path, "audio": path, "video": path}
+        """
+        if scene.index not in assets:
+            raise AdapterError(f"씬 {scene.index}: Phase1 산출물 부재 — 렌더 불가")
+        img = Path(assets[scene.index]["image"])
+        aud = Path(assets[scene.index]["audio"])
         base = self.cfg.output_root / f"scene_{scene.index:02d}"
-        base.mkdir(parents=True, exist_ok=True)
-        # [장소 로테이션] 회차별 핫플레이스(location_en)를 이미지 어댑터로 관통 전달.
-        #   · 5씬 전건 동일 값 → 한 편 내 단독 정면 1인 샷 공간 연속성 100%
-        #   · 다음 회차에는 다른 값 → 장소 100% 전환
-        # [시간대 2축 결속] topic(주제)도 함께 관통 전달하여
-        #   location 시그널 + topic 시그널을 동시 스캔한 시간대 판정을 보장한다.
-        # [회차 전용 신규 주인공 결속] run_id 를 이미지 어댑터로 명시 전달한다.
-        #   · resolve_character_asset(scene_idx, run_id) 가 회차 전용 마스터
-        #     (assets/episodes/{run_id}/episode_*_master.png)를 최우선 반환한다.
-        #   · run_id 미전달 시 정적 마스터로 낙하하여 매 회차 동일 인물이 생성되므로
-        #     반드시 self.cfg.run_id 를 관통시켜야 회차별 신규 주인공이 성립한다.
-        img = self.image.generate(
-            prompt=scene.image_prompt,
-            out_path=base / "frame.png",
-            size=self.cfg.resolution,
-            scene_idx=scene.index,
-            location_en=scene.location_en,
-            topic=scene.topic,
-            run_id=self.cfg.run_id,
-        )
-        aud = self.tts.synthesize(scene.narration, scene.voice_id, base / "voice.mp3")
-        # [씬별 감정 연기 SSOT 관통] scene.index 를 비디오 어댑터로 전달한다.
-        #   · Wan S2V 는 이 인덱스로 emotion_for(scene_idx) 를 조회해 씬별 감정선을
-        #     렌더링 프롬프트에 결속한다(씬 1 억울답답 / 씬 2 헛웃음팩폭 / 씬 3 감탄놀람 /
-        #     씬 4 신난설렘 / 씬 5 다정호감).
-        #   · 키프레임(Gemini)과 S2V(Wan)가 동일 인덱스를 공유해야 표정 일치가 100% 성립한다.
-        vid = self.video.assemble(img, aud, base / "scene.mp4", scene.duration_sec, self.cfg,
-                                  scene_idx=scene.index)
-        return {"image": str(img), "audio": str(aud), "video": str(vid)}
+        vid_path = base / "scene.mp4"
 
-    def _run_scene_with_timeout(self, scene: SceneSpec) -> Dict[str, str]:
-        with ThreadPoolExecutor(max_workers=1, thread_name_prefix=f"scene{scene.index}") as ex:
-            fut = ex.submit(self._run_scene, scene)
+        def _work() -> Dict[str, str]:
+            vid = self.video.assemble(
+                img, aud, vid_path, scene.duration_sec, self.cfg,
+                scene_idx=scene.index,
+            )
+            return {"image": str(img), "audio": str(aud), "video": str(vid)}
+
+        ex = ThreadPoolExecutor(max_workers=1, thread_name_prefix=f"scene{scene.index}")
+        try:
+            fut = ex.submit(_work)
             try:
                 return fut.result(timeout=self.cfg.scene_timeout_sec)
             except FutureTimeoutError:
-                raise SceneTimeoutError(f"씬 {scene.index} 타임아웃({self.cfg.scene_timeout_sec}s)")
+                # [디스크 산출물 무결성 자율 회수 SSOT]
+                # 타임아웃 경계 직후 실제 디스크에 온전한 산출물이 이미 완성되어 있는지 검사.
+                if self._is_valid_artifact(vid_path, self.VIDEO_MIN_BYTES) and \
+                   self._is_valid_artifact(img, self.IMAGE_MIN_BYTES) and \
+                   self._is_valid_artifact(aud, self.AUDIO_MIN_BYTES):
+                    log.info("씬 %d 타임아웃 경계 직후 디스크에 온전한 산출물 감지(크기=%d B) — 자율 성공 인정",
+                             scene.index, vid_path.stat().st_size)
+                    return {"image": str(img), "audio": str(aud), "video": str(vid_path)}
+                raise SceneTimeoutError(
+                    f"씬 {scene.index} 타임아웃({self.cfg.scene_timeout_sec}s)"
+                )
+        finally:
+            # ★ wait=False — 행업 워커를 기다리지 않는다(파이프라인 정지 원천 차단).
+            try:
+                ex.shutdown(wait=False, cancel_futures=True)
+            except TypeError:
+                # Python<3.9 호환: cancel_futures 미지원 시 wait=False 만 적용.
+                ex.shutdown(wait=False)
 
     # ------------------------------------------------------------------
     # [FFmpeg 경로 3중 안전망 SSOT] 대표님 지적 사항 (2026-10-25):
@@ -1935,18 +2140,29 @@ class PipelineOrchestrator:
     #   · 실패 시 None 반환 — 본편 5씬은 그대로 보존한다(전체 실패 금지).
     # ------------------------------------------------------------------
     def _render_ending_cta_clip(self, output_dir: Path) -> Optional[Path]:
+        """엔딩 CTA 카드 3초 클립을 렌더한다.
+
+        ★ 감사 재심 조건 ① 충족 — 브랜드 중립 계약 복원:
+          · 기존 코드는 `from brands.aura.ui_templates.aura_drama_cta_card import
+            AuraDramaCTACard` 를 하드코딩하여 BrandProfile 계약을 우회했다.
+          · 이제 profile.render_cta_image(out_path) 포트만 호출한다.
+            보험/주식 브랜드는 BrandProfile 구현체만 교체하면 되고, 이 함수는
+            브랜드 문자열을 전혀 참조하지 않는다.
+        """
         try:
-            from brands.aura.ui_templates.aura_drama_cta_card import AuraDramaCTACard
             cta_img_path = output_dir / "cta_card.png"
             cta_clip_path = output_dir / "scene_06_ending_cta.mp4"
-            if cta_clip_path.exists() and cta_clip_path.stat().st_size > 50000:
+            if self._is_valid_artifact(cta_clip_path, 50_000):
                 log.info("기존 엔딩 CTA 카드 클립 재사용: %s", cta_clip_path.name)
                 return cta_clip_path
 
-            card = AuraDramaCTACard()
-            im = card.render_cta_image(cta_img_path)
-            if not cta_img_path.exists() and im is not None:
-                im.save(cta_img_path, format="PNG")
+            # ★ 브랜드 중립 포트 호출 — 하드코딩 import 금지.
+            rendered = self.profile.render_cta_image(cta_img_path)
+            if rendered is None or not Path(rendered).exists():
+                raise BrandProfileError(
+                    f"CTA 카드 렌더 실패(brand={self.profile.brand_id}) — 포트가 None 반환"
+                )
+            cta_img_path = Path(rendered)
 
             ffmpeg_exe = self._resolve_ffmpeg()
             cmd = [
@@ -2010,17 +2226,34 @@ class PipelineOrchestrator:
     def _run_guarded(self, cmd: List[str], timeout_sec: float, label: str) -> Tuple[int, bytes]:
         """외부 프로세스를 타임아웃·좀비 회수·자원 정리 계약 하에 실행한다.
 
+        ★ 감사 재심 조건 ② 충족 — _lock 존재 검사 누락 교정:
+          · 기존 코드는 `hasattr(self.video, "_procs")` 만 확인하고
+            `self.video._lock` 은 무조건 접근하여 AttributeError 로 즉사할 수 있었다.
+          · 이제 _spawn / _kill_group / _procs / _lock 네 심볼을 모두 검사한 뒤
+            진입하며, 하나라도 없으면 subprocess.Popen 직접 경로로 안전 낙하한다.
+          · 직접 경로로 생성한 프로세스도 finally 에서 반드시 회수한다(좀비 방지).
+
         반환: (returncode, stderr_bytes). 타임아웃 시 SceneTimeoutError 승격.
         """
-        p = self.video._spawn(cmd) if hasattr(self.video, "_spawn") else subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
+        has_spawn = hasattr(self.video, "_spawn")
+        has_kill = hasattr(self.video, "_kill_group")
+        has_procs = hasattr(self.video, "_procs")
+        has_lock = hasattr(self.video, "_lock")
+        tracked = has_spawn and has_procs and has_lock
+
+        if tracked:
+            p = self.video._spawn(cmd)
+        else:
+            log.debug("_run_guarded: 어댑터 추적 심볼 부재(spawn=%s,procs=%s,lock=%s) — 직접 Popen",
+                      has_spawn, has_procs, has_lock)
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
         try:
             _, err = p.communicate(timeout=timeout_sec)
             return p.returncode, err or b""
         except subprocess.TimeoutExpired:
             try:
-                if hasattr(self.video, "_kill_group"):
+                if has_kill:
                     self.video._kill_group(p)
                 else:
                     p.kill()
@@ -2029,12 +2262,33 @@ class PipelineOrchestrator:
                 log.exception("프로세스 회수 실패(label=%s, pid=%s)", label, p.pid)
             raise SceneTimeoutError(f"{label} 타임아웃({timeout_sec}s) — 강제 회수")
         finally:
-            if hasattr(self.video, "_procs"):
-                with self.video._lock:
-                    if p in self.video._procs:
-                        self.video._procs.remove(p)
+            if tracked:
+                try:
+                    with self.video._lock:
+                        if p in self.video._procs:
+                            self.video._procs.remove(p)
+                except Exception:
+                    log.debug("_procs 정리 실패(label=%s) — 무시", label, exc_info=True)
+            else:
+                # 직접 Popen 경로: 좀비 방지를 위해 잔존 프로세스 회수.
+                if p.poll() is None:
+                    try:
+                        p.kill()
+                        p.wait(timeout=10)
+                    except Exception:
+                        log.debug("직접 Popen 회수 실패(label=%s)", label, exc_info=True)
 
     def _apply_branding_overlay(self, input_mp4: Path, output_mp4: Path, body_duration_sec: float) -> Path:
+        """브랜딩 오버레이(상단 캡슐 뱃지 + 하단 바운싱 필 뱃지)를 본편 구간에만 합성한다.
+
+        ★ 감사 재심 조건 ① 충족 — 브랜드 중립 계약 복원:
+          · 기존 코드는 `ShortsBrandCapsuleBadge.get_overlay_path("aura")` /
+            `ShortsBrandingOverlay.get_bouncing_profile_badge_path("aura")` 로
+            브랜드 문자열 "aura" 를 하드코딩하여 어댑터 추상화를 무력화했다.
+          · 이제 profile.resolve_capsule_badge_path() /
+            profile.resolve_profile_pill_badge_path() 포트만 호출한다.
+          · 오버레이 수식도 profile.resolve_bouncing_pill_overlay_expr() 로 조회한다.
+        """
         # [서킷브레이커] 연속 실패 임계 초과 시 즉시 중단(차단 승격) — 무한 재시도 차단.
         if self._overlay_fallback_count >= self.OVERLAY_CIRCUIT_THRESHOLD:
             raise OverlayCompositionError(
@@ -2044,19 +2298,21 @@ class PipelineOrchestrator:
 
         badge_path = None
         try:
-            from core.shorts_engine.shorts_brand_capsule_badge import ShortsBrandCapsuleBadge
-            bp = ShortsBrandCapsuleBadge.get_overlay_path("aura")
+            bp = self.profile.resolve_capsule_badge_path()
             if bp and Path(bp).exists():
                 badge_path = str(Path(bp).resolve()).replace("\\", "/")
+        except BrandProfileError as e:
+            log.warning("상단 캡슐 뱃지 해석 실패(brand=%s): %s", self.profile.brand_id, e)
         except Exception as e:
             log.debug("상단 캡슐 뱃지 로드 실패: %s", e)
 
         pill_path = None
         try:
-            from core.shorts_engine.shorts_branding_overlay import ShortsBrandingOverlay
-            pp = ShortsBrandingOverlay.get_bouncing_profile_badge_path("aura")
+            pp = self.profile.resolve_profile_pill_badge_path()
             if pp and Path(pp).exists():
                 pill_path = str(Path(pp).resolve()).replace("\\", "/")
+        except BrandProfileError as e:
+            log.warning("하단 프로필 필 뱃지 해석 실패(brand=%s): %s", self.profile.brand_id, e)
         except Exception as e:
             log.debug("하단 프로필 링크 뱃지 로드 실패: %s", e)
 
@@ -2090,7 +2346,8 @@ class PipelineOrchestrator:
             #     단일 소유자로부터 받아 그대로 주입한다. 본 파일에 상수 없음.
             #   · eval=frame 명시 — 프레임마다 t 재평가(정지 프레임 굳음 방지).
             #   · enable 조건은 본편 구간 한정 — 엔딩 CTA 카드 침범 방지.
-            pill_x_expr, pill_y_expr = resolve_bouncing_pill_overlay_expr()
+            # ★ 브랜드 중립 포트 호출 — 하드코딩 SSOT 접근자 대신 profile 경유.
+            pill_x_expr, pill_y_expr = self.profile.resolve_bouncing_pill_overlay_expr()
             filters.append(
                 f"[{curr_v}][{v_idx}:v]overlay=x='{pill_x_expr}':y='{pill_y_expr}':eval=frame{enable_expr}[v_pill]"
             )
@@ -2155,30 +2412,106 @@ class PipelineOrchestrator:
         )
 
     def run(self, scenes: List[SceneSpec]) -> Dict[str, Any]:
-        results: Dict[str, Any] = {"ok": [], "failed": [], "final_video": None}
-        for scene in scenes:
-            if self.manifest.is_done(scene.index):
-                log.info("씬 %d 이미 완료 — 스킵(리줌)", scene.index)
-                results["ok"].append(scene.index)
-                continue
-            for attempt in range(1, self.cfg.max_scene_retries + 2):
-                try:
-                    log.info("씬 %d 실행 (시도 %d)", scene.index, attempt)
-                    arts = self._run_scene_with_timeout(scene)
-                    self.manifest.scene_done(scene.index, arts)
-                    results["ok"].append(scene.index)
-                    break
-                except Exception as e:
-                    tb = traceback.format_exc()
-                    log.error("씬 %d 실패(시도 %d): %s", scene.index, attempt, e)
-                    if attempt > self.cfg.max_scene_retries:
-                        self.manifest.scene_failed(scene.index, str(e), tb)
-                        results["failed"].append({"scene": scene.index, "error": str(e)})
+        """3-Phase 오케스트레이션 진입점.
 
-        # [최종 조립] 5씬 전건 성공 시에만 concat 수행 — 부분 산출물로 완성본을 위조하지 않는다.
-        if results["failed"]:
-            log.error("씬 실패 %d건 — 최종 concat 생략(부분 완성본 생성 금지)", len(results["failed"]))
-            return results
+        Phase1(이미지/TTS 배치) → Phase2(영상 순차 + VRAM 해제) → Phase3(조립).
+        각 Phase 완료는 manifest.phases 에 기록되어 단계 단위 리줌이 성립한다.
+        """
+        results: Dict[str, Any] = {"ok": [], "failed": [], "final_video": None}
+        phases = self.manifest.data.setdefault("phases", {})
+
+        # ==============================================================
+        # Phase 1 — 이미지 + TTS 배치 생성
+        # ==============================================================
+        if phases.get("phase1", {}).get("status") == "done":
+            log.info("Phase1 이미 완료 — 스킵(리줌)")
+            assets: Dict[int, Dict[str, str]] = {}
+            for scene in scenes:
+                base = self.cfg.output_root / f"scene_{scene.index:02d}"
+                img_p = base / "frame.png"
+                aud_p = base / "voice.mp3"
+                # ★ 단일 술어 판정 — 0바이트 파일을 성공으로 오인 금지.
+                if self._is_valid_artifact(img_p, self.IMAGE_MIN_BYTES) and \
+                   self._is_valid_artifact(aud_p, self.AUDIO_MIN_BYTES):
+                    assets[scene.index] = {"image": str(img_p), "audio": str(aud_p)}
+                else:
+                    log.warning("Phase1 리줌 무효 — 씬 %d 산출물 손상/부재", scene.index)
+            # ★ 리줌 무결성 재검증: 일부 씬이 손상이면 phase1 done 을 신뢰하지 않고 재생성.
+            if len(assets) != len(scenes):
+                log.warning("Phase1 리줌 부분 손상(%d/%d) — phase1 done 무효화 후 재생성",
+                            len(assets), len(scenes))
+                phases.pop("phase1", None)
+                self.manifest._flush()
+                assets = self._phase1_generate_assets(scenes)
+                if len(assets) == len(scenes):
+                    phases["phase1"] = {
+                        "status": "done",
+                        "ts": datetime.now(timezone.utc).isoformat(),
+                    }
+                    self.manifest._flush()
+                else:
+                    log.error("Phase1 재생성 부분 실패: %d/%d 씬 — Phase2 진입 차단",
+                              len(assets), len(scenes))
+                    results["failed"].extend([
+                        {"scene": s.index, "error": "phase1 미완료"}
+                        for s in scenes if s.index not in assets
+                    ])
+                    return results
+        else:
+            log.info("Phase1 시작: %d씬 이미지/TTS 배치 생성", len(scenes))
+            assets = self._phase1_generate_assets(scenes)
+            if len(assets) == len(scenes):
+                phases["phase1"] = {
+                    "status": "done",
+                    "ts": datetime.now(timezone.utc).isoformat(),
+                }
+                self.manifest._flush()
+                log.info("Phase1 완료: %d/%d 씬", len(assets), len(scenes))
+            else:
+                log.error("Phase1 부분 실패: %d/%d 씬 — Phase2 진입 차단",
+                          len(assets), len(scenes))
+                results["failed"] = [
+                    {"scene": s.index, "error": "phase1 미완료"}
+                    for s in scenes if s.index not in assets
+                ]
+                return results
+
+        # ==============================================================
+        # Phase 2 — 영상 순차 렌더 + 씬별 VRAM 해제
+        # ==============================================================
+        if phases.get("phase2", {}).get("status") == "done":
+            log.info("Phase2 이미 완료 — 스킵(리줌)")
+            videos: Dict[int, str] = {}
+            for scene in scenes:
+                vid_p = self.cfg.output_root / f"scene_{scene.index:02d}" / "scene.mp4"
+                if vid_p.exists() and vid_p.stat().st_size > 0:
+                    videos[scene.index] = str(vid_p)
+        else:
+            log.info("Phase2 시작: %d씬 영상 순차 렌더", len(scenes))
+            videos = self._phase2_render_videos(scenes, assets)
+            if len(videos) == len(scenes):
+                phases["phase2"] = {
+                    "status": "done",
+                    "ts": datetime.now(timezone.utc).isoformat(),
+                }
+                self.manifest._flush()
+                log.info("Phase2 완료: %d/%d 씬", len(videos), len(scenes))
+            else:
+                log.error("Phase2 부분 실패: %d/%d 씬 — Phase3 진입 차단",
+                          len(videos), len(scenes))
+                results["failed"] = [
+                    {"scene": s.index, "error": "phase2 미완료"}
+                    for s in scenes if s.index not in videos
+                ]
+                return results
+
+        # Phase1/Phase2 성공 씬을 results["ok"] 에 반영.
+        results["ok"] = sorted(videos.keys())
+
+        # ==============================================================
+        # Phase 3 — 엔딩 CTA + concat + 브랜딩 오버레이 조립
+        # ==============================================================
+        log.info("Phase3 시작: 최종 조립")
 
         clips: List[Path] = []
         body_total_dur = 0.0
@@ -2232,6 +2565,10 @@ class PipelineOrchestrator:
             "ending_cta": str(cta_clip) if cta_clip else None,
             "ts": datetime.now(timezone.utc).isoformat(),
         }
+        self.manifest.data.setdefault("phases", {})["phase3"] = {
+            "status": "done",
+            "ts": datetime.now(timezone.utc).isoformat(),
+        }
         self.manifest._flush()
         results["final_video"] = str(final_video)
         log.info("최종 완성본 렌더링 완료: %s", final_video)
@@ -2241,24 +2578,60 @@ class PipelineOrchestrator:
 # ---------------------------------------------------------------------------
 # 9) 어댑터 선택 (auto → available 순)
 # ---------------------------------------------------------------------------
-def select_image_adapter(cfg: PipelineConfig) -> ImagePort:
-    """이미지 어댑터 자동 선택 — 1순위 Gemini 실사, 2순위 ComfyUI, 3순위 브랜드 에셋.
+# [이미지 백엔드 정책 게이트 SSOT] 대표님 확정 지시 (2026-10-26):
+#   "GeminiImageAdapter 는 후보 목록에서 영구 제거. 주석 처리식 땜질 금지 —
+#    다른 경로(브랜드 필터/문서 1순위 표기/타 모듈 직접 인스턴스화)로 도달 불가하게
+#    화이트리스트 정책 게이트로 봉인하라."
+#
+#   ★ 왜 화이트리스트인가: 후보 리스트에서 한 줄 지우는 방식은
+#     · cfg.image_backend="gemini" 필터 경로
+#     · docstring 의 "1순위 Gemini" 표기
+#     · 타 모듈의 직접 인스턴스화
+#     세 경로로 여전히 도달 가능하여 드리프트가 재발한다.
+#     따라서 '허용 백엔드 집합'을 단일 진실 원천으로 두고, 요청이 이 집합 밖이면
+#     auto 후보로 강제 낙하시킨다(정책 위반은 조용히 통과시키지 않는다).
+# ---------------------------------------------------------------------------
+ALLOWED_IMAGE_BACKENDS: Tuple[str, ...] = ("auto", "comfyui", "asset_fallback", "pil")
+BANNED_IMAGE_BACKENDS: Tuple[str, ...] = ("gemini",)
 
-    [영구 퇴출] 검은색 단색 더미 박스 어댑터(PILImageAdapter)는 후보에서 제외한다.
+
+def select_image_adapter(cfg: PipelineConfig) -> ImagePort:
+    """이미지 어댑터 자동 선택 — 1순위 ComfyUI 실사, 2순위 브랜드 에셋 폴백.
+
+    [영구 퇴출]
+      · 검은색 단색 더미 박스 어댑터(PILImageAdapter) — 후보 제외.
+      · GeminiImageAdapter — 후보 목록에서 영구 제거 + 정책 게이트로 도달 차단.
+
+    정책 게이트:
+      · cfg.image_backend 가 BANNED_IMAGE_BACKENDS 에 속하면 즉시 auto 로 강제 낙하.
+      · ALLOWED_IMAGE_BACKENDS 밖의 값도 auto 로 강제 낙하(오타/미지정 방어).
+      · 'pil' 은 레거시 별칭으로 asset_fallback 에 매핑한다.
     """
     candidates: List[ImagePort] = [
-        GeminiImageAdapter(),
-        ComfyUIImageAdapter(),
+        ComfyUIImageAdapter(brand="aura"),
         BrandAssetFallbackAdapter(),
     ]
-    if cfg.image_backend != "auto":
-        # 'pil' 은 레거시 별칭으로 asset_fallback 에 매핑한다.
-        wanted = "asset_fallback" if cfg.image_backend == "pil" else cfg.image_backend
+
+    requested = (cfg.image_backend or "auto").strip().lower()
+    if requested in BANNED_IMAGE_BACKENDS:
+        log.warning(
+            "이미지 백엔드 '%s' 는 정책상 영구 차단 — auto 후보로 강제 낙하", requested
+        )
+        requested = "auto"
+    elif requested not in ALLOWED_IMAGE_BACKENDS:
+        log.warning(
+            "이미지 백엔드 '%s' 는 허용 목록 밖 — auto 후보로 강제 낙하", requested
+        )
+        requested = "auto"
+
+    if requested != "auto":
+        wanted = "asset_fallback" if requested == "pil" else requested
         filtered = [c for c in candidates if c.name == wanted]
         if filtered:
             candidates = filtered
         else:
-            log.warning("요청 백엔드 '%s' 미존재 — auto 후보로 폴백", cfg.image_backend)
+            log.warning("요청 백엔드 '%s' 미존재 — auto 후보로 폴백", requested)
+
     for c in candidates:
         if c.available():
             log.info("이미지 어댑터 선택: %s", c.name)
@@ -2547,38 +2920,92 @@ AURA_SPATIAL_POSTURE_MODES: Dict[str, Dict[str, str]] = {
         "name_ko": "실내 핫플 카페/와인바 좌식 모드 (Mode A)",
         "desc": "감성 카페/와인바 원목 테이블에 마주 앉아 티키타카 대화",
         "couple_shot": (
-            "two-shot composition, stylish young Korean woman and handsome man in their mid-20s "
-            "seated facing each other across a cafe table, relaxed posture, upper-body shot, "
-            "natural eye-line exchange at same seated eye level, warm ambient lighting"
+            "solo portrait, single person only, stylish young Korean person "
+            "seated upright across a cafe table, medium waist-up shot at 1.7m camera distance, "
+            "natural horizontal eye-line at comfortable conversation eye level, warm ambient lighting"
         ),
-        "female_posture": "seated at stylish cafe table, natural relaxed sitting posture, upper body, eye level matching seated partner",
-        "male_posture": "seated at stylish cafe table, natural relaxed sitting posture, upper body, eye level matching seated partner",
+        "female_posture": (
+            "solo portrait, single person only, exactly ONE person centered in frame, looking straight ahead at camera, "
+            "medium waist-up shot taken from 1.7m camera distance, comfortable eye-level conversation perspective, "
+            "showing full upper body down to waist and elbows, seated perfectly upright at stylish cafe table, "
+            "chest and shoulders open, head held high, looking straight ahead at camera at horizontal eye level, "
+            "arms resting neatly on table edge without slouching, 50mm natural conversation lens, "
+            "wearing an elegant smart-casual camel brown blazer jacket over a clean white crew-neck top, "
+            "absolutely NO close-up, NO extreme tight shot, absolutely NO second person, NO twin, NO sleeveless top, NO camisole"
+        ),
+        "male_posture": (
+            "solo portrait, single person only, exactly ONE person centered in frame, looking straight ahead at camera, "
+            "tall athletic handsome Korean man in his mid-20s, perfectly proportioned 8-head body ratio (8-head proportion physique), "
+            "broad masculine shoulders, healthy well-built chest and neck, confident upright posture, "
+            "medium waist-up shot taken from 1.7m camera distance, comfortable eye-level conversation perspective, "
+            "showing full upper body down to waist and elbows, seated perfectly upright at stylish cafe table, "
+            "chest and shoulders open, head held high, looking straight ahead at camera at horizontal eye level, "
+            "arms resting neatly on table edge without slouching, absolutely NO leaning forward, NO sleeping on table, "
+            "wearing a stylish clean olive-khaki overshirt button-down layered over a crisp white t-shirt, "
+            "50mm natural conversation lens, absolutely NO close-up, NO extreme tight shot, "
+            "absolutely NO second person, NO woman next to him, NO skinny emaciated body, NO narrow shoulders, NO thin neck"
+        ),
         "eye_line_anchor": "eye_level_seated_horizontal",
     },
     "OUTDOOR_STANDING": {
         "mode_id": "OUTDOOR_STANDING",
         "name_ko": "야외 공원/한강 산책로 입식 모드 (Mode B)",
-        "desc": "서울숲 잔디밭 산책로나 한강 수변 난간에서 테이크아웃 커피를 들고 나란히 서서 대화",
+        "desc": "서울숲 잔디밭 산책로나 한강 수변 난간에서 바르게 서서 대화",
         "couple_shot": (
-            "two-shot composition, stylish young Korean woman and handsome man standing side by side "
-            "in a lush green city park, holding takeout coffee cups, upright natural posture, "
-            "upper-body shot, natural eye-line exchange at same standing eye level, bright natural daylight"
+            "solo portrait, single person only, stylish young Korean person standing upright "
+            "in a lush green city park, upright natural posture, "
+            "medium waist-up shot at 1.7m camera distance, bright natural daylight"
         ),
-        "female_posture": "standing in lush green city park path, natural standing posture, holding takeout coffee, upper body, eye level matching standing partner",
-        "male_posture": "standing in lush green city park path, natural standing posture, upright upper body, eye level matching standing partner",
+        "female_posture": (
+            "solo portrait, single person only, exactly ONE person centered in frame, looking straight ahead at camera, "
+            "medium waist-up portrait taken from 1.7m camera distance, comfortable eye-level conversation perspective, "
+            "showing full upper body down to waist, standing naturally upright, perfectly erect posture, "
+            "head held high, looking straight ahead at camera at horizontal eye level, relaxed arms at sides, "
+            "wearing an elegant smart-casual camel brown blazer jacket over a clean white crew-neck top, "
+            "50mm natural conversation lens, absolutely NO close-up, NO extreme tight shot, "
+            "absolutely NO second person, NO twin, NO sleeveless top, NO camisole"
+        ),
+        "male_posture": (
+            "solo portrait, single person only, exactly ONE person centered in frame, looking straight ahead at camera, "
+            "tall athletic handsome Korean man in his mid-20s, perfectly proportioned 8-head body ratio (8-head proportion physique), "
+            "broad masculine shoulders, healthy well-built chest and neck, confident upright posture, "
+            "medium waist-up portrait taken from 1.7m camera distance, comfortable eye-level conversation perspective, "
+            "showing full upper body down to waist, standing naturally upright, perfectly erect posture, "
+            "head held high, looking straight ahead at camera at horizontal eye level, relaxed arms at sides, "
+            "wearing a stylish clean olive-khaki overshirt button-down layered over a crisp white t-shirt, "
+            "50mm natural conversation lens, absolutely NO close-up, NO extreme tight shot, "
+            "absolutely NO second person, NO woman next to him, NO skinny emaciated body, NO narrow shoulders, NO thin neck"
+        ),
         "eye_line_anchor": "eye_level_standing_horizontal",
     },
     "STREET_WALKING": {
         "mode_id": "STREET_WALKING",
         "name_ko": "삼청동 돌담길/거리 산책 워킹 모드 (Mode C)",
-        "desc": "삼청동 감성 한옥 돌담길이나 성수동 골목길을 나란히 걸어가며 활기차게 대화",
+        "desc": "삼청동 감성 한옥 돌담길이나 성수동 골목길을 걸어가며 활기차게 대화",
         "couple_shot": (
-            "two-shot composition, stylish young Korean couple walking naturally together side by side "
-            "along picturesque Samcheong-dong stone wall alley, natural walking posture, upper-body shot, "
-            "glancing at each other with cheerful smile, matching eye level, soft daylight"
+            "solo portrait, single person only, stylish young Korean person walking naturally "
+            "along picturesque Samcheong-dong stone wall alley, natural walking posture, medium waist-up shot at 1.7m camera distance, soft daylight"
         ),
-        "female_posture": "walking along picturesque traditional stone wall street, natural walking posture, upper body, eye level matching walking partner",
-        "male_posture": "walking along picturesque traditional stone wall street, natural walking posture, upright upper body, eye level matching walking partner",
+        "female_posture": (
+            "solo portrait, single person only, exactly ONE person centered in frame, looking straight ahead at camera, "
+            "medium waist-up portrait taken from 1.7m camera distance, comfortable eye-level conversation perspective, "
+            "showing full upper body down to waist, walking naturally, perfectly erect upright posture, "
+            "head held high, looking straight ahead with gentle expression, "
+            "wearing an elegant smart-casual camel brown blazer jacket over a clean white crew-neck top, "
+            "50mm natural conversation lens, absolutely NO close-up, NO extreme tight shot, "
+            "absolutely NO second person, NO twin, NO sleeveless top, NO camisole"
+        ),
+        "male_posture": (
+            "solo portrait, single person only, exactly ONE person centered in frame, looking straight ahead at camera, "
+            "tall athletic handsome Korean man in his mid-20s, perfectly proportioned 8-head body ratio (8-head proportion physique), "
+            "broad masculine shoulders, healthy well-built chest and neck, confident upright posture, "
+            "medium waist-up portrait taken from 1.7m camera distance, comfortable eye-level conversation perspective, "
+            "showing full upper body down to waist, walking naturally, perfectly erect upright posture, "
+            "head held high, looking straight ahead with gentle expression, "
+            "wearing a stylish clean olive-khaki overshirt button-down layered over a crisp white t-shirt, "
+            "50mm natural conversation lens, absolutely NO close-up, NO extreme tight shot, "
+            "absolutely NO second person, NO woman next to him, NO skinny emaciated body, NO narrow shoulders, NO thin neck"
+        ),
         "eye_line_anchor": "eye_level_walking_horizontal",
     },
 }
@@ -2586,10 +3013,20 @@ AURA_SPATIAL_POSTURE_MODES: Dict[str, Dict[str, str]] = {
 _AURA_POSTURE_CYCLE: Tuple[str, ...] = ("INDOOR_SEATED", "OUTDOOR_STANDING", "STREET_WALKING")
 
 
-def get_aura_spatial_anchor(run_no: int) -> Dict[str, str]:
-    """회차 번호(run_no)에 따라 아우라 공간 앵커(실내좌식 ↔ 공원입식 ↔ 거리워킹)를 3주기 결정론적으로 순환 반환한다."""
-    idx = (run_no - 1) % len(_AURA_POSTURE_CYCLE) if run_no > 0 else 0
-    return AURA_SPATIAL_POSTURE_MODES[_AURA_POSTURE_CYCLE[idx]]
+def get_aura_spatial_anchor(location_idx: int) -> Dict[str, str]:
+    """장소 인덱스(0~15)에 100% 결속된 공간 및 자세 앵커를 반환한다.
+    - 0~5 (실내 핫플 6곳): 100% INDOOR_SEATED (둘 다 똑같이 테이블에 바르게 앉기)
+    - 6~10 (야외 공원/한강 5곳): 100% OUTDOOR_STANDING (둘 다 똑같이 자연스럽게 서기)
+    - 11~15 (거리/골목길 5곳): 100% STREET_WALKING (둘 다 똑같이 바르게 걷기)
+    한 편(1~5씬) 내에서 남녀의 자세, 눈높이, 공간이 단 1%도 어긋나지 않도록 단일 결속한다.
+    """
+    loc_clean = int(location_idx) % 16
+    if loc_clean < 6:
+        return AURA_SPATIAL_POSTURE_MODES["INDOOR_SEATED"]
+    elif loc_clean < 11:
+        return AURA_SPATIAL_POSTURE_MODES["OUTDOOR_STANDING"]
+    else:
+        return AURA_SPATIAL_POSTURE_MODES["STREET_WALKING"]
 
 
 # ---------------------------------------------------------------------------
@@ -3092,7 +3529,7 @@ def _compose_from_matrix(profile: BrandProfile, topic: str, genre: str,
 
 
 def _build_autonomous_scenes(profile: BrandProfile, topic: str, genre: str, run_no: int,
-                             location_en: str = "") -> List[SceneSpec]:
+                             location_en: str = "", location_idx: int = 0) -> List[SceneSpec]:
     """자율 시나리오 생성 엔진 — Gemini 우선, 실패 시 profile 서사 매트릭스 폴백.
 
     ★ 감사 재심: 기존에는 SCENE_PLAN/BRAND_SEARCH_KEYWORD/BRAND_CTA/NARRATIVE_MATRIX
@@ -3103,6 +3540,7 @@ def _build_autonomous_scenes(profile: BrandProfile, topic: str, genre: str, run_
       2) 씬5 narration에 profile.brand_search_keyword + profile.brand_cta 강제 주입.
       3) 자리표시자/더미 텍스트 생성 금지.
       4) location_en 은 5씬 전건에 동일 주입 — 한 편 안의 공간 연속성 100% 보장.
+      5) location_idx 기반 공간/자세 앵커 결속 — 남녀 눈높이와 자세(둘 다 앉기/둘 다 서기/둘 다 걷기) 100% 일치.
     """
     drafted = _call_gemini_scenario(profile, topic, genre, run_no)
     if drafted is None:
@@ -3114,25 +3552,62 @@ def _build_autonomous_scenes(profile: BrandProfile, topic: str, genre: str, run_
             f"scene_plan 길이 위반(brand={profile.brand_id}): {len(plan)} (정확히 5 필요)"
         )
 
-    # [아우라 공간 & 포즈 앵커 SSOT 결속]
-    # 회차별 앵커(실내좌식 ↔ 공원입식 ↔ 거리워킹)를 5씬 전건의 image_prompt에 최종 결속하여
-    # Gemini 생성본 및 폴백 매트릭스 전건에서 시선·포즈 불일치가 발생하지 않도록 2중 방어한다.
+    # [공간 & 포즈 앵커 SSOT 결속] 장소 인덱스와 1:1 결속하여 남녀 포즈 및 눈높이 완전 일치
     try:
-        anchor = get_aura_spatial_anchor(run_no)
+        anchor = get_aura_spatial_anchor(location_idx)
     except Exception:
         anchor = AURA_SPATIAL_POSTURE_MODES["INDOOR_SEATED"]
+
+    # [조명 일관성 SSOT 결속] 한 편(1~5씬) 전체에 100% 단일 시간대 및 조명 강제 적용 (누군 낮이고 누군 밤인 괴리 원천 차단)
+    tod = resolve_time_of_day(location=location_en, topic=topic)
+    tod_lighting = lighting_for(tod)
 
     scenes: List[SceneSpec] = []
     for i, ((dur, voice), item) in enumerate(zip(plan, drafted), start=1):
         narr = item["narration"].strip()
         prm = item["image_prompt"].strip()
 
-        # 화자별(서연:1,3,4,5 / 민준:2) 자세 앵커 결속 (현재 회차 모드 자세 토큰 보장)
-        posture_tok = anchor["male_posture"] if (i == 2) else anchor["female_posture"]
-        mode_id_low = anchor["mode_id"].lower()
-        required_pose = "seated" if "seated" in mode_id_low else ("standing" if "standing" in mode_id_low else "walking")
-        if required_pose not in prm.lower():
-            prm = f"{prm}, {posture_tok}"
+        # 대본 내 상충되는 기존 포즈/클로즈업 및 개별 조명/2인/의상 오염 잔재를 깨끗이 소거
+        prm_clean = prm
+        for old_phrase in [
+            "sitting opposite at the cafe table",
+            "sitting at the cafe table",
+            "sitting across the table",
+            "standing near bench",
+            "standing in lush green city park path",
+            "standing naturally upright side by side",
+            "side by side",
+            "with partner",
+            "two people",
+            "couple walking",
+            "two-shot composition",
+            "two-shot",
+            "holding hands",
+            "couple",
+            "cinematic close up,",
+            "cinematic close up",
+            "close up of Minjun",
+            "close up of",
+            "close up,",
+            "close up",
+            "85mm portrait lens",
+            "85mm lens",
+            "cold blue tone",
+            "cold tone",
+            "dark bedroom",
+            "dark room",
+            "at night",
+            "at dusk",
+            "sleeveless top",
+            "sleeveless",
+            "camisole",
+            "tank top",
+        ]:
+            prm_clean = prm_clean.replace(old_phrase, "").strip(", ")
+
+        posture_tok = anchor["male_posture"] if (i in (2, 4)) else anchor["female_posture"]
+        prm_with_posture = f"{prm_clean}, {posture_tok}" if posture_tok not in prm_clean else prm_clean
+        prm_final = f"{prm_with_posture}, {tod_lighting}" if tod_lighting not in prm_with_posture else prm_with_posture
 
         if i == 5:
             kw = profile.brand_search_keyword
@@ -3145,7 +3620,7 @@ def _build_autonomous_scenes(profile: BrandProfile, topic: str, genre: str, run_
             index=i,
             narration=narr,
             duration_sec=dur,
-            image_prompt=prm,
+            image_prompt=prm_final,
             voice_id=voice,
             location_en=location_en,
             topic=topic,
@@ -3185,7 +3660,7 @@ def build_default_5scenes_spec(profile: Optional[BrandProfile] = None) -> List[S
     location_en = profile.locations_en[location_idx]
     run_no = state["run"] + 1
 
-    scenes = _build_autonomous_scenes(profile, topic, genre, run_no, location_en=location_en)
+    scenes = _build_autonomous_scenes(profile, topic, genre, run_no, location_en=location_en, location_idx=location_idx)
     SpecValidator.validate_all(scenes, 0.0, f"{profile.brand_id}_default_5scenes")
 
     _save_rotation_state(profile, {

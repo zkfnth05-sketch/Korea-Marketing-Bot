@@ -713,5 +713,71 @@
       }
     },
     "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "morning",
+    "topic": "치과 치료 받기 전에 반드시 확인해야 할 숨은 실손 보장",
+    "caption_preview": "치과치료 100만원? 내 실손보험이 잠자고 있을 수도 있습니다.\n\n많은 분이 실손은 치과에 안 된다 오해하지...",
+    "published_at": "2026-10-27T10:08:34.648373",
+    "publish_result": {
+      "success": true,
+      "brand": "insurance",
+      "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "insurance",
+        "published_at": "2026-10-27T10:08:34.585349",
+        "caption_preview": "치과치료 100만원? 내 실손보험이 잠자고 있을 수도 있습니다.\n\n많은 분이 실손은 치과에 안 된다 오해하지...",
+        "media_count": 0,
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "evening",
+    "topic": "가족력 있는 사람이 3대 질병 진단비 가성비로 맞추는 법",
+    "caption_preview": "비싼 종합보험에 3대 질병 진단비까지 끼워 넣어 보험료 낭비하는 분들, 주목하세요!\n\n대부분 종합보험은 이것...",
+    "published_at": "2026-10-27T19:31:13.397666",
+    "publish_result": {
+      "success": true,
+      "brand": "insurance",
+      "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "insurance",
+        "published_at": "2026-10-27T19:31:13.333954",
+        "caption_preview": "비싼 종합보험에 3대 질병 진단비까지 끼워 넣어 보험료 낭비하는 분들, 주목하세요!\n\n대부분 종합보험은 이것...",
+        "media_count": 0,
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "insurance",
+    "slot": "morning",
+    "topic": "부모님 암보험 갱신 폭탄 피하는 리모델링 3원칙",
+    "caption_preview": "부모님 보험료가 3년마다 2배씩 뛴다면 당장 이 항목부터 확인하세요.\n\n대부분 갱신형 암보험은 가입 후 일정...",
+    "published_at": "2026-10-28T09:31:18.826132",
+    "publish_result": {
+      "success": true,
+      "brand": "insurance",
+      "message": "🎉 [스레드 발행 성공] 보험 리밸런스 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "insurance",
+        "published_at": "2026-10-28T09:31:18.770588",
+        "caption_preview": "부모님 보험료가 3년마다 2배씩 뛴다면 당장 이 항목부터 확인하세요.\n\n대부분 갱신형 암보험은 가입 후 일정...",
+        "media_count": 0,
+        "first_reply": "🛡️ 내 보험료 과다청구 1분 무료 분석\n네이버에 '보험 리밸런스' 한번 검색해보세요!\n👉 https://insure-rebalance.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\insurance\\threads_live_proof.png"
+      }
+    },
+    "success": true
   }
 ]

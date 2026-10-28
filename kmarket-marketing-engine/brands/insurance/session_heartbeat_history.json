@@ -1,425 +1,5 @@
 [
   {
-    "timestamp": "2026-10-19T02:05:10.048077",
-    "brand": "insurance",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-19T02:05:13.534191",
-    "brand": "insurance",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-19T02:05:17.174219",
-    "brand": "insurance",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T02:05:23.443584",
-    "brand": "insurance",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T05:06:16.278339",
-    "brand": "insurance",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
-  },
-  {
-    "timestamp": "2026-10-19T05:06:20.254946",
-    "brand": "insurance",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T05:06:24.998708",
-    "brand": "insurance",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-19T05:06:28.493348",
-    "brand": "insurance",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-19T05:06:31.629648",
-    "brand": "insurance",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T05:06:38.002617",
-    "brand": "insurance",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T08:07:35.873015",
-    "brand": "insurance",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
-  },
-  {
-    "timestamp": "2026-10-19T08:07:39.648424",
-    "brand": "insurance",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T08:07:44.391466",
-    "brand": "insurance",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-19T08:07:47.855922",
-    "brand": "insurance",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-19T08:07:51.248117",
-    "brand": "insurance",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T08:07:57.643808",
-    "brand": "insurance",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T08:13:15.612620",
-    "brand": "insurance",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
-  },
-  {
-    "timestamp": "2026-10-19T08:13:19.535230",
-    "brand": "insurance",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T08:13:24.231571",
-    "brand": "insurance",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-19T08:13:27.674769",
-    "brand": "insurance",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-19T08:13:30.935383",
-    "brand": "insurance",
-    "platform": "threads",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T08:13:37.547140",
-    "brand": "insurance",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T11:14:29.381518",
-    "brand": "insurance",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
-  },
-  {
-    "timestamp": "2026-10-19T11:14:33.193404",
-    "brand": "insurance",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T11:14:37.858399",
-    "brand": "insurance",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-19T11:14:41.366182",
-    "brand": "insurance",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-19T11:14:44.705792",
-    "brand": "insurance",
-    "platform": "threads",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T11:14:50.843437",
-    "brand": "insurance",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T14:15:49.120488",
-    "brand": "insurance",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
-  },
-  {
-    "timestamp": "2026-10-19T14:15:53.041223",
-    "brand": "insurance",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T14:15:57.721261",
-    "brand": "insurance",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-19T14:16:01.205382",
-    "brand": "insurance",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-19T14:16:05.426342",
-    "brand": "insurance",
-    "platform": "threads",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T14:16:11.539761",
-    "brand": "insurance",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T17:17:08.349003",
-    "brand": "insurance",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
-  },
-  {
-    "timestamp": "2026-10-19T17:17:12.243562",
-    "brand": "insurance",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T17:17:17.014769",
-    "brand": "insurance",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-19T17:17:20.578235",
-    "brand": "insurance",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-19T17:17:23.990548",
-    "brand": "insurance",
-    "platform": "threads",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T17:17:30.127379",
-    "brand": "insurance",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T20:18:26.108531",
-    "brand": "insurance",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
-  },
-  {
-    "timestamp": "2026-10-19T20:18:32.437598",
-    "brand": "insurance",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T20:18:37.441529",
-    "brand": "insurance",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-19T20:18:40.975638",
-    "brand": "insurance",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-19T20:18:44.343865",
-    "brand": "insurance",
-    "platform": "threads",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T20:18:50.295577",
-    "brand": "insurance",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T22:56:28.488387",
-    "brand": "insurance",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
-  },
-  {
-    "timestamp": "2026-10-19T22:56:32.408892",
-    "brand": "insurance",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T22:56:37.363636",
-    "brand": "insurance",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-19T22:56:42.810036",
-    "brand": "insurance",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T22:56:48.097588",
-    "brand": "insurance",
-    "platform": "threads",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T22:56:54.033776",
-    "brand": "insurance",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-20T01:57:56.008241",
-    "brand": "insurance",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
-  },
-  {
-    "timestamp": "2026-10-20T01:57:59.988682",
-    "brand": "insurance",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
-  },
-  {
-    "timestamp": "2026-10-20T01:58:04.727852",
-    "brand": "insurance",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-20T01:58:08.239620",
-    "brand": "insurance",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-20T01:58:11.885376",
-    "brand": "insurance",
-    "platform": "threads",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
-  },
-  {
-    "timestamp": "2026-10-20T01:58:17.956431",
-    "brand": "insurance",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-20T04:59:19.030466",
-    "brand": "insurance",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
-  },
-  {
-    "timestamp": "2026-10-20T04:59:22.925085",
-    "brand": "insurance",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
-  },
-  {
     "timestamp": "2026-10-20T04:59:27.542695",
     "brand": "insurance",
     "platform": "tiktok",
@@ -698,5 +278,425 @@
     "platform": "tistory",
     "status": "session_expired",
     "message": "카카오 세션 만료"
+  },
+  {
+    "timestamp": "2026-10-27T10:07:48.118884",
+    "brand": "insurance",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
+  },
+  {
+    "timestamp": "2026-10-27T10:07:52.005850",
+    "brand": "insurance",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
+  },
+  {
+    "timestamp": "2026-10-27T10:07:57.079060",
+    "brand": "insurance",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-27T10:08:00.610683",
+    "brand": "insurance",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-27T10:08:11.082671",
+    "brand": "insurance",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-27T10:08:26.013639",
+    "brand": "insurance",
+    "platform": "tistory",
+    "status": "session_expired",
+    "message": "카카오 세션 만료"
+  },
+  {
+    "timestamp": "2026-10-27T13:09:24.293745",
+    "brand": "insurance",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
+  },
+  {
+    "timestamp": "2026-10-27T13:09:28.312468",
+    "brand": "insurance",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
+  },
+  {
+    "timestamp": "2026-10-27T13:09:33.295184",
+    "brand": "insurance",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-27T13:09:36.788922",
+    "brand": "insurance",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-27T13:09:40.129861",
+    "brand": "insurance",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-27T13:09:42.152010",
+    "brand": "insurance",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-27T16:10:40.919276",
+    "brand": "insurance",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
+  },
+  {
+    "timestamp": "2026-10-27T16:10:44.962719",
+    "brand": "insurance",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
+  },
+  {
+    "timestamp": "2026-10-27T16:10:49.635181",
+    "brand": "insurance",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-27T16:10:53.142852",
+    "brand": "insurance",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-27T16:10:56.361053",
+    "brand": "insurance",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-27T16:10:58.376016",
+    "brand": "insurance",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-27T19:11:54.496713",
+    "brand": "insurance",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
+  },
+  {
+    "timestamp": "2026-10-27T19:11:58.494351",
+    "brand": "insurance",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
+  },
+  {
+    "timestamp": "2026-10-27T19:12:03.315551",
+    "brand": "insurance",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-27T19:12:06.810097",
+    "brand": "insurance",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-27T19:12:10.456188",
+    "brand": "insurance",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-27T19:12:12.457140",
+    "brand": "insurance",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-27T22:13:20.639771",
+    "brand": "insurance",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
+  },
+  {
+    "timestamp": "2026-10-27T22:13:30.113178",
+    "brand": "insurance",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
+  },
+  {
+    "timestamp": "2026-10-27T22:13:34.992957",
+    "brand": "insurance",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-27T22:13:38.512997",
+    "brand": "insurance",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-27T22:13:41.773573",
+    "brand": "insurance",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-27T22:13:43.811453",
+    "brand": "insurance",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-28T01:15:12.234242",
+    "brand": "insurance",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
+  },
+  {
+    "timestamp": "2026-10-28T01:15:16.222911",
+    "brand": "insurance",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
+  },
+  {
+    "timestamp": "2026-10-28T01:15:21.121920",
+    "brand": "insurance",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-28T01:15:24.614242",
+    "brand": "insurance",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-28T01:15:28.282553",
+    "brand": "insurance",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-28T01:15:30.293171",
+    "brand": "insurance",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-28T04:16:41.274183",
+    "brand": "insurance",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
+  },
+  {
+    "timestamp": "2026-10-28T04:16:45.148150",
+    "brand": "insurance",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
+  },
+  {
+    "timestamp": "2026-10-28T04:16:49.848844",
+    "brand": "insurance",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-28T04:16:53.346663",
+    "brand": "insurance",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-28T04:16:56.971306",
+    "brand": "insurance",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-28T04:16:58.969600",
+    "brand": "insurance",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-28T07:18:16.823695",
+    "brand": "insurance",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
+  },
+  {
+    "timestamp": "2026-10-28T07:18:20.902223",
+    "brand": "insurance",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
+  },
+  {
+    "timestamp": "2026-10-28T07:18:25.604865",
+    "brand": "insurance",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-28T07:18:29.086453",
+    "brand": "insurance",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-28T07:18:32.673348",
+    "brand": "insurance",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-28T07:18:34.726201",
+    "brand": "insurance",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-28T10:19:47.486557",
+    "brand": "insurance",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
+  },
+  {
+    "timestamp": "2026-10-28T10:19:51.509859",
+    "brand": "insurance",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
+  },
+  {
+    "timestamp": "2026-10-28T10:19:56.365440",
+    "brand": "insurance",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-28T10:19:59.888287",
+    "brand": "insurance",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-28T10:20:03.602701",
+    "brand": "insurance",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/accounts/suspended/?next=https%)"
+  },
+  {
+    "timestamp": "2026-10-28T10:20:05.619972",
+    "brand": "insurance",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-28T13:21:14.530688",
+    "brand": "insurance",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UCtG99Sv0SPz1PLvuvOC)"
+  },
+  {
+    "timestamp": "2026-10-28T13:21:18.535077",
+    "brand": "insurance",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.instagram.com/)"
+  },
+  {
+    "timestamp": "2026-10-28T13:21:23.372079",
+    "brand": "insurance",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-28T13:21:26.896331",
+    "brand": "insurance",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-28T13:21:30.653687",
+    "brand": "insurance",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/accounts/suspended/?next=https%)"
+  },
+  {
+    "timestamp": "2026-10-28T13:21:32.719766",
+    "brand": "insurance",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
   }
 ]

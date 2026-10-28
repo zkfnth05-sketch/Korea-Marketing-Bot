@@ -215,7 +215,10 @@ class AuraShortsScriptWriter:
             return self._generate_legacy_script(topic_id)
 
     def _generate_narrative_script(self, topic_id: int) -> Optional[Dict[str, Any]]:
-        """🏛️ 6인 합의체 9~16번 서사 팩 전용 4분절 자율 창작 파이프라인"""
+        """🏛️ 6인 합의체 9~16번 서사 팩 전용 [2단 통대본] 자율 창작 파이프라인
+        - 1단: hook_10s (0~10초 인물 립싱크 통대본, 98~105자) ➔ Wan 2.2 S2V 10.12초 무음 멍때림 원천 차단
+        - 2단: remainder_speech (10~22초 나머지 통대본, 160~180자) ➔ 앱 시연 + CTA
+        """
         pack = AURA_NARRATIVE_PACKS.get(topic_id, AURA_NARRATIVE_PACKS[9])
         kakao_lines_str = "\n".join(f"  - {line}" for line in pack["kakao_lines"])
         is_male_topic = (topic_id == 14)
@@ -230,28 +233,32 @@ class AuraShortsScriptWriter:
 - 실전 카톡 대사:
 {kakao_lines_str}
 - 8~17초 반전 치트키 (앱 기능): {pack['twist_solution']}
-- 18~20초 2in1 듀얼 스마트 배너: "{self.DUAL_BANNER_TEXT}"
+- 18~22초 2in1 듀얼 스마트 배너: "{self.DUAL_BANNER_TEXT}"
 - 댓글 논쟁 유도 쟁점: {pack['debate_q']}
 
 [★ 절대 준수 지시 사항]
-1. 0~2초 훅은 인사말/배경설명 없이 곧바로 강렬한 대사나 질문으로 시작할 것!
+1. 인사말/배경설명 없이 곧바로 강렬한 대사나 질문으로 시작할 것!
 2. "~해줍니다", "~제공합니다" 같은 설명서 어투는 절대 금지! 1인칭 실전 썰로 이야기할 것!
 3. 카톡 대사 1줄 이상을 대본에 실감 나게 녹여낼 것!
 {"4. 반드시 2030 남성 화자 1인칭('형들', '내가' 등)으로만 작성할 것!" if is_male_topic else ""}
-5. 마지막 18~20초 CTA에는 반드시 "{self.DUAL_BANNER_TEXT}"를 포함할 것!
+5. 나머지 통대본(remainder_speech) 마지막에는 반드시 "{self.DUAL_BANNER_TEXT}"를 그대로 포함할 것!
 6. 허위 이벤트(할인, 쿠폰 등)는 절대 금지.
-7. 🚨 22초 완제품 규격: 전체 발화문은 공백 포함 150~165자로 넉넉하게 작성할 것!
-   특히 0~2초 훅(20~28자) + 2~8초 썰(48~55자) 합계가 70~78자가 되도록 채워
-   10.12초 립싱크 구간에서 입이 멈추는 무음 구간이 절대 발생하지 않게 할 것!
 
-[출력 JSON 규격 (22초 완제품 분량, 공백 포함 전체 150~165자)]
+[🚨 2단 통대본 구조 — 절대 준수]
+이 대본은 4초/5초로 잘게 쪼개지 않습니다. 오직 2개의 통대본으로만 구성합니다.
+- 1단 hook_10s: 0~10초 인물 립싱크 통대본. 공백 포함 98~105자 엄수.
+  ➔ 이 구간은 아바타가 10.12초 내내 쉬지 않고 말해야 하므로 절대 짧게 쓰지 말 것!
+  ➔ 4초/5초 단위로 끊어 쓰지 말고, 하나의 끊김 없는 문장 흐름으로 작성할 것!
+- 2단 remainder_speech: 10~22초 나머지 통대본. 공백 포함 160~180자 엄수.
+  ➔ 앱 기능 반전 설명 + 카톡 대사 + 마지막 2in1 배너 CTA를 하나의 통대본으로 작성할 것!
+- full_speech = hook_10s + " " + remainder_speech (공백 포함 250~300자)
+
+[출력 JSON 규격]
 {{
-  "hook_0_2s": "0~2초 도파민 훅 (대사/질문/충격 멘트, 공백 포함 20~28자)",
-  "story_2_8s": "2~8초 현실 썰 (카톡 대사 포함, 공백 포함 48~55자)",
-  "reveal_8_17s": "8~17초 반전 치트키 (앱 핵심 작동 원리, 공백 포함 52~58자)",
-  "cta_18_20s": "18~22초 CTA (지정된 2in1 배너 문구 포함, 공백 포함 28~32자)",
+  "hook_10s": "0~10초 인물 립싱크 통대본 (공백 포함 98~105자, 끊김 없는 단일 흐름)",
+  "remainder_speech": "10~22초 나머지 통대본 (공백 포함 160~180자, 배너 CTA 포함)",
   "debate_question": "{pack['debate_q']}",
-  "full_speech": "전체 발화문 (공백 포함 150~165자)"
+  "full_speech": "전체 발화문 = hook_10s + remainder_speech (공백 포함 250~300자)"
 }}
 """
         models = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"]
@@ -279,15 +286,18 @@ class AuraShortsScriptWriter:
                         continue
 
                     data = json.loads(resp.text)
-                    hook_0_2 = data.get("hook_0_2s", "").strip()
-                    story_2_8 = data.get("story_2_8s", "").strip()
-                    reveal_8_17 = data.get("reveal_8_17s", "").strip()
-                    cta_18_20 = data.get("cta_18_20s", "").strip()
+                    hook_10s = data.get("hook_10s", "").strip()
+                    remainder_speech = data.get("remainder_speech", "").strip()
                     debate_q = data.get("debate_question", pack["debate_q"]).strip()
                     full_speech = data.get("full_speech", "").strip()
 
+                    # 🧩 [2단 통대본 재조립] hook_10s + remainder_speech 단일 흐름 강제
+                    if not hook_10s or not remainder_speech:
+                        logger.warning(f"⚠️ [2단 통대본 누락] 서사 팩 #{topic_id} hook_10s/remainder_speech 결손 ➔ 재시도")
+                        continue
+
                     if not full_speech:
-                        full_speech = f"{hook_0_2} {story_2_8} {reveal_8_17} {cta_18_20}".strip()
+                        full_speech = f"{hook_10s} {remainder_speech}".strip()
 
                     # 🔒 [무결성 게이트 1: 금지어 검증]
                     has_forbidden = any(bad in full_speech for bad in self.FORBIDDEN_WORDS)
@@ -295,39 +305,62 @@ class AuraShortsScriptWriter:
                         continue
 
                     # 🔒 [무결성 게이트 2: 설명조 어투 검출]
-                    if any(pat in reveal_8_17 for pat in self.EXPLANATORY_PATTERNS):
+                    if any(pat in remainder_speech for pat in self.EXPLANATORY_PATTERNS):
                         logger.warning(f"⚠️ [설명조 감지] 서사 팩 #{topic_id} 설명조 어투 발견, 재시도")
                         continue
 
                     # 🔒 [무결성 게이트 3: 2in1 듀얼 배너 누락 시 자동 보정]
-                    if self.OFFICIAL_KEYWORD not in cta_18_20 or "프로필" not in cta_18_20:
-                        cta_18_20 = self.DUAL_BANNER_TEXT
-                        full_speech = f"{hook_0_2} {story_2_8} {reveal_8_17} {cta_18_20}".strip()
+                    if self.OFFICIAL_KEYWORD not in remainder_speech:
+                        remainder_speech = f"{remainder_speech} {self.DUAL_BANNER_TEXT}".strip()
+                        full_speech = f"{hook_10s} {remainder_speech}".strip()
 
-                    # 🔒 [무결성 게이트 4: 22초 규격 글자 수 검증 (140~175자)]
-                    if len(full_speech) < 140 or len(full_speech) > 175:
+                    # 🔒 [무결성 게이트 4: 2단 통대본 글자 수 검증]
+                    #    hook_10s 95~110자 / remainder_speech 150~190자 / full_speech 250~300자
+                    if not (95 <= len(hook_10s) <= 110):
                         logger.warning(
-                            f"⚠️ [분량 미달] 서사 팩 #{topic_id} 대본 {len(full_speech)}자 "
-                            f"(목표 150~165자 / 허용 140~175자) ➔ 재시도"
+                            f"⚠️ [1단 분량 미달] 서사 팩 #{topic_id} hook_10s {len(hook_10s)}자 "
+                            f"(목표 98~105자 / 허용 95~110자) ➔ 재시도"
                         )
                         continue
 
-                    logger.info(f"✨ [6인 합의체 서사 대본 성공] 슬롯 #{topic_id} ({len(full_speech)}자, key={key_name}, model={model})")
+                    if not (150 <= len(remainder_speech) <= 190):
+                        logger.warning(
+                            f"⚠️ [2단 분량 미달] 서사 팩 #{topic_id} remainder_speech {len(remainder_speech)}자 "
+                            f"(목표 160~180자 / 허용 150~190자) ➔ 재시도"
+                        )
+                        continue
+
+                    if not (250 <= len(full_speech) <= 300):
+                        logger.warning(
+                            f"⚠️ [총 분량 미달] 서사 팩 #{topic_id} full_speech {len(full_speech)}자 "
+                            f"(목표 250~300자) ➔ 재시도"
+                        )
+                        continue
+
+                    # 🎬 [10초 립싱크 안전장치] hook_10s 를 5초 단위 2분절로만 분할 (4초/5초 난분할 금지)
+                    hook_p1_5s, hook_p2_5s = self._split_into_two_halves(hook_10s)
+                    # 🎬 [나머지 통대본] 앱 시연부 / CTA부 호환 분할
+                    app_10_18s, cta_18_22s = self._split_remainder(remainder_speech)
+
+                    logger.info(
+                        f"✨ [2단 통대본 성공] 슬롯 #{topic_id} "
+                        f"(hook_10s={len(hook_10s)}자 / remainder={len(remainder_speech)}자 / "
+                        f"full={len(full_speech)}자, key={key_name}, model={model})"
+                    )
                     return {
                         "slot": topic_id,
-                        "hook_0_2s": hook_0_2,
-                        "story_2_8s": story_2_8,
-                        "reveal_8_17s": reveal_8_17,
-                        "cta_18_20s": cta_18_20,
-                        "hook_p1_5s": hook_0_2,
-                        "hook_p2_5s": story_2_8,
-                        "hook_0_10s": f"{hook_0_2} {story_2_8}",
-                        "app_10_18s": reveal_8_17,
-                        "cta_18_22s": cta_18_20,
+                        "hook_10s": hook_10s,
+                        "hook_0_10s": hook_10s,
+                        "hook_p1_5s": hook_p1_5s,
+                        "hook_p2_5s": hook_p2_5s,
+                        "remainder_speech": remainder_speech,
+                        "app_10_18s": app_10_18s,
+                        "cta_18_22s": cta_18_22s,
                         "banner_dual": self.DUAL_BANNER_TEXT,
                         "debate_question": debate_q,
                         "full_speech": full_speech,
                         "is_narrative_v2": True,
+                        "is_two_stage_speech": True,
                         "is_ai_generated": True
                     }
                 except Exception as e:
@@ -351,24 +384,28 @@ class AuraShortsScriptWriter:
 - 활용 상황: {spec['usage_scenario']}
 
 [★ 지시 사항 (절대 준수)]
-위 아우라의 기능을 2030 시청자에게 자세하고 흥미진진하게 설명하는 20초 숏폼 대본을 작성하시오.
+위 아우라의 기능을 2030 시청자에게 자세하고 흥미진진하게 설명하는 22초 숏폼 대본을 작성하시오.
 - 🚨 기존에 완성된 예시 대본이 전혀 없으므로, 매번 완전히 새로운 상황 설정과 화자의 관점으로 친절하고 매끄럽게 설명하시오.
 - 주제 #6은 반드시 남성 화자 1인칭 시점으로 작성하시오.
 - 🚨 허위 이벤트(무료 쿠폰, 선착순, 할인 등)는 절대 금지합니다.
-- 마지막 CTA에는 반드시 "네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"를 자연스럽게 포함하세요.
-- 🚨 22초 완제품 규격: 전체 발화문은 공백 포함 150~165자로 넉넉하게 작성할 것!
-  특히 0~5초(34~38자) + 5~10초(36~40자) 합계가 70~78자가 되도록 채워
-  10.12초 립싱크 구간에서 입이 멈추는 무음 구간이 절대 발생하지 않게 할 것!
+- 나머지 통대본(remainder_speech) 마지막에는 반드시 "네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"를 자연스럽게 포함하세요.
 
-[출력 JSON 규격 (22초 완제품 분량, 전체 약 150~165자)]
+[🚨 2단 통대본 구조 — 절대 준수]
+이 대본은 4초/5초로 잘게 쪼개지 않습니다. 오직 2개의 통대본으로만 구성합니다.
+- 1단 hook_10s: 0~10초 인물 립싱크 통대본. 공백 포함 98~105자 엄수.
+  ➔ 이 구간은 아바타가 10.12초 내내 쉬지 않고 말해야 하므로 절대 짧게 쓰지 말 것!
+  ➔ 4초/5초 단위로 끊어 쓰지 말고, 하나의 끊김 없는 문장 흐름으로 작성할 것!
+- 2단 remainder_speech: 10~22초 나머지 통대본. 공백 포함 160~180자 엄수.
+  ➔ 앱 핵심 작동 원리 + 유저 혜택 + 마지막 네이버 검색 CTA를 하나의 통대본으로 작성할 것!
+- full_speech = hook_10s + " " + remainder_speech (공백 포함 250~300자)
+
+[출력 JSON 규격]
 {{
   "situation": "이번 설정한 화자 및 상황 (1줄 요약)",
-  "hook_p1": "0~5초: 시선을 확 끄는 첫 질문이나 공감 멘트 (공백 포함 34~38자)",
-  "hook_p2": "5~10초: 아우라 해당 기능으로 연결되는 멘트 (공백 포함 36~40자)",
-  "app_speech": "10~18초: 핵심 작동 원리와 유저 혜택 설명 (공백 포함 52~58자)",
-  "cta_speech": "18~22초: 댓글 유도 및 '네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!' 포함 (공백 포함 28~32자)",
+  "hook_10s": "0~10초 인물 립싱크 통대본 (공백 포함 98~105자, 끊김 없는 단일 흐름)",
+  "remainder_speech": "10~22초 나머지 통대본 (공백 포함 160~180자, '네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!' 포함)",
   "debate_question": "댓글 창에서 토론을 유도할 센스 있는 10자 내외 질문",
-  "full_speech": "전체 발화문 (공백 포함 150~165자)"
+  "full_speech": "전체 발화문 = hook_10s + remainder_speech (공백 포함 250~300자)"
 }}
 """
         models = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"]
@@ -396,44 +433,75 @@ class AuraShortsScriptWriter:
                         continue
 
                     data = json.loads(resp.text)
-                    hook_p1 = data.get("hook_p1", "").strip()
-                    hook_p2 = data.get("hook_p2", "").strip()
-                    app_speech = data.get("app_speech", "").strip()
-                    cta_speech = data.get("cta_speech", "").strip()
+                    hook_10s = data.get("hook_10s", "").strip()
+                    remainder_speech = data.get("remainder_speech", "").strip()
                     debate_q = data.get("debate_question", "").strip()
                     situation = data.get("situation", "").strip()
 
+                    # 🧩 [2단 통대본 재조립] hook_10s + remainder_speech 단일 흐름 강제
+                    if not hook_10s or not remainder_speech:
+                        logger.warning(f"⚠️ [2단 통대본 누락] 주제 #{norm_id} hook_10s/remainder_speech 결손 ➔ 재시도")
+                        continue
+
                     full_speech = data.get("full_speech", "").strip()
                     if not full_speech:
-                        full_speech = f"{hook_p1} {hook_p2} {app_speech} {cta_speech}".strip()
+                        full_speech = f"{hook_10s} {remainder_speech}".strip()
 
                     has_forbidden = any(bad in full_speech for bad in self.FORBIDDEN_WORDS)
                     if has_forbidden:
                         continue
 
-                    if self.OFFICIAL_KEYWORD not in cta_speech:
-                        cta_speech = f"{cta_speech} 네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"
-                        full_speech = f"{hook_p1} {hook_p2} {app_speech} {cta_speech}".strip()
+                    # 🔒 [무결성 게이트: 네이버 검색 키워드 누락 시 자동 보정]
+                    if self.OFFICIAL_KEYWORD not in remainder_speech:
+                        remainder_speech = f"{remainder_speech} 네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"
+                        full_speech = f"{hook_10s} {remainder_speech}".strip()
 
-                    # 🔒 [무결성 게이트: 22초 규격 글자 수 검증 (140~175자)]
-                    if len(full_speech) < 140 or len(full_speech) > 175:
+                    # 🔒 [무결성 게이트: 2단 통대본 글자 수 검증]
+                    #    hook_10s 95~110자 / remainder_speech 150~190자 / full_speech 250~300자
+                    if not (95 <= len(hook_10s) <= 110):
                         logger.warning(
-                            f"⚠️ [분량 미달] 주제 #{norm_id} 대본 {len(full_speech)}자 "
-                            f"(목표 150~165자 / 허용 140~175자) ➔ 재시도"
+                            f"⚠️ [1단 분량 미달] 주제 #{norm_id} hook_10s {len(hook_10s)}자 "
+                            f"(목표 98~105자 / 허용 95~110자) ➔ 재시도"
                         )
                         continue
 
-                    logger.info(f"✨ [Legacy Gemini 대본 성공] 주제 #{norm_id} ({len(full_speech)}자, key={key_name}, model={model})")
+                    if not (150 <= len(remainder_speech) <= 190):
+                        logger.warning(
+                            f"⚠️ [2단 분량 미달] 주제 #{norm_id} remainder_speech {len(remainder_speech)}자 "
+                            f"(목표 160~180자 / 허용 150~190자) ➔ 재시도"
+                        )
+                        continue
+
+                    if not (250 <= len(full_speech) <= 300):
+                        logger.warning(
+                            f"⚠️ [총 분량 미달] 주제 #{norm_id} full_speech {len(full_speech)}자 "
+                            f"(목표 250~300자) ➔ 재시도"
+                        )
+                        continue
+
+                    # 🎬 [10초 립싱크 안전장치] hook_10s 를 5초 단위 2분절로만 분할 (4초/5초 난분할 금지)
+                    hook_p1_5s, hook_p2_5s = self._split_into_two_halves(hook_10s)
+                    # 🎬 [나머지 통대본] 앱 시연부 / CTA부 호환 분할
+                    app_10_18s, cta_18_22s = self._split_remainder(remainder_speech)
+
+                    logger.info(
+                        f"✨ [2단 통대본 성공] 주제 #{norm_id} "
+                        f"(hook_10s={len(hook_10s)}자 / remainder={len(remainder_speech)}자 / "
+                        f"full={len(full_speech)}자, key={key_name}, model={model})"
+                    )
                     return {
-                        "hook_p1_5s": hook_p1,
-                        "hook_p2_5s": hook_p2,
-                        "hook_0_10s": f"{hook_p1} {hook_p2}",
-                        "app_10_18s": app_speech,
-                        "cta_18_22s": cta_speech,
+                        "hook_10s": hook_10s,
+                        "hook_0_10s": hook_10s,
+                        "hook_p1_5s": hook_p1_5s,
+                        "hook_p2_5s": hook_p2_5s,
+                        "remainder_speech": remainder_speech,
+                        "app_10_18s": app_10_18s,
+                        "cta_18_22s": cta_18_22s,
                         "debate_question": debate_q or "여러분의 생각은 어떠신가요?",
                         "full_speech": full_speech,
                         "situation": situation,
                         "is_narrative_v2": False,
+                        "is_two_stage_speech": True,
                         "is_ai_generated": True
                     }
                 except Exception as e:
@@ -442,4 +510,66 @@ class AuraShortsScriptWriter:
 
         logger.warning(f"⚠️ [Aura 대본] 제미나이 호출 모두 실패 ➔ 폴백")
         return None
+
+    # ==========================================================================
+    # 🎬 [2단 통대본 호환 분할 유틸] — 4초/5초 난분할 금지, 5초 2분절만 허용
+    # ==========================================================================
+    @staticmethod
+    def _split_into_two_halves(text: str) -> tuple:
+        """10초 통대본을 5초/5초 2분절로만 분할 (문장부호 ➔ 공백 순 우선 탐색)"""
+        text = (text or "").strip()
+        if not text:
+            return "", ""
+
+        total = len(text)
+        mid = total // 2
+        window = max(6, total // 5)  # 중앙 ±20% 이내에서만 절단점 탐색
+
+        best_idx = -1
+        best_dist = 10 ** 9
+        for i in range(max(1, mid - window), min(total - 1, mid + window) + 1):
+            ch = text[i - 1]
+            if ch in ".!?。？！":
+                dist = abs(i - mid)
+                if dist < best_dist:
+                    best_dist = dist
+                    best_idx = i
+
+        if best_idx < 0:
+            for i in range(max(1, mid - window), min(total - 1, mid + window) + 1):
+                if text[i - 1] == " ":
+                    dist = abs(i - mid)
+                    if dist < best_dist:
+                        best_dist = dist
+                        best_idx = i
+
+        if best_idx < 0:
+            best_idx = mid
+
+        return text[:best_idx].strip(), text[best_idx:].strip()
+
+    @staticmethod
+    def _split_remainder(text: str) -> tuple:
+        """나머지 통대본을 앱 시연부 / CTA부로 호환 분할 (원문 손실 0%)"""
+        text = (text or "").strip()
+        if not text:
+            return "", ""
+
+        # CTA 문구 시작점을 기준으로 분할 (없으면 70% 지점)
+        cta_markers = ["네이버에", "프로필 링크", "검색해보세요", "검색!"]
+        cut = -1
+        for marker in cta_markers:
+            pos = text.rfind(marker)
+            if pos > 0:
+                cut = pos
+                break
+
+        if cut <= 0:
+            cut = int(len(text) * 0.7)
+
+        app_part = text[:cut].strip()
+        cta_part = text[cut:].strip()
+        if not app_part or not cta_part:
+            return text, ""
+        return app_part, cta_part
 

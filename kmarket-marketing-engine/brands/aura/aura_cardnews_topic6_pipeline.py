@@ -105,10 +105,15 @@ class AuraCardnewsTopic6Pipeline:
         )
 
         result = {
+            "success": True,
             "status": "SUCCESS",
             "theme": "smart_opener",
+            "theme_name": "AI 첫대화 비서 / 스마트 오프너",
+            "output_dir": str(out_dir),
             "target_directory": str(out_dir),
+            "total_slides": 5,
             "slides": [s1_path, s2_path, s3_path, s4_path, s5_path],
+            "slide_paths": [s1_path, s2_path, s3_path, s4_path, s5_path],
             "guide_path": str(guide_path),
             "metadata_path": str(meta_path)
         }

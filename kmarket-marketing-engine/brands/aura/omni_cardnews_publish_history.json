@@ -1268,5 +1268,69 @@
         "published_at": "2026-10-20 01:47:25"
       }
     }
+  },
+  {
+    "status": "success",
+    "date": "2026-10-28",
+    "published_at": "2026-10-28 11:58:10",
+    "brand": "aura",
+    "topic_id": 6,
+    "title": "MBTI 유형별 절대 실패 없는 소개팅 대화법",
+    "slides_count": 5,
+    "channels": {
+      "meta_business_suite_reels": {
+        "status": "error",
+        "brand": "aura",
+        "message": "3회 재시도 모두 소진, 실물 등록 미확인"
+      },
+      "facebook_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "instagram_comment": {
+        "status": "failed",
+        "message": "댓글창 미발견"
+      },
+      "threads": {
+        "success": true,
+        "brand": "aura",
+        "message": "🎉 [스레드 발행 성공] Aura AI 데이팅 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+        "details": {
+          "brand": "aura",
+          "published_at": "2026-10-28T12:01:33.679313",
+          "caption_preview": "🚨 긴장되는 소개팅 날, 애프터는커녕 침묵만 흐르다 끝난 경험... 다들 있으시죠? 😩 상대방 눈치만 보다가...",
+          "media_count": 1,
+          "first_reply": "💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/",
+          "status": "SUCCESS",
+          "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_live_proof.png"
+        }
+      },
+      "youtube_shorts": {
+        "status": "success",
+        "platform": "youtube_shorts",
+        "brand": "aura",
+        "topic_id": 6,
+        "video_id": "b1MiZ7eI2pE",
+        "video_url": "https://youtube.com/shorts/b1MiZ7eI2pE",
+        "title": "🚨 소개팅 망친 MBTI 궁합? 이제 그만! 썸확률 100% 대화법! #아우라AI데이팅 #Shorts",
+        "pinned_comment": "📌 영상에서 나온 50:50 완벽 성비 AI 소개팅 라운지는\n네이버에 👉 [ 아우라AI데이팅 ] 검색하시면 바로 나옵니다!\n(공식 링크: https://aura-ai-dating.vercel.app/)",
+        "comment_status": "submitted",
+        "privacy_status": "public",
+        "video_file": "aura_topic6_cardnews_reels.mp4",
+        "published_at": "2026-10-28 12:03:29",
+        "elapsed_sec": 115.6,
+        "message": "YouTube Studio 브라우저 봇 쇼츠 공개 발행 및 검색어 댓글 상단 고정 완료"
+      },
+      "naver_clip": {
+        "status": "success",
+        "platform": "naver_clip",
+        "brand": "aura",
+        "topic_id": 6,
+        "title": "🚨 소개팅 망친 MBTI 궁합? 이제 그만! 썸확률 100% 대화법!",
+        "video_file": "aura_topic6_cardnews_reels.mp4",
+        "channel_url": "https://clip.naver.com/@auraaidating",
+        "published_at": "2026-10-28 12:03:44"
+      }
+    }
   }
 ]

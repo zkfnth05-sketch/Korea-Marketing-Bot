@@ -5,7 +5,7 @@
 - 브랜드: InsureBalance (실손, 암·뇌·심장, 운전자/자동차, 치아/펫, 연금, 청구·리모델링)
 - 역할:
   1. Gemini가 칼럼 스토리 맥락에 맞춰 기획한 visual_prompt를 100% 최우선 반영하여 16:9 고화질 실사 사진 1장 생성
-  2. gemini-3.1-flash-lite-image 모델로 도로, 병원, 서재, 재무 상담 등 본문과 일치하는 실사 이미지 직접 렌더링
+  2. gemini-2.5-flash-image 모델로 도로, 병원, 서재, 재무 상담 등 본문과 일치하는 실사 이미지 직접 렌더링
   3. 4대 키 체인 스마트 롤오버 투입 (안정적 100% 무인 생성)
   4. WebP 고압축(1200px, quality 82) 변환 및 outputs/insurance/blog_images/ 저장
   5. ⚡ Cache-First: 이미 고화질 사진이 존재하면 재사용 (비용 0원)
@@ -115,7 +115,7 @@ class InsuranceImageGenerator:
     """
     🛡️ InsureBalance 전용 16:9 실사 맞춤 사진 생성 엔진
     - Gemini 스토리 visual_prompt 100% 최우선 반영
-    - gemini-3.1-flash-lite-image 모델로 실사 렌더링
+    - gemini-2.5-flash-image 모델로 실사 렌더링
     - 유료키 체인 스마트 롤오버
     - WebP 고압축 최적화 저장
     """
@@ -232,9 +232,9 @@ class InsuranceImageGenerator:
                 if not client:
                     break
 
-                # 🌟 [공식 검증 완료] gemini-3.1-flash-lite-image로 실사 이미지 직접 생성
+                # 🌟 [공식 검증 완료] gemini-2.5-flash-image로 실사 이미지 직접 생성 (표준 최저가 이미지 모델)
                 response = client.models.generate_content(
-                    model="gemini-3.1-flash-lite-image",
+                    model="gemini-2.5-flash-image",
                     contents=prompt
                 )
 

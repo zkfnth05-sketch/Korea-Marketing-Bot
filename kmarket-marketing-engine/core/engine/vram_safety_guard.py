@@ -87,23 +87,22 @@ class VRAMSafetyGuard:
     def force_unload_comfyui_models(
         cls,
         host: str = "http://127.0.0.1:8188",
-        unload_models: bool = True,
+        unload_models: bool = False,
         timeout: float = 5.0,
     ) -> bool:
         """
-        ComfyUI /free 엔드포인트로 잔류 모델(UMT5 텍스트 인코더, VAE, 체크포인트)을 강제 언로드.
+        ComfyUI /free 엔드포인트로 잔류 모델을 안전하게 정리.
 
         [동작]
-          · POST {host}/free  body={"unload_models": True, "free_memory": True}
+          · POST {host}/free  body={"unload_models": False, "free_memory": True}
           · 성공 시 True, 실패(서버 미기동/타임아웃) 시 False 반환 (예외를 밖으로 던지지 않음)
 
         [주의]
           · ComfyUI-GGUF 환경에서 unload_models=True는 네이티브 텐서 해제 경로에서
-            0xC0000005 접근 위반을 유발할 수 있으므로, 호출부에서 unload_models=False로
-            안전 모드를 선택할 수 있도록 파라미터화했다.
+            0xC0000005 접근 위반을 유발하므로 항상 False 로 안전 고정한다.
         """
         payload = json.dumps({
-            "unload_models": bool(unload_models),
+            "unload_models": False,
             "free_memory": True,
         }).encode("utf-8")
 
@@ -186,7 +185,7 @@ class VRAMSafetyGuard:
 
         for round_idx in range(1, cls.FORCE_UNLOAD_MAX_ROUNDS + 1):
             before_gb = info["free_gb"]
-            sent = cls.force_unload_comfyui_models(host=host, unload_models=True)
+            sent = cls.force_unload_comfyui_models(host=host, unload_models=False)
             report["force_unload_called"] = True
             report["force_unload_rounds"] = round_idx
 

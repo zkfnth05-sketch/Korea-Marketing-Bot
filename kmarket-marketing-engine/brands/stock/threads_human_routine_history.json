@@ -278,5 +278,55 @@
     "duration_sec": 604,
     "status": "COMPLETED",
     "ended_at": "2026-10-20T16:10:24.664277"
+  },
+  {
+    "brand": "stock",
+    "started_at": "2026-10-27T12:45:11.445542",
+    "posts_read": 50,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 604,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-27T12:55:16.352224"
+  },
+  {
+    "brand": "stock",
+    "started_at": "2026-10-27T16:00:16.705072",
+    "posts_read": 52,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 604,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-27T16:10:20.989170"
+  },
+  {
+    "brand": "stock",
+    "started_at": "2026-10-27T22:00:21.383337",
+    "posts_read": 78,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 900,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-27T22:15:21.951592"
+  },
+  {
+    "brand": "stock",
+    "started_at": "2026-10-28T08:45:25.846677",
+    "posts_read": 52,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 603,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-28T08:55:29.113782"
+  },
+  {
+    "brand": "stock",
+    "started_at": "2026-10-28T12:45:01.867550",
+    "posts_read": 50,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 601,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-28T12:55:03.103581"
   }
 ]

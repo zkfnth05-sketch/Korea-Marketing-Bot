@@ -31,6 +31,7 @@ from .aura_shorts_scenario_director import AuraShortsScenarioDirector
 from .shorts_character_anchor_aura import build_aura_shorts_t2i_character_prompt
 from .s2v_clip_stitcher import S2VClipStitcher
 from .typecast_synthesizer import TypecastSynthesizer
+from .gemini_tts_synthesizer import GeminiTTSSynthesizer
 from brands.aura.aura_voice_cloner import AuraVoiceCloner
 
 logger = logging.getLogger("AuraShortsProducer")
@@ -54,8 +55,12 @@ class AuraShortsProducer(BaseShortsProducer):
         self.cta_card = AuraCTACard()
         self.script_director = AuraShortsScenarioDirector()
         
-        # 🎙️ 알리바바 CosyVoice 아라(Ara) 보이스 복제기 (1순위 알리바바 -> 2순위 Typecast -> 3순위 Edge-TTS)
-        self.voice_cloner = AuraVoiceCloner(output_dir=str(self.output_base))
+        # 🎙️ Google Gemini 2.5 Flash TTS (Aoede) 초실사 음성 합성기 전면 채택
+        #    - 기존 알리바바 CosyVoice(AuraVoiceCloner) 경로는 완전 대체 (레거시 호환용으로만 보존)
+        self.voice_cloner = GeminiTTSSynthesizer(
+            default_voice="Aoede",
+            output_dir=str(self.output_base)
+        )
         self.tts = self.voice_cloner
         
         self.stitcher = S2VClipStitcher(
@@ -260,10 +265,28 @@ class AuraShortsProducer(BaseShortsProducer):
         theme_name = scenario["theme_name"]
         theme_code = scenario["theme_code"]
         effective_gender = scenario.get("gender", gender or "female")
-        speech_hook = scenario["speech_hook"]
-        speech_app = scenario["speech_app"]
-        speech_cta = scenario["speech_cta"]
-        full_speech = scenario["full_speech"]
+
+        # 🧩 [2단 통대본 추출] 0~10초 인물 립싱크 통대본 + 10초 이후 나머지 통대본
+        #    - 4초/5초 난분할 금지: 아바타가 10.12초 S2V 구간에서 말을 멈추고 노는 현상 원천 차단
+        speech_hook_10s = (
+            scenario.get("hook_10s")
+            or scenario.get("hook_0_10s")
+            or scenario.get("speech_hook")
+            or ""
+        ).strip()
+        remainder_speech = (
+            scenario.get("remainder_speech")
+            or f"{scenario.get('speech_app', '')} {scenario.get('speech_cta', '')}".strip()
+        ).strip()
+        full_speech = (
+            scenario.get("full_speech")
+            or f"{speech_hook_10s} {remainder_speech}".strip()
+        ).strip()
+
+        # 하위 호환 별칭 (SNS 가이드/CTA 카드 등 기존 소비자 무수정 동작 보장)
+        speech_hook = speech_hook_10s
+        speech_app = remainder_speech
+        speech_cta = scenario.get("cta_18_22s") or scenario.get("speech_cta") or remainder_speech
         visual_dir = scenario["visual_direction"]
 
         dt_str = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -272,37 +295,16 @@ class AuraShortsProducer(BaseShortsProducer):
 
         logger.info(f"🚀 [Aura 숏폼] 생산 시작: 주제 {topic_id} [{theme_name}] | 성별: {effective_gender} | seed: {seed}")
 
-        # 3. [음성 합성] Typecast 또는 Gemini TTS 초실사 음성 합성
+        # 3. [음성 합성] Gemini 2.5 Flash TTS 단일 통음성 합성 (전체 대본 1회 합성 = 중복 발화 0%)
+        #    🎭 [Aura 숏폼 드라마 주인공 보이스 명시적 바인딩] 남주 민준 = Puck / 여주 서연 = Aoede
+        is_male = str(effective_gender).strip().lower() in ["male", "m", "man", "남", "남성"]
+        drama_voice = "Puck" if is_male else "Aoede"
         voice_lang = "ko"
         voice_rate = scenario.get("voice_rate", "+3%")
         voice_pitch = scenario.get("voice_pitch", "+6Hz")
-        logger.info(f"🎙️ [Step 1] 초실사 음성 합성 ({self.tts.__class__.__name__}, {effective_gender})...")
-        hook_wav_path = self.tts.generate_speech_wav(
-            text=speech_hook,
-            lang=voice_lang,
-            gender=effective_gender,
-            rate=voice_rate,
-            pitch=voice_pitch,
-            filename_prefix=f"aura_hook_{topic_id}_{dt_str}",
-            output_dir=str(out_folder)
-        )
-        app_wav_path = self.tts.generate_speech_wav(
-            text=speech_app,
-            lang=voice_lang,
-            gender=effective_gender,
-            rate=voice_rate,
-            pitch=voice_pitch,
-            filename_prefix=f"aura_app_{topic_id}_{dt_str}",
-            output_dir=str(out_folder)
-        )
-        cta_wav_path = self.tts.generate_speech_wav(
-            text=speech_cta,
-            lang=voice_lang,
-            gender=effective_gender,
-            rate=voice_rate,
-            pitch=voice_pitch,
-            filename_prefix=f"aura_cta_{topic_id}_{dt_str}",
-            output_dir=str(out_folder)
+        logger.info(
+            f"🎙️ [Step 1] Gemini TTS 단일 통음성 합성 ({self.tts.__class__.__name__}, {effective_gender} ➔ 드라마 보이스: {drama_voice}) "
+            f"| hook_10s={len(speech_hook_10s)}자 / remainder={len(remainder_speech)}자 / full={len(full_speech)}자"
         )
         full_wav_path = self.tts.generate_speech_wav(
             text=full_speech,
@@ -311,8 +313,26 @@ class AuraShortsProducer(BaseShortsProducer):
             rate=voice_rate,
             pitch=voice_pitch,
             filename_prefix=f"aura_full_{topic_id}_{dt_str}",
+            voice_name=drama_voice,
             output_dir=str(out_folder)
         )
+
+        # 🎧 [동적 오디오 길이 실측] wave 모듈로 정확한 초수 측정 ➔ 앱 시연/CTA 구간 자동 동기화
+        total_audio_sec = 0.0
+        try:
+            import wave
+            with wave.open(str(full_wav_path), "rb") as wf:
+                frame_rate = wf.getframerate() or 16000
+                total_audio_sec = round(wf.getnframes() / float(frame_rate), 3)
+            logger.info(f"🎧 [Step 1] 통음성 실측 길이: {total_audio_sec:.2f}초 (16kHz mono WAV)")
+        except Exception as e:
+            logger.warning(f"⚠️ [Step 1] WAV 길이 실측 실패 ➔ 기본 22.0초 가정: {e}")
+            total_audio_sec = 22.0
+
+        # 하위 호환: 분절 WAV 경로는 모두 단일 통음성으로 바인딩 (중복 합성/중복 발화 원천 차단)
+        hook_wav_path = full_wav_path
+        app_wav_path = full_wav_path
+        cta_wav_path = full_wav_path
 
 
         # 4. [Step 2] 숏폼 인물 사진 로드 또는 Wan 2.1 T2I 생성 (순수 100% 인물 마스터컷, 인위적 액정 매립 전면 영구 박멸!)
@@ -368,15 +388,15 @@ class AuraShortsProducer(BaseShortsProducer):
             logger.info("🎬 [Step 3] Wan 2.2 S2V 384x672 5초+5초 10초 원테이크 렌더링 시작 (81프레임 x 2, 0.15s xfade)...")
             person_clip_path, person_audio_path = self.stitcher.render_seamless_dual_clip(
                 base_framed_img=framed_img,
-                speech_hook_full=speech_hook,
+                speech_hook_full=speech_hook_10s,
                 lang=voice_lang,
                 gender=effective_gender,
                 out_folder=out_folder,
                 dt_str=dt_str,
                 motion_prompt=s2v_motion_prompt,
                 seed=seed,
-                speech_hook_part1=scenario.get("speech_hook_part1"),
-                speech_hook_part2=scenario.get("speech_hook_part2"),
+                speech_hook_part1=scenario.get("hook_p1_5s") or scenario.get("speech_hook_part1"),
+                speech_hook_part2=scenario.get("hook_p2_5s") or scenario.get("speech_hook_part2"),
                 voice_pitch=voice_pitch,
                 voice_rate=voice_rate
             )

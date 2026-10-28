@@ -1,10 +1,497 @@
 {
-  "current_topic_index": 42,
-  "last_topic_id": 91,
-  "last_run_time": "2026-10-20 20:17:20",
-  "last_title": "8대 지표 ⑥ [ROE(자기자본이익률) 15% 룰]: 워런 버핏이 극찬한 돈 잘 버는 기업 주가 전망 및 핵심 투자 포인트",
-  "published_count": 51,
+  "current_topic_index": 47,
+  "last_topic_id": 67,
+  "last_run_time": "2026-10-28 15:17:17",
+  "last_title": "환율 급등기에 주가 방어력이 가장 높은 국내 고배당주·인프라주 선별법 주가 전망 및 핵심 투자 포인트",
+  "published_count": 56,
   "history": [
+    {
+      "topic_id": 67,
+      "title": "환율 급등기에 주가 방어력이 가장 높은 국내 고배당주·인프라주 선별법 주가 전망 및 핵심 투자 포인트",
+      "title_naver": "환율 급등기에 주가 방어력이 가장 높은 국내 고배당주·인프라주 선별법 주가 전망 및 핵심 투자 포인트",
+      "title_tistory": "[StockMaster] 환율 급등기에 주가 방어력이 가장 높은 국내 고배당주·인프라주 선별법 실전 매매 전략",
+      "title_brunch": "시장의 소음을 넘어선 투자, 환율 급등기에 주가 방어력이 가장 높은 국내 고배당주·인프라주 선별법",
+      "category": "macro_stress",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_macro_stress_20261028_151529.png",
+      "published_at": "2026-10-28 15:17:17",
+      "publish_results": {
+        "topic_id": 67,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "환율 급등기에 주가 방어력이 가장 높은 국내 고배당주·인프라주 선별법 주가 전망 및 핵심 투자 포인트",
+            "url": "https://blog.naver.com/stockmaster_ai/224456695070",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224456695070",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "환율급등방어주",
+              "고배당인프라",
+              "맥쿼리인프라",
+              "현금흐름주",
+              "배당방어력",
+              "내수우량주",
+              "코스피주도주",
+              "주식체결강도",
+              "체결강도",
+              "체결강도란",
+              "주식체결강도뜻",
+              "체결강도높으면",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "stockmaster-ai",
+            "title": "[StockMaster] 환율 급등기에 주가 방어력이 가장 높은 국내 고배당주·인프라주 선별법 실전 매매 전략",
+            "url": "https://stockmaster-ai.tistory.com/46",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "환율급등방어주",
+              "고배당인프라",
+              "맥쿼리인프라",
+              "현금흐름주",
+              "배당방어력",
+              "내수우량주",
+              "코스피주도주",
+              "주식체결강도",
+              "체결강도",
+              "체결강도란",
+              "주식체결강도뜻",
+              "체결강도높으면",
+              "주식투자"
+            ],
+            "post_url": "https://stockmaster-ai.tistory.com/46"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 60,
+            "title": "환율 급등기에 주가 방어력이 가장 높은 국내 고배당주·인프라주 선별법 주가 전망 및 핵심 투자 포인트",
+            "category": "RANK1"
+          }
+        },
+        "verification": {
+          "brand": "stock",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "stockmaster_ai",
+            "title": "환율 급등기에 주가 방어력이 가장 높은 국내 고배당주·인프라주 선별법 주가 전망 및 핵심 투자 포인트",
+            "real_url": "https://blog.naver.com/stockmaster_ai/224456695070",
+            "log_no": "224456695070",
+            "pub_date": "Wed, 28 Oct 2026 15:16:08 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\naver_proof_1793168229.png"
+          },
+          "tistory": {
+            "verified": true,
+            "channel": "tistory",
+            "blog_name": "stockmaster-ai",
+            "title": "[StockMaster] 환율 급등기에 주가 방어력이 가장 높은 국내 고배당주&middot;인프라주 선별법 실전 매매 전략",
+            "real_url": "https://stockmaster-ai.tistory.com/46",
+            "pub_date": "Wed, 28 Oct 2026 15:16:53 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\tistory_proof_1793168233.png"
+          },
+          "timestamp": "2026-10-28 15:17:17"
+        }
+      }
+    },
+    {
+      "topic_id": 52,
+      "title": "120일선(경기선) 바닥권 돌파 변곡점: 대형 우량주의 6개월 중장기 추세 전환 주가 전망 및 핵심 투자 포인트",
+      "title_naver": "120일선(경기선) 바닥권 돌파 변곡점: 대형 우량주의 6개월 중장기 추세 전환 주가 전망 및 핵심 투자 포인트",
+      "title_tistory": "[StockMaster] 120일선(경기선) 바닥권 돌파 변곡점: 대형 우량주의 6개월 중장기 추세 전환 실전 매매 전략",
+      "title_brunch": "시장의 소음을 넘어선 투자, 120일선(경기선) 바닥권 돌파 변곡점: 대형 우량주의 6개월 중장기 추세 전환",
+      "category": "turning_point",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_turning_point_20261028_101522.png",
+      "published_at": "2026-10-28 10:17:13",
+      "publish_results": {
+        "topic_id": 52,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "120일선(경기선) 바닥권 돌파 변곡점: 대형 우량주의 6개월 중장기 추세 전환 주가 전망 및 핵심 투자 포인트",
+            "url": "https://blog.naver.com/stockmaster_ai/224456344491",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224456344491",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "120일선돌파",
+              "경기선돌파",
+              "중장기스윙",
+              "실적턴어라운드",
+              "대형우량주",
+              "추세전환",
+              "코스피주도주",
+              "주식체결강도",
+              "체결강도",
+              "체결강도란",
+              "주식체결강도뜻",
+              "체결강도높으면",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "stockmaster-ai",
+            "title": "[StockMaster] 120일선(경기선) 바닥권 돌파 변곡점: 대형 우량주의 6개월 중장기 추세 전환 실전 매매 전략",
+            "url": "https://stockmaster-ai.tistory.com/45",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "120일선돌파",
+              "경기선돌파",
+              "중장기스윙",
+              "실적턴어라운드",
+              "대형우량주",
+              "추세전환",
+              "코스피주도주",
+              "주식체결강도",
+              "체결강도",
+              "체결강도란",
+              "주식체결강도뜻",
+              "체결강도높으면",
+              "주식투자"
+            ],
+            "post_url": "https://stockmaster-ai.tistory.com/45"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 59,
+            "title": "120일선(경기선) 바닥권 돌파 변곡점: 대형 우량주의 6개월 중장기 추세 전환 주가 전망 및 핵심 투자 포인트",
+            "category": "RANK1"
+          }
+        },
+        "verification": {
+          "brand": "stock",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "stockmaster_ai",
+            "title": "120일선(경기선) 바닥권 돌파 변곡점: 대형 우량주의 6개월 중장기 추세 전환 주가 전망 및 핵심 투자 포인트",
+            "real_url": "https://blog.naver.com/stockmaster_ai/224456344491",
+            "log_no": "224456344491",
+            "pub_date": "Wed, 28 Oct 2026 10:16:03 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\naver_proof_1793150225.png"
+          },
+          "tistory": {
+            "verified": true,
+            "channel": "tistory",
+            "blog_name": "stockmaster-ai",
+            "title": "[StockMaster] 120일선(경기선) 바닥권 돌파 변곡점: 대형 우량주의 6개월 중장기 추세 전환 실전 매매 전략",
+            "real_url": "https://stockmaster-ai.tistory.com/45",
+            "pub_date": "Wed, 28 Oct 2026 10:16:47 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\tistory_proof_1793150229.png"
+          },
+          "timestamp": "2026-10-28 10:17:13"
+        }
+      }
+    },
+    {
+      "topic_id": 37,
+      "title": "DART 전자공시 전환사채(CB)·유상증자 폭탄 터진 종목의 🔴 VETO 필터링 주가 전망 및 핵심 투자 포인트",
+      "title_naver": "DART 전자공시 전환사채(CB)·유상증자 폭탄 터진 종목의 🔴 VETO 필터링 주가 전망 및 핵심 투자 포인트",
+      "title_tistory": "[StockMaster] DART 전자공시 전환사채(CB)·유상증자 폭탄 터진 종목의 🔴 VETO 필터링 실전 매매 전략",
+      "title_brunch": "시장의 소음을 넘어선 투자, DART 전자공시 전환사채(CB)·유상증자 폭탄 터진 종목의 🔴 VETO 필터링",
+      "category": "veto_risk",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_veto_risk_20261027_201515.png",
+      "published_at": "2026-10-27 20:17:09",
+      "publish_results": {
+        "topic_id": 37,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "DART 전자공시 전환사채(CB)·유상증자 폭탄 터진 종목의 🔴 VETO 필터링 주가 전망 및 핵심 투자 포인트",
+            "url": "https://blog.naver.com/stockmaster_ai/224455798935",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224455798935",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "전환사채CB",
+              "유상증자폭탄",
+              "주주가치희석",
+              "부실기업회피",
+              "DART악재",
+              "한계기업",
+              "코스피주도주",
+              "주식체결강도",
+              "체결강도",
+              "주식체결강도뜻",
+              "체결강도란",
+              "체결강도뜻",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "stockmaster-ai",
+            "title": "[StockMaster] DART 전자공시 전환사채(CB)·유상증자 폭탄 터진 종목의 🔴 VETO 필터링 실전 매매 전략",
+            "url": "https://stockmaster-ai.tistory.com/44",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "전환사채CB",
+              "유상증자폭탄",
+              "주주가치희석",
+              "부실기업회피",
+              "DART악재",
+              "한계기업",
+              "코스피주도주",
+              "주식체결강도",
+              "체결강도",
+              "주식체결강도뜻",
+              "체결강도란",
+              "체결강도뜻",
+              "주식투자"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 58,
+            "title": "DART 전자공시 전환사채(CB)·유상증자 폭탄 터진 종목의 🔴 VETO 필터링 주가 전망 및 핵심 투자 포인트",
+            "category": "RANK1"
+          }
+        },
+        "verification": {
+          "brand": "stock",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "stockmaster_ai",
+            "title": "DART 전자공시 전환사채(CB)·유상증자 폭탄 터진 종목의  VETO 필터링 주가 전망 및 핵심 투자 포인트",
+            "real_url": "https://blog.naver.com/stockmaster_ai/224455798935",
+            "log_no": "224455798935",
+            "pub_date": "Tue, 27 Oct 2026 20:15:56 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\naver_proof_1793099825.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "stockmaster-ai",
+            "title": "[StockMaster] DART 전자공시 전환사채(CB)&middot;유상증자 폭탄 터진 종목의   VETO 필터링 실전 매매 전략",
+            "real_url": "https://stockmaster-ai.tistory.com/44",
+            "pub_date": "Tue, 27 Oct 2026 20:16:46 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-27 20:17:09"
+        }
+      }
+    },
+    {
+      "topic_id": 22,
+      "title": "스윙 투자로 5~10% 수익 내는 법: 주도주 진입 유효 시그널과 매매 설계",
+      "title_naver": "스윙 투자로 5~10% 수익 내는 법: 주도주 진입 유효 시그널과 매매 설계",
+      "title_tistory": "[퀀트 스윙 전략] 3~5일 보유로 연 100% 누적 수익률 만드는 5~10% 익절 설계법",
+      "title_brunch": "단타의 피로를 지우는 퀀트 스윙 전략: 5~10% 확정 수익의 수학적 법칙",
+      "category": "valid_entry",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_valid_entry_20261027_151503.png",
+      "published_at": "2026-10-27 15:24:44",
+      "publish_results": {
+        "topic_id": 22,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "스윙 투자로 5~10% 수익 내는 법: 주도주 진입 유효 시그널과 매매 설계",
+            "url": "https://blog.naver.com/stockmaster_ai/224455481767",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224455481767",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "스윙투자",
+              "목표수익률",
+              "5to10프로",
+              "차익실현",
+              "단기스윙",
+              "직장인스윙",
+              "코스피주도주",
+              "주식체결강도",
+              "체결강도",
+              "주식체결강도뜻",
+              "체결강도란",
+              "체결강도뜻",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "stockmaster-ai",
+            "title": "[퀀트 스윙 전략] 3~5일 보유로 연 100% 누적 수익률 만드는 5~10% 익절 설계법",
+            "url": "https://stockmaster-ai.tistory.com/43",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "스윙투자",
+              "목표수익률",
+              "5to10프로",
+              "차익실현",
+              "단기스윙",
+              "직장인스윙",
+              "코스피주도주",
+              "주식체결강도",
+              "체결강도",
+              "주식체결강도뜻",
+              "체결강도란",
+              "체결강도뜻",
+              "주식투자"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 57,
+            "title": "스윙 투자로 5~10% 수익 내는 법: 주도주 진입 유효 시그널과 매매 설계",
+            "category": "RANK1"
+          }
+        },
+        "verification": {
+          "brand": "stock",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "stockmaster_ai",
+            "title": "스윙 투자로 5~10% 수익 내는 법: 주도주 진입 유효 시그널과 매매 설계",
+            "real_url": "https://blog.naver.com/stockmaster_ai/224455481767",
+            "log_no": "224455481767",
+            "pub_date": "Tue, 27 Oct 2026 15:23:39 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\naver_proof_1793082280.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "stockmaster-ai",
+            "title": "[퀀트 스윙 전략] 3~5일 보유로 연 100% 누적 수익률 만드는 5~10% 익절 설계법",
+            "real_url": "https://stockmaster-ai.tistory.com/43",
+            "pub_date": "Tue, 27 Oct 2026 15:24:23 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-27 15:24:44"
+        }
+      }
+    },
+    {
+      "topic_id": 7,
+      "title": "장 시작 10분 전광판 1위에 속지 마라: 14시 진짜 주도주를 가려내는 퀀트 수급 법칙",
+      "title_naver": "장 시작 10분 전광판 1위에 속지 마라: 14시 진짜 주도주를 가려내는 퀀트 수급 법칙",
+      "title_tistory": "09:10 가짜 펌핑 vs 14:00 진짜 주도주: 수급 데이터로 뇌동매매 끝내는 법",
+      "title_brunch": "오전 9시 10분의 환상, 오후 2시의 진실: 주도주를 선별하는 데이터의 힘",
+      "category": "realtime_rank1",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_rank1_20261027_101511.png",
+      "published_at": "2026-10-27 10:17:30",
+      "publish_results": {
+        "topic_id": 7,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "장 시작 10분 전광판 1위에 속지 마라: 14시 진짜 주도주를 가려내는 퀀트 수급 법칙",
+            "url": "https://blog.naver.com/stockmaster_ai/224455090123",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224455090123",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "시초가매매",
+              "오후장주도주",
+              "종가베팅",
+              "가짜급등구별",
+              "시간대별수급",
+              "데이트레이딩",
+              "코스피주도주",
+              "주식체결강도",
+              "체결강도",
+              "주식체결강도뜻",
+              "체결강도란",
+              "체결강도뜻",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "stockmaster-ai",
+            "title": "09:10 가짜 펌핑 vs 14:00 진짜 주도주: 수급 데이터로 뇌동매매 끝내는 법",
+            "url": "https://stockmaster-ai.tistory.com/42",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "시초가매매",
+              "오후장주도주",
+              "종가베팅",
+              "가짜급등구별",
+              "시간대별수급",
+              "데이트레이딩",
+              "코스피주도주",
+              "주식체결강도",
+              "체결강도",
+              "주식체결강도뜻",
+              "체결강도란",
+              "체결강도뜻",
+              "주식투자"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 56,
+            "title": "장 시작 10분 전광판 1위에 속지 마라: 14시 진짜 주도주를 가려내는 퀀트 수급 법칙",
+            "category": "RANK1"
+          }
+        },
+        "verification": {
+          "brand": "stock",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "stockmaster_ai",
+            "title": "장 시작 10분 전광판 1위에 속지 마라: 14시 진짜 주도주를 가려내는 퀀트 수급 법칙",
+            "real_url": "https://blog.naver.com/stockmaster_ai/224455090123",
+            "log_no": "224455090123",
+            "pub_date": "Tue, 27 Oct 2026 10:16:21 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\naver_proof_1793063847.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "stockmaster-ai",
+            "title": "09:10 가짜 펌핑 vs 14:00 진짜 주도주: 수급 데이터로 뇌동매매 끝내는 법",
+            "real_url": "https://stockmaster-ai.tistory.com/42",
+            "pub_date": "Tue, 27 Oct 2026 10:17:06 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-27 10:17:30"
+        }
+      }
+    },
     {
       "topic_id": 91,
       "title": "8대 지표 ⑥ [ROE(자기자본이익률) 15% 룰]: 워런 버핏이 극찬한 돈 잘 버는 기업 주가 전망 및 핵심 투자 포인트",

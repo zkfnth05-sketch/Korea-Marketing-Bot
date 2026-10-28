@@ -78,8 +78,10 @@ BRAND_META: Dict[str, Dict[str, Any]] = {
         "name": "Aura 데이팅",
         "shorts_script": "run_aura_shorts.py",
         "cardnews_script": "run_aura_cardnews.py",
+        "drama_script": "run_aura_drama.py",
         "shorts_extra": ["--no-publish"],
         "cardnews_extra": ["all"],
+        "drama_extra": ["--no-publish"],
         "shorts_max_topics": 8,
         "cardnews_max_topics": 8,
         "cardnews_folder": "아우라",
@@ -90,8 +92,10 @@ BRAND_META: Dict[str, Dict[str, Any]] = {
         "name": "보험 리밸런스",
         "shorts_script": "run_insurance_shorts.py",
         "cardnews_script": "run_insurance_cardnews.py",
+        "drama_script": "run_insurance_drama.py",
         "shorts_extra": ["--no-publish"],
         "cardnews_extra": [],
+        "drama_extra": ["--no-publish"],
         "shorts_max_topics": 8,
         "cardnews_max_topics": 8,
         "cardnews_folder": "보험",
@@ -102,8 +106,10 @@ BRAND_META: Dict[str, Dict[str, Any]] = {
         "name": "StockMaster AI",
         "shorts_script": "run_stock_shorts.py",
         "cardnews_script": "run_stock_cardnews.py",
+        "drama_script": "run_stock_drama.py",
         "shorts_extra": ["--no-publish"],
         "cardnews_extra": [],
+        "drama_extra": ["--no-publish"],
         "shorts_max_topics": 8,
         "cardnews_max_topics": 6,
         "cardnews_folder": "주식",
@@ -139,14 +145,19 @@ class MidnightContentFactory:
 
     # ------------------------------------------------------------------
     # 교차 라운드로빈 인터리빙 실행 계획 (5라운드 × 3브랜드 = 15태스크)
+    #   · Round 1 : 기본 숏폼 #1
+    #   · Round 2 : 카드뉴스 #1
+    #   · Round 3 : 숏폼 드라마 #1 (episode=1)
+    #   · Round 4 : 카드뉴스 #2
+    #   · Round 5 : 숏폼 드라마 #2 (episode=2)
     # ------------------------------------------------------------------
     BRAND_ORDER: List[str] = ["aura", "insurance", "stock"]
     ROUND_ROBIN_PLAN: List[Dict[str, Any]] = [
-        {"round": 1, "type": "shorts",   "slot_idx": 1, "title": "숏폼 #1 교차 선점"},
-        {"round": 2, "type": "cardnews", "slot_idx": 1, "title": "카드뉴스 #1 교차 선점"},
-        {"round": 3, "type": "shorts",   "slot_idx": 2, "title": "숏폼 #2 교차"},
-        {"round": 4, "type": "cardnews", "slot_idx": 2, "title": "카드뉴스 #2 완료"},
-        {"round": 5, "type": "shorts",   "slot_idx": 3, "title": "숏폼 #3 완료"},
+        {"round": 1, "type": "shorts",   "subtype": "regular",  "slot_idx": 1, "title": "기본 숏폼 #1 교차 선점"},
+        {"round": 2, "type": "cardnews", "subtype": "cardnews", "slot_idx": 1, "title": "카드뉴스 #1 교차 선점"},
+        {"round": 3, "type": "shorts",   "subtype": "drama",    "episode": 1, "slot_idx": 2, "title": "숏폼 드라마 #1 교차"},
+        {"round": 4, "type": "cardnews", "subtype": "cardnews", "slot_idx": 2, "title": "카드뉴스 #2 완료"},
+        {"round": 5, "type": "shorts",   "subtype": "drama",    "episode": 2, "slot_idx": 3, "title": "숏폼 드라마 #2 완료"},
     ]
 
     def __init__(self, cooldown_sec: int = 300):
@@ -263,7 +274,7 @@ class MidnightContentFactory:
     # 완제품 실물 탐색 & 직인 영수증(READY_FOR_DISPATCH.json) 발급
     # ------------------------------------------------------------------
     def find_and_tag_ready_artifact(
-        self, brand: str, content_type: str, topic_id: int, slot: str
+        self, brand: str, content_type: str, topic_id: int, slot: str, subtype: Optional[str] = None
     ) -> Tuple[bool, Optional[str], Optional[List[str]]]:
         """오늘자 완제품 실물을 탐색하고, 확인 시 READY_FOR_DISPATCH.json 직인을 원자적으로 기록.
 
@@ -271,6 +282,11 @@ class MidnightContentFactory:
             (True, mp4_path, None)      숏폼 완성본 확인
             (True, None, slide_paths)   카드뉴스 완성본 확인
             (False, None, None)         미완성
+
+        [숏폼 드라마 / 일반 숏폼 격리 탐색]
+        - subtype == "drama" 또는 slot 이 shorts_2 / shorts_3 이면 드라마 산출물만 후보로 삼는다.
+        - 그 외(regular)는 파일명/폴더명에 "drama" 가 없는 산출물만 후보로 삼는다.
+        - 해당 분류의 후보가 하나도 없으면 원래 후보 목록으로 안전 폴백한다.
         """
         try:
             today_str = datetime.datetime.now().strftime("%Y%m%d")
@@ -280,8 +296,10 @@ class MidnightContentFactory:
             mp4_path: Optional[Path] = None
             slides: List[Path] = []
             artifact_dir: Optional[Path] = None
+            is_drama = False
 
             if content_type == "shorts":
+                is_drama = (subtype == "drama") or (slot in ["shorts_2", "shorts_3"])
                 brand_dir = desktop / "한국 숏폼_산출물" / meta.get("shorts_folder", brand)
                 if not brand_dir.exists():
                     return (False, None, None)
@@ -302,6 +320,23 @@ class MidnightContentFactory:
                         candidates.append(m)
                 if not candidates:
                     return (False, None, None)
+
+                # 드라마 / 일반 숏폼 격리 필터 (분류 후보가 없으면 원본 유지)
+                if is_drama:
+                    drama_candidates = [
+                        m for m in candidates
+                        if "drama" in m.name.lower() or "drama" in m.parent.name.lower()
+                    ]
+                    if drama_candidates:
+                        candidates = drama_candidates
+                else:
+                    regular_candidates = [
+                        m for m in candidates
+                        if "drama" not in m.name.lower() and "drama" not in m.parent.name.lower()
+                    ]
+                    if regular_candidates:
+                        candidates = regular_candidates
+
                 candidates.sort(key=lambda p: p.stat().st_mtime, reverse=True)
                 mp4_path = candidates[0]
                 artifact_dir = mp4_path.parent
@@ -343,6 +378,7 @@ class MidnightContentFactory:
             receipt = {
                 "brand": brand,
                 "type": content_type,
+                "subtype": subtype or ("drama" if is_drama else "regular"),
                 "slot": slot,
                 "topic_id": topic_id,
                 "artifact_path": str(mp4_path) if mp4_path else None,
@@ -477,30 +513,73 @@ class MidnightContentFactory:
     # 태스크 빌더 (브랜드 단위)
     # ------------------------------------------------------------------
     def _build_brand_tasks(self, brand: str, state: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """브랜드 1개의 5개 태스크를 구성한다.
+
+        구성 (총 5개):
+          · shorts_1   : 기본 숏폼 #1        (subtype="regular")
+          · shorts_2   : 숏폼 드라마 #1      (subtype="drama", --episode 1)
+          · shorts_3   : 숏폼 드라마 #2      (subtype="drama", --episode 2)
+          · cardnews_1 : 카드뉴스 #1         (subtype="cardnews")
+          · cardnews_2 : 카드뉴스 #2         (subtype="cardnews")
+
+        [설계 의도]
+        - 숏폼 3개를 모두 '주제 순환 기본 숏폼'으로 뽑던 구조를 폐기하고,
+          기본 숏폼 1개 + 드라마 2개(에피소드 1·2)로 역할을 분리한다.
+        - 드라마 태스크는 topic_id 를 에피소드 번호(1, 2)로 두어
+          산출물 검증/오프셋 저장 시 충돌하지 않도록 한다.
+        - drama_script / drama_extra 가 BRAND_META 에 없더라도
+          run_{brand}_drama.py / ["--no-publish"] 로 안전 폴백한다.
+        """
         meta = BRAND_META[brand]
         emoji = meta["emoji"]
         name = meta["name"]
 
+        # 기본 숏폼은 1개만 선정 (드라마 2개가 나머지 숏폼 슬롯을 담당)
         s_topics = self.pick_smart_rotating_topics(
-            brand, "shorts", state.get(f"{brand}_shorts_offset", 0), 3, meta["shorts_max_topics"]
+            brand, "shorts", state.get(f"{brand}_shorts_offset", 0), 1, meta["shorts_max_topics"]
         )
         c_topics = self.pick_smart_rotating_topics(
             brand, "cardnews", state.get(f"{brand}_cardnews_offset", 0), 2, meta["cardnews_max_topics"]
         )
 
+        # 드라마 스크립트/추가 인자 안전 폴백
+        drama_script = meta.get("drama_script", f"run_{brand}_drama.py")
+        drama_extra = list(meta.get("drama_extra", ["--no-publish"]))
+
         tasks: List[Dict[str, Any]] = []
-        for idx, t in enumerate(s_topics, 1):
+
+        # ── slot="shorts_1" : 기본 숏폼 #1 ────────────────────────────────
+        for t in s_topics:
             cmd = [sys.executable, str(CURRENT_DIR / meta["shorts_script"]), "--topic", str(t)]
             cmd.extend(meta["shorts_extra"])
             tasks.append({
                 "task_id": f"{brand}:shorts:{t}",
                 "brand": brand,
                 "type": "shorts",
-                "slot": f"shorts_{idx}",
+                "subtype": "regular",
+                "slot": "shorts_1",
                 "topic_id": t,
-                "label": f"{emoji} {name} 숏폼 #{idx} (주제 #{t})",
+                "label": f"{emoji} {name} 기본 숏폼 #1 (주제 #{t})",
                 "cmd": cmd,
             })
+
+        # ── slot="shorts_2" / "shorts_3" : 숏폼 드라마 #1 / #2 ────────────
+        for episode in (1, 2):
+            cmd = [sys.executable, str(CURRENT_DIR / drama_script)]
+            cmd.extend(drama_extra)
+            cmd.extend(["--episode", str(episode)])
+            tasks.append({
+                "task_id": f"{brand}:drama:{episode}",
+                "brand": brand,
+                "type": "shorts",
+                "subtype": "drama",
+                "slot": f"shorts_{episode + 1}",
+                "topic_id": episode,
+                "label": f"{emoji} {name} 숏폼 드라마 #{episode} (에피소드 #{episode})",
+                "cmd": cmd,
+            })
+
+        # ── slot="cardnews_1" / "cardnews_2" : 카드뉴스 2개 ───────────────
         for idx, t in enumerate(c_topics, 1):
             cmd = [sys.executable, str(CURRENT_DIR / meta["cardnews_script"])]
             cmd.extend(meta["cardnews_extra"])
@@ -509,11 +588,13 @@ class MidnightContentFactory:
                 "task_id": f"{brand}:cardnews:{t}",
                 "brand": brand,
                 "type": "cardnews",
+                "subtype": "cardnews",
                 "slot": f"cardnews_{idx}",
                 "topic_id": t,
                 "label": f"{emoji} {name} 카드뉴스 #{idx} (주제 #{t})",
                 "cmd": cmd,
             })
+
         return tasks
 
 
@@ -783,6 +864,7 @@ class MidnightContentFactory:
                     cmd=task["cmd"],
                     label=attempt_label,
                     cwd=str(CURRENT_DIR),
+                    timeout_sec=self.TASK_TIMEOUT_SEC,
                     cooldown_sec=self.cooldown_sec,
                 ) or {}
                 elapsed = float(res.get("elapsed_sec", 0) or 0)
@@ -796,7 +878,7 @@ class MidnightContentFactory:
 
             # 종료코드 0이어도 산출물 실물 검증 (완제품 탐색 + 직인 발급 일원화)
             art_ok, art_path, slide_paths = self.find_and_tag_ready_artifact(
-                task["brand"], task["type"], task["topic_id"], task["slot"]
+                task["brand"], task["type"], task["topic_id"], task["slot"], task.get("subtype")
             )
             verified = bool(art_ok)
             record["verified"] = verified

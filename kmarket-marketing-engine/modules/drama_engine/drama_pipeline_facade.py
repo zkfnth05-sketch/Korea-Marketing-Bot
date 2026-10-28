@@ -615,11 +615,13 @@ class DramaPipelineFacade:
           · 🛑 정적 에셋 재탕(AURA_CHARACTER_CUT_MAP PNG 복사) 완전 영구 박멸 — 재탕 0건
           · 캐시가 없는 한 cut1~cut4 는 각각 독립 파일로 신규 생성된다.
 
-        - 1순위: Gemini Image (gemini-2.5-flash-image ➔ gemini-3.1-flash-lite-image)
-        - 2순위: Wan 2.1 14B Q4_0 ComfyUI 로컬 GPU 생성 (비용 0원)
-        - 3순위: 브랜드 실사 고화질 에셋 폴백
+        - 0순위: LoRA + ComfyUI 로컬 GPU (얼굴 365일 100% 고정, 비용 0원)
+        - 1순위: Wan 2.1 14B Q4_0 ComfyUI 로컬 GPU 생성 (비용 0원)
+        - 2순위: 브랜드 실사 고화질 에셋 폴백
+        - 🛑 Gemini Image API 는 숏폼 드라마에서 절대 호출하지 않는다 (전면 영구 퇴출)
         - 캐시 재사용: 이미 50KB 이상 유효 이미지가 있으면 즉시 재사용
         - cache_dir 미지정 시에도 output_base 루트를 오염시키지 않도록 에피소드 폴더 내부로 강제 격리
+        - 🧹 4컷 사전 일괄 생성 완료 즉시 VRAM 캐시 완전 방출 (비디오 모델 적재 전 OOM 차단)
         """
         images = []
         if cache_dir is None:
@@ -688,25 +690,11 @@ class DramaPipelineFacade:
                 except Exception as le:
                     logger.warning("⚠️ [DramaFacade] LoRA 생성 실패(%s): %s", cut_id, le)
 
-            # 1순위: Gemini 3.1 Flash Lite Image (초고속 실사 2초)
-            #        🎭 ref_path 주입 시 서연/민준 얼굴 고정 + 입 다문 상태 강제
-            try:
-                if self.gemini_adapter.is_available() and prompt:
-                    self.gemini_adapter.render(
-                        prompt=prompt,
-                        out_path=img_path,
-                        ref_image_path=ref_path,
-                    )
-                    rendered = True
-                    if ref_path is not None:
-                        logger.info(
-                            f"🎭 [DramaFacade] {cut_id} 주인공 마스터 사진 주입 렌더 완료 "
-                            f"(ref={Path(ref_path).name} · 입 다문 상태 강제)"
-                        )
-            except Exception as ge:
-                logger.warning(f"⚠️ [DramaFacade] Gemini 실사 생성 시도 중 예외 ({cut_id}): {ge}")
+            # 🛑 [대표님 절대 엄명] Gemini Image API 전면 영구 퇴출
+            #    제미나이 이미지 API 는 숏폼 드라마에서 절대 호출하지 않는다.
+            #    (과거 1순위 Gemini 호출 블록은 완전 제거됨 — 재도입 금지)
 
-            # 2순위: Wan 2.1 ComfyUI 로컬 생성 (비용 0원)
+            # 1순위: Wan 2.1 ComfyUI 로컬 생성 (비용 0원)
             if not rendered:
                 try:
                     if self.wan_adapter.is_available() and prompt:
@@ -720,16 +708,21 @@ class DramaPipelineFacade:
                 except Exception as we:
                     logger.warning(f"⚠️ [DramaFacade] Wan 2.1 생성 시도 중 예외 ({cut_id}): {we}")
 
-            # 3순위: 브랜드 실사 에셋 폴백
+            # 2순위: 브랜드 실사 에셋 폴백
             if not rendered:
                 try:
                     self.asset_adapter.render(cut_index=i, out_path=img_path)
                     rendered = True
                 except Exception as ae:
                     logger.error(f"❌ [DramaFacade] 브랜드 실사 에셋 폴백 실패 ({cut_id}): {ae}", exc_info=True)
-                    raise RuntimeError(f"씬 {cut_id} 실사 이미지 준비 실패 (Gemini, Wan2.1, 에셋 폴백 모두 소진)")
+                    raise RuntimeError(f"씬 {cut_id} 실사 이미지 준비 실패 (Wan2.1, 에셋 폴백 모두 소진)")
 
             images.append(img_path)
+
+        # 🧹 [대표님 절대 엄명] 사진 4컷 사전 일괄 생성 완료 즉시 VRAM 캐시 완전 방출!
+        if self.stitcher is not None and self.stitcher.wan_client is not None:
+            self.stitcher.wan_client.free_vram()
+            logger.info("🧹 [DramaFacade] 사진 4컷 생성 완료 ➔ 비디오 모델 적재 전 VRAM 캐시 완전 방출 완료")
 
         return images
 

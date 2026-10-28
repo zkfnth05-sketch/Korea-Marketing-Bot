@@ -1,22 +1,20 @@
 {
-  "updated_at": "2026-10-20 15:53:51",
+  "updated_at": "2026-10-27 13:15:09",
   "brands": {
     "aura": {
       "reddit": {
         "brand": "aura",
         "channel": "reddit",
-        "live_url": "https://www.reddit.com/r/Living_in_Korea/comments/1x96tbw/apartment_announcements/",
-        "title": "r/Living_in_Korea: apartment announcements?",
-        "status": "HEALTHY",
+        "live_url": null,
+        "title": "r/Korean: What are some of your favorite 아재개그s",
+        "status": "ERROR",
         "is_verified": false,
-        "error_message": null,
+        "error_message": "댓글 등록 버튼 클릭 실패",
+        "failed_at": "2026-10-27 10:57:25",
+        "published_at": null,
         "screenshot_file": null,
         "screenshot_path": null,
-        "published_at": "2026-10-19 16:01:19",
-        "extra_meta": {
-          "comment_preview": "I totally get the frustration of constantly switching back and forth between Papago and chat apps — it completely kills the conversation vibe. 😭 If you want to practice naturally without copying and p",
-          "screenshot_file": "proof_aura_reddit_20261019_160105.png"
-        }
+        "extra_meta": {}
       }
     },
     "insurance": {
@@ -41,17 +39,17 @@
       "reddit": {
         "brand": "stock",
         "channel": "reddit",
-        "live_url": "https://www.reddit.com/r/dividends/comments/1xacjos/if_youre_truly_an_income_investor/",
-        "title": "r/dividends: If you’re truly an income investor…",
+        "live_url": "https://www.reddit.com/r/Daytrading/comments/1xghy6q/hey_everyone_im_22_years_old_working_fulltime_and/",
+        "title": "r/Daytrading: Hey everyone! I'm 22 years old, working full-time, and I've recently become interested in learning how to trade, specifically using TJR's strategy and concepts.",
         "status": "HEALTHY",
         "is_verified": false,
         "error_message": null,
         "screenshot_file": null,
         "screenshot_path": null,
-        "published_at": "2026-10-20 13:25:44",
+        "published_at": "2026-10-27 13:15:09",
         "extra_meta": {
-          "comment_preview": "The appeal of enhanced current income from covered call strategies on dividend/bond funds like KNG or LQDW for cash flow-focused investors is undeniable, especially post-accumulation. 📈 However, this ",
-          "screenshot_file": "proof_stock_reddit_20261020_132530.png"
+          "comment_preview": "TJR's ICT concepts are demanding. For a solid foundation, start with core market structure, supply/demand, and liquidity dynamics, then iteratively learn and backtest specific patterns like FVGs or or",
+          "screenshot_file": "proof_stock_reddit_20261027_131456.png"
         }
       }
     }

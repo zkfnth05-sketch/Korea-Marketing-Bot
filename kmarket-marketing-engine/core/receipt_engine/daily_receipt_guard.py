@@ -17,6 +17,7 @@
 """
 
 import os
+import re
 import json
 import time
 import threading
@@ -62,7 +63,11 @@ CARDNEWS_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
 
 # 숏폼 조각 파일(중간 산출물) 제외 규칙 — emergency_guard.py 규약 계승
 SHORTS_FRAGMENT_PREFIXES = ("01_", "02_", "03_", "04_", "05_")
-SHORTS_FRAGMENT_KEYWORDS = ("cta", "temp", "tmp", "preview", "fragment")
+SHORTS_FRAGMENT_KEYWORDS = ("cta", "temp", "tmp", "preview", "fragment", "scene")
+
+# 카드뉴스 topic_id 추출 정규식 (폴더/파일명 → 주제 번호)
+# 예: '주제_3', '주제3', 'topic_12', 'T[5]', 'T 7', '03_아우라_...'
+_TOPIC_ID_PATTERN = re.compile(r"(?:주제|topic|T)?[_\[\s]*(\d{1,3})", re.IGNORECASE)
 
 # 상태 저장 경로
 try:
@@ -474,8 +479,38 @@ class DailyReceiptGuard:
         """폴더/파일명에 당일 날짜(YYYYMMDD 또는 YYYY-MM-DD)가 포함되는지."""
         return (today_compact in name) or (today_dash in name)
 
+    @staticmethod
+    def _extract_topic_id(name: str) -> Optional[int]:
+        """
+        폴더/파일명에서 topic_id 를 안전하게 추출한다.
+
+        지원 패턴 예: '주제_3', '주제3', 'topic_12', 'T[5]', 'T 7', '3', '03_...'
+        • 정규식: r'(?:주제|topic|T)?[_\\[\\s]*(\\d{1,3})'
+        • 추출 실패 또는 0 이하 값은 None 반환 (호출측에서 순번 폴백)
+        """
+        if not name:
+            return None
+        try:
+            match = _TOPIC_ID_PATTERN.search(str(name))
+        except Exception:
+            return None
+        if not match:
+            return None
+        try:
+            tid = int(match.group(1))
+        except Exception:
+            return None
+        return tid if tid > 0 else None
+
     def _scan_brand_artifacts(self, brand: str, media_type: str) -> List[Path]:
-        """당일 날짜가 붙은 완제품 파일 목록 수집 (조각 파일 제외)."""
+        """
+        당일 날짜가 붙은 완제품 목록 수집.
+
+        • shorts   : 완제품 영상 파일(mp4 등) 1개 = 완제품 1개 (조각/임시 파일 배제)
+        • cardnews : 슬라이드 이미지들이 담긴 '패키지 디렉터리' 1개 = 완제품 1개
+                     (개별 slide_1.png / slide_2.png 를 각각 완제품으로 세지 않음)
+                     대표 경로는 d/'slide_1.png' 가 있으면 그 파일, 없으면 폴더 자체.
+        """
         b = self._normalize_brand(brand)
         m = self._normalize_media(media_type)
         today_compact = self._today_compact()
@@ -493,42 +528,85 @@ class DailyReceiptGuard:
 
         found: List[Path] = []
         try:
-            for p in base.rglob("*"):
-                if not p.is_file():
-                    continue
-                if p.suffix.lower() not in exts:
-                    continue
+            if m == "cardnews":
+                # ---- 카드뉴스: 패키지 디렉터리 단위 수집 ----
+                for d in base.rglob("*"):
+                    if not d.is_dir():
+                        continue
 
-                # 파일명 또는 상위 폴더명에 당일 날짜가 있어야 '당일 완제품'
-                rel_parts = p.relative_to(base).parts
-                name_hit = any(
-                    self._is_today_name(part, today_compact, today_dash)
-                    for part in rel_parts
-                )
-                if not name_hit:
-                    continue
+                    # 폴더명(또는 상위 경로)에 당일 날짜가 있어야 '당일 완제품'
+                    rel_parts = d.relative_to(base).parts
+                    name_hit = any(
+                        self._is_today_name(part, today_compact, today_dash)
+                        for part in rel_parts
+                    )
+                    if not name_hit:
+                        continue
 
-                # 숏폼 조각 파일 배제
-                if m == "shorts":
+                    # 폴더 내부에 유효한 슬라이드 이미지가 최소 1장 있어야 인정
+                    has_slide = False
+                    try:
+                        for child in d.iterdir():
+                            if child.is_file() and child.suffix.lower() in exts:
+                                has_slide = True
+                                break
+                    except Exception:
+                        continue
+                    if not has_slide:
+                        continue
+
+                    # 대표 경로: slide_1.png 우선, 없으면 폴더 자체
+                    slide_1 = d / "slide_1.png"
+                    found.append(slide_1 if slide_1.is_file() else d)
+            else:
+                # ---- 숏폼: 완제품 영상 파일 단위 수집 ----
+                for p in base.rglob("*"):
+                    if not p.is_file():
+                        continue
+                    if p.suffix.lower() not in exts:
+                        continue
+
+                    # 파일명 또는 상위 폴더명에 당일 날짜가 있어야 '당일 완제품'
+                    rel_parts = p.relative_to(base).parts
+                    name_hit = any(
+                        self._is_today_name(part, today_compact, today_dash)
+                        for part in rel_parts
+                    )
+                    if not name_hit:
+                        continue
+
+                    # 숏폼 조각 파일 배제
                     low = p.name.lower()
                     if any(low.startswith(pre) for pre in SHORTS_FRAGMENT_PREFIXES):
                         continue
                     if any(kw in low for kw in SHORTS_FRAGMENT_KEYWORDS):
                         continue
 
-                found.append(p)
+                    # 🚨 중간 씬 클립 배제 — 상위 폴더 경로에 'scene' 이 포함되어 있거나
+                    #    'scene_' 으로 시작하는 폴더 내부의 영상은 최종 완제품이 아닙니다.
+                    #    (예: .../scene_01/scene.mp4, .../scenes/scene_03.mp4)
+                    parent_parts = [str(part).lower() for part in rel_parts[:-1]]
+                    if any("scene" in part for part in parent_parts):
+                        continue
+                    if any(part.startswith("scene_") for part in parent_parts):
+                        continue
+
+                    found.append(p)
         except Exception:
             return found
 
-        found.sort(key=lambda x: x.name)
+        found.sort(key=lambda x: str(x))
         return found
 
     def auto_scan_and_seal(self, brand: str, media_type: str) -> List[str]:
         """
         바탕화면 실물 산출물을 스캔하여 당일 완제품을 자동 영수증 등록합니다.
 
-        • 쿼터(숏폼 3 / 카드뉴스 2)까지만 등록하며, 초과분은 건너뜁니다.
-        • 이미 봉인된 파일은 멱등 처리로 중복 등록되지 않습니다.
+        • 카드뉴스는 '패키지 폴더 1개 = 완제품 1개' 로 집계합니다.
+          (폴더 내 5장 슬라이드가 5개 주제로 둔갑하는 쿼터 낭비를 원천 차단)
+        • topic_id 는 폴더/파일명에서 정규식으로 추출하며, 추출 실패 시 순번 폴백.
+        • 이미 (brand, media_type, topic_id) 가 봉인되어 있으면 멱등 스킵.
+        • 쿼터(숏폼 3 / 카드뉴스 2) 잔여분 내에서만 봉인합니다.
         • 반환: 새로 봉인된 receipt_key 목록
         """
         b = self._normalize_brand(brand)
@@ -538,26 +616,59 @@ class DailyReceiptGuard:
         if not artifacts:
             return []
 
-        # 이미 봉인된 artifact_path 집합 (중복 방지)
+        # 이미 봉인된 topic_id / artifact_path 집합 (멱등 중복 방지)
         with _THREAD_LOCK:
             with _FileLock(self.lock_file):
                 state = self._read_state()
                 bucket = self._day_bucket(state)
-                sealed_paths = {
-                    r.get("artifact_path")
-                    for r in bucket["receipts"].values()
-                    if r.get("brand") == b and r.get("media_type") == m
-                }
+                sealed_topic_ids = set()
+                sealed_paths = set()
+                for r in bucket["receipts"].values():
+                    if r.get("brand") != b or r.get("media_type") != m:
+                        continue
+                    try:
+                        sealed_topic_ids.add(int(r.get("topic_id", -1)))
+                    except Exception:
+                        pass
+                    ap = r.get("artifact_path")
+                    if ap:
+                        sealed_paths.add(str(ap))
 
         sealed_keys: List[str] = []
         for idx, path in enumerate(artifacts, start=1):
+            # 1) topic_id 결정 — '패키지 폴더명' 최우선 추출 → 실패 시 순번 폴백
+            #    🚨 대표 경로가 d/'slide_1.png' 인 경우 path.name('slide_1.png')에서
+            #       숫자 1을 잘못 뽑아 실제 폴더명(예: '아우라_06_...' → 주제 6번)을
+            #       덮어쓰는 사고를 원천 차단합니다.
+            folder_name = path.parent.name if path.is_file() else path.name
+            topic_id = self._extract_topic_id(folder_name)
+
+            # 1-1) 폴더명에서 못 찾은 경우에만 파일명 시도.
+            #      단, 'slide_' 로 시작하는 슬라이드 파일명은 topic_id 추출 대상에서 제외.
+            if topic_id is None and path.is_file():
+                file_stem = path.name
+                if not file_stem.lower().startswith("slide_"):
+                    topic_id = self._extract_topic_id(file_stem)
+
+            # 1-2) 그래도 없으면 순번 폴백
+            if topic_id is None:
+                topic_id = idx
+
+            # 2) 멱등 스킵 — 동일 topic_id 또는 동일 대표 경로는 재봉인 금지
+            if topic_id in sealed_topic_ids:
+                continue
             if str(path) in sealed_paths:
                 continue
+
+            # 3) 쿼터 잔여 확인 — 남은 쿼터 내에서만 봉인
             if not self.can_produce(b, m):
                 break
+
             try:
-                key = self.seal_receipt(b, m, topic_id=idx, artifact_path=str(path))
+                key = self.seal_receipt(b, m, topic_id=topic_id, artifact_path=str(path))
                 sealed_keys.append(key)
+                sealed_topic_ids.add(topic_id)
+                sealed_paths.add(str(path))
             except ValueError:
                 # 쿼터 초과 — 더 이상 등록하지 않음
                 break

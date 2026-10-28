@@ -246,7 +246,7 @@ class AuraImageGenerator:
         logger.info(f"🎨 [AuraImage] 주제 #{topic_id} 스토리 맞춤 사진 생성 착수 (카테고리: {category})")
         logger.info(f"🎨 [AuraImage] 제미나이 맞춤 프롬프트: {prompt[:120]}...")
 
-        # 유료키 2개 순차 롤오버 시도 (gemini-3.1-flash-lite-image 초저가 고화질 모델)
+        # 유료키 2개 순차 롤오버 시도 (gemini-2.5-flash-image 표준 최저가 고화질 모델)
         raw_bytes = None
         for attempt in range(len(self.paid_keys)):
             try:
@@ -254,9 +254,9 @@ class AuraImageGenerator:
                 if not client:
                     break
 
-                # 🌟 [공식 검증 완료] gemini-3.1-flash-lite-image로 실사 이미지 직접 생성
+                # 🌟 [공식 검증 완료] gemini-2.5-flash-image로 실사 이미지 직접 생성 (표준 최저가 이미지 모델)
                 response = client.models.generate_content(
-                    model="gemini-3.1-flash-lite-image",
+                    model="gemini-2.5-flash-image",
                     contents=prompt
                 )
 

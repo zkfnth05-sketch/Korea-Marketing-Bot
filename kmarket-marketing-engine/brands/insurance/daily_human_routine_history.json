@@ -441,5 +441,37 @@
     "status": "success",
     "gemini_calls": 0,
     "brand": "insurance"
+  },
+  {
+    "timestamp": "2026-10-28 12:30:17",
+    "slot_id": "lunch",
+    "slot_name": "🍱 점심시간 (12분)",
+    "target_min": 12,
+    "target_likes": 5,
+    "actual_sec": 481,
+    "likes_given": 3,
+    "actions": [
+      {
+        "posts_viewed": 0,
+        "likes": 0,
+        "platform": "instagram",
+        "status": "unauthenticated",
+        "error": "Instagram session expired - please login"
+      },
+      {
+        "posts_viewed": 23,
+        "platform": "threads",
+        "status": "success"
+      },
+      {
+        "shorts_watched": 13,
+        "likes": 3,
+        "platform": "youtube",
+        "status": "success"
+      }
+    ],
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "insurance"
   }
 ]

@@ -112,7 +112,7 @@ class InsuranceDomesticSNSCopywriter:
     def _call_gemini(self, prompt: str) -> Optional[str]:
         if not self.client:
             return None
-        models = ["gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-2.5-flash", "gemini-2.0-flash"]
+        models = ["gemini-2.5-flash", "gemini-2.0-flash"]
         for m in models:
             try:
                 resp = self.client.generate_content(model=m, contents=prompt)

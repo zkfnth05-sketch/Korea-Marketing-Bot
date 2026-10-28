@@ -14,6 +14,7 @@
 """
 
 import os
+import re
 import sys
 import json
 import time
@@ -114,140 +115,395 @@ class InsuranceYouTubeBotPublisher:
             return err_res
 
     # ------------------------------------------------------------------
-    # [내부 헬퍼] 고정 댓글 작성 + 최상단 핀(Pin) 고정 전담 엔진
+    # [video_id 정규화 SSOT] URL/순수 ID 혼용 입력을 순수 11자리 ID로 정규화한다.
+    #   · https://youtube.com/shorts/HaI-_Uxbsis?feature=share → HaI-_Uxbsis
+    #   · https://youtu.be/MLFWx9R5t7Q?t=3                    → MLFWx9R5t7Q
+    #   · https://www.youtube.com/watch?v=MLFWx9R5t7Q&list=.. → MLFWx9R5t7Q
+    #   · MLFWx9R5t7Q                                          → MLFWx9R5t7Q
+    #   ★ 왜 필수인가: 발행 파이프라인이 video_url(전체 URL)을 그대로 넘기는 경로와
+    #     video_id(순수 ID)를 넘기는 경로가 혼재하여, URL 이 유입되면
+    #     watch?v=https://... 형태의 깨진 URL 로 진입해 댓글 등록이 100% 실패했다.
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _normalize_video_id(video_id_or_url: str) -> str:
+        """URL 또는 순수 ID 입력을 유튜브 11자리 순수 video_id 로 안전 추출한다."""
+        raw = str(video_id_or_url or "").strip()
+        if not raw:
+            return ""
+        # 1) URL 형태에서 ID 패턴 추출 (shorts / youtu.be / watch?v= / embed / live)
+        m = re.search(
+            r"(?:youtu\.be/|/shorts/|/embed/|/live/|/v/|[?&]v=)([A-Za-z0-9_-]{11})",
+            raw,
+        )
+        if m:
+            return m.group(1)
+        # 2) 순수 ID 형태 (11자리) — 그대로 반환
+        m2 = re.fullmatch(r"([A-Za-z0-9_-]{11})", raw)
+        if m2:
+            return m2.group(1)
+        # 3) 최후 수단: 11자리 ID 토큰이 문자열 어딘가에 있으면 추출
+        m3 = re.search(r"([A-Za-z0-9_-]{11})", raw)
+        if m3:
+            return m3.group(1)
+        return ""
+
+    # ------------------------------------------------------------------
+    # [고정 댓글 + 최상단 핀(Pin) 무인 자동화 엔진] 대표님 절대 지시 (2026-10-25)
+    #   "보험 리밸런스 유튜브 쇼츠 댓글 등록 및 상단 고정(Pin) 엔진을 100% 무인 작동하도록 전면 개편"
+    #
+    #   ★ 기존 구현의 3대 치명 결함을 근본 해결한다:
+    #     ① watch 페이지 강제 진입 → 쇼츠 유입 트래픽과 무관한 페이지에서 댓글 시도.
+    #        이제 shorts/{id} 로 직접 진입하고, 우측 사이드바 댓글 버튼으로
+    #        engagement panel(댓글 서랍)을 개방한다. 실패 시에만 watch 로 폴백.
+    #     ② fill() 주입 → contenteditable 에 값이 들어가도 YouTube 의 입력 이벤트
+    #        체인이 발화하지 않아 submit 버튼이 disabled 로 남았다.
+    #        이제 press_sequentially(delay=15) 로 실제 키보드 이벤트를 한 글자씩 발생.
+    #     ③ 등록 버튼 클릭 성공 = 성공 처리 → 실제로는 disabled 버튼을 눌러 아무 일도
+    #        일어나지 않았는데 "submitted" 로 위조 보고했다.
+    #        이제 등록 후 댓글 DOM 에 공식 키워드가 실물 렌더링되었는지 검증(Anti-Tampering)
+    #        하고, 없으면 즉시 실패 처리한다.
+    #
+    #   반환값: "pinned" | "submitted" | "skipped"
+    #     · pinned    = 댓글 등록 + 최상단 고정까지 100% 완료
+    #     · submitted = 댓글 등록은 실물 검증 완료, 핀 고정만 미확인
+    #     · skipped   = 댓글 등록 자체가 실물 검증 실패(성공 위조 금지)
     # ------------------------------------------------------------------
     async def _post_and_pin_comment(self, page, video_id: str, pinned_comment: str) -> str:
         """
-        watch 페이지에서 댓글 작성 ➔ 최상단 첫 댓글 삼점 메뉴 ➔ '고정' ➔ 확인 팝업 '고정' 클릭.
+        쇼츠 페이지 진입 ➔ 댓글 서랍 개방 ➔ 실제 키보드 타이핑 ➔ 등록 ➔ 실물 검증 ➔ 핀 고정.
         반환값: "pinned" | "submitted" | "skipped"
         """
-        if not video_id:
-            logger.warning("⚠️ [고정 댓글] video_id 부재로 댓글/핀 고정을 건너뜁니다.")
+        # 0) video_id 정규화 (URL 유입 시 순수 ID 추출)
+        vid = self._normalize_video_id(video_id)
+        if not vid:
+            logger.warning(f"⚠️ [고정 댓글] video_id 정규화 실패('{video_id}') — 댓글/핀 고정 건너뜀")
             return "skipped"
 
-        # 1) 반드시 watch URL로 진입 (shorts/{id} 페이지는 댓글 DOM 구조가 상이하여 입력 불가)
-        watch_url = f"https://www.youtube.com/watch?v={video_id}"
-        logger.info(f"💬 [고정 댓글] watch 페이지 진입: {watch_url}")
-        await page.goto(watch_url, wait_until="domcontentloaded", timeout=45000)
-        await asyncio.sleep(4.0)
+        # 실물 검증용 핵심 문구 (공식 검색어 '보험 리밸런스' 우선, 없으면 댓글 첫 문장)
+        verify_token = self.OFFICIAL_KEYWORD
+        if verify_token not in pinned_comment:
+            first_line = (pinned_comment or "").strip().splitlines()
+            verify_token = (first_line[0][:20] if first_line else "").strip() or self.OFFICIAL_KEYWORD
 
-        # 2) 댓글 섹션 로드 유도 (500px 스크롤 다운)
-        try:
-            await page.evaluate("window.scrollBy(0, 500)")
-        except Exception:
-            pass
-        await asyncio.sleep(2.5)
-        try:
-            await page.evaluate("window.scrollBy(0, 700)")
-        except Exception:
-            pass
-        await asyncio.sleep(2.0)
+        # 1) 쇼츠 페이지 직접 진입
+        #    ★ 초기 로드 대기를 4초 ➔ 6초로 상향:
+        #      업로드 직후 쇼츠 페이지는 플레이어 초기화/댓글 컴포넌트 마운트가 늦어
+        #      4초 시점에는 댓글 버튼조차 DOM 에 없는 경우가 빈번했다.
+        shorts_url = f"https://www.youtube.com/shorts/{vid}"
+        logger.info(f"💬 [고정 댓글] 쇼츠 페이지 진입: {shorts_url}")
+        await page.goto(shorts_url, wait_until="domcontentloaded", timeout=45000)
+        await asyncio.sleep(6.0)
 
-        # 3) 댓글 입력창 활성화
-        placeholder = page.locator("#placeholder-area, #simplebox-placeholder").first
+        # 2) 쇼츠 댓글 서랍(engagement panel) 개방 — 패널 실물 확인 기반 2단 전략
+        #    ★ 왜 '클릭 성공 = 개방 성공' 으로 처리하면 안 되는가:
+        #      댓글 버튼 클릭은 성공해도 YouTube 가 패널을 실제로 렌더링하지 않는 경우가
+        #      빈번하다(지연 렌더/가상 스크롤). 클릭 성공만 믿고 다음 단계로 넘어가면
+        #      플레이스홀더를 찾지 못해 댓글 등록이 100% 실패한다.
+        #      따라서 '패널 DOM 이 실제로 열렸는지' 를 visibility 로 검증한다.
+        PANEL_SELECTOR = (
+            "ytd-engagement-panel-section-list-renderer"
+            "[target-id='engagement-panel-comments-section']"
+        )
+        on_shorts = "/shorts/" in (page.url or "")
+        panel_opened = False
+
+        async def _is_panel_visible() -> bool:
+            """댓글 서랍 패널이 실제로 열려 있는지 visibility 상태로 판정한다."""
+            try:
+                return bool(await page.evaluate("""(sel) => {
+                    const p = document.querySelector(sel);
+                    if (!p) { return false; }
+                    const vis = (p.getAttribute('visibility') || '').toUpperCase();
+                    if (vis === 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED') { return true; }
+                    if (vis === 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN') { return false; }
+                    const r = p.getBoundingClientRect();
+                    return r.width > 0 && r.height > 0;
+                }""", PANEL_SELECTOR))
+            except Exception:
+                return False
+
+        async def _wait_panel_open(max_sec: float = 15.0) -> bool:
+            """패널이 열릴 때까지 최대 max_sec 초 동안 0.5초 간격으로 폴링한다."""
+            waited = 0.0
+            while waited < max_sec:
+                if await _is_panel_visible():
+                    return True
+                await asyncio.sleep(0.5)
+                waited += 0.5
+            return False
+
+        async def _click_comments_button() -> bool:
+            """쇼츠 우측 사이드바 댓글 버튼을 클릭한다(Playwright ➔ JS 폴백). 클릭 시도 여부 반환."""
+            try:
+                comments_btn = page.locator(
+                    "#comments-button button, "
+                    "ytd-reel-video-renderer[is-active] #comments-button button, "
+                    "button[aria-label*='댓글'], "
+                    "button[aria-label*='Comment']"
+                ).first
+                if await comments_btn.count() > 0:
+                    await comments_btn.scroll_into_view_if_needed()
+                    await comments_btn.click(force=True)
+                    return True
+                await page.evaluate("""() => {
+                    const btn = document.querySelector('#comments-button button') ||
+                                document.querySelector("ytd-reel-video-renderer[is-active] #comments-button button") ||
+                                Array.from(document.querySelectorAll('button'))
+                                    .find(el => {
+                                        const a = (el.getAttribute('aria-label') || '');
+                                        return a.includes('댓글') || a.includes('Comment');
+                                    });
+                    if (btn) { btn.click(); }
+                }""")
+                return True
+            except Exception as ce:
+                logger.warning(f"⚠️ [고정 댓글] 쇼츠 댓글 버튼 클릭 예외 — watch 폴백 검토: {ce}")
+                return False
+
+        if on_shorts:
+            # 2-1) 이미 패널이 열려 있는지 1차 확인 (자동 개방 케이스)
+            panel_opened = await _is_panel_visible()
+            if panel_opened:
+                logger.info("💬 [고정 댓글] 댓글 서랍 패널이 이미 열려 있음 — 클릭 생략")
+
+            # 2-2) 닫혀 있으면 우측 사이드바 댓글 버튼 클릭 ➔ 패널 개방 최대 15초 대기
+            if not panel_opened:
+                await _click_comments_button()
+                logger.info("💬 [고정 댓글] 쇼츠 댓글 버튼 클릭 ➔ 패널 개방 대기(최대 15초)")
+
+                panel_opened = await _wait_panel_open(15.0)
+                if panel_opened:
+                    logger.info("✅ [고정 댓글] 댓글 서랍 패널 개방 확인(visibility EXPANDED)")
+                else:
+                    # 2-3) 재시도 클릭 1회 — 첫 클릭이 유실되거나 플레이어 재마운트로
+                    #      패널이 닫히는 케이스를 회수한다.
+                    logger.warning("⚠️ [고정 댓글] 15초 내 패널 개방 미확인 — 댓글 버튼 재시도 클릭 1회")
+                    await _click_comments_button()
+                    panel_opened = await _wait_panel_open(15.0)
+                    if panel_opened:
+                        logger.info("✅ [고정 댓글] 재시도 클릭으로 댓글 서랍 패널 개방 확인")
+                    else:
+                        logger.warning("⚠️ [고정 댓글] 재시도 후에도 패널 개방 미확인 — 스크롤 폴백으로 전환")
+
+        # 3) 쇼츠 패널이 아니거나 개방 실패 → 스크롤 다운 후 플레이스홀더 탐색 (watch 폴백)
+        if (not on_shorts) or (not panel_opened):
+            logger.info("💬 [고정 댓글] watch/일반 페이지 모드 — 스크롤 다운으로 댓글 섹션 로드")
+            try:
+                await page.evaluate("window.scrollBy(0, 600)")
+            except Exception:
+                pass
+            await asyncio.sleep(2.5)
+            try:
+                await page.evaluate("window.scrollBy(0, 600)")
+            except Exception:
+                pass
+            await asyncio.sleep(2.0)
+
+        # 4) 댓글 입력창(플레이스홀더) 활성화 — 패널 내부 우선 탐색
+        placeholder = page.locator(
+            f"{PANEL_SELECTOR} #placeholder-area, "
+            f"{PANEL_SELECTOR} #simplebox-placeholder, "
+            f"{PANEL_SELECTOR} div#contenteditable-root, "
+            "#placeholder-area, #simplebox-placeholder, "
+            "ytd-comment-simplebox-renderer #placeholder-area"
+        ).first
         try:
             await placeholder.wait_for(state="visible", timeout=20000)
             await placeholder.click()
         except Exception:
-            await page.evaluate("""() => {
-                const el = document.querySelector('#placeholder-area') ||
+            await page.evaluate("""(sel) => {
+                const panel = document.querySelector(sel);
+                const el = (panel && (panel.querySelector('#placeholder-area') ||
+                                      panel.querySelector('#simplebox-placeholder') ||
+                                      panel.querySelector('div#contenteditable-root'))) ||
+                           document.querySelector('#placeholder-area') ||
                            document.querySelector('#simplebox-placeholder') ||
                            document.querySelector('ytd-comment-simplebox-renderer #placeholder-area');
                 if (el) { el.click(); }
-            }""")
+            }""", PANEL_SELECTOR)
         await asyncio.sleep(1.5)
 
-        # 4) 댓글 본문 입력
-        comment_input = page.locator("#contenteditable-root, div[aria-label*='댓글 추가'], div[aria-label*='Add a comment']").first
+        # 5) 댓글 본문 입력 — 실제 키보드 이벤트(press_sequentially)로 한 글자씩 타이핑
+        #    ★ 왜 fill() 이 아니라 press_sequentially 인가:
+        #      contenteditable 은 fill() 로 값을 넣어도 YouTube 의 input 이벤트 체인이
+        #      발화하지 않아 submit 버튼이 disabled 로 남는다. 실제 키보드 이벤트를
+        #      한 글자씩 발생시켜야 등록 버튼이 활성화된다.
+        comment_input = page.locator(
+            f"{PANEL_SELECTOR} div#contenteditable-root, "
+            "div#contenteditable-root, "
+            "div[role='textbox'][aria-label*='댓글'], "
+            "div[role='textbox'][aria-label*='Add a comment']"
+        ).first
+        typed_ok = False
         try:
             await comment_input.wait_for(state="visible", timeout=15000)
             await comment_input.click()
             await asyncio.sleep(0.5)
-            await comment_input.fill(pinned_comment)
-        except Exception:
-            await page.evaluate("""(txt) => {
-                const el = document.querySelector('#contenteditable-root') ||
-                           document.querySelector("div[aria-label*='댓글 추가']") ||
-                           document.querySelector("div[aria-label*='Add a comment']");
-                if (el) {
-                    el.focus();
-                    el.innerText = txt;
-                    el.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-            }""", pinned_comment)
-        await asyncio.sleep(1.5)
+            # 줄바꿈은 Shift+Enter 로 처리 (Enter 단독은 댓글 즉시 등록 위험)
+            lines = str(pinned_comment).split("\n")
+            for li, line in enumerate(lines):
+                if li > 0:
+                    await page.keyboard.press("Shift+Enter")
+                    await asyncio.sleep(0.15)
+                if line:
+                    await comment_input.press_sequentially(line, delay=15)
+            typed_ok = True
+        except Exception as te:
+            logger.warning(f"⚠️ [고정 댓글] press_sequentially 입력 실패 — JS 폴백 시도: {te}")
 
-        # 5) 댓글 등록 버튼 클릭
-        submitted = False
-        submit_btn = page.locator("#submit-button, button:has-text('댓글')").first
-        try:
-            if await submit_btn.count() > 0:
-                await submit_btn.click(force=True)
-                submitted = True
-        except Exception:
-            pass
-        if not submitted:
+        if not typed_ok:
             try:
-                await page.evaluate("""() => {
-                    const btn = document.querySelector('#submit-button') ||
-                                Array.from(document.querySelectorAll('ytd-button-renderer button, button'))
-                                    .find(el => el.innerText && (el.innerText.trim() === '댓글' || el.innerText.trim() === 'Comment'));
-                    if (btn) { btn.click(); }
-                }""")
-                submitted = True
-            except Exception as se:
-                logger.warning(f"⚠️ [고정 댓글] 등록 버튼 클릭 실패: {se}")
+                await page.evaluate("""(txt) => {
+                    const el = document.querySelector('#contenteditable-root') ||
+                               document.querySelector("div[role='textbox'][aria-label*='댓글']") ||
+                               document.querySelector("div[role='textbox'][aria-label*='Add a comment']");
+                    if (el) {
+                        el.focus();
+                        el.innerText = txt;
+                        el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+                        el.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }""", pinned_comment)
+            except Exception as je:
+                logger.warning(f"⚠️ [고정 댓글] JS 폴백 입력도 실패: {je}")
 
-        if not submitted:
-            logger.warning("⚠️ [고정 댓글] 댓글 등록 버튼을 찾지 못했습니다.")
+        # submit-button 활성화 유도 대기
+        await asyncio.sleep(2.0)
+
+        # 6) 등록 버튼 클릭 — disabled 가 아닌 활성 버튼만 클릭 (3초 대기 후 1회 재확인)
+        submit_selectors = (
+            f"{PANEL_SELECTOR} #submit-button button:not([disabled]), "
+            "ytd-comment-simplebox-renderer #submit-button button:not([disabled]), "
+            "#submit-button yt-button-shape button:not([disabled]), "
+            "button:has-text('댓글'):not([disabled]), "
+            "button:has-text('Comment'):not([disabled])"
+        )
+        clicked = False
+        for attempt in range(1, 3):
+            try:
+                submit_btn = page.locator(submit_selectors).first
+                if await submit_btn.count() > 0:
+                    await submit_btn.scroll_into_view_if_needed()
+                    await submit_btn.click(force=True)
+                    clicked = True
+                    logger.info(f"✅ [고정 댓글] 등록 버튼 클릭 성공 (시도 {attempt})")
+                    break
+            except Exception as se:
+                logger.warning(f"⚠️ [고정 댓글] 등록 버튼 클릭 예외(시도 {attempt}): {se}")
+            if attempt < 2:
+                logger.info("⏳ [고정 댓글] 등록 버튼 미활성 — 3초 대기 후 재확인")
+                await asyncio.sleep(3.0)
+
+        if not clicked:
+            # JS 최후 시도 — disabled 속성이 없는 버튼만 클릭
+            try:
+                clicked = bool(await page.evaluate("""() => {
+                    const cands = Array.from(document.querySelectorAll(
+                        'ytd-comment-simplebox-renderer #submit-button button, #submit-button button, button'
+                    ));
+                    const btn = cands.find(el => {
+                        if (el.disabled || el.hasAttribute('disabled')) { return false; }
+                        const t = (el.innerText || '').trim();
+                        const a = (el.getAttribute('aria-label') || '');
+                        return t === '댓글' || t === 'Comment' || a.includes('댓글') || a.includes('Comment');
+                    });
+                    if (btn) { btn.click(); return true; }
+                    return false;
+                }"""))
+            except Exception as je:
+                logger.warning(f"⚠️ [고정 댓글] JS 등록 버튼 클릭 실패: {je}")
+
+        if not clicked:
+            logger.warning("⚠️ [고정 댓글] 활성 등록 버튼을 찾지 못했습니다 — 성공 처리 금지(return skipped)")
             return "skipped"
 
-        logger.info("✅ [고정 댓글] 댓글 등록 완료 ➔ 3초 대기 후 핀 고정 시퀀스 시작")
-        await asyncio.sleep(3.0)
-
-        # 6) 방금 등록한 최상단 첫 번째 댓글의 삼점 메뉴 클릭
+        # 7) 댓글 실물 검증 (Anti-Tampering) — 등록 클릭 후 4초 대기 후 DOM 실물 확인
+        logger.info("🔍 [고정 댓글] 댓글 실물 렌더링 검증 중...")
+        await asyncio.sleep(4.0)
+        verified = False
         try:
-            first_thread = page.locator("ytd-comment-thread-renderer").first
+            verified = bool(await page.evaluate("""(token) => {
+                const nodes = Array.from(document.querySelectorAll(
+                    'ytd-comment-thread-renderer, ytd-comment-view-model'
+                ));
+                if (!nodes.length) { return false; }
+                return nodes.some(n => (n.innerText || '').includes(token));
+            }""", verify_token))
+        except Exception as ve:
+            logger.warning(f"⚠️ [고정 댓글] 실물 검증 예외: {ve}")
+
+        if not verified:
+            # 2차 검증: 2초 추가 대기 후 재확인 (YouTube 렌더 지연 대응)
+            await asyncio.sleep(2.0)
+            try:
+                verified = bool(await page.evaluate("""(token) => {
+                    const nodes = Array.from(document.querySelectorAll(
+                        'ytd-comment-thread-renderer, ytd-comment-view-model'
+                    ));
+                    return nodes.some(n => (n.innerText || '').includes(token));
+                }""", verify_token))
+            except Exception:
+                pass
+
+        if not verified:
+            logger.error(
+                f"❌ [고정 댓글] 댓글 실물 검증 실패 — DOM 에 '{verify_token}' 미검출. "
+                "성공 위조 금지(return skipped)"
+            )
+            return "skipped"
+
+        logger.info(f"✅ [고정 댓글] 댓글 실물 검증 통과('{verify_token}' DOM 확인) ➔ 핀 고정 시퀀스 시작")
+        await asyncio.sleep(1.5)
+
+        # 8) 핀 고정 시퀀스 — 최상단 첫 댓글의 세로 3점(⋮) 아이콘 ➔ '고정' ➔ 확인 다이얼로그
+        try:
+            first_thread = page.locator(
+                "ytd-comment-thread-renderer:first-of-type, ytd-comment-view-model"
+            ).first
             try:
                 await first_thread.wait_for(state="visible", timeout=15000)
             except Exception:
                 pass
 
             action_menu = page.locator(
-                "ytd-comment-thread-renderer #action-menu button, "
-                "ytd-comment-thread-renderer button[aria-label*='작업 메뉴'], "
-                "ytd-comment-thread-renderer yt-icon-button#button, "
-                "ytd-comment-thread-renderer ytd-menu-renderer #button"
+                "ytd-comment-thread-renderer:first-of-type yt-icon-button#button, "
+                "ytd-comment-thread-renderer:first-of-type button[aria-label*='작업 더보기'], "
+                "ytd-comment-thread-renderer:first-of-type button[aria-label*='Action menu'], "
+                "ytd-comment-thread-renderer:first-of-type #action-menu button, "
+                "ytd-comment-view-model yt-icon-button#button"
             ).first
             if await action_menu.count() > 0:
                 await action_menu.scroll_into_view_if_needed()
                 await action_menu.click(force=True)
             else:
                 await page.evaluate("""() => {
-                    const thread = document.querySelector('ytd-comment-thread-renderer');
+                    const thread = document.querySelector('ytd-comment-thread-renderer') ||
+                                   document.querySelector('ytd-comment-view-model');
                     if (!thread) { return; }
-                    const btn = thread.querySelector('#action-menu button') ||
-                                thread.querySelector("button[aria-label*='작업 메뉴']") ||
-                                thread.querySelector('yt-icon-button#button') ||
-                                thread.querySelector('ytd-menu-renderer #button') ||
+                    const btn = thread.querySelector('yt-icon-button#button') ||
+                                thread.querySelector("button[aria-label*='작업 더보기']") ||
+                                thread.querySelector("button[aria-label*='Action menu']") ||
+                                thread.querySelector('#action-menu button') ||
                                 thread.querySelector('#action-menu');
                     if (btn) { btn.click(); }
                 }""")
             await asyncio.sleep(2.0)
 
-            # 7) 드롭다운 메뉴의 '고정(Pin)' 항목 클릭
+            # 9) 드롭다운 메뉴의 '고정(Pin)' 항목 클릭
             pin_item = page.locator(
-                "ytd-menu-service-item-renderer:has-text('고정'), "
                 "tp-yt-paper-item:has-text('고정'), "
+                "ytd-menu-service-item-renderer:has-text('고정'), "
                 "ytd-menu-navigation-item-renderer:has-text('고정'), "
-                "ytd-menu-service-item-renderer:has-text('Pin'), "
-                "tp-yt-paper-item:has-text('Pin')"
+                "tp-yt-paper-item:has-text('Pin'), "
+                "ytd-menu-service-item-renderer:has-text('Pin')"
             ).first
             if await pin_item.count() > 0:
                 await pin_item.click(force=True)
             else:
                 await page.evaluate("""() => {
-                    const items = Array.from(document.querySelectorAll('ytd-menu-service-item-renderer, tp-yt-paper-item, ytd-menu-navigation-item-renderer'));
+                    const items = Array.from(document.querySelectorAll(
+                        'ytd-menu-service-item-renderer, tp-yt-paper-item, ytd-menu-navigation-item-renderer'
+                    ));
                     const pin = items.find(el => {
                         const t = (el.innerText || '').trim();
                         return t === '고정' || t.includes('고정') || t === 'Pin' || t.includes('Pin');
@@ -256,26 +512,32 @@ class InsuranceYouTubeBotPublisher:
                 }""")
             await asyncio.sleep(2.5)
 
-            # 8) 확인 팝업 다이얼로그의 '고정(Pin)' 확인 버튼 클릭
+            # 10) 확인 팝업 다이얼로그의 '고정(Pin)' 확인 버튼 클릭
+            #     ★ 셀렉터 보강: #confirm-button yt-button-shape button (신형 DOM) 포함
             confirm_btn = page.locator(
-                "yt-confirm-dialog-renderer #confirm-button, "
-                "ytd-confirm-dialog-renderer #confirm-button, "
-                "tp-yt-paper-dialog #confirm-button, "
+                "yt-confirm-dialog-renderer #confirm-button button, "
+                "ytd-confirm-dialog-renderer #confirm-button button, "
+                "tp-yt-paper-dialog #confirm-button button, "
+                "#confirm-button yt-button-shape button, "
                 "yt-confirm-dialog-renderer button:has-text('고정'), "
                 "ytd-confirm-dialog-renderer button:has-text('고정'), "
                 "tp-yt-paper-dialog button:has-text('고정'), "
                 "yt-confirm-dialog-renderer button:has-text('Pin'), "
                 "ytd-confirm-dialog-renderer button:has-text('Pin')"
             ).first
-            pinned = False
+            confirm_clicked = False
             if await confirm_btn.count() > 0:
                 await confirm_btn.click(force=True)
-                pinned = True
+                confirm_clicked = True
             else:
-                pinned = await page.evaluate("""() => {
-                    const dialogs = Array.from(document.querySelectorAll('yt-confirm-dialog-renderer, ytd-confirm-dialog-renderer, tp-yt-paper-dialog'));
+                confirm_clicked = bool(await page.evaluate("""() => {
+                    const dialogs = Array.from(document.querySelectorAll(
+                        'yt-confirm-dialog-renderer, ytd-confirm-dialog-renderer, tp-yt-paper-dialog'
+                    ));
                     for (const d of dialogs) {
-                        const btns = Array.from(d.querySelectorAll('button, yt-button-renderer, tp-yt-paper-button'));
+                        const btns = Array.from(d.querySelectorAll(
+                            'button, yt-button-renderer, tp-yt-paper-button, yt-button-shape button'
+                        ));
                         const ok = btns.find(b => {
                             const t = (b.innerText || '').trim();
                             return t === '고정' || t.includes('고정') || t === 'Pin' || t.includes('Pin');
@@ -283,18 +545,64 @@ class InsuranceYouTubeBotPublisher:
                         if (ok) { ok.click(); return true; }
                     }
                     return false;
-                }""")
-            await asyncio.sleep(2.5)
+                }"""))
+            await asyncio.sleep(2.0)
 
-            if pinned:
-                logger.info("📌 [고정 댓글] 최상단 상시 고정(Pin) 100% 완료!")
+            # 11) 핀 고정 배지 실물 확인 (Anti-Tampering) — 확인 버튼 클릭만으로 성공 처리 금지
+            #     ★ 왜 필수인가: 확인 다이얼로그 버튼을 클릭해도 실제로는 고정이 적용되지 않는
+            #       경우가 있다. DOM 에 핀 배지가 실물 렌더링되었는지 반드시 검증해야 한다.
+            PIN_BADGE_SELECTOR = "#pinned-comment-badge, ytd-pinned-comment-badge-renderer"
+            badge_found = False
+            try:
+                badge_found = bool(await page.evaluate("""(sel) => {
+                    const nodes = Array.from(document.querySelectorAll(sel));
+                    return nodes.some(n => {
+                        const r = n.getBoundingClientRect();
+                        return r.width > 0 && r.height > 0;
+                    });
+                }""", PIN_BADGE_SELECTOR))
+            except Exception as be:
+                logger.warning(f"⚠️ [고정 댓글] 핀 배지 확인 예외: {be}")
+
+            if not badge_found:
+                # 2차 확인: 2초 추가 대기 후 재검증 (YouTube 반영 지연 대응)
+                await asyncio.sleep(2.0)
+                try:
+                    badge_found = bool(await page.evaluate("""(sel) => {
+                        const nodes = Array.from(document.querySelectorAll(sel));
+                        return nodes.some(n => {
+                            const r = n.getBoundingClientRect();
+                            return r.width > 0 && r.height > 0;
+                        });
+                    }""", PIN_BADGE_SELECTOR))
+                except Exception:
+                    pass
+
+            if badge_found:
+                # 핀 고정 증빙 스크린샷 저장 (무인 가동 증빙)
+                try:
+                    proof_dir = CURRENT_DIR / "proof_screenshots"
+                    proof_dir.mkdir(parents=True, exist_ok=True)
+                    proof_path = proof_dir / f"pinned_{vid}_{int(time.time())}.png"
+                    await page.screenshot(path=str(proof_path), full_page=False)
+                    logger.info(f"📸 [고정 댓글] 핀 고정 증빙 스크린샷 저장: {proof_path.name}")
+                except Exception as se:
+                    logger.debug(f"증빙 스크린샷 저장 실패(무시): {se}")
+
+                logger.info("📌 [고정 댓글] 최상단 상시 고정(Pin) 100% 완료! (핀 배지 DOM 실물 확인)")
                 return "pinned"
 
-            logger.warning("⚠️ [고정 댓글] 댓글은 등록되었으나 핀 고정 확인 버튼을 찾지 못했습니다.")
+            if confirm_clicked:
+                logger.warning(
+                    "⚠️ [고정 댓글] 확인 버튼은 클릭했으나 핀 배지 미검출 — "
+                    "고정 미적용 가능성. 성공 위조 금지(return submitted)"
+                )
+            else:
+                logger.warning("⚠️ [고정 댓글] 댓글은 실물 검증되었으나 핀 고정 확인 버튼을 찾지 못했습니다.")
             return "submitted"
 
         except Exception as pe:
-            logger.warning(f"⚠️ [고정 댓글] 핀 고정 시퀀스 예외 (댓글 등록은 유지): {pe}")
+            logger.warning(f"⚠️ [고정 댓글] 핀 고정 시퀀스 예외 (댓글 등록은 실물 검증됨): {pe}")
             return "submitted"
 
     async def publish_short_async(
@@ -660,6 +968,14 @@ class InsuranceYouTubeBotPublisher:
 
                     logger.info(f"🎉 [Insurance YouTube Bot] 쇼츠 무인 발행 완결! URL: {video_url or '게시 완료'}")
 
+                    # 4-1) [서버 인코딩/배포 안정화 대기] 대표님 절대 지침
+                    #   ★ 왜 35초인가: 게시 팝업을 닫은 직후 곧바로 쇼츠 페이지로 돌진하면
+                    #     YouTube 서버가 아직 인코딩/배포를 마치지 않아 댓글 컴포넌트가
+                    #     마운트되지 않은 상태로 진입 ➔ 댓글 등록이 100% 실패했다.
+                    #     서버 배포 및 댓글 컴포넌트 안정화를 위해 정확히 35초 대기한다.
+                    logger.info("⏳ [유튜브 무인 파이프라인] 영상 서버 인코딩 및 배포 완료 대기 (정확히 35초 휴식 후 고정 댓글 진입)...")
+                    await asyncio.sleep(35.0)
+
                     # 5. 고정 댓글(Pinned Comment) 자동 작성 + 최상단 핀(Pin) 고정
                     comm_status = "skipped"
                     if video_id:
@@ -722,6 +1038,204 @@ class InsuranceYouTubeBotPublisher:
                         "error": str(ex),
                         "video_file": target_video.name,
                         "published_at": get_now_kst_str()
+                    }
+                    self._save_history(err_res)
+                    return err_res
+
+    # ------------------------------------------------------------------
+    # [독립 댓글 인터페이스] 이미 발행된 쇼츠에 댓글 + 핀 고정만 단독 수행
+    #   ★ 왜 필요한가: 발행 파이프라인과 분리하여, 이미 업로드된 영상의 댓글 누락분을
+    #     재실행/보수 처리할 수 있는 완전 자율 인터페이스를 제공한다.
+    #   · video_id_or_url: 순수 ID 또는 전체 URL 모두 허용(_normalize_video_id 정규화)
+    #   · custom_comment 미지정 시 브랜드 공식 검색 유도 문구를 자동 사용
+    #   · 브라우저 세션/쿠키 주입은 publish_short_async 와 100% 동일 계약을 재사용한다.
+    # ------------------------------------------------------------------
+    def post_comment_only(
+        self,
+        video_id_or_url: str,
+        custom_comment: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """이미 발행된 쇼츠 영상에 독립적으로 댓글 등록 + 최상단 핀 고정을 수행한다."""
+        try:
+            return asyncio.run(self.post_comment_only_async(video_id_or_url, custom_comment))
+        except Exception as e:
+            logger.error(f"❌ [Insurance YouTube Bot] 독립 댓글 등록 예외: {e}")
+            res = {
+                "status": "error",
+                "platform": "youtube_shorts",
+                "action": "comment_only",
+                "video_id_or_url": video_id_or_url,
+                "error": str(e),
+                "published_at": get_now_kst_str(),
+            }
+            self._save_history(res)
+            return res
+
+    async def post_comment_only_async(
+        self,
+        video_id_or_url: str,
+        custom_comment: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """post_comment_only 의 비동기 코루틴 본체 (완전 자율 브라우저 세션)."""
+        vid = self._normalize_video_id(video_id_or_url)
+        if not vid:
+            return {
+                "status": "error",
+                "platform": "youtube_shorts",
+                "action": "comment_only",
+                "video_id_or_url": video_id_or_url,
+                "error": "video_id 정규화 실패 — 순수 ID 또는 유튜브 URL 필요",
+                "published_at": get_now_kst_str(),
+            }
+
+        if not self.is_available():
+            return {
+                "status": "error",
+                "platform": "youtube_shorts",
+                "action": "comment_only",
+                "video_id": vid,
+                "error": "세션 파일 또는 영구 프로필 부재 (setup_youtube_profile.py 실행 요망)",
+                "published_at": get_now_kst_str(),
+            }
+
+        comment_text = custom_comment or (
+            "📌 34개 보험사 실시간 비교 & 중복 특약 다이어트 분석은\n"
+            f"네이버에 👉 [ {self.OFFICIAL_KEYWORD} ] 검색하시면 바로 나옵니다!\n"
+            f"(공식 링크: {self.LANDING_URL})"
+        )
+
+        logger.info("=" * 70)
+        logger.info(f"💬 [Insurance YouTube Bot] 독립 댓글 등록 시작: video_id={vid}")
+        logger.info("=" * 70)
+
+        clean_browser_profile_locks(self.profile_dir)
+        start_time = time.time()
+
+        async with async_browser_lock(f"Insurance 유튜브 댓글 등록 ({vid})"):
+            async with async_playwright() as p:
+                browser_args = get_safe_browser_args() + ['--disable-blink-features=AutomationControlled']
+                try:
+                    context = await p.chromium.launch_persistent_context(
+                        user_data_dir=str(self.profile_dir),
+                        headless=self.headless,
+                        channel="chrome",
+                        args=browser_args,
+                        viewport={"width": 1366, "height": 850}
+                    )
+                except Exception:
+                    context = await p.chromium.launch_persistent_context(
+                        user_data_dir=str(self.profile_dir),
+                        headless=self.headless,
+                        args=browser_args,
+                        viewport={"width": 1366, "height": 850}
+                    )
+
+                # 세션 쿠키 주입 (publish_short_async 와 동일 계약)
+                if self.session_file.exists():
+                    try:
+                        with open(self.session_file, "r", encoding="utf-8") as f:
+                            raw = json.load(f)
+                        raw_cookies = raw.get("cookies", raw) if isinstance(raw, dict) else raw
+                        clean_cookies = []
+                        for c in raw_cookies:
+                            c_name = c.get("name", "")
+                            c_val = c.get("value", "")
+                            c_domain = c.get("domain", ".youtube.com")
+                            c_path = c.get("path", "/")
+                            item = {"name": c_name, "value": c_val, "path": c_path}
+                            is_secure = c.get("secure", False)
+                            if c_name.startswith("__Secure-") or c_name.startswith("__Host-"):
+                                is_secure = True
+                            item["secure"] = bool(is_secure)
+                            if "httpOnly" in c:
+                                item["httpOnly"] = bool(c["httpOnly"])
+                            ss = c.get("sameSite")
+                            if ss in ["Strict", "Lax", "None"]:
+                                item["sameSite"] = ss
+                            if c_name.startswith("__Host-"):
+                                item["domain"] = c_domain.lstrip(".")
+                                item["path"] = "/"
+                            else:
+                                item["domain"] = c_domain
+                            clean_cookies.append(item)
+                        for ck in clean_cookies:
+                            try:
+                                await context.add_cookies([ck])
+                            except Exception:
+                                pass
+                        logger.info(f"   🍪 유튜브 세션 쿠키 {len(clean_cookies)}개 브라우저 주입 완료")
+                    except Exception as ce:
+                        logger.warning(f"유튜브 세션 쿠키 로드 예외: {ce}")
+
+                page = context.pages[0] if context.pages else await context.new_page()
+                await page.add_init_script("""
+                    Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+                    window.navigator.chrome = { runtime: {} };
+                """)
+
+                try:
+                    # [진입 안정성 보장] publish_short_async 와 100% 동일 계약:
+                    #   쇼츠 페이지 진입 직후 댓글 컴포넌트가 안정화될 시간을 확보한다.
+                    logger.info("⏳ [유튜브 무인 파이프라인] 쇼츠 페이지 로드 및 댓글 컴포넌트 안정화 대기 (6초)...")
+                    await asyncio.sleep(6.0)
+
+                    comm_status = await self._post_and_pin_comment(page, vid, comment_text)
+
+                    # 세션 쿠키 갱신 저장
+                    try:
+                        cookies = await context.cookies()
+                        clean_cookies = [
+                            {"name": c["name"], "value": c["value"],
+                             "domain": c.get("domain", ".youtube.com"), "path": c.get("path", "/")}
+                            for c in cookies
+                        ]
+                        with open(self.session_file, "w", encoding="utf-8") as f:
+                            json.dump({"cookies": clean_cookies}, f, ensure_ascii=False, indent=2)
+                    except Exception:
+                        pass
+
+                    try:
+                        await context.close()
+                    except Exception:
+                        pass
+
+                    elapsed = round(time.time() - start_time, 1)
+                    ok = comm_status in ("pinned", "submitted")
+                    res = {
+                        "status": "success" if ok else "error",
+                        "platform": "youtube_shorts",
+                        "action": "comment_only",
+                        "brand": self.BRAND,
+                        "video_id": vid,
+                        "video_url": f"https://youtube.com/shorts/{vid}",
+                        "comment": comment_text,
+                        "comment_status": comm_status,
+                        "elapsed_sec": elapsed,
+                        "published_at": get_now_kst_str(),
+                        "message": (
+                            "댓글 등록 + 최상단 핀 고정 완료" if comm_status == "pinned"
+                            else ("댓글 등록 완료(핀 고정 미확인)" if comm_status == "submitted"
+                                  else "댓글 등록 실물 검증 실패 — 성공 위조 금지")
+                        ),
+                    }
+                    if not ok:
+                        res["error"] = "댓글 등록 실물 검증 실패(또는 등록 버튼 미활성)"
+                    self._save_history(res)
+                    return res
+
+                except Exception as ex:
+                    logger.error(f"❌ [Insurance YouTube Bot] 독립 댓글 등록 실패: {ex}")
+                    try:
+                        await context.close()
+                    except Exception:
+                        pass
+                    err_res = {
+                        "status": "error",
+                        "platform": "youtube_shorts",
+                        "action": "comment_only",
+                        "video_id": vid,
+                        "error": str(ex),
+                        "published_at": get_now_kst_str(),
                     }
                     self._save_history(err_res)
                     return err_res

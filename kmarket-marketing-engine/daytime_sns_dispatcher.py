@@ -49,11 +49,11 @@ class DaytimeSNSDispatcher:
     PUBLISH_HISTORY_FILE = CURRENT_DIR / "outputs" / "daytime_publish_history.json"
 
     SCHEDULE_SLOTS = [
-        {"time": "08:30", "slot": "shorts_1", "type": "shorts", "label": "아침 숏폼 ①"},
-        {"time": "12:30", "slot": "cardnews_1", "type": "cardnews", "label": "점심 카드뉴스 ①"},
-        {"time": "15:30", "slot": "shorts_2", "type": "shorts", "label": "오후 숏폼 ②"},
-        {"time": "18:30", "slot": "cardnews_2", "type": "cardnews", "label": "퇴근 카드뉴스 ②"},
-        {"time": "21:00", "slot": "shorts_3", "type": "shorts", "label": "야간 숏폼 ③"}
+        {"time": "08:30", "slot": "shorts_1", "type": "shorts", "subtype": "regular", "label": "아침 기본 숏폼 ①"},
+        {"time": "12:30", "slot": "cardnews_1", "type": "cardnews", "subtype": "cardnews", "label": "점심 카드뉴스 ①"},
+        {"time": "15:30", "slot": "shorts_2", "type": "shorts", "subtype": "drama", "label": "오후 숏폼 드라마 ①"},
+        {"time": "18:30", "slot": "cardnews_2", "type": "cardnews", "subtype": "cardnews", "label": "퇴근 카드뉴스 ②"},
+        {"time": "21:00", "slot": "shorts_3", "type": "shorts", "subtype": "drama", "label": "야간 숏폼 드라마 ②"}
     ]
 
     def __init__(self, dry_run: bool = False):
@@ -97,9 +97,25 @@ class DaytimeSNSDispatcher:
                 logger.error(f"매니페스트 로드 실패: {e}")
         return None
 
-    def publish_single_content(self, brand: str, content_type: str, topic_id: int, slot: str) -> bool:
-        """단일 브랜드 콘텐츠 정시 송출 실행"""
-        logger.info(f"🚀 [{brand.upper()}] {slot} (주제 #{topic_id}) 정시 송출 트리거...")
+    def publish_single_content(
+        self,
+        brand: str,
+        content_type: str,
+        topic_id: int,
+        slot: str,
+        subtype: Optional[str] = None,
+        video_path: Optional[str] = None,
+    ) -> bool:
+        """단일 브랜드 콘텐츠 정시 송출 실행
+
+        - subtype: "regular" | "drama" | "cardnews" (새벽 팩토리 직인 영수증과 동일 규격)
+        - video_path: 새벽에 이미 렌더링 완료된 mp4 실물 경로 (재렌더링 0% · GPU 부하 0%)
+        """
+        logger.info(
+            f"🚀 [{brand.upper()}] {slot} (주제 #{topic_id}, subtype={subtype or '-'}) 정시 송출 트리거..."
+        )
+        if video_path:
+            logger.info(f"   🎬 완제품 mp4 직결 송출: {video_path}")
 
         if self.dry_run:
             logger.info(f"   [DRY-RUN] {brand} {content_type} #{topic_id} 송출 시뮬레이션 성공")
@@ -109,7 +125,9 @@ class DaytimeSNSDispatcher:
             if brand == "aura":
                 if content_type == "shorts":
                     from brands.aura.aura_omni_shorts_pilot import AuraOmniShortsPilot
-                    res = AuraOmniShortsPilot().execute_single_slot(topic_id=topic_id, force=True)
+                    res = AuraOmniShortsPilot().execute_single_slot(
+                        topic_id=topic_id, force=True, slot=slot, subtype=subtype, video_path=video_path
+                    )
                     return res.get("status") in ["success", "partially_published"]
                 else:
                     from brands.aura.aura_omni_cardnews_pilot import AuraOmniCardnewsPilot
@@ -119,7 +137,9 @@ class DaytimeSNSDispatcher:
             elif brand == "insurance":
                 if content_type == "shorts":
                     from brands.insurance.insurance_omni_shorts_pilot import InsuranceOmniShortsPilot
-                    res = InsuranceOmniShortsPilot().execute_single_slot(topic_id=topic_id, force=True)
+                    res = InsuranceOmniShortsPilot().execute_single_slot(
+                        topic_id=topic_id, force=True, slot=slot, subtype=subtype, video_path=video_path
+                    )
                     return res.get("status") in ["success", "partially_published"]
                 else:
                     from brands.insurance.insurance_omni_cardnews_pilot import InsuranceOmniCardnewsPilot
@@ -129,7 +149,9 @@ class DaytimeSNSDispatcher:
             elif brand == "stock":
                 if content_type == "shorts":
                     from brands.stock.stock_omni_shorts_pilot import StockOmniShortsPilot
-                    res = StockOmniShortsPilot().execute_single_slot(topic_id=topic_id, force=True)
+                    res = StockOmniShortsPilot().execute_single_slot(
+                        topic_id=topic_id, force=True, slot=slot, subtype=subtype, video_path=video_path
+                    )
                     return res.get("status") in ["success", "partially_published"]
                 else:
                     from brands.stock.stock_omni_cardnews_pilot import StockOmniCardnewsPilot
@@ -160,7 +182,8 @@ class DaytimeSNSDispatcher:
             logger.info(f"🔄 [{target_slot}] 매니페스트 부재/미등록 감지 ➔ 3대 앱 자율 LRU 순환 태스크 자동 생성 가동")
             slot_info = next((s for s in self.SCHEDULE_SLOTS if s["slot"] == target_slot), None)
             c_type = slot_info["type"] if slot_info else ("cardnews" if "cardnews" in target_slot else "shorts")
-            
+            fallback_subtype = slot_info.get("subtype") if slot_info else None
+
             for brand in ["aura", "insurance", "stock"]:
                 # 각 브랜드별 다음 순환 주제 자율 추출
                 try:
@@ -184,6 +207,7 @@ class DaytimeSNSDispatcher:
                     "brand": brand,
                     "type": c_type,
                     "slot": target_slot,
+                    "subtype": fallback_subtype,
                     "topic_id": t_id,
                     "label": f"{brand.upper()} {c_type} ({target_slot})"
                 })
@@ -199,13 +223,17 @@ class DaytimeSNSDispatcher:
             brand = task["brand"]
             c_type = task["type"]
             topic_id = task["topic_id"]
+            subtype = task.get("subtype")
+            video_path = task.get("artifact_path") or task.get("video_file")
 
             if self.is_slot_published_today(date_str, target_slot, brand):
                 logger.info(f"⏭️ [{brand.upper()}] {target_slot} 오늘 이미 송출 완료됨 (중복 방지 건너뜀)")
                 slot_results[brand] = "ALREADY_PUBLISHED"
                 continue
 
-            success = self.publish_single_content(brand, c_type, topic_id, target_slot)
+            success = self.publish_single_content(
+                brand, c_type, topic_id, target_slot, subtype=subtype, video_path=video_path
+            )
             slot_results[brand] = "SUCCESS" if success else "FAILED"
 
             history.append({
@@ -213,7 +241,9 @@ class DaytimeSNSDispatcher:
                 "slot": target_slot,
                 "brand": brand,
                 "type": c_type,
+                "subtype": subtype,
                 "topic_id": topic_id,
+                "video_path": video_path,
                 "status": "success" if success else "failed",
                 "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             })

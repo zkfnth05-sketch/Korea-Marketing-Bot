@@ -80,6 +80,7 @@ class OmniPublishBot:
             "url": "https://aura-ai-dating.vercel.app/",
             "pinned_comment": "👉 Aura AI 데이팅 공식 앱 바로가기: https://aura-ai-dating.vercel.app/\n네이버 검색창에 '아우라AI데이팅'을 검색해 보세요! ✨",
             "mp4": Path(r"C:\Users\zkfnt\Desktop\한국 숏폼_산출물\Aura\Aura_08_safe_radar_20261011_180012\Aura_22초숏폼_주제08_safe_radar_20261011_180012.mp4"),
+            "mp4_root": Path(r"C:\Users\zkfnt\Desktop\한국 숏폼_산출물\Aura"),
             "cardnews_root": Path(r"C:\Users\zkfnt\Desktop\한국 카드뉴스_산출물\아우라"),
             "topic_id": 8,
             "title": "[안전 레이더] 호감도 1위 소개팅 앱 #아우라AI데이팅 #Shorts",
@@ -91,6 +92,7 @@ class OmniPublishBot:
             "url": "https://insure-rebalance.vercel.app/",
             "pinned_comment": "👉 보험 리밸런스 무료 자가진단 바로가기: https://insure-rebalance.vercel.app/\n네이버 검색창에 '보험 리밸런스'를 검색해 보세요! 🛡️",
             "mp4": Path(r"C:\Users\zkfnt\Desktop\한국 숏폼_산출물\Insurance\Insurance_07_duplicate_coverage_diet_20261012_100027\Insurance_22초숏폼_주제07_duplicate_coverage_diet_20261012_100027.mp4"),
+            "mp4_root": Path(r"C:\Users\zkfnt\Desktop\한국 숏폼_산출물\Insurance"),
             "cardnews_root": Path(r"C:\Users\zkfnt\Desktop\한국 카드뉴스_산출물\보험"),
             "topic_id": 7,
             "title": "[중복특약 삭제] 매달 새는 보험료 80% 줄이는 꿀팁 #보험리밸런스 #Shorts",
@@ -102,6 +104,7 @@ class OmniPublishBot:
             "url": "https://stockmaster-ai.vercel.app/",
             "pinned_comment": "👉 StockMaster AI 실시간 퀀트 분석 바로가기: https://stockmaster-ai.vercel.app/\n네이버 검색창에 '스톡마스터 AI'를 검색해 보세요! 📈",
             "mp4": Path(r"C:\Users\zkfnt\Desktop\한국 숏폼_산출물\Stock\[주제01] 삼성전자_20대여성아나운서_20261010_133224\★_Stock_34초숏폼_주제01_삼성전자_완제품.mp4"),
+            "mp4_root": Path(r"C:\Users\zkfnt\Desktop\한국 숏폼_산출물\Stock"),
             "cardnews_root": Path(r"C:\Users\zkfnt\Desktop\한국 카드뉴스_산출물\주식"),
             "topic_id": 1,
             "title": "[삼성전자 수급] 외인 137만주 쌍끌이 실시간 퀀트 진단 #스톡마스터AI #Shorts",
@@ -164,6 +167,151 @@ class OmniPublishBot:
         mtime, folder, cnt = candidates[0]
         logger.info(f"🗂️ [{cfg['name']}] 최신 카드뉴스 폴더 확정: {folder.name} (슬라이드 {cnt}장)")
         return folder
+
+    # [탐색 방어 상수] 무인 가동 시 무제한 rglob 행(hang) 방지
+    SCAN_MAX_FILES = 50000          # 스캔 파일 상한
+    SCAN_TIMEOUT_SEC = 30.0         # 스캔 소요시간 상한(초)
+    MIN_MP4_BYTES = 1024 * 1024     # 1MB
+
+    def _iter_mp4_files_bounded(self, root: Path):
+        """
+        [경계 있는 순회] os.scandir 스택 기반, 파일 수/시간 상한 적용.
+        - rglob 무제한 순회 대체
+        - 상한 초과 시 조기 종료 (부분 결과 반환)
+        """
+        import os as _os
+        deadline = time.monotonic() + self.SCAN_TIMEOUT_SEC
+        scanned = 0
+        stack = [str(root)]
+        while stack:
+            if time.monotonic() > deadline:
+                logger.warning(f"⏱️ 스캔 시간 상한({self.SCAN_TIMEOUT_SEC}s) 초과 → 조기 종료")
+                return
+            cur = stack.pop()
+            try:
+                with _os.scandir(cur) as it:
+                    for entry in it:
+                        scanned += 1
+                        if scanned > self.SCAN_MAX_FILES:
+                            logger.warning(f"📦 스캔 파일 상한({self.SCAN_MAX_FILES}) 초과 → 조기 종료")
+                            return
+                        try:
+                            if entry.is_dir(follow_symlinks=False):
+                                stack.append(entry.path)
+                            elif entry.is_file(follow_symlinks=False):
+                                name = entry.name
+                                if name.lower().endswith(".mp4"):
+                                    yield Path(entry.path)
+                        except OSError:
+                            continue
+            except OSError:
+                continue
+
+    @staticmethod
+    def _is_drama_5s_artifact(name: str) -> bool:
+        """
+        [이름 계약 술어] 접두어 무관 토큰 매칭.
+        - 확장자 .mp4
+        - 'drama' 토큰 포함 (대소문자 무시)
+        - '5s' 토큰 포함 (예: _5s_, 5s., 5s-)
+        브랜드 접두어(Aura_/Stock_/Insurance_ 등)에 영향받지 않음.
+        """
+        low = name.lower()
+        if not low.endswith(".mp4"):
+            return False
+        if "drama" not in low:
+            return False
+        # '5s' 토큰 경계 검사: 앞뒤가 영숫자가 아닌 경우만 인정
+        idx = 0
+        while True:
+            idx = low.find("5s", idx)
+            if idx < 0:
+                return False
+            before = low[idx - 1] if idx > 0 else "_"
+            after = low[idx + 2] if idx + 2 < len(low) else "_"
+            if not before.isalnum() and not after.isalnum():
+                return True
+            idx += 2
+
+    def find_latest_drama_mp4(self, brand: str) -> Optional[Path]:
+        """
+        [결정론적 최신 드라마 MP4 탐색 — 접두어 무관 토큰 술어]
+        - 브랜드 접두어에 의존하지 않는 토큰 매칭(drama + 5s + .mp4)
+        - 최소 1MB 이상(빈/손상 파일 배제), mtime 내림차순 1순위 확정
+        - 경계 있는 순회(파일 수/시간 상한)로 무인 가동 안전성 확보
+        - 실패 시 구조화 진단 로그(스캔 건수/사유/샘플) 후 None 반환
+        """
+        cfg = self.BRANDS_CONFIG.get(brand)
+        if not cfg:
+            return None
+
+        root: Path = cfg.get("mp4_root")
+        if root is None or not root.exists():
+            logger.error(f"❌ [{cfg['name']}] 숏폼 산출물 루트 부재: {root}")
+            return None
+
+        candidates: List[tuple] = []
+        scanned_mp4 = 0
+        matched_name = 0
+        rejected_small = 0
+        samples: List[str] = []
+        try:
+            for f in self._iter_mp4_files_bounded(root):
+                scanned_mp4 += 1
+                if len(samples) < 5:
+                    samples.append(f.name)
+                if not self._is_drama_5s_artifact(f.name):
+                    continue
+                matched_name += 1
+                try:
+                    st = f.stat()
+                except OSError:
+                    continue
+                if st.st_size < self.MIN_MP4_BYTES:
+                    rejected_small += 1
+                    continue
+                candidates.append((st.st_mtime, st.st_size, f))
+        except Exception as ge:
+            logger.error(f"❌ [{cfg['name']}] 드라마 MP4 탐색 예외: {ge}")
+            return None
+
+        if not candidates:
+            logger.error(
+                f"❌ [{cfg['name']}] 드라마 MP4 미발견 진단 | root={root} | "
+                f"mp4_스캔={scanned_mp4} | 이름매칭={matched_name} | "
+                f"용량미달={rejected_small} | 샘플={samples}"
+            )
+            return None
+
+        candidates.sort(key=lambda x: x[0], reverse=True)
+        mtime, size, latest = candidates[0]
+        logger.info(
+            f"🎬 [{cfg['name']}] 최신 드라마 MP4 확정: {latest.name} "
+            f"({size // 1024}KB, mtime={time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(mtime))}, "
+            f"후보={len(candidates)}/{matched_name})"
+        )
+        return latest
+
+    def _verify_comment_contract(self, cfg: Dict[str, Any], text: str) -> bool:
+        """
+        [고정댓글 계약 사후 검증]
+        - 공식 키워드(붙여쓰기/띄어쓰기 원형) 포함 여부
+        - 랜딩 URL 포함 여부
+        - 둘 중 하나라도 누락 시 False → 호출부에서 경고 로그 및 결과에 반영
+        """
+        if not text:
+            return False
+        keyword = cfg.get("keyword", "")
+        url = cfg.get("url", "")
+        has_kw = bool(keyword) and (keyword in text)
+        has_url = bool(url) and (url in text)
+        if not (has_kw and has_url):
+            logger.warning(
+                f"⚠️ [{cfg['name']}] 고정댓글 계약 미충족 "
+                f"(keyword={has_kw}, url={has_url})"
+            )
+            return False
+        return True
 
     def _run_async(self, coro):
         """이미 실행 중인 이벤트 루프가 있어도 안전하게 코루틴 실행"""
@@ -247,10 +395,15 @@ class OmniPublishBot:
             mbs = StockMBSReelsPublisher()
 
         caption_with_comment = f"{cfg['title']}\n\n{cfg['pinned_comment']}"
-        return mbs.publish_reel(
+        # [계약 사후 검증] 캡션에 공식 키워드+URL 포함 여부 확인
+        contract_ok = self._verify_comment_contract(cfg, caption_with_comment)
+        res = mbs.publish_reel(
             video_path=str(mp4_path),
             caption=caption_with_comment
         )
+        if isinstance(res, dict):
+            res.setdefault("comment_contract_ok", contract_ok)
+        return res
 
     def _publish_clip(self, brand: str, cfg: Dict[str, Any], mp4_path: Path) -> Dict[str, Any]:
         if brand == "aura":
@@ -282,15 +435,23 @@ class OmniPublishBot:
             from brands.stock.stock_tiktok_publisher import StockTikTokPublisher
             pub = StockTikTokPublisher(headless=True)
 
-        caption = cfg.get("tiktok_caption") or f"{cfg['title']}\n\n{cfg['pinned_comment']}"
+        # [계약 보장] tiktok_caption 이 있어도 키워드/URL 누락 시 pinned_comment 병기
+        base_caption = cfg.get("tiktok_caption") or ""
+        merged_caption = base_caption
+        if not self._verify_comment_contract(cfg, merged_caption):
+            merged_caption = f"{base_caption}\n\n{cfg['pinned_comment']}".strip()
+        contract_ok = self._verify_comment_contract(cfg, merged_caption)
 
         # publish_short 는 내부에서 asyncio.run 을 호출하는 동기 래퍼
-        return pub.publish_short(
+        res = pub.publish_short(
             video_path=str(mp4_path),
             topic_id=cfg["topic_id"],
-            caption=caption,
+            caption=merged_caption,
             title=cfg["title"],
         )
+        if isinstance(res, dict):
+            res.setdefault("comment_contract_ok", contract_ok)
+        return res
 
     def _publish_threads(self, brand: str, cfg: Dict[str, Any]) -> Dict[str, Any]:
         """최신 카드뉴스 5장 슬라이드 ➔ 스레드 파이프라인 (5장 이미지 + 1번 타래 링크 댓글)"""
@@ -335,16 +496,38 @@ class OmniPublishBot:
         if not target_channels:
             return {"error": f"No valid channels: {channels}"}
 
-        mp4_path: Path = cfg["mp4"]
-        needs_video = any(c != CHANNEL_THREADS for c in target_channels)
+        # [최신 드라마 MP4 우선 확정] --drama 모드 또는 mp4_root 존재 시 자동 탐색
+        mp4_path: Optional[Path] = None
+        fallback_used = False
+        fallback_reason: Optional[str] = None
+        if getattr(self, "_drama_mode", False) or cfg.get("mp4_root") is not None:
+            mp4_path = self.find_latest_drama_mp4(brand)
+        if mp4_path is None:
+            # [폴백 은폐 금지] 레거시 경로 사용 시 사유를 결과에 명시적으로 기록
+            legacy = cfg.get("mp4")
+            if isinstance(legacy, Path) and legacy.exists():
+                mp4_path = legacy
+                fallback_used = True
+                fallback_reason = "drama_mp4_not_found"
+                logger.warning(
+                    f"⚠️ [{cfg['name']}] 드라마 MP4 미발견 → 레거시 경로 폴백 사용 "
+                    f"(fallback_used=True, reason={fallback_reason}): {legacy.name}"
+                )
+            else:
+                fallback_reason = "no_video_available"
 
-        if needs_video and not mp4_path.exists():
-            logger.critical(f"❌ [{cfg['name']}] 실물 숏폼 MP4 파일 부재: {mp4_path}")
-            return {"error": "MP4 file not found", "video_file": str(mp4_path)}
+        needs_video = any(c != CHANNEL_THREADS for c in target_channels)
+        video_available = mp4_path is not None and mp4_path.exists()
+
+        # [채널 단위 실패 격리] 영상 부재 시에도 스레드(카드뉴스)는 독립 수행
+        if needs_video and not video_available:
+            logger.critical(
+                f"❌ [{cfg['name']}] 실물 숏폼 MP4 부재 → 영상 채널 스킵, 스레드 채널만 수행"
+            )
 
         logger.info("\n" + "=" * 70)
         logger.info(f"🚀 [{cfg['name']}] 무인 송출 봇 가동 시작")
-        logger.info(f"📁 대상 비디오: {mp4_path.name if mp4_path.exists() else '(카드뉴스 전용 모드)'}")
+        logger.info(f"📁 대상 비디오: {mp4_path.name if video_available else '(카드뉴스 전용 모드)'}")
         logger.info(f"📡 대상 채널: {', '.join(CHANNEL_LABELS[c] for c in target_channels)}")
         logger.info(f"💬 고정 댓글: {cfg['pinned_comment']}")
         logger.info("=" * 70 + "\n")
@@ -353,7 +536,10 @@ class OmniPublishBot:
         results: Dict[str, Any] = {
             "brand": brand,
             "brand_name": cfg["name"],
-            "video_file": str(mp4_path),
+            "video_file": str(mp4_path) if video_available else None,
+            "drama_mode": bool(getattr(self, "_drama_mode", False)),
+            "fallback_used": fallback_used,
+            "fallback_reason": fallback_reason,
             "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
             "channels": {}
         }
@@ -362,6 +548,16 @@ class OmniPublishBot:
         for idx, ch in enumerate(target_channels, start=1):
             label = CHANNEL_LABELS[ch]
             logger.info(f"{label} [{idx}/{total}] {cfg['name']} 송출 시작...")
+
+            # [채널 단위 격리] 영상 필요 채널인데 영상 부재 → 해당 채널만 스킵
+            if ch != CHANNEL_THREADS and not video_available:
+                logger.warning(f"⏭️ [{cfg['name']} {label}] MP4 부재로 채널 스킵 (격리)")
+                results["channels"][ch] = {
+                    "status": "skipped",
+                    "error": "MP4 file not found (channel isolated)",
+                }
+                continue
+
             try:
                 if ch == CHANNEL_YOUTUBE:
                     res = self._publish_youtube(brand, cfg, mp4_path)
@@ -417,14 +613,13 @@ class OmniPublishBot:
         for i, brand in enumerate(brands):
             res = self.run_brand_publish(brand, channels=target_channels)
             all_results[brand] = res
+            # [단일 영수증 경로] run_brand_publish 내부 _merge_receipt 가 이미 저장 완료
+            # → 여기서 재기록하지 않음 (이중 기록 경로 제거, 단일 진실 원천 확립)
             if i < len(brands) - 1:
                 # 브랜드 간 15초 안전 대기
                 time.sleep(15)
 
-        with open(self.OUTPUT_RECEIPT, "w", encoding="utf-8") as f:
-            json.dump(all_results, f, ensure_ascii=False, indent=2)
-
-        logger.info(f"\n🎉 [3대 앱 송출 봇 완결] 영수증 파일 저장 완료: {self.OUTPUT_RECEIPT}")
+        logger.info(f"\n🎉 [3대 앱 송출 봇 완결] 영수증 파일: {self.OUTPUT_RECEIPT}")
         return all_results
 
 
@@ -444,11 +639,20 @@ if __name__ == "__main__":
         default="all",
         help="대상 채널 (기본: all)"
     )
+    parser.add_argument(
+        "--drama", "-d",
+        action="store_true",
+        help="최신 드라마 MP4(_drama_5s_*.mp4) 우선 탐색 모드 활성화"
+    )
     args = parser.parse_args()
 
     selected_channels = list(ALL_CHANNELS) if args.channel == "all" else [args.channel]
 
     bot = OmniPublishBot()
+    bot._drama_mode = bool(args.drama)
+    if args.drama:
+        logger.info("🎬 [--drama] 최신 드라마 MP4 우선 탐색 모드 활성화")
+
     if args.brand == "all":
         bot.run_all_3brands(channels=selected_channels)
     else:

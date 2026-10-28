@@ -4,36 +4,6 @@
     "platform": "naver_clip",
     "brand": "insurance",
     "topic_id": 1,
-    "title": "[실손의료비 4세대 전환 손익] 보험 리밸런스 #1",
-    "video_file": "Insurance_22초숏폼_주제01_silbi_gen4_20261010_114916.mp4",
-    "channel_url": "https://clip.naver.com/@thefirst-life",
-    "published_at": "2026-10-10 12:15:26"
-  },
-  {
-    "status": "success",
-    "platform": "naver_clip",
-    "brand": "insurance",
-    "topic_id": 3,
-    "title": "암보험, 일반암만 믿으세요? 🤯 유사암 진실 알면 월 15만원 아껴요! 💰",
-    "video_file": "Insurance_22초숏폼_주제03_cancer_coverage_20261010_181917.mp4",
-    "channel_url": "https://clip.naver.com/@thefirst-life",
-    "published_at": "2026-10-10 20:41:22"
-  },
-  {
-    "status": "success",
-    "platform": "naver_clip",
-    "brand": "insurance",
-    "topic_id": 7,
-    "title": "[중복특약 삭제] 매달 새는 보험료 80% 줄이는 꿀팁 #보험리밸런스 #Shorts",
-    "video_file": "Insurance_22초숏폼_주제07_duplicate_coverage_diet_20261012_100027.mp4",
-    "channel_url": "https://clip.naver.com/@thefirst-life",
-    "published_at": "2026-10-18 16:13:58"
-  },
-  {
-    "status": "success",
-    "platform": "naver_clip",
-    "brand": "insurance",
-    "topic_id": 1,
     "title": "💸 매달 5만원 버리고 계신가요? 4세대 실손 전환의 소름 돋는 진실 🛡️",
     "video_file": "insurance_topic1_cardnews_reels.mp4",
     "channel_url": "https://clip.naver.com/@thefirst-life",
@@ -498,5 +468,35 @@
     "video_file": "Insurance_22초숏폼_주제08_coverage_score_gap_diagnosis_20261020_041547.mp4",
     "channel_url": "https://clip.naver.com/@thefirst-life",
     "published_at": "2026-10-20 21:03:39"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "insurance",
+    "topic_id": 2,
+    "title": "60세에 35만원 보험료 폭탄?! 🤯 갱신형 암보험 함정 피하는 법!",
+    "video_file": "insurance_topic2_cardnews_reels.mp4",
+    "channel_url": "https://clip.naver.com/@thefirst-life",
+    "published_at": "2026-10-28 11:40:45"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "insurance",
+    "topic_id": 8,
+    "title": "보험 해지 고민 NO! 🙅‍♀️ 월 15만원 절약 비법 대공개!",
+    "video_file": "insurance_topic8_cardnews_reels.mp4",
+    "channel_url": "https://clip.naver.com/@thefirst-life",
+    "published_at": "2026-10-28 12:09:56"
+  },
+  {
+    "status": "success",
+    "platform": "naver_clip",
+    "brand": "insurance",
+    "topic_id": 7,
+    "title": "[중복특약 삭제] 매달 새는 보험료 80% 줄이는 꿀팁 #보험리밸런스 #Shorts",
+    "video_file": "Insurance_drama_5s_20261028_124643.mp4",
+    "channel_url": "https://clip.naver.com/@thefirst-life",
+    "published_at": "2026-10-28 17:35:08"
   }
 ]

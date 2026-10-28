@@ -1,8 +1,8 @@
 {
-  "current_task": "Aura 틱톡 세션 (☕ 오후 퇴근길 틱톡 (15분))",
-  "status": "running",
-  "updated_at": "2026-10-20 21:31:09",
-  "timestamp": 1792499469.1484575,
-  "queue_count": 1,
+  "current_task": null,
+  "status": "idle",
+  "updated_at": "2026-10-28 20:06:30",
+  "timestamp": 1793185590.1879115,
+  "queue_count": 0,
   "high_priority_waiting": 0
 }

@@ -50,9 +50,13 @@ class StockShortsProducer(BaseShortsProducer):
         self.script_director = StockShortsScenarioDirector()
         self.script_writer = StockShortsScriptWriter()
         
-        # 🎙️ 알리바바 CosyVoice 진우(Jinwoo) 보이스 복제기 (1순위 알리바바 -> 2순위 Typecast -> 3순위 Edge-TTS)
-        self.voice_cloner = StockVoiceCloner(output_dir=str(self.output_base))
-        self.tts = self.voice_cloner
+        # 🎙️ Google Gemini 2.5 Flash TTS 전면 교체
+        #    - Charon: 숏폼 드라마 메인 남주인공 '민재' 목소리 (대표님 확정 / 깊고 안정적인 중저음)
+        #    - Aoede : 맑고 차분한 여성 보이스
+        #    - 기존 알리바바 CosyVoice(StockVoiceCloner) 결선은 전면 해제 (레거시 클래스는 파일 하단 호환용으로만 잔존)
+        from .gemini_tts_synthesizer import GeminiTTSSynthesizer
+        self.gemini_tts = GeminiTTSSynthesizer(default_voice="Charon", output_dir=str(self.output_base))
+        self.tts = self.gemini_tts
 
         self.stitcher = S2VClipStitcher(
             wan_client=self.wan_client,
@@ -253,33 +257,39 @@ class StockShortsProducer(BaseShortsProducer):
         try:
             dynamic_script = self.script_writer.generate_dynamic_script(topic_id=topic_id)
             if dynamic_script:
-                speech_hook = dynamic_script["hook_0_10s"]
-                speech_hook_p1 = dynamic_script["hook_p1_5s"]
-                speech_hook_p2 = dynamic_script["hook_p2_5s"]
-                speech_app = dynamic_script["app_10_20s"]
-                speech_cta = dynamic_script.get("cta_30_34s") or dynamic_script.get("cta_18_22s") or dynamic_script.get("cta_speech", "")
-                full_speech = dynamic_script["full_speech"]
+                speech_hook = dynamic_script.get("hook_10s") or dynamic_script.get("hook_0_10s", "")
+                speech_hook_10s = speech_hook
+                speech_hook_p1 = dynamic_script.get("hook_p1") or dynamic_script.get("hook_p1_5s")
+                speech_hook_p2 = dynamic_script.get("hook_p2") or dynamic_script.get("hook_p2_5s")
+                speech_app = dynamic_script.get("app_speech") or dynamic_script.get("app_10_20s", "")
+                speech_cta = dynamic_script.get("cta_speech") or dynamic_script.get("cta_30_34s") or dynamic_script.get("cta_18_22s", "")
+                remainder_speech = dynamic_script.get("remainder_speech") or f"{speech_app} {speech_cta}".strip()
+                full_speech = dynamic_script.get("full_speech") or f"{speech_hook_10s} {remainder_speech}".strip()
                 hero_copy = dynamic_script.get("hero_copy", scenario.get("hero_copy"))
                 debate_q = dynamic_script.get("debate_question", scenario.get("debate_question"))
-                logger.info(f"✨ [주식 숏폼] Gemini 2.5 Flash 실시간 자율 대본 적용 성공 (주제 #{topic_id})")
+                logger.info(f"✨ [주식 숏폼] Gemini 2.5 Flash 2단 통대본 적용 성공 (주제 #{topic_id}, 훅: {len(speech_hook_10s)}자, 잔여: {len(remainder_speech)}자)")
             else:
-                speech_hook = scenario["speech_hook"]
+                speech_hook = scenario.get("speech_hook_10s") or scenario.get("speech_hook", "")
+                speech_hook_10s = speech_hook
                 speech_hook_p1 = scenario.get("speech_hook_part1")
                 speech_hook_p2 = scenario.get("speech_hook_part2")
-                speech_app = scenario["speech_app"]
-                speech_cta = scenario["speech_cta"]
-                full_speech = scenario["full_speech"]
+                speech_app = scenario.get("speech_app", "")
+                speech_cta = scenario.get("speech_cta", "")
+                remainder_speech = f"{speech_app} {speech_cta}".strip()
+                full_speech = scenario.get("full_speech") or f"{speech_hook_10s} {remainder_speech}".strip()
                 hero_copy = scenario.get("hero_copy", "실시간 퀀트 데이터 객관적 분석!")
                 debate_q = scenario.get("debate_question", "지금 시장의 진짜 주도주는?")
                 logger.info(f"📋 [주식 숏폼] 검증된 골든 대본 적용 (주제 #{topic_id})")
         except Exception as e:
             logger.warning(f"대본 생성 예외 발생 -> 골든 대본 적용: {e}")
-            speech_hook = scenario["speech_hook"]
+            speech_hook = scenario.get("speech_hook_10s") or scenario.get("speech_hook", "")
+            speech_hook_10s = speech_hook
             speech_hook_p1 = scenario.get("speech_hook_part1")
             speech_hook_p2 = scenario.get("speech_hook_part2")
-            speech_app = scenario["speech_app"]
-            speech_cta = scenario["speech_cta"]
-            full_speech = scenario["full_speech"]
+            speech_app = scenario.get("speech_app", "")
+            speech_cta = scenario.get("speech_cta", "")
+            remainder_speech = f"{speech_app} {speech_cta}".strip()
+            full_speech = scenario.get("full_speech") or f"{speech_hook_10s} {remainder_speech}".strip()
             hero_copy = scenario.get("hero_copy", "실시간 퀀트 데이터 객관적 분석!")
             debate_q = scenario.get("debate_question", "지금 시장의 진짜 주도주는?")
 
@@ -291,9 +301,15 @@ class StockShortsProducer(BaseShortsProducer):
 
         logger.info(f"🚀 [주식 숏폼] 생산 시작: 주제 {topic_id} [{theme_name}] | 성별: {effective_gender} | seed: {seed}")
 
-        # 3. [Step 1] Alibaba CosyVoice 음성 복제 합성 (1순위 알리바바 -> 2순위 Typecast -> 3순위 Edge-TTS)
+        # 3. [Step 1] Google Gemini 2.5 Flash TTS 초실사 단일 통음성 합성
+        #    🎭 [숏폼 드라마 주인공 보이스 통일] 남성 = Charon(민재) / 여성 = Aoede
+        is_male = str(effective_gender).strip().lower() in ["male", "m", "man", "남", "남성"]
+        drama_voice = "Charon" if is_male else "Aoede"
         voice_lang = "ko"
-        logger.info(f"🎙️ [Step 1] 알리바바 CosyVoice 통대본 단일 음성 합성 진행 ({effective_gender})...")
+        logger.info(
+            f"🎙️ [Step 1] Google Gemini 2.5 Flash TTS 단일 통음성 합성 진행 "
+            f"({effective_gender} ➔ 드라마 보이스: {drama_voice})..."
+        )
         full_wav_path = self.tts.generate_speech_wav(
             text=full_speech,
             lang=voice_lang,
@@ -301,8 +317,19 @@ class StockShortsProducer(BaseShortsProducer):
             rate=voice_rate,
             pitch=voice_pitch,
             filename_prefix=f"stock_full_{topic_id}_{dt_str}",
-            output_dir=str(out_folder)
+            voice_name=drama_voice,
+            output_dir=str(out_folder),
         )
+
+        # ⏱️ [오디오 실측] 실제 합성된 WAV 파일의 정확한 초수 측정
+        try:
+            import wave
+            with wave.open(str(full_wav_path), 'rb') as wf:
+                total_audio_sec = round(wf.getnframes() / float(wf.getframerate()), 2)
+        except Exception as we:
+            logger.warning(f"오디오 길이 측정 예외(기본값 31.62s): {we}")
+            total_audio_sec = 31.62
+        logger.info(f"⏱️ [오디오 실측 완료] 단일 통음성 총 재생시간: {total_audio_sec}s")
 
         # 🔗 [반환 딕셔너리 호환성 유지] 3단 분할 변수는 모두 단일 통음성으로 바인딩
         hook_wav_path = full_wav_path
@@ -351,26 +378,15 @@ class StockShortsProducer(BaseShortsProducer):
         )
 
         # 🎯 [Wan 2.2 S2V 10초 립싱크 멍때림 0% 보장]
-        #    - S2V는 81프레임 x 2 = 10.12초 고정 길이로 렌더링된다.
-        #    - 주입 음성이 6~7초에서 끊기면 나머지 3~4초는 입을 다문 채 멍때리는 구간이 발생한다.
-        #    - 따라서 speech_hook_full에는 반드시 10.12초 분량(약 95~105자)을 꽉 채워 주입한다.
-        #      1순위: scenario["speech_hook_10s"] (전용 10초 훅 대본)
-        #      2순위: scenario["speech_hook"] (hook_0_10s)
-        #      3순위: 95자 미만일 때만 speech_app으로 안전 보강
+        #    Part 1 10초 훅 통대본(speech_hook_10s, 98~105자)을 순수 주입 (사후 덧붙이기 땜질 영구 삭제)
         speech_hook_10s = (
             scenario.get("speech_hook_10s")
             or scenario.get("speech_hook")
             or speech_hook
             or ""
         ).strip()
-        if len(speech_hook_10s) < 95 and speech_app:
-            speech_hook_10s = f"{speech_hook_10s} {speech_app}".strip()
-            logger.info(
-                f"🩹 [S2V 멍때림 방지] 10초 훅 대본 분량 보강: {len(speech_hook_10s)}자 "
-                f"(목표 95~105자 / 10.12초 풀 커버)"
-            )
         logger.info(
-            f"🎯 [S2V 10초 풀 커버] speech_hook_full 주입 분량: {len(speech_hook_10s)}자 "
+            f"🎯 [S2V 10초 풀 커버] speech_hook_10s 순수 주입 분량: {len(speech_hook_10s)}자 "
             f"(81프레임 x 2 = 10.12초 멍때림 0% 보장)"
         )
 
@@ -404,12 +420,13 @@ class StockShortsProducer(BaseShortsProducer):
             subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
             person_audio_path = full_wav_path
 
-        # 6. [Step 4] StockMaster AI 실제 웹앱 실시간 시연 클립 (30~32초 완제품 규격: 17.50s)
+        # 6. [Step 4] StockMaster AI 실제 웹앱 실시간 시연 클립 (오디오 주도형 동적 길이 동기화)
         app_clip_path = str(out_folder / f"04_app_sim_stock_{topic_id}.mp4")
-        logger.info(f"📱 [Step 4] StockMaster AI 실제 웹앱 시연 비디오 준비 (30~32초 규격 17.50s)...")
+        app_duration_sec = max(8.0, round(total_audio_sec - 10.12 - 4.0, 2))
+        logger.info(f"📱 [Step 4] StockMaster AI 실제 웹앱 시연 비디오 준비 (오디오 동기화 실측 길이: {app_duration_sec}s)...")
         self.app_simulator.record_simulation_clip(
             topic_id=topic_id,
-            duration_sec=17.5,
+            duration_sec=app_duration_sec,
             output_mp4_path=app_clip_path,
             force_fresh_record=force_fresh_record
         )

@@ -102,7 +102,7 @@ INSURANCE_TOPICS_SPECS: Dict[int, Dict[str, str]] = {
 class InsuranceShortsScriptWriter:
     """🛡️ 보험 8대 주제 전용 제미나이 3.8 Flash 실시간 자율 창작 대본 생성 엔진"""
 
-    OFFICIAL_KEYWORD = "보험리밸런스"
+    OFFICIAL_KEYWORD = "보험 리밸런스"
     FORBIDDEN_WORDS = [
         "호갱", "폭탄", "사기", "대충격", "공중분해", "반토막", "파산", "눈물", 
         "생돈", "뻥튀기", "한정", "이벤트", "선착순", "무료 쿠폰", "사은품", "오늘만"
@@ -120,7 +120,7 @@ class InsuranceShortsScriptWriter:
         spec = INSURANCE_TOPICS_SPECS.get(norm_id, INSURANCE_TOPICS_SPECS[1])
 
         prompt = f"""[앱 및 기능 정보]
-- 브랜드: 보험리밸런스 (InsureBalance)
+- 브랜드: 보험 리밸런스 (InsureBalance)
 - 주제 #{norm_id}: {spec['title']}
 - 화자 설정: {spec['gender']}
 - 기능 개요: {spec['feature_desc']}
@@ -128,24 +128,28 @@ class InsuranceShortsScriptWriter:
 - 활용 상황: {spec['usage_scenario']}
 
 [★ 지시 사항 (절대 준수)]
-위 보험리밸런스의 기능을 시청자에게 자세하고 신뢰감 있게 설명하는 22초 숏폼 대본을 작성하시오.
+위 보험 리밸런스의 기능을 시청자에게 자세하고 신뢰감 있게 설명하는 22초 숏폼 대본을 작성하시오.
 - 🚨 기존에 완성된 예시 대본이 전혀 없으므로, 매번 완전히 새로운 상황 설정과 화자의 내돈내산 꿀팁 관점으로 친절하고 매끄럽게 설명하시오.
 - 주제 #2, #4, #5는 반드시 남성 화자 1인칭 시점으로 작성하시오.
 - 🏛️ 금융소비자보호법 준수: 특정 금액 단정 ❌, 자극적 비방(호갱, 폭탄, 사기 등) ❌, 오직 객관적 보장 범위와 요율 비교로만 신뢰감 있게 서술하세요.
-- 마지막 CTA에는 반드시 "네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"를 자연스럽게 포함하세요.
-- 🚨 22초 완제품 규격: 전체 발화문은 공백 포함 150~165자로 넉넉하게 작성할 것!
-  특히 0~5초(34~38자) + 5~10초(36~40자) 합계가 70~78자가 되도록 채워
-  10.12초 립싱크 구간에서 입이 멈추는 무음 구간이 절대 발생하지 않게 할 것!
+- 나머지 통대본(remainder_speech) 마지막에는 반드시 "네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"를 자연스럽게 포함하세요.
 
-[출력 JSON 규격 (22초 완제품 분량, 전체 약 150~165자)]
+[🚨 2단 통대본 구조 — 절대 준수]
+이 대본은 4초/5초로 잘게 쪼개지 않습니다. 오직 2개의 통대본으로만 구성합니다.
+- 1단 hook_10s: 0~10초 인물 립싱크 통대본. 공백 포함 98~105자 엄수.
+  ➔ 이 구간은 아바타가 10.12초 내내 쉬지 않고 말해야 하므로 절대 짧게 쓰지 말 것!
+  ➔ 4초/5초 단위로 끊어 쓰지 말고, 하나의 끊김 없는 문장 흐름으로 작성할 것!
+- 2단 remainder_speech: 10~22초 나머지 통대본. 공백 포함 160~180자 엄수.
+  ➔ 앱 핵심 작동 원리 + 유저 혜택 + 마지막 "네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!" CTA를 하나의 통대본으로 작성할 것!
+- full_speech = hook_10s + " " + remainder_speech (공백 포함 260~285자)
+
+[출력 JSON 규격]
 {{
   "situation": "이번 설정한 화자 및 상황 (1줄 요약)",
-  "hook_p1": "0~5초: 시선을 확 끄는 첫 질문이나 공감 멘트 (공백 포함 34~38자)",
-  "hook_p2": "5~10초: 보험리밸런스 해당 기능으로 연결되는 멘트 (공백 포함 36~40자)",
-  "app_speech": "10~18초: 핵심 작동 원리와 유저 혜택 설명 (공백 포함 52~58자)",
-  "cta_speech": "18~22초: 댓글 유도 및 '네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!' 포함 (공백 포함 28~32자)",
+  "hook_10s": "0~10초 인물 립싱크 통대본 (공백 포함 98~105자, 끊김 없는 단일 흐름)",
+  "remainder_speech": "10~22초 나머지 통대본 (공백 포함 160~180자, '네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!' 포함)",
   "debate_question": "댓글 창에서 토론을 유도할 센스 있는 10자 내외 질문",
-  "full_speech": "전체 발화문 (공백 포함 150~165자)"
+  "full_speech": "전체 발화문 = hook_10s + remainder_speech (공백 포함 260~285자)"
 }}
 """
 
@@ -174,16 +178,19 @@ class InsuranceShortsScriptWriter:
                         continue
 
                     data = json.loads(resp.text)
-                    hook_p1 = data.get("hook_p1", "").strip()
-                    hook_p2 = data.get("hook_p2", "").strip()
-                    app_speech = data.get("app_speech", "").strip()
-                    cta_speech = data.get("cta_speech", "").strip()
+                    hook_10s = data.get("hook_10s", "").strip()
+                    remainder_speech = data.get("remainder_speech", "").strip()
                     debate_q = data.get("debate_question", "").strip()
                     situation = data.get("situation", "").strip()
 
+                    # 🧩 [2단 통대본 재조립] hook_10s + remainder_speech 단일 흐름 강제
+                    if not hook_10s or not remainder_speech:
+                        logger.warning(f"⚠️ [2단 통대본 누락] 보험 주제 #{norm_id} hook_10s/remainder_speech 결손 ➔ 재시도")
+                        continue
+
                     full_speech = data.get("full_speech", "").strip()
                     if not full_speech:
-                        full_speech = f"{hook_p1} {hook_p2} {app_speech} {cta_speech}".strip()
+                        full_speech = f"{hook_10s} {remainder_speech}".strip()
 
                     # 🔒 [무결성 게이트 1: 금지어 검증]
                     has_forbidden = False
@@ -195,29 +202,60 @@ class InsuranceShortsScriptWriter:
                     if has_forbidden:
                         continue
 
-                    # 공식 검색어 포함 검증 (누락 시 자동 보정)
-                    if self.OFFICIAL_KEYWORD not in cta_speech:
-                        cta_speech = f"{cta_speech} 네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"
-                        full_speech = f"{hook_p1} {hook_p2} {app_speech} {cta_speech}".strip()
+                    # 🔒 [무결성 게이트 2: 공식 검색어 누락 시 자동 보정]
+                    if self.OFFICIAL_KEYWORD not in remainder_speech:
+                        remainder_speech = f"{remainder_speech} 네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"
+                        full_speech = f"{hook_10s} {remainder_speech}".strip()
 
-                    # 🔒 [무결성 게이트 2: 22초 규격 글자 수 검증 (목표 150~165자 / 허용 140~175자)]
-                    if len(full_speech) < 140 or len(full_speech) > 175:
-                        logger.warning(f"⚠️ 글자 수 범위 벗어남({len(full_speech)}자, 목표: 150~165자, 허용: 140~175자), 다음 시도")
+                    # 🔒 [무결성 게이트 3: 2단 통대본 글자 수 검증]
+                    #    hook_10s 95~110자 / remainder_speech 150~190자 / full_speech 250~300자
+                    if not (95 <= len(hook_10s) <= 110):
+                        logger.warning(
+                            f"⚠️ [1단 분량 미달] 보험 주제 #{norm_id} hook_10s {len(hook_10s)}자 "
+                            f"(목표 98~105자 / 허용 95~110자) ➔ 재시도"
+                        )
                         continue
 
-                    logger.info(f"✨ [Gemini 자율 대본 성공] 보험 주제 #{norm_id} ({len(full_speech)}자, key={key_name}, model={model})")
+                    if not (150 <= len(remainder_speech) <= 190):
+                        logger.warning(
+                            f"⚠️ [2단 분량 미달] 보험 주제 #{norm_id} remainder_speech {len(remainder_speech)}자 "
+                            f"(목표 160~180자 / 허용 150~190자) ➔ 재시도"
+                        )
+                        continue
+
+                    if not (250 <= len(full_speech) <= 300):
+                        logger.warning(
+                            f"⚠️ [총 분량 미달] 보험 주제 #{norm_id} full_speech {len(full_speech)}자 "
+                            f"(목표 260~285자 / 허용 250~300자) ➔ 재시도"
+                        )
+                        continue
+
+                    # 🎬 [10초 립싱크 안전장치] hook_10s 를 5초 단위 2분절로만 분할 (4초/5초 난분할 금지)
+                    half = len(hook_10s) // 2
+                    hook_p1_5s = hook_10s[:half].strip()
+                    hook_p2_5s = hook_10s[half:].strip()
+                    cta_fixed = f"지금 네이버에 {self.OFFICIAL_KEYWORD} 검색해보세요!"
+
+                    logger.info(
+                        f"✨ [2단 통대본 성공] 보험 주제 #{norm_id} "
+                        f"(hook_10s={len(hook_10s)}자 / remainder={len(remainder_speech)}자 / "
+                        f"full={len(full_speech)}자, key={key_name}, model={model})"
+                    )
                     return {
-                        "hook_p1_5s": hook_p1,
-                        "hook_p2_5s": hook_p2,
-                        "hook_0_10s": f"{hook_p1} {hook_p2}",
-                        "app_10_20s": app_speech,
-                        "app_10_18s": app_speech,
-                        "cta_18_22s": cta_speech,
-                        "cta_20_22s": cta_speech,
-                        "hero_copy": spec.get("hero_copy", "객관적 5대 보장 AI 분석"),
+                        "hook_10s": hook_10s,
+                        "hook_0_10s": hook_10s,
+                        "hook_p1_5s": hook_p1_5s,
+                        "hook_p2_5s": hook_p2_5s,
+                        "remainder_speech": remainder_speech,
+                        "app_10_20s": remainder_speech,
+                        "app_10_18s": remainder_speech,
+                        "cta_18_22s": cta_fixed,
+                        "cta_20_22s": cta_fixed,
+                        "hero_copy": spec.get("hero_copy", "객관적 5대 보장 AI 분석!"),
                         "debate_question": debate_q or "내 보험 보장 범위는 안전할까?",
                         "full_speech": full_speech,
                         "situation": situation,
+                        "is_two_stage_speech": True,
                         "is_ai_generated": True
                     }
                 except Exception as e:

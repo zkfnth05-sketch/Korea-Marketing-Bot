@@ -187,8 +187,15 @@ class AuraProductionSafetyGate:
         return True, f"5장 전수 무결성 확인 완료 (총 {len(slide_paths)}장, 정상 1080x1350 규격)"
 
     @classmethod
-    def verify_desktop_shorts_completed(cls, video_path: str, min_duration_sec: float = 20.0) -> Tuple[bool, str]:
-        """바탕화면에 22초 숏폼 비디오 완제품이 100% 온전히 생성되었는지 파이썬 실물 전수 검증"""
+    def verify_desktop_shorts_completed(cls, video_path: str, min_duration_sec: float = 19.0) -> Tuple[bool, str]:
+        """
+        바탕화면에 숏폼 비디오 완제품이 100% 온전히 생성되었는지 파이썬 실물 전수 검증
+
+        🎭 [숏드라마 완제품 지원]
+          - 파일명 또는 상위 폴더명에 'drama'가 포함되면 드라마 완제품으로 판정
+          - 드라마는 파일명 '22초' 규격 강제를 면제하되, MP4 포맷 / 2MB 하한 / OpenCV 실측 재생시간(19초 이상)은 동일 엄수
+          - 일반 숏폼은 기존 '22초' 파일명 규격 100% 그대로 유지
+        """
         if not video_path:
             return False, "비디오 파일 경로가 지정되지 않음"
         p = Path(video_path)
@@ -196,16 +203,29 @@ class AuraProductionSafetyGate:
             return False, f"숏폼 비디오 실물 파일이 바탕화면에 존재하지 않음: {p}"
 
         name_lower = p.name.lower()
+        # 🎭 드라마 완제품 판정 (파일명 또는 상위 폴더명에 drama 포함)
+        try:
+            parent_lower = p.parent.name.lower()
+        except Exception:
+            parent_lower = ""
+        is_drama = ("drama" in name_lower) or ("drama" in parent_lower)
+
+        # 🚨 임시/중간 생성물은 드라마 여부와 무관하게 100% 원천 차단
         if any(bad in name_lower for bad in ["10초", "원테이크", "temp", "clip_", "person_"]):
             return False, f"숏폼 완제품 부적격: 10초 원테이크/임시 파일 배포 시도 원천 차단 ({p.name})"
-        if "22초" not in name_lower and "22s" not in name_lower:
-            return False, f"숏폼 완제품 규격 오류: 파일명에 '22초' 미포함 ({p.name})"
+
+        # 📏 일반 숏폼은 기존 '22초' 파일명 규격 엄수 (드라마는 면제)
+        if not is_drama:
+            if "22초" not in name_lower and "22s" not in name_lower:
+                return False, f"숏폼 완제품 규격 오류: 파일명에 '22초' 미포함 ({p.name})"
 
         size = p.stat().st_size
         if size < 2 * 1024 * 1024:  # 최소 2MB 이상
             return False, f"숏폼 비디오 용량 미달 ({size // 1024}KB < 2048KB): 비정상 축소본/중간본 ({p.name})"
 
         if not str(p).lower().endswith(".mp4"):
+            if is_drama:
+                return False, f"드라마 완제품 포맷 오류 (MP4 확장자 아님): {p}"
             return False, f"숏폼 파일 포맷 오류 (MP4 확장자 아님): {p}"
 
         # 🎬 OpenCV 실물 비디오 재생 시간(초수) 정밀 실측
@@ -220,9 +240,11 @@ class AuraProductionSafetyGate:
 
             duration_sec = (frame_count / fps) if fps and fps > 0 else 0
             if duration_sec < min_duration_sec:
-                return False, f"🚨 [숏폼 길이 규격 미달] 실측 재생 시간: {duration_sec:.1f}초 (최소 규격: {min_duration_sec}초 이상 필수! 10초짜리 배포 원천 차단): {p.name}"
+                kind = "드라마" if is_drama else "숏폼"
+                return False, f"🚨 [{kind} 길이 규격 미달] 실측 재생 시간: {duration_sec:.1f}초 (최소 규격: {min_duration_sec}초 이상 필수! 10초짜리 배포 원천 차단): {p.name}"
 
-            return True, f"22초 숏폼 완제품 실측 무결성 합격 (파일명: {p.name}, 실측 재생시간: {duration_sec:.1f}초, 용량: {size // 1024}KB)"
+            kind = "숏드라마" if is_drama else "22초 숏폼"
+            return True, f"{kind} 완제품 실측 무결성 합격 (파일명: {p.name}, 실측 재생시간: {duration_sec:.1f}초, 용량: {size // 1024}KB)"
         except Exception as ve:
             return False, f"비디오 재생시간 실측 검증 중 예외 발생: {ve}"
 

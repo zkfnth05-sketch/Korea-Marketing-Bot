@@ -661,6 +661,11 @@ class DramaClipStitcher:
                 rendered_clips.append(rendered_clip)
                 body_total_dur += float(target_duration)
 
+                # 🧹 [대표님 절대 엄명] 컷 렌더링 직후 VRAM 캐시 즉시 비우기 (누적 OOM 방지)
+                if self.wan_client is not None:
+                    self.wan_client.free_vram()
+                    logger.info(f"🧹 [DramaStitcher] 컷 #{cut_idx} 렌더링 완료 즉시 VRAM 캐시 안전 방출")
+
 
             # ── 3계층: 엔딩 CTA 카드 클립을 본편 맨 마지막에 별도 결합 ──
             #    본편 4컷(20초)이 모두 끝난 뒤 CTA 카드(2.5초)가 이어 붙는다.

@@ -456,7 +456,7 @@ class GPUSafetyGuard:
         label: str,
         cwd: Optional[str] = None,
         env: Optional[Dict[str, str]] = None,
-        timeout_sec: int = 1800,
+        timeout_sec: int = 3600,
         cooldown_sec: int = DEFAULT_COOLDOWN_SEC
     ) -> Dict[str, Any]:
         """

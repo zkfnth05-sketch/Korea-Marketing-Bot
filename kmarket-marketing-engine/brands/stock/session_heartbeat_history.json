@@ -1,425 +1,5 @@
 [
   {
-    "timestamp": "2026-10-19T02:05:36.050749",
-    "brand": "stock",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-19T02:05:39.534855",
-    "brand": "stock",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-19T02:05:42.763107",
-    "brand": "stock",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T02:05:50.969320",
-    "brand": "stock",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T05:06:41.883113",
-    "brand": "stock",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
-  },
-  {
-    "timestamp": "2026-10-19T05:06:45.781415",
-    "brand": "stock",
-    "platform": "meta",
-    "status": "expired",
-    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs)"
-  },
-  {
-    "timestamp": "2026-10-19T05:06:50.435702",
-    "brand": "stock",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-19T05:06:53.910013",
-    "brand": "stock",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-19T05:06:57.208351",
-    "brand": "stock",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T05:07:05.311847",
-    "brand": "stock",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T08:08:01.589686",
-    "brand": "stock",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
-  },
-  {
-    "timestamp": "2026-10-19T08:08:05.453767",
-    "brand": "stock",
-    "platform": "meta",
-    "status": "expired",
-    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs)"
-  },
-  {
-    "timestamp": "2026-10-19T08:08:10.069980",
-    "brand": "stock",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-19T08:08:13.537295",
-    "brand": "stock",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-19T08:08:16.777152",
-    "brand": "stock",
-    "platform": "threads",
-    "status": "active",
-    "message": "Threads 세션 생명 연장 및 storage_state 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T08:08:24.810582",
-    "brand": "stock",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T08:13:41.378169",
-    "brand": "stock",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
-  },
-  {
-    "timestamp": "2026-10-19T08:13:45.249219",
-    "brand": "stock",
-    "platform": "meta",
-    "status": "expired",
-    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs) · GOLDEN 롤백 완료"
-  },
-  {
-    "timestamp": "2026-10-19T08:13:49.891690",
-    "brand": "stock",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-19T08:13:53.323486",
-    "brand": "stock",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-19T08:13:56.425341",
-    "brand": "stock",
-    "platform": "threads",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T08:14:04.295717",
-    "brand": "stock",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T11:14:54.737335",
-    "brand": "stock",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
-  },
-  {
-    "timestamp": "2026-10-19T11:15:00.842378",
-    "brand": "stock",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1341)"
-  },
-  {
-    "timestamp": "2026-10-19T11:15:05.521102",
-    "brand": "stock",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-19T11:15:10.955136",
-    "brand": "stock",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T11:15:15.659873",
-    "brand": "stock",
-    "platform": "threads",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T11:15:23.612932",
-    "brand": "stock",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T14:16:15.478297",
-    "brand": "stock",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
-  },
-  {
-    "timestamp": "2026-10-19T14:16:21.062053",
-    "brand": "stock",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1341)"
-  },
-  {
-    "timestamp": "2026-10-19T14:16:25.825230",
-    "brand": "stock",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-19T14:16:29.323463",
-    "brand": "stock",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-19T14:16:34.767091",
-    "brand": "stock",
-    "platform": "threads",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T14:16:42.957467",
-    "brand": "stock",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T17:17:34.032947",
-    "brand": "stock",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
-  },
-  {
-    "timestamp": "2026-10-19T17:17:39.676799",
-    "brand": "stock",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1341)"
-  },
-  {
-    "timestamp": "2026-10-19T17:17:44.577501",
-    "brand": "stock",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-19T17:17:48.106239",
-    "brand": "stock",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-19T17:17:51.237267",
-    "brand": "stock",
-    "platform": "threads",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T17:17:59.373698",
-    "brand": "stock",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T20:18:54.298067",
-    "brand": "stock",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
-  },
-  {
-    "timestamp": "2026-10-19T20:18:59.840582",
-    "brand": "stock",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1341)"
-  },
-  {
-    "timestamp": "2026-10-19T20:19:04.659943",
-    "brand": "stock",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-19T20:19:08.173641",
-    "brand": "stock",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-19T20:19:11.303423",
-    "brand": "stock",
-    "platform": "threads",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T20:19:19.024094",
-    "brand": "stock",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-19T22:56:57.976169",
-    "brand": "stock",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
-  },
-  {
-    "timestamp": "2026-10-19T22:57:04.036873",
-    "brand": "stock",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1341)"
-  },
-  {
-    "timestamp": "2026-10-19T22:57:09.041629",
-    "brand": "stock",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-19T22:57:12.526867",
-    "brand": "stock",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-19T22:57:15.658780",
-    "brand": "stock",
-    "platform": "threads",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
-  },
-  {
-    "timestamp": "2026-10-19T22:57:23.626022",
-    "brand": "stock",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-20T01:58:21.940287",
-    "brand": "stock",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
-  },
-  {
-    "timestamp": "2026-10-20T01:58:27.767340",
-    "brand": "stock",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1341)"
-  },
-  {
-    "timestamp": "2026-10-20T01:58:32.424810",
-    "brand": "stock",
-    "platform": "tiktok",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
-  },
-  {
-    "timestamp": "2026-10-20T01:58:35.943692",
-    "brand": "stock",
-    "platform": "naver",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
-  },
-  {
-    "timestamp": "2026-10-20T01:58:40.289680",
-    "brand": "stock",
-    "platform": "threads",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
-  },
-  {
-    "timestamp": "2026-10-20T01:58:50.049185",
-    "brand": "stock",
-    "platform": "tistory",
-    "status": "active",
-    "message": "세션 정상 유지 및 자동 갱신 완료"
-  },
-  {
-    "timestamp": "2026-10-20T04:59:51.408017",
-    "brand": "stock",
-    "platform": "youtube",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
-  },
-  {
-    "timestamp": "2026-10-20T04:59:57.284618",
-    "brand": "stock",
-    "platform": "meta",
-    "status": "active",
-    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1341)"
-  },
-  {
     "timestamp": "2026-10-20T05:00:02.027416",
     "brand": "stock",
     "platform": "tiktok",
@@ -698,5 +278,425 @@
     "platform": "tistory",
     "status": "session_expired",
     "message": "카카오 세션 만료"
+  },
+  {
+    "timestamp": "2026-10-27T10:08:29.971520",
+    "brand": "stock",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
+  },
+  {
+    "timestamp": "2026-10-27T10:08:36.099915",
+    "brand": "stock",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1341)"
+  },
+  {
+    "timestamp": "2026-10-27T10:08:40.766483",
+    "brand": "stock",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-27T10:08:44.285352",
+    "brand": "stock",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-27T10:08:47.506196",
+    "brand": "stock",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-27T10:08:56.230173",
+    "brand": "stock",
+    "platform": "tistory",
+    "status": "session_expired",
+    "message": "카카오 세션 만료"
+  },
+  {
+    "timestamp": "2026-10-27T13:09:46.088425",
+    "brand": "stock",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
+  },
+  {
+    "timestamp": "2026-10-27T13:09:50.275562",
+    "brand": "stock",
+    "platform": "meta",
+    "status": "expired",
+    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs) · GOLDEN 롤백 완료"
+  },
+  {
+    "timestamp": "2026-10-27T13:09:55.184026",
+    "brand": "stock",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-27T13:09:58.698425",
+    "brand": "stock",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-27T13:10:02.361969",
+    "brand": "stock",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-27T13:10:10.428840",
+    "brand": "stock",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-27T16:11:02.282260",
+    "brand": "stock",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
+  },
+  {
+    "timestamp": "2026-10-27T16:11:06.509595",
+    "brand": "stock",
+    "platform": "meta",
+    "status": "expired",
+    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs) · GOLDEN 롤백 완료"
+  },
+  {
+    "timestamp": "2026-10-27T16:11:11.308128",
+    "brand": "stock",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-27T16:11:14.797164",
+    "brand": "stock",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-27T16:11:17.895588",
+    "brand": "stock",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-27T16:11:25.708642",
+    "brand": "stock",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-27T19:12:16.333855",
+    "brand": "stock",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
+  },
+  {
+    "timestamp": "2026-10-27T19:12:20.631826",
+    "brand": "stock",
+    "platform": "meta",
+    "status": "expired",
+    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs) · GOLDEN 롤백 완료"
+  },
+  {
+    "timestamp": "2026-10-27T19:12:25.336184",
+    "brand": "stock",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-27T19:12:28.837124",
+    "brand": "stock",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-27T19:12:32.088258",
+    "brand": "stock",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-27T19:12:40.316021",
+    "brand": "stock",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-27T22:13:47.739712",
+    "brand": "stock",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
+  },
+  {
+    "timestamp": "2026-10-27T22:14:00.457145",
+    "brand": "stock",
+    "platform": "meta",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://business.facebook.com/latest/home?asset_id=1341)"
+  },
+  {
+    "timestamp": "2026-10-27T22:14:05.346706",
+    "brand": "stock",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-27T22:14:08.977440",
+    "brand": "stock",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-27T22:14:12.232434",
+    "brand": "stock",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-27T22:14:20.617497",
+    "brand": "stock",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-28T01:15:34.266589",
+    "brand": "stock",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
+  },
+  {
+    "timestamp": "2026-10-28T01:15:38.523937",
+    "brand": "stock",
+    "platform": "meta",
+    "status": "expired",
+    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs) · GOLDEN 롤백 완료"
+  },
+  {
+    "timestamp": "2026-10-28T01:15:43.482270",
+    "brand": "stock",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-28T01:15:47.001689",
+    "brand": "stock",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-28T01:15:50.661833",
+    "brand": "stock",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-28T01:15:59.141194",
+    "brand": "stock",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-28T04:17:02.874167",
+    "brand": "stock",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
+  },
+  {
+    "timestamp": "2026-10-28T04:17:07.099201",
+    "brand": "stock",
+    "platform": "meta",
+    "status": "expired",
+    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs) · GOLDEN 롤백 완료"
+  },
+  {
+    "timestamp": "2026-10-28T04:17:11.740623",
+    "brand": "stock",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-28T04:17:15.243470",
+    "brand": "stock",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-28T04:17:18.747706",
+    "brand": "stock",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-28T04:17:26.817866",
+    "brand": "stock",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-28T07:18:38.662581",
+    "brand": "stock",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
+  },
+  {
+    "timestamp": "2026-10-28T07:18:42.869938",
+    "brand": "stock",
+    "platform": "meta",
+    "status": "expired",
+    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs) · GOLDEN 롤백 완료"
+  },
+  {
+    "timestamp": "2026-10-28T07:18:47.451321",
+    "brand": "stock",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-28T07:18:50.923835",
+    "brand": "stock",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-28T07:18:54.200115",
+    "brand": "stock",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-28T07:19:02.250884",
+    "brand": "stock",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-28T10:20:09.556346",
+    "brand": "stock",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
+  },
+  {
+    "timestamp": "2026-10-28T10:20:14.683571",
+    "brand": "stock",
+    "platform": "meta",
+    "status": "expired",
+    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs) · GOLDEN 롤백 완료"
+  },
+  {
+    "timestamp": "2026-10-28T10:20:19.322758",
+    "brand": "stock",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-28T10:20:22.812268",
+    "brand": "stock",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-28T10:20:25.913809",
+    "brand": "stock",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-28T10:20:33.704342",
+    "brand": "stock",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
+  },
+  {
+    "timestamp": "2026-10-28T13:21:36.681625",
+    "brand": "stock",
+    "platform": "youtube",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://studio.youtube.com/channel/UClnjC0LSYikQsDINoWO)"
+  },
+  {
+    "timestamp": "2026-10-28T13:21:41.019623",
+    "brand": "stock",
+    "platform": "meta",
+    "status": "expired",
+    "message": "세션 만료 감지 (재연동 필요, URL: https://business.facebook.com/business/loginpage/?next=https%3A%2F%2Fbusiness.facebook.com%2Flatest%2Fhome%3Fnav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs) · GOLDEN 롤백 완료"
+  },
+  {
+    "timestamp": "2026-10-28T13:21:46.472271",
+    "brand": "stock",
+    "platform": "tiktok",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.tiktok.com/tiktokstudio/content)"
+  },
+  {
+    "timestamp": "2026-10-28T13:21:50.178750",
+    "brand": "stock",
+    "platform": "naver",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://clipcreators.naver.com/web/dashboard)"
+  },
+  {
+    "timestamp": "2026-10-28T13:21:54.641951",
+    "brand": "stock",
+    "platform": "threads",
+    "status": "active",
+    "message": "세션 생명 연장 성공 (URL: https://www.threads.com/)"
+  },
+  {
+    "timestamp": "2026-10-28T13:22:02.851924",
+    "brand": "stock",
+    "platform": "tistory",
+    "status": "active",
+    "message": "세션 정상 유지 및 자동 갱신 완료"
   }
 ]
