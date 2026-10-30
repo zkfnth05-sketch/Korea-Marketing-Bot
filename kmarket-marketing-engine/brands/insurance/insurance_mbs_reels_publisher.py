@@ -145,6 +145,153 @@ class InsuranceMBSReelsPublisher:
             "message": f"{max_retries}회 재시도 모두 소진, 실물 등록 미확인"
         }
 
+    # =====================================================================
+    # 🛡️ [오버레이 상태 머신] 라운드 기반 · 소멸 확인 · 모든 내비게이션 경계에서 재사용
+    # =====================================================================
+    _OVERLAY_CLOSE_SELECTORS = [
+        "[aria-label='닫기']",
+        "[aria-label='Close']",
+        "[aria-label='Dismiss']",
+        "div[role='dialog'] [aria-label='닫기']",
+        "div[role='dialog'] [aria-label='Close']",
+        "button:has-text('닫기')",
+        "button:has-text('Close')",
+        "div[role='button']:has-text('나중에')",
+        "div[role='button']:has-text('Not now')",
+        "div[role='button']:has-text('건너뛰기')",
+        "div[role='button']:has-text('Skip')",
+    ]
+    _OVERLAY_CONTAINER_SELECTORS = [
+        "div[role='dialog']",
+        "[aria-modal='true']",
+        "div[role='alertdialog']",
+    ]
+
+    async def _dismiss_overlays(self, page, max_rounds: int = 5, settle_ms: int = 400) -> int:
+        """라운드 기반 오버레이 소거. 각 라운드마다 '실제로 사라졌는지' 확인 후 다음 라운드.
+        반환값: 소거 성공 횟수. 소거 후에도 남아있으면 예외 없이 로그만 남기고 종료(상위에서 판단)."""
+        dismissed = 0
+        for rnd in range(1, max_rounds + 1):
+            acted = False
+            for sel in self._OVERLAY_CLOSE_SELECTORS:
+                try:
+                    loc = page.locator(sel)
+                    cnt = await loc.count()
+                    if cnt == 0:
+                        continue
+                    for i in range(min(cnt, 3)):
+                        el = loc.nth(i)
+                        try:
+                            if not await el.is_visible():
+                                continue
+                            await el.click(timeout=1500)
+                            acted = True
+                            dismissed += 1
+                            await page.wait_for_timeout(settle_ms)
+                        except Exception:
+                            continue
+                except Exception:
+                    continue
+            # 소멸 확인: 컨테이너가 실제로 사라졌는지 검사
+            remaining = 0
+            for csel in self._OVERLAY_CONTAINER_SELECTORS:
+                try:
+                    loc = page.locator(csel)
+                    cnt = await loc.count()
+                    for i in range(cnt):
+                        try:
+                            if await loc.nth(i).is_visible():
+                                remaining += 1
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
+            if remaining == 0:
+                if acted:
+                    logger.info(f"🧹 [오버레이] 라운드 {rnd}에서 소거 완료 (누적 {dismissed}회)")
+                return dismissed
+            if not acted:
+                # 더 이상 닫을 수단이 없는데 컨테이너가 남아있음 → 상위 판단에 위임
+                logger.warning(f"⚠️ [오버레이] 라운드 {rnd}: 닫기 수단 소진, 잔존 컨테이너 {remaining}개")
+                return dismissed
+        logger.warning(f"⚠️ [오버레이] 최대 라운드({max_rounds}) 소진, 잔존 컨테이너 존재 가능")
+        return dismissed
+
+    # =====================================================================
+    # 🛡️ [카드 스코프 검증] 최상단 행 로케이터 → 정규화 → 부분일치 + 시간 배지 정규식
+    # =====================================================================
+    _TIME_BADGE_RE = re.compile(
+        r"(방금|초\s*전|분\s*전|시간\s*전|일\s*전|주\s*전|"
+        r"just\s*now|\d+\s*[smhdw]\b|\d+\s*(second|minute|hour|day|week)s?\s*ago)",
+        re.I,
+    )
+
+    @staticmethod
+    def _normalize_text(s: str) -> str:
+        """공백/제로폭/전각/이모지/개행 정규화"""
+        if not s:
+            return ""
+        s = s.replace("\u200b", "").replace("\u200c", "").replace("\u200d", "").replace("\ufeff", "")
+        s = s.replace("\u00a0", " ")
+        # 전각 → 반각
+        s = "".join(
+            chr(ord(ch) - 0xFEE0) if 0xFF01 <= ord(ch) <= 0xFF5E else ch
+            for ch in s
+        )
+        # 이모지/기호 제거
+        s = re.sub(r"[\U0001F000-\U0001FAFF\u2600-\u27BF\uFE0F]", "", s)
+        s = re.sub(r"\s+", " ", s).strip()
+        return s
+
+    async def _verify_top_card(self, page, caption: str, timeout_ms: int = 20000) -> Dict[str, Any]:
+        """게시물 목록 최상단 '행' 단위로 스코프를 좁혀 검증.
+        - 최상단 행 로케이터 확보(테이블 row / 리스트 아이템)
+        - 행 내부 텍스트만 정규화 후 캡션 스니펫 부분일치
+        - 시간 배지 정규식 존재 여부로 '방금 게시됨' 신호 보강
+        반환: {"verified": bool, "reason": str, "row_text": str}"""
+        snippet_raw = (caption or "").strip()[:20]
+        snippet = self._normalize_text(snippet_raw)
+        if not snippet:
+            return {"verified": False, "reason": "빈 캡션", "row_text": ""}
+
+        row_selectors = [
+            "div[role='row']",
+            "table tbody tr",
+            "div[role='listitem']",
+            "div[role='article']",
+        ]
+        deadline = asyncio.get_event_loop().time() + (timeout_ms / 1000.0)
+        last_row_text = ""
+        while asyncio.get_event_loop().time() < deadline:
+            for rsel in row_selectors:
+                try:
+                    rows = page.locator(rsel)
+                    cnt = await rows.count()
+                    if cnt == 0:
+                        continue
+                    top = rows.first
+                    try:
+                        if not await top.is_visible():
+                            continue
+                    except Exception:
+                        continue
+                    raw = await top.inner_text()
+                    norm = self._normalize_text(raw)
+                    last_row_text = norm
+                    has_snippet = snippet in norm
+                    has_time = bool(self._TIME_BADGE_RE.search(raw))
+                    if has_snippet and has_time:
+                        return {"verified": True, "reason": "snippet+time_badge", "row_text": norm}
+                    if has_snippet:
+                        # 스니펫은 맞지만 시간 배지 미확인 → 잠시 대기 후 재확인
+                        await page.wait_for_timeout(1500)
+                        continue
+                except Exception:
+                    continue
+            await page.wait_for_timeout(1500)
+
+        return {"verified": False, "reason": "top_card_mismatch", "row_text": last_row_text}
+
     async def _execute_recipe_once(self, video_path: str, caption: str) -> Dict[str, Any]:
         """1회 글자 레시피 실행 및 게시물 관리 화면 실물 검증"""
         async with async_playwright() as p:
@@ -175,14 +322,8 @@ class InsuranceMBSReelsPublisher:
 
                 if is_logged_out_url("meta", page.url) or not has_auth("meta", await context.cookies()):
                     raise RuntimeError("메타(페이스북) 세션 만료. 로그인 필요.")
-                # 방해 모달/팝업 닫기
-                for close_sel in ["[aria-label='닫기']", "[aria-label='Close']", "button:has-text('닫기')", "button:has-text('Close')"]:
-                    try:
-                        cb = await page.query_selector(close_sel)
-                        if cb and await cb.is_visible():
-                            await cb.click()
-                    except Exception:
-                        pass
+                # 🛡️ [스테이지 경계 1] 작성기 진입 직후 오버레이 상태 머신 가동
+                await self._dismiss_overlays(page, max_rounds=5)
 
                 # 📌 2단계: '동영상 추가' / 'Add video' 글자 눈으로 찾고 파일 넣기
                 logger.info("2. '동영상 추가' 미디어 주입 중...")
@@ -297,46 +438,41 @@ class InsuranceMBSReelsPublisher:
                     await done_btn.click(force=True)
                     logger.info("👉 '릴스 처리 중 [완료/Done]' 팝업 클릭")
 
-                # 📌 7단계: [무인 파이프라인] 메타 릴스 서버 인코딩 및 배포 대기 (정확히 60초 휴식)
-                logger.info("⏳ [메타 릴스 무인 파이프라인] 릴스 인코딩 및 서버 배포 대기 (정확히 60초 휴식 후 실물 확인)...")
-                await asyncio.sleep(60.0)
-
+                # 📌 7단계: [조건 기반 대기] 게시물 목록으로 이동 후 카드 스코프 검증 (고정 60초 대기 제거)
                 logger.info(f"7. 게시물 관리 화면({self.posts_url})으로 이동하여 실물 검증 중...")
                 await page.goto(self.posts_url, wait_until="domcontentloaded", timeout=40000)
-                await asyncio.sleep(5.0)
 
-                # 방해 투어 모달 닫기
-                for close_sel in ["button:has-text('닫기')", "div[role='button']:has-text('닫기')"]:
-                    try:
-                        cb = await page.query_selector(close_sel)
-                        if cb and await cb.is_visible():
-                            await cb.click()
-                    except Exception:
-                        pass
+                # 🛡️ [스테이지 경계 2] 게시물 목록 진입 직후 오버레이 상태 머신 가동
+                await self._dismiss_overlays(page, max_rounds=5)
+
+                # 🛡️ [스테이지 경계 3] 카드 스코프 검증 (조건 기반 대기 + 명시적 타임아웃)
+                verify = await self._verify_top_card(page, caption, timeout_ms=90000)
 
                 # 증빙 스크린샷
                 proof_path = CURRENT_DIR / "mbs_verified_proof.png"
-                await page.screenshot(path=str(proof_path))
+                try:
+                    await page.screenshot(path=str(proof_path))
+                except Exception as se:
+                    logger.warning(f"⚠️ 증빙 스크린샷 실패(계속): {se}")
 
-                # 최상단 행 검증
-                body_text = await page.inner_text("body")
-                snippet = caption[:15]
-                is_verified = (snippet in body_text) or ("Goldmom" in body_text and "0:1" in body_text)
-
-                if is_verified:
-                    logger.info(f"🎉🎉 [보험 메타 릴스 실물 검증 100% 합격!] 최상단에 정상 게시 확인!")
-                    
+                if verify.get("verified"):
+                    logger.info(f"🎉🎉 [보험 메타 릴스 실물 검증 100% 합격!] 최상단 카드 스코프 일치 확인 (사유: {verify.get('reason')})")
                     return {
                         "status": "success",
                         "brand": self.brand,
                         "platform": "meta_business_suite",
                         "message": "Meta Business Suite를 통한 🛡️ InsureBalance 보험 릴스 순수 브라우저 실물 발행 완료",
                         "video": os.path.basename(video_path),
-                        "verified_proof": str(proof_path)
+                        "verified_proof": str(proof_path),
+                        "verify_reason": verify.get("reason"),
                     }
                 else:
-                    logger.warning("⚠️ 게시물 목록 최상단에 아직 반영되지 않았습니다.")
-                    return {"status": "pending_or_missing", "message": "목록에 실물 미확인"}
+                    logger.warning(f"⚠️ 최상단 카드 스코프 검증 실패 (사유: {verify.get('reason')})")
+                    return {
+                        "status": "pending_or_missing",
+                        "message": f"목록 최상단 카드 미확인 ({verify.get('reason')})",
+                        "verify_reason": verify.get("reason"),
+                    }
 
             finally:
                 # 로그인 상태일 때만 저장 (로그아웃 쿠키로 정상 세션 덮어쓰기 금지)

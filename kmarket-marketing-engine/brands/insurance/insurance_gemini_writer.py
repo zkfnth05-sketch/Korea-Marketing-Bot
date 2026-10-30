@@ -139,90 +139,249 @@ class InsuranceGeminiWriter:
         from google.genai import types as genai_types
 
         api_key = get_gemini_key()
+        response = None
+        # 💰 [최저가 텍스트 모델 1순위] flash-lite ➔ flash ➔ flash-latest 3단 롤오버 + 3회 재시도
         for attempt in range(3):
             try:
                 client = genai.Client(api_key=api_key)
-                response = None
-                for m_name in ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"]:
+                for m_name in ["gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-flash-latest"]:
                     try:
                         response = client.models.generate_content(
                             model=m_name,
                             contents=user_prompt,
                             config=genai_types.GenerateContentConfig(
-                                automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True), system_instruction=system_instruction,
+                                automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True),
+                                system_instruction=system_instruction,
                                 temperature=0.7,
-                                max_output_tokens=4096,
+                                max_output_tokens=8192,
                                 response_mime_type="application/json"
                             )
                         )
-                        break
+                        if response and response.text:
+                            break
                     except Exception:
                         continue
-
-                if not response:
-                    raise RuntimeError("모든 Gemini 모델 호출 실패")
-
-                raw_text = response.text.strip()
-                if "```json" in raw_text:
-                    raw_text = raw_text.split("```json")[1].split("```")[0].strip()
-                elif "```" in raw_text:
-                    raw_text = raw_text.split("```")[1].split("```")[0].strip()
-
-                try:
-                    data = json.loads(raw_text, strict=False)
-                except Exception:
-                    # 제어문자나 특수문자 정제 후 재시도
-                    cleaned_json = re.sub(r'[\x00-\x1f\x7f-\x9f]', lambda m: '\n' if m.group(0) in '\r\n\t' else ' ', raw_text)
-                    data = json.loads(cleaned_json, strict=False)
-                live_tags = seo_brief.get("viral_hashtags", []) if seo_brief else []
-                raw_tags = data.get("tags", []) or tags
-                # 해시태그 '#' 제거 및 실시간 트렌드 보험 해시태그 결합
-                clean_tags = [t.replace("#", "").strip() for t in raw_tags if t.strip()]
-                clean_live = [t.replace("#", "").strip() for t in live_tags if t.strip()]
-                merged_tags = list(dict.fromkeys(clean_tags + clean_live))[:10]
-
-                res = {
-                    "title": data.get("title_naver", topic_title),
-                    "title_naver": data.get("title_naver", topic_title),
-                    "title_tistory": data.get("title_tistory", topic_title),
-                    "title_brunch": data.get("title_brunch", topic_title),
-                    "body_markdown": data.get("body_markdown", ""),
-                    "summary": data.get("summary", ""),
-                    "tags": merged_tags,
-                    "visual_prompt": data.get("visual_prompt", ""),
-                    "topic_id": topic_id
-                }
-
-                # ⚡ 캐시 파일로 영구 저장
-                try:
-                    import datetime
-                    out_file = CACHE_DIR / f"insurance_blog_topic_{topic_id:03d}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-                    with open(out_file, "w", encoding="utf-8") as fp:
-                        json.dump(res, fp, ensure_ascii=False, indent=2)
-                    logger.info(f"💾 [InsuranceGeminiWriter] 신규 칼럼 아카이브 보관 완료: {out_file.name}")
-                except Exception as save_err:
-                    logger.warning(f"아카이브 보관 예외: {save_err}")
-
-                return res
+                if response and response.text:
+                    break
             except Exception as e:
-                logger.warning(f"⚠️ [InsuranceGeminiWriter] 시도 {attempt+1} 실패 ({e}), 키 롤오버 시도")
+                logger.warning(f"⚠️ [InsuranceGeminiWriter] 시도 {attempt+1} 실패 ({e}), 키 롤오버")
                 report_gemini_key_failure(api_key)
                 api_key = get_paid_gemini_key()
 
-        # 완전 실패 시 안전한 폴백 템플릿 반환
-        return self._generate_fallback(topic, seo_brief)
+        if not response or not getattr(response, "text", None):
+            logger.warning("⚠️ [InsuranceGeminiWriter] 모든 Gemini 모델 호출 실패 ➔ 폴백 템플릿 반환")
+            return self._generate_fallback(topic, seo_brief)
+
+        # ── 응답 텍스트 정제 (코드펜스 제거) ──
+        raw_text = (response.text or "").strip()
+        if "```json" in raw_text:
+            raw_text = raw_text.split("```json")[1].split("```")[0].strip()
+        elif "```" in raw_text:
+            raw_text = raw_text.split("```")[1].split("```")[0].strip()
+
+        # ── JSON 파싱 (실패 시 제어문자 정제 ➔ 정밀 필드 추출기 순 3단 방어) ──
+        data = None
+        try:
+            data = json.loads(raw_text, strict=False)
+        except Exception:
+            try:
+                cleaned_json = re.sub(r'[\x00-\x1f\x7f-\x9f]', lambda m: '\n' if m.group(0) in '\r\n\t' else ' ', raw_text)
+                data = json.loads(cleaned_json, strict=False)
+            except Exception as parse_err:
+                logger.warning(f"⚠️ [InsuranceGeminiWriter] JSON 파싱 실패 ({parse_err}) ➔ 정밀 추출기 가동")
+                data = self._salvage_json_fields(raw_text)
+
+        if not isinstance(data, dict):
+            data = {}
+
+        live_tags = seo_brief.get("viral_hashtags", []) if seo_brief else []
+        raw_tags = data.get("tags", []) or tags
+        if isinstance(raw_tags, str):
+            raw_tags = [t for t in re.split(r'[,\s#]+', raw_tags) if t.strip()]
+        # 해시태그 '#' 제거 및 실시간 트렌드 보험 해시태그 결합
+        clean_tags = [str(t).replace("#", "").strip() for t in raw_tags if str(t).strip()]
+        clean_live = [str(t).replace("#", "").strip() for t in live_tags if str(t).strip()]
+        merged_tags = list(dict.fromkeys(clean_tags + clean_live))[:10]
+
+        body_markdown = data.get("body_markdown", "") or ""
+
+        # 🛡️ [본문 글자수 가드] 2,500자 미만이면 폴백 고품질 칼럼으로 자동 보강
+        if len(body_markdown.strip()) < 2500:
+            logger.warning(
+                f"⚠️ [InsuranceGeminiWriter] 본문 길이 부족 ({len(body_markdown.strip())}자 < 2500자) ➔ 폴백 칼럼으로 자동 보강"
+            )
+            fallback = self._generate_fallback(topic, seo_brief)
+            # AI가 생성한 제목/태그/이미지 프롬프트는 살리고 본문만 고품질 폴백으로 교체
+            fallback["title_naver"] = data.get("title_naver") or fallback["title_naver"]
+            fallback["title_tistory"] = data.get("title_tistory") or fallback["title_tistory"]
+            fallback["title_brunch"] = data.get("title_brunch") or fallback["title_brunch"]
+            fallback["title"] = fallback["title_naver"]
+            fallback["summary"] = data.get("summary") or fallback["summary"]
+            fallback["visual_prompt"] = data.get("visual_prompt") or fallback["visual_prompt"]
+            if merged_tags:
+                fallback["tags"] = merged_tags
+            return fallback
+
+        res = {
+            "title": data.get("title_naver", topic_title),
+            "title_naver": data.get("title_naver", topic_title),
+            "title_tistory": data.get("title_tistory", topic_title),
+            "title_brunch": data.get("title_brunch", topic_title),
+            "body_markdown": body_markdown,
+            "summary": data.get("summary", ""),
+            "tags": merged_tags,
+            "visual_prompt": data.get("visual_prompt", ""),
+            "topic_id": topic_id
+        }
+
+        # ⚡ 캐시 파일로 영구 저장
+        try:
+            import datetime
+            out_file = CACHE_DIR / f"insurance_blog_topic_{topic_id:03d}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            with open(out_file, "w", encoding="utf-8") as fp:
+                json.dump(res, fp, ensure_ascii=False, indent=2)
+            logger.info(f"💾 [InsuranceGeminiWriter] 신규 칼럼 아카이브 보관 완료: {out_file.name}")
+        except Exception as save_err:
+            logger.warning(f"아카이브 보관 예외: {save_err}")
+
+        return res
+
+    @staticmethod
+    def _salvage_json_fields(raw_text: str) -> Dict[str, Any]:
+        """JSON 파싱이 완전히 깨졌을 때, 정규식으로 핵심 필드(특히 body_markdown)를 안전 복원하는 정밀 추출기"""
+        salvaged: Dict[str, Any] = {}
+        if not raw_text:
+            return salvaged
+
+        # 1) 문자열 필드 정밀 추출 (이스케이프된 따옴표/줄바꿈 허용)
+        for key in ("title_naver", "title_tistory", "title_brunch", "summary", "visual_prompt", "body_markdown"):
+            m = re.search(r'"' + key + r'"\s*:\s*"((?:[^"\\]|\\.)*)"', raw_text, re.S)
+            if m:
+                val = m.group(1)
+                val = val.replace('\\n', '\n').replace('\\t', '\t').replace('\\"', '"').replace('\\\\', '\\')
+                salvaged[key] = val.strip()
+
+        # 2) body_markdown 이 잘려서 닫는 따옴표가 없을 경우 ➔ 끝까지 강제 회수
+        if not salvaged.get("body_markdown"):
+            m = re.search(r'"body_markdown"\s*:\s*"(.*)$', raw_text, re.S)
+            if m:
+                tail = m.group(1)
+                tail = tail.split('",\n')[0].split('"\n')[0]
+                tail = tail.replace('\\n', '\n').replace('\\t', '\t').replace('\\"', '"').replace('\\\\', '\\')
+                salvaged["body_markdown"] = tail.strip()
+
+        # 3) tags 배열 추출
+        m = re.search(r'"tags"\s*:\s*\[(.*?)\]', raw_text, re.S)
+        if m:
+            salvaged["tags"] = [t.strip().strip('"').strip("'") for t in m.group(1).split(",") if t.strip()]
+
+        return salvaged
 
     def _generate_fallback(self, topic: Dict[str, Any], seo_brief: Dict[str, Any]) -> Dict[str, Any]:
-        """Gemini API 장애 시 비상용 완성형 템플릿"""
-        title = topic["title"]
+        """Gemini API 장애 시 비상용 완성형 템플릿 (5대 챕터 · 2,800자 이상 고품질 칼럼)"""
+        title = topic.get("title", "내 보험료 제대로 쓰고 있을까?")
+        category = topic.get("category", "health_medical")
+        intent = topic.get("intent", "보험 비교 및 절약 가이드")
+        topic_id = topic.get("id", 1)
+        base_tags = topic.get("tags", ["보험비교", "보험리모델링", "보험 리밸런스"])
+
+        body = f"""## {title}
+
+안녕하세요, 10년 차 보험·금융 분석가입니다. 🔖
+
+매달 통장에서 자동이체로 빠져나가는 보험료, 여러분은 그 금액이 '적정한지' 한 번이라도 검증해 보셨나요? 대부분은 가입할 때 설계사가 불러준 금액을 그대로 10년, 20년째 내고 있습니다. 그런데 막상 병원비 영수증을 들고 청구하려고 하면 "이건 특약에서 빠져 있어서 안 됩니다"라는 말을 듣고 허탈해하죠. 오늘은 그 허탈함을 미리 막아주는 5가지 핵심만 딱 정리해드릴게요. 🚨
+
+---
+
+### ① 2026 보험료 현실 실화 팩트체크 💸
+
+먼저 냉정한 현실부터 짚고 갈게요. 인터넷에 떠도는 "실손보험 하나로 7~8만 원 아꼈다"는 글, 절대 사실이 아닙니다. 실제 영수증 기준으로 보면 이렇습니다.
+
+- **실손의료보험**: 월 1~3만 원대 (리모델링 시 절감액 1~2만 원 수준)
+- **운전자보험**: 월 1만 원대 (중복 특약 정리 시 절감액 1~2만 원)
+- **3대 진단비(암·뇌·심장)**: 월 7~12만 원대 (중복 보장 정리 시 절감액 2~4만 원)
+- **4인 가족 합산**: 월 40~60만 원대 (전체 리밸런싱 시 절감액 5~8만 원)
+
+즉, "한 달에 30만 원 아꼈다"는 식의 후기는 100% 과장입니다. 진짜 절약은 **한 달 5~8만 원, 1년이면 60~96만 원**을 새는 돈 없이 되찾는 것입니다. 이 정도만 해도 1년 치 자동차 보험료와 통신비를 동시에 아끼는 셈이거든요. 🧠
+
+> 💡 **[3초 팩트체크] 내 보험도 구멍 뚫려 있을까?**
+> 🔍 **네이버 검색창에 [보험 리밸런스] 검색**
+>
+> 📌 **비용 0원**
+> 📌 **전화 권유 0통**
+> 📌 **34개 보험사 실시간 모든 보험 비교**
+
+[이미지: 3초 진단 결과표]
+
+---
+
+### ② 약관 함정 정밀 해부 🏥
+
+보험금이 안 나오는 이유는 딱 세 가지입니다. 글자 하나 차이로 수천만 원이 갈리죠.
+
+1. **"진단비"와 "수술비"의 경계** — 같은 병이라도 '진단 확정'과 '수술 집도'는 완전히 다른 특약입니다. 질병 수술비 특약이 없으면 300만 원짜리 수술을 받고도 한 푼 못 받습니다.
+2. **"갱신형"과 "비갱신형"의 함정** — 20년 납 비갱신형은 초반 보험료가 비싸 보이지만, 60대 이후 갱신 폭탄이 없습니다. 반대로 갱신형은 10년마다 보험료가 1.5~2배씩 뜁니다.
+3. **"자기부담금"과 "급여/비급여" 구분** — 실손보험은 세대별로 자기부담률이 20%에서 30%까지 다릅니다. 4세대 실손은 비급여 특약을 따로 챙겨야 도수치료·MRI가 보장됩니다.
+
+[이미지: 네이버 검색창 그래픽 - "보험 리밸런스"]
+
+---
+
+### ③ 숨은 보험금 청구 노하우 👉
+
+내가 낸 보험금을 못 받고 있는 경우가 생각보다 많습니다. 실제로 매년 수천억 원대의 '숨은 보험금'이 주인을 못 찾고 있습니다.
+
+- **청구 소멸시효는 3년**입니다. 3년이 지나면 법적으로 청구권이 사라지니, 지난 병원 영수증부터 뒤져보세요.
+- **중복 보장 확인**: A보험사와 B보험사에 같은 '질병 입원일당'이 있으면 두 곳 모두 청구 가능합니다. 단, 실손은 비례 보상이라 중복 청구가 안 됩니다.
+- **카드·통신사 부가보험**도 확인하세요. 신용카드에 딸린 상해보험, 통신사 가입 시 받은 소액 보험이 의외의 구멍을 메워줍니다.
+
+---
+
+### ④ 세대별 맞춤 리모델링 기준 🚗
+
+같은 보험료라도 20대와 50대의 최적 설계는 완전히 다릅니다.
+
+- **20~30대 사회초년생**: 실손 + 운전자보험 + 최소한의 3대 진단비. 월 5~8만 원이면 충분합니다. 비싼 종신보험은 아직 이릅니다.
+- **30~40대 가장**: 3대 진단비를 3,000만~5,000만 원대로 상향. 소득 상실 리스크를 막는 '후유장해' 특약이 핵심입니다.
+- **50~60대 은퇴 준비**: 갱신형을 비갱신형으로 전환하고, 간병·치매 특약을 추가. 납입이 끝난 보험은 해지하지 말고 '감액 완납'으로 보장을 유지하세요.
+
+---
+
+### ⑤ '보험 리밸런스' 자가진단 체크리스트 🔖
+
+아래 5개 중 2개 이상 해당되면, 지금 바로 점검이 필요합니다.
+
+- [ ] 내 보험료가 월 소득의 10%를 넘는다
+- [ ] 가입한 보험의 특약 이름을 3개 이상 말할 수 없다
+- [ ] 실손보험을 2015년 이전에 가입했다 (1세대 실손)
+- [ ] 운전자보험과 자동차보험의 보장이 겹치는지 모른다
+- [ ] 지난 3년간 병원에 다녀왔지만 청구한 적이 없다
+
+> 🚗 **[아반떼 값 아끼기] 낭비되는 고정비 1분 만에 잡는 법**
+> 🔍 **네이버나 구글에 [보험 리밸런스] 검색**
+>
+> 📌 **비용 0원**
+> 📌 **전화 권유 0통**
+> 📌 **34개 보험사 실시간 모든 보험 비교**
+
+👉 **무료 진단 바로가기**: https://insure-rebalance.vercel.app/
+
+---
+
+### 🎯 마무리
+
+보험은 '가입'이 아니라 '관리'입니다. 오늘 딱 10분만 투자해서 내 통장에서 새는 고정비를 점검해보세요. 상담 전화 한 통 없이, 34개 보험사를 실시간으로 비교하는 것만으로도 1년에 수십만 원이 남습니다. 여러분의 가계부에 작은 숨통이 트이길 바랍니다. 🔖
+
+*본 칼럼은 특정 상품 권유가 아닌 순수 정보 공유 목적으로 작성되었습니다.*"""
+
         return {
-            "title": f"[보험 상식] {title}",
-            "title_naver": f"{title} 핵심 정리 및 손해 안 보는 팁",
-            "title_tistory": f"[InsureBalance] {title} 완벽 가이드",
-            "title_brunch": f"우리가 매달 내는 보험료, {title}",
-            "body_markdown": f"""## {title}\n\n매달 지출되는 보험료, 과연 내가 낸 만큼 제대로 보장받고 있을까요?\n\n많은 소비자들이 보험에 가입할 때는 친절한 설명을 듣지만, 막상 병원에 가거나 보험금을 청구할 때는 복잡한 약관과 부지급 조항 때문에 당황하곤 합니다.\n\n### 1. 꼭 알아야 할 핵심 약관\n보험사 약관은 글자 하나 차이로 수천만 원의 보장 여부가 갈립니다. 보장 범위가 가장 넓은 특약을 선택하고, 갱신 주기와 자기부담금 비율을 꼼꼼히 따져보아야 합니다.\n\n### 2. 소비자가 자주 놓치는 보상 포인트\n숨은 보험금과 청구 소멸시효(3년)를 확인하여 지난 영수증도 빠짐없이 챙기는 지혜가 필요합니다.\n\n### 3. InsureBalance로 3분 만에 끝내는 보험 진단\n내 보험의 과보장/부족보장 상태를 InsureBalance AI 분석기를 통해 무료로 점검해보세요.""",
-            "summary": f"{title}에 대한 필수 보험 약관과 손해 보지 않는 보상 노하우 정리",
-            "tags": topic.get("tags", ["보험비교", "보험리모델링", "InsureBalance"]),
-            "visual_prompt": "A modern clean office desk with insurance documents and financial tablet, natural daylight",
-            "topic_id": topic["id"]
+            "title": f"{title} | 보험 리밸런스 가이드",
+            "title_naver": f"🚨 {title} — 매달 새는 보험료 5만 원 되찾은 5가지 체크리스트",
+            "title_tistory": f"[보험 리밸런스] {title} 완벽 가이드 (약관 함정·숨은 보험금·세대별 리모델링)",
+            "title_brunch": f"매달 자동이체되는 보험료, 우리는 얼마나 새고 있을까 — {title}",
+            "body_markdown": body,
+            "summary": f"{title}에 대한 2026년 기준 현실 보험료 팩트체크, 약관 함정 해부, 숨은 보험금 청구 노하우, 세대별 리모델링 기준, 자가진단 체크리스트 총정리",
+            "tags": list(dict.fromkeys([str(t).replace("#", "").strip() for t in base_tags] + ["보험 리밸런스", "보험료 절약", "숨은 보험금", "보험 리모델링"]))[:10],
+            "visual_prompt": "A relieved young Korean couple in their 30s sitting at a sunlit living room table reviewing household insurance documents and a laptop, smiling with relief, modern clean Seoul apartment interior, cinematic natural lighting, photorealistic, 16:9",
+            "topic_id": topic_id
         }

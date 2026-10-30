@@ -1202,5 +1202,61 @@
     "status": "success",
     "gemini_calls": 0,
     "brand": "stock"
+  },
+  {
+    "timestamp": "2026-10-30 12:25:28",
+    "slot_id": "morning",
+    "slot_name": "🌅 아침 출근길 틱톡 (15분)",
+    "target_min": 15,
+    "target_likes": 3,
+    "actual_sec": 272,
+    "likes_given": 3,
+    "videos_watched": 8,
+    "comments_inspected": 3,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "stock"
+  },
+  {
+    "timestamp": "2026-10-30 13:05:28",
+    "slot_id": "morning",
+    "slot_name": "🌅 아침 출근길 틱톡 (15분)",
+    "target_min": 15,
+    "target_likes": 2,
+    "actual_sec": 917,
+    "likes_given": 2,
+    "videos_watched": 29,
+    "comments_inspected": 4,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "stock"
+  },
+  {
+    "timestamp": "2026-10-30 13:30:00",
+    "slot_id": "lunch",
+    "slot_name": "🍱 점심시간 틱톡 (15분)",
+    "target_min": 15,
+    "target_likes": 2,
+    "actual_sec": 917,
+    "likes_given": 2,
+    "videos_watched": 29,
+    "comments_inspected": 8,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "stock"
+  },
+  {
+    "timestamp": "2026-10-30 15:15:28",
+    "slot_id": "lunch",
+    "slot_name": "🍱 점심시간 틱톡 (15분)",
+    "target_min": 15,
+    "target_likes": 3,
+    "actual_sec": 923,
+    "likes_given": 3,
+    "videos_watched": 29,
+    "comments_inspected": 9,
+    "status": "success",
+    "gemini_calls": 0,
+    "brand": "stock"
   }
 ]

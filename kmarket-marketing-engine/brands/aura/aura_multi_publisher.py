@@ -168,7 +168,7 @@ class AuraMultiPublisher:
         try:
             from brands.aura.aura_blog_verifier import AuraBlogVerifier
             verifier = AuraBlogVerifier()
-            v_res = verifier.verify_all(expected_title=title_naver, capture=True)
+            v_res = verifier.verify_all(expected_title=title_naver, expected_title_tistory=title_tistory, capture=True)
             results["verification"] = v_res
 
             # 네이버 실사 검증 반영

@@ -22,6 +22,25 @@ if sys.platform == "win32":
 
 CURRENT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = CURRENT_DIR.parent.parent
+
+# 🛡️ [세션 무결성 모듈 임포트 경로 보정] 어떤 CWD에서 실행해도 core.engine.session_integrity 를 찾도록 보장
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+try:
+    from core.engine.session_integrity import safe_save, auth_grade, has_auth
+except Exception as _si_err:  # 모듈 부재 시에도 1회 로그인 도구 자체는 절대 죽지 않도록 폴백
+    print(f"⚠️ [session_integrity] 모듈 로드 실패: {_si_err} (기본 저장 모드로 진행)")
+
+    def safe_save(platform, session_file, cookies, reason=""):
+        return False
+
+    def auth_grade(platform, cookies):
+        return "none"
+
+    def has_auth(platform, cookies):
+        return False
+
 PROFILE_DIR = CURRENT_DIR / "tistory_chrome_profile"
 PROFILE_DIR.mkdir(parents=True, exist_ok=True)
 SESSION_FILE = CURRENT_DIR / "tistory_session.json"
@@ -84,12 +103,23 @@ def main():
         with sync_playwright() as p:
             context = p.chromium.launch_persistent_context(
                 user_data_dir=str(PROFILE_DIR),
+                channel="chrome",
                 headless=True,
                 args=["--disable-blink-features=AutomationControlled"]
             )
             cookies = context.cookies()
-            with open(SESSION_FILE, "w", encoding="utf-8") as f:
-                json.dump({"cookies": cookies}, f, ensure_ascii=False, indent=2)
+
+            # 🛡️ [무결성 검증 저장] strict 증거(TSSESSION/_kawlt)일 때만 원자적 저장 + .good.json 골든 백업
+            grade = auth_grade("tistory", cookies)
+            saved_ok = safe_save("tistory", SESSION_FILE, cookies, reason="interactive_login")
+            if not saved_ok:
+                # strict 미달이면 기존 정상 세션 파일을 오염시키지 않도록 원본 보존 (덮어쓰기 차단)
+                print(f"⚠️ [무결성] 인증 증거 등급 '{grade}' → 기존 세션 파일 보존 (덮어쓰기 차단)")
+                if grade == "none":
+                    with open(SESSION_FILE, "w", encoding="utf-8") as f:
+                        json.dump({"cookies": cookies}, f, ensure_ascii=False, indent=2)
+            else:
+                print(f"🛡️ [무결성] strict 인증 확인 → 세션 파일 + 골든 백업(.good.json) 동시 저장 완료")
 
             t_cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies if "tistory.com" in c.get("domain", "")])
             

@@ -162,6 +162,7 @@ class StockTistoryPublisher:
         async with async_playwright() as p:
             context = await p.chromium.launch_persistent_context(
                 user_data_dir=str(self.profile_dir),
+                channel="chrome",
                 headless=True,
                 args=[
                     "--disable-blink-features=AutomationControlled",
@@ -187,12 +188,14 @@ class StockTistoryPublisher:
                         cur_url = page.url
 
                 cookies = await context.cookies()
-                cookie_dict = {c["name"]: c["value"] for c in cookies}
-                has_auth = any(k in cookie_dict for k in ["TSSESSION", "_T_ID", "TSID", "_kawlt", "_T_ANO", "_kawask"]) or ("/manage" in cur_url and "login" not in cur_url and "auth" not in cur_url)
+                is_authed = has_auth("tistory", cookies) and ("auth/login" not in cur_url and "accounts.kakao.com" not in cur_url)
 
-                if has_auth and "auth/login" not in cur_url and "accounts.kakao.com" not in cur_url:
-                    await context.storage_state(path=str(self.session_file))
-                    logger.info("🎉 [Tistory Keep-Alive 성공] 카카오 티스토리 세션 수명이 24시간 자동 연장되었습니다.")
+                if is_authed:
+                    saved_ok = safe_save("tistory", self.session_file, cookies, reason="keep_alive")
+                    logger.info(
+                        f"🎉 [Tistory Keep-Alive 성공] 카카오 티스토리 세션 수명이 24시간 자동 연장되었습니다. "
+                        f"(쿠키 {len(cookies)}개 저장={'성공' if saved_ok else '보류'})"
+                    )
                     return {"status": "active", "message": "세션 정상 유지 및 자동 갱신 완료"}
                 else:
                     logger.warning(f"⚠️ [Tistory Keep-Alive] 세션 만료 감지, 백업 복원 시도 (URL: {cur_url})")
@@ -267,6 +270,7 @@ class StockTistoryPublisher:
                 logger.info(f"📂 [Tistory-stock] 크롬 영구 프로필 모드로 실행: {self.profile_dir.name}")
                 context = await p.chromium.launch_persistent_context(
                     user_data_dir=str(self.profile_dir),
+                    channel="chrome",
                     headless=True,
                     args=[
                         "--disable-blink-features=AutomationControlled",

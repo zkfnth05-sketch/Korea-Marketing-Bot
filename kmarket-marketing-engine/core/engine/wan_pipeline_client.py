@@ -127,7 +127,7 @@ class WanPipelineClient:
         self,
         prompt_dict: Dict[str, Any],
         prefix: str,
-        timeout_sec: int = 1800,
+        timeout_sec: int = 3600,
         check_vram_safety: bool = False,
         task_label: Optional[str] = None
     ) -> List[str]:

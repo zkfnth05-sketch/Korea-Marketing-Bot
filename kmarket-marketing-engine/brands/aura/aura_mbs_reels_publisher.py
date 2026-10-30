@@ -116,7 +116,17 @@ class AuraMBSReelsPublisher:
             try:
                 async with async_browser_lock(f"아우라 Meta 릴스 웹 발행 (시도 {attempt})", timeout_sec=600):
                     result = await self._execute_recipe_once(video_path, clean_caption)
-                    if result.get("status") == "success":
+                    status = result.get("status")
+
+                    # 🛡️ [멱등성 가드] 게시 실행은 완료되었으나 검증이 불확정인 경우,
+                    # 재시도는 중복 게시를 유발하므로 즉시 종료하고 결과를 그대로 반환한다.
+                    if status == "published_unverified":
+                        logger.warning(
+                            f"🛑 [아우라 MBS Reel] 시도 {attempt} 게시 실행 완료·검증 불확정 → 재시도 차단"
+                        )
+                        return result
+
+                    if status == "success":
                         logger.info(f"🎉 [아우라 MBS Reel] 시도 {attempt}에서 100% 실물 발행 성공!")
                         # 💬 [자율 파이프라인] 릴스 발행 직후 인스타그램 & 페이스북 단독 첫 댓글 자율 집행 (비동기 직접 await)
                         try:
@@ -139,6 +149,162 @@ class AuraMBSReelsPublisher:
             "status": "error",
             "brand": self.brand,
             "message": f"{max_retries}회 재시도 모두 소진, 실물 등록 미확인"
+        }
+
+    # ============================================================
+    # 🧱 [계층 1] UI 상호작용 계층: 오버레이(팝업) 소거 유틸
+    # ============================================================
+    async def _dismiss_overlays(self, page, stage: str = "", max_rounds: int = 6) -> int:
+        """오버레이 DOM 상태를 근거로 반복 소거. 셀렉터 목록 의존을 최소화하고
+        '닫기류 버튼이 실제로 보이고 클릭 가능한가'를 판정 기준으로 삼는다."""
+        closed = 0
+        close_pattern = re.compile(
+            r"^(닫기|시작하기|확인|나중에|Close|Dismiss|Got it|OK|Not now|Later)$", re.I
+        )
+        for rnd in range(max_rounds):
+            try:
+                # 1) 표준 닫기 후보 수집 (aria-label / 텍스트 / role=button)
+                candidates = page.locator(
+                    "div[role='dialog'] button, div[role='dialog'] div[role='button'], "
+                    "[aria-label='Close'], [aria-label='닫기'], "
+                    "button, div[role='button']"
+                )
+                count = await candidates.count()
+                clicked = False
+                for i in range(min(count, 40)):
+                    el = candidates.nth(i)
+                    try:
+                        if not await el.is_visible():
+                            continue
+                        label = (await el.get_attribute("aria-label")) or ""
+                        text = (await el.inner_text() or "").strip()
+                        if close_pattern.match(label) or close_pattern.match(text):
+                            await el.click(force=True, timeout=2000)
+                            closed += 1
+                            clicked = True
+                            await asyncio.sleep(0.8)
+                            break
+                    except Exception as e:
+                        logger.debug(f"[overlay/{stage}] 후보 클릭 스킵: {e}")
+                        continue
+                if not clicked:
+                    break
+            except Exception as e:
+                logger.debug(f"[overlay/{stage}] 라운드 {rnd} 예외: {e}")
+                break
+        if closed:
+            logger.info(f"👉 [{stage}] 오버레이 {closed}건 소거 완료")
+        return closed
+
+    # ============================================================
+    # 🧱 [계층 2] 검증 계층: 최상단 카드 단위 실물 검증 (다중 방언 스코어링)
+    # ============================================================
+    # 검증 계층은 게시 실행 계층과 완전히 분리한다.
+    # - 셀렉터 방언을 '단일 체인'이 아닌 '후보 목록'으로 순회한다.
+    # - 각 후보를 카드 후보로 스코어링하여 '가장 게시물다운' 노드를 선택한다.
+    # - 검증 예외는 게시 실패로 승격하지 않는다(거짓 음성 → 중복 게시 방지).
+    _CARD_SELECTOR_DIALECTS = (
+        "div[role='article']",
+        "div[role='listitem']",
+        "div[role='row']",
+        "article",
+        "div[data-pagelet^='PostsList'] > div",
+        "div[data-pagelet='PublishedPostsList'] > div",
+        "div[aria-posinset]",
+    )
+
+    @staticmethod
+    def _normalize(text: str) -> str:
+        if not text:
+            return ""
+        t = text.replace("\u200b", "").replace("\xa0", " ")
+        t = re.sub(r"\s+", " ", t)
+        return t.strip().lower()
+
+    async def _collect_card_candidates(self, page, limit_per_dialect: int = 5):
+        """모든 방언을 순회하여 (locator, text, score) 후보를 수집한다.
+        점수는 '게시물 카드다움'의 휴리스틱: 텍스트 길이 + 시간배지 + 상태표시."""
+        candidates = []
+        seen_handles = set()
+        for dialect in self._CARD_SELECTOR_DIALECTS:
+            try:
+                loc = page.locator(dialect)
+                cnt = await loc.count()
+            except Exception as e:
+                logger.debug(f"[verify] 방언 '{dialect}' count 예외: {e}")
+                continue
+            for i in range(min(cnt, limit_per_dialect)):
+                try:
+                    el = loc.nth(i)
+                    if not await el.is_visible():
+                        continue
+                    # 동일 노드 중복 수집 방지
+                    handle = await el.element_handle()
+                    if handle is None:
+                        continue
+                    key = id(handle)
+                    if key in seen_handles:
+                        continue
+                    seen_handles.add(key)
+
+                    text = await el.inner_text()
+                    if not text or len(text.strip()) < 4:
+                        continue
+                    score = 0
+                    if re.search(r"\b\d{1,2}:\d{2}\b", text):
+                        score += 3
+                    if re.search(r"(published|게시됨|공개|just now|방금)", text, re.I):
+                        score += 2
+                    score += min(len(text) // 40, 5)
+                    candidates.append({"locator": el, "text": text, "score": score, "dialect": dialect})
+                except Exception as e:
+                    logger.debug(f"[verify] 방언 '{dialect}'[{i}] 수집 스킵: {e}")
+                    continue
+        candidates.sort(key=lambda c: c["score"], reverse=True)
+        return candidates
+
+    async def _verify_top_card(self, page, caption: str) -> Dict[str, Any]:
+        """게시물 목록 최상단 카드만 대상으로 캡션 정규화 부분일치 + 영상 길이 배지 정규식 판정.
+        검증 예외는 '검증 불가'로 분류하며, 게시 실패로 승격하지 않는다."""
+        try:
+            candidates = await self._collect_card_candidates(page)
+        except Exception as e:
+            # 검증 계층 자체 예외 → 게시 실패 아님. 재시도 트리거 금지.
+            logger.warning(f"[verify] 카드 후보 수집 예외(검증 불가): {e}")
+            return {"verified": False, "inconclusive": True, "reason": f"검증 불가: {e}"}
+
+        if not candidates:
+            return {"verified": False, "inconclusive": True, "reason": "최상단 카드 후보 미탐지"}
+
+        norm_cap_full = self._normalize(caption)
+        probes = []
+        for n in (30, 20, 12):
+            p = self._normalize(caption[:n]) if caption else ""
+            if p and p not in probes:
+                probes.append(p)
+
+        # 상위 후보부터 판정. 최상단 카드가 스코어 1위일 확률이 높다.
+        for idx, cand in enumerate(candidates[:3]):
+            card_text = cand["text"]
+            norm_card = self._normalize(card_text)
+
+            cap_hit = any(p in norm_card for p in probes)
+            dur_hit = bool(re.search(r"\b\d{1,2}:\d{2}\b", card_text))
+            status_hit = bool(re.search(r"(published|게시됨|공개|just now|방금)", card_text, re.I))
+
+            verified = cap_hit and (dur_hit or status_hit)
+            reason = (
+                f"rank={idx}, dialect={cand['dialect']}, score={cand['score']}, "
+                f"cap_hit={cap_hit}, dur_hit={dur_hit}, status_hit={status_hit}"
+            )
+            if verified:
+                return {"verified": True, "inconclusive": False, "reason": reason}
+
+        # 어떤 후보도 확정 불가 → inconclusive (재시도 금지, 사람/후속 검증 위임)
+        return {
+            "verified": False,
+            "inconclusive": True,
+            "reason": f"상위 후보 {min(len(candidates), 3)}건 모두 미확정 (cap_probe={probes[:1]})"
         }
 
     async def _execute_recipe_once(self, video_path: str, caption: str) -> Dict[str, Any]:
@@ -170,15 +336,8 @@ class AuraMBSReelsPublisher:
                 if is_logged_out_url("meta", page.url) or not has_auth("meta", await context.cookies()):
                     raise RuntimeError("메타(페이스북) 세션 만료. 로그인 필요.")
 
-                # 0. 전면 안내 팝업 자동 닫기
-                try:
-                    popup_close = page.locator("button:has-text('닫기'), div[aria-label='닫기'], button:has-text('시작하기'), [aria-label='Close']").first
-                    if await popup_close.count() > 0 and await popup_close.is_visible():
-                        await popup_close.click(force=True)
-                        await asyncio.sleep(1.5)
-                        logger.info("👉 메타 안내 팝업 닫기 완료")
-                except Exception:
-                    pass
+                # 0. 전면 안내 팝업 자동 소거 (오버레이 상태 기반 반복 루프)
+                await self._dismiss_overlays(page, stage="composer")
 
                 logger.info("2. '동영상 추가' 미디어 주입 중...")
                 try:
@@ -268,34 +427,46 @@ class AuraMBSReelsPublisher:
                 await page.goto(self.posts_url, wait_until="domcontentloaded", timeout=40000)
                 await asyncio.sleep(5.0)
 
-                for close_sel in ["button:has-text('닫기')", "div[role='button']:has-text('닫기')"]:
-                    try:
-                        cb = await page.query_selector(close_sel)
-                        if cb and await cb.is_visible():
-                            await cb.click()
-                    except Exception:
-                        pass
+                await self._dismiss_overlays(page, stage="posts_list")
 
                 proof_path = CURRENT_DIR / "aura_mbs_verified_proof.png"
                 await page.screenshot(path=str(proof_path))
 
-                body_text = await page.inner_text("body")
-                snippet = caption[:15]
-                is_verified = (snippet in body_text) or ("0:1" in body_text) or ("0:2" in body_text) or ("0:3" in body_text)
+                # 최상단 카드 단위 추출 + 정규화 부분일치 + 영상 길이 배지 정규식
+                verdict = await self._verify_top_card(page, caption)
+                logger.info(f"🔎 [검증 판정] {verdict}")
 
-                if is_verified:
-                    logger.info("🎉🎉 [아우라 메타 릴스 실물 검증 100% 합격!] 최상단에 정상 게시 확인!")
+                if verdict.get("verified"):
+                    logger.info("🎉🎉 [아우라 메타 릴스 실물 검증 100% 합격!] 최상단 카드에서 정상 게시 확인!")
                     return {
                         "status": "success",
                         "brand": self.brand,
                         "platform": "meta_business_suite",
                         "message": "Meta Business Suite를 통한 ✨ 아우라 릴스 순수 브라우저 실물 발행 완료",
                         "video": os.path.basename(video_path),
-                        "verified_proof": str(proof_path)
+                        "verified_proof": str(proof_path),
+                        "verify_reason": verdict.get("reason")
                     }
-                else:
-                    logger.warning("⚠️ 아우라 게시물 목록 최상단에 아직 반영되지 않았습니다.")
-                    return {"status": "pending_or_missing", "message": "목록에 실물 미확인"}
+
+                # 🛡️ [멱등성 가드] 검증이 '불확정(inconclusive)'이면 게시 자체는 성공했을 가능성이 높다.
+                # 이 경우 재시도는 중복 게시를 유발하므로 재시도 루프를 즉시 종료하고 사람 검증으로 위임한다.
+                if verdict.get("inconclusive"):
+                    logger.warning(
+                        f"⚠️ [검증 불확정] 재시도 금지(중복 게시 방지). 사유: {verdict.get('reason')}"
+                    )
+                    return {
+                        "status": "published_unverified",
+                        "brand": self.brand,
+                        "platform": "meta_business_suite",
+                        "message": "게시 실행 완료, 목록 검증 불확정 (재시도 금지)",
+                        "video": os.path.basename(video_path),
+                        "verified_proof": str(proof_path),
+                        "verify_reason": verdict.get("reason"),
+                        "retry_blocked": True,
+                    }
+
+                logger.warning(f"⚠️ 최상단 카드 실물 미확인: {verdict.get('reason')}")
+                return {"status": "pending_or_missing", "message": verdict.get("reason", "목록에 실물 미확인")}
 
             finally:
                 # 로그인 상태일 때만 저장 (로그아웃 쿠키로 정상 세션 덮어쓰기 금지)

@@ -68,12 +68,20 @@ class StockThreadsTextPipeline:
         return post_pkg
 
     async def execute_slot(self, slot: str = "morning", dry_run: bool = False, custom_theme: Optional[str] = None) -> Dict[str, Any]:
-        """슬롯 1회 텍스트 생성 및 스레드 라이브 송출"""
+        """슬롯 1회 텍스트 생성 및 스레드 라이브 송출
+
+        🧬 지연 생성(Lazy Evaluation) 계약:
+          - DRY-RUN: 사전에 generate_content 를 1회 호출하여 결과만 반환 (발행 없음)
+          - LIVE   : 사전 호출 0회. publish_thread 에 content_generator 콜백을 넘겨
+                     브라우저 작성창(textbox)이 실제로 활성화된 직후에만
+                     제미나이가 단 1회 호출되도록 보장한다.
+                     (세션 만료/작성창 미개설/네비게이션 실패 시 Gemini 호출 0회)
+        """
         logger.info(f"🚀 [{self.BRAND_NAME}] 스레드 순수 텍스트 파이프라인 가동 (슬롯: {slot}, 모드: {'DRY-RUN' if dry_run else 'LIVE'})")
-        
-        content = self.generate_content(slot=slot, custom_theme=custom_theme)
-        
+
+        # ── 1) DRY-RUN: 사전 생성 후 즉시 반환 (실제 배포 없음) ──
         if dry_run:
+            content = self.generate_content(slot=slot, custom_theme=custom_theme)
             logger.info("⚡ [DRY-RUN] 실제 스레드 배포는 건너뜁니다.")
             return {
                 "success": True,
@@ -83,17 +91,33 @@ class StockThreadsTextPipeline:
                 "content": content
             }
 
+        # ── 2) LIVE: 제미나이 사전 호출 금지 → 작성창 활성화 직후 1회 호출 ──
+        logger.info("🧬 [LAZY] LIVE 모드 — 제미나이 호출을 작성창 활성화 시점까지 지연합니다.")
+
+        def _lazy_generate() -> Dict[str, Any]:
+            """publish_thread 내부에서 작성창 포커스 확인 직후 1회만 실행되는 생성기"""
+            logger.info("🧬 [LAZY] 작성창 활성화 확인 → 제미나이 텍스트 생성 1회 실행")
+            content = self.generate_content(slot=slot, custom_theme=custom_theme)
+            return {
+                "caption": content.get("caption", ""),
+                "first_reply_text": content.get("first_reply", ""),
+                "topic": content.get("topic", ""),
+            }
+
         pub_res = await self.publisher.publish_thread(
-            caption=content["caption"],
+            caption=None,
             image_paths=None,
-            first_reply_text=content["first_reply"]
+            first_reply_text=None,
+            content_generator=_lazy_generate
         )
 
+        # ── 3) 히스토리 아카이빙 (pub_res 기반) ──
+        details = pub_res.get("details") or {}
         record = {
             "brand": self.BRAND,
             "slot": slot,
-            "topic": content["topic"],
-            "caption_preview": content["caption"][:60] + "...",
+            "topic": details.get("topic", ""),
+            "caption_preview": (details.get("caption_preview") or "")[:60],
             "published_at": datetime.now().isoformat(),
             "publish_result": pub_res,
             "success": pub_res.get("success", False)

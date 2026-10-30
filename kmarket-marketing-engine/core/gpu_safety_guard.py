@@ -456,7 +456,7 @@ class GPUSafetyGuard:
         label: str,
         cwd: Optional[str] = None,
         env: Optional[Dict[str, str]] = None,
-        timeout_sec: int = 3600,
+        timeout_sec: int = 5400,
         cooldown_sec: int = DEFAULT_COOLDOWN_SEC
     ) -> Dict[str, Any]:
         """
@@ -509,13 +509,15 @@ class GPUSafetyGuard:
             }
 
         except subprocess.TimeoutExpired:
-            logger.error(f"❌ [타임아웃] {label} 제한시간({timeout_sec}초) 초과")
+            elapsed = round(time.time() - start_t, 1)
+            logger.error(f"❌ [타임아웃] {label} 제한시간({timeout_sec}초) 초과 (경과: {elapsed}초)")
             cls.cooldown(duration_sec=cooldown_sec, label=f"{label} 타임아웃 회수")
-            return {"success": False, "error": "타임아웃 초과"}
+            return {"success": False, "error": f"타임아웃 초과({timeout_sec}s)", "elapsed_sec": elapsed}
         except Exception as e:
-            logger.error(f"❌ [실행 예외] {label}: {e}")
+            elapsed = round(time.time() - start_t, 1)
+            logger.error(f"❌ [실행 예외] {label}: {e} (경과: {elapsed}초)")
             cls.cooldown(duration_sec=cooldown_sec, label=f"{label} 예외 회수")
-            return {"success": False, "error": str(e)}
+            return {"success": False, "error": str(e), "elapsed_sec": elapsed}
 
 
 if __name__ == "__main__":

@@ -717,5 +717,180 @@
       }
     },
     "success": true
+  },
+  {
+    "brand": "aura",
+    "slot": "morning",
+    "topic": "2030 직장인 소개팅 삼프터 성공률 300% 올리는 법",
+    "caption_preview": "직장인 소개팅, 애프터까지는 껌인데 삼프터에서 자꾸 까인다고요? 🚨\n\n애프터까지 잘 가놓고 삼프터에서 까이는...",
+    "published_at": "2026-10-30T18:44:04.288318",
+    "generated": true,
+    "idempotency_key": "",
+    "dedup": false,
+    "publish_result": {
+      "success": true,
+      "brand": "aura",
+      "message": "🎉 [스레드 발행 성공] Aura AI 데이팅 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "aura",
+        "published_at": "2026-10-30T18:44:04.221805",
+        "caption_preview": "직장인 소개팅, 애프터까지는 껌인데 삼프터에서 자꾸 까인다고요? 🚨\n\n애프터까지 잘 가놓고 삼프터에서 까이는...",
+        "media_count": 0,
+        "first_reply": "💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "aura",
+    "slot": "evening",
+    "topic": "남녀가 생각하는 '연락 빈도'의 치명적인 차이점",
+    "caption_preview": "연락 문제로 싸우기 전에 꼭 알아야 할 '그/그녀'의 속마음! 🚨\n\n남친은 일에 몰두하면 연락이 줄고, 여친...",
+    "published_at": "2026-10-30T19:30:54.177027",
+    "generated": true,
+    "idempotency_key": "",
+    "dedup": false,
+    "publish_result": {
+      "success": true,
+      "brand": "aura",
+      "message": "🎉 [스레드 발행 성공] Aura AI 데이팅 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "aura",
+        "published_at": "2026-10-30T19:30:54.126018",
+        "caption_preview": "연락 문제로 싸우기 전에 꼭 알아야 할 '그/그녀'의 속마음! 🚨\n\n남친은 일에 몰두하면 연락이 줄고, 여친...",
+        "media_count": 0,
+        "first_reply": "💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "aura",
+    "slot": "evening",
+    "topic": "남녀가 생각하는 '연락 빈도'의 치명적인 차이점",
+    "caption_preview": "연락 빈도 때문에 속 끓인 적 있다면 주목! 🚨 남녀가 생각하는 '연락'의 의미는 엄청 다르거든요.\n\n남자는...",
+    "published_at": "2026-10-30T19:31:01.102256",
+    "generated": true,
+    "idempotency_key": "",
+    "dedup": false,
+    "publish_result": {
+      "success": true,
+      "brand": "aura",
+      "message": "🎉 [스레드 발행 성공] Aura AI 데이팅 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "aura",
+        "published_at": "2026-10-30T19:31:01.054758",
+        "caption_preview": "연락 빈도 때문에 속 끓인 적 있다면 주목! 🚨 남녀가 생각하는 '연락'의 의미는 엄청 다르거든요.\n\n남자는...",
+        "media_count": 0,
+        "first_reply": "💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "aura",
+    "slot": "evening",
+    "topic": "나랑 진짜 잘 맞는 인연을 5초 만에 알아보는 대화법",
+    "caption_preview": "이상형 외모라도 '이 한 가지' 안 맞으면 무조건 파국 ㅠㅠ 5초 만에 내 사람 알아보는 대화법 알려줄게요!...",
+    "published_at": "2026-10-30T19:31:19.929982",
+    "generated": true,
+    "idempotency_key": "",
+    "dedup": false,
+    "publish_result": {
+      "success": true,
+      "brand": "aura",
+      "message": "🎉 [스레드 발행 성공] Aura AI 데이팅 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "aura",
+        "published_at": "2026-10-30T19:31:19.884468",
+        "caption_preview": "이상형 외모라도 '이 한 가지' 안 맞으면 무조건 파국 ㅠㅠ 5초 만에 내 사람 알아보는 대화법 알려줄게요!...",
+        "media_count": 0,
+        "first_reply": "💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "aura",
+    "slot": "evening",
+    "topic": "요즘 2030이 남초 어플 거르고 안심 매칭 찾는 이유",
+    "caption_preview": "남초 데이팅앱 허위 프로필, 유령 회원에 지쳤죠? 이젠 진심으로 그만하고 싶지 않아요?\n\n맞아요, 시간 낭비...",
+    "published_at": "2026-10-30T20:07:21.817128",
+    "generated": true,
+    "idempotency_key": "",
+    "dedup": false,
+    "publish_result": {
+      "success": true,
+      "brand": "aura",
+      "message": "🎉 [스레드 발행 성공] Aura AI 데이팅 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "aura",
+        "published_at": "2026-10-30T20:07:21.743098",
+        "caption_preview": "남초 데이팅앱 허위 프로필, 유령 회원에 지쳤죠? 이젠 진심으로 그만하고 싶지 않아요?\n\n맞아요, 시간 낭비...",
+        "media_count": 0,
+        "first_reply": "💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "aura",
+    "slot": "evening",
+    "topic": "남녀가 생각하는 '연락 빈도'의 치명적인 차이점",
+    "caption_preview": "연락 문제로 싸우는 커플들 주목! 🚨 남녀가 생각하는 '연락'의 진짜 속마음, 알고 계셨나요?\n\n여자는 '사...",
+    "published_at": "2026-10-30T20:36:55.586343",
+    "generated": true,
+    "idempotency_key": "",
+    "dedup": false,
+    "publish_result": {
+      "success": true,
+      "brand": "aura",
+      "message": "🎉 [스레드 발행 성공] Aura AI 데이팅 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "aura",
+        "published_at": "2026-10-30T20:36:55.533661",
+        "caption_preview": "연락 문제로 싸우는 커플들 주목! 🚨 남녀가 생각하는 '연락'의 진짜 속마음, 알고 계셨나요?\n\n여자는 '사...",
+        "media_count": 0,
+        "first_reply": "💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_live_proof.png"
+      }
+    },
+    "success": true
+  },
+  {
+    "brand": "aura",
+    "slot": "evening",
+    "topic": "나랑 진짜 잘 맞는 인연을 5초 만에 알아보는 대화법",
+    "caption_preview": "아무리 외모가 이상형이어도 이 '한 가지' 안 맞으면 무조건 파국이에요. 팩트거든요.\n\n대화할 때마다 어색하...",
+    "published_at": "2026-10-30T21:10:56.305745",
+    "generated": true,
+    "idempotency_key": "",
+    "dedup": false,
+    "publish_result": {
+      "success": true,
+      "brand": "aura",
+      "message": "🎉 [스레드 발행 성공] Aura AI 데이팅 콘텐츠가 Threads에 성공적으로 송출되었습니다!",
+      "details": {
+        "brand": "aura",
+        "published_at": "2026-10-30T21:10:56.248732",
+        "caption_preview": "아무리 외모가 이상형이어도 이 '한 가지' 안 맞으면 무조건 파국이에요. 팩트거든요.\n\n대화할 때마다 어색하...",
+        "media_count": 0,
+        "first_reply": "💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n네이버에 '아우라AI데이팅' 한번 검색해보세요!\n👉 https://aura-ai-dating.vercel.app/",
+        "status": "SUCCESS",
+        "proof_screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\brands\\aura\\threads_live_proof.png"
+      }
+    },
+    "success": true
   }
 ]

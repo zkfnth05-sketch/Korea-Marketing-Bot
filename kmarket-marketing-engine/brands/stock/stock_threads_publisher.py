@@ -23,13 +23,16 @@ Stock Threads Publisher (🧵 스톡마스터 AI 전용 스레드 독립 레고 
 import os
 import sys
 import json
+import uuid
 import shutil
+import hashlib
 import asyncio
 import logging
 import tempfile
+from enum import Enum
 from pathlib import Path
-from datetime import datetime
-from typing import List, Optional, Dict, Any
+from datetime import datetime, timedelta
+from typing import List, Optional, Dict, Any, Callable, Awaitable
 from playwright.async_api import async_playwright
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -42,6 +45,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 
 CURRENT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = CURRENT_DIR.parent.parent
+# 💓 하트비트 텔레메트리 (관측 폐루프)
+HEARTBEAT_FILE = CURRENT_DIR / "threads_heartbeat.json"
 # 🔒 프로필 물리 격리: meta_chrome_profile 과 완전 분리된 스레드 전용 프로필
 PROFILE_DIR = CURRENT_DIR / "threads_chrome_profile"
 SESSION_FILE = CURRENT_DIR / "threads_session.json"
@@ -51,6 +56,59 @@ COOKIE_FILE = CURRENT_DIR / "threads_cookies.json"
 META_SESSION_FILE = CURRENT_DIR / "meta_session.json"
 HISTORY_FILE = CURRENT_DIR / "threads_publish_history.json"
 VERIFIED_FLAG_FILE = CURRENT_DIR / "threads_session_verified.json"
+
+# ⏱️ 타임아웃 정책 (ms)
+TIMEOUT_PAGE_MS = 25000
+TIMEOUT_SELECTOR_MS = 12000
+# 🛡️ 슬롯 가디언 정책 (지수백오프 + 서킷브레이커)
+SLOT_MAX_ATTEMPTS = 3
+SLOT_BACKOFF_BASE_SEC = 5.0
+SLOT_BACKOFF_CAP_SEC = 60.0
+CIRCUIT_FAIL_THRESHOLD = 3
+CIRCUIT_COOLDOWN_SEC = 300
+
+
+# =====================================================================
+# 🧯 실패 분류 · 워크플로 상태 · 표준 예외 (관측/복구 폐루프 기반)
+# =====================================================================
+class FailureKind(Enum):
+    """실패 원인 분류 — 재시도 가능성 판단 기준"""
+    TRANSIENT = "TRANSIENT"   # 일시적 (네트워크/렌더 지연) → 재시도
+    UI_DRIFT = "UI_DRIFT"     # 셀렉터/UI 변경 → 재시도 후 에스컬레이션
+    SESSION = "SESSION"       # 세션 만료 → 재시도 무의미, 재인증 필요
+    FATAL = "FATAL"           # 치명적 (설정/입력 오류) → 즉시 중단
+
+
+class Stage(Enum):
+    """워크플로 단계 — 하트비트/에러 리포트의 위치 좌표"""
+    BOOT = "BOOT"
+    SESSION_GATE = "SESSION_GATE"
+    NAVIGATE = "NAVIGATE"
+    COMPOSER_OPEN = "COMPOSER_OPEN"
+    CAPTION_INPUT = "CAPTION_INPUT"
+    MEDIA_UPLOAD = "MEDIA_UPLOAD"
+    POST_SUBMIT = "POST_SUBMIT"
+    REPLY_CHAIN = "REPLY_CHAIN"
+    PROOF = "PROOF"
+    PERSIST = "PERSIST"
+    DONE = "DONE"
+
+
+class PublishError(Exception):
+    """단계·원인 분류를 동반한 표준 발행 예외"""
+
+    def __init__(
+        self,
+        kind: FailureKind,
+        stage: Stage,
+        message: str,
+        cause: Optional[BaseException] = None,
+    ):
+        super().__init__(f"[{kind.value}@{stage.value}] {message}")
+        self.kind = kind
+        self.stage = stage
+        self.message = message
+        self.cause = cause
 
 # 🍪 스레드(Threads) 인증에 실제로 유효한 도메인 화이트리스트
 THREADS_DOMAINS = (".threads.net", ".threads.com", ".instagram.com")
@@ -126,6 +184,95 @@ class StockThreadsPublisher:
         self.profile_dir.mkdir(parents=True, exist_ok=True)
         self.session_file = SESSION_FILE
         self.golden_file = GOLDEN_SESSION_FILE
+        # 🧯 서킷브레이커 상태 (프로세스 내)
+        self._circuit_fail_count = 0
+        self._circuit_open_until: Optional[datetime] = None
+        # 🧭 워크플로 상태 추적
+        self._stage: Stage = Stage.BOOT
+        self._run_id: str = ""
+        self._idempotency_key: str = ""
+
+    # ------------------------------------------------------------------
+    # 🧭 상태 전이 · 하트비트 · 서킷브레이커 (관측/복구 폐루프)
+    # ------------------------------------------------------------------
+    def _enter(self, stage: Stage) -> None:
+        self._stage = stage
+        logger.info(f"🧭 [STAGE] {stage.value} (run_id={self._run_id})")
+        self._heartbeat(stage)
+
+    def _heartbeat(self, stage: Stage, extra: Optional[Dict[str, Any]] = None) -> None:
+        """💓 하트비트 텔레메트리 원자적 기록 (실패해도 발행은 계속)"""
+        try:
+            payload = {
+                "brand": self.BRAND,
+                "run_id": self._run_id,
+                "stage": stage.value,
+                "ts": datetime.now().isoformat(),
+                "pid": os.getpid(),
+            }
+            if extra:
+                payload.update(extra)
+            tmp = HEARTBEAT_FILE.with_suffix(".tmp")
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(payload, f, ensure_ascii=False)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp, HEARTBEAT_FILE)
+        except Exception as he:
+            logger.debug(f"heartbeat 기록 실패(무시): {he}")
+
+    def _circuit_guard(self) -> None:
+        if self._circuit_open_until and datetime.now() < self._circuit_open_until:
+            remain = int((self._circuit_open_until - datetime.now()).total_seconds())
+            raise PublishError(
+                FailureKind.TRANSIENT, self._stage,
+                f"서킷브레이커 OPEN (잔여 {remain}s) — 반복 실패로 인한 보호 정지"
+            )
+
+    def _circuit_record(self, ok: bool) -> None:
+        if ok:
+            self._circuit_fail_count = 0
+            self._circuit_open_until = None
+            return
+        self._circuit_fail_count += 1
+        if self._circuit_fail_count >= CIRCUIT_FAIL_THRESHOLD:
+            self._circuit_open_until = datetime.now() + timedelta(seconds=CIRCUIT_COOLDOWN_SEC)
+            logger.error(
+                f"🔴 [CIRCUIT] 연속 {self._circuit_fail_count}회 실패 → "
+                f"{CIRCUIT_COOLDOWN_SEC}s 쿨다운 진입"
+            )
+
+    @staticmethod
+    def _make_idempotency_key(caption: str, media: List[str]) -> str:
+        """SHA-256 기반 멱등키 (본문 + 미디어 파일명)"""
+        h = hashlib.sha256()
+        h.update(caption.encode("utf-8"))
+        for m in media:
+            h.update(Path(m).name.encode("utf-8"))
+        return h.hexdigest()[:24]
+
+    def _is_duplicate(self, key: str) -> bool:
+        """멱등키 기반 중복 발행 방지 (최근 24h 내 동일 키 SUCCESS 존재 시 차단)"""
+        if not HISTORY_FILE.exists():
+            return False
+        try:
+            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                history = json.load(f)
+            cutoff = datetime.now() - timedelta(hours=24)
+            for rec in history[-50:]:
+                if rec.get("idempotency_key") != key:
+                    continue
+                if rec.get("status") != "SUCCESS":
+                    continue
+                try:
+                    ts = datetime.fromisoformat(rec.get("published_at", ""))
+                except Exception:
+                    continue
+                if ts >= cutoff:
+                    return True
+        except Exception as de:
+            logger.warning(f"멱등 검사 예외(무시): {de}")
+        return False
 
     # ------------------------------------------------------------------
     # 🧬 GOLDEN SESSION 불변 스택 (Self-Healing)
@@ -458,26 +605,48 @@ class StockThreadsPublisher:
 
     async def publish_thread(
         self,
-        caption: str,
+        caption: Optional[str] = None,
         image_paths: Optional[List[str]] = None,
-        first_reply_text: Optional[str] = None
+        first_reply_text: Optional[str] = None,
+        content_generator: Optional[Callable[[], Dict[str, Any]]] = None,
     ) -> Dict[str, Any]:
-        """스레드에 본문 + 카드뉴스 이미지 + 첫 댓글 체인 자동 발행"""
-        caption = sanitize_threads_caption(caption)
-        if not caption:
-            caption = (
-                "📈 [실시간 AI 퀀트 수급 레이더 & 급등 테마 분석]\n\n"
-                "뇌동매매와 감에 의존하는 투자는 이제 그만!\n"
-                "외인·기관 쌍끌이 순매수 데이터와 퀀트 적정주가로 안전하게 투자하세요 💡\n\n"
-                "매일 장 시작 전과 마감 후 핵심 퀀트 인사이트를 전해드립니다 ✨\n\n"
-            )
+        """스레드에 본문 + 카드뉴스 이미지 + 첫 댓글 체인 자동 발행 (가디언 래핑)
 
-        if not first_reply_text:
-            first_reply_text = (
-                f"📈 3초 실시간 외국인/기관 수급 레이더\n"
-                f"네이버에 '{self.OFFICIAL_SEARCH_KEYWORD}' 검색해보세요!\n"
-                f"👉 {self.LANDING_URL}"
-            )
+        🧬 지연 생성(Lazy Evaluation) 계약:
+          - content_generator 가 주어지면, 브라우저가 열리고 오버레이가 제거되며
+            작성창(textbox)이 실제로 클릭되어 커서가 깜빡이는 것이 100% 확인된
+            '직후'에 단 1회만 호출된다.
+          - 세션 만료 / 작성창 미개설 / 네비게이션 실패 시에는 절대 호출되지 않는다.
+            (Gemini 등 외부 LLM 호출 0회 보장)
+          - content_generator 는 {"caption": str, "first_reply_text": str} 형태의
+            dict 를 반환해야 한다. (동기 함수 권장)
+        """
+        self._run_id = uuid.uuid4().hex[:12]
+        self._enter(Stage.BOOT)
+
+        # 🧬 지연 생성 모드: 본문/댓글은 작성창 확보 후에만 결정된다.
+        lazy_mode = content_generator is not None
+        if lazy_mode:
+            logger.info("🧬 [LAZY] content_generator 감지 → 본문 생성은 작성창 확보 후로 지연")
+            caption = sanitize_threads_caption(caption or "")
+            if not first_reply_text:
+                first_reply_text = None  # 생성기 결과로 채워짐
+        else:
+            caption = sanitize_threads_caption(caption or "")
+            if not caption:
+                caption = (
+                    "📈 [실시간 AI 퀀트 수급 레이더 & 급등 테마 분석]\n\n"
+                    "뇌동매매와 감에 의존하는 투자는 이제 그만!\n"
+                    "외인·기관 쌍끌이 순매수 데이터와 퀀트 적정주가로 안전하게 투자하세요 💡\n\n"
+                    "매일 장 시작 전과 마감 후 핵심 퀀트 인사이트를 전해드립니다 ✨\n\n"
+                )
+
+            if not first_reply_text:
+                first_reply_text = (
+                    f"📈 3초 실시간 외국인/기관 수급 레이더\n"
+                    f"네이버에 '{self.OFFICIAL_SEARCH_KEYWORD}' 검색해보세요!\n"
+                    f"👉 {self.LANDING_URL}"
+                )
 
         valid_media = []
         if image_paths:
@@ -489,15 +658,113 @@ class StockThreadsPublisher:
         is_video = any(p.endswith((".mp4", ".mov")) for p in valid_media)
         media_type = "동영상(릴스 숏폼)" if is_video else "카드뉴스 이미지"
 
-        # 🧬 발행 최전방: GOLDEN 세션 자가치유 게이트 (Self-Healing)
+        # 🧬 멱등키 기반 중복 발행 방지
+        #    (지연 모드에서는 본문이 아직 없으므로 미디어 기준 임시 키 사용)
+        self._idempotency_key = self._make_idempotency_key(caption or "", valid_media)
+        if not lazy_mode and self._is_duplicate(self._idempotency_key):
+            logger.warning(
+                f"♻️ [DEDUP] 동일 콘텐츠 24h 내 발행 이력 존재 "
+                f"(key={self._idempotency_key}) → 중복 발행 차단"
+            )
+            return {
+                "success": True,
+                "brand": self.BRAND,
+                "message": "♻️ 중복 발행 방지(멱등키 일치) — 기존 발행 유지",
+                "details": {"idempotency_key": self._idempotency_key, "dedup": True},
+            }
+
+        # 🧬 세션 게이트 (명시적 실패 분류)
+        self._enter(Stage.SESSION_GATE)
         try:
             heal = self.ensure_golden_session()
             logger.info(f"🧬 GOLDEN 세션 게이트: {heal['action']} (ok={heal['ok']})")
+            if not heal["ok"]:
+                raise PublishError(
+                    FailureKind.SESSION, Stage.SESSION_GATE,
+                    "유효 세션/GOLDEN 부재 — 재인증 필요"
+                )
+        except PublishError:
+            raise
         except Exception as he:
-            logger.warning(f"⚠️ GOLDEN 세션 게이트 예외(무시하고 계속): {he}")
+            raise PublishError(
+                FailureKind.SESSION, Stage.SESSION_GATE,
+                f"세션 게이트 예외: {he}", cause=he
+            )
 
-        logger.info(f"🚀 [Stock Threads] 스레드 발행 시작 (글자수: {len(caption)}자, {media_type}: {len(valid_media)}개)")
+        logger.info(
+            f"🚀 [Stock Threads] 스레드 발행 시작 "
+            f"(run_id={self._run_id}, 글자수: {len(caption or '')}자, "
+            f"{media_type}: {len(valid_media)}개, lazy={lazy_mode})"
+        )
 
+        # 🛡️ 슬롯 가디언으로 전체 워크플로 래핑 (재시도 주체 확립)
+        return await self._slot_guardian(
+            lambda: self._publish_once(
+                caption, valid_media, first_reply_text, is_video, media_type,
+                content_generator=content_generator,
+            ),
+            slot_label="threads_main",
+        )
+
+    # ------------------------------------------------------------------
+    # 🛡️ 슬롯 가디언 (지수백오프 + 서킷브레이커 + 재시도 주체)
+    # ------------------------------------------------------------------
+    async def _slot_guardian(
+        self,
+        task: Callable[[], Awaitable[Dict[str, Any]]],
+        slot_label: str = "default",
+    ) -> Dict[str, Any]:
+        last_err: Optional[BaseException] = None
+        for attempt in range(1, SLOT_MAX_ATTEMPTS + 1):
+            self._circuit_guard()
+            try:
+                result = await task()
+                self._circuit_record(ok=True)
+                return result
+            except PublishError as pe:
+                last_err = pe
+                # SESSION / FATAL 은 재시도 무의미 → 즉시 에스컬레이션
+                if pe.kind in (FailureKind.SESSION, FailureKind.FATAL):
+                    self._circuit_record(ok=False)
+                    raise
+                delay = min(
+                    SLOT_BACKOFF_BASE_SEC * (2 ** (attempt - 1)),
+                    SLOT_BACKOFF_CAP_SEC,
+                )
+                logger.warning(
+                    f"🛡️ [SLOT:{slot_label}] 시도 {attempt}/{SLOT_MAX_ATTEMPTS} 실패 "
+                    f"({pe.kind.value}) → {delay:.1f}s 백오프 후 재시도"
+                )
+                await asyncio.sleep(delay)
+            except Exception as e:
+                last_err = e
+                delay = min(
+                    SLOT_BACKOFF_BASE_SEC * (2 ** (attempt - 1)),
+                    SLOT_BACKOFF_CAP_SEC,
+                )
+                logger.warning(
+                    f"🛡️ [SLOT:{slot_label}] 시도 {attempt}/{SLOT_MAX_ATTEMPTS} 예외 "
+                    f"({type(e).__name__}) → {delay:.1f}s 백오프"
+                )
+                await asyncio.sleep(delay)
+
+        self._circuit_record(ok=False)
+        raise PublishError(
+            FailureKind.TRANSIENT, self._stage,
+            f"슬롯 '{slot_label}' {SLOT_MAX_ATTEMPTS}회 재시도 모두 실패",
+            cause=last_err,
+        )
+
+    async def _publish_once(
+        self,
+        caption: Optional[str],
+        valid_media: List[str],
+        first_reply_text: Optional[str],
+        is_video: bool,
+        media_type: str,
+        content_generator: Optional[Callable[[], Dict[str, Any]]] = None,
+    ) -> Dict[str, Any]:
+        """단일 발행 시도 (워크플로 상태기계)"""
         async with async_playwright() as p:
             context = await p.chromium.launch_persistent_context(
                 user_data_dir=str(self.profile_dir),
@@ -627,6 +894,7 @@ class StockThreadsPublisher:
                     raise RuntimeError("스레드 작성창(textbox)을 활성화하지 못했습니다.")
 
                 # 3. 본문 텍스트 입력 (Lexical 에디터 완벽 호환 keyboard.insert_text)
+                self._enter(Stage.CAPTION_INPUT)
                 logger.info("3. 캡션 텍스트 입력 중...")
                 textbox = await page.wait_for_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']", timeout=12000)
                 await textbox.click()
@@ -635,6 +903,84 @@ class StockThreadsPublisher:
                 await page.keyboard.press("Control+A")
                 await page.keyboard.press("Backspace")
                 await asyncio.sleep(0.3)
+
+                # 🧬 [LAZY EVALUATION] 작성창 클릭·커서 활성 100% 확인 직후에만 생성기 1회 호출
+                #    → 세션 만료/작성창 미개설/네비게이션 실패 시 여기까지 도달하지 않으므로
+                #      content_generator(Gemini 등)는 절대 실행되지 않는다. (호출 0회 보장)
+                if content_generator is not None:
+                    try:
+                        focused = await page.evaluate("""() => {
+                            const el = document.activeElement;
+                            if (!el) return false;
+                            const editable = el.getAttribute('contenteditable');
+                            const role = el.getAttribute('role');
+                            return editable === 'true' || role === 'textbox'
+                                || !!el.closest("div[role='textbox'][contenteditable='true']")
+                                || !!el.closest("div[data-lexical-editor='true']");
+                        }""")
+                    except Exception as fe:
+                        focused = False
+                        logger.debug(f"포커스 확인 예외(무시): {fe}")
+
+                    if not focused:
+                        raise PublishError(
+                            FailureKind.UI_DRIFT, Stage.CAPTION_INPUT,
+                            "작성창 포커스 미확인 — content_generator 호출 차단(지연 생성 보호)"
+                        )
+
+                    logger.info("🧬 [LAZY] 작성창 포커스 100% 확인 → content_generator 1회 호출")
+                    try:
+                        gen = content_generator()
+                        if asyncio.iscoroutine(gen):
+                            gen = await gen
+                    except Exception as ge:
+                        raise PublishError(
+                            FailureKind.TRANSIENT, Stage.CAPTION_INPUT,
+                            f"content_generator 실행 실패: {ge}", cause=ge
+                        )
+
+                    if not isinstance(gen, dict):
+                        raise PublishError(
+                            FailureKind.FATAL, Stage.CAPTION_INPUT,
+                            f"content_generator 반환 형식 오류(dict 아님): {type(gen).__name__}"
+                        )
+
+                    gen_caption = sanitize_threads_caption(gen.get("caption") or "")
+                    if gen_caption:
+                        caption = gen_caption
+                    gen_reply = gen.get("first_reply_text")
+                    if gen_reply:
+                        first_reply_text = gen_reply
+
+                    if not caption:
+                        raise PublishError(
+                            FailureKind.FATAL, Stage.CAPTION_INPUT,
+                            "content_generator 가 빈 본문을 반환했습니다."
+                        )
+
+                    # 🧬 생성된 본문 기준으로 멱등키 재계산 + 중복 발행 차단
+                    self._idempotency_key = self._make_idempotency_key(caption, valid_media)
+                    if self._is_duplicate(self._idempotency_key):
+                        logger.warning(
+                            f"♻️ [DEDUP] 생성 본문이 24h 내 발행 이력과 일치 "
+                            f"(key={self._idempotency_key}) → 중복 발행 차단"
+                        )
+                        try:
+                            await context.close()
+                        except Exception:
+                            pass
+                        return {
+                            "success": True,
+                            "brand": self.BRAND,
+                            "message": "♻️ 중복 발행 방지(멱등키 일치) — 기존 발행 유지",
+                            "details": {"idempotency_key": self._idempotency_key, "dedup": True},
+                        }
+
+                    logger.info(
+                        f"🧬 [LAZY] 생성 완료 → 본문 {len(caption)}자 / "
+                        f"1댓글 {'있음' if first_reply_text else '없음'}"
+                    )
+
                 await page.keyboard.insert_text(caption)
                 await asyncio.sleep(1.5)
 

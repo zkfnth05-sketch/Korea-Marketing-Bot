@@ -19,9 +19,10 @@
   · 1~8번  : 원본 8대 킬러 주제 (100% 무손실 보존)
   · 9~16번 : 6인 합의체 도파민 팩 8종 정식 탑재 (1~8번과 1:1 대응하는 확장 슬롯)
 
-[🚨 주간 GPU 렌더링 원천 차단 가드 (대표님 엄명)]
-  · 07:00 ~ 23:59 (주간) : KTRS 마케팅봇에 GPU 100% 양보 ➔ AuraShortsPipeline().produce() 호출 100% 차단
-  · 00:00 ~ 06:59 (야간 골든타임) : 신규 렌더링 단독 허용
+[⚡ 주간 온디맨드 자율 렌더링 가드 (대표님 100% 무인 정시 송출 지침)]
+  · 07:00 ~ 23:59 (주간) : 완제품 부재 시 GPUSafetyGuard.wait_for_safe_gpu_entry() 안전 진입 대기 후
+                            온디맨드 실시간 렌더링 개시 ➔ 정시 송출 100% 보장 (렌더링 봉쇄 해제)
+  · 00:00 ~ 06:59 (야간 골든타임) : 대기 없이 즉시 신규 렌더링 허용
   · 단, 바탕화면에 오늘자 완제품이 이미 존재하면 시간대와 무관하게 즉시 송출 (GPU 소모 0)
 """
 
@@ -411,9 +412,9 @@ class AuraOmniShortsPilot:
           · 1단계: 오늘 완성된 최신 완제품이 이미 바탕화면에 존재하는지 우선 탐색
                    (중복 GPU 렌더링 방지 & 즉각 송출 — 시간대 무관 허용)
           · 2단계: 완제품이 없을 때 현재 시각이 주간(07~23시)이면
-                   KTRS에 GPU를 100% 양보해야 하므로 AuraShortsPipeline().produce() 호출을 100% 차단하고
-                   DaytimeRenderForbidden 예외 발생
-          · 3단계: 야간 골든타임(00~06시)에만 AuraShortsPipeline().produce() 신규 렌더링 허용
+                   GPUSafetyGuard.wait_for_safe_gpu_entry()로 GPU 안전 진입을 대기한 뒤
+                   온디맨드 실시간 렌더링을 즉시 개시 (100% 무인 정시 송출 지침)
+          · 3단계: 야간 골든타임(00~06시)은 대기 없이 즉시 AuraShortsPipeline().produce() 신규 렌더링
 
         🎭 [드라마 슬롯 분기]
           - subtype == "drama" 또는 slot in ("shorts_2", "shorts_3") ➔ 드라마 산출물 폴더만 탐색
@@ -495,26 +496,29 @@ class AuraOmniShortsPilot:
                 return latest_fresh
 
         # ------------------------------------------------------------------
-        # [2단계] 완제품 없음 ➔ 주간(07~23시) GPU 양보 시간대 검사
-        #   · 주간이면 AuraShortsPipeline().produce() 호출을 100% 차단
+        # [2단계] 완제품 없음 ➔ 주간(07~23시) 온디맨드 자율 렌더링 (봉쇄 해제)
+        #   · 대표님 100% 무인 정시 송출 지침: 밤에 미생산된 완제품이 없으면
+        #     낮 시간대라도 GPUSafetyGuard 안전 진입 대기 후 즉시 실시간 렌더링하여 100% 송출
         # ------------------------------------------------------------------
         now = datetime.now()
         if self.is_daytime_gpu_yield_window(now):
-            logger.warning(
-                f"🚨 [주간 GPU 렌더링 원천 차단] 현재 {now.strftime('%H:%M')} — "
-                f"{self.DAYTIME_START_HOUR:02d}:00~{self.DAYTIME_END_HOUR:02d}:59 시간대는 "
-                f"KTRS 마케팅봇에 GPU를 100% 양보합니다. AuraShortsPipeline().produce() 호출을 차단합니다."
+            logger.info(
+                f"⚡ [주간 온디맨드 자율 렌더링] 현재 {now.strftime('%H:%M')} 완제품 부재 감지 ➔ "
+                f"100% 정시 송출을 위해 GPUSafetyGuard 안전 진입 대기 후 실시간 렌더링을 개시합니다."
             )
-            raise DaytimeRenderForbidden(
-                "🚨 [주간 GPU 렌더링 원천 차단] 07:00~23:59 시간대에는 KTRS에 GPU를 양보하므로 신규 렌더링이 금지됩니다."
-            )
+            try:
+                from core.gpu_safety_guard import GPUSafetyGuard
+                GPUSafetyGuard.wait_for_safe_gpu_entry(timeout_sec=120)
+                logger.info("✅ [GPUSafetyGuard] 안전 진입 승인 ➔ 온디맨드 렌더링 개시")
+            except Exception as ge:
+                logger.warning(f"⚠️ [GPUSafetyGuard 대기 경고] 안전 진입 확인 실패 ➔ 렌더링은 계속 진행: {ge}")
 
         # ------------------------------------------------------------------
-        # [3단계] 야간 골든타임(00~06시)에만 신규 렌더링 허용
+        # [3단계] 신규 렌더링 실행 (야간 골든타임 + 주간 온디맨드 공통 경로)
         # ------------------------------------------------------------------
         logger.info(
-            f"🌙 [야간 골든타임 렌더링 승인] 현재 {now.strftime('%H:%M')} — "
-            f"00:00~06:59 시간대이므로 AuraShortsPipeline 신규 렌더링을 개시합니다."
+            f"🌙 [신규 렌더링 승인] 현재 {now.strftime('%H:%M')} — "
+            f"AuraShortsPipeline 신규 렌더링을 개시합니다."
         )
         from brands.aura.aura_shorts_pipeline import AuraShortsPipeline
         pipeline = AuraShortsPipeline()

@@ -19,14 +19,18 @@ Aura Threads Publisher (🧵 Aura 전용 스레드 독립 레고 블록 발행�
 import os
 import sys
 import json
+import time
+import uuid
 import shutil
 import asyncio
 import logging
 import tempfile
+import hashlib
+from enum import Enum
 from pathlib import Path
-from datetime import datetime
-from typing import List, Optional, Dict, Any
-from playwright.async_api import async_playwright
+from datetime import datetime, timedelta
+from typing import List, Optional, Dict, Any, Callable, Awaitable
+from playwright.async_api import async_playwright, TimeoutError as PWTimeoutError
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -36,8 +40,50 @@ if hasattr(sys.stderr, "reconfigure"):
 logger = logging.getLogger("AuraThreadsPublisher")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
+# =====================================================================
+# 🧭 실패 분류 · 워크플로 상태 · 가디언 상수 (구조적 재설계 핵심)
+# =====================================================================
+class FailureKind(str, Enum):
+    TRANSIENT = "TRANSIENT"   # 재시도 가능 (네트워크/렌더 지연/오버레이)
+    SESSION = "SESSION"       # 세션 만료 → 재인증 필요
+    UI_DRIFT = "UI_DRIFT"     # 셀렉터/레이아웃 변경 → 어댑터 갱신 필요
+    FATAL = "FATAL"           # 즉시 중단 (설정 오류/파일 없음)
+
+class Stage(str, Enum):
+    BOOT = "BOOT"
+    SESSION_GATE = "SESSION_GATE"
+    NAVIGATE = "NAVIGATE"
+    COMPOSER_OPEN = "COMPOSER_OPEN"
+    CAPTION_INPUT = "CAPTION_INPUT"
+    MEDIA_UPLOAD = "MEDIA_UPLOAD"
+    POST_SUBMIT = "POST_SUBMIT"
+    REPLY_CHAIN = "REPLY_CHAIN"
+    PROOF_CAPTURE = "PROOF_CAPTURE"
+    PERSIST = "PERSIST"
+    DONE = "DONE"
+
+class PublishError(Exception):
+    def __init__(self, kind: FailureKind, stage: Stage, message: str, cause: Optional[BaseException] = None):
+        super().__init__(f"[{kind.value}@{stage.value}] {message}")
+        self.kind = kind
+        self.stage = stage
+        self.cause = cause
+
+# 타임아웃 계층 (페이지/셀렉터/전체 워크플로)
+TIMEOUT_PAGE_MS = 25_000
+TIMEOUT_SELECTOR_MS = 12_000
+TIMEOUT_WORKFLOW_SEC = 180
+# 슬롯 가디언 정책
+SLOT_MAX_ATTEMPTS = 3
+SLOT_BACKOFF_BASE_SEC = 5.0
+SLOT_BACKOFF_CAP_SEC = 60.0
+CIRCUIT_FAIL_THRESHOLD = 3
+CIRCUIT_COOLDOWN_SEC = 300
+# 📂 경로 기준점 (반드시 상수 정의보다 먼저 선언되어야 함)
 CURRENT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = CURRENT_DIR.parent.parent
+# 하트비트
+HEARTBEAT_FILE = CURRENT_DIR / "threads_publisher_heartbeat.json"
 # 🔒 프로필 물리 격리: meta_chrome_profile 과 완전 분리된 스레드 전용 프로필
 PROFILE_DIR = CURRENT_DIR / "threads_chrome_profile"
 SESSION_FILE = CURRENT_DIR / "threads_session.json"
@@ -129,6 +175,92 @@ class AuraThreadsPublisher:
         self.profile_dir.mkdir(parents=True, exist_ok=True)
         self.session_file = SESSION_FILE
         self.golden_file = GOLDEN_SESSION_FILE
+        # 🧯 서킷브레이커 상태 (프로세스 내)
+        self._circuit_fail_count = 0
+        self._circuit_open_until: Optional[datetime] = None
+        # 🧭 워크플로 상태 추적
+        self._stage: Stage = Stage.BOOT
+        self._run_id: str = ""
+        self._idempotency_key: str = ""
+
+    # ------------------------------------------------------------------
+    # 🧭 상태 전이 · 하트비트 · 서킷브레이커 (관측/복구 폐루프)
+    # ------------------------------------------------------------------
+    def _enter(self, stage: Stage) -> None:
+        self._stage = stage
+        logger.info(f"🧭 [STAGE] {stage.value} (run_id={self._run_id})")
+        self._heartbeat(stage)
+
+    def _heartbeat(self, stage: Stage, extra: Optional[Dict[str, Any]] = None) -> None:
+        try:
+            payload = {
+                "run_id": self._run_id,
+                "stage": stage.value,
+                "ts": datetime.now().isoformat(),
+                "pid": os.getpid(),
+            }
+            if extra:
+                payload.update(extra)
+            tmp = HEARTBEAT_FILE.with_suffix(".tmp")
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(payload, f, ensure_ascii=False)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp, HEARTBEAT_FILE)
+        except Exception as he:
+            logger.debug(f"heartbeat 기록 실패(무시): {he}")
+
+    def _circuit_guard(self) -> None:
+        if self._circuit_open_until and datetime.now() < self._circuit_open_until:
+            remain = int((self._circuit_open_until - datetime.now()).total_seconds())
+            raise PublishError(
+                FailureKind.TRANSIENT, self._stage,
+                f"서킷브레이커 OPEN (잔여 {remain}s) — 반복 실패로 인한 보호 정지"
+            )
+
+    def _circuit_record(self, ok: bool) -> None:
+        if ok:
+            self._circuit_fail_count = 0
+            self._circuit_open_until = None
+            return
+        self._circuit_fail_count += 1
+        if self._circuit_fail_count >= CIRCUIT_FAIL_THRESHOLD:
+            self._circuit_open_until = datetime.now() + timedelta(seconds=CIRCUIT_COOLDOWN_SEC)
+            logger.error(
+                f"🔴 [CIRCUIT] 연속 {self._circuit_fail_count}회 실패 → "
+                f"{CIRCUIT_COOLDOWN_SEC}s 쿨다운 진입"
+            )
+
+    @staticmethod
+    def _make_idempotency_key(caption: str, media: List[str]) -> str:
+        h = hashlib.sha256()
+        h.update(caption.encode("utf-8"))
+        for m in media:
+            h.update(Path(m).name.encode("utf-8"))
+        return h.hexdigest()[:24]
+
+    def _is_duplicate(self, key: str) -> bool:
+        """멱등키 기반 중복 발행 방지 (최근 24h 내 동일 키 SUCCESS 존재 시 차단)"""
+        if not HISTORY_FILE.exists():
+            return False
+        try:
+            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                history = json.load(f)
+            cutoff = datetime.now() - timedelta(hours=24)
+            for rec in history[-50:]:
+                if rec.get("idempotency_key") != key:
+                    continue
+                if rec.get("status") != "SUCCESS":
+                    continue
+                try:
+                    ts = datetime.fromisoformat(rec.get("published_at", ""))
+                except Exception:
+                    continue
+                if ts >= cutoff:
+                    return True
+        except Exception as de:
+            logger.warning(f"멱등 검사 예외(무시): {de}")
+        return False
 
     # ------------------------------------------------------------------
     # 🧬 GOLDEN SESSION 불변 스택 (Self-Healing)
@@ -333,29 +465,216 @@ class AuraThreadsPublisher:
 
         return pw_cookies
 
+    # ------------------------------------------------------------------
+    # 🧩 브라우저 어댑터 (오버레이 정책 · 로케이터 전략 분리)
+    # ------------------------------------------------------------------
+    async def _dismiss_overlays(self, page) -> None:
+        """오버레이 정책: Terms/쿠키 배너만 '정책적으로' 제거 (부작용 최소화)"""
+        try:
+            await page.evaluate("""() => {
+                const fixedOverlays = Array.from(document.querySelectorAll("div")).filter(d => {
+                    const style = window.getComputedStyle(d);
+                    const txt = d.innerText || '';
+                    return (style.position === 'fixed' || style.position === 'sticky')
+                        && style.bottom === '0px'
+                        && (txt.includes('Terms') || txt.includes('쿠키') || txt.includes('Cookie'));
+                });
+                fixedOverlays.forEach(b => b.remove());
+            }""")
+        except Exception as oe:
+            logger.debug(f"오버레이 제거 예외(무시): {oe}")
+
+    async def _wait_composer(self, page, timeout_ms: int = TIMEOUT_SELECTOR_MS):
+        """작성창(textbox) 대기 — 로케이터 전략 단일화"""
+        return await page.wait_for_selector(
+            "div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']",
+            timeout=timeout_ms,
+        )
+
+    async def _open_composer(self, page) -> None:
+        """작성창 열기 (4중 Fallback + 명시적 실패 분류)"""
+        self._enter(Stage.COMPOSER_OPEN)
+        for attempt in range(6):
+            try:
+                quick = await page.query_selector(
+                    "div:has-text('새로운 소식을 공유해보세요'), div:has-text('What\\'s new?')"
+                )
+                if quick and await quick.is_visible():
+                    await quick.click()
+                    await asyncio.sleep(1.0)
+            except Exception as qe:
+                logger.debug(f"quick composer 클릭 예외(무시): {qe}")
+
+            if not await page.query_selector(
+                "div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']"
+            ):
+                try:
+                    await page.evaluate("""() => {
+                        const btns = Array.from(document.querySelectorAll("div[role='button'], button, a"));
+                        const createBtn = btns.find(b => {
+                            const t = (b.innerText || '').trim();
+                            const aria = b.getAttribute('aria-label') || '';
+                            return t.includes('새로운 스레드') || t.includes('New thread')
+                                || aria.includes('새로운 스레드') || aria.includes('Create');
+                        });
+                        if (createBtn) { createBtn.click(); return; }
+                        const allBtns = Array.from(document.querySelectorAll("div[role='button']"));
+                        if (allBtns.length > 0) allBtns[allBtns.length - 1].click();
+                    }""")
+                    await asyncio.sleep(1.0)
+                except Exception as ce:
+                    logger.debug(f"create 버튼 클릭 예외(무시): {ce}")
+
+            if not await page.query_selector(
+                "div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']"
+            ):
+                try:
+                    await page.keyboard.press("c")
+                    await asyncio.sleep(1.0)
+                except Exception as ke:
+                    logger.debug(f"단축키 'c' 예외(무시): {ke}")
+
+            tb = await page.query_selector(
+                "div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']"
+            )
+            if tb and await tb.is_visible():
+                logger.info("✅ 작성창(textbox) 활성화 확인")
+                return
+            await asyncio.sleep(1.0)
+
+        raise PublishError(
+            FailureKind.UI_DRIFT, Stage.COMPOSER_OPEN,
+            "작성창(textbox) 활성화 실패 — 셀렉터/레이아웃 변경 의심"
+        )
+
+    async def _submit_post(self, page) -> None:
+        """본문 게시 버튼 클릭 (명시적 실패 분류)"""
+        self._enter(Stage.POST_SUBMIT)
+        for _ in range(5):
+            posted = await page.evaluate("""() => {
+                const dialog = document.querySelector("div[role='dialog']") || document;
+                const btns = Array.from(dialog.querySelectorAll("div[role='button'], button"));
+                const postBtn = btns.find(b => {
+                    const t = (b.innerText || '').trim();
+                    const ariaDisabled = b.getAttribute('aria-disabled');
+                    const disabled = b.getAttribute('disabled');
+                    return (t === 'Post' || t === '게시') && ariaDisabled !== 'true' && disabled === null;
+                });
+                if (postBtn) { postBtn.click(); return true; }
+                return false;
+            }""")
+            if posted:
+                return
+            await asyncio.sleep(1.0)
+
+        publish_btn = await page.query_selector(
+            "div[role='dialog'] div[role='button']:has-text('Post'), "
+            "div[role='dialog'] button:has-text('Post'), "
+            "div[role='dialog'] div[role='button']:has-text('게시')"
+        )
+        if publish_btn:
+            await publish_btn.click(force=True)
+            return
+
+        raise PublishError(
+            FailureKind.UI_DRIFT, Stage.POST_SUBMIT,
+            "게시(Post) 버튼을 찾지 못했습니다."
+        )
+
+    # ------------------------------------------------------------------
+    # 🛡️ 슬롯 가디언 (지수백오프 + 서킷브레이커 + 재시도 주체)
+    # ------------------------------------------------------------------
+    async def _slot_guardian(
+        self,
+        task: Callable[[], Awaitable[Dict[str, Any]]],
+        slot_label: str = "default",
+    ) -> Dict[str, Any]:
+        last_err: Optional[BaseException] = None
+        for attempt in range(1, SLOT_MAX_ATTEMPTS + 1):
+            self._circuit_guard()
+            try:
+                result = await task()
+                self._circuit_record(ok=True)
+                return result
+            except PublishError as pe:
+                last_err = pe
+                # SESSION / FATAL 은 재시도 무의미 → 즉시 에스컬레이션
+                if pe.kind in (FailureKind.SESSION, FailureKind.FATAL):
+                    self._circuit_record(ok=False)
+                    raise
+                delay = min(
+                    SLOT_BACKOFF_BASE_SEC * (2 ** (attempt - 1)),
+                    SLOT_BACKOFF_CAP_SEC,
+                )
+                logger.warning(
+                    f"🛡️ [SLOT:{slot_label}] 시도 {attempt}/{SLOT_MAX_ATTEMPTS} 실패 "
+                    f"({pe.kind.value}) → {delay:.1f}s 백오프 후 재시도"
+                )
+                await asyncio.sleep(delay)
+            except Exception as e:
+                last_err = e
+                delay = min(
+                    SLOT_BACKOFF_BASE_SEC * (2 ** (attempt - 1)),
+                    SLOT_BACKOFF_CAP_SEC,
+                )
+                logger.warning(
+                    f"🛡️ [SLOT:{slot_label}] 시도 {attempt}/{SLOT_MAX_ATTEMPTS} 예외 "
+                    f"({type(e).__name__}) → {delay:.1f}s 백오프"
+                )
+                await asyncio.sleep(delay)
+
+        self._circuit_record(ok=False)
+        raise PublishError(
+            FailureKind.TRANSIENT, self._stage,
+            f"슬롯 '{slot_label}' {SLOT_MAX_ATTEMPTS}회 재시도 모두 실패",
+            cause=last_err,
+        )
+
     async def publish_thread(
         self,
-        caption: str,
+        caption: Optional[str] = None,
         image_paths: Optional[List[str]] = None,
-        first_reply_text: Optional[str] = None
+        first_reply_text: Optional[str] = None,
+        content_generator: Optional[Callable[[], Dict[str, Any]]] = None,
     ) -> Dict[str, Any]:
-        """스레드에 본문 + 카드뉴스 이미지 + 첫 댓글 체인 자동 발행"""
-        caption = sanitize_threads_caption(caption)
-        if not caption:
-            caption = (
-                "📍 [500m 안심 레이더 & 안심 번개 매칭]\n\n"
-                "집 주소 노출될까 봐 불안하셨죠?\n"
-                "내 집 앞 500m 안심 지터링 보안으로 안전하게!\n\n"
-                "거리와 취향까지 딱 맞는 내 반경 500m 인연을 지금 확인해보세요 ✨\n\n"
-                "#Aura #데이팅 #소개팅 #안심매칭 #2030"
-            )
+        """스레드에 본문 + 카드뉴스 이미지 + 첫 댓글 체인 자동 발행 (가디언 래핑)
 
-        if not first_reply_text:
-            first_reply_text = (
-                f"💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n"
-                f"네이버에 '{self.OFFICIAL_SEARCH_KEYWORD}' 한번 검색해보세요!\n"
-                f"👉 {self.LANDING_URL}"
-            )
+        🧬 지연 생성(Lazy Evaluation) 계약:
+          - content_generator 가 주어지면, 브라우저가 열리고 오버레이가 제거되며
+            작성창(textbox)이 실제로 클릭되어 커서가 깜빡이는 것이 100% 확인된
+            '직후'에 단 1회만 호출된다.
+          - 세션 만료 / 작성창 미개설 / 네비게이션 실패 시에는 절대 호출되지 않는다.
+            (Gemini 등 외부 LLM 호출 0회 보장)
+          - content_generator 는 {"caption": str, "first_reply_text": str} 형태의
+            dict 를 반환해야 한다. (동기 함수 권장)
+        """
+        self._run_id = uuid.uuid4().hex[:12]
+        self._enter(Stage.BOOT)
+
+        # 🧬 지연 생성 모드: 본문/댓글은 작성창 확보 후에만 결정된다.
+        lazy_mode = content_generator is not None
+        if lazy_mode:
+            logger.info("🧬 [LAZY] content_generator 감지 → 본문 생성은 작성창 확보 후로 지연")
+            caption = sanitize_threads_caption(caption or "")
+            if not first_reply_text:
+                first_reply_text = None  # 생성기 결과로 채워짐
+        else:
+            caption = sanitize_threads_caption(caption or "")
+            if not caption:
+                caption = (
+                    "📍 [500m 안심 레이더 & 안심 번개 매칭]\n\n"
+                    "집 주소 노출될까 봐 불안하셨죠?\n"
+                    "내 집 앞 500m 안심 지터링 보안으로 안전하게!\n\n"
+                    "거리와 취향까지 딱 맞는 내 반경 500m 인연을 지금 확인해보세요 ✨\n\n"
+                    "#Aura #데이팅 #소개팅 #안심매칭 #2030"
+                )
+
+            if not first_reply_text:
+                first_reply_text = (
+                    f"💖 2030 매력 진단 & AI 매칭 1분 무료 리포트\n"
+                    f"네이버에 '{self.OFFICIAL_SEARCH_KEYWORD}' 한번 검색해보세요!\n"
+                    f"👉 {self.LANDING_URL}"
+                )
 
         valid_media = []
         if image_paths:
@@ -366,15 +685,65 @@ class AuraThreadsPublisher:
 
         is_video = any(p.endswith((".mp4", ".mov")) for p in valid_media)
         media_type = "동영상(릴스 숏폼)" if is_video else "카드뉴스 이미지"
-        # 🧬 발행 최전방: GOLDEN 세션 자가치유 게이트 (Self-Healing)
+
+        # 🧬 멱등키 기반 중복 발행 방지
+        #    (지연 모드에서는 본문이 아직 없으므로 미디어 기준 임시 키 사용)
+        self._idempotency_key = self._make_idempotency_key(caption or "", valid_media)
+        if not lazy_mode and self._is_duplicate(self._idempotency_key):
+            logger.warning(
+                f"♻️ [DEDUP] 동일 콘텐츠 24h 내 발행 이력 존재 "
+                f"(key={self._idempotency_key}) → 중복 발행 차단"
+            )
+            return {
+                "success": True,
+                "brand": self.BRAND,
+                "message": "♻️ 중복 발행 방지(멱등키 일치) — 기존 발행 유지",
+                "details": {"idempotency_key": self._idempotency_key, "dedup": True},
+            }
+
+        # 🧬 세션 게이트 (명시적 실패 분류)
+        self._enter(Stage.SESSION_GATE)
         try:
             heal = self.ensure_golden_session()
             logger.info(f"🧬 GOLDEN 세션 게이트: {heal['action']} (ok={heal['ok']})")
+            if not heal["ok"]:
+                raise PublishError(
+                    FailureKind.SESSION, Stage.SESSION_GATE,
+                    "유효 세션/GOLDEN 부재 — 재인증 필요"
+                )
+        except PublishError:
+            raise
         except Exception as he:
-            logger.warning(f"⚠️ GOLDEN 세션 게이트 예외(무시하고 계속): {he}")
+            raise PublishError(
+                FailureKind.SESSION, Stage.SESSION_GATE,
+                f"세션 게이트 예외: {he}", cause=he
+            )
 
-        logger.info(f"🚀 [Aura Threads] 스레드 발행 시작 (글자수: {len(caption)}자, {media_type}: {len(valid_media)}개)")
+        logger.info(
+            f"🚀 [Aura Threads] 스레드 발행 시작 "
+            f"(run_id={self._run_id}, 글자수: {len(caption or '')}자, "
+            f"{media_type}: {len(valid_media)}개, lazy={lazy_mode})"
+        )
 
+        # 🛡️ 슬롯 가디언으로 전체 워크플로 래핑 (재시도 주체 확립)
+        return await self._slot_guardian(
+            lambda: self._publish_once(
+                caption, valid_media, first_reply_text, is_video, media_type,
+                content_generator=content_generator,
+            ),
+            slot_label="threads_main",
+        )
+
+    async def _publish_once(
+        self,
+        caption: Optional[str],
+        valid_media: List[str],
+        first_reply_text: Optional[str],
+        is_video: bool,
+        media_type: str,
+        content_generator: Optional[Callable[[], Dict[str, Any]]] = None,
+    ) -> Dict[str, Any]:
+        """단일 발행 시도 (워크플로 상태기계)"""
         async with async_playwright() as p:
             context = await p.chromium.launch_persistent_context(
                 user_data_dir=str(self.profile_dir),
@@ -395,27 +764,25 @@ class AuraThreadsPublisher:
                 await context.add_cookies(cookies)
 
             page = context.pages[0] if context.pages else await context.new_page()
+            page.set_default_timeout(TIMEOUT_SELECTOR_MS)
 
             try:
                 # 1. Threads 메인 접속
+                self._enter(Stage.NAVIGATE)
                 logger.info("1. Threads 메인 페이지 접속 중...")
-                await page.goto("https://www.threads.net/", wait_until="domcontentloaded", timeout=25000)
-                await asyncio.sleep(3)
+                await page.goto("https://www.threads.net/", wait_until="domcontentloaded", timeout=TIMEOUT_PAGE_MS)
+                await asyncio.sleep(2)
 
-                # 1-1. Terms 오버레이 배너 제거
+                # 1-1. 오버레이 정책 적용 + 세션 연결 모달
+                await self._dismiss_overlays(page)
                 try:
-                    await page.evaluate("""() => {
-                        const fixedOverlays = Array.from(document.querySelectorAll("div")).filter(d => {
-                            const style = window.getComputedStyle(d);
-                            return (style.position === 'fixed' || style.position === 'sticky') && style.bottom === '0px' && d.innerText && d.innerText.includes('Terms');
-                        });
-                        fixedOverlays.forEach(b => b.remove());
-                    }""")
-                    await asyncio.sleep(1)
-
                     clicked_modal = await page.evaluate("""() => {
                         const all = Array.from(document.querySelectorAll("button, div[role='button'], a, div"));
-                        const cont = all.find(el => el.innerText && (el.innerText.trim().includes('Continue with Instagram') || el.innerText.trim().includes('Log in with Instagram') || el.innerText.trim().includes('aura_ai_dating')));
+                        const cont = all.find(el => el.innerText && (
+                            el.innerText.trim().includes('Continue with Instagram')
+                            || el.innerText.trim().includes('Log in with Instagram')
+                            || el.innerText.trim().includes('aura_ai_dating')
+                        ));
                         if (cont) {
                             const clickable = cont.closest("button, div[role='button'], a") || cont;
                             clickable.click();
@@ -424,119 +791,125 @@ class AuraThreadsPublisher:
                         return false;
                     }""")
                     if clicked_modal:
-                        logger.info("👉 'Continue with Instagram' 모달 JS 직접 클릭 성공, 세션 연결 대기...")
-                        await asyncio.sleep(6)
+                        logger.info("👉 'Continue with Instagram' 모달 클릭 → 세션 연결 대기")
+                        await asyncio.sleep(4)
                 except Exception as me:
-                    logger.warning(f"모달 클릭 예외: {me}")
+                    logger.warning(f"모달 클릭 예외(계속 진행): {me}")
 
-                # 2. 작성 모달 열기 (4중 Fallback 전략)
+                # 2. 작성창 열기 (어댑터 위임)
                 logger.info("2. 스레드 작성창 열기...")
-                opened = False
-                for attempt in range(6):
-                    # 1) 상단 빠른 작성창 클릭 ("새로운 소식을 공유해보세요")
-                    try:
-                        quick = await page.query_selector("div:has-text('새로운 소식을 공유해보세요'), div:has-text('What\\'s new?')")
-                        if quick and await quick.is_visible():
-                            await quick.click()
-                            await asyncio.sleep(2)
-                    except Exception:
-                        pass
+                await self._open_composer(page)
 
-                    # 2) 좌측 메뉴 "새로운 스레드" 또는 우측 하단 플로팅 '+' 버튼 클릭
-                    if not await page.query_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']"):
-                        try:
-                            await page.evaluate("""() => {
-                                const btns = Array.from(document.querySelectorAll("div[role='button'], button, a"));
-                                const createBtn = btns.find(b => {
-                                    const t = (b.innerText || '').trim();
-                                    const aria = b.getAttribute('aria-label') || '';
-                                    return t.includes('새로운 스레드') || t.includes('New thread') || aria.includes('새로운 스레드') || aria.includes('Create');
-                                });
-                                if (createBtn) {
-                                    createBtn.click();
-                                    return;
-                                }
-                                // 우측 하단 플로팅 버튼 fallback
-                                const allBtns = Array.from(document.querySelectorAll("div[role='button']"));
-                                if (allBtns.length > 0) {
-                                    allBtns[allBtns.length - 1].click();
-                                }
-                            }""")
-                            await asyncio.sleep(2)
-                        except Exception:
-                            pass
-
-                    # 3) 단축키 fallback ('c')
-                    if not await page.query_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']"):
-                        try:
-                            await page.keyboard.press("c")
-                            await asyncio.sleep(2)
-                        except Exception:
-                            pass
-
-                    tb_check = await page.query_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']")
-                    if tb_check and await tb_check.is_visible():
-                        logger.info("✅ 작성창(textbox) 활성화 확인!")
-                        opened = True
-                        break
-                    await asyncio.sleep(1.5)
-
-                if not opened:
-                    raise RuntimeError("스레드 작성창(textbox)을 활성화하지 못했습니다.")
-
-                # 3. 본문 텍스트 입력 (Lexical 에디터 완벽 호환 keyboard.insert_text)
+                # 3. 본문 텍스트 입력
+                self._enter(Stage.CAPTION_INPUT)
                 logger.info("3. 캡션 텍스트 입력 중...")
-                textbox = await page.wait_for_selector("div[role='textbox'][contenteditable='true'], div[data-lexical-editor='true']", timeout=12000)
+                textbox = await self._wait_composer(page)
                 await textbox.click()
-                await asyncio.sleep(0.5)
-                # 기존 텍스트 지우고 새 텍스트 입력
+                await asyncio.sleep(0.4)
                 await page.keyboard.press("Control+A")
                 await page.keyboard.press("Backspace")
-                await asyncio.sleep(0.3)
-                await page.keyboard.insert_text(caption)
-                await asyncio.sleep(1.5)
+                await asyncio.sleep(0.2)
 
-                # 4. 카드뉴스 이미지 또는 숏폼 비디오 첨부
+                # 🧬 [LAZY EVALUATION] 작성창 클릭·커서 활성 100% 확인 직후에만 생성기 1회 호출
+                #    → 세션 만료/작성창 미개설/네비게이션 실패 시 여기까지 도달하지 않으므로
+                #      content_generator(Gemini 등)는 절대 실행되지 않는다. (호출 0회 보장)
+                if content_generator is not None:
+                    try:
+                        focused = await page.evaluate("""() => {
+                            const el = document.activeElement;
+                            if (!el) return false;
+                            const editable = el.getAttribute('contenteditable');
+                            const role = el.getAttribute('role');
+                            return editable === 'true' || role === 'textbox'
+                                || !!el.closest("div[role='textbox'][contenteditable='true']")
+                                || !!el.closest("div[data-lexical-editor='true']");
+                        }""")
+                    except Exception as fe:
+                        focused = False
+                        logger.debug(f"포커스 확인 예외(무시): {fe}")
+
+                    if not focused:
+                        raise PublishError(
+                            FailureKind.UI_DRIFT, Stage.CAPTION_INPUT,
+                            "작성창 포커스 미확인 — content_generator 호출 차단(지연 생성 보호)"
+                        )
+
+                    logger.info("🧬 [LAZY] 작성창 포커스 100% 확인 → content_generator 1회 호출")
+                    try:
+                        gen = content_generator()
+                        if asyncio.iscoroutine(gen):
+                            gen = await gen
+                    except Exception as ge:
+                        raise PublishError(
+                            FailureKind.TRANSIENT, Stage.CAPTION_INPUT,
+                            f"content_generator 실행 실패: {ge}", cause=ge
+                        )
+
+                    if not isinstance(gen, dict):
+                        raise PublishError(
+                            FailureKind.FATAL, Stage.CAPTION_INPUT,
+                            f"content_generator 반환 형식 오류(dict 아님): {type(gen).__name__}"
+                        )
+
+                    gen_caption = sanitize_threads_caption(gen.get("caption") or "")
+                    if gen_caption:
+                        caption = gen_caption
+                    gen_reply = gen.get("first_reply_text")
+                    if gen_reply:
+                        first_reply_text = gen_reply
+
+                    if not caption:
+                        raise PublishError(
+                            FailureKind.FATAL, Stage.CAPTION_INPUT,
+                            "content_generator 가 빈 본문을 반환했습니다."
+                        )
+
+                    # 🧬 생성된 본문 기준으로 멱등키 재계산 + 중복 발행 차단
+                    self._idempotency_key = self._make_idempotency_key(caption, valid_media)
+                    if self._is_duplicate(self._idempotency_key):
+                        logger.warning(
+                            f"♻️ [DEDUP] 생성 본문이 24h 내 발행 이력과 일치 "
+                            f"(key={self._idempotency_key}) → 중복 발행 차단"
+                        )
+                        try:
+                            await context.close()
+                        except Exception:
+                            pass
+                        return {
+                            "success": True,
+                            "brand": self.BRAND,
+                            "message": "♻️ 중복 발행 방지(멱등키 일치) — 기존 발행 유지",
+                            "details": {"idempotency_key": self._idempotency_key, "dedup": True},
+                        }
+
+                    logger.info(
+                        f"🧬 [LAZY] 생성 완료 → 본문 {len(caption)}자 / "
+                        f"1댓글 {'있음' if first_reply_text else '없음'}"
+                    )
+
+                await page.keyboard.insert_text(caption)
+                await asyncio.sleep(1.2)
+
+                # 4. 미디어 첨부
                 if valid_media:
+                    self._enter(Stage.MEDIA_UPLOAD)
                     logger.info(f"4. {media_type} {len(valid_media)}개 업로드 중...")
                     file_input = await page.query_selector("input[type='file']")
-                    if file_input:
-                        await file_input.set_input_files(valid_media)
-                        logger.info("   미디어 파일 전송 완료, 렌더링/인코딩 대기...")
-                        wait_sec = 14 if is_video else 6
-                        await asyncio.sleep(wait_sec)
+                    if not file_input:
+                        raise PublishError(
+                            FailureKind.UI_DRIFT, Stage.MEDIA_UPLOAD,
+                            "파일 입력(input[type=file]) 미발견"
+                        )
+                    await file_input.set_input_files(valid_media)
+                    wait_sec = 14 if is_video else 6
+                    logger.info(f"   미디어 전송 완료 → 렌더/인코딩 대기 {wait_sec}s")
+                    await asyncio.sleep(wait_sec)
 
-                # 5. [1단계] 본문 Post / 게시 버튼 클릭 및 모달 닫힘 대기
+                # 5. 본문 게시
                 logger.info("5. 본문 [Post / 게시] 버튼 클릭...")
-                posted = False
-                for _ in range(5):
-                    posted = await page.evaluate("""() => {
-                        const dialog = document.querySelector("div[role='dialog']") || document;
-                        const btns = Array.from(dialog.querySelectorAll("div[role='button'], button"));
-                        const postBtn = btns.find(b => {
-                            const t = (b.innerText || '').trim();
-                            const ariaDisabled = b.getAttribute('aria-disabled');
-                            const disabled = b.getAttribute('disabled');
-                            return (t === 'Post' || t === '게시') && ariaDisabled !== 'true' && disabled === null;
-                        });
-                        if (postBtn) {
-                            postBtn.click();
-                            return true;
-                        }
-                        return false;
-                    }""")
-                    if posted:
-                        break
-                    await asyncio.sleep(1)
-
-                if not posted:
-                    publish_btn = await page.query_selector("div[role='dialog'] div[role='button']:has-text('Post'), div[role='dialog'] button:has-text('Post'), div[role='dialog'] div[role='button']:has-text('게시')")
-                    if publish_btn:
-                        await publish_btn.click(force=True)
-                        posted = True
-
-                logger.info("   본문 게시 요청 전송 완료! 모달 닫힘 및 서버 반영 대기 (12초)...")
-                await asyncio.sleep(12)
+                await self._submit_post(page)
+                logger.info("   게시 요청 전송 완료 → 서버 반영 대기 (10s)")
+                await asyncio.sleep(10)
 
                 # 6. [2단계] 첫 번째 타래 댓글 (방금 올린 본문 글의 고유 상세 페이지로 직접 이동하여 답글 체인 작성)
                 if first_reply_text:

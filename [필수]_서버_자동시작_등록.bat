@@ -23,6 +23,7 @@ set "STARTUP_VBS=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\kmarket
 echo Set WshShell = CreateObject^("WScript.Shell"^)
 echo WshShell.CurrentDirectory = "%WORKDIR%"
 echo WshShell.Run "python server.py", 0, False
+echo WshShell.Run "python korea_marketing_master_daemon.py", 0, False
 echo Set WshShell = Nothing
 ) > "%STARTUP_VBS%"
 

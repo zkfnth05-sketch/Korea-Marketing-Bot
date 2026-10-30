@@ -68,12 +68,22 @@ class InsuranceThreadsTextPipeline:
         return post_pkg
 
     async def execute_slot(self, slot: str = "morning", dry_run: bool = False, custom_theme: Optional[str] = None) -> Dict[str, Any]:
-        """슬롯 1회 텍스트 생성 및 스레드 라이브 송출"""
+        """슬롯 1회 텍스트 생성 및 스레드 라이브 송출
+
+        🧬 [파이썬 검증 완료 후 제미나이 1회 호출] 지연 생성(Lazy Evaluation) 계약:
+          - dry_run=True  : 사전에 generate_content 를 1회 호출하여 결과만 반환 (실제 배포 없음)
+          - dry_run=False : 사전 생성 절대 금지. publish_thread 에 content_generator 콜백을
+                            넘겨, 브라우저 오픈 → 오버레이 제거 → 작성창(textbox) 클릭/포커스
+                            100% 확인 '직후'에만 제미나이가 단 1회 호출되도록 보장한다.
+                            (세션 만료 / 작성창 미개설 / 네비게이션 실패 시 제미나이 호출 0회)
+        """
         logger.info(f"🚀 [{self.BRAND_NAME}] 스레드 순수 텍스트 파이프라인 가동 (슬롯: {slot}, 모드: {'DRY-RUN' if dry_run else 'LIVE'})")
-        
-        content = self.generate_content(slot=slot, custom_theme=custom_theme)
-        
+
+        # ------------------------------------------------------------
+        # [DRY-RUN] 사전 생성 허용 (실제 배포 없음 → 브라우저 미구동)
+        # ------------------------------------------------------------
         if dry_run:
+            content = self.generate_content(slot=slot, custom_theme=custom_theme)
             logger.info("⚡ [DRY-RUN] 실제 스레드 배포는 건너뜁니다.")
             return {
                 "success": True,
@@ -83,17 +93,33 @@ class InsuranceThreadsTextPipeline:
                 "content": content
             }
 
+        # ------------------------------------------------------------
+        # [LIVE] 사전 생성 금지 → content_generator 콜백으로 지연 주입
+        # ------------------------------------------------------------
+        logger.info("🧬 [LAZY] 라이브 모드 → 제미나이 호출은 작성창 활성화 확인 후 1회로 지연")
+
+        def _lazy_generate() -> Dict[str, Any]:
+            """작성창 포커스 확인 직후 publisher 가 단 1회 호출하는 생성 콜백"""
+            content = self.generate_content(slot=slot, custom_theme=custom_theme)
+            return {
+                "caption": content.get("caption", ""),
+                "first_reply_text": content.get("first_reply", ""),
+                "topic": content.get("topic", ""),
+            }
+
         pub_res = await self.publisher.publish_thread(
-            caption=content["caption"],
+            caption=None,
             image_paths=None,
-            first_reply_text=content["first_reply"]
+            first_reply_text=None,
+            content_generator=_lazy_generate
         )
 
+        details = pub_res.get("details") or {}
         record = {
             "brand": self.BRAND,
             "slot": slot,
-            "topic": content["topic"],
-            "caption_preview": content["caption"][:60] + "...",
+            "topic": details.get("topic", ""),
+            "caption_preview": details.get("caption_preview", ""),
             "published_at": datetime.now().isoformat(),
             "publish_result": pub_res,
             "success": pub_res.get("success", False)

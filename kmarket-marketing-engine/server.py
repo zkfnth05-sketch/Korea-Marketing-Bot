@@ -264,7 +264,10 @@ def _brand_blog_worker(brand: str):
                         scheduler = AuraBlogScheduler()
                         res = scheduler.run_one_cycle()
                         if res.get("status") == "BLOCKED_DAILY_CAP":
-                            log_event(f"ℹ️ [{brand_kr}] {s_label} 스케줄: {res.get('message')}", "info")
+                            # 🛡️ [슬롯 잠금 해제] 일시적 안전 쿨타임 대기인 경우 슬롯 키를 반납하여
+                            #    슬롯 윈도우(약 5시간) 내에서 쿨타임 경과 후 정상 재시도되도록 보정
+                            executed_slots.discard(slot_key)
+                            log_event(f"ℹ️ [{brand_kr}] {s_label} 스케줄: {res.get('message')} (쿨타임 경과 후 자동 재시도 대기)", "info")
                             continue
 
                         brand_stats[brand]["cycle"] += 1
@@ -279,7 +282,10 @@ def _brand_blog_worker(brand: str):
                         scheduler = InsuranceBlogScheduler()
                         res = scheduler.run_one_cycle()
                         if res.get("status") == "BLOCKED_DAILY_CAP":
-                            log_event(f"ℹ️ [{brand_kr}] {s_label} 스케줄: {res.get('message')}", "info")
+                            # 🛡️ [슬롯 잠금 해제] 일시적 안전 쿨타임 대기인 경우 슬롯 키를 반납하여
+                            #    슬롯 윈도우(약 5시간) 내에서 쿨타임 경과 후 정상 재시도되도록 보정
+                            executed_slots.discard(slot_key)
+                            log_event(f"ℹ️ [{brand_kr}] {s_label} 스케줄: {res.get('message')} (쿨타임 경과 후 자동 재시도 대기)", "info")
                             continue
 
                         brand_stats[brand]["cycle"] += 1
@@ -294,7 +300,10 @@ def _brand_blog_worker(brand: str):
                         scheduler = StockBlogScheduler()
                         res = scheduler.run_one_cycle()
                         if res.get("status") == "BLOCKED_DAILY_CAP":
-                            log_event(f"ℹ️ [{brand_kr}] {s_label} 스케줄: {res.get('message')}", "info")
+                            # 🛡️ [슬롯 잠금 해제] 일시적 안전 쿨타임 대기인 경우 슬롯 키를 반납하여
+                            #    슬롯 윈도우(약 5시간) 내에서 쿨타임 경과 후 정상 재시도되도록 보정
+                            executed_slots.discard(slot_key)
+                            log_event(f"ℹ️ [{brand_kr}] {s_label} 스케줄: {res.get('message')} (쿨타임 경과 후 자동 재시도 대기)", "info")
                             continue
 
                         brand_stats[brand]["cycle"] += 1
@@ -519,47 +528,7 @@ def _brand_daemon_loop(brand: str):
             time.sleep(60)
     threading.Thread(target=_tiktok_behavior_worker, daemon=True).start()
 
-    # 8. 🤖 [24시간 무인 레딧 전담 스텔스 안전 침투 데몬 (08:00, 10:00, 13:00, 16:00, 20:00 ±30분 무작위 시프트)]
-    def _reddit_daemon_worker():
-        channel_key = f"{brand}_reddit"
-        log_event(f"🤖 [{brand_kr}] 레딧 24시간 스텔스 안전 침투 데몬 상주 시작 (08:00/10:00/13:00/16:00/20:00 ±30분)", "success")
-        while brand_daemons_running.get(brand, False):
-            # 🛡️ [대시보드 레딧 스위치 1:1 실시간 하드웨어 연동]
-            if not running_channels.get(channel_key, False):
-                time.sleep(30)
-                continue
-
-            try:
-                res = {}
-                if brand == "aura":
-                    from brands.aura.aura_reddit_engine import AuraRedditEngine
-                    aura_reddit = AuraRedditEngine()
-                    res = aura_reddit.orchestrator.run_scheduled_session()
-                elif brand == "insurance":
-                    from brands.insurance.insurance_reddit_engine import InsuranceRedditEngine
-                    ins_reddit = InsuranceRedditEngine()
-                    res = ins_reddit.orchestrator.run_scheduled_session()
-                elif brand == "stock":
-                    from brands.stock.stock_reddit_engine import StockRedditEngine
-                    stock_reddit = StockRedditEngine()
-                    res = stock_reddit.orchestrator.run_scheduled_session()
-
-                if res.get("status") == "executed":
-                    clear_channel_error(channel_key)
-                    slot_name = res.get("executed_slot", "세션")
-                    up = res.get("upvotes", 0)
-                    org = res.get("organic_comments", 0)
-                    pro = res.get("promo_comments", 0)
-                    log_event(f"🎉 [{brand_kr} 레딧 정시 세션 완료] {slot_name} | 업보트: {up}건 | 비홍보댓글: {org}건 | 스텔스홍보: {pro}건", "success")
-                elif res.get("status") == "cooldown":
-                    log_event(f"🛡️ [{brand_kr} 레딧] 안전 쿨다운 상태로 이번 시간대 대기", "info")
-            except Exception as re:
-                import traceback
-                err_detail = traceback.format_exc()
-                record_channel_error(channel_key, str(re))
-                log_event(f"❌ [{brand_kr} 레딧 세션 오류] {re}\n{err_detail}", "error")
-            time.sleep(60)
-    threading.Thread(target=_reddit_daemon_worker, daemon=True).start()
+    # 8. 🚫 [레딧 영구 삭제 완료] 대표님 지시로 3대 브랜드(Aura, Insurance, Stock) 레딧 데몬 완전 제거
 
     # 9. ☕ [24시간 무인 네이버 카페 정예 스텔스 침투 데몬 (15분 시차: Aura 14:15 / 보험 14:30 / 주식 14:45 ~ 23:59 슬롯 윈도우 자율 침투)]
     def _brand_cafe_worker():
@@ -783,6 +752,33 @@ def clear_channel_error(channel_key: str):
     global channel_errors
     if channel_key in channel_errors:
         channel_errors.pop(channel_key, None)
+
+
+CHANNEL_ERRORS_FILE = DATA_DIR / "channel_errors.json"
+
+def _merge_disk_channel_errors(memory_errors: Dict[str, Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+    """
+    🚨 [서킷브레이커 통합 조회] 메모리 장애 큐 + 디스크(DATA_DIR/channel_errors.json) 장애 상태 병합
+    - daytime_sns_dispatcher 등 별도 프로세스/스레드가 기록한 3회 재시도 초과 빨간 불을
+      대시보드(/api/status) 응답에 100% 노출시킨다.
+    - 디스크 파일이 없거나 손상(JSON 파싱 실패)되어도 절대 예외를 던지지 않고 메모리 값만 반환한다.
+    - 동일 채널 키는 디스크(최신 실측 기록) 우선으로 덮어쓴다.
+    """
+    merged: Dict[str, Dict[str, Any]] = dict(memory_errors or {})
+    try:
+        if CHANNEL_ERRORS_FILE.exists():
+            with open(CHANNEL_ERRORS_FILE, "r", encoding="utf-8") as f:
+                disk_errors = json.load(f)
+            if isinstance(disk_errors, dict):
+                for key, val in disk_errors.items():
+                    if isinstance(val, dict):
+                        merged[str(key)] = val
+    except Exception as e:
+        try:
+            log_event(f"⚠️ [channel_errors.json 병합 실패 - 메모리 값만 반환] {e}", "warning")
+        except Exception:
+            pass
+    return merged
 
 ab_evolution_engine = ABEvolutionEngine()
 MEDIA_ENGINE_SETTINGS_FILE = DATA_DIR / "media_engine_settings.json"
@@ -1178,10 +1174,16 @@ def execute_single_channel_task(module_name: str) -> str:
             record_channel_error("aura_threads", err_msg)
             log_event(f"❌ [Aura 스레드 송출 실패] {err_msg}", "error")
             return f"💖 [Aura 스레드 실패] {err_msg}"
-        elif module_name in ["aura_nate_pann", "aura_dcinside", "aura_ppomppu"]:
+        elif module_name in ["aura_nate_pann", "nate_pann_aura"]:
+            from modules.domestic.natepann_engine import run_aura_pann
+            res = run_aura_pann(dry_run=False)
+            if res.get("success"):
+                return f"💖 [Aura 네이트판 투고 완료]\n  • 제목: {res.get('title')}\n  • 링크: {res.get('url', '시뮬레이션 완료')}\n  • 증빙: {res.get('proof_screenshot', '-')}"
+            return f"❌ [Aura 네이트판 실패] {res.get('error', '발행 오류')}"
+        elif module_name in ["aura_dcinside", "aura_ppomppu"]:
             from brands.aura.aura_pipeline import AuraPipeline
             res = AuraPipeline(dry_run=False).run_viral_community_cycle()
-            return f"💖 [Aura 커뮤니티 바이럴] 네이트판 사연 & 디시 연애갤 투고 완료"
+            return f"💖 [Aura 커뮤니티 바이럴] 디시 연애갤 & 뽐뿌 투고 완료"
         elif module_name == "aura_naver_kin":
             from brands.aura.aura_kin_pipeline import AuraKinPipeline
             res = AuraKinPipeline().run_catch_cycle(max_catch=1)
@@ -1261,6 +1263,12 @@ def execute_single_channel_task(module_name: str) -> str:
             feed_status = ch.get('insurance_app', {}).get('status', 'OK')
             brunch_status = ch.get('brunch', {}).get('status', '-')
             return f"🛡️ [보험비교 3대 옴니 배포 완료] 주제 #{res.get('topic_id')} '{res.get('title')}'\n  - 🟢 네이버: {naver_url}\n  - 🟠 티스토리: {tistory_url}\n  - 🟡 브런치: {brunch_status}"
+        elif module_name in ["insurance_nate_pann", "nate_pann_insurance"]:
+            from modules.domestic.natepann_engine import run_insurance_pann
+            res = run_insurance_pann(dry_run=False)
+            if res.get("success"):
+                return f"🛡️ [보험비교 네이트판 투고 완료]\n  • 제목: {res.get('title')}\n  • 링크: {res.get('url', '시뮬레이션 완료')}\n  • 증빙: {res.get('proof_screenshot', '-')}"
+            return f"❌ [보험비교 네이트판 실패] {res.get('error', '발행 오류')}"
         elif module_name in ["insurance_ppomppu", "insurance_bobaedream", "insurance_dcinside"]:
             res = pipe.run_community_cycle()
             return f"🛡️ [보험비교] 뽐뿌 재테크 & 보배드림 운전자보험 정보글 투고 완료"
@@ -1384,6 +1392,12 @@ def execute_single_channel_task(module_name: str) -> str:
             feed_status = ch.get('stock_app', {}).get('status', 'OK')
             brunch_status = ch.get('brunch', {}).get('status', '-')
             return f"📈 [주식AI 3대 옴니 배포 완료] 주제 #{res.get('topic_id')} '{res.get('title')}'\n  - 🟢 네이버: {naver_url}\n  - 🟠 티스토리: {tistory_url}\n  - 🟡 브런치: {brunch_status}"
+        elif module_name in ["stock_nate_pann", "nate_pann_stock"]:
+            from modules.domestic.natepann_engine import run_stock_pann
+            res = run_stock_pann(dry_run=False)
+            if res.get("success"):
+                return f"📈 [주식AI 네이트판 투고 완료]\n  • 제목: {res.get('title')}\n  • 링크: {res.get('url', '시뮬레이션 완료')}\n  • 증빙: {res.get('proof_screenshot', '-')}"
+            return f"❌ [주식AI 네이트판 실패] {res.get('error', '발행 오류')}"
         elif module_name in ["stock_dcinside", "stock_ppomppu"]:
             res = pipe.run_community_cycle()
             return f"📈 [주식AI] 디시 주식갤 & 뽐뿌 증권 시황 브리핑 투고 완료"
@@ -2272,7 +2286,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
             "today_live_feed": today_live_tracker.get_all_live_feed(),
             "auth_sentinel": (lambda: (lambda mod: (__import__('importlib').reload(mod).PlatformAuthSentinel.get_full_diagnostic_report()))(__import__('core.platform_auth_sentinel', fromlist=['PlatformAuthSentinel'])))(),
             "gpu_status": gpu_lock_manager.get_status(),
-            "channel_errors": channel_errors,
+            "channel_errors": _merge_disk_channel_errors(channel_errors),
             "recent_logs": recent_logs[-50:]
         }
         self._set_headers("application/json")

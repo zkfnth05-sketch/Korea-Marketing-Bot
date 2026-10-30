@@ -318,5 +318,25 @@
     "duration_sec": 601,
     "status": "COMPLETED",
     "ended_at": "2026-10-28T12:55:07.412647"
+  },
+  {
+    "brand": "aura",
+    "started_at": "2026-10-30T12:45:28.511194",
+    "posts_read": 52,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 603,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-30T12:55:32.234272"
+  },
+  {
+    "brand": "aura",
+    "started_at": "2026-10-30T16:09:44.338783",
+    "posts_read": 51,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 606,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-30T16:19:50.350312"
   }
 ]

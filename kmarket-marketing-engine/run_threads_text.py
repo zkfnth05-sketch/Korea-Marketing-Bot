@@ -23,7 +23,7 @@ import json
 import argparse
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta, time
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -64,42 +64,101 @@ async def run_all_brands(slot: str = "morning", dry_run: bool = True, headless: 
 
 
 async def run_master_daemon():
-    """3대 브랜드 스레드 텍스트 하루 2회 동시 무인 데몬"""
+    """3대 브랜드 스레드 텍스트 하루 2회 동시 무인 데몬
+
+    🛡️ [15분 간격 자가치유 슬롯 가디언 (Self-Healing Slot Guardian)]
+      - 모닝 윈도우: 09:30 ~ 16:00 / 이브닝 윈도우: 19:30 ~ 23:59
+      - 브랜드별 완료 여부(completed_slots)를 개별 추적 → 하루 정량(브랜드당 2회) 완수
+      - 실패/미완료 시 즉시 포기하지 않고 15분 쿨다운(next_retry_at) 후 자율 재시도
+      - 💰 요금 폭탄 원천 차단: 파이프라인이 [파이썬 검증 완료 후 제미나이 1회 호출]
+        (Lazy Evaluation) 구조이므로, 브라우저 진입/작성창 활성화 실패 단계에서는
+        제미나이 API 호출이 0회 → 15분 재시도가 무한 반복되어도 과금이 발생하지 않음.
+    """
     print(f"\n========================================================")
     print(f"🤖 [대한민국 3대 브랜드] 스레드 순수 텍스트 24시간 무인 데몬 가동")
     print(f"• 1. 💖 Aura AI 데이팅 (아우라AI데이팅)")
     print(f"• 2. 🛡️ 보험 리밸런스 (보험 리밸런스)")
     print(f"• 3. 📈 StockMaster AI (스톡마스터 AI)")
-    print(f"• ⏰ 1차 슬롯: 09:30 KST (출근/모닝 텍스트 피드)")
-    print(f"• ⏰ 2차 슬롯: 19:30 KST (퇴근/야간 텍스트 피크)")
+    print(f"• ⏰ 1차 슬롯: 09:30 KST (출근/모닝 텍스트 피드) — 윈도우 09:30~16:00")
+    print(f"• ⏰ 2차 슬롯: 19:30 KST (퇴근/야간 텍스트 피크) — 윈도우 19:30~23:59")
+    print(f"• 🛡️ 자가치유: 실패 시 15분 쿨다운 후 당일 슬롯 완수까지 자율 재시도")
+    print(f"• 💰 요금 안전: 브라우저 진입 실패 단계에서는 제미나이 호출 0회 (Lazy)")
     print(f"========================================================\n")
 
-    executed_today = set()
+    BRANDS = ["aura", "insurance", "stock"]
+    RETRY_COOLDOWN = timedelta(minutes=15)
+
+    # 슬롯 윈도우 정의: (시작 시각, 종료 시각)
+    SLOT_WINDOWS = {
+        "morning": (time(hour=9, minute=30), time(hour=16, minute=0)),
+        "evening": (time(hour=19, minute=30), time(hour=23, minute=59, second=59)),
+    }
+
+    current_day = None
+    completed_slots = set()   # {(brand, slot)} — success=True 인 항목만 등록
+    next_retry_at = {}        # {(brand, slot): datetime} — 15분 쿨다운 만료 시각
+    attempt_count = {}        # {(brand, slot): int} — 시도 횟수 (로그용)
 
     while True:
         now = datetime.now()
         today_str = now.strftime("%Y-%m-%d")
-        h = now.hour
-        m = now.minute
+        now_t = now.time()
 
-        if h == 0 and m < 5:
-            executed_today.clear()
+        # ── 날짜 롤오버: 자정 경과 시 당일 상태 전면 초기화 ──
+        if current_day != today_str:
+            if current_day is not None:
+                logger.info(f"🌅 [날짜 전환] {current_day} → {today_str} · 슬롯 상태 초기화")
+            current_day = today_str
+            completed_slots.clear()
+            next_retry_at.clear()
+            attempt_count.clear()
 
-        # 09:30 모닝 슬롯
-        if h == 9 and m == 30:
-            slot_key = f"{today_str}_morning"
-            if slot_key not in executed_today:
-                logger.info("⏰ [09:30 KST] 3대 브랜드 모닝 스레드 텍스트 동시 기동!")
-                await run_all_brands(slot="morning", dry_run=False, headless=True)
-                executed_today.add(slot_key)
+        # ── 브랜드 × 슬롯 전수 점검 ──
+        for slot, (win_start, win_end) in SLOT_WINDOWS.items():
+            if not (win_start <= now_t <= win_end):
+                continue  # 윈도우 밖 → 대기
 
-        # 19:30 이브닝 슬롯
-        if h == 19 and m == 30:
-            slot_key = f"{today_str}_evening"
-            if slot_key not in executed_today:
-                logger.info("⏰ [19:30 KST] 3대 브랜드 이브닝 스레드 텍스트 동시 기동!")
-                await run_all_brands(slot="evening", dry_run=False, headless=True)
-                executed_today.add(slot_key)
+            for brand in BRANDS:
+                key = (brand, slot)
+                if key in completed_slots:
+                    continue  # 당일 이미 성공 완료
+
+                # 15분 쿨다운 미도달 → 대기
+                retry_at = next_retry_at.get(key)
+                if retry_at is not None and now < retry_at:
+                    continue
+
+                attempt_count[key] = attempt_count.get(key, 0) + 1
+                attempt = attempt_count[key]
+                logger.info(
+                    f"⏰ [{slot.upper()} 윈도우 {win_start.strftime('%H:%M')}~{win_end.strftime('%H:%M')}] "
+                    f"[{brand.upper()}] 시도 #{attempt} 기동 "
+                    f"(완료 {len(completed_slots)}/{len(BRANDS) * len(SLOT_WINDOWS)} · "
+                    f"💰 브라우저 진입 실패 시 제미나이 호출 0회 보장)"
+                )
+
+                try:
+                    res = await run_single_brand(
+                        brand=brand, slot=slot, dry_run=False, headless=True
+                    )
+                except Exception as e:
+                    logger.error(f"💥 [{brand.upper()}/{slot}] 파이프라인 예외: {e}")
+                    res = {"success": False, "error": str(e)}
+
+                if isinstance(res, dict) and res.get("success") is True:
+                    completed_slots.add(key)
+                    next_retry_at.pop(key, None)
+                    logger.info(
+                        f"✅ [{brand.upper()}/{slot}] 당일 슬롯 완수! "
+                        f"(누적 {len(completed_slots)}/{len(BRANDS) * len(SLOT_WINDOWS)})"
+                    )
+                else:
+                    next_retry_at[key] = datetime.now() + RETRY_COOLDOWN
+                    logger.warning(
+                        f"⚠️ [{brand.upper()}/{slot}] 미완료 → 15분 쿨다운 후 자가치유 재시도 예약 "
+                        f"(다음 시도: {next_retry_at[key].strftime('%H:%M:%S')} · "
+                        f"💰 이 재시도는 제미나이 호출 0회 구간에서 발생)"
+                    )
 
         await asyncio.sleep(30)
 

@@ -1,10 +1,303 @@
 {
-  "current_topic_index": 47,
-  "last_topic_id": 67,
-  "last_run_time": "2026-10-28 15:17:17",
-  "last_title": "환율 급등기에 주가 방어력이 가장 높은 국내 고배당주·인프라주 선별법 주가 전망 및 핵심 투자 포인트",
-  "published_count": 56,
+  "current_topic_index": 50,
+  "last_topic_id": 8,
+  "last_run_time": "2026-10-30 16:23:45",
+  "last_title": "거래대금 1,000억 돌파 대장주 공략법: 시장 유동성이 쏠리는 주도주 퀀트 매매 전략",
+  "published_count": 59,
   "history": [
+    {
+      "topic_id": 8,
+      "title": "거래대금 1,000억 돌파 대장주 공략법: 시장 유동성이 쏠리는 주도주 퀀트 매매 전략",
+      "title_naver": "거래대금 1,000억 돌파 대장주 공략법: 시장 유동성이 쏠리는 주도주 퀀트 매매 전략",
+      "title_tistory": "거래대금 1,000억 터진 전광판 1위 대장주 매매: 슬리피지 제로와 퀀트 수급 분석",
+      "title_brunch": "돈이 모이는 곳에 길이 있다: 1,000억 이상 터진 시장 대장주를 읽는 퀀트의 시선",
+      "category": "realtime_rank1",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_rank1_20261030_162056.png",
+      "published_at": "2026-10-30 16:23:45",
+      "publish_results": {
+        "topic_id": 8,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "거래대금 1,000억 돌파 대장주 공략법: 시장 유동성이 쏠리는 주도주 퀀트 매매 전략",
+            "url": "https://blog.naver.com/stockmaster_ai/224459185203",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224459185203",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "거래대금1000억",
+              "시장대장주",
+              "유동성매매",
+              "안전한단타",
+              "대형주도주",
+              "코스피수급",
+              "코스피주도주",
+              "주식체결강도",
+              "체결강도",
+              "주식체결강도뜻",
+              "체결강도란",
+              "체결강도높으면",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "stockmaster-ai",
+            "title": "거래대금 1,000억 터진 전광판 1위 대장주 매매: 슬리피지 제로와 퀀트 수급 분석",
+            "url": "https://stockmaster-ai.tistory.com/49",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "거래대금1000억",
+              "시장대장주",
+              "유동성매매",
+              "안전한단타",
+              "대형주도주",
+              "코스피수급",
+              "코스피주도주",
+              "주식체결강도",
+              "체결강도",
+              "주식체결강도뜻",
+              "체결강도란",
+              "체결강도높으면",
+              "주식투자"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 63,
+            "title": "거래대금 1,000억 돌파 대장주 공략법: 시장 유동성이 쏠리는 주도주 퀀트 매매 전략",
+            "category": "RANK1"
+          }
+        },
+        "verification": {
+          "brand": "stock",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "stockmaster_ai",
+            "title": "거래대금 1,000억 돌파 대장주 공략법: 시장 유동성이 쏠리는 주도주 퀀트 매매 전략",
+            "real_url": "https://blog.naver.com/stockmaster_ai/224459185203",
+            "log_no": "224459185203",
+            "pub_date": "Fri, 30 Oct 2026 16:22:38 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\naver_proof_1793345021.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "stockmaster-ai",
+            "title": "거래대금 1,000억 터진 전광판 1위 대장주 매매: 슬리피지 제로와 퀀트 수급 분석",
+            "real_url": "https://stockmaster-ai.tistory.com/49",
+            "pub_date": "Fri, 30 Oct 2026 16:23:22 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-30 16:23:45"
+        }
+      }
+    },
+    {
+      "topic_id": 92,
+      "title": "8대 지표 ⑦ [PBR 1배 미만]: 정부 기업 밸류업 프로그램 인증 저평가주 주가 전망 및 핵심 투자 포인트",
+      "title_naver": "8대 지표 ⑦ [PBR 1배 미만]: 정부 기업 밸류업 프로그램 인증 저평가주 주가 전망 및 핵심 투자 포인트",
+      "title_tistory": "[StockMaster] 8대 지표 ⑦ [PBR 1배 미만]: 정부 기업 밸류업 프로그램 인증 저평가주 실전 매매 전략",
+      "title_brunch": "시장의 소음을 넘어선 투자, 8대 지표 ⑦ [PBR 1배 미만]: 정부 기업 밸류업 프로그램 인증 저평가주",
+      "category": "quant_guide",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_quant_guide_20261030_160944.png",
+      "published_at": "2026-10-30 16:11:47",
+      "publish_results": {
+        "topic_id": 92,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "8대 지표 ⑦ [PBR 1배 미만]: 정부 기업 밸류업 프로그램 인증 저평가주 주가 전망 및 핵심 투자 포인트",
+            "url": "https://blog.naver.com/stockmaster_ai/224459169710",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224459169710",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "저PBR밸류업",
+              "자사주소각",
+              "주주환원율",
+              "기업가치제고",
+              "PBR1배",
+              "밸류업인증",
+              "코스피주도주",
+              "주식체결강도",
+              "체결강도",
+              "주식체결강도뜻",
+              "체결강도란",
+              "체결강도높으면",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "stockmaster-ai",
+            "title": "[StockMaster] 8대 지표 ⑦ [PBR 1배 미만]: 정부 기업 밸류업 프로그램 인증 저평가주 실전 매매 전략",
+            "url": "https://stockmaster-ai.tistory.com/48",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "저PBR밸류업",
+              "자사주소각",
+              "주주환원율",
+              "기업가치제고",
+              "PBR1배",
+              "밸류업인증",
+              "코스피주도주",
+              "주식체결강도",
+              "체결강도",
+              "주식체결강도뜻",
+              "체결강도란",
+              "체결강도높으면",
+              "주식투자"
+            ],
+            "post_url": "https://stockmaster-ai.tistory.com/48"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 62,
+            "title": "8대 지표 ⑦ [PBR 1배 미만]: 정부 기업 밸류업 프로그램 인증 저평가주 주가 전망 및 핵심 투자 포인트",
+            "category": "RANK1"
+          }
+        },
+        "verification": {
+          "brand": "stock",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "stockmaster_ai",
+            "title": "8대 지표 ⑦ [PBR 1배 미만]: 정부 기업 밸류업 프로그램 인증 저평가주 주가 전망 및 핵심 투자 포인트",
+            "real_url": "https://blog.naver.com/stockmaster_ai/224459169710",
+            "log_no": "224459169710",
+            "pub_date": "Fri, 30 Oct 2026 16:10:23 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\naver_proof_1793344298.png"
+          },
+          "tistory": {
+            "verified": true,
+            "channel": "tistory",
+            "blog_name": "stockmaster-ai",
+            "title": "[StockMaster] 8대 지표 ⑦ [PBR 1배 미만]: 정부 기업 밸류업 프로그램 인증 저평가주 실전 매매 전략",
+            "real_url": "https://stockmaster-ai.tistory.com/48",
+            "pub_date": "Fri, 30 Oct 2026 16:11:19 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\tistory_proof_1793344302.png"
+          },
+          "timestamp": "2026-10-30 16:11:47"
+        }
+      }
+    },
+    {
+      "topic_id": 77,
+      "title": "장중 돌발 악재로 손절선 터치 시 망설임 없이 '시장가 매도'를 치는 마인드셋 주가 전망 및 핵심 투자 포인트",
+      "title_naver": "장중 돌발 악재로 손절선 터치 시 망설임 없이 '시장가 매도'를 치는 마인드셋 주가 전망 및 핵심 투자 포인트",
+      "title_tistory": "[StockMaster] 장중 돌발 악재로 손절선 터치 시 망설임 없이 '시장가 매도'를 치는 마인드셋 실전 매매 전략",
+      "title_brunch": "시장의 소음을 넘어선 투자, 장중 돌발 악재로 손절선 터치 시 망설임 없이 '시장가 매도'를 치는 마인드셋",
+      "category": "price_boundary",
+      "image_url": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\captures\\stock_price_boundary_20261030_120828.png",
+      "published_at": "2026-10-30 12:10:25",
+      "publish_results": {
+        "topic_id": 77,
+        "channels": {
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "stockmaster_ai",
+            "title": "장중 돌발 악재로 손절선 터치 시 망설임 없이 '시장가 매도'를 치는 마인드셋 주가 전망 및 핵심 투자 포인트",
+            "url": "https://blog.naver.com/stockmaster_ai/224458884101",
+            "post_url": "https://blog.naver.com/stockmaster_ai/224458884101",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "시장가매도",
+              "망설임없는손절",
+              "인지부조화극복",
+              "원칙매매",
+              "돌발악재손절",
+              "멘탈강화",
+              "코스피주도주",
+              "주식체결강도",
+              "체결강도",
+              "주식체결강도뜻",
+              "체결강도란",
+              "체결강도높으면",
+              "주식투자"
+            ]
+          },
+          "tistory": {
+            "status": "success",
+            "blog_name": "stockmaster-ai",
+            "title": "[StockMaster] 장중 돌발 악재로 손절선 터치 시 망설임 없이 '시장가 매도'를 치는 마인드셋 실전 매매 전략",
+            "url": "https://stockmaster-ai.tistory.com/47",
+            "tags": [
+              "스톡마스터AI",
+              "StockMasterAI",
+              "시장가매도",
+              "망설임없는손절",
+              "인지부조화극복",
+              "원칙매매",
+              "돌발악재손절",
+              "멘탈강화",
+              "코스피주도주",
+              "주식체결강도",
+              "체결강도",
+              "주식체결강도뜻",
+              "체결강도란",
+              "체결강도높으면",
+              "주식투자"
+            ],
+            "post_url": "https://stockmaster-ai.tistory.com/47"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] ([1회연동]_주식AI_브런치_영구로그인.bat 실행 필요)"
+          },
+          "supabase_research": {
+            "status": "success",
+            "post_id": 61,
+            "title": "장중 돌발 악재로 손절선 터치 시 망설임 없이 '시장가 매도'를 치는 마인드셋 주가 전망 및 핵심 투자 포인트",
+            "category": "RANK1"
+          }
+        },
+        "verification": {
+          "brand": "stock",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "stockmaster_ai",
+            "title": "장중 돌발 악재로 손절선 터치 시 망설임 없이 '시장가 매도'를 치는 마인드셋 주가 전망 및 핵심 투자 포인트",
+            "real_url": "https://blog.naver.com/stockmaster_ai/224458884101",
+            "log_no": "224458884101",
+            "pub_date": "Fri, 30 Oct 2026 12:09:14 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\naver_proof_1793329817.png"
+          },
+          "tistory": {
+            "verified": true,
+            "channel": "tistory",
+            "blog_name": "stockmaster-ai",
+            "title": "[StockMaster] 장중 돌발 악재로 손절선 터치 시 망설임 없이 '시장가 매도'를 치는 마인드셋 실전 매매 전략",
+            "real_url": "https://stockmaster-ai.tistory.com/47",
+            "pub_date": "Fri, 30 Oct 2026 12:09:58 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\stock\\blog_verification\\tistory_proof_1793329820.png"
+          },
+          "timestamp": "2026-10-30 12:10:25"
+        }
+      }
+    },
     {
       "topic_id": 67,
       "title": "환율 급등기에 주가 방어력이 가장 높은 국내 고배당주·인프라주 선별법 주가 전망 및 핵심 투자 포인트",

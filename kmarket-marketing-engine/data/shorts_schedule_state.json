@@ -43,6 +43,10 @@
     "2026-10-28": [
       "morning",
       "lunch"
+    ],
+    "2026-10-30": [
+      "lunch",
+      "evening"
     ]
   },
   "insurance": {
@@ -87,6 +91,10 @@
     "2026-10-28": [
       "morning",
       "lunch"
+    ],
+    "2026-10-30": [
+      "lunch",
+      "evening"
     ]
   },
   "stock": {
@@ -141,6 +149,10 @@
     "2026-10-28": [
       "morning",
       "lunch"
+    ],
+    "2026-10-30": [
+      "lunch",
+      "evening"
     ]
   }
 }

@@ -117,7 +117,8 @@ class StockGeminiWriter:
             try:
                 client = genai.Client(api_key=api_key)
                 response = None
-                for m_name in ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"]:
+                # 💰 [최저가 텍스트 모델 1순위] gemini-2.5-flash-lite 최우선 호출 ➔ flash ➔ flash-latest 순 롤오버
+                for m_name in ["gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-flash-latest"]:
                     try:
                         response = client.models.generate_content(
                             model=m_name,
@@ -125,7 +126,7 @@ class StockGeminiWriter:
                             config=genai_types.GenerateContentConfig(
                                 automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True), system_instruction=system_instruction,
                                 temperature=0.7,
-                                max_output_tokens=4096
+                                max_output_tokens=8192
                             )
                         )
                         break
@@ -305,7 +306,8 @@ class StockGeminiWriter:
         for attempt in range(3):
             try:
                 client = genai.Client(api_key=api_key)
-                for m_name in ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"]:
+                # 💰 [최저가 텍스트 모델 1순위] gemini-2.5-flash-lite 최우선 호출 ➔ flash ➔ flash-latest 순 롤오버
+                for m_name in ["gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-flash-latest"]:
                     try:
                         response = client.models.generate_content(
                             model=m_name,
@@ -313,7 +315,7 @@ class StockGeminiWriter:
                             config=genai_types.GenerateContentConfig(
                                 automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True), system_instruction=system_instruction,
                                 temperature=0.7,
-                                max_output_tokens=4096
+                                max_output_tokens=8192
                             )
                         )
                         break

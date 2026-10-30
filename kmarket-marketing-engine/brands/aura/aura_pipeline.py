@@ -17,11 +17,14 @@ import os
 import sys
 import json
 import time
+import uuid
 import argparse
 import logging
 import asyncio
 import threading
-from typing import Dict, Any, Optional
+import traceback
+from datetime import datetime, timedelta
+from typing import Dict, Any, Optional, List
 
 # Root path alignment
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -288,74 +291,286 @@ class AuraPipeline:
         """일일 전 채널 순차 사이클 실행 (하위 호환 및 스케줄러 공식 표준)"""
         return self.run_full_cycle()
 
-    # 24시간 365일 무인 자율 구동 데몬
+    # ============================================================
+    # [구조 재설계] 영속 슬롯 원장 + 상태기계 + lease 락 + Producer/Consumer
+    # ============================================================
+    LEDGER_DIR = os.path.join(current_dir, ".aura_state")
+    LEDGER_PATH = os.path.join(LEDGER_DIR, "slot_ledger.json")
+    READY_POOL_DIR = os.path.join(LEDGER_DIR, "ready_pool")
+    LOCK_DIR = os.path.join(LEDGER_DIR, "locks")
+    LEASE_TTL_SEC = 900          # 15분 lease (좀비 회수 기준)
+    SLOT_TIMEOUT_SEC = 1800      # 슬롯 실행 하드 타임아웃
+    MAX_RETRY = 3
+    BACKOFF_BASE_SEC = 60
+
+    # 24시간 균등 분산 슬롯 테이블 (KST)
+    # (slot_id, hour, minute, channel, kwargs)
+    SLOT_TABLE = [
+        ("shorts_0830",   8, 30, "shorts",   {}),
+        ("blog_1000",    10,  0, "blog",     {}),
+        ("cardnews_1230",12, 30, "cardnews", {}),
+        ("blog_1500",    15,  0, "blog",     {}),
+        ("shorts_1930",  19, 30, "shorts",   {}),
+        ("blog_2000",    20,  0, "blog",     {}),
+    ]
+    # 지식iN: 매 30분 오프셋(10,40) - 별도 저부하 슬롯
+    KIN_MINUTES = [10, 40]
+
+    def _ensure_dirs(self):
+        for d in (self.LEDGER_DIR, self.READY_POOL_DIR, self.LOCK_DIR):
+            os.makedirs(d, exist_ok=True)
+
+    def _load_ledger(self) -> Dict[str, Any]:
+        self._ensure_dirs()
+        if not os.path.exists(self.LEDGER_PATH):
+            return {"slots": {}, "version": 1}
+        try:
+            with open(self.LEDGER_PATH, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            logger.error(f"원장 로드 실패(손상 복구): {e}")
+            return {"slots": {}, "version": 1}
+
+    def _save_ledger(self, ledger: Dict[str, Any]):
+        self._ensure_dirs()
+        tmp = self.LEDGER_PATH + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(ledger, f, ensure_ascii=False, indent=2)
+        os.replace(tmp, self.LEDGER_PATH)  # 원자적 교체
+
+    def _acquire_lease(self, slot_key: str) -> bool:
+        """슬롯키 기반 파일 lease. TTL 만료 시 좀비 락 회수."""
+        self._ensure_dirs()
+        lock_path = os.path.join(self.LOCK_DIR, f"{slot_key}.lock")
+        now_ts = time.time()
+        try:
+            if os.path.exists(lock_path):
+                try:
+                    with open(lock_path, "r", encoding="utf-8") as f:
+                        info = json.load(f)
+                    if now_ts - info.get("ts", 0) < self.LEASE_TTL_SEC:
+                        return False  # 유효 락 존재
+                    logger.warning(f"♻️ 만료 lease 회수: {slot_key}")
+                except Exception:
+                    pass
+            with open(lock_path, "w", encoding="utf-8") as f:
+                json.dump({"pid": os.getpid(), "ts": now_ts, "token": uuid.uuid4().hex}, f)
+            return True
+        except Exception as e:
+            logger.error(f"lease 획득 실패 {slot_key}: {e}")
+            return False
+
+    def _release_lease(self, slot_key: str):
+        lock_path = os.path.join(self.LOCK_DIR, f"{slot_key}.lock")
+        try:
+            if os.path.exists(lock_path):
+                os.remove(lock_path)
+        except Exception:
+            pass
+
+    def _run_with_timeout(self, fn, timeout_sec: int, *args, **kwargs):
+        """블로킹 호출을 별도 스레드로 격리하고 하드 타임아웃 적용."""
+        result_box: Dict[str, Any] = {}
+
+        def _target():
+            try:
+                result_box["ok"] = fn(*args, **kwargs)
+            except Exception as e:
+                result_box["err"] = e
+                result_box["tb"] = traceback.format_exc()
+
+        t = threading.Thread(target=_target, daemon=True)
+        t.start()
+        t.join(timeout_sec)
+        if t.is_alive():
+            raise TimeoutError(f"슬롯 실행 타임아웃({timeout_sec}s) 초과")
+        if "err" in result_box:
+            raise result_box["err"]
+        return result_box.get("ok")
+
+    def _dispatch_channel(self, channel: str, kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """채널 라우팅 (기존 run_channel 재사용, human/kin 등 인자 정합)."""
+        if channel == "shorts":
+            return self.run_shorts(**kwargs)
+        if channel == "cardnews":
+            return self.run_cardnews(**kwargs)
+        if channel == "blog":
+            return self.run_blog()
+        if channel == "kin":
+            return self.run_kin()
+        return self.run_channel(channel, **kwargs)
+
+    def _execute_slot(self, slot_key: str, channel: str, kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """원장 상태기계 기반 슬롯 실행. 실패 시 FAILED로 남겨 재시도 가능."""
+        ledger = self._load_ledger()
+        slot = ledger["slots"].get(slot_key, {
+            "slot_key": slot_key, "channel": channel, "status": "PENDING",
+            "retry": 0, "created_at": get_now_kst_str(),
+        })
+
+        # 이미 완료된 슬롯은 스킵 (멱등)
+        if slot.get("status") == "DONE":
+            logger.info(f"⏭️ 이미 완료된 슬롯 스킵: {slot_key}")
+            return {"status": "SKIPPED", "slot_key": slot_key}
+
+        # lease 획득 실패 = 다른 프로세스가 실행 중
+        if not self._acquire_lease(slot_key):
+            logger.info(f"🔒 다른 프로세스가 실행 중(lease): {slot_key}")
+            return {"status": "LOCKED", "slot_key": slot_key}
+
+        try:
+            slot["status"] = "RUNNING"
+            slot["started_at"] = get_now_kst_str()
+            slot["pid"] = os.getpid()
+            ledger["slots"][slot_key] = slot
+            self._save_ledger(ledger)
+
+            logger.info(f"▶️ 슬롯 실행: {slot_key} (channel={channel}, retry={slot.get('retry',0)})")
+            res = self._run_with_timeout(self._dispatch_channel, self.SLOT_TIMEOUT_SEC, channel, kwargs)
+
+            # 성공 판정
+            success = bool(
+                isinstance(res, dict) and (
+                    res.get("success") or res.get("status") in ("SUCCESS", "COMPLETED", "SUCCESS_WAIT")
+                    or res.get("youtube_url") or res.get("instagram_url") or res.get("blog_url")
+                    or res.get("thread_url") or res.get("kin_url") or res.get("article_url")
+                )
+            )
+
+            ledger = self._load_ledger()
+            slot = ledger["slots"].get(slot_key, slot)
+            if success:
+                slot["status"] = "DONE"
+                slot["finished_at"] = get_now_kst_str()
+                slot["result"] = {"ok": True}
+            else:
+                slot["retry"] = slot.get("retry", 0) + 1
+                slot["last_error"] = str(res.get("error") if isinstance(res, dict) else res)[:500]
+                slot["status"] = "FAILED" if slot["retry"] >= self.MAX_RETRY else "PENDING"
+                slot["next_retry_at"] = (
+                    get_now_kst() + timedelta(seconds=self.BACKOFF_BASE_SEC * (2 ** (slot["retry"] - 1)))
+                ).strftime("%Y-%m-%d %H:%M:%S")
+            ledger["slots"][slot_key] = slot
+            self._save_ledger(ledger)
+            return {"status": slot["status"], "slot_key": slot_key, "result": res}
+
+        except Exception as e:
+            logger.error(f"❌ 슬롯 실행 예외 {slot_key}: {e}\n{traceback.format_exc()}")
+            ledger = self._load_ledger()
+            slot = ledger["slots"].get(slot_key, slot)
+            slot["retry"] = slot.get("retry", 0) + 1
+            slot["last_error"] = str(e)[:500]
+            slot["status"] = "FAILED" if slot["retry"] >= self.MAX_RETRY else "PENDING"
+            slot["next_retry_at"] = (
+                get_now_kst() + timedelta(seconds=self.BACKOFF_BASE_SEC * (2 ** (slot["retry"] - 1)))
+            ).strftime("%Y-%m-%d %H:%M:%S")
+            ledger["slots"][slot_key] = slot
+            self._save_ledger(ledger)
+            return {"status": slot["status"], "slot_key": slot_key, "error": str(e)}
+        finally:
+            self._release_lease(slot_key)
+
+    def _build_due_slots(self, now: datetime) -> List[Dict[str, Any]]:
+        """현재 시각 기준 due 슬롯 산출 (캐치업 포함)."""
+        today_str = now.strftime("%Y-%m-%d")
+        due = []
+        for slot_id, h, m, channel, kwargs in self.SLOT_TABLE:
+            slot_dt = now.replace(hour=h, minute=m, second=0, microsecond=0)
+            if now >= slot_dt:
+                due.append({
+                    "slot_key": f"{today_str}_{slot_id}",
+                    "channel": channel,
+                    "kwargs": kwargs,
+                })
+        # 지식iN: 매 30분 오프셋 슬롯
+        for h in range(24):
+            for m in self.KIN_MINUTES:
+                slot_dt = now.replace(hour=h, minute=m, second=0, microsecond=0)
+                if now >= slot_dt:
+                    due.append({
+                        "slot_key": f"{today_str}_kin_{h:02d}{m:02d}",
+                        "channel": "kin",
+                        "kwargs": {},
+                    })
+        return due
+
+    def _recover_zombies(self):
+        """RUNNING 상태로 남은 좀비 슬롯을 PENDING으로 회수."""
+        ledger = self._load_ledger()
+        now_ts = time.time()
+        changed = False
+        for key, slot in ledger.get("slots", {}).items():
+            if slot.get("status") == "RUNNING":
+                started = slot.get("started_at")
+                try:
+                    started_dt = datetime.strptime(started, "%Y-%m-%d %H:%M:%S")
+                    if (get_now_kst().replace(tzinfo=None) - started_dt).total_seconds() > self.LEASE_TTL_SEC:
+                        slot["status"] = "PENDING"
+                        slot["last_error"] = "zombie_recovered"
+                        changed = True
+                        logger.warning(f"♻️ 좀비 슬롯 회수: {key}")
+                except Exception:
+                    slot["status"] = "PENDING"
+                    changed = True
+        if changed:
+            self._save_ledger(ledger)
+
+    def _should_retry_now(self, slot: Dict[str, Any], now: datetime) -> bool:
+        if slot.get("status") != "PENDING":
+            return False
+        nra = slot.get("next_retry_at")
+        if not nra:
+            return True
+        try:
+            return now >= datetime.strptime(nra, "%Y-%m-%d %H:%M:%S")
+        except Exception:
+            return True
+
+    # 24시간 365일 무인 자율 구동 데몬 (원장 기반 재설계)
     def run_daemon(self):
         logger.info("=" * 60)
-        logger.info(f"🤖 [{self.NAME}] 24시간 365일 무인 자율 백그라운드 데몬 가동")
+        logger.info(f"🤖 [{self.NAME}] 24시간 365일 무인 자율 백그라운드 데몬 가동 (원장 기반)")
         logger.info(f"   • 공식 검색어: '{self.KEYWORD}'")
-        logger.info(f"   • ☀️ 오전 08:30: 동영상 숏츠 ① (4대 플랫폼: 유튜브+클립+인스타+페북)")
-        logger.info(f"   • 🍱 오후 12:30: 카드뉴스형 콘텐츠 (4대 플랫폼: 유튜브+클립+인스타+페북)")
-        logger.info(f"   • 🌙 저녁 19:30: 동영상 숏츠 ② (4대 플랫폼: 유튜브+클립+인스타+페북)")
-        logger.info(f"   • ✍️ 블로그: 10:00 / 15:00 / 20:00 KST")
-        logger.info(f"   • 🤖 휴먼 웜업: 08:30 / 12:30 / 15:30 / 21:30 KST")
+        logger.info(f"   • 슬롯 원장: {self.LEDGER_PATH}")
+        logger.info(f"   • lease TTL: {self.LEASE_TTL_SEC}s / 슬롯 타임아웃: {self.SLOT_TIMEOUT_SEC}s")
         logger.info("=" * 60)
 
-        # 1. 휴먼 비헤이비어 백그라운드 스레드
+        self._ensure_dirs()
+
+        # 휴먼 비헤이비어 백그라운드 스레드 (별도 격리)
         t_human = threading.Thread(target=self.run_human_behavior, kwargs={"mode": "daemon"}, daemon=True)
         t_human.start()
 
-        executed_slots = set()
-
+        last_recover = 0.0
         while True:
             try:
                 now = get_now_kst()
-                today_str = now.strftime("%Y-%m-%d")
-                hour = now.hour
-                minute = now.minute
+                now_naive = now.replace(tzinfo=None)
 
-                # 1차 동영상 숏츠 슬롯 (08:30 KST)
-                if hour == 8 and minute == 30:
-                    slot_key = f"{today_str}_shorts_0830"
-                    if slot_key not in executed_slots:
-                        executed_slots.add(slot_key)
-                        logger.info(f"⏰ [{self.NAME}] ☀️ 출근길(08:30) 동영상 숏츠 ① 4대 플랫폼 정시 송출 시작...")
-                        self.run_shorts()
+                # 5분 주기 좀비 회수
+                if time.time() - last_recover > 300:
+                    self._recover_zombies()
+                    last_recover = time.time()
 
-                # 2차 카드뉴스형 슬롯 (12:30 KST)
-                if hour == 12 and minute == 30:
-                    slot_key = f"{today_str}_cardnews_1230"
-                    if slot_key not in executed_slots:
-                        executed_slots.add(slot_key)
-                        logger.info(f"⏰ [{self.NAME}] 🍱 점심시간(12:30) 카드뉴스형 콘텐츠 4대 플랫폼 정시 송출 시작...")
-                        self.run_cardnews()
+                # due 슬롯 산출 후 순차 실행 (각 슬롯은 lease로 격리)
+                due_slots = self._build_due_slots(now_naive)
+                ledger = self._load_ledger()
 
-                # 3차 동영상 숏츠 슬롯 (19:30 KST)
-                if hour == 19 and minute == 30:
-                    slot_key = f"{today_str}_shorts_1930"
-                    if slot_key not in executed_slots:
-                        executed_slots.add(slot_key)
-                        logger.info(f"⏰ [{self.NAME}] 🌙 저녁 골든타임(19:30) 동영상 숏츠 ② 4대 플랫폼 정시 송출 시작...")
-                        self.run_shorts()
+                for item in due_slots:
+                    key = item["slot_key"]
+                    slot = ledger["slots"].get(key)
+                    if slot and slot.get("status") == "DONE":
+                        continue
+                    if slot and not self._should_retry_now(slot, now_naive):
+                        continue
+                    logger.info(f"⏰ [{self.NAME}] due 슬롯 실행: {key}")
+                    self._execute_slot(key, item["channel"], item["kwargs"])
+                    ledger = self._load_ledger()
 
-                # 블로그 슬롯 (하루 3회: 10:00, 15:00, 20:00 KST)
-                if minute == 0 and hour in [10, 15, 20]:
-                    slot_key = f"{today_str}_blog_{hour}00"
-                    if slot_key not in executed_slots:
-                        executed_slots.add(slot_key)
-                        logger.info(f"⏰ [{self.NAME}] {hour}:00 블로그 정시 배포 시작...")
-                        self.run_blog()
-
-                # 지식iN 1일 10건 실시간 체크 (매 30분)
-                if minute in [10, 40]:
-                    slot_key = f"{today_str}_kin_{hour}_{minute}"
-                    if slot_key not in executed_slots:
-                        executed_slots.add(slot_key)
-                        self.run_kin()
-
-                time.sleep(30)
+                time.sleep(20)  # 폴링 주기 단축 (판정은 원장 기반이므로 안전)
             except Exception as e:
-                logger.error(f"❌ [{self.NAME} 데몬 오류] {e}")
-                time.sleep(60)
+                logger.error(f"❌ [{self.NAME} 데몬 오류] {e}\n{traceback.format_exc()}")
+                time.sleep(30)
 
 
 if __name__ == "__main__":

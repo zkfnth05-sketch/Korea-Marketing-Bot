@@ -68,14 +68,21 @@ class AuraThreadsTextPipeline:
         return post_pkg
 
     async def execute_slot(self, slot: str = "morning", dry_run: bool = False, custom_theme: Optional[str] = None) -> Dict[str, Any]:
-        """슬롯 1회 텍스트 생성 및 스레드 라이브 송출"""
+        """슬롯 1회 텍스트 생성 및 스레드 라이브 송출
+
+        🧬 [파이썬 검증 완료 후 제미나이 1회 호출] 원칙
+          - DRY-RUN : 사전에 generate_content 를 1회 호출하여 결과만 반환 (배포 없음)
+          - LIVE    : 사전 생성 금지. publish_thread 에 content_generator 콜백만 전달하여
+                      브라우저 오픈 → 오버레이 제거 → 작성창(textbox) 포커스 100% 확인
+                      이후에만 제미나이가 단 1회 호출되도록 지연 생성(Lazy) 보장.
+                      (세션 만료/작성창 미개설 시 Gemini 호출 0회)
+        """
         logger.info(f"🚀 [{self.BRAND_NAME}] 스레드 순수 텍스트 파이프라인 가동 (슬롯: {slot}, 모드: {'DRY-RUN' if dry_run else 'LIVE'})")
-        
-        # 1. 텍스트 집필
-        content = self.generate_content(slot=slot, custom_theme=custom_theme)
-        
+
+        # 1. DRY-RUN 전용: 사전 생성 (실제 배포를 하지 않으므로 여기서만 1회 호출)
         if dry_run:
-            logger.info("⚡ [DRY-RUN] 실제 스레드 배포는 건너뜁니다.")
+            content = self.generate_content(slot=slot, custom_theme=custom_theme)
+            logger.info("⚡ [DRY-RUN] 실제 스레드 배포는 건너뜁니다. (사전 생성 1회)")
             return {
                 "success": True,
                 "brand": self.BRAND,
@@ -84,19 +91,46 @@ class AuraThreadsTextPipeline:
                 "content": content
             }
 
-        # 2. 스레드 실제 라이브 송출 (사진 0장, image_paths=None)
+        # 2. LIVE: 사전 생성 절대 금지 → 지연 생성 콜백만 위임 (Gemini 호출 0회 보장)
+        logger.info("🧬 [LAZY] 라이브 모드 → content_generator 콜백 위임 (작성창 확보 후 1회 호출)")
+        generated: Dict[str, Any] = {}
+
+        def _lazy_generate() -> Dict[str, Any]:
+            """작성창 포커스 100% 확인 직후 publisher 가 단 1회 호출하는 생성기"""
+            nonlocal generated
+            if generated:
+                logger.warning("⚠️ [LAZY] content_generator 중복 호출 감지 → 캐시된 결과 재사용")
+                return generated
+            content = self.generate_content(slot=slot, custom_theme=custom_theme)
+            generated = content
+            return {
+                "caption": content.get("caption", ""),
+                "first_reply_text": content.get("first_reply", ""),
+            }
+
+        # 3. 스레드 실제 라이브 송출 (사진 0장, image_paths=None)
         pub_res = await self.publisher.publish_thread(
-            caption=content["caption"],
+            caption=None,
             image_paths=None,
-            first_reply_text=content["first_reply"]
+            first_reply_text=None,
+            content_generator=_lazy_generate,
         )
 
+        # 4. 히스토리 저장 (pub_res 세부 정보 + 실제 생성 본문 활용)
+        details = pub_res.get("details") or {}
+        caption_preview = (
+            details.get("caption_preview")
+            or (generated.get("caption", "")[:60] + "..." if generated.get("caption") else "")
+        )
         record = {
             "brand": self.BRAND,
             "slot": slot,
-            "topic": content["topic"],
-            "caption_preview": content["caption"][:60] + "...",
+            "topic": generated.get("topic", ""),
+            "caption_preview": caption_preview,
             "published_at": datetime.now().isoformat(),
+            "generated": bool(generated),
+            "idempotency_key": details.get("idempotency_key", ""),
+            "dedup": bool(details.get("dedup", False)),
             "publish_result": pub_res,
             "success": pub_res.get("success", False)
         }
@@ -106,6 +140,8 @@ class AuraThreadsTextPipeline:
             "success": pub_res.get("success", False),
             "brand": self.BRAND,
             "slot": slot,
+            "mode": "LIVE",
+            "generated": bool(generated),
             "publish_result": pub_res
         }
 

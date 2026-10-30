@@ -125,7 +125,7 @@ class MidnightContentFactory:
     STATE_FILE = CURRENT_DIR / "outputs" / "midnight_factory_state.json"
 
     # 태스크 단위 안전장치
-    TASK_TIMEOUT_SEC = 3600          # 태스크 1건 최대 60분
+    TASK_TIMEOUT_SEC = 5400          # 태스크 1건 최대 90분 (고화질 숏폼 렌더 + 큐 대기/VRAM 정리 지연 안전 마진)
     MAX_IMMEDIATE_RETRY = 1          # 태스크 단위 즉시 재시도 1회
     BACKOFF_BASE_SEC = 15            # 재시도 백오프 기본값
     BACKOFF_MAX_SEC = 120            # 재시도 백오프 상한
@@ -695,50 +695,25 @@ class MidnightContentFactory:
         now: Optional[datetime.datetime] = None,
     ) -> Tuple[bool, Optional[str]]:
         """
-        07:00 KTRS 주간 양보 마감 인지 판정.
+        [대표님 지시 반영 · 07:00 시계 마감 컷오프 전면 폐지]
 
-        반환: (진행 가능 여부, 이월 사유)
+        반환: (진행 가능 여부, 이월 사유) — 항상 (True, None)
 
-        판정 규칙:
-          (1) hour >= 7 (07:00 ~ 23:59)
-              → KTRS 주간 GPU 양보 시간대이므로 진행 불가
-          (2) 06:00 <= hour < 7
-              · 숏폼: 06:25 이후면 35분(30분 렌더 + 5분 쿨다운) 소요 시 07:00 초과
-              · 카드뉴스: 06:50 이후면 10분(5분 렌더 + 5분 쿨다운) 소요 시 07:00 초과
-          (3) 그 외 시간(00:00 ~ 06:25) → 정상 진행 허용
+        [개편 사유]
+        - 기존 로직은 07:00~23:59 주간 양보 시간대이거나 06:25(숏폼)/06:50(카드뉴스)
+          이후이면 태스크를 DEFERRED_DAYTIME_YIELD 로 잘라버려, 밤새 렌더링이
+          조금만 늦어져도 당일 콘텐츠가 미완성으로 남는 억울한 손실이 발생했다.
+        - 이제는 시계 기준 컷오프를 완전히 제거하고, 07:00을 넘기더라도
+          15개 숏폼/카드뉴스를 100% 끝까지 렌더링 완료한다.
+        - GPU 충돌/경합은 GPUSafetyGuard 의 상호 대기 락(inter-process lock)과
+          VRAM 방출·쿨다운 타이머가 이미 안전하게 조율하므로, 시간으로 잘라낼
+          필요가 없다. (KTRS 쪽 작업이 있으면 락이 순서를 양보/대기시킨다)
+
+        [호출부 호환성]
+        - _execute_single_task 는 (can_run, reason) 형태를 그대로 사용하며,
+          can_run=True 이므로 DEFERRED_DAYTIME_YIELD 분기는 절대 진입하지 않는다.
+        - content_type / now 인자는 시그니처 호환을 위해 유지한다(미사용).
         """
-        now = now or datetime.datetime.now()
-        hour = now.hour
-        minute = now.minute
-        hhmm = now.strftime("%H:%M")
-
-        # (1) 07:00 ~ 23:59 주간 GPU 양보 시간대
-        if hour >= self.DAYTIME_YIELD_START_HOUR:
-            return (
-                False,
-                "07:00~23:59 주간 GPU 양보 시간대(야간 제작 시간 초과)",
-            )
-
-        # (2) 06:00 ~ 06:59 마감 임박 구간
-        if 6 <= hour < self.DEADLINE_HOUR:
-            if content_type == "shorts":
-                # 06:25 이후 → 35분 소요 시 07:00 초과
-                if minute >= 25:
-                    return (
-                        False,
-                        f"현재 {hhmm} — 07:00 주간 양보 전 "
-                        f"숏폼 렌더 시간(35분) 부족으로 안전 이월",
-                    )
-            elif content_type == "cardnews":
-                # 06:50 이후 → 10분 소요 시 07:00 초과
-                if minute >= 50:
-                    return (
-                        False,
-                        f"현재 {hhmm} — 07:00 주간 양보 전 "
-                        f"카드뉴스 렌더 시간(10분) 부족으로 안전 이월",
-                    )
-
-        # (3) 00:00 ~ 06:25 정상 진행
         return (True, None)
 
     # ------------------------------------------------------------------

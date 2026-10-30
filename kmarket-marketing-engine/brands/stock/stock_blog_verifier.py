@@ -134,10 +134,11 @@ class StockBlogVerifier:
         except Exception:
             return None
 
-    def verify_all(self, expected_title: Optional[str] = None, capture: bool = False) -> Dict[str, Any]:
-        """네이버 및 티스토리 사후 발행 내역 종합 검증"""
+    def verify_all(self, expected_title: Optional[str] = None, expected_title_tistory: Optional[str] = None, capture: bool = False) -> Dict[str, Any]:
+        """네이버 및 티스토리 사후 발행 내역 종합 검증 (채널별 맞춤 제목 대조)"""
         nv_res = self.verify_naver_via_rss(expected_title=expected_title)
-        ti_res = self.verify_tistory_via_rss(expected_title=expected_title)
+        ti_title = expected_title_tistory or expected_title
+        ti_res = self.verify_tistory_via_rss(expected_title=ti_title)
 
         if capture:
             if nv_res.get("verified") and nv_res.get("real_url"):

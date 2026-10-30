@@ -34,7 +34,11 @@ async function loadHealthStatus(btn) {
         }
 
         // 🚀 0. 최상단: 현재 선택된 브랜드 1개 앱 전용 실시간 무인 발행 라이브 전광판 렌더링
-        renderHealthBrandLiveFeed(liveFeed, data.gpu_status, b);
+        try {
+            renderHealthBrandLiveFeed(liveFeed, data.gpu_status, b);
+        } catch (feedErr) {
+            console.error("[Health] renderHealthBrandLiveFeed error:", feedErr);
+        }
 
         const bFeed = (liveFeed.brands && liveFeed.brands[b]) || {};
         const blog = bFeed.blog || {};
@@ -1345,35 +1349,7 @@ function renderHealthBrandLiveFeed(liveFeed, gpuStatus, bKey) {
         `).join("");
     }
 
-    // 7. 🤖 레딧 글로벌 스텔스 침투 목록 (투명 실시간 서브레딧 + 작성 시각 + 댓글 내용 직결)
-    const reddit = bData.reddit || {};
-    const redditPosts = reddit.posts || [];
-    let redditListHtml = "";
-    if (redditPosts.length === 0) {
-        redditListHtml = `<div style="background:#F8FAFC;border:1px dashed #CBD5E1;border-radius:8px;padding:14px;text-align:center;font-size:11.5px;color:#94A3B8;">오늘자 레딧 침투 활동이 아직 없습니다. (정기 5회 스케줄 대기 중)</div>`;
-    } else {
-        redditListHtml = redditPosts.slice(0, 5).map(rp => `
-            <div style="background:#FFFFFF;border:1px solid ${rp.is_today ? '#FDBA74' : '#E2E8F0'};border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;${rp.is_today ? 'box-shadow:0 2px 8px rgba(234,88,12,0.08);' : ''}">
-                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
-                    <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">
-                        <span style="background:#EA580C;color:#FFFFFF;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:4px;letter-spacing:0.3px;">r/${rp.subreddit || 'Reddit'}</span>
-                        ${rp.is_today ? '<span style="background:#FEF3C7;color:#D97706;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:4px;border:1px solid #FDE68A;">🔥 오늘 침투</span>' : ''}
-                        <strong style="font-size:12px;color:#0F172A;margin-left:6px;" title="${rp.title || ''}">${rp.title || '게시글'}</strong>
-                    </div>
-                    <div style="display:flex;align-items:center;gap:6px;">
-                        <span style="font-size:11px;color:#475569;font-weight:600;">🕒 ${rp.time || '-'}</span>
-                        <a href="${rp.url || '#'}" target="_blank" style="font-size:11px;color:#EA580C;font-weight:800;text-decoration:none;background:#FFF7ED;padding:3px 9px;border-radius:5px;border:1px solid #FED7AA;transition:all 0.15s ease;">🔗 원문 열기↗</a>
-                    </div>
-                </div>
-                ${rp.comment_snippet ? `
-                    <div style="font-size:11.5px;color:#334155;background:#FFF7ED;border:1px solid #FFEDD5;padding:8px 12px;border-radius:6px;border-left:4px solid #EA580C;line-height:1.45;word-break:break-word;">
-                        <div style="font-size:10.5px;font-weight:800;color:#C2410C;margin-bottom:3px;">💬 실제 등록된 스텔스 맞춤 댓글:</div>
-                        "${rp.comment_snippet}"
-                    </div>
-                ` : ''}
-            </div>
-        `).join("");
-    }
+    // 7. 🚫 [레딧 목록 영구 삭제 완료] 대표님 지시로 레딧 침투 데이터 렌더링 전면 제거
 
     container.innerHTML = `
         ${gpuBannerHtml}
@@ -1388,12 +1364,12 @@ function renderHealthBrandLiveFeed(liveFeed, gpuStatus, bKey) {
                         <span class="badge-live-pulse" style="font-size:11px;"><span class="pulse-dot"></span> 실시간 동기화</span>
                     </div>
                     <p class="section-subtitle" style="margin-top:4px;font-size:12px;color:#64748B;">
-                        선택된 <strong>${cfg.title}</strong>의 모든 블로그, 숏폼, 카드뉴스, 지식iN, 카페, 레딧의 <strong>실제 발행 URL과 초 단위 시각(YYYY-MM-DD HH:MM:SS)</strong>을 100% 독립 분리 표출합니다.
+                        선택된 <strong>${cfg.title}</strong>의 모든 블로그, 숏폼, 카드뉴스, 지식iN, 카페의 <strong>실제 발행 URL과 초 단위 시각(YYYY-MM-DD HH:MM:SS)</strong>을 100% 독립 분리 표출합니다.
                     </p>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                     <div style="font-size:11.5px;color:#475569;background:#FFFFFF;padding:6px 12px;border-radius:8px;font-weight:700;border:1px solid #CBD5E1;">
-                        📅 오늘(${today}) 실적: 블로그 <strong style="color:#2563EB;">${blog.today_count || 0}</strong>건 | 숏폼 <strong style="color:#DC2626;">${shorts.today_count || 0}</strong>건 | 카드뉴스 <strong style="color:#7C3AED;">${cardnews.today_count || 0}</strong>세트 | 지식iN <strong style="color:#0284C7;">${kin.today_count || 0}</strong>건 | 카페 <strong style="color:#D97706;">${(bData.cafe && bData.cafe.today_count) || 0}</strong>건 | 레딧 <strong style="color:#EA580C;">${reddit.today_count || 0}</strong>건
+                        📅 오늘(${today}) 실적: 블로그 <strong style="color:#2563EB;">${blog.today_count || 0}</strong>건 | 숏폼 <strong style="color:#DC2626;">${shorts.today_count || 0}</strong>건 | 카드뉴스 <strong style="color:#7C3AED;">${cardnews.today_count || 0}</strong>세트 | 지식iN <strong style="color:#0284C7;">${kin.today_count || 0}</strong>건 | 카페 <strong style="color:#D97706;">${(bData.cafe && bData.cafe.today_count) || 0}</strong>건
                     </div>
                     <button class="btn btn-secondary" onclick="loadHealthStatus(this)" style="font-size:12px;padding:6px 12px;">
                         🔄 실시간 갱신
@@ -1462,16 +1438,7 @@ function renderHealthBrandLiveFeed(liveFeed, gpuStatus, bKey) {
                     </div>
                 </div>
 
-                <!-- 6. 🤖 레딧 글로벌 2단계 스텔스 침투 -->
-                <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,0.03);">
-                    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #F1F5F9;padding-bottom:8px;">
-                        <span style="font-size:13px;font-weight:800;color:#EA580C;">🤖 레딧 글로벌 침투 (오늘 ${reddit.today_count || 0} / ${reddit.target_count || 4}회 목표 | Zero URL 원칙)</span>
-                        <button onclick="triggerRedditInfiltration('${b}', this)" style="font-size:11px;font-weight:700;padding:3px 8px;background:#FFF7ED;color:#EA580C;border:1px solid #FED7AA;border-radius:6px;cursor:pointer;">⚡ 1회 즉시 침투</button>
-                    </div>
-                    <div style="display:flex;flex-direction:column;gap:6px;">
-                        ${redditListHtml}
-                    </div>
-                </div>
+                <!-- 6. 🚫 [레딧 카드 영구 삭제 완료] 대표님 지시로 대시보드 레딧 침투 UI 전면 제거 -->
             </div>
         </div>
     `;

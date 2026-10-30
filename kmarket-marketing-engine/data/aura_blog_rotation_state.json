@@ -1,10 +1,379 @@
 {
-  "current_topic_index": 32,
-  "last_topic_id": 60,
-  "last_run_time": "2026-10-28 14:50:21",
-  "last_title": "소개팅 전 긴장감? MBTI로 설렘 UP! 불안 DOWN! 마인드셋 완전 정복",
-  "published_count": 57,
+  "current_topic_index": 36,
+  "last_topic_id": 24,
+  "last_run_time": "2026-10-30 16:34:57",
+  "last_title": "한남동 소개팅, 실패율 0% 보장! 성공률 높이는 핫플 & 산책 코스 완벽 가이드",
+  "published_count": 61,
   "history": [
+    {
+      "topic_id": 24,
+      "title": "한남동 소개팅, 실패율 0% 보장! 성공률 높이는 핫플 & 산책 코스 완벽 가이드",
+      "title_naver": "한남동 소개팅, 실패율 0% 보장! 성공률 높이는 핫플 & 산책 코스 완벽 가이드",
+      "title_tistory": "2026년 2030 소개팅 트렌드: 한남동/이태원 성공률 100% 데이트 코스 총정리",
+      "title_kakao": "소개팅 성공의 성지, 한남동! 분위기 맛집부터 감성 산책까지, 인생샷 보장 코스 공개💖",
+      "category": "date_spots",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_024_date_spots_20261030_163335.webp",
+      "published_at": "2026-10-30 16:34:57",
+      "publish_results": {
+        "topic_id": 24,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-024",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "한남동 소개팅, 실패율 0% 보장! 성공률 높이는 핫플 & 산책 코스 완벽 가이드",
+            "url": "https://blog.naver.com/zkfnth01/224459199988",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플",
+              "성수동핫플거리",
+              "성수동핫플레이스",
+              "성수동핫플카페",
+              "성수동핫플맛집",
+              "성수동핫플빵집",
+              "500m안심레이더",
+              "동네친구",
+              "성수동번개",
+              "퇴근길번개",
+              "안심데이팅",
+              "위치보안",
+              "성수동데이트"
+            ],
+            "post_url": "https://blog.naver.com/zkfnth01/224459199988"
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-magazine",
+            "title": "2026년 2030 소개팅 트렌드: 한남동/이태원 성공률 100% 데이트 코스 총정리",
+            "url": "https://aura-magazine.tistory.com/28",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플",
+              "성수동핫플거리",
+              "성수동핫플레이스",
+              "성수동핫플카페",
+              "성수동핫플맛집",
+              "성수동핫플빵집",
+              "500m안심레이더",
+              "동네친구",
+              "성수동번개",
+              "퇴근길번개",
+              "안심데이팅",
+              "위치보안",
+              "성수동데이트"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "aura",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "zkfnth01",
+            "title": "한남동 소개팅, 실패율 0% 보장! 성공률 높이는 핫플 & 산책 코스 완벽 가이드",
+            "real_url": "https://blog.naver.com/zkfnth01/224459199988",
+            "log_no": "224459199988",
+            "pub_date": "Fri, 30 Oct 2026 16:34:30 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\aura\\blog_verification\\naver_proof_1793345694.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "aura-magazine",
+            "title": "2026년 2030 소개팅 트렌드: 한남동/이태원 성공률 100% 데이트 코스 총정리",
+            "real_url": "https://aura-magazine.tistory.com/28",
+            "pub_date": "Fri, 30 Oct 2026 16:34:45 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-30 16:34:57"
+        }
+      }
+    },
+    {
+      "topic_id": 6,
+      "title": "소개팅 애프터, 이렇게 거절하면 '인성 갑' 소리 듣습니다! 3가지 매너 멘트",
+      "title_naver": "소개팅 애프터, 이렇게 거절하면 '인성 갑' 소리 듣습니다! 3가지 매너 멘트",
+      "title_tistory": "[2026 가이드] 소개팅 애프터 거절 시그널을 부드럽게 돌려말하는 법 핵심 정리",
+      "title_kakao": "소개팅 애프터 거절 시그널을 부드럽게 돌려말하는 법에 대한 솔직한 이야기",
+      "category": "kakaotalk_signals",
+      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_006_kakaotalk_signals_20261030_161921.webp",
+      "published_at": "2026-10-30 16:20:44",
+      "publish_results": {
+        "topic_id": 6,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-006",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "소개팅 애프터, 이렇게 거절하면 '인성 갑' 소리 듣습니다! 3가지 매너 멘트",
+            "url": "https://blog.naver.com/zkfnth01/224459182120",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플",
+              "성수동핫플거리",
+              "성수동핫플레이스",
+              "성수동핫플카페",
+              "성수동핫플맛집",
+              "성수동핫플빵집",
+              "소개팅첫마디",
+              "읽씹탈출",
+              "AI대화비서",
+              "센스있는첫인사",
+              "스몰토크",
+              "답장률98프로",
+              "성수동데이트"
+            ],
+            "post_url": "https://blog.naver.com/zkfnth01/224459182120"
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-magazine",
+            "title": "[2026 가이드] 소개팅 애프터 거절 시그널을 부드럽게 돌려말하는 법 핵심 정리",
+            "url": "https://aura-magazine.tistory.com/27",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플",
+              "성수동핫플거리",
+              "성수동핫플레이스",
+              "성수동핫플카페",
+              "성수동핫플맛집",
+              "성수동핫플빵집",
+              "소개팅첫마디",
+              "읽씹탈출",
+              "AI대화비서",
+              "센스있는첫인사",
+              "스몰토크",
+              "답장률98프로",
+              "성수동데이트"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "aura",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "zkfnth01",
+            "title": "소개팅 애프터, 이렇게 거절하면 '인성 갑' 소리 듣습니다! 3가지 매너 멘트",
+            "real_url": "https://blog.naver.com/zkfnth01/224459182120",
+            "log_no": "224459182120",
+            "pub_date": "Fri, 30 Oct 2026 16:20:18 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\aura\\blog_verification\\naver_proof_1793344841.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "aura-magazine",
+            "title": "[2026 가이드] 소개팅 애프터 거절 시그널을 부드럽게 돌려말하는 법 핵심 정리",
+            "real_url": "https://aura-magazine.tistory.com/27",
+            "pub_date": "Fri, 30 Oct 2026 16:20:32 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-30 16:20:44"
+        }
+      }
+    },
+    {
+      "topic_id": 91,
+      "title": "소개팅 애프터 거절 시그널? '이번 주는 바빠서요' 완곡한 거절 눈치채는 4가지 특징",
+      "title_naver": "소개팅 애프터 거절 시그널? '이번 주는 바빠서요' 완곡한 거절 눈치채는 4가지 특징",
+      "title_tistory": "[2026 가이드] 애프터 거절 신호(완곡한 거절)를 눈치채는 4가지 특징 핵심 정리",
+      "title_kakao": "애프터 거절 신호(완곡한 거절)를 눈치채는 4가지 특징에 대한 솔직한 이야기",
+      "category": "after_dating",
+      "image_url": "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1200&auto=format&fit=crop&q=80",
+      "published_at": "2026-10-30 16:11:38",
+      "publish_results": {
+        "topic_id": 91,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-091",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "소개팅 애프터 거절 시그널? '이번 주는 바빠서요' 완곡한 거절 눈치채는 4가지 특징",
+            "url": "https://blog.naver.com/zkfnth01/224459170714",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플",
+              "성수동핫플거리",
+              "성수동핫플레이스",
+              "성수동핫플카페",
+              "성수동핫플맛집",
+              "성수동핫플빵집",
+              "50대50황금성비",
+              "성비50대50",
+              "소개팅앱추천",
+              "데이팅앱추천",
+              "남초탈출",
+              "유령회원제로",
+              "성수동데이트"
+            ],
+            "post_url": "https://blog.naver.com/zkfnth01/224459170714"
+          },
+          "tistory": {
+            "status": "error",
+            "blog_name": "aura-magazine",
+            "title": "[2026 가이드] 애프터 거절 신호(완곡한 거절)를 눈치채는 4가지 특징 핵심 정리",
+            "url": "https://aura-magazine.tistory.com/26",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플",
+              "성수동핫플거리",
+              "성수동핫플레이스",
+              "성수동핫플카페",
+              "성수동핫플맛집",
+              "성수동핫플빵집",
+              "50대50황금성비",
+              "성비50대50",
+              "소개팅앱추천",
+              "데이팅앱추천",
+              "남초탈출",
+              "유령회원제로",
+              "성수동데이트"
+            ],
+            "message": "사후 실사 검증 실패 (티스토리 미등록: 제목 불일치)"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "aura",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "zkfnth01",
+            "title": "소개팅 애프터 거절 시그널? '이번 주는 바빠서요' 완곡한 거절 눈치채는 4가지 특징",
+            "real_url": "https://blog.naver.com/zkfnth01/224459170714",
+            "log_no": "224459170714",
+            "pub_date": "Fri, 30 Oct 2026 16:11:11 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\aura\\blog_verification\\naver_proof_1793344294.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "aura-magazine",
+            "title": "[2026 가이드] 애프터 거절 신호(완곡한 거절)를 눈치채는 4가지 특징 핵심 정리",
+            "real_url": "https://aura-magazine.tistory.com/26",
+            "pub_date": "Fri, 30 Oct 2026 16:11:25 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-30 16:11:38"
+        }
+      }
+    },
+    {
+      "topic_id": 76,
+      "title": "겨울 소개팅, 이것만 기억해! 코트&목폴라로 완성하는 첫 만남 클래식 룩",
+      "title_naver": "겨울 소개팅, 이것만 기억해! 코트&목폴라로 완성하는 첫 만남 클래식 룩",
+      "title_tistory": "[2026 가이드] 겨울 소개팅 코트와 목폴라 단정한 클래식 룩 핵심 정리",
+      "title_kakao": "겨울 소개팅 코트와 목폴라 단정한 클래식 룩에 대한 솔직한 이야기",
+      "category": "lookbook_style",
+      "image_url": "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=1200&auto=format&fit=crop&q=80",
+      "published_at": "2026-10-30 12:13:42",
+      "publish_results": {
+        "topic_id": 76,
+        "channels": {
+          "aura_app": {
+            "status": "success",
+            "feed_post_id": "mag-topic-076",
+            "translations_count": 2,
+            "lounge_url": "https://aura-ai-dating.vercel.app/"
+          },
+          "naver_blog": {
+            "status": "success",
+            "blog_id": "zkfnth01",
+            "title": "겨울 소개팅, 이것만 기억해! 코트&목폴라로 완성하는 첫 만남 클래식 룩",
+            "url": "https://blog.naver.com/zkfnth01/224458884617",
+            "tags": [
+              "아우라AI데이팅",
+              "AURA",
+              "성수동핫플",
+              "성수동핫플거리",
+              "성수동핫플레이스",
+              "성수동핫플카페",
+              "성수동핫플맛집",
+              "성수동핫플빵집",
+              "소개팅프로필",
+              "AI프로필",
+              "청담동스튜디오",
+              "인생샷",
+              "프로필사진",
+              "소개팅사진",
+              "성수동데이트"
+            ],
+            "post_url": "https://blog.naver.com/zkfnth01/224458884617"
+          },
+          "tistory": {
+            "status": "session_expired",
+            "message": "티스토리 카카오 세션 만료. [백업도 실패] 루트의 [1회연동]_aura_티스토리_영구로그인.bat 1회 실행 필요",
+            "blog_name": "aura-magazine"
+          },
+          "brunch": {
+            "status": "error",
+            "message": "로그인 만료 [백업도 실패] (1회 로그인 스크립트 실행 필요)"
+          }
+        },
+        "verification": {
+          "brand": "aura",
+          "naver": {
+            "verified": true,
+            "channel": "naver",
+            "blog_id": "zkfnth01",
+            "title": "겨울 소개팅, 이것만 기억해! 코트&목폴라로 완성하는 첫 만남 클래식 룩",
+            "real_url": "https://blog.naver.com/zkfnth01/224458884617",
+            "log_no": "224458884617",
+            "pub_date": "Fri, 30 Oct 2026 12:09:40 +0900",
+            "match_expected": true,
+            "screenshot": "C:\\Users\\zkfnt\\Desktop\\한국 마케팅봇\\kmarket-marketing-engine\\outputs\\aura\\blog_verification\\naver_proof_1793330018.png"
+          },
+          "tistory": {
+            "verified": false,
+            "channel": "tistory",
+            "blog_name": "aura-magazine",
+            "title": "[2026 가이드] 단답형 카톡을 자연스럽게 살려내는 티키타카 심폐소생술 핵심 정리",
+            "real_url": "https://aura-magazine.tistory.com/23",
+            "pub_date": "Tue, 27 Oct 2026 14:47:01 +0900",
+            "match_expected": false
+          },
+          "timestamp": "2026-10-30 12:13:42"
+        }
+      }
+    },
     {
       "topic_id": 60,
       "title": "소개팅 전 긴장감? MBTI로 설렘 UP! 불안 DOWN! 마인드셋 완전 정복",
@@ -2892,213 +3261,6 @@
             "title": "주말에 뭐 하세요? 라는 질문 대신, 상대의 마음을 여는 카톡 한 끗 차이",
             "post_url": "https://brunch.co.kr",
             "archive_file": "brunch_draft_topic_012.json"
-          }
-        }
-      }
-    },
-    {
-      "topic_id": 11,
-      "title": "소개팅 카톡 첫 대화, 상대방 프사와 상메만 봐도 성공률 200% 올리는 법",
-      "title_naver": "소개팅 카톡 첫 대화, 상대방 프사와 상메만 봐도 성공률 200% 올리는 법",
-      "title_tistory": "소개팅 카톡 대화 및 첫 인사 가이드: 프로필로 상대방 성향 완벽 분석하기",
-      "title_kakao": "프사 하나로 다 안다고? 썸남썸녀의 속마음을 읽는 카톡 심리학",
-      "category": "kakaotalk_signals",
-      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_011_kakaotalk_signals_20260921_122030.webp",
-      "published_at": "2026-09-21 12:21:28",
-      "publish_results": {
-        "topic_id": 11,
-        "channels": {
-          "aura_app": {
-            "status": "success",
-            "feed_post_id": "mag-topic-011",
-            "translations_count": 2,
-            "lounge_url": "https://aura-ai-dating.vercel.app/"
-          },
-          "naver_blog": {
-            "status": "success",
-            "blog_id": "zkfnth01",
-            "title": "소개팅 카톡 첫 대화, 상대방 프사와 상메만 봐도 성공률 200% 올리는 법",
-            "url": "https://nid.naver.com/nidlogin.login?mode=form&url=https%3A%2F%2Fblog.naver.com%2Fzkfnth01%3FRedirect=%26categoryNo=",
-            "tags": [
-              "소개팅카톡첫대화",
-              "소개팅카톡",
-              "소개팅카톡대화",
-              "소개팅카톡텀",
-              "소개팅카톡주제",
-              "소개팅카톡답장",
-              "소개팅카톡첫인사",
-              "소개팅카톡노잼"
-            ]
-          },
-          "tistory": {
-            "status": "session_expired",
-            "message": "티스토리 카카오 세션 만료. python brands/aura/aura_tistory_login.py 1회 실행 필요",
-            "blog_name": "aura-magazine"
-          },
-          "brunch": {
-            "status": "success",
-            "platform": "brunch",
-            "title": "프사 하나로 다 안다고? 썸남썸녀의 속마음을 읽는 카톡 심리학",
-            "post_url": "https://brunch.co.kr",
-            "archive_file": "brunch_draft_topic_011.json"
-          }
-        }
-      }
-    },
-    {
-      "topic_id": 10,
-      "title": "소개팅 카톡, 이것만 안 해도 성공? 정 떨어지는 최악의 말투 BEST 3",
-      "title_naver": "소개팅 카톡, 이것만 안 해도 성공? 정 떨어지는 최악의 말투 BEST 3",
-      "title_tistory": "소개팅 카톡 첫 인사부터 대화까지, 상대방의 마음을 식게 만드는 비호감 대화법 총정리",
-      "title_kakao": "그 사람이 답장을 안 하는 이유, 혹시 당신의 '카톡 말투'가 문제였을까?",
-      "category": "kakaotalk_signals",
-      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_010_kakaotalk_signals_20260921_115742.webp",
-      "published_at": "2026-09-21 11:58:34",
-      "publish_results": {
-        "topic_id": 10,
-        "channels": {
-          "aura_app": {
-            "status": "success",
-            "feed_post_id": "mag-topic-010",
-            "translations_count": 2,
-            "lounge_url": "https://aura-ai-dating.vercel.app/"
-          },
-          "naver_blog": {
-            "status": "error",
-            "blog_id": "zkfnth01",
-            "message": "Page.click: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"button:has-text('발행')\")\n"
-          },
-          "tistory": {
-            "status": "session_expired",
-            "message": "티스토리 카카오 세션 만료. python brands/aura/aura_tistory_login.py 1회 실행 필요",
-            "blog_name": "aura-magazine"
-          },
-          "brunch": {
-            "status": "success",
-            "platform": "brunch",
-            "title": "그 사람이 답장을 안 하는 이유, 혹시 당신의 '카톡 말투'가 문제였을까?",
-            "post_url": "https://brunch.co.kr",
-            "archive_file": "brunch_draft_topic_010.json"
-          }
-        }
-      }
-    },
-    {
-      "topic_id": 9,
-      "title": "소개팅 전날 카톡, 할까 말까? 분위기 망치지 않는 대화의 온도 조절법",
-      "title_naver": "소개팅 전날 카톡, 할까 말까? 분위기 망치지 않는 대화의 온도 조절법",
-      "title_tistory": "소개팅 전날 카톡 대화 가이드: 첫 인사부터 대화 텀, 주제 선정까지 실전 전략",
-      "title_kakao": "우리 내일 만날까? 설레는 소개팅 전날, 카톡으로 다 망치고 있다면 필독",
-      "category": "kakaotalk_signals",
-      "image_url": "https://ncflciezowwpnknuutko.supabase.co/storage/v1/object/public/aura-media/magazines/aura_topic_009_kakaotalk_signals_20260920_221450.webp",
-      "published_at": "2026-09-20 22:15:58",
-      "publish_results": {
-        "topic_id": 9,
-        "channels": {
-          "aura_app": {
-            "status": "success",
-            "feed_post_id": "mag-topic-009",
-            "translations_count": 2,
-            "lounge_url": "https://aura-ai-dating.vercel.app/"
-          },
-          "naver_blog": {
-            "status": "success",
-            "blog_id": "zkfnth01",
-            "title": "소개팅 전날 카톡, 할까 말까? 분위기 망치지 않는 대화의 온도 조절법",
-            "url": "https://blog.naver.com/PostView.naver?blogId=zkfnth01&Redirect=View&logNo=224418044472&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=12155",
-            "tags": [
-              "소개팅카톡첫대화",
-              "소개팅카톡",
-              "소개팅카톡대화",
-              "소개팅카톡텀",
-              "소개팅카톡주제",
-              "소개팅카톡답장",
-              "소개팅카톡첫인사",
-              "소개팅카톡노잼"
-            ]
-          },
-          "tistory": {
-            "status": "success",
-            "blog_name": "aura-magazine",
-            "title": "소개팅 전날 카톡 대화 가이드: 첫 인사부터 대화 텀, 주제 선정까지 실전 전략",
-            "url": "https://aura-magazine.tistory.com/manage/posts/",
-            "tags": [
-              "소개팅카톡첫대화",
-              "소개팅카톡",
-              "소개팅카톡대화",
-              "소개팅카톡텀",
-              "소개팅카톡주제",
-              "소개팅카톡답장",
-              "소개팅카톡첫인사",
-              "소개팅카톡노잼"
-            ]
-          },
-          "brunch": {
-            "status": "success",
-            "platform": "brunch",
-            "title": "우리 내일 만날까? 설레는 소개팅 전날, 카톡으로 다 망치고 있다면 필독",
-            "post_url": "https://brunch.co.kr",
-            "archive_file": "brunch_draft_topic_009.json"
-          }
-        }
-      }
-    },
-    {
-      "topic_id": 8,
-      "title": "소개팅 카톡 이모티콘 적게 쓰면 비호감? 카톡 말투로 알아보는 상대방 속마음 5가지",
-      "title_naver": "소개팅 카톡 이모티콘 적게 쓰면 비호감? 카톡 말투로 알아보는 상대방 속마음 5가지",
-      "title_tistory": "소개팅 카톡 대화법: 이모티콘 빈도와 물결표(~)로 분석하는 상대방의 호감도 시그널",
-      "title_kakao": "당신과의 카톡, 그 사람이 이모티콘을 쓰지 않는 진짜 이유",
-      "category": "kakaotalk_signals",
-      "image_url": "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=1200&auto=format&fit=crop&q=80",
-      "published_at": "2026-09-20 16:14:17",
-      "publish_results": {
-        "topic_id": 8,
-        "channels": {
-          "aura_app": {
-            "status": "success",
-            "feed_post_id": "mag-8-1789888432",
-            "translations_count": 2,
-            "lounge_url": "https://aura-ai-dating.vercel.app/"
-          },
-          "naver_blog": {
-            "status": "success",
-            "blog_id": "zkfnth01",
-            "title": "소개팅 카톡 이모티콘 적게 쓰면 비호감? 카톡 말투로 알아보는 상대방 속마음 5가지",
-            "url": "https://blog.naver.com/PostView.naver?blogId=zkfnth01&Redirect=View&logNo=224417790777&categoryNo=1&isAfterWrite=true&isMrblogPost=false&isHappyBeanLeverage=true&contentLength=13706",
-            "tags": [
-              "소개팅카톡첫대화",
-              "소개팅카톡",
-              "소개팅카톡대화",
-              "소개팅카톡텀",
-              "소개팅카톡주제",
-              "소개팅카톡답장",
-              "소개팅카톡첫인사",
-              "소개팅카톡노잼"
-            ]
-          },
-          "tistory": {
-            "status": "success",
-            "blog_name": "aura-magazine",
-            "title": "소개팅 카톡 대화법: 이모티콘 빈도와 물결표(~)로 분석하는 상대방의 호감도 시그널",
-            "url": "https://aura-magazine.tistory.com/manage/posts/",
-            "tags": [
-              "소개팅카톡첫대화",
-              "소개팅카톡",
-              "소개팅카톡대화",
-              "소개팅카톡텀",
-              "소개팅카톡주제",
-              "소개팅카톡답장",
-              "소개팅카톡첫인사",
-              "소개팅카톡노잼"
-            ]
-          },
-          "brunch": {
-            "status": "pending_review",
-            "mode": "author_review_pending",
-            "title": "당신과의 카톡, 그 사람이 이모티콘을 쓰지 않는 진짜 이유",
-            "message": "카카오 브런치스토리 작가 심사 승인 대기 중 (신청서 심사 승인 완료 시 즉시 오픈, 현재 전용 원고 보관 완료)",
-            "archive_file": "brunch_draft_topic_008.json"
           }
         }
       }

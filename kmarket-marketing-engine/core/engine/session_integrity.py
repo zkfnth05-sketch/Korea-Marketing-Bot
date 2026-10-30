@@ -1,42 +1,42 @@
 # -*- coding: utf-8 -*-
 """
-[독립 레고 블록] Session Integrity (영구 로그인 무결성 보호막)
+[독립 레고 블록] Session Integrity (영구 로그인 무결성 보호막) v2
 =====================================================================
-풀리는 근본 원인 3가지를 원천 차단한다.
-  1. 로그아웃 상태 쿠키가 정상 세션 파일(*_session.json)을 덮어쓰는 문제
-     -> 인증 쿠키가 '실제로 존재'할 때만 저장(safe_save), 정상본은 별도 백업 유지
-  2. '프로필이 비어있을 때만' 복구하던 조건(익명 쿠키 때문에 복구가 영영 건너뛰어짐)
-     -> 플랫폼별 '인증 쿠키 유무'로 판단(ensure_auth_cookies)
-  3. 로그아웃 화면을 못 알아채던 판정
-     -> 플랫폼별 로그아웃 URL 판정(is_logged_out_url)
-추가: 쿠키 상태 시간별 포렌식 로그(session_integrity_log.jsonl)로 언제 풀렸는지 추적한다.
+v2 개정 (감사 피드백 반영):
+  - AUTH_RULES에 deny(추적 쿠키 구조적 배제) 계층 추가 → TSID/_T_ID 등 오탐 원천 차단
+  - has_auth를 증거 등급(strict/weak) 판정으로 분리, 저장/복원 정책과 결합 해소
+  - safe_save: strict 증거만 저장 / ensure_auth_cookies: weak라도 백업 우선 시도
+  - 24h 무인 가동 안전장치: 타임아웃 상한, 재시도 상한, 백업 실패 폴백, 락, 행 감지
 
 원칙: 이 모듈은 어떤 브랜드/플랫폼 코드에도 의존하지 않는다 (각 퍼블리셔가 호출만 한다).
 """
 
+import asyncio
 import json
 import os
 import shutil
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
-# 플랫폼별 '로그인 됐다'를 증명하는 인증 쿠키 규칙
-#  - all_of: 전부 있어야 함 / any_of: 하나라도 있으면 됨
+# ---------------------------------------------------------------------------
+# 인증 규칙: require(강한 증거) / weak(약한 증거) / deny(구조적 배제)
+#  - deny에 걸린 이름은 require/weak와 겹쳐도 무조건 불인정
+#  - 추적 쿠키(TSID, _T_ID 등)는 deny로 이중 차단
+# ---------------------------------------------------------------------------
 AUTH_RULES: Dict[str, Dict[str, Any]] = {
-    "meta": {"complex": True},  # FB: c_user+xs, IG-only: sessionid (has_auth에서 복합 처리)
-    "tiktok": {"any_of": ["sessionid", "sessionid_ss", "sid_tt"]},
-    "youtube": {"any_of": ["SID", "__Secure-1PSID", "__Secure-3PSID"]},
-    "google": {"any_of": ["SID", "__Secure-1PSID", "__Secure-3PSID"]},
-    "naver": {"all_of": ["NID_AUT", "NID_SES"]},
-    "tistory": {"any_of": ["_kawlt", "TSSESSION", "_T_ID", "TSID"]},
-    "brunch": {"any_of": ["_kawlt", "TSID", "bid", "b_s_a_l", "_maldive_oauth_webapp_session_key"]},
-    "threads": {"any_of": ["sessionid"]},
-    "instagram": {"any_of": ["sessionid"]},
+    "meta": {"complex": True, "deny": ["_T_ID", "TSID"]},
+    "tiktok": {"any_of": ["sessionid", "sessionid_ss", "sid_tt"], "deny": ["ttwid", "msToken"]},
+    "youtube": {"any_of": ["SID", "__Secure-1PSID", "__Secure-3PSID"], "deny": ["VISITOR_INFO1_LIVE"]},
+    "google": {"any_of": ["SID", "__Secure-1PSID", "__Secure-3PSID"], "deny": ["NID"]},
+    "naver": {"all_of": ["NID_AUT", "NID_SES"], "deny": ["NID_JST"]},
+    "tistory": {"any_of": ["TSSESSION", "_kawlt"], "deny": ["TSID", "_T_ID", "_T_ANO"]},
+    "brunch": {"any_of": ["bid", "b_s_a_l", "_maldive_oauth_webapp_session_key"], "deny": ["TSID", "_T_ID", "_T_ANO"]},
+    "threads": {"any_of": ["sessionid"], "deny": ["_T_ID"]},
+    "instagram": {"any_of": ["sessionid"], "deny": ["_T_ID"]},
 }
 
-# 로그아웃(로그인 화면) URL 조각
 LOGGED_OUT_URL_HINTS: Dict[str, List[str]] = {
     "meta": ["facebook.com/login", "/loginpage", "/login/", "checkpoint", "/login.php"],
     "tiktok": ["tiktok.com/login", "/login?", "passport/web/login"],
@@ -49,31 +49,62 @@ LOGGED_OUT_URL_HINTS: Dict[str, List[str]] = {
     "instagram": ["accounts/login", "/login"],
 }
 
+# 24h 무인 가동 안전 상수
+RESTORE_TIMEOUT_SEC = 15.0     # 백업 복원 전체 상한
+INJECT_TIMEOUT_SEC = 3.0       # 쿠키 1개 주입 상한
+MAX_INJECT_RETRY = 2           # 쿠키 1개당 재시도 상한
+LOCK_STALE_SEC = 300           # 락 파일 좀비 판정(5분)
+
 
 def _names(cookies: Iterable[Dict[str, Any]]) -> set:
     return {str(c.get("name")) for c in (cookies or []) if isinstance(c, dict)}
 
 
+def _deny_names(platform: str) -> set:
+    rule = AUTH_RULES.get(platform) or {}
+    return set(rule.get("deny", []) or [])
+
+
 def has_auth(platform: str, cookies: Iterable[Dict[str, Any]]) -> bool:
-    """쿠키 목록에 해당 플랫폼의 로그인 인증 쿠키가 실제로 존재하는가"""
+    """하위 호환: strict 증거 존재 여부"""
+    return auth_grade(platform, cookies) == "strict"
+
+
+def auth_grade(platform: str, cookies: Iterable[Dict[str, Any]]) -> str:
+    """
+    증거 등급 반환: 'strict' | 'weak' | 'none'
+      - deny에 걸린 이름만 있으면 무조건 'none' (구조적 배제)
+      - require 규칙 충족 시 'strict'
+      - deny 아닌 쿠키가 존재하나 require 미충족이면 'weak'
+    """
+    cookies = list(cookies or [])
+    if not cookies:
+        return "none"
+    names = _names(cookies)
+    deny = _deny_names(platform)
+    # deny만 있는 경우 → 인증 증거 아님
+    if deny and names and names.issubset(deny):
+        return "none"
+
     rule = AUTH_RULES.get(platform)
     if not rule:
-        return bool(cookies)
-    names = _names(cookies)
+        return "strict" if cookies else "none"
+
     if platform == "meta":
-        # 페이스북(c_user AND xs) 또는 인스타그램 단독(sessionid) 복합 인증 허용
         has_fb = ("c_user" in names and "xs" in names)
         has_ig = ("sessionid" in names)
-        return has_fb or has_ig
-    if "all_of" in rule and not all(n in names for n in rule["all_of"]):
-        return False
-    if "any_of" in rule and not any(n in names for n in rule["any_of"]):
-        return False
-    return True
+        return "strict" if (has_fb or has_ig) else "weak"
+
+    if "all_of" in rule:
+        if all(n in names for n in rule["all_of"]):
+            return "strict"
+    if "any_of" in rule:
+        if any(n in names for n in rule["any_of"]):
+            return "strict"
+    return "weak"
 
 
 def is_logged_out_url(platform: str, url: str) -> bool:
-    """현재 URL이 로그인 요구 화면인가 (빈 화면/이동 실패도 로그아웃으로 간주)"""
     if not url or url.startswith("about:") or url.startswith("chrome-error"):
         return True
     low = url.lower()
@@ -106,13 +137,42 @@ def _log_path(session_file: Path) -> Path:
     return session_file.parent / "session_integrity_log.jsonl"
 
 
+def _lock_path(session_file: Path) -> Path:
+    return session_file.parent / f".{session_file.stem}.lock"
+
+
+def _acquire_lock(session_file: Path) -> bool:
+    """좀비 락 회수 포함 락 획득 (24h 무인 가동 안전장치)"""
+    lp = _lock_path(session_file)
+    try:
+        lp.parent.mkdir(parents=True, exist_ok=True)
+        if lp.exists():
+            age = time.time() - lp.stat().st_mtime
+            if age > LOCK_STALE_SEC:
+                try:
+                    lp.unlink()
+                except Exception:
+                    pass
+            else:
+                return False
+        lp.write_text(str(os.getpid()), encoding="utf-8")
+        return True
+    except Exception:
+        return False
+
+
+def _release_lock(session_file: Path) -> None:
+    try:
+        _lock_path(session_file).unlink()
+    except Exception:
+        pass
+
+
 def log_event(session_file: Path, platform: str, event: str, **extra: Any) -> None:
-    """쿠키/로그인 상태 변화를 시간별로 기록 (언제 풀렸는지 추적용)"""
     try:
         rec = {"ts": datetime.now().isoformat(timespec="seconds"), "platform": platform, "event": event}
         rec.update(extra)
         lp = _log_path(session_file)
-        # 로그 비대 방지: 2MB 넘으면 절반으로 절단
         if lp.exists() and lp.stat().st_size > 2 * 1024 * 1024:
             lines = lp.read_text(encoding="utf-8").splitlines()
             lp.write_text("\n".join(lines[len(lines) // 2:]) + "\n", encoding="utf-8")
@@ -132,12 +192,16 @@ def _atomic_write(path: Path, cookies: List[Dict[str, Any]]) -> None:
 
 def safe_save(platform: str, session_file: Path, cookies: List[Dict[str, Any]], reason: str = "") -> bool:
     """
-    인증 쿠키가 실제로 있을 때만 세션 파일을 저장하고 '마지막 정상본'을 백업한다.
-    로그아웃 상태 쿠키로는 절대 덮어쓰지 않는다. 저장했으면 True.
+    strict 증거가 있을 때만 저장 + 골든 백업. weak/none은 절대 원본·백업 불변.
     """
     session_file = Path(session_file)
-    if not has_auth(platform, cookies):
-        log_event(session_file, platform, "save_skipped_no_auth", reason=reason, n=len(cookies or []))
+    grade = auth_grade(platform, cookies)
+    if grade != "strict":
+        log_event(session_file, platform, "save_skipped_no_strict_auth",
+                  reason=reason, grade=grade, n=len(cookies or []))
+        return False
+    if not _acquire_lock(session_file):
+        log_event(session_file, platform, "save_skipped_locked", reason=reason)
         return False
     try:
         _atomic_write(session_file, cookies)
@@ -149,10 +213,11 @@ def safe_save(platform: str, session_file: Path, cookies: List[Dict[str, Any]], 
     except Exception as e:
         log_event(session_file, platform, "save_error", error=str(e))
         return False
+    finally:
+        _release_lock(session_file)
 
 
 def sanitize_for_playwright(cookies: Iterable[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Playwright add_cookies 규격 정제 (__Host-/__Secure- 규칙, 만료 쿠키 제거)"""
     now = time.time()
     out: List[Dict[str, Any]] = []
     for c in cookies or []:
@@ -160,7 +225,7 @@ def sanitize_for_playwright(cookies: Iterable[Dict[str, Any]]) -> List[Dict[str,
             continue
         exp = c.get("expires", c.get("expirationDate"))
         if isinstance(exp, (int, float)) and exp > 0 and exp < now:
-            continue  # 이미 만료된 쿠키는 주입하지 않음
+            continue
         name = str(c["name"])
         domain = c.get("domain") or ""
         item: Dict[str, Any] = {"name": name, "value": str(c["value"])}
@@ -193,57 +258,80 @@ def sanitize_for_playwright(cookies: Iterable[Dict[str, Any]]) -> List[Dict[str,
 
 
 def load_best_cookies(platform: str, session_file: Path) -> List[Dict[str, Any]]:
-    """세션 파일 -> (인증쿠키 없으면) 마지막 정상 백업 순으로 쓸 만한 쿠키를 반환"""
+    """strict 우선, 없으면 weak 백업도 반환 (복원 정책은 상위에서 결정)"""
     session_file = Path(session_file)
     cur = _read_cookie_file(session_file)
-    if has_auth(platform, cur):
+    if auth_grade(platform, cur) == "strict":
         return cur
     bak = _read_cookie_file(_backup_path(session_file))
-    if has_auth(platform, bak):
+    if auth_grade(platform, bak) in ("strict", "weak"):
         return bak
     return []
 
 
+async def _inject_one(context: Any, c: Dict[str, Any]) -> bool:
+    for _ in range(MAX_INJECT_RETRY):
+        try:
+            await asyncio.wait_for(context.add_cookies([c]), timeout=INJECT_TIMEOUT_SEC)
+            return True
+        except asyncio.TimeoutError:
+            continue
+        except Exception:
+            return False
+    return False
+
+
 async def ensure_auth_cookies(platform: str, context: Any, session_file: Path) -> Dict[str, Any]:
     """
-    프로필(context)에 인증 쿠키가 있으면 그대로 두고(회전된 최신 쿠키 보호),
-    없을 때만 저장본/정상 백업에서 정제해 주입한다.
-    반환: {"had_auth": bool, "restored": bool, "n_injected": int}
+    strict 증거가 라이브에 있으면 그대로 유지.
+    없으면 백업 우선 시도(weak라도), 타임아웃·재시도 상한·폴백으로 무인 안전 확보.
+    반환: {"had_auth": bool, "restored": bool, "n_injected": int, "grade": str}
     """
     session_file = Path(session_file)
     try:
-        live = await context.cookies()
+        live = await asyncio.wait_for(context.cookies(), timeout=RESTORE_TIMEOUT_SEC)
     except Exception:
         live = []
-    if has_auth(platform, live):
+    grade_live = auth_grade(platform, live)
+    if grade_live == "strict":
         log_event(session_file, platform, "profile_auth_ok", n=len(live))
-        return {"had_auth": True, "restored": False, "n_injected": 0}
+        return {"had_auth": True, "restored": False, "n_injected": 0, "grade": "strict"}
 
     saved = load_best_cookies(platform, session_file)
     if not saved:
         log_event(session_file, platform, "no_auth_anywhere", n_live=len(live))
-        return {"had_auth": False, "restored": False, "n_injected": 0}
+        return {"had_auth": False, "restored": False, "n_injected": 0, "grade": grade_live}
 
-    injected = 0
-    for c in sanitize_for_playwright(saved):
-        try:
-            await context.add_cookies([c])  # 하나씩 주입: 한 개 실패가 전체를 막지 않도록
-            injected += 1
-        except Exception:
-            pass
+    async def _do_restore() -> int:
+        injected = 0
+        for c in sanitize_for_playwright(saved):
+            if await _inject_one(context, c):
+                injected += 1
+        return injected
+
     try:
-        after = await context.cookies()
+        injected = await asyncio.wait_for(_do_restore(), timeout=RESTORE_TIMEOUT_SEC)
+    except asyncio.TimeoutError:
+        log_event(session_file, platform, "restore_timeout")
+        return {"had_auth": False, "restored": False, "n_injected": 0, "grade": grade_live}
+    except Exception as e:
+        log_event(session_file, platform, "restore_error", error=str(e))
+        return {"had_auth": False, "restored": False, "n_injected": 0, "grade": grade_live}
+
+    try:
+        after = await asyncio.wait_for(context.cookies(), timeout=RESTORE_TIMEOUT_SEC)
     except Exception:
         after = []
-    restored = has_auth(platform, after)
-    log_event(session_file, platform, "restored" if restored else "restore_failed", n_injected=injected)
-    return {"had_auth": False, "restored": restored, "n_injected": injected}
+    grade_after = auth_grade(platform, after)
+    restored = grade_after == "strict"
+    log_event(session_file, platform, "restored" if restored else "restore_failed",
+              n_injected=injected, grade=grade_after)
+    return {"had_auth": False, "restored": restored, "n_injected": injected, "grade": grade_after}
 
 
 async def save_if_logged_in(platform: str, context: Any, session_file: Path, reason: str = "") -> bool:
-    """브라우저 종료 직전 호출: 로그인된 상태일 때만 저장"""
     try:
-        cookies = await context.cookies()
+        cookies = await asyncio.wait_for(context.cookies(), timeout=RESTORE_TIMEOUT_SEC)
     except Exception:
         return False
     return safe_save(platform, Path(session_file), cookies, reason=reason)

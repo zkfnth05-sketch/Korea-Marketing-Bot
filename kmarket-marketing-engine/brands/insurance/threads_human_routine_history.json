@@ -298,5 +298,25 @@
     "duration_sec": 601,
     "status": "COMPLETED",
     "ended_at": "2026-10-28T12:55:22.563997"
+  },
+  {
+    "brand": "insurance",
+    "started_at": "2026-10-30T12:45:28.515722",
+    "posts_read": 52,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 608,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-30T12:55:36.921818"
+  },
+  {
+    "brand": "insurance",
+    "started_at": "2026-10-30T16:09:44.332284",
+    "posts_read": 52,
+    "likes_given": 0,
+    "searches_performed": 3,
+    "duration_sec": 602,
+    "status": "COMPLETED",
+    "ended_at": "2026-10-30T16:19:47.108101"
   }
 ]

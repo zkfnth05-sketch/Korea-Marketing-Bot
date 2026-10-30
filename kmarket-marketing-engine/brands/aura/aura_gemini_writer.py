@@ -84,7 +84,8 @@ class AuraGeminiWriter:
                 from google.genai import types as genai_types
                 types = genai_types
 
-                for model_name in ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"]:
+                # 💰 [최저가 텍스트 모델 1순위] gemini-2.5-flash-lite 최우선 호출 ➔ flash ➔ flash-latest 순 롤오버
+                for model_name in ["gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-flash-latest"]:
                     try:
                         response = client.models.generate_content(
                             model=model_name,
@@ -92,7 +93,7 @@ class AuraGeminiWriter:
                             config=genai_types.GenerateContentConfig(
                                 automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True), system_instruction=system_instruction,
                                 temperature=0.75,
-                                max_output_tokens=4096,
+                                max_output_tokens=8192,
                                 response_mime_type="application/json"
                             )
                         )
@@ -229,14 +230,9 @@ class AuraGeminiWriter:
             d_match = re.search(r'"discussion_prompt"\s*:\s*"([^"]+)"', clean_str)
             p_disc = d_match.group(1) if d_match else "Aura 회원 여러분의 생각은 어떠신가요? 아래 댓글로 여러분만의 꿀팁을 남겨주세요!"
             
-            # content_md 정밀 추출 (JSON 전체 덤프 원천 차단)
-            c_match = re.search(r'"content_md"\s*:\s*"(.*?)"\s*\}\s*$', clean_str, re.DOTALL)
-            if not c_match:
-                c_match = re.search(r'"content_md"\s*:\s*"((?:[^"\\]|\\.)*)"', clean_str, re.DOTALL)
-            if c_match:
-                extracted_content = c_match.group(1).encode('utf-8').decode('unicode_escape', errors='replace')
-                extracted_content = extracted_content.replace('\\n', '\n').replace('\\"', '"')
-            else:
+            # 🚀 [본문 3,000자 무결성 정밀 추출기] content_md 시작 따옴표 ➔ 마지막 닫는 따옴표까지 그리디(Greedy) 탐색
+            extracted_content = self._extract_content_md_greedy(clean_str)
+            if not extracted_content:
                 extracted_content = self._generate_fallback_content(topic_title, category_name, aura_feature)
 
             parsed = {
@@ -260,6 +256,11 @@ class AuraGeminiWriter:
             logger.warning("🚨 [AuraGeminiWriter] 본문에 JSON 기계어 유출 감지! 고품질 한국어 칼럼으로 안전 복원합니다.")
             content_md = self._generate_fallback_content(topic_title, category_name, aura_feature)
 
+        # 🛡️ [무결점 글자수 가드] 어떤 경우에도 공백 포함 2,500자 미만으로 떨어지지 않도록 최종 보정
+        if len(content_md.strip()) < 2500:
+            logger.warning(f"⚠️ [AuraGeminiWriter] 본문 글자수 부족({len(content_md.strip())}자 < 2,500자) ➔ 2,800자 고품질 칼럼으로 자동 보강합니다.")
+            content_md = self._generate_fallback_content(topic_title, category_name, aura_feature)
+
         excerpt = parsed.get("excerpt", f"2030 {topic_title} 실전 가이드")
         visual_prompt = parsed.get("visual_prompt", "")
         discussion_prompt = parsed.get("discussion_prompt", "Aura 싱글 여러분의 생각은 어떠신가요? 아래 댓글로 여러분만의 솔직한 생각과 꿀팁을 들려주세요!")
@@ -281,30 +282,101 @@ class AuraGeminiWriter:
             "landing_url": self.LANDING_URL
         }
 
+    def _extract_content_md_greedy(self, raw_text: str) -> str:
+        """
+        🚀 [본문 3,000자 무결성 정밀 추출기]
+        - JSON 파싱이 깨져도 'content_md' 필드의 시작 따옴표부터 마지막 닫는 따옴표까지 그리디(Greedy) 탐색
+        - 이스케이프된 따옴표(\\") 및 줄바꿈(\\n)을 원형 그대로 복원하여 char 1017 절단 버그 원천 차단
+        """
+        if not raw_text:
+            return ""
+
+        key_idx = raw_text.find('"content_md"')
+        if key_idx == -1:
+            return ""
+
+        # 키 이후 첫 번째 콜론 ➔ 첫 번째 시작 따옴표 위치 탐색
+        colon_idx = raw_text.find(':', key_idx)
+        if colon_idx == -1:
+            return ""
+        start_quote = raw_text.find('"', colon_idx)
+        if start_quote == -1:
+            return ""
+
+        body = raw_text[start_quote + 1:]
+
+        # 🎯 그리디 탐색: 마지막 닫는 따옴표(JSON 종료 지점)까지 통째로 확보
+        end_quote = body.rfind('"')
+        if end_quote == -1:
+            # 닫는 따옴표가 아예 없으면(중간 절단) 남은 전체를 본문으로 사용
+            candidate = body
+        else:
+            candidate = body[:end_quote]
+
+        # 🧹 후행 JSON 잔여물(}, ], 공백) 정리
+        candidate = candidate.rstrip()
+        while candidate.endswith(("}", "]", ",", " ")):
+            candidate = candidate[:-1].rstrip()
+
+        # 🔄 이스케이프 복원 (\\n ➔ 실제 줄바꿈, \\" ➔ 큰따옴표, \\\\ ➔ 역슬래시)
+        candidate = candidate.replace("\\\\n", "\n").replace("\\n", "\n")
+        candidate = candidate.replace('\\\\"', '"').replace('\\"', '"')
+        candidate = candidate.replace("\\\\t", "\t").replace("\\t", "\t")
+        candidate = candidate.replace("\\\\/", "/").replace("\\/", "/")
+        candidate = candidate.replace("\\\\", "\\")
+
+        # 🚨 기계어 유출 잔재 제거
+        for junk in ['"title_naver"', '"visual_prompt"', '"discussion_prompt"', '"excerpt"', '"title_tistory"', '"title_kakao"']:
+            if junk in candidate:
+                candidate = candidate.split(junk)[0]
+
+        return candidate.strip()
+
     def _generate_fallback_content(self, topic_title: str, category_name: str, aura_feature: str) -> str:
-        """JSON 파싱 실패 시 기계어 노출을 100% 방지하는 완성형 2,000자 한국어 전문 칼럼"""
-        return f"""매일 똑같은 일상, 바쁘게 돌아가는 하루를 마치고 나면 어느새 찾아오는 여유로운 시간. 우리는 늘 새로운 설렘과 따뜻한 인연을 기대하곤 합니다. 특히 '{topic_title}'에 대한 고민은 2030 세대라면 누구나 한 번쯤 깊이 공감해 보았을 주제입니다.
+        """JSON 파싱 실패 시 기계어 노출을 100% 방지하는 완성형 2,800자+ 고품질 매거진 칼럼 (5대 챕터 구성)"""
+        return f"""바쁜 하루를 마치고 스마트폰 화면을 켜면, 문득 스쳐 가는 생각이 있습니다. '요즘 나는 누군가에게 설레고 있는 걸까, 아니면 그저 외로움에 익숙해진 걸까.' 2030 세대에게 연애는 더 이상 인생의 당연한 코스가 아니라, 스스로 선택하고 관리해야 하는 하나의 '라이프 프로젝트'가 되었습니다. 오늘 '{topic_title}'라는 주제를 붙잡고 {category_name} 카테고리에서 가장 뜨거운 고민들을 하나씩 풀어보려 합니다.
 
-소개팅이나 썸, 연애의 과정에서 가장 중요한 것은 무엇일까요? 바로 상대방의 입장에서 한 번 더 생각해보는 '진정성'과 자연스러운 '센스'입니다. 오늘은 복잡한 고민을 끝내고 실전에서 바로 활용할 수 있는 핵심 꿀팁을 정리해 드립니다.
-
----
-
-### ✨ 1. 첫인상을 결정짓는 대화의 온도 조절법
-첫 만남이나 연락에서 무리하게 과한 멘트를 던지기보다는, 상대방이 편안하게 대답할 수 있는 '열린 질문'을 건네는 것이 좋습니다. 상대방의 프로필이나 최근 관심사를 자연스럽게 언급하며 공감대를 형성하면 어색했던 분위기가 순식간에 부드러워집니다.
-
-### 💡 2. 서두르지 않는 여유, 관계를 진전시키는 타이밍
-호감이 갈수록 마음이 급해지기 쉽지만, 관계는 서서히 온도를 높여갈 때 가장 단단해집니다. 답장 간격에 지나치게 얽매이기보다는, 대화가 오가는 순간의 텐션에 집중해 보세요. 상대방의 호흡에 맞춰주는 배려만으로도 깊은 호감을 이끌어낼 수 있습니다.
-
-### 🍷 3. 실패 없는 데이트 동선과 분위기 연출
-데이트 장소를 고를 때 가장 중요한 것은 '대화에 온전히 집중할 수 있는 환경'입니다. 너무 시끄럽거나 복잡한 곳보다는 은은한 조명과 적당한 소음이 있는 장소를 선택하세요. 동선이 매끄러울수록 두 사람의 대화도 끊기지 않고 자연스럽게 이어집니다.
+특히 최근 2030 데이팅 시장의 가장 큰 변화는 '속도'가 아니라 '밀도'입니다. 만남의 횟수를 늘리는 것보다, 한 번의 만남에서 얼마나 깊은 대화를 나눴는지가 관계의 생존을 결정합니다. 그래서 오늘은 감으로만 넘기던 연애의 순간들을, 실전에서 바로 써먹을 수 있는 구체적인 언어와 동선으로 정리해 드리겠습니다.
 
 ---
 
-### 💑 4. 스마트한 인연 찾기, Aura AI 매칭 솔루션
-나와 가치관과 라이프스타일이 꼭 맞는 사람을 찾고 싶다면, {aura_feature}을 활용해 보세요. 남초 어플의 읽씹과 허위 프로필 걱정 없이, 남녀 50:50 황금 성비 속에서 성사율 높은 진짜 만남을 경험하실 수 있습니다.
+### ✨ 1. 2026 데이팅 트렌드, '스펙'보다 '온도'가 이긴다
+예전에는 학벌, 직업, 연봉 같은 스펙표가 만남의 첫 관문이었다면, 지금은 다릅니다. 상대방이 나와 대화할 때 얼마나 편안해하는지, 즉 '대화의 온도'가 첫 번째 필터가 되었습니다. 실제로 2030 싱글들이 가장 많이 하는 말은 '대화가 잘 통하는 사람'입니다. 이는 곧 감정의 결이 맞는 사람을 찾는다는 뜻이기도 합니다.
+
+그래서 첫 만남에서 절대 해서는 안 되는 것이 '면접형 질문'입니다. '무슨 일 하세요?', '어디 사세요?' 같은 정보 수집형 질문은 상대를 긴장하게 만들 뿐입니다. 대신 '요즘 가장 재미있게 본 콘텐츠가 뭐예요?'처럼 취향과 감정이 드러나는 질문을 던져보세요. 대화의 온도가 순식간에 올라가는 것을 느낄 수 있습니다.
+
+### 💬 2. 상황별 카톡 티키타카 실전 공략 4가지
+**① 첫 카톡, 프로필에서 단서를 찾아라**
+'안녕하세요'로 시작하는 무미건조한 인사는 읽씹의 지름길입니다. 상대 프로필 사진 속 배경, 여행지, 반려동물, 좋아하는 음식 등 구체적인 단서를 하나 골라 언급하세요. '프로필에 있는 그 카페 어디예요? 분위기가 너무 좋아 보여서요'라는 한 문장이 대화의 물꼬를 터줍니다.
+
+**② 답장 텀보다 중요한 건 '대화의 리듬'**
+답장이 늦다고 조급해할 필요는 없습니다. 중요한 것은 내가 답장을 보냈을 때 상대가 다시 이어갈 수 있는 '실마리'를 남기는 것입니다. 질문으로 끝맺고, 상대의 이야기에 최소 한 문장 이상 반응해 주세요. 이 리듬이 세 번 이상 이어지면 관계는 이미 안정 궤도에 들어선 것입니다.
+
+**③ 호감 표현은 '구체성'이 생명이다**
+'예쁘시네요', '멋지세요' 같은 추상적 칭찬은 기억에 남지 않습니다. '오늘 옷 색감이 정말 잘 어울리세요', '말할 때 표정이 참 좋아 보여요'처럼 구체적인 관찰을 담아야 진심으로 전달됩니다. 칭찬은 하루에 한 번, 타이밍을 정확히 잡는 것이 훨씬 효과적입니다.
+
+**④ 애프터 신청은 '선택지'로 건네라**
+'또 만나요'는 상대에게 부담을 줍니다. 대신 '다음에 성수동 쪽 간다면, 제가 아는 조용한 와인바 하나 소개해드리고 싶어요. 언제가 편하세요?'처럼 구체적인 장소와 선택지를 제시하세요. 상대는 거절의 부담 없이 자연스럽게 다음 약속을 잡게 됩니다.
+
+### 🍷 3. 실패 없는 데이트 동선 & 공간 바이블
+좋은 데이트는 '어디를 갔느냐'보다 '어떤 순서로 움직였느냐'로 결정됩니다. 가장 안정적인 코스는 1차에서 대화의 온도를 올리고, 2차에서 감정의 밀도를 높이는 구조입니다.
+
+1차는 너무 조용하지도, 너무 시끄럽지도 않은 공간이 좋습니다. 적당한 소음이 있는 캐주얼 다이닝이나 브런치 카페는 어색한 침묵을 자연스럽게 메워줍니다. 여기서 40~60분 정도 대화를 나누며 상대의 말투와 리듬을 파악하세요.
+
+2차는 반드시 '이동'이 있어야 합니다. 같은 자리에 계속 앉아 있으면 대화 소재가 고갈됩니다. 조용한 와인바, LP바, 작은 전시회, 야경이 보이는 루프탑 등으로 짧게 이동하는 것만으로도 분위기는 완전히 달라집니다. 이때 조명이 은은하고 음악 볼륨이 낮은 곳을 고르는 것이 핵심입니다.
+
+마무리는 아쉬움을 남기는 것이 정답입니다. '오늘 너무 즐거웠어요'라고 말하며 먼저 깔끔하게 마무리하면, 상대는 다음 만남을 자연스럽게 기대하게 됩니다. 길게 늘어지는 것보다 짧고 선명한 마무리가 훨씬 강한 인상을 남깁니다.
+
+### 👔 4. 첫인상 비주얼 밸런스 & 비언어적 애티튜드
+첫 만남에서 상대가 나를 판단하는 시간은 단 3초입니다. 그 3초를 결정하는 것은 화려함이 아니라 '정돈된 균형'입니다. 과한 명품이나 튀는 색보다, 깔끔한 핏과 은은한 향, 정돈된 헤어가 훨씬 강력한 무기입니다.
+
+비언어적 태도도 절대 무시할 수 없습니다. 대화할 때 상대의 눈을 3초 이상 바라보고, 고개를 살짝 끄덕이며 반응해 주세요. 스마트폰은 테이블 위에 엎어두는 것만으로도 '당신에게 집중하고 있다'는 신호가 됩니다. 앉을 때 등받이에 기대지 않고 살짝 앞으로 기울이는 자세는 진심이 전달되는 대표적인 제스처입니다.
+
+### 💑 5. Aura AI 스마트 솔루션 & 에디터 총평
+결국 연애의 성패는 '얼마나 좋은 사람을 만났는가'에서 갈립니다. 아무리 대화법을 익혀도, 나와 결이 맞지 않는 사람과는 오래 갈 수 없습니다. 그래서 필요한 것이 {aura_feature}입니다. Aura는 남초 어플의 읽씹과 허위 프로필, 성비 불균형 문제를 해결하고, 남녀 50:50 황금 성비 속에서 가치관과 라이프스타일이 맞는 상대를 정교하게 매칭합니다.
 
 💡 **Aura 에디터 한 줄 치트키**
-진정한 매력은 꾸며낸 기술이 아니라, 상대방의 이야기에 귀 기울여주는 다정한 태도에서 시작됩니다.
+진정한 매력은 꾸며낸 기술이 아니라, 상대방의 이야기에 귀 기울여주는 다정한 태도에서 시작됩니다. 오늘 배운 네 가지 대화법 중 단 하나만이라도 실전에서 써보세요. 그것만으로도 당신의 연애는 분명히 달라집니다.
 
 네이버에서 '아우라AI데이팅'을 검색해보세요!"""
 

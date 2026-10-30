@@ -170,8 +170,8 @@ class InsuranceBlogEngine:
         cta_html = f"""
 <div style="margin-top: 36px; padding: 22px; background-color: #f8fafc; border-left: 5px solid #0284c7; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
   <p style="font-weight: bold; font-size: 17px; margin: 0 0 8px 0; color: #0f172a;">🛡️ 내 보험 보장 점수, 3분 만에 확인해보세요</p>
-  <p style="font-size: 14px; color: #475569; margin: 0 0 16px 0; line-height: 1.6;">복잡한 보험 약관과 부족한 보장, 보험리밸런스가 객관적으로 진단해 드립니다.</p>
-  <p style="margin: 0;"><a href="{landing_url}" target="_blank" style="display: inline-block; padding: 12px 24px; background-color: #0284c7; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px;">보험리밸런스 무료 진단 시작하기 👉</a></p>
+  <p style="font-size: 14px; color: #475569; margin: 0 0 16px 0; line-height: 1.6;">복잡한 보험 약관과 부족한 보장, 보험 리밸런스가 객관적으로 진단해 드립니다.</p>
+  <p style="margin: 0;"><a href="{landing_url}" target="_blank" style="display: inline-block; padding: 12px 24px; background-color: #0284c7; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px;">보험 리밸런스 무료 진단 시작하기 👉</a></p>
 </div>
 """
         return "".join(html_parts) + cta_html
@@ -194,7 +194,7 @@ class InsuranceBlogEngine:
 
         cat_key = topic["category"]
         seed_topic = topic["title"]
-        app_feature = topic.get("app_feature", "보험리밸런스 AI 보장 분석")
+        app_feature = topic.get("app_feature", "보험 리밸런스 AI 보장 분석")
 
         # 2. 실시간 키워드 추출 및 최신 트렌드 결합
         seo_brief = self.keyword_matrix.build_seo_article_brief(
